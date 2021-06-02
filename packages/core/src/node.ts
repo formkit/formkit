@@ -1,4 +1,4 @@
-import { setify, isNode, unwrapProxy } from './utils'
+import { setify, isNode } from './utils'
 import { usePlugin } from './plugins'
 
 /**
@@ -72,25 +72,10 @@ export interface FormKitConfig {
 }
 
 /**
- * Wrapped configuration values.
- */
-export type FormKitWrappedConfig = {
-  [K in keyof FormKitConfig]: FormKitConfigValue<FormKitConfig[K]>
-}
-
-/**
- * Config values are wrapped as objects to allow for deep linking across nodes.
- */
-export type FormKitConfigValue<T> = {
-  value: T
-}
-
-/**
  * The interface of the a FormKit node's context object. A FormKit node is a
  * proxy of this object.
  */
 export interface FormKitContext<ValueType = void> {
-  __FKConf__: FormKitWrappedConfig
   name: string | symbol
   type: string
   parent: FormKitNode | null
@@ -127,7 +112,6 @@ export interface FormKitChildCallback {
  */
 export type FormKitNode<T = void> = {
   readonly __FKNode__: true
-  __FKConf__: FormKitConfig
   add: (node: FormKitNode) => FormKitNode
   address: FormKitAddress
   config: FormKitConfig
@@ -135,7 +119,7 @@ export type FormKitNode<T = void> = {
   index: number
   name: string
   remove: (node: FormKitNode) => FormKitNode
-  setConfig: (config: FormKitWrappedConfig) => void
+  setConfig: (config: FormKitConfig) => void
   use: (plugin: FormKitPlugin) => FormKitNode
   value: T extends void ? any : T
   walk: (callback: FormKitChildCallback) => void
@@ -212,13 +196,11 @@ function createContext<T extends FormKitOptions>(
   options: T
 ): FormKitContext<TypeOfValue<T>> {
   const type = options.type || 'text'
-  const config = createConfig(options.parent, options.config)
   return {
-    __FKConf__: config,
     name: createName(options, type),
     type,
     parent: options.parent || null,
-    config: unwrapProxy<FormKitConfig>(config),
+    config: createConfig(options.parent, options.config),
     // consider using a proxies to block external modification on these?
     children: setify<FormKitNode>(options.children),
     dependents: setify<FormKitNode>(options.dependents),
@@ -320,15 +302,14 @@ function walkTree(
  * @param  {FormKitNode} node
  * @param  {FormKitContext} context
  * @param  {string} _property
- * @param  {FormKitWrappedConfig} config
+ * @param  {FormKitConfig} config
  */
 function setConfig(
   node: FormKitNode,
   context: FormKitContext,
-  config: FormKitWrappedConfig
+  config: FormKitConfig
 ) {
-  context.__FKConf__ = { ...config }
-  context.config = unwrapProxy(context.__FKConf__)
+  context.config = config
   node.walk((n) => n.setConfig(config))
 }
 
@@ -428,7 +409,7 @@ function setParent(
       child.parent.remove(child)
     }
     context.parent = parent
-    child.setConfig(parent.__FKConf__)
+    child.setConfig(parent.config)
     if (!parent.children.has(child)) {
       parent.add(child)
     }
@@ -450,44 +431,17 @@ function setParent(
 function createConfig(
   parent?: FormKitNode | null,
   configOptions?: Partial<FormKitConfig>
-): FormKitWrappedConfig {
+): FormKitConfig {
   if (parent && !configOptions) {
-    return parent.__FKConf__
+    return parent.config
   }
   if (parent && configOptions) {
-    return {
-      ...parent.__FKConf__,
-      ...createValues(configOptions),
-    }
+    return Object.assign(parent.config, configOptions)
   }
   return {
-    delimiter: createValue('.'),
-    ...(configOptions ? createValues(configOptions) : {}),
+    delimiter: '.',
+    ...configOptions,
   }
-}
-
-/**
- * Creates an object-wrapped configuration value.
- * @param  {T} value
- * @returns FormKitConfigValue
- */
-function createValue<T>(value: T): FormKitConfigValue<T> {
-  return { value }
-}
-
-/**
- * Wrap an object of values appropriately.
- * @param  {Partial<FormKitConfig>} options
- * @returns Partial
- */
-function createValues(
-  configOptions: Partial<FormKitConfig>
-): Partial<FormKitWrappedConfig> {
-  return Object.keys(configOptions).reduce(
-    (options, option) =>
-      Object.assign(options, { [option]: createValue(configOptions[option]) }),
-    {}
-  )
 }
 
 /**

@@ -6,9 +6,9 @@ export default function validation(node)
 }
 
 
-createNode({
-  plugins: [validation]
-})
+const child = createNode()
+
+
 
 createNode()
   .use(validation)

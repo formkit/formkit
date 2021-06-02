@@ -20,6 +20,35 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
+  it('allows configuration to flow up to parents', () => {
+    const email = createNode({ name: 'email' })
+    const node = createNode({
+      config: {
+        delimiter: '#',
+      },
+      children: [email],
+    })
+    email.config.delimiter = '$'
+    expect(node.config.delimiter).toBe('$')
+  })
+
+  it('changes a child’s config when moving between trees', () => {
+    const email = createNode({ name: 'email' })
+    createNode({
+      config: {
+        delimiter: '#',
+      },
+      children: [email],
+    })
+    const parentB = createNode({
+      config: {
+        delimiter: '|',
+      },
+    })
+    parentB.add(email)
+    expect(email.config.delimiter).toBe('|')
+  })
+
   it('always has an __FKNode__ trap property', () => {
     const node = createNode()
     expect(node.__FKNode__).toBe(true)
