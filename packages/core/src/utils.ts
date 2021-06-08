@@ -18,6 +18,21 @@ export function setify<T>(items: Set<T> | T[] | null | undefined): Set<T> {
 }
 
 /**
+ * Given 2 arrays, return them as a combined array with no duplicates.
+ * @param  {T} arr1
+ * @param  {X} arr2
+ * @returns any[]
+ */
+export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
+  arr1: T,
+  arr2?: X
+): any[] {
+  const original = arr1 instanceof Set ? arr1 : new Set(arr1)
+  if (arr2) arr2.forEach((item: any) => original.add(item))
+  return [...original]
+}
+
+/**
  * Determine if a given object is a node
  */
 export function isNode(node: any): node is FormKitNode {

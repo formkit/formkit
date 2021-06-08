@@ -67,7 +67,7 @@ describe('node', () => {
       type: 'group',
       children: [createNode({ type: 'email' })],
     })
-    expect(group.children.size).toBe(1)
+    expect(group.children.length).toBe(1)
     expect(group.children.values().next().value.parent).toBe(group)
   })
 
@@ -85,7 +85,7 @@ describe('node', () => {
     const el2 = createNode({ type: 'bar' })
     group.add(el).add(el2)
     group.remove(el)
-    expect(group.children.size).toBe(1)
+    expect(group.children.length).toBe(1)
     expect(el.parent).toBeNull()
   })
 
@@ -98,9 +98,9 @@ describe('node', () => {
       children: [createNode()],
     })
     groupB.add(el)
-    expect(groupA.children.size).toBe(1)
-    expect(groupB.children.size).toBe(2)
-    expect(groupB.children.has(el)).toBeTruthy()
+    expect(groupA.children.length).toBe(1)
+    expect(groupB.children.length).toBe(2)
+    expect(groupB.children.includes(el)).toBeTruthy()
     expect(el.parent).toBe(groupB)
   })
 
@@ -113,16 +113,16 @@ describe('node', () => {
       children: [createNode()],
     })
     el.parent = groupB
-    expect(groupA.children.size).toBe(1)
-    expect(groupB.children.size).toBe(2)
-    expect(groupB.children.has(el)).toBeTruthy()
+    expect(groupA.children.length).toBe(1)
+    expect(groupB.children.length).toBe(2)
+    expect(groupB.children.includes(el)).toBeTruthy()
     expect(el.parent).toBe(groupB)
   })
 
   it('allows a node to be created with a parent', () => {
     const parent = createNode({ children: [createNode()] })
     const child = createNode({ parent })
-    expect(parent.children.size).toBe(2)
+    expect(parent.children.length).toBe(2)
     expect(child.parent).toBe(parent)
   })
 

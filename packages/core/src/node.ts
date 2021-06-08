@@ -1,4 +1,4 @@
-import { setify, isNode } from './utils'
+import { setify, isNode, dedupe } from './utils'
 import { usePlugin } from './plugins'
 
 /**
@@ -80,7 +80,7 @@ export interface FormKitContext<ValueType = void> {
   type: string
   parent: FormKitNode | null
   config: FormKitConfig
-  children: Set<FormKitNode>
+  children: Array<FormKitNode>
   dependents: Set<FormKitNode>
   plugins: Set<FormKitPlugin>
   value: ValueType extends void ? any : ValueType
@@ -202,7 +202,7 @@ function createContext<T extends FormKitOptions>(
     parent: options.parent || null,
     config: createConfig(options.parent, options.config),
     // consider using a proxies to block external modification on these?
-    children: setify<FormKitNode>(options.children),
+    children: dedupe(options.children || []),
     dependents: setify<FormKitNode>(options.dependents),
     plugins: setify<FormKitPlugin>(options.plugins),
     traps: createTraps(),
@@ -245,7 +245,9 @@ function addChild(
   if (child.parent && child.parent !== node) {
     child.parent.remove(child)
   }
-  context.children.add(child)
+  if (!context.children.includes(child)) {
+    context.children.push(child)
+  }
   child.parent = node
   return node
 }
@@ -261,7 +263,9 @@ function removeChild(
   context: FormKitContext,
   child: FormKitNode
 ) {
-  if (context.children.delete(child)) {
+  const childIndex = context.children.indexOf(child)
+  if (childIndex !== -1) {
+    context.children.splice(childIndex, 1)
     child.parent = null
   }
   return node
@@ -327,7 +331,7 @@ function setIndex(
   setIndex: number
 ) {
   if (isNode(node.parent)) {
-    const children = [...node.parent.children]
+    const children = node.parent.children
     let index =
       setIndex >= children.length
         ? children.length - 1
@@ -338,7 +342,7 @@ function setIndex(
     if (oldIndex === -1) return false
     children.splice(oldIndex, 1)
     children.splice(index, 0, node)
-    node.parent.children = new Set(children)
+    node.parent.children = children
     return true
   }
   return false
@@ -410,7 +414,7 @@ function setParent(
     }
     context.parent = parent
     child.setConfig(parent.config)
-    if (!parent.children.has(child)) {
+    if (!parent.children.includes(child)) {
       parent.add(child)
     }
     return true
