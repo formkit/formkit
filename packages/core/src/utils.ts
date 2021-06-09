@@ -1,6 +1,11 @@
 import { FormKitNode } from './node'
 
 /**
+ * Breadth and Depth first searches can use a callback of this notation.
+ */
+export type FormKitSearchFunction = (node: FormKitNode) => boolean
+
+/**
  * Generates a random string.
  * @returns string
  */
@@ -40,25 +45,26 @@ export function isNode(node: any): node is FormKitNode {
 }
 
 /**
- * Wraps any object in a proxy with { value } wrappers.
- * @param  {any} target
- * @returns T
+ * Perform a breadth-first-search on a node subtree and locate the first
+ * instance of a match.
+ * @param  {FormKitNode} node
+ * @param  {FormKitNode} name
+ * @returns FormKitNode
  */
-export function unwrapProxy<T>(target: any): T {
-  return new Proxy(target, {
-    get(...args) {
-      const val = Reflect.get(...args)
-      return val.value
-    },
-    set(...args) {
-      const [, property, newValue] = args
-      const prop = Reflect.get(args[0], args[1], args[3])
-      if (prop && prop.value) {
-        target[property].value = newValue
-        return true
-      } else {
-      }
-      return Reflect.set(args[0], args[1], { value: args[2] }, args[3])
-    },
-  })
+export function bfs(
+  tree: FormKitNode,
+  searchValue: string | number,
+  searchGoal: keyof FormKitNode | FormKitSearchFunction = 'name'
+): FormKitNode | undefined {
+  const search =
+    typeof searchGoal === 'string'
+      ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
+      : searchGoal
+  const stack = [tree]
+  while (stack.length) {
+    const node = stack.shift()!
+    if (search(node)) return node
+    stack.push(...node.children)
+  }
+  return undefined
 }

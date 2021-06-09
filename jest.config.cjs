@@ -8,7 +8,7 @@ module.exports = {
   testMatch: ['<rootDir>/packages/**/__tests__/**/*spec.[jt]s?(x)'],
   globals: {
     'ts-jest': {
-      useESM: true,
+      useESM: true
     },
   },
 };

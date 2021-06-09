@@ -1,4 +1,4 @@
-import { setify, isNode, dedupe } from './utils'
+import { setify, isNode, dedupe, bfs, FormKitSearchFunction } from './utils'
 import { usePlugin } from './plugins'
 
 /**
@@ -22,7 +22,7 @@ export interface FormKitTrap {
 /**
  * Describes the path to a particular node from the top of the tree.
  */
-type FormKitAddress = string[]
+type FormKitAddress = Array<string | number>
 
 /**
  * Determines if the 'value' property of an object has been set.
@@ -67,7 +67,7 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
  * by all children — they are not reactive.
  */
 export interface FormKitConfig {
-  delimiter: string | false
+  delimiter: string
   [index: string]: any
 }
 
@@ -113,12 +113,18 @@ export interface FormKitChildCallback {
 export type FormKitNode<T = void> = {
   readonly __FKNode__: true
   add: (node: FormKitNode) => FormKitNode
+  at: (address: FormKitAddress | string) => FormKitNode | undefined
   address: FormKitAddress
   config: FormKitConfig
   each: (callback: FormKitChildCallback) => void
+  find: (
+    selector: string,
+    searcher?: keyof FormKitNode | FormKitSearchFunction
+  ) => FormKitNode | undefined
   index: number
   name: string
   remove: (node: FormKitNode) => FormKitNode
+  root: FormKitNode
   setConfig: (config: FormKitConfig) => void
   use: (plugin: FormKitPlugin) => FormKitNode
   value: T extends void ? any : T
@@ -146,12 +152,14 @@ const invalidSetter = (): never => {
 const nodeTraps = {
   add: trap(addChild),
   address: trap(getAddress, invalidSetter, false),
-  // at: trap(getNode),
+  at: trap(getNode),
   config: trap(false, invalidSetter),
   index: trap(getIndex, setIndex, false),
   each: trap(eachChild),
+  find: trap(find),
   parent: trap(false, setParent),
   remove: trap(removeChild),
+  root: trap(getRoot, invalidSetter, false),
   setConfig: trap(setConfig),
   use: trap(usePlugin),
   name: trap(getName, false, false),
@@ -386,13 +394,95 @@ function getAddress(
  * @param  {string|FormKitAddress} location
  * @returns FormKitNode
  */
-// function getNode(
-//   node: FormKitNode,
-//   _context: FormKitContext,
-//   locator: string | FormKitAddress
-// ): FormKitNode | false {
-//   const address = typeof locator === 'string' && node.config
-// }
+function getNode(
+  node: FormKitNode,
+  _context: FormKitContext,
+  locator: string | FormKitAddress
+): FormKitNode | undefined {
+  const address =
+    typeof locator === 'string' ? locator.split(node.config.delimiter) : locator
+  if (!address.length) return undefined
+  const first = address[0]
+  let pointer: FormKitNode | null | undefined = node.parent
+  if (!pointer) {
+    // This address names the root node, remove it to get child name:
+    if (String(address[0]) === String(node.name)) address.shift()
+    // All root nodes start at themselves ultimately:
+    pointer = node
+  }
+  // Any addresses starting with $parent should discard it
+  if (first === '$parent') address.shift()
+  while (pointer && address.length) {
+    const name = address.shift() as string | number
+    switch (name) {
+      case '$root':
+        pointer = node.root
+        break
+      case '$parent':
+        pointer = pointer.parent
+        break
+      case '$self':
+        pointer = node
+        break
+      default:
+        pointer =
+          pointer.children.find((c) => String(c.name) === String(name)) ||
+          select(pointer, name)
+    }
+  }
+  return pointer || undefined
+}
+
+/**
+ * Perform selections on a subtree using the address "selector" methods.
+ * @param  {FormKitNode} node
+ * @param  {string|number} selector
+ * @returns FormKitNode | undefined
+ */
+function select(
+  node: FormKitNode,
+  selector: string | number
+): FormKitNode | undefined {
+  const matches = String(selector).match(/^(find)\((.*)\)$/)
+  if (matches) {
+    const [, action, argStr] = matches
+    const args = argStr.split(',').map((arg) => arg.trim())
+    switch (action) {
+      case 'find':
+        return node.find(args[0], args[1] as keyof FormKitNode)
+      default:
+        return undefined
+    }
+  }
+  return undefined
+}
+
+/**
+ * Perform a breadth first search and return the first instance of a node that
+ * is found in the subtree or undefined.
+ * @param  {FormKitNode} node
+ * @param  {string} name
+ * @returns FormKitNode | undefined
+ */
+function find(
+  node: FormKitNode,
+  _context: FormKitContext,
+  searchTerm: string,
+  searcher: keyof FormKitNode | FormKitSearchFunction
+): FormKitNode | undefined {
+  return bfs(node, searchTerm, searcher)
+}
+
+/**
+ * Get the root node of the tree.
+ */
+function getRoot(n: FormKitNode) {
+  let node = n
+  while (node.parent) {
+    node = node.parent
+  }
+  return node
+}
 
 /**
  * The setter for node.parent = FormKitNode

@@ -1,5 +1,6 @@
 import createNode, { resetCount, useIndex } from '../src/node'
 import { token } from '../src/utils'
+import { createTicketTree } from '../../../.jest/helpers'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -18,6 +19,14 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('#')
     node.config.delimiter = '$'
     expect(email.config.delimiter).toBe('$')
+  })
+
+  it('does not allow the same child multiple times', () => {
+    const email = createNode({ name: 'email' })
+    const parent = createNode({ name: 'parent' })
+    parent.add(email)
+    parent.add(email)
+    expect(parent.children.length).toBe(1)
   })
 
   it('allows configuration to flow up to parents', () => {
@@ -153,6 +162,22 @@ describe('node', () => {
     expect(children[3]).toBe(moveMe)
   })
 
+  it('can always reference the root', () => {
+    const nestedChild = createNode()
+    const parent = createNode()
+    const L1 = createNode({
+      children: [
+        createNode({}),
+        createNode({}),
+        createNode({
+          children: [nestedChild],
+        }),
+      ],
+    })
+    parent.add(L1)
+    expect(nestedChild.root).toBe(parent)
+  })
+
   it('can fetch a nested node’s address', () => {
     const email = createNode({ name: 'email' })
     createNode({
@@ -183,33 +208,86 @@ describe('node', () => {
     expect(email.address).toEqual(['differentForm', 'email'])
   })
 
-  // it('allows node access using absolute path', () => {
-  //   const insta = createNode({ name: 'insta' })
-  //   const parent = createNode({
-  //     name: 'form',
-  //     children: [
-  //       createNode({ name: 'username' }),
-  //       createNode({ name: 'password' }),
-  //       createNode({
-  //         name: 'social',
-  //         type: 'group',
-  //         children: [
-  //           createNode({
-  //               type: 'wrap',
-  //               name: useIndex,
-  //               children: [
-  //                 createNode({ name: 'twit' }),
-  //                 insta,
-  //                 createNode({ name: 'face' }),
-  //               ]
-  //           })
-  //         ],
-  //       }),
-  //       createNode({ name: 'submit' }),
-  //     ],
-  //   })
-  //   expect(parent.at(['form.social.0.insta'])).toBe(insta)
-  // })
+  it('allows node traversal using path', () => {
+    const insta = createNode({ name: 'insta' })
+    const password = createNode({ name: 'password' })
+    const parent = createNode({
+      name: 'form',
+      children: [
+        createNode({ name: 'username' }),
+        password,
+        createNode({
+          name: 'social',
+          type: 'group',
+          children: [
+            createNode({
+              type: 'wrap',
+              name: useIndex,
+              children: [
+                createNode({ name: 'twit' }),
+                insta,
+                createNode({ name: 'face' }),
+              ],
+            }),
+            createNode({
+              type: 'wrap',
+              name: useIndex,
+              children: [
+                createNode({ name: 'twit' }),
+                createNode({ name: 'insta', value: 456 }),
+                createNode({ name: 'face' }),
+              ],
+            }),
+          ],
+        }),
+        createNode({ name: 'submit' }),
+      ],
+    })
+    expect(parent.at('social.0.insta')).toBe(insta)
+    expect(parent.at('form.social.0.insta')).toBe(insta)
+    expect(parent.at(['password'])).toBe(password)
+    expect(parent.at(['social', 1, 'insta'])?.value).toBe(456)
+    expect(parent.at(insta.address)).toBe(insta)
+  })
+
+  it('uses the $root keyword to allow root access via address', () => {
+    const [parent, nestedChild] = createTicketTree()
+    expect(nestedChild.at('$root')).toBe(parent)
+  })
+
+  it('uses the $parent keyword to allow address backtracking', () => {
+    const [, nestedChild] = createTicketTree()
+    expect(nestedChild.at('$parent.$parent.0.price')?.value).toBe(499)
+  })
+
+  it('removes the first $parent of any address', () => {
+    const [root] = createTicketTree()
+    const email = root.at('email')
+    expect(email?.at('$parent.password')).toBe(email?.at('password'))
+  })
+
+  it('can reference $self and $self children', () => {
+    const [root] = createTicketTree()
+    const tickets = root.at('tickets')
+    expect(tickets?.at('$self.0.price')?.value).toBe(499)
+  })
+
+  it('can find a node in a subtree by name', () => {
+    const [root, nestedChild] = createTicketTree()
+    expect(root.find('seat')).toBe(nestedChild)
+  })
+
+  it('can find a node in a subtree by name via address', () => {
+    const [root, nestedChild] = createTicketTree()
+    expect(root.at(['find(seat)'])).toBe(nestedChild)
+  })
+
+  it('can find a node in a subtree by type', () => {
+    const [root, nestedChild] = createTicketTree()
+    const row = nestedChild.at('$parent.$parent.find(select, type)')
+    expect(row).toBeTruthy()
+    expect(row).toBe(root.at('tickets.0.row'))
+  })
 })
 
 // it('allows plugins to run on node creation', () => {
