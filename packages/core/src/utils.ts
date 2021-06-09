@@ -3,7 +3,10 @@ import { FormKitNode } from './node'
 /**
  * Breadth and Depth first searches can use a callback of this notation.
  */
-export type FormKitSearchFunction = (node: FormKitNode) => boolean
+export type FormKitSearchFunction = (
+  node: FormKitNode,
+  searchTerm?: string | number
+) => boolean
 
 /**
  * Generates a random string.
@@ -56,14 +59,14 @@ export function bfs(
   searchValue: string | number,
   searchGoal: keyof FormKitNode | FormKitSearchFunction = 'name'
 ): FormKitNode | undefined {
-  const search =
+  const search: FormKitSearchFunction =
     typeof searchGoal === 'string'
       ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
       : searchGoal
   const stack = [tree]
   while (stack.length) {
     const node = stack.shift()!
-    if (search(node)) return node
+    if (search(node, searchValue)) return node
     stack.push(...node.children)
   }
   return undefined
