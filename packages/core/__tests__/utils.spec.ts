@@ -9,7 +9,7 @@ describe('bfs', () => {
     expect(bfs(parent, 'tommy')).toBe(parent)
   })
 
-  it('searches the parent node first', () => {
+  it('searches for a name in the children', () => {
     const parent = createNameTree()
     expect(bfs(parent, 'wendy')).toBe(parent.at('wendy'))
   })
