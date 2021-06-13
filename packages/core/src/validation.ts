@@ -1,14 +1,11 @@
-import createNode from "./node"
+// import createNode from "./node"
 
-export default function validation(node)
-{
-  node.preCommit((node, next) => )
-}
+// export default function validation(node)
+// {
+//   node.preCommit((node, next) => )
+// }
 
+// const child = createNode()
 
-const child = createNode()
-
-
-
-createNode()
-  .use(validation)
+// createNode()
+//   .use(validation)
