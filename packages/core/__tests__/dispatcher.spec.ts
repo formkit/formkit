@@ -77,4 +77,14 @@ describe('dispatcher', () => {
     dispatcher.use((payload, next) => next(`, ${payload}`))
     expect(dispatcher.run('hello')).toEqual('Justin, hello world')
   })
+
+  it('can remove middleware from dispatcher', () => {
+    const dispatcher = createDispatcher<string>()
+    const middleware: FormKitMiddleware<string> = (value, next) =>
+      next(`${value}.`)
+    dispatcher.use(middleware)
+    expect(dispatcher.run('hello world')).toBe('hello world.')
+    dispatcher.remove(middleware)
+    expect(dispatcher.run('hello world')).toBe('hello world')
+  })
 })
