@@ -1,6 +1,12 @@
 export type FormKitMiddleware<T> = (payload: T, next: (payload?: T) => T) => T
 
-export default function createDispatcher<T>() {
+export interface FormKitDispatcher<T> {
+  use: (dispatchable: FormKitMiddleware<T>) => number
+  remove: (dispatchable: FormKitMiddleware<T>) => void
+  run: (payload: T) => T
+}
+
+export default function createDispatcher<T>(): FormKitDispatcher<T> {
   const middleware: FormKitMiddleware<T>[] = []
   let currentIndex = 0
   const run = (payload: T): T => {

@@ -1,3 +1,4 @@
+import createDispatcher, { FormKitDispatcher } from './dispatcher'
 import { setify, isNode, dedupe, bfs, FormKitSearchFunction } from './utils'
 
 /**
@@ -6,6 +7,13 @@ import { setify, isNode, dedupe, bfs, FormKitSearchFunction } from './utils'
  */
 export interface FormKitPlugin {
   (node: FormKitNode): void | boolean
+}
+
+/**
+ * The available hooks for middleware.
+ */
+export interface FormKitHooks {
+  init: FormKitDispatcher<FormKitNode>
 }
 
 /**
@@ -75,22 +83,26 @@ export interface FormKitConfig {
  * proxy of this object.
  */
 export interface FormKitContext<ValueType = void> {
-  name: string | symbol
-  type: string
-  parent: FormKitNode | null
-  config: FormKitConfig
   children: Array<FormKitNode>
+  config: FormKitConfig
   dependents: Set<FormKitNode>
+  hook: FormKitHooks
+  name: string | symbol
+  parent: FormKitNode | null
   plugins: Set<FormKitPlugin>
-  value: ValueType extends void ? any : ValueType
   traps: FormKitTraps
+  type: string
+  value: ValueType extends void ? any : ValueType
 }
 
 /**
  * Options that can be used to instantiate a new node via createNode()
  */
 export type FormKitOptions = Partial<
-  Omit<FormKitContext, 'children' | 'dependents' | 'plugins' | 'config'> & {
+  Omit<
+    FormKitContext,
+    'children' | 'dependents' | 'plugins' | 'config' | 'hook'
+  > & {
     config: Partial<FormKitConfig>
     children: FormKitNode[] | Set<FormKitNode>
     dependents: FormKitNode[] | Set<FormKitNode>
@@ -207,15 +219,17 @@ function createContext<T extends FormKitOptions>(
 ): FormKitContext<TypeOfValue<T>> {
   const type = options.type || 'text'
   return {
-    name: createName(options, type),
-    type,
-    parent: options.parent || null,
-    config: createConfig(options.parent, options.config),
-    // consider using a proxies to block external modification on these?
     children: dedupe(options.children || []),
+    config: createConfig(options.parent, options.config),
     dependents: setify<FormKitNode>(options.dependents),
+    name: createName(options, type),
+    hook: {
+      init: createDispatcher<FormKitNode>(),
+    },
+    parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
     traps: createTraps(),
+    type,
     value: options.value || '',
   }
 }
@@ -585,7 +599,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   }
   // If the options has plugins, we apply
   options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
-  return node
+  return node.hook.init.run(node)
 }
 
 /**
