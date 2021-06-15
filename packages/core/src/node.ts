@@ -1,5 +1,4 @@
 import { setify, isNode, dedupe, bfs, FormKitSearchFunction } from './utils'
-import { usePlugin } from './plugins'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -126,7 +125,9 @@ export type FormKitNode<T = void> = {
   remove: (node: FormKitNode) => FormKitNode
   root: FormKitNode
   setConfig: (config: FormKitConfig) => void
-  use: (plugin: FormKitPlugin) => FormKitNode
+  use: (
+    plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
+  ) => FormKitNode
   value: T extends void ? any : T
   walk: (callback: FormKitChildCallback) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
@@ -158,10 +159,11 @@ const nodeTraps = {
   each: trap(eachChild),
   find: trap(find),
   parent: trap(false, setParent),
+  plugins: trap(false, invalidSetter),
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
   setConfig: trap(setConfig),
-  use: trap(usePlugin),
+  use: trap(use),
   name: trap(getName, false, false),
   walk: trap(walkTree),
 }
@@ -212,7 +214,7 @@ function createContext<T extends FormKitOptions>(
     // consider using a proxies to block external modification on these?
     children: dedupe(options.children || []),
     dependents: setify<FormKitNode>(options.dependents),
-    plugins: setify<FormKitPlugin>(options.plugins),
+    plugins: new Set<FormKitPlugin>(),
     traps: createTraps(),
     value: options.value || '',
   }
@@ -246,18 +248,22 @@ function createName(options: FormKitOptions, type: string): string | symbol {
  * @param  {FormKitNode} child
  */
 function addChild(
-  node: FormKitNode,
-  context: FormKitContext,
+  parent: FormKitNode,
+  parentContext: FormKitContext,
   child: FormKitNode
 ) {
-  if (child.parent && child.parent !== node) {
+  if (child.parent && child.parent !== parent) {
     child.parent.remove(child)
   }
-  if (!context.children.includes(child)) {
-    context.children.push(child)
+  if (!parentContext.children.includes(child)) {
+    parentContext.children.push(child)
   }
-  child.parent = node
-  return node
+  if (child.parent !== parent) {
+    child.parent = parent
+  } else {
+    child.use(parent.plugins)
+  }
+  return parent
 }
 
 /**
@@ -323,6 +329,31 @@ function setConfig(
 ) {
   context.config = config
   node.walk((n) => n.setConfig(config))
+}
+
+/**
+ * Adds a plugin to the node, it’s children, and executes it.
+ * @param  {FormKitContext} context
+ * @param  {FormKitNode} node
+ * @param  {FormKitPlugin} plugin
+ */
+export function use(
+  node: FormKitNode,
+  context: FormKitContext,
+  plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
+) {
+  if (Array.isArray(plugin) || plugin instanceof Set) {
+    plugin.forEach((p: FormKitPlugin) => use(node, context, p))
+    return node
+  }
+  if (!context.plugins.has(plugin)) {
+    context.plugins.add(plugin)
+    if (plugin(node) !== false) {
+      // If a plugin returns `false` it does not descend to children
+      node.children.forEach((child) => child.use(plugin))
+    }
+  }
+  return node
 }
 
 /**
@@ -504,9 +535,9 @@ function setParent(
     }
     context.parent = parent
     child.setConfig(parent.config)
-    if (!parent.children.includes(child)) {
-      parent.add(child)
-    }
+    !parent.children.includes(child)
+      ? parent.add(child)
+      : child.use(parent.plugins)
     return true
   }
   if (parent === null) {
@@ -543,7 +574,7 @@ function createConfig(
  * @param  {FormKitNode} node
  * @returns FormKitNode
  */
-function nodeInit(node: FormKitNode): FormKitNode {
+function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Apply the parent to each child.
   node.each((child) => {
     child.parent = node
@@ -552,6 +583,8 @@ function nodeInit(node: FormKitNode): FormKitNode {
   if (node.parent) {
     node.parent.add(node)
   }
+  // If the options has plugins, we apply
+  options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
   return node
 }
 
@@ -584,5 +617,5 @@ export default function createNode<T extends FormKitOptions>(
       return Reflect.set(...args)
     },
   }) as unknown as FormKitNode<TypeOfValue<T>>
-  return nodeInit(node)
+  return nodeInit(node, options)
 }

@@ -1,6 +1,7 @@
 import createNode, { resetCount, useIndex } from '../src/node'
 import { token } from '../src/utils'
 import { createTicketTree } from '../../../.jest/helpers'
+import { jest } from '@jest/globals'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -290,9 +291,85 @@ describe('node', () => {
   })
 })
 
-// it('allows plugins to run on node creation', () => {
-//   const plugin = jest.fn()
-//   const node = createNode({
-//     plugins: [plugin],
-//   })
-// })
+describe('plugin system', () => {
+  it('runs plugins on node creation', () => {
+    const plugin = jest.fn(() => {})
+    const node = createNode({
+      plugins: [plugin],
+    })
+    expect(plugin).toHaveBeenLastCalledWith(node)
+  })
+
+  it('automatically inherits from parent plugins', () => {
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
+    const parent = createNode({
+      plugins: [pluginA],
+    })
+    const child = createNode({
+      parent,
+      plugins: [pluginB],
+    })
+    expect(pluginB).toBeCalledTimes(1)
+    expect(pluginA).toBeCalledTimes(2)
+    expect(pluginB).toHaveBeenCalledWith(child)
+    expect(pluginA).toHaveBeenNthCalledWith(2, child)
+  })
+
+  it('runs inherited plugins when being added to a tree', () => {
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
+    createNode({
+      plugins: [pluginA],
+      children: [
+        createNode(),
+        createNode({ plugins: [pluginB] }),
+        createNode(),
+      ],
+    })
+    expect(pluginA).toBeCalledTimes(4)
+    expect(pluginB).toBeCalledTimes(1)
+  })
+
+  it('inherits the plugins when moving between trees', () => {
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
+    const treeA = createNode({
+      plugins: [pluginA],
+    })
+    const treeB = createNode({
+      plugins: [pluginB],
+    })
+    const child = createNode({ parent: treeA })
+    expect(pluginA).toHaveBeenCalledTimes(2)
+    child.parent = treeB
+    expect(pluginB).toHaveBeenCalledTimes(2)
+    expect(child.plugins).toEqual(new Set([pluginA, pluginB]))
+  })
+
+  it('does not re-run plugins when moving position in tree', () => {
+    const pluginA = jest.fn(() => {})
+    const child = createNode()
+    const treeA = createNode({
+      plugins: [pluginA],
+      children: [
+        createNode(),
+        createNode({
+          name: 'group',
+          children: [createNode()],
+        }),
+        child,
+      ],
+    })
+    expect(pluginA).toHaveBeenCalledTimes(5)
+    treeA.at('group')?.add(child)
+    expect(pluginA).toHaveBeenCalledTimes(5)
+  })
+
+  it('throws an exception if you try to manually change the plugins', () => {
+    const node = createNode()
+    expect(() => {
+      node.plugins = new Set()
+    }).toThrow()
+  })
+})
