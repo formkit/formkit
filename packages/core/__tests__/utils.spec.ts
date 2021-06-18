@@ -16,7 +16,7 @@ describe('bfs', () => {
 
   it('allows changing the searched property', () => {
     const parent = createNameTree()
-    expect(bfs(parent, 'radio', 'type')).toBe(parent.at('jane'))
+    expect(bfs(parent, '555', 'value')).toBe(parent.at('jane'))
   })
 
   it('allows a callback to determine the search parameters', () => {
@@ -25,7 +25,7 @@ describe('bfs', () => {
       bfs(
         parent,
         'radio',
-        (node) => node.name !== 'jane' && node.type === 'radio'
+        (node) => node.name !== 'jane' && node.value === '555'
       )
     ).toBe(parent.at('stella.tommy'))
   })

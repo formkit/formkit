@@ -13,12 +13,13 @@ export function createTicketTree() {
       createNode({ name: 'confirm_password' }),
       createNode({
         name: 'tickets',
+        type: 'list',
         children: [
           createNode({
             name: useIndex,
             children: [
               createNode({ name: 'price', value: 499 }),
-              createNode({ name: 'row', type: 'select' }),
+              createNode({ name: 'row', value: '555' }),
             ],
           }),
           createNode({
@@ -41,12 +42,12 @@ export function createNameTree() {
     name: 'tommy',
     children: [
       createNode({ name: 'billy' }),
-      createNode({ name: 'jane', type: 'radio' }),
+      createNode({ name: 'jane', value: '555' }),
       createNode({
         name: 'stella',
         children: [
           createNode({ name: 'wendy' }),
-          createNode({ name: 'tommy', type: 'radio' }),
+          createNode({ name: 'tommy', value: '555' }),
         ],
       }),
       createNode({ name: 'wendy' }),

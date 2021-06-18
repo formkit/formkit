@@ -3,8 +3,8 @@ import { FormKitNode } from './node'
 /**
  * Breadth and Depth first searches can use a callback of this notation.
  */
-export type FormKitSearchFunction = (
-  node: FormKitNode,
+export type FormKitSearchFunction<T> = (
+  node: FormKitNode<T>,
   searchTerm?: string | number
 ) => boolean
 
@@ -54,14 +54,14 @@ export function isNode(node: any): node is FormKitNode {
  * @param  {FormKitNode} name
  * @returns FormKitNode
  */
-export function bfs(
-  tree: FormKitNode,
+export function bfs<T>(
+  tree: FormKitNode<T>,
   searchValue: string | number,
-  searchGoal: keyof FormKitNode | FormKitSearchFunction = 'name'
-): FormKitNode | undefined {
-  const search: FormKitSearchFunction =
+  searchGoal: keyof FormKitNode<any> | FormKitSearchFunction<any> = 'name'
+): FormKitNode<any> | undefined {
+  const search: FormKitSearchFunction<any> =
     typeof searchGoal === 'string'
-      ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
+      ? (n: FormKitNode<any>) => n[searchGoal] == searchValue // non-strict comparison is intentional
       : searchGoal
   const stack = [tree]
   while (stack.length) {
@@ -70,4 +70,29 @@ export function bfs(
     stack.push(...node.children)
   }
   return undefined
+}
+
+/**
+ * Create a name based dictionary of all children in an array.
+ * @param  {FormKitNode[]} children
+ */
+export function names(children: FormKitNode[]): {
+  [index: string]: FormKitNode
+} {
+  return children.reduce(
+    (named, child) => Object.assign(named, { [child.name]: child }),
+    {}
+  )
+}
+
+/**
+ * Checks if the given property exists on the given object.
+ * @param  {{[index:string]:any;[index:number]:any}} obj
+ * @param  {string|symbol|number} property
+ */
+export function has(
+  obj: { [index: string]: any; [index: number]: any },
+  property: string | symbol | number
+): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, property)
 }

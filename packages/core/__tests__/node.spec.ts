@@ -1,12 +1,11 @@
-import createNode, { resetCount, useIndex } from '../src/node'
-import { token } from '../src/utils'
+import createNode, { FormKitPlugin, useIndex } from '../src/node'
 import { createTicketTree } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 
 describe('node', () => {
   it('defaults to a text node', () => {
     const node = createNode()
-    expect(node.type).toBe('text')
+    expect(node.type).toBe('input')
   })
 
   it('allows configuration to flow to children', () => {
@@ -64,18 +63,10 @@ describe('node', () => {
     expect(node.__FKNode__).toBe(true)
   })
 
-  it('allows registration with an arbitrary type', () => {
-    const type = token()
-    resetCount()
-    const node = createNode({ type })
-    expect(node.type).toBe(type)
-    expect(node.name).toBe(`${type}_1`)
-  })
-
   it('allows instantiation with children and sets the parent', () => {
     const group = createNode({
       type: 'group',
-      children: [createNode({ type: 'email' })],
+      children: [createNode()],
     })
     expect(group.children.length).toBe(1)
     expect(group.children.values().next().value.parent).toBe(group)
@@ -83,7 +74,7 @@ describe('node', () => {
 
   it('allows instantiation and later adding of a child', () => {
     const group = createNode({ type: 'group' })
-    const element = createNode({ type: 'foobar' })
+    const element = createNode()
     group.add(element)
     expect(group.children.values().next().value).toBe(element)
     expect(element.parent).toBe(group)
@@ -91,8 +82,8 @@ describe('node', () => {
 
   it('can remove a child from a parent', () => {
     const group = createNode({ type: 'group' })
-    const el = createNode({ type: 'foo' })
-    const el2 = createNode({ type: 'bar' })
+    const el = createNode()
+    const el2 = createNode()
     group.add(el).add(el2)
     group.remove(el)
     expect(group.children.length).toBe(1)
@@ -222,7 +213,7 @@ describe('node', () => {
           type: 'group',
           children: [
             createNode({
-              type: 'wrap',
+              type: 'group',
               name: useIndex,
               children: [
                 createNode({ name: 'twit' }),
@@ -231,7 +222,7 @@ describe('node', () => {
               ],
             }),
             createNode({
-              type: 'wrap',
+              type: 'group',
               name: useIndex,
               children: [
                 createNode({ name: 'twit' }),
@@ -285,7 +276,7 @@ describe('node', () => {
 
   it('can find a node in a subtree by type', () => {
     const [root, nestedChild] = createTicketTree()
-    const row = nestedChild.at('$parent.$parent.find(select, type)')
+    const row = nestedChild.at('$parent.$parent.find(555, value)')
     expect(row).toBeTruthy()
     expect(row).toBe(root.at('tickets.0.row'))
   })
@@ -373,3 +364,50 @@ describe('plugin system', () => {
     }).toThrow()
   })
 })
+
+describe('init hook', () => {
+  it('can modify a node on creation', () => {
+    const envPlugin: FormKitPlugin<any> = function (node) {
+      node.hook.init((n, next) => {
+        n.input(123)
+        return next()
+      })
+    }
+    const form = createNode({
+      plugins: [envPlugin],
+    })
+    const input = createNode({ parent: form })
+    expect(input.value).toBe(123)
+  })
+})
+
+describe('input hook', () => {
+  it('can set the value of a node', () => {
+    const node = createNode({ value: 'hello pluto' })
+    node.input('hello world')
+    expect(node.value).toBe('hello world')
+  })
+})
+
+// describe('commit hook', () => {
+//   it('can change the value being assigned', () => {
+//     const phonePlugin: FormKitPlugin = function (node) {
+//       if (node.type === 'phone') {
+//         node.hook.commit((value, next) => {
+//           const digits = value.replaceAll(/[^0-9]/g, '')
+//           let phone = ''
+//           if (digits.length >= 3) {
+//             phone = `(${digits.substr(0, 3)}) `
+//           }
+//           if (digits.length >= 6) {
+//             phone += `${digits.substr(3, 3)}-${digits.substr(6)}`
+//           }
+//           if (digits.length < 3) {
+//             phone = digits
+//           }
+//           return next(phone)
+//         })
+//       }
+//     }
+//   })
+// })
