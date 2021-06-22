@@ -16,7 +16,10 @@ export interface FormKitHooks<ValueType> {
   init: FormKitDispatcher<FormKitNode<ValueType>>
   commit: FormKitDispatcher<ValueType>
   input: FormKitDispatcher<ValueType>
-  prop: FormKitDispatcher<{ prop: string | symbol; value: any }>
+  prop: FormKitDispatcher<{
+    prop: string | symbol
+    value: any
+  }>
   error: FormKitDispatcher<string | false>
 }
 
@@ -123,7 +126,7 @@ type TrapSetter<T> =
   | ((
       node: FormKitNode<T>,
       context: FormKitContext<T>,
-      property: string | symbol,
+      property: string | number | symbol,
       value: any
     ) => boolean | never)
   | false
@@ -157,7 +160,8 @@ export type FormKitProps = {
  */
 export interface FormKitContext<ValueType = any> {
   _resolve: ((value: ValueType) => void) | false
-  _t: ReturnType<typeof setTimeout> | false
+  _t: number | false
+  _d: number
   _value: ValueType
   children: Array<FormKitNode<any>>
   config: FormKitConfig
@@ -203,7 +207,9 @@ export type FormKitNode<T = void> = {
   add: (node: FormKitNode<any>) => FormKitNode<T>
   at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
   address: FormKitAddress
+  calm: () => void
   config: FormKitConfig
+  disturb: () => void
   each: (callback: FormKitChildCallback) => void
   find: (
     selector: string,
@@ -239,8 +245,7 @@ const invalidSetter = (): never => {
 
 /**
  * These are all the available "traps" for a given node. You can think of these
- * a little bit like methods, but they are really Proxy interceptors rather
- * than actual methods.
+ * a little bit like methods, but they are really Proxy interceptors.
  */
 function createTraps<T>(): FormKitTraps<T> {
   return new Map<string | symbol, FormKitTrap<T>>(
@@ -248,13 +253,15 @@ function createTraps<T>(): FormKitTraps<T> {
       add: trap<T>(addChild),
       address: trap<T>(getAddress, invalidSetter, false),
       at: trap<any>(getNode),
-      config: trap<T>(false, invalidSetter),
+      calm: trap<T>(calm),
+      config: trap<T>(false),
+      disturb: trap<T>(disturb),
       index: trap<T>(getIndex, setIndex, false),
       input: trap<T>(input),
       each: trap<T>(eachChild),
       find: trap<T>(find),
       parent: trap<T>(false, setParent),
-      plugins: trap<T>(false, invalidSetter),
+      plugins: trap<T>(false),
       remove: trap<T>(removeChild),
       root: trap<T>(getRoot, invalidSetter, false),
       setConfig: trap<T>(setConfig),
@@ -335,7 +342,7 @@ function createName(
  */
 function createValue<T extends FormKitOptions>(options: T): TypeOfValue<T> {
   // TODO there is some question of what should happen in this method for the
-  // initial values — do we use tin the input hook? is the state initially
+  // initial values — do we use the input hook? is the state initially
   // settled? does hydration happen after the fact? etc etc...
   if (options.type === 'group') {
     return options.value &&
@@ -363,20 +370,52 @@ function input<T>(
 ): FormKitNode<T> {
   if (eq(context._value, value)) return node
   context._value = node.hook.input.dispatch(value)
-  if (context.isSettled) {
+  if (context.isSettled) node.disturb()
+  if (context._t) clearTimeout(context._t)
+  context._t = setTimeout(commit, node.props.delay, node, context)
+  return node
+}
+
+/**
+ * Commits the working value to the node graph as the value of this node.
+ * @param  {FormKitNode} node
+ * @param  {FormKitContext} context
+ */
+function commit(node: FormKitNode, context: FormKitContext) {
+  context.value = node.hook.commit.dispatch(context._value)
+  // TODO emit commit event
+  node.calm()
+}
+
+/**
+ * Disturbs the state of a node from settled to unsettled — creating appropriate
+ * promises and resolutions.
+ * @param  {FormKitNode<T>} node
+ * @param  {FormKitContext<T>} context
+ */
+function disturb<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+  if (context._d <= 0) {
     context.isSettled = false
     context.settled = new Promise((resolve) => {
       context._resolve = resolve
     })
+    if (node.parent) node.parent?.disturb()
   }
-  if (context._t) clearTimeout(context._t)
-  context._t = setTimeout(() => {
-    context.value = node.hook.commit.dispatch(context._value)
-    // TODO emit commit event
+  context._d++
+}
+
+/**
+ * Calms the given node's disturbed state by one.
+ * @param  {FormKitNode<T>} node
+ * @param  {FormKitContext<T>} context
+ */
+function calm<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+  if (context._d > 0) context._d--
+  if (context._d === 0) {
     if (context._resolve) context._resolve(context.value)
     context.isSettled = true
-  }, node.props.delay)
-  return node
+    if (node.parent) node.parent?.calm()
+  }
 }
 
 /**
@@ -396,6 +435,7 @@ function addChild<T>(
   }
   if (!parentContext.children.includes(child)) {
     parentContext.children.push(child)
+    if (!child.isSettled) parent.disturb()
   }
   if (child.parent !== parent) {
     child.parent = parent
@@ -425,6 +465,7 @@ function removeChild<T>(
   const childIndex = context.children.indexOf(child)
   if (childIndex !== -1) {
     context.children.splice(childIndex, 1)
+    if (!child.isSettled) child.parent?.calm()
     child.parent = null
   }
   return node
@@ -511,7 +552,7 @@ export function use<T>(
 function setIndex<T>(
   node: FormKitNode<T>,
   _context: FormKitContext,
-  _property: string | symbol,
+  _property: string | number | symbol,
   setIndex: number
 ) {
   if (isNode(node.parent)) {
@@ -672,7 +713,7 @@ function getRoot<T>(n: FormKitNode<T>) {
 function setParent<T>(
   child: FormKitNode<T>,
   context: FormKitContext,
-  _property: string | symbol,
+  _property: string | number | symbol,
   parent: FormKitNode<any>
 ): boolean {
   // If the middleware returns `false` then we do not perform the assignment
@@ -772,6 +813,7 @@ function createContext<T extends FormKitOptions>(
   return {
     _resolve: false,
     _t: false,
+    _d: 0,
     _value: value,
     children: dedupe(options.children || []),
     config,

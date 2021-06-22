@@ -540,3 +540,80 @@ describe('commit hook', () => {
     expect(phone.value).toBe('(233) 662-1244')
   })
 })
+
+describe('value propagation in a node tree', () => {
+  it('disturbs parents when a leaf receives input', async () => {
+    const field = createNode({ value: '' })
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode({ type: 'group' }),
+        createNode({ type: 'group', children: [
+          createNode(),
+          field
+        ] }),
+        createNode()
+      ]
+    })
+    field.input('abc')
+    expect(tree.isSettled).toBe(false)
+    await field.settled
+    expect(tree.isSettled).toBe(true)
+  })
+
+  it('does not settle a tree when multiple leafs are disturbed and one resolves', async () => {
+    const fieldA = createNode({ value: '' })
+    const fieldB = createNode({ value: '', props: { delay: 100 } })
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode({ type: 'group', children: [fieldB]}),
+        createNode({ type: 'group', children: [
+          createNode(),
+          fieldA
+        ] }),
+        createNode()
+      ]
+    })
+    fieldA.input('abc')
+    fieldB.input('def')
+    await fieldA.settled
+    expect(tree.isSettled).toBe(false)
+    await fieldB.settled
+    expect(tree.isSettled).toBe(true)
+  })
+
+  it('settles a tree when the disturbed input parent is changed', async () => {
+    const fieldA = createNode({ value: 123 })
+    const treeA = createNode({
+      type: 'group',
+      children: [fieldA]
+    })
+    const treeB = createNode({ type: 'group' })
+    fieldA.input(456)
+    expect(treeA.isSettled).toBe(false)
+    fieldA.parent = treeB
+    expect(treeA.isSettled).toBe(true)
+    expect(treeB.isSettled).toBe(false)
+    await fieldA.settled
+    expect(treeB.isSettled).toBe(true)
+  })
+
+  it('settles a tree when the disturbed input is added to a different tree', async () => {
+    const fieldA = createNode({ value: 123 })
+    const treeA = createNode({
+      type: 'group',
+      children: [fieldA]
+    })
+    const treeB = createNode({ type: 'group' })
+    fieldA.input(456)
+    expect(treeA.isSettled).toBe(false)
+    treeB.add(fieldA)
+    expect(treeA.isSettled).toBe(true)
+    expect(treeB.isSettled).toBe(false)
+    await fieldA.settled
+    expect(treeB.isSettled).toBe(true)
+  })
+})
