@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { FormKitSearchFunction, bfs, dedupe, has, isNode, names } from './utils'
+import { FormKitSearchFunction, bfs, dedupe, eq, isNode, has } from './utils'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -16,6 +16,8 @@ export interface FormKitHooks<ValueType> {
   init: FormKitDispatcher<FormKitNode<ValueType>>
   commit: FormKitDispatcher<ValueType>
   input: FormKitDispatcher<ValueType>
+  prop: FormKitDispatcher<{ prop: string | symbol; value: any }>
+  error: FormKitDispatcher<string | false>
 }
 
 /**
@@ -84,7 +86,7 @@ export type ExtractValueType<T extends FormKitNodeType> = T extends 'group'
  * Type utility for determining the type of the value property.
  */
 type TypeOfValue<T> = ExtractValueType<ExtractType<T>> extends void
-  ? T extends HasValue // In this case we dont have a `type` option, so infer from the value object
+  ? T extends HasValue // In this case we don’t have a `type` option, so infer from the value object
     ? T['value']
     : any
   : ExtractValue<T> extends ExtractValueType<ExtractType<T>>
@@ -141,16 +143,32 @@ export interface FormKitConfig {
 }
 
 /**
+ * The user-land per-instance "props", which are generally akin to the props
+ * passed into components on the front end.
+ */
+export type FormKitProps = {
+  delay: number
+  [index: string]: any
+} & FormKitConfig
+
+/**
  * The interface of the a FormKit node's context object. A FormKit node is a
  * proxy of this object.
  */
 export interface FormKitContext<ValueType = any> {
+  _resolve: ((value: ValueType) => void) | false
+  _t: ReturnType<typeof setTimeout> | false
+  _value: ValueType
   children: Array<FormKitNode<any>>
   config: FormKitConfig
   hook: FormKitHooks<ValueType>
+  isSettled: boolean
   name: string | symbol
   parent: FormKitNode<any> | null
   plugins: Set<FormKitPlugin>
+  preCommit: ValueType | null
+  props: Partial<FormKitProps>
+  settled: Promise<ValueType>
   traps: FormKitTraps<ValueType>
   type: FormKitNodeType
   value: ValueType
@@ -162,6 +180,7 @@ export interface FormKitContext<ValueType = any> {
 export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
     config: Partial<FormKitConfig>
+    props: Partial<FormKitProps>
     children: FormKitNode<any>[] | Set<FormKitNode<any>>
     plugins: FormKitPlugin[] | Set<FormKitPlugin>
   }
@@ -196,6 +215,8 @@ export type FormKitNode<T = void> = {
   remove: (node: FormKitNode<any>) => FormKitNode<T>
   root: FormKitNode<any>
   setConfig: (config: FormKitConfig) => void
+  settled: Promise<T>
+  isSettled: boolean
   use: (
     plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
   ) => FormKitNode<T>
@@ -212,7 +233,7 @@ export const useIndex = Symbol('index')
  * The setter you are trying to access is invalid.
  */
 const invalidSetter = (): never => {
-  // @todo add log event and error
+  // TODO add log event and error
   throw new Error()
 }
 
@@ -267,28 +288,16 @@ function trap<T>(
 }
 
 /**
- * Create a new context object for our a FormKit node, given default information
- * @param  {T} options
- * @returns FormKitContext
+ * Create all of the node's hook dispatchers.
+ * @param  {T} _options
  */
-function createContext<T extends FormKitOptions>(
-  options: T
-): FormKitContext<TypeOfValue<T>> {
-  const type: FormKitNodeType = options.type || 'input'
+function createHooks<T>(_options: T): FormKitHooks<TypeOfValue<T>> {
   return {
-    children: dedupe(options.children || []),
-    config: createConfig(options.parent, options.config),
-    name: createName(options, type),
-    hook: {
-      init: createDispatcher<FormKitNode<TypeOfValue<T>>>(),
-      input: createDispatcher<TypeOfValue<T>>(),
-      commit: createDispatcher<TypeOfValue<T>>(),
-    },
-    parent: options.parent || null,
-    plugins: new Set<FormKitPlugin>(),
-    traps: createTraps<TypeOfValue<T>>(),
-    type,
-    value: createValue(options),
+    init: createDispatcher<FormKitNode<TypeOfValue<T>>>(),
+    input: createDispatcher<TypeOfValue<T>>(),
+    commit: createDispatcher<TypeOfValue<T>>(),
+    prop: createDispatcher<{ prop: string | symbol; value: any }>(),
+    error: createDispatcher<string | false>(),
   }
 }
 
@@ -322,9 +331,12 @@ function createName(
  * type of the input.
  * @param  {FormKitOptions} options
  * @param  {T} type
- * @returns Textends
+ * @returns TypeOfValue<T>
  */
 function createValue<T extends FormKitOptions>(options: T): TypeOfValue<T> {
+  // TODO there is some question of what should happen in this method for the
+  // initial values — do we use tin the input hook? is the state initially
+  // settled? does hydration happen after the fact? etc etc...
   if (options.type === 'group') {
     return options.value &&
       options.value === 'object' &&
@@ -341,7 +353,7 @@ function createValue<T extends FormKitOptions>(options: T): TypeOfValue<T> {
  * Sets the internal value of the node.
  * @param  {T} node
  * @param  {FormKitContext} context
- * @param  {TextendsFormKitNode<inferX>?X:never} value
+ * @param  {T extends FormKitNode<inferX>?X:never} value
  * @returns T
  */
 function input<T>(
@@ -349,17 +361,21 @@ function input<T>(
   context: FormKitContext,
   value: T
 ): FormKitNode<T> {
-  const preCommit: T = node.hook.input.dispatch(value)
-  if (!node.children.length) {
-    context.value = preCommit
-    // @todo emit('commit')
-  } else if (preCommit && typeof preCommit === 'object') {
-    const children = names(node.children)
-    for (const name in children) {
-      if (has(preCommit, name))
-        children[name].input((preCommit as KeyedValue)[name])
-    }
+  if (eq(context._value, value)) return node
+  context._value = node.hook.input.dispatch(value)
+  if (context.isSettled) {
+    context.isSettled = false
+    context.settled = new Promise((resolve) => {
+      context._resolve = resolve
+    })
   }
+  if (context._t) clearTimeout(context._t)
+  context._t = setTimeout(() => {
+    context.value = node.hook.commit.dispatch(context._value)
+    // TODO emit commit event
+    if (context._resolve) context._resolve(context.value)
+    context.isSettled = true
+  }, node.props.delay)
   return node
 }
 
@@ -374,6 +390,7 @@ function addChild<T>(
   parentContext: FormKitContext,
   child: FormKitNode<any>
 ) {
+  if (parent.type === 'input') createError(parent, 1)
   if (child.parent && child.parent !== parent) {
     child.parent.remove(child)
   }
@@ -529,6 +546,7 @@ function getIndex<T>(node: FormKitNode<T>) {
  * @param  {FormKitContext} context
  */
 function getName<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+  if (node.parent?.type === 'list') return node.index
   return context.name !== useIndex ? context.name : node.index
 }
 
@@ -694,7 +712,80 @@ function createConfig(
   }
   return {
     delimiter: '.',
+    delay: 0,
     ...configOptions,
+  }
+}
+
+/**
+ * Throw a FormKit error
+ */
+function createError(node: FormKitNode<any>, errorCode: number) {
+  const e: string | false = node.hook.error.dispatch(`E${errorCode}`)
+  if (e !== false) throw new Error(e)
+}
+
+/**
+ * @param  {FormKitOptions} options
+ * @param  {FormKitConfig} config
+ */
+function createProps<T>(type: FormKitNodeType) {
+  const props = {
+    delay: type === 'input' ? 20 : 0,
+  }
+  let node: FormKitNode<T>
+  return new Proxy(props, {
+    get(...args) {
+      const [_t, prop] = args
+      if (has(props, prop)) return Reflect.get(...args)
+      if (has(node.config, prop) && typeof prop === 'string')
+        return node.config[prop]
+      return undefined
+    },
+    set(target, property, originalValue, receiver) {
+      if (property === '_n') {
+        node = originalValue
+        return true
+      }
+      const { prop, value } = node.hook.prop.dispatch({
+        prop: property,
+        value: originalValue,
+      })
+      const didSet = Reflect.set(target, prop, value, receiver)
+      // TODO emit that the prop value was set
+      return didSet
+    },
+  })
+}
+
+/**
+ * Create a new context object for our a FormKit node, given default information
+ * @param  {T} options
+ * @returns FormKitContext
+ */
+function createContext<T extends FormKitOptions>(
+  options: T
+): FormKitContext<TypeOfValue<T>> {
+  const type: FormKitNodeType = options.type || 'input'
+  const value = createValue(options)
+  const config = createConfig(options.parent, options.config)
+  return {
+    _resolve: false,
+    _t: false,
+    _value: value,
+    children: dedupe(options.children || []),
+    config,
+    hook: createHooks(options),
+    name: createName(options, type),
+    parent: options.parent || null,
+    plugins: new Set<FormKitPlugin>(),
+    preCommit: null,
+    props: createProps(type),
+    settled: Promise.resolve(value),
+    isSettled: true,
+    traps: createTraps<TypeOfValue<T>>(),
+    type,
+    value,
   }
 }
 
@@ -707,6 +798,8 @@ function nodeInit<T>(
   node: FormKitNode<T>,
   options: FormKitOptions
 ): FormKitNode<T> {
+  // Inputs are leafs, and cannot have children
+  if (node.type === 'input' && node.children.length) createError(node, 1)
   // Apply the parent to each child.
   node.each((child) => {
     child.parent = node
@@ -714,6 +807,13 @@ function nodeInit<T>(
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) {
     node.parent.add(node)
+  }
+  // Set the internal node of the props proxy
+  node.props._n = node
+  if (options.props) {
+    Object.keys(options.props).forEach((prop) => {
+      node.props[prop] = options.props![prop]
+    })
   }
   // If the options has plugins, we apply
   options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))

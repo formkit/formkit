@@ -10,6 +10,7 @@ export type FormKitMiddleware<T> = (payload: T, next: (payload?: T) => T) => T
  */
 export interface FormKitDispatcher<T> {
   (dispatchable: FormKitMiddleware<T>): number
+  unshift: (dispatchable: FormKitMiddleware<T>) => number
   remove: (dispatchable: FormKitMiddleware<T>) => void
   dispatch: (payload: T) => T
 }
@@ -33,9 +34,12 @@ export default function createDispatcher<T>(): FormKitDispatcher<T> {
         )
       })
     }
+    currentIndex = 0
     return payload
   }
   use.dispatch = dispatch
+  use.unshift = (dispatchable: FormKitMiddleware<T>) =>
+    middleware.unshift(dispatchable)
   use.remove = (dispatchable: FormKitMiddleware<T>) => {
     const index = middleware.indexOf(dispatchable)
     if (index > -1) middleware.splice(index, 1)

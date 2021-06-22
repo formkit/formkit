@@ -2,6 +2,7 @@
     "typescript.tsdk": "node_modules/typescript/lib",
     "cSpell.words": [
         "dedupe",
+        "dispatchable",
         "setify"
     ]
 }

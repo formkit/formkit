@@ -1,6 +1,7 @@
-import createNode, { FormKitPlugin, useIndex } from '../src/node'
+import createNode, { FormKitPlugin } from '../src/node'
 import { createTicketTree } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
+import { FormKitMiddleware } from '../src/dispatcher'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -11,6 +12,7 @@ describe('node', () => {
   it('allows configuration to flow to children', () => {
     const email = createNode({ name: 'email' })
     const node = createNode({
+      type: 'group',
       config: {
         delimiter: '#',
       },
@@ -21,9 +23,15 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
+  it('does not allow nodes of type input to be created with children', () => {
+    expect(() => {
+      createNode({ children: [createNode()] })
+    }).toThrow()
+  })
+
   it('does not allow the same child multiple times', () => {
     const email = createNode({ name: 'email' })
-    const parent = createNode({ name: 'parent' })
+    const parent = createNode({ name: 'parent', type: 'group' })
     parent.add(email)
     parent.add(email)
     expect(parent.children.length).toBe(1)
@@ -32,6 +40,7 @@ describe('node', () => {
   it('allows configuration to flow up to parents', () => {
     const email = createNode({ name: 'email' })
     const node = createNode({
+      type: 'group',
       config: {
         delimiter: '#',
       },
@@ -44,12 +53,14 @@ describe('node', () => {
   it('changes a child’s config when moving between trees', () => {
     const email = createNode({ name: 'email' })
     createNode({
+      type: 'group',
       config: {
         delimiter: '#',
       },
       children: [email],
     })
     const parentB = createNode({
+      type: 'group',
       config: {
         delimiter: '|',
       },
@@ -93,9 +104,11 @@ describe('node', () => {
   it('allows a node to be moved between parents', () => {
     const el = createNode()
     const groupA = createNode({
+      type: 'group',
       children: [createNode(), el],
     })
     const groupB = createNode({
+      type: 'group',
       children: [createNode()],
     })
     groupB.add(el)
@@ -108,9 +121,11 @@ describe('node', () => {
   it('allows a node to be moved by changing the parent', () => {
     const el = createNode()
     const groupA = createNode({
+      type: 'group',
       children: [createNode(), el],
     })
     const groupB = createNode({
+      type: 'group',
       children: [createNode()],
     })
     el.parent = groupB
@@ -121,7 +136,7 @@ describe('node', () => {
   })
 
   it('allows a node to be created with a parent', () => {
-    const parent = createNode({ children: [createNode()] })
+    const parent = createNode({ children: [createNode()], type: 'list' })
     const child = createNode({ parent })
     expect(parent.children.length).toBe(2)
     expect(child.parent).toBe(parent)
@@ -130,6 +145,7 @@ describe('node', () => {
   it('can get a node’s index', () => {
     const item = createNode()
     createNode({
+      type: 'list',
       children: [createNode(), createNode(), item, createNode()],
     })
     expect(item.index).toBe(2)
@@ -138,6 +154,7 @@ describe('node', () => {
   it('allows changing a node’s index by directly assigning it', () => {
     const moveMe = createNode()
     const parent = createNode({
+      type: 'list',
       children: [createNode(), createNode(), moveMe, createNode()],
     })
     moveMe.index = 1
@@ -156,12 +173,14 @@ describe('node', () => {
 
   it('can always reference the root', () => {
     const nestedChild = createNode()
-    const parent = createNode()
+    const parent = createNode({ type: 'group' })
     const L1 = createNode({
+      type: 'list',
       children: [
         createNode({}),
         createNode({}),
         createNode({
+          type: 'list',
           children: [nestedChild],
         }),
       ],
@@ -170,63 +189,68 @@ describe('node', () => {
     expect(nestedChild.root).toBe(parent)
   })
 
+  it('automatically uses index names for list children', () => {
+    const parent = createNode({
+      type: 'list',
+      children: [createNode({ name: 'howdy' })],
+    })
+    expect(parent.at('howdy')).toBeFalsy()
+  })
+
   it('can fetch a nested node’s address', () => {
     const email = createNode({ name: 'email' })
     createNode({
       name: 'form',
+      type: 'group',
       children: [
         createNode({ name: 'input1' }),
         createNode({
           name: 'input2',
+          type: 'list',
           children: [
+            createNode(),
             createNode({
-              name: useIndex,
-            }),
-            createNode({
-              name: useIndex,
+              type: 'group',
               children: [email],
             }),
-            createNode({
-              name: useIndex,
-            }),
+            createNode(),
           ],
         }),
         createNode({ name: 'input3' }),
       ],
     })
     expect(email.address).toEqual(['form', 'input2', 1, 'email'])
-    const parent2 = createNode({ name: 'differentForm' })
+    const parent2 = createNode({ name: 'differentForm', type: 'group' })
     parent2.add(email)
     expect(email.address).toEqual(['differentForm', 'email'])
   })
 
   it('allows node traversal using path', () => {
-    const insta = createNode({ name: 'insta' })
+    const instagram = createNode({ name: 'instagram' })
     const password = createNode({ name: 'password' })
     const parent = createNode({
       name: 'form',
+      type: 'group',
       children: [
         createNode({ name: 'username' }),
         password,
         createNode({
           name: 'social',
-          type: 'group',
+          type: 'list',
           children: [
             createNode({
               type: 'group',
-              name: useIndex,
               children: [
                 createNode({ name: 'twit' }),
-                insta,
+                instagram,
                 createNode({ name: 'face' }),
               ],
             }),
             createNode({
               type: 'group',
-              name: useIndex,
               children: [
                 createNode({ name: 'twit' }),
-                createNode({ name: 'insta', value: 456 }),
+                createNode({ name: 'instagram', value: 456 }),
                 createNode({ name: 'face' }),
               ],
             }),
@@ -235,11 +259,11 @@ describe('node', () => {
         createNode({ name: 'submit' }),
       ],
     })
-    expect(parent.at('social.0.insta')).toBe(insta)
-    expect(parent.at('form.social.0.insta')).toBe(insta)
+    expect(parent.at('social.0.instagram')).toBe(instagram)
+    expect(parent.at('form.social.0.instagram')).toBe(instagram)
     expect(parent.at(['password'])).toBe(password)
-    expect(parent.at(['social', 1, 'insta'])?.value).toBe(456)
-    expect(parent.at(insta.address)).toBe(insta)
+    expect(parent.at(['social', 1, 'instagram'])?.value).toBe(456)
+    expect(parent.at(instagram.address)).toBe(instagram)
   })
 
   it('uses the $root keyword to allow root access via address', () => {
@@ -282,6 +306,69 @@ describe('node', () => {
   })
 })
 
+describe('props system', () => {
+  it('can set arbitrary initial prop values', () => {
+    const node = createNode({ props: { party: 'town' } })
+    expect(node.props.party).toBe('town')
+  })
+
+  it('configuration values flow to props', () => {
+    const child = createNode({ name: 'name' })
+    createNode({
+      config: { arbitrary: 't' },
+      type: 'group',
+      children: [child],
+    })
+    expect(child.props.arbitrary).toBe('t')
+  })
+
+  it('default props override a configuration value', () => {
+    const child = createNode({ name: 'name' })
+    createNode({
+      config: { delay: 400 },
+      type: 'group',
+      children: [child],
+    })
+    expect(child.props.delay).toBe(20)
+  })
+
+  it('props can override default props', () => {
+    const child = createNode({
+      name: 'name',
+      props: {
+        delay: 50,
+      },
+    })
+    createNode({
+      type: 'group',
+      children: [child],
+    })
+    expect(child.props.delay).toBe(50)
+  })
+
+  it('can override a configuration value', () => {
+    const child = createNode({ name: 'name', props: { delay: 500 } })
+    createNode({
+      config: { delay: 400 },
+      type: 'group',
+      children: [child],
+    })
+    expect(child.props.delay).toBe(500)
+  })
+
+  it('can override a configuration value with the prop hook', () => {
+    const child = createNode({ name: 'name', props: { delay: 500 } })
+    createNode({
+      config: { delay: 400 },
+      type: 'group',
+      children: [child],
+    })
+    child.hook.prop(({ prop }, next) => next({ prop, value: 800 }))
+    child.props.delay = 200
+    expect(child.props.delay).toBe(800)
+  })
+})
+
 describe('plugin system', () => {
   it('runs plugins on node creation', () => {
     const plugin = jest.fn(() => {})
@@ -295,6 +382,7 @@ describe('plugin system', () => {
     const pluginA = jest.fn(() => {})
     const pluginB = jest.fn(() => {})
     const parent = createNode({
+      type: 'group',
       plugins: [pluginA],
     })
     const child = createNode({
@@ -311,6 +399,7 @@ describe('plugin system', () => {
     const pluginA = jest.fn(() => {})
     const pluginB = jest.fn(() => {})
     createNode({
+      type: 'list',
       plugins: [pluginA],
       children: [
         createNode(),
@@ -326,9 +415,11 @@ describe('plugin system', () => {
     const pluginA = jest.fn(() => {})
     const pluginB = jest.fn(() => {})
     const treeA = createNode({
+      type: 'group',
       plugins: [pluginA],
     })
     const treeB = createNode({
+      type: 'group',
       plugins: [pluginB],
     })
     const child = createNode({ parent: treeA })
@@ -342,11 +433,13 @@ describe('plugin system', () => {
     const pluginA = jest.fn(() => {})
     const child = createNode()
     const treeA = createNode({
+      type: 'group',
       plugins: [pluginA],
       children: [
         createNode(),
         createNode({
           name: 'group',
+          type: 'group',
           children: [createNode()],
         }),
         child,
@@ -366,7 +459,7 @@ describe('plugin system', () => {
 })
 
 describe('init hook', () => {
-  it('can modify a node on creation', () => {
+  it('can modify a node on creation', async () => {
     const envPlugin: FormKitPlugin<any> = function (node) {
       node.hook.init((n, next) => {
         n.input(123)
@@ -374,40 +467,76 @@ describe('init hook', () => {
       })
     }
     const form = createNode({
+      type: 'group',
       plugins: [envPlugin],
     })
-    const input = createNode({ parent: form })
-    expect(input.value).toBe(123)
+    const input = createNode({ parent: form, value: 0 })
+    expect(input.value).toBe(0)
+    expect(input.isSettled).toBeFalsy()
+    expect(await input.settled).toBe(123)
   })
 })
 
 describe('input hook', () => {
-  it('can set the value of a node', () => {
+  it('can set the value of a node', async () => {
     const node = createNode({ value: 'hello pluto' })
     node.input('hello world')
+    expect(node.value).toBe('hello pluto')
+    expect(node.isSettled).toBeFalsy()
+    await node.settled
     expect(node.value).toBe('hello world')
+  })
+
+  it('resolves the settled to the new value', async () => {
+    const node = createNode({ value: 'hello pluto' })
+    node.input('hello wo')
+    node.input('hello wor')
+    expect(node.value).toBe('hello pluto')
+    expect(node.isSettled).toBeFalsy()
+    node.input('hello world')
+    expect(await node.settled).toBe('hello world')
+  })
+
+  it('can modify the value being set with the input hook', async () => {
+    const node = createNode({ value: 'hello pluto' })
+    node.hook.input((value, next) => next(`${value}!`))
+    node.input('hello wo')
+    node.input('hello wor')
+    await node.settled
+    expect(node.value).toBe('hello wor!')
   })
 })
 
-// describe('commit hook', () => {
-//   it('can change the value being assigned', () => {
-//     const phonePlugin: FormKitPlugin = function (node) {
-//       if (node.type === 'phone') {
-//         node.hook.commit((value, next) => {
-//           const digits = value.replaceAll(/[^0-9]/g, '')
-//           let phone = ''
-//           if (digits.length >= 3) {
-//             phone = `(${digits.substr(0, 3)}) `
-//           }
-//           if (digits.length >= 6) {
-//             phone += `${digits.substr(3, 3)}-${digits.substr(6)}`
-//           }
-//           if (digits.length < 3) {
-//             phone = digits
-//           }
-//           return next(phone)
-//         })
-//       }
-//     }
-//   })
-// })
+describe('commit hook', () => {
+  it('can change the value being assigned', async () => {
+    const commitMiddleware: FormKitMiddleware<string> = jest.fn(
+      (value, next) => {
+        const digits = value.replace(/[^0-9]/g, '')
+        let phone = ''
+        if (digits.length >= 3) {
+          phone = `(${digits.substr(0, 3)}) `
+        }
+        if (digits.length >= 6) {
+          phone += `${digits.substr(3, 3)}-${digits.substr(6)}`
+        }
+        if (digits.length < 3) {
+          phone = digits
+        }
+        return next(phone)
+      }
+    )
+    const phonePlugin: FormKitPlugin = function (node) {
+      if (node.type === 'input') {
+        node.hook.commit(commitMiddleware)
+      }
+    }
+    const phone = createNode({ plugins: [phonePlugin] })
+    phone.input('23')
+    phone.input('233')
+    phone.input('233.662')
+    phone.input('233.6621244')
+    await phone.settled
+    expect(commitMiddleware).toHaveBeenCalledTimes(1)
+    expect(phone.value).toBe('(233) 662-1244')
+  })
+})

@@ -62,7 +62,7 @@ describe('dispatcher', () => {
     dispatcher((value, next) => next(value + 1))
     expect(dispatcher.dispatch(1)).toBe(5)
     expect(aMiddleware.mock.calls.length).toBe(1)
-    dispatcher(() => 42)
+    dispatcher.unshift(() => 42)
     expect(dispatcher.dispatch(1)).toBe(42)
     // validate that aMiddleware never ran again
     expect(aMiddleware.mock.calls.length).toBe(1)

@@ -1,4 +1,4 @@
-import createNode, { useIndex } from '../packages/core/src/node'
+import createNode from '../packages/core/src/node'
 
 /*
  * Creates a node tree and returns the parent with a nested child
@@ -7,6 +7,7 @@ export function createTicketTree() {
   const nestedChild = createNode({ name: 'seat' })
   const parent = createNode({
     name: 'form',
+    type: 'group',
     children: [
       createNode({ name: 'email' }),
       createNode({ name: 'password' }),
@@ -16,14 +17,14 @@ export function createTicketTree() {
         type: 'list',
         children: [
           createNode({
-            name: useIndex,
+            type: 'group',
             children: [
               createNode({ name: 'price', value: 499 }),
               createNode({ name: 'row', value: '555' }),
             ],
           }),
           createNode({
-            name: useIndex,
+            type: 'group',
             children: [createNode({ name: 'price' }), nestedChild],
           }),
         ],
@@ -40,11 +41,13 @@ export function createTicketTree() {
 export function createNameTree() {
   return createNode({
     name: 'tommy',
+    type: 'group',
     children: [
       createNode({ name: 'billy' }),
       createNode({ name: 'jane', value: '555' }),
       createNode({
         name: 'stella',
+        type: 'group',
         children: [
           createNode({ name: 'wendy' }),
           createNode({ name: 'tommy', value: '555' }),

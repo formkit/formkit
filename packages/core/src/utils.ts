@@ -96,3 +96,26 @@ export function has(
 ): boolean {
   return Object.prototype.hasOwnProperty.call(obj, property)
 }
+
+/**
+ * Compare two values for equality optionally at depth.
+ * @param  {any} valA
+ * @param  {any} valB
+ * @param  {true} deep
+ * @returns boolean
+ */
+export function eq(valA: any, valB: any, deep: boolean = true): boolean {
+  if (valA === valB) return true
+  if (typeof valA === typeof valB && typeof valA === 'object') {
+    if (valA instanceof Map) return false
+    if (valA instanceof Set) return false
+    if (Object.keys(valA).length !== Object.keys(valB).length) return false
+    for (let key in valA) {
+      if (!has(valB, key)) return false
+      if (valA[key] !== valB[key] && !deep) return false
+      if (deep && !eq(valA[key], valB[key], true)) return false
+    }
+    return true
+  }
+  return false
+}
