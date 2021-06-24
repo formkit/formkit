@@ -1,5 +1,14 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
 import { FormKitSearchFunction, bfs, dedupe, eq, isNode, has } from './utils'
+import {
+  createEmitter,
+  FormKitEvent,
+  FormKitEventEmitter,
+  emit,
+  bubble,
+  on,
+  FormKitEventListener,
+} from './events'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -181,6 +190,7 @@ export interface FormKitContext<ValueType = any> {
   _resolve: ((value: ValueType) => void) | false
   _t: number | false
   _d: number
+  _e: FormKitEventEmitter
   _value: ValueType
   children: Array<FormKitNode<any>>
   config: FormKitConfig
@@ -235,10 +245,12 @@ export type FormKitNode<T = void> = {
   add: (node: FormKitNode<any>) => FormKitNode<T>
   at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
   address: FormKitAddress
+  bubble: (event: FormKitEvent) => FormKitNode<T>
   calm: (childValue?: ChildValue) => void
   config: FormKitConfig
   disturb: () => FormKitNode<T>
   each: (callback: FormKitChildCallback) => void
+  emit: (event: string, payload?: any) => FormKitNode<T>
   find: (
     selector: string,
     searcher?: keyof FormKitNode | FormKitSearchFunction<T>
@@ -246,6 +258,7 @@ export type FormKitNode<T = void> = {
   index: number
   input: (value: T, force?: boolean) => FormKitNode<T>
   name: string
+  on: (eventName: string, listener: FormKitEventListener) => FormKitNode<T>
   remove: (node: FormKitNode<any>) => FormKitNode<T>
   root: FormKitNode<any>
   setConfig: (config: FormKitConfig) => void
@@ -303,13 +316,16 @@ function createTraps<T>(): FormKitTraps<T> {
       add: trap<T>(addChild),
       address: trap<T>(getAddress, invalidSetter, false),
       at: trap<any>(getNode),
+      bubble: trap<T>(bubble),
       calm: trap<T>(calm),
       config: trap<T>(false),
       disturb: trap<T>(disturb),
       index: trap<T>(getIndex, setIndex, false),
       input: trap<T>(input),
       each: trap<T>(eachChild),
+      emit: trap<T>(emit),
       find: trap<T>(find),
+      on: trap<T>(on),
       parent: trap<T>(false, setParent),
       plugins: trap<T>(false),
       remove: trap<T>(removeChild),
@@ -421,6 +437,7 @@ function input<T>(
 ): FormKitNode<T> {
   if (!force && eq(context._value, value)) return node
   context._value = node.hook.input.dispatch(value)
+  node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (context._t) clearTimeout(context._t)
   context._t = setTimeout(commit, node.props.delay, node, context)
@@ -438,7 +455,7 @@ function commit<T>(
   calm: boolean = true
 ) {
   context.value = node.hook.commit.dispatch(context._value)
-  // TODO emit commit event
+  node.emit('commit', context.value)
   if (calm) node.calm()
 }
 
@@ -873,6 +890,7 @@ function createConfig(
  */
 function createError(node: FormKitNode<any>, errorCode: number) {
   const e: string | false = node.hook.error.dispatch(`E${errorCode}`)
+  node.emit('error', e)
   if (e !== false) throw new Error(e)
 }
 
@@ -903,7 +921,7 @@ function createProps<T>(type: FormKitNodeType) {
         value: originalValue,
       })
       const didSet = Reflect.set(target, prop, value, receiver)
-      // TODO emit that the prop value was set
+      node.emit('prop', { prop, value })
       return didSet
     },
   })
@@ -924,6 +942,7 @@ function createContext<T extends FormKitOptions>(
     _resolve: false,
     _t: false,
     _d: 0,
+    _e: createEmitter(),
     _value: value,
     children: dedupe(options.children || []),
     config,
@@ -967,7 +986,7 @@ function nodeInit<T>(
   }
   // If the options has plugins, we apply
   options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
-  return node.hook.init.dispatch(node)
+  return node.emit('init', node.hook.init.dispatch(node))
 }
 
 /**

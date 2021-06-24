@@ -788,7 +788,7 @@ describe('value propagation in a node tree', () => {
       type: 'group',
       children: [createNode({ name: 'person', value: 'jane' })],
     })
-    ring.parent = treeB
+    treeB.add(ring)
     expect(treeA.value).toStrictEqual({ person: 'joe' })
     expect(treeB.value).toStrictEqual({ person: 'jane', ring: 'golden' })
   })
