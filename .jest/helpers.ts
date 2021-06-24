@@ -57,3 +57,46 @@ export function createNameTree() {
     ],
   })
 }
+
+/**
+ * A sample shipping form-like tree.
+ */
+export function createShippingTree () {
+  return createNode({
+    type: 'group',
+    name: 'form',
+    children: [
+      createNode({ name: 'name' }),
+      createNode({
+        name: 'address',
+        type: 'group',
+        children: [
+          createNode({ name: 'street', value: '694 Boise St' }),
+          createNode({ name: 'city' }),
+          createNode({ name: 'state' }),
+          createNode({ name: 'zip' }),
+        ]
+      }),
+      createNode({
+        name: 'products',
+        type: 'list',
+        children: [
+          createNode({
+            type: 'group',
+             children: [
+              createNode({ name: 'product', value: 'T-shirt' }),
+              createNode({ name: 'price', value: 2199 })
+             ]
+          }),
+          createNode({
+            type: 'group',
+             children: [
+              createNode({ name: 'product', value: 'Pants' }),
+              createNode({ name: 'price', value: 5429 })
+             ]
+          })
+        ]
+      })
+    ]
+  })
+}

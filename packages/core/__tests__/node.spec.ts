@@ -1,5 +1,5 @@
-import createNode, { FormKitPlugin } from '../src/node'
-import { createTicketTree } from '../../../.jest/helpers'
+import createNode, { FormKitGroupValue, FormKitPlugin } from '../src/node'
+import { createTicketTree, createShippingTree } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
 
@@ -456,13 +456,21 @@ describe('plugin system', () => {
       node.plugins = new Set()
     }).toThrow()
   })
+
+  it('propagates initial values to parents', async () => {
+    const parent = createNode({
+      type: 'list',
+      children: [createNode({ value: 'hi' }), createNode({ value: 'there' })],
+    })
+    expect(await parent.settled).toEqual(['hi', 'there'])
+  })
 })
 
 describe('init hook', () => {
   it('can modify a node on creation', async () => {
     const envPlugin: FormKitPlugin<any> = function (node) {
       node.hook.init((n, next) => {
-        n.input(123)
+        if (n.type === 'input') n.input(123)
         return next()
       })
     }
@@ -549,12 +557,9 @@ describe('value propagation in a node tree', () => {
       children: [
         createNode(),
         createNode({ type: 'group' }),
-        createNode({ type: 'group', children: [
-          createNode(),
-          field
-        ] }),
-        createNode()
-      ]
+        createNode({ type: 'group', children: [createNode(), field] }),
+        createNode(),
+      ],
     })
     field.input('abc')
     expect(tree.isSettled).toBe(false)
@@ -569,13 +574,10 @@ describe('value propagation in a node tree', () => {
       type: 'group',
       children: [
         createNode(),
-        createNode({ type: 'group', children: [fieldB]}),
-        createNode({ type: 'group', children: [
-          createNode(),
-          fieldA
-        ] }),
-        createNode()
-      ]
+        createNode({ type: 'group', children: [fieldB] }),
+        createNode({ type: 'group', children: [createNode(), fieldA] }),
+        createNode(),
+      ],
     })
     fieldA.input('abc')
     fieldB.input('def')
@@ -589,9 +591,10 @@ describe('value propagation in a node tree', () => {
     const fieldA = createNode({ value: 123 })
     const treeA = createNode({
       type: 'group',
-      children: [fieldA]
+      name: 'treeA',
+      children: [fieldA],
     })
-    const treeB = createNode({ type: 'group' })
+    const treeB = createNode({ type: 'group', name: 'treeB' })
     fieldA.input(456)
     expect(treeA.isSettled).toBe(false)
     fieldA.parent = treeB
@@ -605,7 +608,7 @@ describe('value propagation in a node tree', () => {
     const fieldA = createNode({ value: 123 })
     const treeA = createNode({
       type: 'group',
-      children: [fieldA]
+      children: [fieldA],
     })
     const treeB = createNode({ type: 'group' })
     fieldA.input(456)
@@ -615,5 +618,178 @@ describe('value propagation in a node tree', () => {
     expect(treeB.isSettled).toBe(false)
     await fieldA.settled
     expect(treeB.isSettled).toBe(true)
+  })
+
+  it('collects values from a groups children', async () => {
+    const parent = createNode({ type: 'group' })
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+      (value, next) => next(value)
+    )
+    parent.hook.commit(commitMiddleware)
+    const email = createNode({ name: 'email', props: { delay: 100 } })
+    const username = createNode({ name: 'username' })
+    parent.add(email).add(username)
+    email.input('tes')
+    email.input('test')
+    email.input('test@exam')
+    email.input('test@example.com')
+    username.input('test-user')
+    await username.settled
+    expect(commitMiddleware).toHaveBeenCalledTimes(3) // 2 partials, 1 full commit
+    expect(parent.value).toEqual({ email: undefined, username: 'test-user' })
+    await email.settled
+    expect(parent.value).toEqual({
+      email: 'test@example.com',
+      username: 'test-user',
+    })
+    expect(commitMiddleware).toHaveBeenCalledTimes(4)
+  })
+
+  it('collects values from a list of children', async () => {
+    const parent = createNode({
+      type: 'list',
+      children: [
+        createNode(),
+        createNode({ props: { delay: 100 } }),
+        createNode(),
+      ],
+    })
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+      (value, next) => next(value)
+    )
+    parent.hook.commit(commitMiddleware)
+    parent.at('0')?.input('hello')
+    parent.at('1')?.input('my')
+    parent.at('2')?.input('friend')
+    await parent.settled
+    expect(parent.value).toEqual(['hello', 'my', 'friend'])
+    parent.at([1])?.input('daniel’s')
+    await parent.settled
+    expect(parent.value).toEqual(['hello', 'daniel’s', 'friend'])
+  })
+
+  it('collects values from n-depth trees', async () => {
+    const shipping = createShippingTree()
+    expect(shipping.value).toStrictEqual({
+      name: undefined,
+      address: {
+        street: '694 Boise St',
+        city: undefined,
+        state: undefined,
+        zip: undefined,
+      },
+      products: [
+        {
+          product: 'T-shirt',
+          price: 2199,
+        },
+        {
+          product: 'Pants',
+          price: 5429,
+        },
+      ],
+    })
+    shipping.at('address.state')?.input('Virginia')
+    expect(shipping.at('address')?.value).toEqual({
+      street: '694 Boise St',
+      city: undefined,
+      state: undefined,
+      zip: undefined,
+    })
+    await shipping.settled
+    expect(shipping.value).toStrictEqual({
+      name: undefined,
+      address: {
+        street: '694 Boise St',
+        city: undefined,
+        state: 'Virginia',
+        zip: undefined,
+      },
+      products: [
+        {
+          product: 'T-shirt',
+          price: 2199,
+        },
+        {
+          product: 'Pants',
+          price: 5429,
+        },
+      ],
+    })
+  })
+
+  it('can remove a child from the list’s values', async () => {
+    const food = createNode({
+      type: 'list',
+      children: [
+        createNode({ value: 'pizza' }),
+        createNode({ value: 'pasta' }),
+        createNode({ value: 'steak' }),
+        createNode({ value: 'fish' }),
+      ],
+    })
+    food.remove(food.at([2])!)
+    expect(food.children.length).toBe(3)
+    expect(food.isSettled).toBe(true)
+    expect(food.value).toStrictEqual(['pizza', 'pasta', 'fish'])
+  })
+
+  it('can remove a child from a group’s values', async () => {
+    const address = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'street', value: '810 Foster Rd' }),
+        createNode({ name: 'city', value: 'Boston' }),
+        createNode({ name: 'state', value: 'MA' }),
+        createNode({ name: 'zip', value: 2101 }),
+      ],
+    })
+    address.remove(address.at('state')!)
+    expect(address.children.length).toBe(3)
+    expect(address.isSettled).toBe(true)
+    expect(address.value).toStrictEqual({
+      street: '810 Foster Rd',
+      city: 'Boston',
+      zip: 2101,
+    })
+  })
+
+  it('can re-arrange the order of a list’s values', async () => {
+    const food = createNode({
+      type: 'list',
+      children: [
+        createNode({ value: 'pizza' }),
+        createNode({ value: 'pasta' }),
+        createNode({ value: 'steak' }),
+        createNode({ value: 'fish' }),
+      ],
+    })
+    const steak = food.at([2])!
+    steak.index = 1
+    expect(food.value).toStrictEqual(['pizza', 'steak', 'pasta', 'fish'])
+    steak.input('ribeye')
+    expect(await food.settled).toStrictEqual([
+      'pizza',
+      'ribeye',
+      'pasta',
+      'fish',
+    ])
+  })
+
+  it('moves values from one tree to another', () => {
+    const ring = createNode({ name: 'ring', value: 'golden' })
+    const treeA = createNode({
+      type: 'group',
+      children: [createNode({ name: 'person', value: 'joe' })],
+    })
+    ring.parent = treeA
+    expect(treeA.value).toStrictEqual({ person: 'joe', ring: 'golden' })
+    const treeB = createNode({
+      type: 'group',
+      children: [createNode({ name: 'person', value: 'jane' })],
+    })
+    ring.parent = treeB
+    expect(treeA.value).toStrictEqual({ person: 'joe' })
+    expect(treeB.value).toStrictEqual({ person: 'jane', ring: 'golden' })
   })
 })

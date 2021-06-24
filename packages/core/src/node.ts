@@ -105,6 +105,25 @@ export interface KeyedValue {
 }
 
 /**
+ * Define the most basic shape of a context object for type guards trying to
+ * reason about a context's value.
+ */
+interface ContextShape {
+  type: FormKitNodeType
+  value: unknown
+  _value: unknown
+}
+
+/**
+ * The simplest definition for a context of type "list".
+ */
+interface ListContext {
+  type: 'list'
+  value: FormKitListValue
+  _value: FormKitListValue
+}
+
+/**
  * Signature for any of the node's getter traps. Keep in mind that because these
  * are traps and not class methods, their response types are declared explicitly
  * in the FormKitNode interface.
@@ -198,6 +217,15 @@ export interface FormKitChildCallback {
 }
 
 /**
+ * A descriptor of a child value, generally passed up a node tree.
+ */
+interface ChildValue {
+  name: string | number | symbol
+  value: any
+  from?: number
+}
+
+/**
  * FormKit's Node object produced by createNode(). All inputs, forms, and groups
  * are instances of nodes.
  */
@@ -207,16 +235,16 @@ export type FormKitNode<T = void> = {
   add: (node: FormKitNode<any>) => FormKitNode<T>
   at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
   address: FormKitAddress
-  calm: () => void
+  calm: (childValue?: ChildValue) => void
   config: FormKitConfig
-  disturb: () => void
+  disturb: () => FormKitNode<T>
   each: (callback: FormKitChildCallback) => void
   find: (
     selector: string,
     searcher?: keyof FormKitNode | FormKitSearchFunction<T>
   ) => FormKitNode | undefined
   index: number
-  input: (value: T) => FormKitNode<T>
+  input: (value: T, force?: boolean) => FormKitNode<T>
   name: string
   remove: (node: FormKitNode<any>) => FormKitNode<T>
   root: FormKitNode<any>
@@ -234,6 +262,28 @@ export type FormKitNode<T = void> = {
  * index of the node relative to its parent’s children.
  */
 export const useIndex = Symbol('index')
+
+/**
+ * When propagating values up a tree, this value indicates the child should be
+ * removed.
+ */
+export const valueRemoved = Symbol('removed')
+
+/**
+ * When propagating values up a tree, this value indicates the child should be
+ * moved.
+ */
+export const valueMoved = Symbol('moved')
+
+/**
+ * A simple type guard to determine if the context being evaluated is a list
+ * type.
+ * @param  {ContextShape} arg
+ * @returns arg is ListContext
+ */
+export function isList(arg: ContextShape): arg is ListContext {
+  return arg.type === 'list' && Array.isArray(arg._value)
+}
 
 /**
  * The setter you are trying to access is invalid.
@@ -366,9 +416,10 @@ function createValue<T extends FormKitOptions>(options: T): TypeOfValue<T> {
 function input<T>(
   node: FormKitNode<T>,
   context: FormKitContext,
-  value: T
+  value: T,
+  force: boolean = false
 ): FormKitNode<T> {
-  if (eq(context._value, value)) return node
+  if (!force && eq(context._value, value)) return node
   context._value = node.hook.input.dispatch(value)
   if (context.isSettled) node.disturb()
   if (context._t) clearTimeout(context._t)
@@ -381,10 +432,42 @@ function input<T>(
  * @param  {FormKitNode} node
  * @param  {FormKitContext} context
  */
-function commit(node: FormKitNode, context: FormKitContext) {
+function commit<T>(
+  node: FormKitNode<T>,
+  context: FormKitContext,
+  calm: boolean = true
+) {
   context.value = node.hook.commit.dispatch(context._value)
   // TODO emit commit event
-  node.calm()
+  if (calm) node.calm()
+}
+
+/**
+ * Perform a modification to a single element of a parent aggregate value. This
+ * is only performed on the pre-committed value (_value), although typically
+ * the value and _value are both linked in memory.
+ * @param  {FormKitContext} context
+ * @param  {string | number | symbol} name
+ * @param  {ChildValue} value}
+ */
+function partial(context: FormKitContext, { name, value, from }: ChildValue) {
+  if (isList(context)) {
+    const insert: any[] =
+      value === valueRemoved
+        ? []
+        : value === valueMoved
+        ? context._value.splice(from, 1)
+        : [value]
+    context._value.splice(name, value === valueMoved ? 0 : 1, ...insert)
+    return
+  }
+  // In this case we know for sure we're dealing with a group, TS doesn't
+  // know that however, so we use some unpleasant casting here
+  if (value !== valueRemoved) {
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
+  } else {
+    delete (context._value as unknown as FormKitGroupValue)[name as string]
+  }
 }
 
 /**
@@ -393,7 +476,10 @@ function commit(node: FormKitNode, context: FormKitContext) {
  * @param  {FormKitNode<T>} node
  * @param  {FormKitContext<T>} context
  */
-function disturb<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+function disturb<T>(
+  node: FormKitNode<T>,
+  context: FormKitContext<T>
+): FormKitNode<T> {
   if (context._d <= 0) {
     context.isSettled = false
     context.settled = new Promise((resolve) => {
@@ -402,6 +488,7 @@ function disturb<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
     if (node.parent) node.parent?.disturb()
   }
   context._d++
+  return node
 }
 
 /**
@@ -409,12 +496,21 @@ function disturb<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
  * @param  {FormKitNode<T>} node
  * @param  {FormKitContext<T>} context
  */
-function calm<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+function calm<T>(
+  node: FormKitNode<T>,
+  context: FormKitContext<T>,
+  value?: ChildValue
+) {
+  if (value !== undefined && node.type !== 'input') {
+    partial(context, value)
+    return commit(node, context)
+  }
   if (context._d > 0) context._d--
   if (context._d === 0) {
-    if (context._resolve) context._resolve(context.value)
     context.isSettled = true
-    if (node.parent) node.parent?.calm()
+    if (node.parent)
+      node.parent?.calm({ name: node.name, value: context.value })
+    if (context._resolve) context._resolve(context.value)
   }
 }
 
@@ -433,6 +529,7 @@ function addChild<T>(
   if (child.parent && child.parent !== parent) {
     child.parent.remove(child)
   }
+  // Synchronously set the initial value on the parent
   if (!parentContext.children.includes(child)) {
     parentContext.children.push(child)
     if (!child.isSettled) parent.disturb()
@@ -448,7 +545,45 @@ function addChild<T>(
   } else {
     child.use(parent.plugins)
   }
+  // Whether or not the current input is disturbed, we need the parent to have
+  // a "placeholder" in it's value, so we immediately commit it's current value
+  // to the parent and then perform a non-calming commit.
+  partial(parentContext, { name: child.name, value: child.value } as ChildValue)
+  commit(parent, parentContext, false)
   return parent
+}
+
+/**
+ * The setter for node.parent = FormKitNode
+ * @param  {FormKitContext} _context
+ * @param  {FormKitNode} node
+ * @param  {string|symbol} _property
+ * @param  {FormKitNode} parent
+ * @returns boolean
+ */
+function setParent<T>(
+  child: FormKitNode<T>,
+  context: FormKitContext,
+  _property: string | number | symbol,
+  parent: FormKitNode<any>
+): boolean {
+  // If the middleware returns `false` then we do not perform the assignment
+  if (isNode(parent)) {
+    if (child.parent && child.parent !== parent) {
+      child.parent.remove(child)
+    }
+    context.parent = parent
+    child.setConfig(parent.config)
+    !parent.children.includes(child)
+      ? parent.add(child)
+      : child.use(parent.plugins)
+    return true
+  }
+  if (parent === null) {
+    context.parent = null
+    return true
+  }
+  return false
 }
 
 /**
@@ -464,8 +599,12 @@ function removeChild<T>(
 ) {
   const childIndex = context.children.indexOf(child)
   if (childIndex !== -1) {
+    if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
-    if (!child.isSettled) child.parent?.calm()
+    node.calm({
+      name: node.type === 'list' ? childIndex : child.name,
+      value: valueRemoved,
+    })
     child.parent = null
   }
   return node
@@ -568,6 +707,10 @@ function setIndex<T>(
     children.splice(oldIndex, 1)
     children.splice(index, 0, node)
     node.parent.children = children
+    if (node.parent.type === 'list')
+      node.parent
+        .disturb()
+        .calm({ name: index, value: valueMoved, from: oldIndex })
     return true
   }
   return false
@@ -703,39 +846,6 @@ function getRoot<T>(n: FormKitNode<T>) {
 }
 
 /**
- * The setter for node.parent = FormKitNode
- * @param  {FormKitContext} _context
- * @param  {FormKitNode} node
- * @param  {string|symbol} _property
- * @param  {FormKitNode} parent
- * @returns boolean
- */
-function setParent<T>(
-  child: FormKitNode<T>,
-  context: FormKitContext,
-  _property: string | number | symbol,
-  parent: FormKitNode<any>
-): boolean {
-  // If the middleware returns `false` then we do not perform the assignment
-  if (isNode(parent)) {
-    if (child.parent && child.parent !== parent) {
-      child.parent.remove(child)
-    }
-    context.parent = parent
-    child.setConfig(parent.config)
-    !parent.children.includes(child)
-      ? parent.add(child)
-      : child.use(parent.plugins)
-    return true
-  }
-  if (parent === null) {
-    context.parent = null
-    return true
-  }
-  return false
-}
-
-/**
  * Creates a new configuration option.
  * @param  {FormKitNode} parent?
  * @param  {Partial<FormKitConfig>} configOptions
@@ -843,9 +953,7 @@ function nodeInit<T>(
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
   // Apply the parent to each child.
-  node.each((child) => {
-    child.parent = node
-  })
+  node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) {
     node.parent.add(node)
