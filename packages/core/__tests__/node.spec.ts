@@ -1,5 +1,14 @@
-import createNode, { FormKitGroupValue, FormKitPlugin } from '../src/node'
-import { createTicketTree, createShippingTree } from '../../../.jest/helpers'
+import createNode, {
+  FormKitGroupValue,
+  FormKitPlugin,
+  FormKitNode,
+} from '../src/node'
+import {
+  createTicketTree,
+  createShippingTree,
+  phoneMask,
+  eventCounter,
+} from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
 
@@ -273,7 +282,9 @@ describe('node', () => {
 
   it('uses the $parent keyword to allow address backtracking', () => {
     const [, nestedChild] = createTicketTree()
-    expect(nestedChild.at('$parent.$parent.0.price')?.value).toBe(499)
+    const price = nestedChild.at('$parent.$parent.0.price')
+    expect(price).toBeDefined()
+    expect(price?.value).toBe(499)
   })
 
   it('removes the first $parent of any address', () => {
@@ -467,11 +478,11 @@ describe('plugin system', () => {
 })
 
 describe('init hook', () => {
-  it('can modify a node on creation', async () => {
+  it('can modify a node on created', async () => {
     const envPlugin: FormKitPlugin<any> = function (node) {
-      node.hook.init((n, next) => {
-        if (n.type === 'input') n.input(123)
-        return next()
+      node.on('created', (event) => {
+        const payload = event.payload as FormKitNode<any>
+        if (payload.type === 'input') payload.input(123)
       })
     }
     const form = createNode({
@@ -517,22 +528,7 @@ describe('input hook', () => {
 
 describe('commit hook', () => {
   it('can change the value being assigned', async () => {
-    const commitMiddleware: FormKitMiddleware<string> = jest.fn(
-      (value, next) => {
-        const digits = value.replace(/[^0-9]/g, '')
-        let phone = ''
-        if (digits.length >= 3) {
-          phone = `(${digits.substr(0, 3)}) `
-        }
-        if (digits.length >= 6) {
-          phone += `${digits.substr(3, 3)}-${digits.substr(6)}`
-        }
-        if (digits.length < 3) {
-          phone = digits
-        }
-        return next(phone)
-      }
-    )
+    const commitMiddleware: FormKitMiddleware<string> = jest.fn(phoneMask)
     const phonePlugin: FormKitPlugin = function (node) {
       if (node.type === 'input') {
         node.hook.commit(commitMiddleware)
@@ -778,18 +774,180 @@ describe('value propagation in a node tree', () => {
 
   it('moves values from one tree to another', () => {
     const ring = createNode({ name: 'ring', value: 'golden' })
+    const form = createNode({ name: 'form', type: 'group' })
     const treeA = createNode({
+      name: 'treeA',
       type: 'group',
       children: [createNode({ name: 'person', value: 'joe' })],
     })
     ring.parent = treeA
     expect(treeA.value).toStrictEqual({ person: 'joe', ring: 'golden' })
+    form.add(treeA)
+    expect(form.value).toStrictEqual({
+      treeA: {
+        person: 'joe',
+        ring: 'golden',
+      },
+    })
     const treeB = createNode({
+      name: 'treeB',
       type: 'group',
       children: [createNode({ name: 'person', value: 'jane' })],
     })
+    treeB.parent = form
     treeB.add(ring)
     expect(treeA.value).toStrictEqual({ person: 'joe' })
     expect(treeB.value).toStrictEqual({ person: 'jane', ring: 'golden' })
+    expect(form.value).toStrictEqual({
+      treeA: {
+        person: 'joe',
+      },
+      treeB: {
+        person: 'jane',
+        ring: 'golden',
+      },
+    })
+  })
+
+  it('can set values of children by calling input on parent', async () => {
+    const tree = createNode({
+      type: 'group',
+      name: 'form',
+      children: [
+        createNode({ name: 'a' }),
+        createNode({
+          name: 'b',
+          type: 'group',
+          children: [createNode({ name: 'd', value: 456 })],
+        }),
+        createNode({ name: 'c', value: 123 }),
+      ],
+    })
+    const value = await tree.input({
+      a: 123,
+      b: {
+        d: 789,
+        e: '10',
+      },
+      c: 456,
+    })
+    expect(value).toEqual({
+      a: 123,
+      b: {
+        d: 789,
+        e: '10',
+      },
+      c: 456,
+    })
+    expect(tree.at('form.b.d')?.value).toBe(789)
+  })
+
+  it('passes initial values through the input middleware', () => {
+    const maskPlugin: FormKitPlugin = jest.fn((n) => {
+      n.hook.input(phoneMask)
+      n.hook.init(phoneMask)
+    })
+    const node = createNode({
+      value: '5552348899',
+      plugins: [maskPlugin],
+    })
+    expect(node.value).toEqual('(555) 234-8899')
+  })
+
+  it('manipulating a subtree produces minimal commit events', () => {
+    const plugin = eventCounter('commit')
+    const form = createNode({
+      plugins: [plugin],
+      type: 'group',
+      name: 'form',
+    })
+    expect(plugin.calls).toBe(0)
+    form.add(createNode({ name: 'letters', type: 'group', value: { a: 123 } }))
+    expect(plugin.calls).toBe(1)
+    form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
+    expect(plugin.calls).toBe(2)
+    expect(form._d).toBe(0)
+  })
+
+  it('retains parent values when children do not match', () => {
+    const treeA = createNode({
+      type: 'group',
+      value: {
+        a: 123,
+        b: { d: 456 },
+        c: 789,
+      },
+    })
+    const treeB = createNode({
+      type: 'group',
+      children: [
+        createNode({
+          name: 'b',
+          type: 'group',
+          children: [createNode({ name: 'd', value: 555 })],
+        }),
+      ],
+    })
+    treeB.at('b')!.parent = treeA
+    expect(treeA.value).toStrictEqual({
+      a: 123,
+      b: { d: 456 },
+      c: 789,
+    })
+    expect(treeA.at('b.d')!.value).toBe(456)
+  })
+
+  it('can hydrate a list at depth', () => {
+    const tree = createNode({
+      type: 'group',
+      name: 'form',
+      value: {
+        a: 'foo',
+        people: ['first', 'second', 'third'],
+      },
+      children: [
+        createNode({ name: 'a' }),
+        createNode({
+          name: 'people',
+          type: 'list',
+          children: [
+            createNode(),
+            createNode({ value: 'fifth' }),
+            createNode(),
+          ],
+        }),
+      ],
+    })
+    expect(tree.value).toStrictEqual({
+      a: 'foo',
+      people: ['first', 'second', 'third'],
+    })
+    expect(tree.at('people.0')!.value).toBe('first')
+    expect(tree.at('people.1')!.value).toBe('second')
+    expect(tree.at('people.2')!.value).toBe('third')
+  })
+
+  it('can hydrate a pre-existing tree with values', async () => {
+    const [tree] = createTicketTree()
+    await tree.input({
+      email: 'hello@useformkit.com',
+      password: 'super-secret',
+      tickets: [{ price: 5000, row: 'backstage' }, { price: 200 }],
+    })
+    expect(tree.at('email')!.value).toBe('hello@useformkit.com')
+    expect(tree.at('password')!.value).toBe('super-secret')
+    expect(tree.at('tickets.0.price')!.value).toBe(5000)
+    expect(tree.at('tickets.0.row')!.value).toBe('backstage')
+    expect(tree.at('tickets.1.price')!.value).toBe(200)
+    expect(tree.at('tickets.1.seat')!.value).toBe(undefined)
+    expect(tree.value).toStrictEqual({
+      email: 'hello@useformkit.com',
+      password: 'super-secret',
+      confirm_password: undefined,
+      tickets: [
+        { price: 5000, row: 'backstage' },
+        { price: 200, seat: undefined },
+      ],
+    })
   })
 })

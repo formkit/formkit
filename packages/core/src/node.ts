@@ -22,7 +22,7 @@ export interface FormKitPlugin<T = any> {
  * The available hooks for middleware.
  */
 export interface FormKitHooks<ValueType> {
-  init: FormKitDispatcher<FormKitNode<ValueType>>
+  init: FormKitDispatcher<ValueType>
   commit: FormKitDispatcher<ValueType>
   input: FormKitDispatcher<ValueType>
   prop: FormKitDispatcher<{
@@ -199,7 +199,6 @@ export interface FormKitContext<ValueType = any> {
   name: string | symbol
   parent: FormKitNode<any> | null
   plugins: Set<FormKitPlugin>
-  preCommit: ValueType | null
   props: Partial<FormKitProps>
   settled: Promise<ValueType>
   traps: FormKitTraps<ValueType>
@@ -242,6 +241,7 @@ interface ChildValue {
 export type FormKitNode<T = void> = {
   readonly __FKNode__: true
   readonly value: T extends void ? any : T
+  _c: FormKitContext
   add: (node: FormKitNode<any>) => FormKitNode<T>
   at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
   address: FormKitAddress
@@ -255,8 +255,9 @@ export type FormKitNode<T = void> = {
     selector: string,
     searcher?: keyof FormKitNode | FormKitSearchFunction<T>
   ) => FormKitNode | undefined
+  hydrate: () => FormKitNode<T>
   index: number
-  input: (value: T, force?: boolean) => FormKitNode<T>
+  input: (value: T, async?: boolean) => FormKitNode<T>
   name: string
   on: (eventName: string, listener: FormKitEventListener) => FormKitNode<T>
   remove: (node: FormKitNode<any>) => FormKitNode<T>
@@ -313,6 +314,7 @@ const invalidSetter = (): never => {
 function createTraps<T>(): FormKitTraps<T> {
   return new Map<string | symbol, FormKitTrap<T>>(
     Object.entries({
+      _c: trap<T>(getContext, invalidSetter, false),
       add: trap<T>(addChild),
       address: trap<T>(getAddress, invalidSetter, false),
       at: trap<any>(getNode),
@@ -320,6 +322,7 @@ function createTraps<T>(): FormKitTraps<T> {
       calm: trap<T>(calm),
       config: trap<T>(false),
       disturb: trap<T>(disturb),
+      hydrate: trap<T>(hydrate),
       index: trap<T>(getIndex, setIndex, false),
       input: trap<T>(input),
       each: trap<T>(eachChild),
@@ -366,7 +369,7 @@ function trap<T>(
  */
 function createHooks<T>(_options: T): FormKitHooks<TypeOfValue<T>> {
   return {
-    init: createDispatcher<FormKitNode<TypeOfValue<T>>>(),
+    init: createDispatcher<TypeOfValue<T>>(),
     input: createDispatcher<TypeOfValue<T>>(),
     commit: createDispatcher<TypeOfValue<T>>(),
     prop: createDispatcher<{ prop: string | symbol; value: any }>(),
@@ -411,9 +414,7 @@ function createValue<T extends FormKitOptions>(options: T): TypeOfValue<T> {
   // initial values — do we use the input hook? is the state initially
   // settled? does hydration happen after the fact? etc etc...
   if (options.type === 'group') {
-    return options.value &&
-      options.value === 'object' &&
-      !Array.isArray(options.value)
+    return typeof options.value === 'object' && !Array.isArray(options.value)
       ? options.value
       : {}
   } else if (options.type === 'list') {
@@ -433,27 +434,35 @@ function input<T>(
   node: FormKitNode<T>,
   context: FormKitContext,
   value: T,
-  force: boolean = false
-): FormKitNode<T> {
-  if (!force && eq(context._value, value)) return node
+  async: boolean = true
+): Promise<T> {
+  if (eq(context._value, value)) return context.settled
   context._value = node.hook.input.dispatch(value)
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
-  if (context._t) clearTimeout(context._t)
-  context._t = setTimeout(commit, node.props.delay, node, context)
-  return node
+  if (async) {
+    if (context._t) clearTimeout(context._t)
+    context._t = setTimeout(commit, node.props.delay, node, context)
+  } else {
+    commit(node, context)
+  }
+  return context.settled
 }
 
 /**
  * Commits the working value to the node graph as the value of this node.
  * @param  {FormKitNode} node
  * @param  {FormKitContext} context
+ * @param {boolean} calm
+ * @param {boolean} hydrate
  */
 function commit<T>(
   node: FormKitNode<T>,
   context: FormKitContext,
-  calm: boolean = true
+  calm: boolean = true,
+  hydrate: boolean = true
 ) {
+  if (node.type !== 'input' && hydrate) node.hydrate()
   context.value = node.hook.commit.dispatch(context._value)
   node.emit('commit', context.value)
   if (calm) node.calm()
@@ -485,6 +494,36 @@ function partial(context: FormKitContext, { name, value, from }: ChildValue) {
   } else {
     delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
+}
+
+/**
+ * Pass values down to children by calling hydrate on them.
+ * @param  {FormKitNode<T>} parent
+ * @param  {FormKitNode} child
+ */
+function hydrate<T>(
+  node: FormKitNode<T>,
+  context: FormKitContext<T>
+): FormKitNode<T> {
+  context.children.forEach((child) => {
+    if (has(context._value, child.name)) {
+      if ((context._value as KeyedValue)[child.name] !== undefined) {
+        // In this case, the parent has a value to give to the child, so we
+        // perform a down-tree synchronous input which will cascade values down
+        // and then ultimately back up.
+        child.input((context._value as KeyedValue)[child.name], false)
+      }
+    } else {
+      // In this case, the parent’s values have no knowledge of the child
+      // value — this typically occurs on the commit at the end of addChild()
+      // we need to create a value reservation for this node’s name. This is
+      // especially important when dealing with lists where index matters.
+      if (node.type !== 'list' || typeof child.name === 'number') {
+        partial(context, { name: child.name, value: child.value })
+      }
+    }
+  })
+  return node
 }
 
 /**
@@ -520,7 +559,8 @@ function calm<T>(
 ) {
   if (value !== undefined && node.type !== 'input') {
     partial(context, value)
-    return commit(node, context)
+    // Commit the value up, but do not hydrate back down
+    return commit(node, context, true, false)
   }
   if (context._d > 0) context._d--
   if (context._d === 0) {
@@ -558,14 +598,16 @@ function addChild<T>(
     if (child.parent !== parent) {
       parent.remove(child)
       child.parent.add(child)
+      return parent
     }
   } else {
+    // When a parent is properly assigned, we inject the parent's plugins on the
+    // child.
     child.use(parent.plugins)
   }
-  // Whether or not the current input is disturbed, we need the parent to have
-  // a "placeholder" in it's value, so we immediately commit it's current value
-  // to the parent and then perform a non-calming commit.
-  partial(parentContext, { name: child.name, value: child.value } as ChildValue)
+  // Finally we call commit here, which sub-calls hydrate(), hydrate() will
+  // resolve any conflict between the parent and child values, and also ensure
+  // proper "placeholders" are made on the parent.
   commit(parent, parentContext, false)
   return parent
 }
@@ -584,7 +626,6 @@ function setParent<T>(
   _property: string | number | symbol,
   parent: FormKitNode<any>
 ): boolean {
-  // If the middleware returns `false` then we do not perform the assignment
   if (isNode(parent)) {
     if (child.parent && child.parent !== parent) {
       child.parent.remove(child)
@@ -657,6 +698,7 @@ function walkTree<T>(
     child.walk(callback)
   })
 }
+
 /**
  * Set the configuration options of the node and it's subtree.
  * @param  {FormKitNode} node
@@ -689,9 +731,10 @@ export function use<T>(
     return node
   }
   if (!context.plugins.has(plugin)) {
-    context.plugins.add(plugin)
+    // When plugins return false, they are never added as to the plugins Set
+    // meaning they only ever have access to the single node they were added on.
     if (plugin(node) !== false) {
-      // If a plugin returns `false` it does not descend to children
+      context.plugins.add(plugin)
       node.children.forEach((child) => child.use(plugin))
     }
   }
@@ -739,6 +782,16 @@ function setIndex<T>(
  */
 function getIndex<T>(node: FormKitNode<T>) {
   return node.parent ? [...node.parent.children].indexOf(node) : -1
+}
+
+/**
+ * Retrieves the context object of a given node. This is intended to be a
+ * private trap and should absolutely not be used in plugins or user-land code.
+ * @param  {FormKitNode<T>} _node
+ * @param  {FormKitContext<T>} context
+ */
+function getContext<T>(_node: FormKitNode<T>, context: FormKitContext<T>) {
+  return context
 }
 
 /**
@@ -950,7 +1003,6 @@ function createContext<T extends FormKitOptions>(
     name: createName(options, type),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
-    preCommit: null,
     props: createProps(type),
     settled: Promise.resolve(value),
     isSettled: true,
@@ -971,22 +1023,20 @@ function nodeInit<T>(
 ): FormKitNode<T> {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
+  // If the options has plugins, we apply them
+  options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
+  // Apply the input hook to the initial value, we don't need to disturb or
+  // calm this because the node has not yet been attached to the parent.
+  node._c._value = node._c.value = node.hook.init.dispatch(node._value)
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
-  if (node.parent) {
-    node.parent.add(node)
-  }
+  if (node.parent) node.parent.add(node)
   // Set the internal node of the props proxy
   node.props._n = node
-  if (options.props) {
-    Object.keys(options.props).forEach((prop) => {
-      node.props[prop] = options.props![prop]
-    })
-  }
-  // If the options has plugins, we apply
-  options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
-  return node.emit('init', node.hook.init.dispatch(node))
+  // Apply given in options to the node.
+  if (options.props) Object.assign(node.props, options.props)
+  return node.emit('created', node)
 }
 
 /**

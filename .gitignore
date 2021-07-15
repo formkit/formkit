@@ -5,3 +5,5 @@ coverage
 temp
 *.log
 .vscode
+packages/vue
+packages/react

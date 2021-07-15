@@ -1,4 +1,4 @@
-import createNode from '../packages/core/src/node'
+import createNode, { FormKitNode } from '../packages/core/src/node'
 
 /*
  * Creates a node tree and returns the parent with a nested child
@@ -61,7 +61,7 @@ export function createNameTree() {
 /**
  * A sample shipping form-like tree.
  */
-export function createShippingTree () {
+export function createShippingTree() {
   return createNode({
     type: 'group',
     name: 'form',
@@ -75,7 +75,7 @@ export function createShippingTree () {
           createNode({ name: 'city' }),
           createNode({ name: 'state' }),
           createNode({ name: 'zip' }),
-        ]
+        ],
       }),
       createNode({
         name: 'products',
@@ -83,20 +83,70 @@ export function createShippingTree () {
         children: [
           createNode({
             type: 'group',
-             children: [
+            children: [
               createNode({ name: 'product', value: 'T-shirt' }),
-              createNode({ name: 'price', value: 2199 })
-             ]
+              createNode({ name: 'price', value: 2199 }),
+            ],
           }),
           createNode({
             type: 'group',
-             children: [
+            children: [
               createNode({ name: 'product', value: 'Pants' }),
-              createNode({ name: 'price', value: 5429 })
-             ]
-          })
-        ]
-      })
-    ]
+              createNode({ name: 'price', value: 5429 }),
+            ],
+          }),
+        ],
+      }),
+    ],
   })
+}
+
+/**
+ * Example middleware for masking a phone input.
+ * @param  {string} value
+ * @param  {<T>(payload?:T} next
+ */
+export function phoneMask(
+  value: string | undefined,
+  next: (payload?: string) => string
+): string {
+  if (value === undefined) {
+    return next()
+  }
+  const digits = value.replace(/[^0-9]/g, '')
+  let phone = ''
+  if (digits.length >= 3) {
+    phone = `(${digits.substr(0, 3)}) `
+  }
+  if (digits.length >= 6) {
+    phone += `${digits.substr(3, 3)}-${digits.substr(6)}`
+  }
+  if (digits.length < 3) {
+    phone = digits
+  }
+  return next(phone)
+}
+
+/**
+ * Defines the event counter plugin, which counts the number of times a given
+ * event is called.
+ */
+export interface EventCounterPlugin {
+  (node: FormKitNode): void | boolean
+  calls: number
+}
+
+/**
+ * @param  {string} eventName
+ * @returns EventCounterPlugin
+ */
+export function eventCounter(eventName: string): EventCounterPlugin {
+  const plugin = function (node: FormKitNode) {
+    node.on(eventName, (event) => {
+      if (event.origin === node) plugin.calls++
+    })
+    return false
+  }
+  plugin.calls = 0
+  return plugin
 }
