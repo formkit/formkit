@@ -9,6 +9,7 @@ import {
   on,
   FormKitEventListener,
 } from './events'
+import { createStore, FormKitStore } from './store'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -187,10 +188,10 @@ export type FormKitProps = {
  * proxy of this object.
  */
 export interface FormKitContext<ValueType = any> {
-  _resolve: ((value: ValueType) => void) | false
-  _t: number | false
   _d: number
   _e: FormKitEventEmitter
+  _resolve: ((value: ValueType) => void) | false
+  _t: number | false
   _value: ValueType
   children: Array<FormKitNode<any>>
   config: FormKitConfig
@@ -201,6 +202,7 @@ export interface FormKitContext<ValueType = any> {
   plugins: Set<FormKitPlugin>
   props: Partial<FormKitProps>
   settled: Promise<ValueType>
+  store: FormKitStore
   traps: FormKitTraps<ValueType>
   type: FormKitNodeType
   value: ValueType
@@ -939,9 +941,11 @@ function createConfig(
 }
 
 /**
- * Throw a FormKit error
+ * Create a new FormKit error.
+ * @param  {FormKitNode<any>} node
+ * @param  {number} errorCode
  */
-function createError(node: FormKitNode<any>, errorCode: number) {
+export function createError(node: FormKitNode<any>, errorCode: number) {
   const e: string | false = node.hook.error.dispatch(`E${errorCode}`)
   node.emit('error', e)
   if (e !== false) throw new Error(e)
@@ -992,20 +996,21 @@ function createContext<T extends FormKitOptions>(
   const value = createValue(options)
   const config = createConfig(options.parent, options.config)
   return {
-    _resolve: false,
-    _t: false,
     _d: 0,
     _e: createEmitter(),
+    _resolve: false,
+    _t: false,
     _value: value,
     children: dedupe(options.children || []),
     config,
     hook: createHooks(options),
+    isSettled: true,
     name: createName(options, type),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
     props: createProps(type),
     settled: Promise.resolve(value),
-    isSettled: true,
+    store: createStore(),
     traps: createTraps<TypeOfValue<T>>(),
     type,
     value,
@@ -1023,6 +1028,8 @@ function nodeInit<T>(
 ): FormKitNode<T> {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
+  // Set the internal node on the message store
+  node.store._n = node
   // If the options has plugins, we apply them
   options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
   // Apply the input hook to the initial value, we don't need to disturb or
