@@ -1,5 +1,7 @@
 import createNode from '../src/node'
+import { FormKitEvent } from '../src/events'
 import { createMessage } from '../src/store'
+import { jest } from '@jest/globals'
 
 describe('setting store messages', () => {
   it('can set a message', () => {
@@ -65,7 +67,7 @@ describe('setting store messages', () => {
     node.on('message', listener)
     node.at('buildings.wall.0')?.store.set(message)
     expect(listener).toHaveBeenCalledTimes(1)
-    expect(listener.mock.calls[0][0].payload).toBe(message)
+    expect((listener.mock.calls[0][0] as FormKitEvent).payload).toBe(message)
   })
 })
 
@@ -85,6 +87,6 @@ describe('removing store messages', () => {
     node.store.set(message)
     node.store.remove('sky')
     expect(listener).toHaveBeenCalledTimes(1)
-    expect(listener.mock.calls[0][0].payload).toBe(message)
+    expect((listener.mock.calls[0][0] as FormKitEvent).payload).toBe(message)
   })
 })
