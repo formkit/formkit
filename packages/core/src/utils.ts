@@ -2,6 +2,7 @@ import { FormKitNode } from './node'
 
 /**
  * Breadth and Depth first searches can use a callback of this notation.
+ * @public
  */
 export type FormKitSearchFunction<T> = (
   node: FormKitNode<T>,
@@ -18,7 +19,7 @@ export function token(): string {
 /**
  * Creates a new set of the specified type and uses the values from an Array or
  * an existing Set.
- * @param  {Set<T>|T[]|null} items
+ * @param items -
  * @returns Set
  */
 export function setify<T>(items: Set<T> | T[] | null | undefined): Set<T> {
@@ -27,8 +28,8 @@ export function setify<T>(items: Set<T> | T[] | null | undefined): Set<T> {
 
 /**
  * Given 2 arrays, return them as a combined array with no duplicates.
- * @param  {T} arr1
- * @param  {X} arr2
+ * @param arr1 -
+ * @param arr2 -
  * @returns any[]
  */
 export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
@@ -43,6 +44,7 @@ export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
 /**
  * Determine if a given object is a node
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isNode(node: any): node is FormKitNode {
   return node && typeof node === 'object' && node.__FKNode__
 }
@@ -50,8 +52,8 @@ export function isNode(node: any): node is FormKitNode {
 /**
  * Perform a breadth-first-search on a node subtree and locate the first
  * instance of a match.
- * @param  {FormKitNode} node
- * @param  {FormKitNode} name
+ * @param node -
+ * @param name -
  * @returns FormKitNode
  */
 export function bfs<T>(
@@ -65,7 +67,7 @@ export function bfs<T>(
       : searchGoal
   const stack = [tree]
   while (stack.length) {
-    const node = stack.shift()!
+    const node = stack.shift()! // eslint-disable-line @typescript-eslint/no-non-null-assertion
     if (search(node, searchValue)) return node
     stack.push(...node.children)
   }
@@ -74,7 +76,7 @@ export function bfs<T>(
 
 /**
  * Create a name based dictionary of all children in an array.
- * @param  {FormKitNode[]} children
+ * @param children -
  */
 export function names(children: FormKitNode[]): {
   [index: string]: FormKitNode
@@ -87,8 +89,8 @@ export function names(children: FormKitNode[]): {
 
 /**
  * Checks if the given property exists on the given object.
- * @param  {{[index:string]:any;[index:number]:any}} obj
- * @param  {string|symbol|number} property
+ * @param obj -
+ * @param property -
  */
 export function has(
   obj: { [index: string]: any; [index: number]: any },
@@ -99,18 +101,19 @@ export function has(
 
 /**
  * Compare two values for equality optionally at depth.
- * @param  {any} valA
- * @param  {any} valB
- * @param  {true} deep
+ * @param valA -
+ * @param valB -
+ * @param deep -
  * @returns boolean
  */
-export function eq(valA: any, valB: any, deep: boolean = true): boolean {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function eq(valA: any, valB: any, deep = true): boolean {
   if (valA === valB) return true
   if (typeof valA === typeof valB && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
-    for (let key in valA) {
+    for (const key in valA) {
       if (!has(valB, key)) return false
       if (valA[key] !== valB[key] && !deep) return false
       if (deep && !eq(valA[key], valB[key], true)) return false

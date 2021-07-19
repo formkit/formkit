@@ -4,8 +4,9 @@ import { has, token } from './utils'
 /**
  * The structure of an core FormKitMessage. These messages are used to store
  * information about the state of a node.
+ * @public
  */
-interface FormKitMessageProps {
+export interface FormKitMessageProps {
   blocking: boolean
   key: string
   meta: FormKitMessageMeta
@@ -15,11 +16,13 @@ interface FormKitMessageProps {
 
 /**
  * A FormKit message is immutable, so all properties should be readonly.
+ * @public
  */
 export type FormKitMessage = Readonly<FormKitMessageProps>
 
 /**
  * Messages have can have any arbitrary meta data attached to them.
+ * @public
  */
 export interface FormKitMessageMeta {
   [index: string]: any
@@ -27,13 +30,15 @@ export interface FormKitMessageMeta {
 
 /**
  * Defines the actual store of messages (private).
+ * @public
  */
-interface FormKitMessageStore {
+export interface FormKitMessageStore {
   [index: string]: FormKitMessage
 }
 
 /**
  * The message bag stores all of the messages that pertain to a given node.
+ * @public
  */
 export type FormKitStore = FormKitMessageStore & {
   _n: FormKitNode<any>
@@ -43,8 +48,9 @@ export type FormKitStore = FormKitMessageStore & {
 
 /**
  * Creates a new FormKitMessage object.
- * @param  {Partial<FormKitMessage>} conf
+ * @param conf -
  * @returns FormKitMessage
+ * @public
  */
 export function createMessage(conf: Partial<FormKitMessage>): FormKitMessage {
   return Object.freeze(
@@ -90,10 +96,10 @@ export function createStore(): FormKitStore {
 
 /**
  * Adds a new value to a FormKit message bag.
- * @param  {FormKitMessageStore} store
- * @param  {FormKitStore} bag
- * @param  {FormKitNode} node
- * @param  {FormKitMessage} message
+ * @param store -
+ * @param bag -
+ * @param node -
+ * @param message -
  * @returns FormKitStore
  */
 function setMessage(
@@ -111,10 +117,10 @@ function setMessage(
 
 /**
  * Remove a message from the store.
- * @param  {FormKitMessageStore} messageStore
- * @param  {FormKitStore} store
- * @param  {FormKitNode} node
- * @param  {string} key
+ * @param messageStore -
+ * @param store -
+ * @param node -
+ * @param key -
  * @returns FormKitStore
  */
 function removeMessage(

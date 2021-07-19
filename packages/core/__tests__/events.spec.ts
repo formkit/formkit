@@ -1,4 +1,4 @@
-import createNode from '../src/node'
+import { createNode } from '../src/node'
 import { createShippingTree } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 import { FormKitEvent } from '../src/events'

@@ -2,12 +2,3 @@
 # yarn lockfile v1
 
 
-"@arrow-js/core@1.0.0-alpha.0":
-  version "1.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/@arrow-js/core/-/core-1.0.0-alpha.0.tgz#c71f0d1756822a9d66f9792272bad787ea204947"
-  integrity sha512-ENN3uTTHu9fNC4wDq8FAZpclPdZBdHYPmQIY7SwDdiGaLxwZOoNfaPA6+m0cKmaGiEFW33luGuMjMhWZDEGWNQ==
-
-prettier@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.0.tgz#b6a5bf1284026ae640f17f7ff5658a7567fc0d18"
-  integrity sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==

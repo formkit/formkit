@@ -3,6 +3,7 @@ import { isNode } from './utils'
 
 /**
  * Event listener functions definition.
+ * @public
  */
 export interface FormKitEventListener {
   (event: FormKitEvent): void
@@ -10,6 +11,7 @@ export interface FormKitEventListener {
 
 /**
  * The internal structure of a FormKitEvent
+ * @public
  */
 export interface FormKitEvent {
   payload: any
@@ -20,6 +22,7 @@ export interface FormKitEvent {
 
 /**
  * The FormKitEventEmitter definition.
+ * @public
  */
 export interface FormKitEventEmitter {
   (node: FormKitNode<any>, event: FormKitEvent): void
@@ -36,6 +39,7 @@ export function createEmitter(): FormKitEventEmitter {
 
   const emitter = (node: FormKitNode<any>, event: FormKitEvent) => {
     if (listeners.has(event.name)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       listeners.get(event.name)!.forEach((listener) => listener(event))
     }
     if (event.bubble) {
@@ -44,7 +48,7 @@ export function createEmitter(): FormKitEventEmitter {
   }
   emitter.on = (eventName: string, listener: FormKitEventListener) => {
     listeners.has(eventName)
-      ? listeners.get(eventName)!.push(listener)
+      ? listeners.get(eventName)!.push(listener) // eslint-disable-line @typescript-eslint/no-non-null-assertion
       : listeners.set(eventName, [listener])
     return
   }
@@ -53,17 +57,17 @@ export function createEmitter(): FormKitEventEmitter {
 
 /**
  * Emit an event from this node.
- * @param  {FormKitNode<T>} node
- * @param  {FormKitContext<T>} context
- * @param  {string} name
- * @param  {any} payload?
+ * @param node -
+ * @param context -
+ * @param name -
+ * @param payload -
  * @returns FormKitNode
  */
 export function emit<T>(
   node: FormKitNode<T>,
   context: FormKitContext<T>,
   name: string,
-  payload?: any
+  payload?: any // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
 ): FormKitNode<T> {
   context._e(node, {
     payload,
@@ -76,15 +80,15 @@ export function emit<T>(
 
 /**
  * Send an event from the given node up it's ancestor tree.
- * @param  {FormKitNode<T>} node
- * @param  {FormKitContext<T>} _context
- * @param  {FormKitEvent} event
+ * @param node -
+ * @param _context -
+ * @param event -
  */
 export function bubble<T>(
   node: FormKitNode<T>,
   _context: FormKitContext<T>,
   event: FormKitEvent
-) {
+): FormKitNode<T> {
   if (isNode(node.parent)) {
     node.parent._e(node.parent, event)
   }
@@ -93,10 +97,10 @@ export function bubble<T>(
 
 /**
  * Adds an event listener to the node for a specific event.
- * @param  {FormKitNode<T>} node
- * @param  {FormKitContext<T>} context
- * @param  {string} name
- * @param  {FormKitEventListener} listener
+ * @param node -
+ * @param context -
+ * @param name -
+ * @param listener -
  * @returns FormKitNode
  */
 export function on<T>(

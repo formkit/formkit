@@ -1,8 +1,11 @@
 {
+  "private": true,
   "name": "@formkit/core",
   "version": "1.0.0-alpha.0",
   "description": "The framework agnostic core of FormKit",
-  "main": "src/FormKit.ts",
+  "main": "dist/formkit-core.cjs.js",
+  "module": "dist/formkit-core.esm.js",
+  "types": "dist/formkit-core.d.ts",
   "author": "Justin Schroeder <justin@wearebraid.com>",
   "license": "UNLICENSED",
   "publishConfig": {
@@ -12,9 +15,6 @@
     "test": "jest"
   },
   "type": "module",
-  "dependencies": {
-    "@arrow-js/core": "1.0.0-alpha.0",
-    "prettier": "^2.3.0"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }

@@ -1,6 +1,5 @@
 import { createNameTree } from '../../../.jest/helpers'
 import { bfs, eq } from '../src/utils'
-import { FormKitNode } from '../src/node'
 import { jest } from '@jest/globals'
 
 describe('bfs', () => {
@@ -37,7 +36,7 @@ describe('bfs', () => {
 
   it('searches the entire tree', () => {
     const parent = createNameTree()
-    const searcher = jest.fn((_node: FormKitNode) => false)
+    const searcher = jest.fn(() => false)
     bfs(parent, 'jim', searcher)
     expect(searcher.mock.calls.length).toBe(7)
   })

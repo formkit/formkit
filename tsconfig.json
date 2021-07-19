@@ -6,7 +6,7 @@
     "allowJs": false,
     "strict": true,
     "moduleResolution": "node",
-    "declaration": true,
+    "declaration": false,
     "baseUrl": ".",
     "outDir": "dist",
     "skipLibCheck": true,

@@ -1,4 +1,4 @@
-import createNode, { FormKitNode } from '../packages/core/src/node'
+import { createNode, FormKitNode } from '../packages/core/src/node'
 
 /*
  * Creates a node tree and returns the parent with a nested child
@@ -103,8 +103,8 @@ export function createShippingTree() {
 
 /**
  * Example middleware for masking a phone input.
- * @param  {string} value
- * @param  {<T>(payload?:T} next
+ * @param value -
+ * @param next -
  */
 export function phoneMask(
   value: string | undefined,
@@ -137,7 +137,7 @@ export interface EventCounterPlugin {
 }
 
 /**
- * @param  {string} eventName
+ * @param eventName -
  * @returns EventCounterPlugin
  */
 export function eventCounter(eventName: string): EventCounterPlugin {

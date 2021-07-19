@@ -1,8 +1,10 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
+    "eslint.packageManager": "yarn",
     "cSpell.words": [
         "dedupe",
         "dispatchable",
+        "execa",
         "setify"
     ]
 }
