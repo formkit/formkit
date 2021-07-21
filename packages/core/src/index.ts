@@ -34,8 +34,3 @@ export {
   FormKitEvent,
   FormKitEventEmitter,
 } from './events'
-
-/**
- * Export typings from utils.
- */
-export { FormKitSearchFunction } from './utils'

@@ -64,7 +64,7 @@ describe('setting store messages', () => {
       key: 'mortar',
     })
     const listener = jest.fn()
-    node.on('message', listener)
+    node.on('message.deep', listener)
     node.at('buildings.wall.0')?.store.set(message)
     expect(listener).toHaveBeenCalledTimes(1)
     expect((listener.mock.calls[0][0] as FormKitEvent).payload).toBe(message)

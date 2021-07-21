@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { FormKitSearchFunction, bfs, dedupe, eq, isNode, has } from './utils'
+import { dedupe, eq, has } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -296,6 +296,15 @@ export type FormKitNode<T = void> = {
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
 /**
+ * Breadth and Depth first searches can use a callback of this notation.
+ * @public
+ */
+export type FormKitSearchFunction<T> = (
+  node: FormKitNode<T>,
+  searchTerm?: string | number
+) => boolean
+
+/**
  * If a node’s name is set to useIndex, it replaces the node’s name with the
  * index of the node relative to its parent’s children.
  * @public
@@ -325,6 +334,15 @@ export const valueMoved = Symbol('moved')
  */
 export function isList(arg: FormKitContextShape): arg is FormKitListContext {
   return arg.type === 'list' && Array.isArray(arg._value)
+}
+
+/**
+ * Determine if a given object is a node
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isNode(node: any): node is FormKitNode {
+  return node && typeof node === 'object' && node.__FKNode__
 }
 
 /**
@@ -418,6 +436,20 @@ let nodeCount = 0
  */
 export function resetCount(): void {
   nodeCount = 0
+}
+
+/**
+ * Create a name based dictionary of all children in an array.
+ * @param children -
+ * @public
+ */
+export function names(children: FormKitNode[]): {
+  [index: string]: FormKitNode
+} {
+  return children.reduce(
+    (named, child) => Object.assign(named, { [child.name]: child }),
+    {}
+  )
 }
 
 /**
@@ -944,6 +976,32 @@ function find<T>(
   searcher: keyof FormKitNode | FormKitSearchFunction<T>
 ): FormKitNode | undefined {
   return bfs(node, searchTerm, searcher)
+}
+
+/**
+ * Perform a breadth-first-search on a node subtree and locate the first
+ * instance of a match.
+ * @param node -
+ * @param name -
+ * @returns FormKitNode
+ * @public
+ */
+export function bfs<T>(
+  tree: FormKitNode<T>,
+  searchValue: string | number,
+  searchGoal: keyof FormKitNode<any> | FormKitSearchFunction<any> = 'name'
+): FormKitNode<any> | undefined {
+  const search: FormKitSearchFunction<any> =
+    typeof searchGoal === 'string'
+      ? (n: FormKitNode<any>) => n[searchGoal] == searchValue // non-strict comparison is intentional
+      : searchGoal
+  const stack = [tree]
+  while (stack.length) {
+    const node = stack.shift()! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    if (search(node, searchValue)) return node
+    stack.push(...node.children)
+  }
+  return undefined
 }
 
 /**

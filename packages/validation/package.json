@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@formkit/core",
+  "name": "@formkit/validation",
   "version": "1.0.0-alpha.0",
-  "description": "The framework agnostic core of FormKit",
+  "description": "Validation plugin and validation rules for FormKit",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@formkit/utils": "1.0.0-alpha.0"
+    "@formkit/core": "1.0.0-alpha.0"
   },
   "devDependencies": {}
 }

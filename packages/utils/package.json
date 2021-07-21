@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@formkit/core",
+  "name": "@formkit/utils",
   "version": "1.0.0-alpha.0",
-  "description": "The framework agnostic core of FormKit",
+  "description": "Shared utilities for FormKit packages",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -15,8 +15,6 @@
     "test": "jest"
   },
   "type": "module",
-  "dependencies": {
-    "@formkit/utils": "1.0.0-alpha.0"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }

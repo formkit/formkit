@@ -41,7 +41,7 @@ function createOutputConfig()
 }
 
 /**
- * Creates the @rollup/plugin-typescript plugin configuration, which is roughly
+ * Creates the rollup/plugin-typescript plugin configuration, which is roughly
  * equivalent to the typescript compilerOptions.
  */
 function createTypeScriptConfig()
@@ -49,7 +49,9 @@ function createTypeScriptConfig()
   const base = {
     tsconfig: 'tsconfig.json',
     outDir: `${rootPath}/dist`,
-    include: `./packages/${pkg}/src/*.ts`,
+    include: [
+      `./packages/${pkg}/src/*.ts`,
+    ],
     noEmitOnError: true
   }
   if (!declarations) {

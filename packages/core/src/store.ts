@@ -1,5 +1,5 @@
 import { FormKitNode, createError } from './node'
-import { has, token } from './utils'
+import { has, token } from '@formkit/utils'
 
 /**
  * The structure of an core FormKitMessage. These messages are used to store

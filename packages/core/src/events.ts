@@ -1,5 +1,4 @@
-import { FormKitContext, FormKitNode } from './node'
-import { isNode } from './utils'
+import { FormKitContext, FormKitNode, isNode } from './node'
 
 /**
  * Event listener functions definition.
@@ -21,6 +20,16 @@ export interface FormKitEvent {
 }
 
 /**
+ * Event listeners are wrapped in this object before being stored.
+ * @internal
+ */
+export interface FormKitEventListenerWrapper {
+  event: string
+  listener: FormKitEventListener
+  modifier?: string
+}
+
+/**
  * The FormKitEventEmitter definition.
  * @public
  */
@@ -35,21 +44,31 @@ export interface FormKitEventEmitter {
  * @returns FormKitEventEmitter
  */
 export function createEmitter(): FormKitEventEmitter {
-  const listeners = new Map<string, FormKitEventListener[]>()
+  const listeners = new Map<string, FormKitEventListenerWrapper[]>()
 
   const emitter = (node: FormKitNode<any>, event: FormKitEvent) => {
     if (listeners.has(event.name)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      listeners.get(event.name)!.forEach((listener) => listener(event))
+      listeners.get(event.name)!.forEach((wrapper) => {
+        if (event.origin === node || wrapper.modifier === 'deep') {
+          wrapper.listener(event)
+        }
+      })
     }
     if (event.bubble) {
       node.bubble(event)
     }
   }
   emitter.on = (eventName: string, listener: FormKitEventListener) => {
-    listeners.has(eventName)
-      ? listeners.get(eventName)!.push(listener) // eslint-disable-line @typescript-eslint/no-non-null-assertion
-      : listeners.set(eventName, [listener])
+    const [event, modifier] = eventName.split('.')
+    const wrapper: FormKitEventListenerWrapper = {
+      modifier,
+      event,
+      listener,
+    }
+    listeners.has(event)
+      ? listeners.get(event)!.push(wrapper) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      : listeners.set(event, [wrapper])
     return
   }
   return emitter
@@ -96,7 +115,9 @@ export function bubble<T>(
 }
 
 /**
- * Adds an event listener to the node for a specific event.
+ * Adds an event listener to the node for a specific event. The event name is a
+ * simple string matching the name of the event to listen to. It can optionally
+ * include modifiers like eventName.deep
  * @param node -
  * @param context -
  * @param name -

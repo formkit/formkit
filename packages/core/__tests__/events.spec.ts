@@ -30,10 +30,10 @@ describe('emitting and listening to events', () => {
     expect(listener2).toHaveBeenCalledTimes(1)
   })
 
-  it('bubbles input events up a node tree', () => {
+  it('can listen to deep events in the tree', () => {
     const tree = createShippingTree()
     const listener = jest.fn()
-    tree.on('input', listener)
+    tree.on('input.deep', listener)
     const product = tree.at('form.products.0.product')!
     product.input('Sweater')
     expect(listener).toHaveBeenCalledTimes(1)
@@ -48,11 +48,11 @@ describe('emitting and listening to events', () => {
   it('can prevent propagation', () => {
     const tree = createShippingTree()
     const listener = jest.fn()
-    tree.on('input', listener)
+    tree.on('input.deep', listener)
     const bubblePreventer = jest.fn((e: FormKitEvent) => {
       e.bubble = false
     })
-    tree.at('form.products.0')!.on('input', bubblePreventer)
+    tree.at('form.products.0')!.on('input.deep', bubblePreventer)
     const product = tree.at('form.products.0.product')!
     product.input('Sweater')
     expect(bubblePreventer).toHaveBeenCalledTimes(1)

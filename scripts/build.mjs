@@ -96,7 +96,13 @@ async function buildPackage (p) {
  */
 async function cleanDist(p) {
   loader.text = `Removing: ${p}/dist`
-  await fs.rm(`${packagesDir}/${p}/dist`, { recursive: true });
+  const distDir = `${packagesDir}/${p}/dist`
+  try {
+    await fs.access(distDir)
+    await fs.rm(distDir, { recursive: true });
+  } catch {
+    // directory is already missing, no need to clean it
+  }
   info(`» cleaned dist artifacts`)
 }
 

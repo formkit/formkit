@@ -3,8 +3,10 @@ import {
   FormKitGroupValue,
   FormKitPlugin,
   FormKitNode,
+  bfs,
 } from '../src/node'
 import {
+  createNameTree,
   createTicketTree,
   createShippingTree,
   phoneMask,
@@ -378,6 +380,26 @@ describe('props system', () => {
     child.hook.prop(({ prop }, next) => next({ prop, value: 800 }))
     child.props.delay = 200
     expect(child.props.delay).toBe(800)
+  })
+
+  it('emits a prop event when a prop changes', () => {
+    const node = createNode({
+      props: {
+        name: 'ted',
+      },
+    })
+    const listener = jest.fn()
+    node.on('prop', listener)
+    node.props.name = 'fred'
+    expect(listener).toHaveBeenCalledWith({
+      name: 'prop',
+      bubble: true,
+      origin: node,
+      payload: {
+        prop: 'name',
+        value: 'fred',
+      },
+    })
   })
 })
 
@@ -949,6 +971,46 @@ describe('value propagation in a node tree', () => {
         { price: 5000, row: 'backstage' },
         { price: 200, seat: undefined },
       ],
+    })
+  })
+
+  describe('bfs', () => {
+    it('searches the parent node first', () => {
+      const parent = createNameTree()
+      expect(bfs(parent, 'tommy')).toBe(parent)
+    })
+
+    it('searches for a name in the children', () => {
+      const parent = createNameTree()
+      expect(bfs(parent, 'wendy')).toBe(parent.at('wendy'))
+    })
+
+    it('allows changing the searched property', () => {
+      const parent = createNameTree()
+      expect(bfs(parent, '555', 'value')).toBe(parent.at('jane'))
+    })
+
+    it('allows a callback to determine the search parameters', () => {
+      const parent = createNameTree()
+      expect(
+        bfs(
+          parent,
+          'radio',
+          (node) => node.name !== 'jane' && node.value === '555'
+        )
+      ).toBe(parent.at('stella.tommy'))
+    })
+
+    it('returns undefined when unable to find a match', () => {
+      const parent = createNameTree()
+      expect(bfs(parent, 'jim')).toBe(undefined)
+    })
+
+    it('searches the entire tree', () => {
+      const parent = createNameTree()
+      const searcher = jest.fn(() => false)
+      bfs(parent, 'jim', searcher)
+      expect(searcher.mock.calls.length).toBe(7)
     })
   })
 })
