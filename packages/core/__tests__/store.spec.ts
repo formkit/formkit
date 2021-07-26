@@ -89,4 +89,23 @@ describe('removing store messages', () => {
     expect(listener).toHaveBeenCalledTimes(1)
     expect((listener.mock.calls[0][0] as FormKitEvent).payload).toBe(message)
   })
+
+  it('can filter out store messages', () => {
+    const node = createNode()
+    node.store.set(createMessage({ key: 'chocolate', type: 'foo' }))
+    node.store.set(createMessage({ key: 'apple', type: 'bar' }))
+    node.store.set(createMessage({ key: 'vanilla', type: 'bar' }))
+    node.store.filter((message) => message.key === 'apple')
+    expect(Object.keys(node.store)).toEqual(['apple'])
+  })
+
+  it('can filter out store messages by type', () => {
+    const node = createNode()
+    node.store.set(createMessage({ key: 'chocolate', type: 'foo' }))
+    node.store.set(createMessage({ key: 'apple', type: 'bar' }))
+    node.store.set(createMessage({ key: 'vanilla', type: 'bar' }))
+    const filter = jest.fn(() => false)
+    node.store.filter(filter, 'bar')
+    expect(Object.keys(node.store)).toEqual(['chocolate'])
+  })
 })

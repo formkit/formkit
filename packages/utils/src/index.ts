@@ -70,3 +70,25 @@ export function eq(valA: any, valB: any, deep = true): boolean {
   }
   return false
 }
+
+/**
+ * Determines if a value is empty or not.
+ * @param value - any type of value that could be returned by an input.
+ * @public
+ */
+export function empty(
+  value: string | { [index: string]: any } | any[] | number | null | undefined
+): boolean {
+  const type = typeof value
+  if (type === 'number') return false
+  if (value === undefined) return true
+  if (type === 'string') {
+    return value === ''
+  }
+  if (type === 'object') {
+    if (value === null || Object.keys(value).length === 0) {
+      return true
+    }
+  }
+  return false
+}

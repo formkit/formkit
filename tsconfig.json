@@ -17,8 +17,8 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
   },
-  "include": [
-    "packages/*/src",
-    "packages/*/__tests__"
-  ]
+  // "include": [
+  //   "packages/*/src",
+  //   "packages/*/__tests__"
+  // ]
 }

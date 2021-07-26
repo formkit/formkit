@@ -26,7 +26,7 @@ export interface FormKitEvent {
 export interface FormKitEventListenerWrapper {
   event: string
   listener: FormKitEventListener
-  modifier?: string
+  modifiers: string[]
 }
 
 /**
@@ -50,7 +50,7 @@ export function createEmitter(): FormKitEventEmitter {
     if (listeners.has(event.name)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       listeners.get(event.name)!.forEach((wrapper) => {
-        if (event.origin === node || wrapper.modifier === 'deep') {
+        if (event.origin === node || wrapper.modifiers.includes('deep')) {
           wrapper.listener(event)
         }
       })
@@ -60,9 +60,9 @@ export function createEmitter(): FormKitEventEmitter {
     }
   }
   emitter.on = (eventName: string, listener: FormKitEventListener) => {
-    const [event, modifier] = eventName.split('.')
+    const [event, ...modifiers] = eventName.split('.')
     const wrapper: FormKitEventListenerWrapper = {
-      modifier,
+      modifiers,
       event,
       listener,
     }

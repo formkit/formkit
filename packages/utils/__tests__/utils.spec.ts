@@ -1,4 +1,4 @@
-import { eq } from '../src/index'
+import { eq, empty } from '../src/index'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
@@ -82,4 +82,20 @@ describe('eq', () => {
   ).toBe(false)
   expect(eq([{}], [{}])).toBe(true)
   expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
+})
+
+describe('empty', () => {
+  it('considers empty strings empty', () => expect(empty('')).toBe(true))
+  it('considers spaces not empty', () => expect(empty('  ')).toBe(false))
+  it('considers the string zero not empty', () =>
+    expect(empty('0')).toBe(false))
+  it('considers the number zero not empty', () => expect(empty(0)).toBe(false))
+  it('considers empty arrays empty', () => expect(empty([])).toBe(true))
+  it('considers empty objects empty', () => expect(empty({})).toBe(true))
+  it('considers null empty', () => expect(empty(null)).toBe(true))
+  it('considers undefined empty', () => expect(empty(undefined)).toBe(true))
+  it('considers an array with value zero not empty', () =>
+    expect(empty(['a'])).toBe(false))
+  it('considers an object with key not empty', () =>
+    expect(empty({ a: undefined })).toBe(false))
 })

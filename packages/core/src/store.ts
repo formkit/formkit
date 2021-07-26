@@ -37,13 +37,17 @@ export interface FormKitMessageStore {
 }
 
 /**
- * The message bag stores all of the messages that pertain to a given node.
+ * The message store contains all of the messages that pertain to a given node.
  * @public
  */
 export type FormKitStore = FormKitMessageStore & {
   _n: FormKitNode<any>
   set: (message: FormKitMessage) => FormKitStore
   remove: (key: string) => FormKitStore
+  filter: (
+    callback: (message: FormKitMessage) => boolean,
+    type?: string
+  ) => FormKitStore
 }
 
 /**
@@ -80,6 +84,8 @@ export function createStore(): FormKitStore {
         return setMessage.bind(null, messages, store, node)
       if (property === 'remove')
         return removeMessage.bind(null, messages, store, node)
+      if (property === 'filter')
+        return filterMessages.bind(null, messages, store, node)
       return Reflect.get(...args)
     },
     set(_t, prop, value) {
@@ -135,4 +141,26 @@ function removeMessage(
     node.emit('message-removed', message)
   }
   return store
+}
+
+/**
+ * Iterates over all messages removing those that are no longer wanted.
+ * @param messageStore -
+ * @param store -
+ * @param node -
+ * @param callback - A callback accepting a message and returning a boolean
+ */
+function filterMessages(
+  messageStore: FormKitMessageStore,
+  store: FormKitStore,
+  node: FormKitNode,
+  callback: (message: FormKitMessage) => boolean,
+  type: false | string
+) {
+  for (const key in messageStore) {
+    const message = messageStore[key]
+    if ((!type || message.type === type) && !callback(message)) {
+      removeMessage(messageStore, store, node, key)
+    }
+  }
 }
