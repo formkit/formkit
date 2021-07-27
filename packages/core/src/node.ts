@@ -1063,7 +1063,7 @@ function createProps<T>(type: FormKitNodeType) {
     get(...args) {
       const [_t, prop] = args
       if (has(props, prop)) return Reflect.get(...args)
-      if (has(node.config, prop) && typeof prop === 'string')
+      if (node && has(node.config, prop) && typeof prop === 'string')
         return node.config[prop]
       return undefined
     },
@@ -1127,8 +1127,10 @@ function nodeInit<T>(
 ): FormKitNode<T> {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
-  // Set the internal node on the message store
-  node.store._n = node
+  // Set the internal node on the props and store proxies
+  node.store._n = node.props._n = node
+  // Apply given in options to the node.
+  if (options.props) Object.assign(node.props, options.props)
   // If the options has plugins, we apply them
   options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
   // Apply the input hook to the initial value, we don't need to disturb or
@@ -1138,10 +1140,6 @@ function nodeInit<T>(
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) node.parent.add(node)
-  // Set the internal node of the props proxy
-  node.props._n = node
-  // Apply given in options to the node.
-  if (options.props) Object.assign(node.props, options.props)
   return node.emit('created', node)
 }
 

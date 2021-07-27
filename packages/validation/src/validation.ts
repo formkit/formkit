@@ -1,5 +1,5 @@
 import { FormKitNode, FormKitMessage, createMessage } from '@formkit/core'
-import { has, empty } from '@formkit/utils'
+import { has, empty, token } from '@formkit/utils'
 
 /**
  * Special validation properties that affect the way validations are applied.
@@ -113,13 +113,15 @@ export function createValidation(baseRules: FormKitValidationRules = {}) {
     )
     // Parse the rules on creation:
     let rules = parseRules(node.props.validation, availableRules)
-    const nonce = { value: performance.now() }
+    const nonce = { value: token() }
     // If the node's validation prop changes, update the rules:
     node.on('prop', (event) => {
       if (event.payload.prop === 'validation') {
         rules = parseRules(event.payload.value, availableRules)
       }
     })
+    // Validate the field when this plugin is initialized
+    validate(node.value, node, rules, nonce)
     // When values of this input are actually committed, run validation:
     node.on('commit', ({ payload }) => validate(payload, node, rules, nonce))
   }
@@ -136,10 +138,10 @@ async function validate(
   value: any,
   node: FormKitNode<any>,
   rules: FormKitValidation[],
-  nonce: { value: number }
+  nonce: { value: string }
 ): Promise<void> {
   // Create a new nonce, canceling any existing async validators
-  nonce.value = performance.now()
+  nonce.value = token()
   let validations = [...rules]
   removeFlaggedMessages(node)
   validations.forEach((v) => v.debounce && clearTimeout(v.timer))
@@ -147,8 +149,7 @@ async function validate(
     validations = validations.filter((v) => !v.skipEmpty)
   }
   if (validations.length) {
-    const messages = await run(value, validations, node, nonce, [], false)
-    if (Array.isArray(messages)) removeResolvedMessages(node, messages)
+    await run(value, validations, node, nonce, false)
   }
 }
 
@@ -167,13 +168,12 @@ async function run(
   value: any,
   validations: FormKitValidation[],
   node: FormKitNode<any>,
-  nonce: { value: number },
-  messages: FormKitMessage[],
+  nonce: { value: string },
   removeImmediately: boolean
-): Promise<FormKitMessage[] | false> {
+): Promise<void | 0> {
   const currentRun = nonce.value
   const validation = validations.shift()
-  if (!validation) return messages
+  if (!validation) return
   if (validation.debounce) {
     removeImmediately = true
     await debounce(validation)
@@ -182,19 +182,20 @@ async function run(
   const isAsync = willBeResult instanceof Promise
   const result = isAsync ? await willBeResult : willBeResult
   // The input has been edited since we started validating — kill the stack
-  if (currentRun !== nonce.value) return false
+  if (currentRun !== nonce.value) return
   // Async messages need to be trashed immediately.
   if (!removeImmediately && isAsync) removeImmediately = true
   if (!result) {
-    messages.push(
-      createFailedMessage(node, value, validation, removeImmediately)
-    )
+    createFailedMessage(node, value, validation, removeImmediately)
     // The rule failed so filter out any remaining rules that are not forced
     validations = validations.filter((v) => v.force)
+  } else {
+    removeMessage(node, validation)
   }
-  return validations.length
-    ? run(value, validations, node, nonce, messages, removeImmediately)
-    : messages
+  return (
+    validations.length &&
+    (await run(value, validations, node, nonce, removeImmediately))
+  )
 }
 
 /**
@@ -202,7 +203,7 @@ async function run(
  * @param validation - A validation to debounce
  */
 function debounce(validation: FormKitValidation) {
-  new Promise<void>((r) => {
+  return new Promise<void>((r) => {
     validation.timer = (setTimeout(
       () => r(),
       validation.debounce
@@ -217,12 +218,11 @@ function debounce(validation: FormKitValidation) {
  * @param node - The node to operate on.
  * @param messages - A new stack of messages
  */
-function removeResolvedMessages(
-  node: FormKitNode<any>,
-  messages: FormKitMessage[]
-) {
-  const keys = messages.map((message) => message.key)
-  node.store.filter((message) => keys.includes(message.key), 'validation')
+function removeMessage(node: FormKitNode<any>, validation: FormKitValidation) {
+  const key = `rule_${validation.name}`
+  if (has(node.store, key)) {
+    node.store.remove(key)
+  }
 }
 
 /**
@@ -231,7 +231,7 @@ function removeResolvedMessages(
  * @param node - The node to operate on
  */
 function removeFlaggedMessages(node: FormKitNode<any>) {
-  node.store.filter((message) => !!message.meta.removeImmediately, 'validation')
+  node.store.filter((message) => !message.meta.removeImmediately, 'validation')
 }
 
 /**
@@ -247,7 +247,7 @@ function createFailedMessage(
 ): FormKitMessage {
   const message = createMessage({
     blocking: validation.blocking,
-    key: `rule-${validation.name}`,
+    key: `rule_${validation.name}`,
     meta: {
       /**
        * For messages that were created *by or after* a debounced or async

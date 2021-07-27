@@ -1,6 +1,14 @@
-import { parseRules, defaultHints } from '../src/validation'
+import { empty } from '@formkit/utils'
+import {
+  parseRules,
+  defaultHints,
+  createValidation,
+  FormKitValidationRule,
+} from '../src/validation'
+import { createNode } from '@formkit/core'
 
 const defaultValidation = { ...defaultHints, timer: 0 }
+const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('validation rule parsing', () => {
   it('can parse a single string rule', () => {
@@ -190,17 +198,16 @@ describe('validation rule parsing', () => {
     expect(parseRules('free|(2000)required', { required, free })).toEqual([
       {
         ...defaultValidation,
+        args: [],
         rule: free,
         name: 'free',
       },
       {
         ...defaultValidation,
+        args: [],
         rule: required,
         name: 'required',
-        args: [],
         debounce: 2000,
-        blocking: false,
-        force: true,
       },
     ])
   })
@@ -241,4 +248,123 @@ describe('validation rule parsing', () => {
     const parsed = parseRules([['^matches', /^S.*$/]], { matches })
     expect(parsed[0].force).toBeTruthy()
   })
+})
+
+describe('validation rule sequencing', () => {
+  const required: FormKitValidationRule = ({ value }) => !empty(value)
+  required.skipEmpty = false
+  const validationPlugin = createValidation({
+    required,
+    length: ({ value }, length) => ('' + value).length >= parseInt(length),
+    contains: ({ value }, substr) => ('' + value).includes(substr),
+    exists: ({ value }) => {
+      return new Promise((resolve) =>
+        setTimeout(() => {
+          resolve(['bar', 'foobar'].includes(value))
+        }, 100)
+      )
+    },
+  })
+
+  it('runs non-async non-debounced rules synchronously with bailing', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|length:5|contains:bar',
+      },
+      value: '',
+    })
+    await nextTick()
+    expect(node.store).toHaveProperty('rule_required')
+    // Should not exist because of empty
+    expect(node.store).not.toHaveProperty('rule_length')
+    node.input('foo', false)
+    await nextTick()
+    // Should no longer fail on required, but on length
+    expect(node.store).not.toHaveProperty('rule_required')
+    expect(node.store).toHaveProperty('rule_length')
+    expect(node.store).not.toHaveProperty('rule_contains')
+    node.input('foo foo', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_required')
+    expect(node.store).not.toHaveProperty('rule_length')
+    expect(node.store).toHaveProperty('rule_contains')
+    node.input('foobar', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_required')
+    expect(node.store).not.toHaveProperty('rule_length')
+    expect(node.store).not.toHaveProperty('rule_contains')
+  })
+
+  it('runs rules serially after debounce', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|(200)length:5|^contains:bar',
+      },
+      value: '',
+    })
+    await nextTick()
+    expect(node.store).toHaveProperty('rule_required')
+    expect(node.store).not.toHaveProperty('rule_length')
+    node.input('foo', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_required')
+    expect(node.store).not.toHaveProperty('rule_length')
+    await new Promise((r) => setTimeout(r, 205))
+    expect(node.store).toHaveProperty('rule_length')
+    expect(node.store).toHaveProperty('rule_contains')
+  })
+
+  it('awaits async rule resolution before continuing and removes messages immediately', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|length:5|exists|^contains:bar',
+      },
+      value: 'abcdef',
+    })
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_exists')
+    expect(node.store).not.toHaveProperty('rule_contains')
+    await new Promise((r) => setTimeout(r, 105))
+    expect(node.store).toHaveProperty('rule_exists')
+    expect(node.store).toHaveProperty('rule_contains')
+    node.input('foobars', false)
+    // These messages should be removed because they have been tagged with
+    // 'removeImmediately' since they come on or after an async rule
+    expect(node.store).not.toHaveProperty('rule_exists')
+    expect(node.store).not.toHaveProperty('rule_contains')
+  })
+
+  it('cancels out mid-stream validations, never adding them', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|exists',
+      },
+      value: 'abcdef',
+    })
+    await nextTick()
+    node.input('foo', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_exists')
+    node.input('foobar', false)
+    await new Promise((r) => setTimeout(r, 103))
+    expect(node.store).not.toHaveProperty('rule_exists')
+  })
+
+  // it('sets an validating message during validation runs', async () => {
+  //   const node = createNode({
+  //     plugins: [validationPlugin],
+  //     props: {
+  //       validation: 'required|length:5|exists|^contains:bar',
+  //     },
+  //     value: 'abcdef',
+  //   })
+  //   await nextTick()
+  //   expect(node.store).not.toHaveProperty('validating')
+  //   node.input('foobar')
+  //   expect(node.store).toHaveProperty('validating')
+  // })
 })

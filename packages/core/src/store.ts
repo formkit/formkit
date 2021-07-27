@@ -57,17 +57,13 @@ export type FormKitStore = FormKitMessageStore & {
  * @public
  */
 export function createMessage(conf: Partial<FormKitMessage>): FormKitMessage {
-  return Object.freeze(
-    Object.assign(
-      {
-        blocking: false,
-        key: token(),
-        meta: {},
-        type: 'state',
-      },
-      conf
-    )
-  )
+  return {
+    blocking: false,
+    key: token(),
+    meta: {},
+    type: 'state',
+    ...conf,
+  }
 }
 
 /**
@@ -115,7 +111,7 @@ function setMessage(
   message: FormKitMessage
 ): FormKitStore {
   if (messageStore[message.key] !== message) {
-    messageStore[message.key] = message
+    messageStore[message.key] = Object.freeze(message)
     node.emit('message', message)
   }
   return store

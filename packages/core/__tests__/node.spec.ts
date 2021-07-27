@@ -322,8 +322,13 @@ describe('node', () => {
 
 describe('props system', () => {
   it('can set arbitrary initial prop values', () => {
-    const node = createNode({ props: { party: 'town' } })
-    expect(node.props.party).toBe('town')
+    const node = createNode({ props: { party: 'town', pizza: 'yummy' } })
+    expect(node.props.pizza).toBe('yummy')
+    expect(node.props).toEqual({
+      delay: 20,
+      party: 'town',
+      pizza: 'yummy',
+    })
   })
 
   it('configuration values flow to props', () => {
