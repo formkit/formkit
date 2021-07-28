@@ -111,8 +111,9 @@ function setMessage(
   message: FormKitMessage
 ): FormKitStore {
   if (messageStore[message.key] !== message) {
+    const e = `message-${has(messageStore, message.key) ? 'updated' : 'added'}`
     messageStore[message.key] = Object.freeze(message)
-    node.emit('message', message)
+    node.emit(e, message)
   }
   return store
 }

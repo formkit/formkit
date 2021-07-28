@@ -10,6 +10,7 @@ import {
   FormKitEventListener,
 } from './events'
 import { createStore, FormKitStore } from './store'
+import { createLedger, FormKitLedger } from './ledger'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -215,6 +216,7 @@ export interface FormKitContext<ValueType = any> {
   config: FormKitConfig
   hook: FormKitHooks<ValueType>
   isSettled: boolean
+  ledger: FormKitLedger
   name: string | symbol
   parent: FormKitNode<any> | null
   plugins: Set<FormKitPlugin>
@@ -1104,6 +1106,7 @@ function createContext<T extends FormKitOptions>(
     config,
     hook: createHooks(),
     isSettled: true,
+    ledger: createLedger(),
     name: createName(options, type),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
@@ -1127,6 +1130,7 @@ function nodeInit<T>(
 ): FormKitNode<T> {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
+  node.ledger.init(node)
   // Set the internal node on the props and store proxies
   node.store._n = node.props._n = node
   // Apply given in options to the node.

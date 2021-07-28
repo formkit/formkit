@@ -40,7 +40,8 @@ describe('setting store messages', () => {
   it('does not emit an event if the same message is already set', () => {
     const node = createNode()
     const listener = jest.fn()
-    node.on('message', listener)
+    node.on('message-added', listener)
+    node.on('message-updated', listener)
     const message = createMessage({ key: 'robot', value: 'beep' })
     node.store.set(message)
     expect(listener).toHaveBeenCalledTimes(1)
@@ -64,10 +65,27 @@ describe('setting store messages', () => {
       key: 'mortar',
     })
     const listener = jest.fn()
-    node.on('message.deep', listener)
+    node.on('message-added.deep', listener)
     node.at('buildings.wall.0')?.store.set(message)
     expect(listener).toHaveBeenCalledTimes(1)
     expect((listener.mock.calls[0][0] as FormKitEvent).payload).toBe(message)
+  })
+
+  it('emits message-updated for changed messages', () => {
+    const node = createNode()
+    const addedListener = jest.fn()
+    const updatedListener = jest.fn()
+    node.on('message-added', addedListener)
+    node.on('message-updated', updatedListener)
+    const message = createMessage({ key: 'robot', value: 'beep' })
+    node.store.set(message)
+    expect(addedListener).toHaveBeenCalledTimes(1)
+    node.store.set(message)
+    expect(updatedListener).toHaveBeenCalledTimes(0)
+    const message2 = createMessage({ key: 'robot', value: 'boop' })
+    node.store.set(message2)
+    expect(addedListener).toHaveBeenCalledTimes(1)
+    expect(updatedListener).toHaveBeenCalledTimes(1)
   })
 })
 
