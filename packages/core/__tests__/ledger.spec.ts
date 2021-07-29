@@ -42,7 +42,7 @@ describe('ledger tracking on single node', () => {
 describe('ledger tracking on a tree', () => {
   it('accumulates tracking data at the top of the tree', async () => {
     const [tree] = createTicketTree()
-    tree.ledger.count('errors')
+    tree.ledger.count('errors', (m) => m.type === 'errors')
     tree.at('form.confirm_password')!.store.set(
       createMessage({
         key: 'error-422',
@@ -73,5 +73,27 @@ describe('ledger tracking on a tree', () => {
     tree.at('form.confirm_password')!.store.remove('error-422')
     await nextTick()
     expect(settledListener).toHaveBeenCalledTimes(1)
+  })
+
+  it('can filter tracking to blocking messages only', () => {
+    const [tree] = createTicketTree()
+    tree.ledger.count(
+      'blocking_errors',
+      (m) => m.type === 'errors' && m.blocking
+    )
+    tree.at('form.confirm_password')!.store.set(
+      createMessage({
+        key: 'error-422',
+        type: 'errors',
+      })
+    )
+    tree.store.set(
+      createMessage({
+        key: 'error-422',
+        type: 'errors',
+        blocking: true,
+      })
+    )
+    expect(tree.ledger.value('blocking_errors')).toBe(1)
   })
 })
