@@ -1,4 +1,4 @@
-import { createTicketTree } from '../../../.jest/helpers'
+import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
 import { createNode } from '../src/node'
 import { createMessage } from '../src/store'
 import { jest } from '@jest/globals'
@@ -95,5 +95,86 @@ describe('ledger tracking on a tree', () => {
       })
     )
     expect(tree.ledger.value('blocking_errors')).toBe(1)
+  })
+
+  it('counts the current value of a store when added', () => {
+    const node = createNode()
+    node.store.set(
+      createMessage({
+        type: 'bubbles',
+        key: 'bubble-1',
+      })
+    )
+    node.store.set(
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+      })
+    )
+    node.ledger.count('bubbles', (m) => m.type === 'bubbles')
+    expect(node.ledger.value('bubbles')).toBe(1)
+  })
+
+  it('counts the current value of a tree when added', async () => {
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    const tree = createShippingTree()
+    tree.at('form')!.store.set(error())
+    tree.at('form.address')!.store.set(error())
+    tree.at('form.address.state')!.store.set(error())
+    tree.at('form.products.1.price')!.store.set(error())
+    tree.ledger.count('blocking', (m) => m.blocking)
+    expect(tree.ledger.value('blocking')).toBe(4)
+    const isSettled = jest.fn()
+    tree.ledger.settled('blocking').then(isSettled)
+    tree.store.remove('required_rule')
+    await nextTick()
+    expect(isSettled).toHaveBeenCalledTimes(0)
+    tree.at('form.address')!.store.remove('required_rule')
+    tree.at('form.address.state')!.store.remove('required_rule')
+    expect(tree.ledger.value('blocking')).toBe(1)
+    tree.at('form.products.1.price')!.store.remove('required_rule')
+    await nextTick()
+    expect(isSettled).toHaveBeenCalledTimes(1)
+  })
+
+  it('counts subtree values', () => {
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    const tree = createShippingTree()
+    tree.ledger.count('blocking', (m) => m.blocking)
+    tree.at('form')!.store.set(error())
+    tree.at('form.address')!.store.set(error())
+    tree.at('form.address.state')!.store.set(error())
+    expect(tree.at('form.address')!.ledger.value('blocking')).toBe(2)
+  })
+
+  it('emits a settled event when settling', async () => {
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    const tree = createShippingTree()
+    const settledListener = jest.fn()
+    tree.on('settled:blocking', settledListener)
+    tree.ledger.count('blocking', (m) => m.blocking)
+    tree.at('form')!.store.set(error())
+    tree.at('form.address')!.store.set(error())
+    expect(settledListener).toHaveBeenCalledTimes(0)
+    tree.store.remove('required_rule')
+    expect(settledListener).toHaveBeenCalledTimes(0)
+    tree.at('form.address')!.store.remove('required_rule')
+    await nextTick()
+    expect(settledListener).toHaveBeenCalledTimes(1)
   })
 })

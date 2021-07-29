@@ -437,7 +437,7 @@ function fnHints(
   if (!existingHints.name) {
     existingHints.name = rule.ruleName || rule.name
   }
-  return ['skipEmpty', 'force', 'debounce'].reduce(
+  return ['skipEmpty', 'force', 'debounce', 'blocking'].reduce(
     (hints: Partial<FormKitValidationHints>, hint: string) => {
       if (has(rule, hint) && !has(hints, hint)) {
         Object.assign(hints, {

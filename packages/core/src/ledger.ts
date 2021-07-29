@@ -13,7 +13,7 @@ export interface FormKitLedger {
   count: (
     name: string,
     condition?: FormKitCounterCondition,
-    initialValue?: number
+    increment?: number
   ) => Promise<void>
   settled: (name: string) => Promise<void>
   value: (name: string) => number
@@ -36,6 +36,7 @@ export interface FormKitCounterCondition {
 export interface FormKitCounter {
   name: string
   count: number
+  node: FormKitNode<any>
   promise: Promise<void>
   resolve: () => void
   condition: FormKitCounterCondition
@@ -55,9 +56,11 @@ interface FormKitLedgerStore {
  */
 export function createLedger(): FormKitLedger {
   const ledger: FormKitLedgerStore = {}
+  let n: FormKitNode<any>
   return {
-    count: (...args) => createCounter(ledger, ...args),
+    count: (...args) => createCounter(n, ledger, ...args),
     init(node: FormKitNode<any>) {
+      n = node
       node.on('message-added.deep', add(ledger, 1))
       node.on('message-removed.deep', add(ledger, -1))
     },
@@ -81,27 +84,35 @@ export function createLedger(): FormKitLedger {
  * @returns
  */
 function createCounter(
+  node: FormKitNode<any>,
   ledger: FormKitLedgerStore,
   counterName: string,
   condition?: FormKitCounterCondition | string,
-  initialValue = 0
+  increment = 0
 ): Promise<void> {
   condition = parseCondition(condition || counterName)
   if (!has(ledger, counterName)) {
     const counter: FormKitCounter = {
-      count: initialValue,
-      name: counterName,
       condition,
-      promise: !initialValue
-        ? Promise.resolve()
-        : new Promise<void>((r) => (counter.resolve = r)),
-      resolve: () => {}, // eslint-disable-line
+      count: 0,
+      name: counterName,
+      node,
+      promise: Promise.resolve(),
+      resolve: () => {}, // eslint-disable-line @typescript-eslint/no-empty-function
     }
     ledger[counterName] = counter
-    return counter.promise
+    increment = node.store.reduce(
+      (sum, m) => sum + ((counter.condition(m) as unknown) as number) * 1,
+      increment
+    )
+    node.each((child) => {
+      child.ledger.count(counter.name, counter.condition)
+      increment += child.ledger.value(counter.name)
+    })
+  } else if (ledger[counterName].condition !== condition) {
+    ledger[counterName].condition = condition
   }
-  ledger[counterName].condition = condition
-  return count(ledger[counterName], initialValue).promise
+  return count(ledger[counterName], increment).promise
 }
 
 /**
@@ -130,6 +141,7 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
   counter.count = post
   if (initial === 0 && post !== 0) {
     counter.promise = new Promise((r) => (counter.resolve = r))
+    counter.promise.then(() => counter.node.emit(`settled:${counter.name}`))
   } else if (initial !== 0 && post === 0) {
     counter.resolve()
   }

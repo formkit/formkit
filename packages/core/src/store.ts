@@ -42,12 +42,22 @@ export interface FormKitMessageStore {
  */
 export type FormKitStore = FormKitMessageStore & {
   _n: FormKitNode<any>
+} & FormKitStoreTraps
+
+/**
+ * The available traps on the FormKit store.
+ */
+export interface FormKitStoreTraps {
   set: (message: FormKitMessage) => FormKitStore
   remove: (key: string) => FormKitStore
   filter: (
     callback: (message: FormKitMessage) => boolean,
     type?: string
   ) => FormKitStore
+  reduce: <T>(
+    reducer: (accumulator: T, message: FormKitMessage) => T,
+    accumulator: T
+  ) => T
 }
 
 /**
@@ -67,6 +77,18 @@ export function createMessage(conf: Partial<FormKitMessage>): FormKitMessage {
 }
 
 /**
+ * The available traps on the node's store.
+ */
+const storeTraps: {
+  [k in keyof FormKitStoreTraps]: (...args: any[]) => unknown
+} = {
+  set: setMessage,
+  remove: removeMessage,
+  filter: filterMessages,
+  reduce: reduceMessages,
+}
+
+/**
  * Creates a new FormKit message store.
  * @returns FormKitStore
  */
@@ -76,12 +98,14 @@ export function createStore(): FormKitStore {
   const store = new Proxy(messages, {
     get(...args) {
       const [_target, property] = args
-      if (property === 'set')
-        return setMessage.bind(null, messages, store, node)
-      if (property === 'remove')
-        return removeMessage.bind(null, messages, store, node)
-      if (property === 'filter')
-        return filterMessages.bind(null, messages, store, node)
+      if (has(storeTraps, property)) {
+        return storeTraps[property as keyof FormKitStoreTraps].bind(
+          null,
+          messages,
+          store,
+          node
+        )
+      }
       return Reflect.get(...args)
     },
     set(_t, prop, value) {
@@ -160,4 +184,27 @@ function filterMessages(
       removeMessage(messageStore, store, node, key)
     }
   }
+}
+
+/**
+ * Reduce the message store to some other generic value.
+ * @param messageStore - The message store object
+ * @param _store - Unused but curried — the store interface itself
+ * @param _node - The node owner of this store
+ * @param reducer - The callback that performs the reduction
+ * @param accumulator - The initial value
+ * @returns
+ */
+function reduceMessages<T>(
+  messageStore: FormKitMessageStore,
+  _store: FormKitStore,
+  _node: FormKitNode,
+  reducer: (value: T, message: FormKitMessage) => T,
+  accumulator: T
+) {
+  for (const key in messageStore) {
+    const message = messageStore[key]
+    accumulator = reducer(accumulator, message)
+  }
+  return accumulator
 }

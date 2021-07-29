@@ -18,7 +18,7 @@ import { createLedger, FormKitLedger } from './ledger'
  * @public
  */
 export interface FormKitPlugin<T = any> {
-  (node: FormKitNode<T>): void | boolean
+  (node: FormKitNode<T>): false | any | void
 }
 
 /**

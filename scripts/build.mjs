@@ -99,7 +99,8 @@ async function cleanDist(p) {
   const distDir = `${packagesDir}/${p}/dist`
   try {
     await fs.access(distDir)
-    await fs.rm(distDir, { recursive: true });
+    const files = await fs.readdir(distDir)
+    await Promise.all(files.map(file => fs.rm(resolve(distDir, file), { recursive: true })))
   } catch {
     // directory is already missing, no need to clean it
   }
