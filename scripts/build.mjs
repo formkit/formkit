@@ -25,6 +25,7 @@ import {
   Extractor,
   ExtractorConfig
 } from '@microsoft/api-extractor';
+import { getPackages, getBuildOrder } from './utils.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -35,24 +36,16 @@ const rollup = `${rootDir}/node_modules/.bin/rollup`
 const error = m => console.log(chalk.bold.red(m))
 const info = m => console.log(chalk.cyan(m))
 const success = m => console.log(chalk.green(m))
+const label = m => console.log(chalk.bold.magenta(m))
 const loader = ora()
-
-/**
- * Get the available packages from the packages directory.
- */
-let availablePackages = null
-async function getPackages() {
-  if (!availablePackages) {
-    availablePackages = await fs.readdir(packagesDir);
-  }
-  return availablePackages
-}
 
 /**
  * Prompt a user to select a package.
  */
 async function selectPackage () {
   const packages = await getPackages()
+  packages.unshift('🌎 build all')
+  packages.push('🧨 cancel')
   const { selection } = await prompts({
     type: 'select',
     name: 'selection',
@@ -75,6 +68,15 @@ async function buildPackage (p) {
   if (!p) {
     return selectPackage()
   }
+  if (p.includes('cancel')) {
+    error(`The build was cancelled. 👋`)
+    return
+  }
+  if (p.includes('build all')) {
+    info('» Building all packages...')
+    buildAllPackages(packages)
+    return
+  }
   if (!packages.includes(p)) {
     error(`${p} is not an valid package name.`)
   }
@@ -88,7 +90,20 @@ async function buildPackage (p) {
   loader.start()
   await declarations(p)
   loader.stop()
-  success(`✔️ build complete`)
+  success(`📦 build complete`)
+}
+
+/**
+ * Loops through all packages and builds them in correct order
+ */
+async function buildAllPackages(packages) {
+  const orderedPackages = await getBuildOrder(packages)
+  info('» Building packages in dependency order:')
+  console.log(orderedPackages)
+  for (const [i, p] of orderedPackages.entries()) {
+    label(`» Building ${i+1}/${orderedPackages.length}: @formkit/${p}`)
+    await buildPackage(p)
+  }
 }
 
 /**
