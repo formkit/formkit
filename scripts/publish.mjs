@@ -7,7 +7,7 @@
  * packages in this FormKit monorepo and helping the publisher assign
  * proper semantic versioning numbers to the built assets.
  * The essential steps of this build are:
- * - Prompt that all packages that need new builds should be manually built
+ * - Prompt the user for any packages that need to be built before publish
  * - Compare built .esm and .tsd files to latest published versions from NPM
  * - Prompt new version numbers to changed packages
  * - - For each changed package get the github commit range from the last published commit hash to now
@@ -27,10 +27,12 @@ import prompts from 'prompts'
 // import { fileURLToPath } from 'url'
 import {
   getPackages,
-  // getBuildOrder,
-  // msg
+  getDependencyTree,
+  drawDependencyTree,
+  msg
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
+import { getBuildOrder } from './utils.mjs'
 
 // const __filename = fileURLToPath(import.meta.url)
 // const __dirname = dirname(__filename)
@@ -38,33 +40,70 @@ import { buildAllPackages } from './build.mjs'
 // const packagesDir = resolve(__dirname, '../packages')
 // const rollup = `${rootDir}/node_modules/.bin/rollup`
 
-
+/**
+ * Main entry point to the build process
+ */
 async function publishPackages () {
+  await confirmBuildStatus()
+  const packages = getBuildOrder(await getPackagesToPublish())
+  if (!packages || !packages.length) return
+  const dependentTree = await getDependencyTree(packages, true)
+  msg.label('Dependent tree:')
+  drawDependencyTree(dependentTree)
+}
+
+/**
+ * Confirm with user that all target packages are built
+ */
+async function confirmBuildStatus () {
   const { hasBuilt } = await prompts({
     type: 'confirm',
     name: 'hasBuilt',
     message: 'Have you already built the packages you would like to publish?'
   })
-  if (!hasBuilt) buildSelectedPackages()
+  if (!hasBuilt) await buildSelectedPackages()
+  return
 }
 
+/**
+ * Runs builds when given an array of package names
+ */
 async function buildSelectedPackages (packages = []) {
   if (!packages.length) {
     const packageList = getPackages()
     const { packagesToBuild } = await prompts({
       type: 'multiselect',
       name: 'packagesToBuild',
-      message: 'Choose packages to build before publish:',
+      message: 'Choose package(s) to build before publishing:',
       choices: packageList.map(name => ({
         title: name,
         value: name
-      }))
+      })),
+      instructions: false
     })
     packages = packagesToBuild
   }
   if (packages.length) {
     await buildAllPackages(packages)
   }
+}
+
+/**
+ * Get a list of packages to publish from the user
+ */
+async function getPackagesToPublish () {
+  const packageList = getPackages()
+  const { packagesToPublish } = await prompts({
+    type: 'multiselect',
+    name: 'packagesToPublish',
+    message: 'Which package(s) would you like to publish:',
+    choices: packageList.map(name => ({
+      title: name,
+      value: name
+    })),
+    instructions: false
+  })
+  return packagesToPublish
 }
 
 /**
@@ -78,7 +117,6 @@ export default function () {
     { allowUnknownOptions: true }
   )
   .action(publishPackages);
-
   cli.help();
   cli.parse();
 }
