@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 
 /**
  * build.mjs
@@ -39,7 +40,7 @@ const rollup = `${rootDir}/node_modules/.bin/rollup`
  * Prompt a user to select a package.
  */
 async function selectPackage () {
-  const packages = await getPackages()
+  const packages = getPackages()
   packages.unshift('🌎 build all')
   packages.push('🧨 cancel')
   const { selection } = await prompts({
@@ -59,8 +60,8 @@ async function selectPackage () {
  * @param p package name
  * @returns
  */
-async function buildPackage (p) {
-  const packages = await getPackages()
+export async function buildPackage (p) {
+  const packages = getPackages()
   if (!p) {
     return selectPackage()
   }
@@ -92,8 +93,8 @@ async function buildPackage (p) {
 /**
  * Loops through all packages and builds them in correct order
  */
-async function buildAllPackages(packages) {
-  const orderedPackages = await getBuildOrder(packages)
+export async function buildAllPackages(packages) {
+  const orderedPackages = getBuildOrder(packages)
   msg.info('» Building packages in dependency order:')
   console.log(orderedPackages)
   for (const [i, p] of orderedPackages.entries()) {
@@ -189,11 +190,16 @@ async function apiExtractor(p)
 /**
  * Filly setup the command line tool and options.
  */
- const cli = cac();
- cli.command('[package]', 'Builds a specific package')
-   .action(buildPackage);
-
- cli.help();
- cli.parse();
+export default function () {
+  const cli = cac()
+  cli.command(
+    '[package]',
+    'Builds a specific package',
+    { allowUnknownOptions: true }
+  )
+  .action(buildPackage);
+  cli.help();
+  cli.parse();
+}
 
 
