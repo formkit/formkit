@@ -16,15 +16,18 @@
 import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
-import chalk from 'chalk'
 import execa from 'execa'
-import ora from 'ora'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import {
   Extractor,
   ExtractorConfig
-} from '@microsoft/api-extractor';
+} from '@microsoft/api-extractor'
+import {
+  getPackages,
+  getBuildOrder,
+  msg
+} from './utils.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -32,27 +35,13 @@ const rootDir = resolve(__dirname, '../')
 const packagesDir = resolve(__dirname, '../packages')
 const rollup = `${rootDir}/node_modules/.bin/rollup`
 
-const error = m => console.log(chalk.bold.red(m))
-const info = m => console.log(chalk.cyan(m))
-const success = m => console.log(chalk.green(m))
-const loader = ora()
-
-/**
- * Get the available packages from the packages directory.
- */
-let availablePackages = null
-async function getPackages() {
-  if (!availablePackages) {
-    availablePackages = await fs.readdir(packagesDir);
-  }
-  return availablePackages
-}
-
 /**
  * Prompt a user to select a package.
  */
 async function selectPackage () {
   const packages = await getPackages()
+  packages.unshift('🌎 build all')
+  packages.push('🧨 cancel')
   const { selection } = await prompts({
     type: 'select',
     name: 'selection',
@@ -75,27 +64,49 @@ async function buildPackage (p) {
   if (!p) {
     return selectPackage()
   }
+  if (p.includes('cancel')) {
+    msg.error(`The build was cancelled. 👋`)
+    return
+  }
+  if (p.includes('build all')) {
+    msg.info('» Building all packages...')
+    buildAllPackages(packages)
+    return
+  }
   if (!packages.includes(p)) {
-    error(`${p} is not an valid package name.`)
+    msg.error(`${p} is not an valid package name.`)
   }
   await cleanDist(p)
-  info('» bundling distributions')
-  loader.start()
+  msg.info('» bundling distributions')
+  msg.loader.start()
   await bundle(p, 'esm')
   await bundle(p, 'cjs')
-  loader.stop()
-  info('» extracting type definitions')
-  loader.start()
+  msg.loader.stop()
+  msg.info('» extracting type definitions')
+  msg.loader.start()
   await declarations(p)
-  loader.stop()
-  success(`✔️ build complete`)
+  msg.loader.stop()
+  msg.success(`📦 build complete`)
+}
+
+/**
+ * Loops through all packages and builds them in correct order
+ */
+async function buildAllPackages(packages) {
+  const orderedPackages = await getBuildOrder(packages)
+  msg.info('» Building packages in dependency order:')
+  console.log(orderedPackages)
+  for (const [i, p] of orderedPackages.entries()) {
+    msg.label(`» Building ${i+1}/${orderedPackages.length}: @formkit/${p}`)
+    await buildPackage(p)
+  }
 }
 
 /**
  * Remove the dist directory before building anything.
  */
 async function cleanDist(p) {
-  loader.text = `Removing: ${p}/dist`
+  msg.loader.text = `Removing: ${p}/dist`
   const distDir = `${packagesDir}/${p}/dist`
   try {
     await fs.access(distDir)
@@ -104,7 +115,7 @@ async function cleanDist(p) {
   } catch {
     // directory is already missing, no need to clean it
   }
-  info(`» cleaned dist artifacts`)
+  msg.info(`» cleaned dist artifacts`)
 }
 
 /**
@@ -113,7 +124,7 @@ async function cleanDist(p) {
  * @param format the format to create (cjs, esm, umd, etc...)
  */
 async function bundle(p, format) {
-  loader.text = `Bundling ${p} as ${format}`
+  msg.loader.text = `Bundling ${p} as ${format}`
   await execa(rollup, [
     '-c',
     '--environment',
@@ -131,7 +142,7 @@ async function bundle(p, format) {
  * @param p - package name
  */
 async function declarations(p) {
-  loader.text = `Emitting type declarations`
+  msg.loader.text = `Emitting type declarations`
   await execa(rollup, [
     '-c',
     '--environment',
@@ -146,7 +157,7 @@ async function declarations(p) {
   // Annoyingly even though we tell @rollup/plugin-typescript
   // emitDeclarationOnly it still outputs an index.js — is this a bug?
   await fs.rm(`${packagesDir}/${p}/dist/index.js`)
-  loader.text = `Rolling up type declarations`
+  msg.loader.text = `Rolling up type declarations`
   apiExtractor(p)
 }
 
@@ -170,7 +181,7 @@ async function apiExtractor(p)
     await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
     fs.rename(resolve(distRoot, 'index.all.d.ts'), resolve(distRoot, 'index.d.ts'))
   } else {
-    error('Api extractor failed.')
+    msg.error('Api extractor failed.')
     process.exitCode = 1
   }
 }
