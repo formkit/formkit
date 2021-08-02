@@ -5,6 +5,7 @@
         "dedupe",
         "dispatchable",
         "execa",
-        "setify"
+        "setify",
+        "unmerge"
     ]
 }

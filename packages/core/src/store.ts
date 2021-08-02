@@ -12,6 +12,7 @@ export interface FormKitMessageProps {
   meta: FormKitMessageMeta
   type: string
   value?: string
+  visible: boolean
 }
 
 /**
@@ -72,6 +73,7 @@ export function createMessage(conf: Partial<FormKitMessage>): FormKitMessage {
     key: token(),
     meta: {},
     type: 'state',
+    visible: true,
     ...conf,
   }
 }

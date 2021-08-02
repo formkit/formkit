@@ -684,6 +684,7 @@ function addChild<T>(
   // resolve any conflict between the parent and child values, and also ensure
   // proper "placeholders" are made on the parent.
   commit(parent, parentContext, false)
+  parent.ledger.merge(child)
   return parent
 }
 
@@ -740,6 +741,7 @@ function removeChild<T>(
     })
     child.parent = null
   }
+  node.ledger.unmerge(child)
   return node
 }
 

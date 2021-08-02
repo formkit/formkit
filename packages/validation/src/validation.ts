@@ -101,8 +101,19 @@ export interface FormKitValidationRules {
 }
 
 /**
+ * Message that gets set when the node is awaiting validation.
+ */
+const validatingMessage = createMessage({
+  type: 'validation',
+  blocking: true,
+  visible: false,
+  key: 'validating',
+})
+
+/**
  * The actual validation plugin function, everything must be bootstrapped here.
  * @param node - The node to bind validation to.
+ * @public
  */
 export function createValidation(baseRules: FormKitValidationRules = {}) {
   return function plugin(node: FormKitNode): void {
@@ -111,6 +122,17 @@ export function createValidation(baseRules: FormKitValidationRules = {}) {
       baseRules,
       node.props.validationRules as FormKitValidationRules
     )
+    // Initialize the validation counter, we count blocking validations only
+    node.ledger.count(
+      'validation',
+      (m) => m.type === 'validation' && m.blocking
+    )
+    // Initialize the validating counter
+    node.ledger.count(
+      'validating',
+      (m) => m.key === 'validating' && m.type === 'validation'
+    )
+
     // Parse the rules on creation:
     let rules = parseRules(node.props.validation, availableRules)
     const nonce = { value: token() }
@@ -149,7 +171,9 @@ async function validate(
     validations = validations.filter((v) => !v.skipEmpty)
   }
   if (validations.length) {
+    node.store.set(validatingMessage)
     await run(value, validations, node, nonce, false)
+    node.store.remove('validating')
   }
 }
 

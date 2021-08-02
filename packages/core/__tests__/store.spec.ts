@@ -18,6 +18,7 @@ describe('setting store messages', () => {
       blocking: false,
       meta: {},
       type: 'state',
+      visible: true,
     })
   })
 
