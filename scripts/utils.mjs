@@ -3,10 +3,20 @@
 import fs from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import ora from 'ora'
+import chalk from 'chalk'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const packagesDir = resolve(__dirname, '../packages')
+
+export const msg = {
+  error: m => console.log(chalk.bold.red(m)),
+  info: m => console.log(chalk.cyan(m)),
+  success: m => console.log(chalk.green(m)),
+  label: m => console.log(chalk.bold.magenta(m)),
+  loader: ora()
+}
 
 /**
  * Get the available packages from the packages directory.
