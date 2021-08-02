@@ -28,7 +28,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --detectOpenHandles",
-    "build": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs",
+    "publish": "node scripts/publish.mjs"
   },
   "dependencies": {},
   "size-limit": [
