@@ -29,22 +29,78 @@ export function getPackages() {
 /**
  * Determine the correct build order of a provided array of packages
  */
- export function getBuildOrder(packages = [], orderedPackages = []) {
+export function getBuildOrder(packages = [], orderedPackages = []) {
+  const packagesSet = new Set(packages)
+  let orderedPackagesSet = new Set(orderedPackages)
   for (const p of packages) {
-    packages.shift()
+    packagesSet.delete(p)
     const dependencies = getPackageDependencies(p)
     for (const d of dependencies) {
-      if (!orderedPackages.includes(d)) {
-        const nestedDeps = getBuildOrder([d], orderedPackages)
-        orderedPackages = [...nestedDeps, d]
+      if (!orderedPackagesSet.has(d)) {
+        const nestedDeps = getBuildOrder([d], [...orderedPackagesSet])
+        orderedPackagesSet = new Set([...nestedDeps, d])
       }
-      orderedPackages = [...orderedPackages, p]
+      if (!orderedPackagesSet.has(p)) {
+        orderedPackagesSet = new Set([...orderedPackagesSet, p])
+      }
     }
-    if (packages && packages.length) {
+    if (packagesSet && packages.size) {
       return getBuildOrder(packages, orderedPackages)
     }
   }
-  return orderedPackages
+  return [...orderedPackagesSet]
+}
+
+/**
+ * build a dependency tree of packages. If the inverse argument is supplied
+ * the result will be the depenDENT tree instead.
+ */
+export async function getDependencyTree (packages, inverse = false) {
+  const tree = []
+  const allPackages = await getPackages()
+  for (const p of packages) {
+    const dependencies = []
+    for (const ap of allPackages) {
+      if (inverse ? checkDependsOn(p, ap) : checkDependsOn(ap, p)) {
+        const subDependencies = await getDependencyTree([ap], tree, inverse)
+        dependencies.push(...subDependencies)
+      }
+    }
+    tree.push([p, dependencies.length ? dependencies : false])
+  }
+  return tree
+}
+
+/**
+ * Given a package and a dependency, see if the given dependency is a
+ * dependent of the package
+ */
+export function checkDependsOn (p, dependency) {
+  const allDeps = getPackageDependencies(dependency)
+  return allDeps.includes(p)
+}
+
+
+/**
+ * Given a dependency tree, do a pretty console log of the graph
+ */
+export function drawDependencyTree (tree = [], depth = 0, directoryPrefix = '∟ ') {
+  for (const [i, branch] of tree.entries()) {
+    const title = branch[0]
+    const deps = branch[1]
+    const directoryIndent = `${'  '.repeat(depth)}${depth > 0 ? directoryPrefix : ''}${'— '.repeat(Math.min(1, depth))}`
+    if (depth === 0) {
+      console.log(`${i + 1}) ${directoryIndent}${title}`)
+    } else {
+      msg.info(`  ${directoryIndent}${title}`)
+    }
+
+    if (deps) {
+      for (const dep of deps) {
+        drawDependencyTree([dep], depth + 1, '∟ ')
+      }
+    }
+  }
 }
 
 /**
