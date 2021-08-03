@@ -19,10 +19,12 @@
  * - Publish (or cancel) all changes to affected packages
 */
 
+import { exec, execSync } from "child_process"
 import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
 import {
+  packagesDir,
   checkDependsOn,
   getPackages,
   getPackageFromFS,
@@ -110,7 +112,10 @@ Any dependent packages will also require publishing to include dependency change
   })
   if (!confirmPublish) return msg.error('Publish aborted. 👋')
 
+  msg.headline('  Publishing 🚀  ')
   writePackageJSONFiles()
+  console.log('\n\n')
+  yarnPublishAffectedPackages()
 }
 
 /**
@@ -118,8 +123,6 @@ Any dependent packages will also require publishing to include dependency change
  * for each affected package.
  */
 function writePackageJSONFiles () {
-  msg.headline(`Updating package.json files`)
-  console.log(prePublished)
   const packages = Object.keys(Object.assign({}, prePublished))
   while (packages.length) {
     const pkg = packages.shift()
@@ -132,6 +135,23 @@ function writePackageJSONFiles () {
       packageJSON.devDependencies = Object.assign({}, packageJSON.devDependencies, prePublished[pkg].newDevDependencies)
     }
     writePackageJSON(pkg, packageJSON)
+    msg.info(`✅ /packages/${chalk.magenta(pkg)}/package.json updated`)
+  }
+}
+
+/**
+ * Loops through prePublish object and publishes packages
+ */
+function yarnPublishAffectedPackages () {
+  const packages = Object.keys(Object.assign({}, prePublished))
+  while (packages.length) {
+    const pkg = packages.shift()
+    const version = prePublished[pkg].newVersion
+    try {
+      execSync(`yarn publish --new-version ${version} ${packagesDir}/${pkg}/package.json`)
+    } catch (e) {
+      msg.error(`a new version of ${pkg} was not published`)
+    }
   }
 }
 

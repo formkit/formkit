@@ -9,7 +9,7 @@ import chalk from 'chalk'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const packagesDir = resolve(__dirname, '../packages')
+export const packagesDir = resolve(__dirname, '../packages')
 
 export const msg = {
   error: m => console.log(chalk.bold.red(m)),
