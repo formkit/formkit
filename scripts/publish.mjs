@@ -116,6 +116,12 @@ Any dependent packages will also require publishing to include dependency change
   writePackageJSONFiles()
   console.log('\n\n')
   yarnPublishAffectedPackages()
+
+  // signing off
+  await promptForGitCommit()
+  msg.headline(' 🎉   All changes published and committed!')
+  drawPublishPreviewGraph(prePublished)
+  console.log('\n\n')
 }
 
 /**
@@ -153,6 +159,19 @@ function yarnPublishAffectedPackages () {
       msg.error(`a new version of ${pkg} was not published`)
     }
   }
+}
+
+/**
+ * Prompts the user for a commit message and commits all changes
+ */
+async function promptForGitCommit () {
+  execSync(`git add .`)
+  const { msg } = await prompts({
+    type: 'text',
+    name: 'msg',
+    message: `⛓ Committing changes. Please provide a commit message: `,
+  })
+  execSync(`git commit -m "${msg}`)
 }
 
 /**
