@@ -49,13 +49,15 @@ const prePublished = {}
 /**
  * Main entry point to the build process
  */
-async function publishPackages () {
+async function publishPackages (force = false) {
   if (!checkGitCleanWorkingDirectory()) {
     msg.error(`⚠️   The current working directory is not clean. Please commit all changes before publishing.`)
+    // TODO: uncomment return to make required
     // return
   }
   if (!checkGitIsMasterBranch()) {
     msg.error(`⚠️   Publishing should only occur from the master branch`)
+    // TODO: uncomment return to make required
     // return
   }
 
@@ -68,7 +70,7 @@ async function publishPackages () {
   // await buildAllPackages(allPackages)
   await getChangedDist()
 
-  if (!toBePublished.length) return msg.error(`\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`)
+  if (!toBePublished.length && !force) return msg.error(`\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`)
 
   msg.headline(`The following packages have changes when diffed with their last published version.
 Any dependent packages will also require publishing to include dependency changes:`
@@ -110,15 +112,19 @@ Any dependent packages will also require publishing to include dependency change
       return 'Invalid response. to abort press ^c...'
     }
   })
-  if (!confirmPublish) return msg.error('Publish aborted. 👋')
+  if (!confirmPublish && !force) return msg.error('Publish aborted. 👋')
 
   msg.headline('  Publishing 🚀  ')
-  writePackageJSONFiles()
+  const didWrite = writePackageJSONFiles()
+  if (!didWrite && !force) return msg.error('Publish aborted. 👋')
   console.log('\n\n')
-  yarnPublishAffectedPackages()
+
+  const didPublish = yarnPublishAffectedPackages()
+  if (!didPublish && !force) return msg.error('Publish aborted. 👋')
 
   // signing off
-  await promptForGitCommit()
+  const didCommit = await promptForGitCommit()
+  if (!didCommit && !force) return msg.error('Publish aborted. 👋')
   msg.headline(' 🎉   All changes published and committed!')
   drawPublishPreviewGraph(prePublished)
   console.log('\n\n')
@@ -130,6 +136,7 @@ Any dependent packages will also require publishing to include dependency change
  */
 function writePackageJSONFiles () {
   const packages = Object.keys(Object.assign({}, prePublished))
+  let didWrite = true
   while (packages.length) {
     const pkg = packages.shift()
     const packageJSON = getPackageJSON(pkg)
@@ -140,9 +147,16 @@ function writePackageJSONFiles () {
     if (prePublished[pkg].newDevDependencies) {
       packageJSON.devDependencies = Object.assign({}, packageJSON.devDependencies, prePublished[pkg].newDevDependencies)
     }
-    writePackageJSON(pkg, packageJSON)
-    msg.info(`✅ /packages/${chalk.magenta(pkg)}/package.json updated`)
+    try {
+      writePackageJSON(pkg, packageJSON)
+      msg.info(`✅ /packages/${chalk.magenta(pkg)}/package.json updated`)
+    } catch (e) {
+      console.log(e)
+      didWrite = false
+      msg.error(`There was a problem writing the package.json for ${pkg}`)
+    }
   }
+  return didWrite
 }
 
 /**
@@ -372,12 +386,21 @@ function drawPublishPreviewGraph (packages) {
  */
 export default function () {
   const cli = cac();
+  cli.option(
+    '--force',
+    'Bypass failure on error',
+    {
+      default: false
+    }
+  )
   cli.command(
     '[publish]',
     'Walks through publishing changed packages with proper versioning',
     { allowUnknownOptions: true }
   )
-  .action(publishPackages);
+  .action((dir, options) => {
+    publishPackages(options.force)
+  });
   cli.help();
   cli.parse();
 }
