@@ -7,16 +7,15 @@
  * packages in this FormKit monorepo and helping the publisher assign
  * proper semantic versioning numbers to the built assets.
  * The essential steps of this build are:
- * - Prompt the user for any packages that need to be built before publish
- * - Compare built .esm and .tsd files to latest published versions from NPM
+ * - Get permission from user from user to build ALL packages
+ * - [TODO] Compare built .esm and .tsd files to latest published versions from NPM
+ * - Show user packages that have changed / will be affected by dependency changes
  * - Prompt new version numbers to changed packages
- * - - For each changed package get the github commit range from the last published commit hash to now
  * - - Display only commits that affected files it the current package's directory
- * - Determining which packages depend on the newly built package
- * - Prompt for new version numbers to packages affected by version bumps
- * - Recursively repeat above steps until no more packages are affected
  * - Present a overview of all changes represented by the publish action and their final version bumps
- * - Publish (or cancel) all changes to affected packages
+ * - Publish all changes to affected packages
+ * - Commit version bumps to package.json files
+ * - Show final summary
 */
 
 import { exec, execSync } from "child_process"
@@ -67,7 +66,7 @@ async function publishPackages (force = false) {
     return msg.error('Publish aborted.')
   }
   msg.info('🌎 Building all packages.')
-  // await buildAllPackages(allPackages)
+  await buildAllPackages(allPackages)
   await getChangedDist()
 
   if (!toBePublished.length && !force) return msg.error(`\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`)
