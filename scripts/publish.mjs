@@ -150,15 +150,18 @@ function writePackageJSONFiles () {
  */
 function yarnPublishAffectedPackages () {
   const packages = Object.keys(Object.assign({}, prePublished))
+  let didPublish = true
   while (packages.length) {
     const pkg = packages.shift()
     const version = prePublished[pkg].newVersion
     try {
       execSync(`yarn publish --new-version ${version} ${packagesDir}/${pkg}/package.json`)
     } catch (e) {
+      didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
     }
   }
+  return didPublish
 }
 
 /**
@@ -168,16 +171,18 @@ async function promptForGitCommit () {
   try {
     msg.info('» Staging and committing changed files')
     execSync(`git add .`)
-    await execSync(`git status --short`)
+    execSync(`git status --short`)
     const { commitMessage } = await prompts({
       type: 'text',
       name: 'commitMessage',
       message: `✏️   Committing changes. Please provide a commit message: `,
     })
     execSync(`git commit -m "${commitMessage}"`)
+    return true
   } catch (e) {
     console.log(e)
     msg.error(`Changes were not committed`)
+    return false
   }
 }
 
