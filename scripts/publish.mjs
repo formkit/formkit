@@ -166,14 +166,13 @@ function yarnPublishAffectedPackages () {
  */
 async function promptForGitCommit () {
   try {
-    execSync(`git add .`)
-    execSync(`git status`)
+    execSync(`git add . && git status`)
     const { msg } = await prompts({
       type: 'text',
       name: 'msg',
       message: `✏️   Committing changes. Please provide a commit message: `,
     })
-    execSync(`git commit -m "${msg}`)
+    execSync(`git commit -m "${msg}"`)
   } catch (e) {
     msg.error(`Changes were not committed`)
   }
