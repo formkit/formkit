@@ -168,14 +168,15 @@ async function promptForGitCommit () {
   try {
     msg.info('» Staging and committing changed files')
     execSync(`git add .`)
-    execSync(`git status --short`)
-    const { msg } = await prompts({
+    await execSync(`git status --short`)
+    const { commitMessage } = await prompts({
       type: 'text',
-      name: 'msg',
+      name: 'commitMessage',
       message: `✏️   Committing changes. Please provide a commit message: `,
     })
-    execSync(`git commit -m "${msg}"`)
+    execSync(`git commit -m "${commitMessage}"`)
   } catch (e) {
+    console.log(e)
     msg.error(`Changes were not committed`)
   }
 }
