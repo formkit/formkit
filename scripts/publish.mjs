@@ -166,7 +166,9 @@ function yarnPublishAffectedPackages () {
  */
 async function promptForGitCommit () {
   try {
-    execSync(`git add . && git status`)
+    msg.info('» Staging and committing changed files')
+    execSync(`git add .`)
+    execSync(`git status --short`)
     const { msg } = await prompts({
       type: 'text',
       name: 'msg',
