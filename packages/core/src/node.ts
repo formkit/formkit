@@ -7,10 +7,12 @@ import {
   emit,
   bubble,
   on,
+  off,
   FormKitEventListener,
 } from './events'
 import { createStore, FormKitStore } from './store'
 import { createLedger, FormKitLedger } from './ledger'
+import { watch, stopWatch, FormKitWatchable } from './watch'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -283,9 +285,10 @@ export type FormKitNode<T = void> = {
   ) => FormKitNode | undefined
   hydrate: () => FormKitNode<T>
   index: number
-  input: (value: T, async?: boolean) => FormKitNode<T>
+  input: (value: T, async?: boolean) => Promise<T>
   name: string
-  on: (eventName: string, listener: FormKitEventListener) => FormKitNode<T>
+  on: (eventName: string, listener: FormKitEventListener) => string
+  off: (receipt: string) => FormKitNode<T>
   remove: (node: FormKitNode<any>) => FormKitNode<T>
   root: FormKitNode<any>
   setConfig: (config: FormKitConfig) => void
@@ -295,6 +298,7 @@ export type FormKitNode<T = void> = {
     plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
   ) => FormKitNode<T>
   walk: (callback: FormKitChildCallback) => void
+  watch: (callback: FormKitWatchable, events: string[]) => string
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
 /**
@@ -377,14 +381,17 @@ function createTraps<T>(): FormKitTraps<T> {
       emit: trap<T>(emit),
       find: trap<T>(find),
       on: trap<T>(on),
+      off: trap<T>(off),
       parent: trap<T>(false, setParent),
       plugins: trap<T>(false),
       remove: trap<T>(removeChild),
       root: trap<T>(getRoot, invalidSetter, false),
       setConfig: trap<T>(setConfig),
+      stop: trap<T>(stopWatch),
       use: trap<T>(use),
       name: trap<T>(getName, false, false),
       walk: trap<T>(walkTree),
+      watch: trap<T>(watch),
     })
   )
 }
