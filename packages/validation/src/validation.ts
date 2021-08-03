@@ -67,6 +67,7 @@ export type FormKitValidationIntent = [string | FormKitValidationRule, ...any[]]
  */
 export interface FormKitValidationRuleContext {
   value: any
+  node: FormKitNode<any>
 }
 
 /**
@@ -202,7 +203,9 @@ async function run(
     removeImmediately = true
     await debounce(validation)
   }
-  const willBeResult = validation.rule({ value }, ...validation.args)
+  // We don't know yet if the rule will be async or not, so store the return
+  const willBeResult = validation.rule({ value, node }, ...validation.args)
+  // Check if we got a promise out of it, if we did it's obviously async
   const isAsync = willBeResult instanceof Promise
   const result = isAsync ? await willBeResult : willBeResult
   // The input has been edited since we started validating — kill the stack
