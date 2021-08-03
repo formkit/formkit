@@ -165,6 +165,16 @@ export function getPackageJSON (pkg) {
 }
 
 /**
+ * write package.json file to file system for a given package
+ */
+ export function writePackageJSON (pkg, json) {
+  fs.writeFileSync(
+    `${packagesDir}/${pkg}/package.json`,
+    JSON.stringify(json, null, 2)
+  )
+}
+
+/**
  * Provide array of dependency packages for a provided package
  */
 export function getPackageDependencies (pkg) {

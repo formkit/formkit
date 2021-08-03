@@ -22,14 +22,12 @@
 import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
-// import fs from 'fs/promises'
-// import execa from 'execa'
-// import { dirname, resolve } from 'path'
-// import { fileURLToPath } from 'url'
 import {
   checkDependsOn,
   getPackages,
   getPackageFromFS,
+  getPackageJSON,
+  writePackageJSON,
   checkGitCleanWorkingDirectory,
   checkGitIsMasterBranch,
   getLatestPackageCommits,
@@ -41,13 +39,6 @@ import {
   msg
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
-import { getPackageJSON } from './utils.mjs'
-
-// const __filename = fileURLToPath(import.meta.url)
-// const __dirname = dirname(__filename)
-// const rootDir = resolve(__dirname, '../')
-// const packagesDir = resolve(__dirname, '../packages')
-// const rollup = `${rootDir}/node_modules/.bin/rollup`
 
 const allPackages = []
 let toBePublished = []
@@ -74,6 +65,9 @@ async function publishPackages () {
   msg.info('🌎 Building all packages.')
   // await buildAllPackages(allPackages)
   await getChangedDist()
+
+  if (!toBePublished.length) return msg.error(`\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`)
+
   msg.headline(`The following packages have changes when diffed with their last published version.
 Any dependent packages will also require publishing to include dependency changes:`
   )
@@ -101,6 +95,44 @@ Any dependent packages will also require publishing to include dependency change
   msg.headline(`All packages configured. Preparing publish...`)
   msg.info(`The following changes will be commited and published.\nPlease review and confirm:\n`)
   drawPublishPreviewGraph(prePublished)
+
+  console.log('\n\n')
+  const { confirmPublish } = await prompts({
+    type: 'text',
+    name: 'confirmPublish',
+    message: `To confirm publish please type 'booyah':`,
+    validate: (msg) => {
+      if (msg === 'booyah') {
+        return true
+      }
+      return 'Invalid response. to abort press ^c...'
+    }
+  })
+  if (!confirmPublish) return msg.error('Publish aborted. 👋')
+
+  writePackageJSONFiles()
+}
+
+/**
+ * Loops through prePublish changes and writes new package.json files
+ * for each affected package.
+ */
+function writePackageJSONFiles () {
+  msg.headline(`Updating package.json files`)
+  console.log(prePublished)
+  const packages = Object.keys(Object.assign({}, prePublished))
+  while (packages.length) {
+    const pkg = packages.shift()
+    const packageJSON = getPackageJSON(pkg)
+    packageJSON.version = prePublished[pkg].newVersion
+    if (prePublished[pkg].newDependencies) {
+      packageJSON.dependencies = Object.assign({}, packageJSON.dependencies, prePublished[pkg].newDependencies)
+    }
+    if (prePublished[pkg].newDevDependencies) {
+      packageJSON.devDependencies = Object.assign({}, packageJSON.devDependencies, prePublished[pkg].newDevDependencies)
+    }
+    writePackageJSON(pkg, packageJSON)
+  }
 }
 
 /**
@@ -215,6 +247,12 @@ function suggestVersionIncrement(version, updateType) {
   }
 
   versionParts[targetIndex]++
+  versionParts = versionParts.map((part, index) => {
+    if (index > targetIndex) {
+      return 0
+    }
+    return part
+  })
   return versionParts.join('.')
 }
 
@@ -240,7 +278,7 @@ async function getChangedDist () {
     // TODO: compare against NPM published data
     // for now just say that only core is unchanged.
     // When NPM is available, only compare .esm.js and .d.ts files
-    if (p === 'utils') {
+    if (p !== '') {
       toBePublished.push(p)
     }
   }
@@ -267,6 +305,12 @@ function drawPublishPreviewGraph (packages) {
       console.log(chalk.dim(`  ∟ dependencies:`))
       for (const [depTitle, dep] of Object.entries(pkg.newDependencies)) {
         console.log(chalk.dim(`    ∟ ${depTitle}: `) + chalk.red.dim(pkg.oldDependencies[depTitle]) + ' -> ' + chalk.green.dim(pkg.newDependencies[depTitle]))
+      }
+    }
+    if (pkg.newDevDependencies) {
+      console.log(chalk.dim(`  ∟ devDependencies:`))
+      for (const [depTitle, dep] of Object.entries(pkg.newDevDependencies)) {
+        console.log(chalk.dim(`    ∟ ${depTitle}: `) + chalk.red.dim(pkg.oldDevDependencies[depTitle]) + ' -> ' + chalk.green.dim(pkg.newDevDependencies[depTitle]))
       }
     }
   }
