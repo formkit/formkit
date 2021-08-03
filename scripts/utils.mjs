@@ -16,7 +16,7 @@ export const msg = {
   info: m => console.log(chalk.cyan(m)),
   success: m => console.log(chalk.green(m)),
   label: m => console.log(chalk.bold.magenta(m)),
-  headline: m => console.log(chalk.bold.magenta(`\n\n${'='.repeat(Math.min(80, m.length))}${m}\n${'='.repeat(Math.min(80, m.length))}\n`)),
+  headline: m => console.log(chalk.bold.magenta(`\n\n${'='.repeat(Math.min(80, m.length))}\n${m}\n${'='.repeat(Math.min(80, m.length))}\n`)),
   loader: ora()
 }
 
@@ -225,10 +225,23 @@ export function getLatestPackageCommits (pkg, n = 15) {
  * Returns true if the current git working directory is clean
  */
 export function checkGitCleanWorkingDirectory () {
-  return execSync(
+  return !execSync(
     `git status --untracked-files=no --porcelain`,
     {
       encoding: 'utf-8'
     }
   )
+}
+
+/**
+ * Returns true if the current git branch is master
+ */
+ export function checkGitIsMasterBranch () {
+  const branch = execSync(
+    `git rev-parse --abbrev-ref HEAD`,
+    {
+      encoding: 'utf-8'
+    }
+  )
+  return branch === 'master'
 }

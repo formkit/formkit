@@ -31,6 +31,7 @@ import {
   getPackages,
   getPackageFromFS,
   checkGitCleanWorkingDirectory,
+  checkGitIsMasterBranch,
   getLatestPackageCommits,
   getFKDependenciesFromObj,
   getDependencyTree,
@@ -56,7 +57,14 @@ const prePublished = {}
  * Main entry point to the build process
  */
 async function publishPackages () {
-  console.log(checkGitCleanWorkingDirectory())
+  if (!checkGitCleanWorkingDirectory()) {
+    msg.error(`⚠️   The current working directory is not clean. Please commit all changes before publishing.`)
+    // return
+  }
+  if (!checkGitIsMasterBranch()) {
+    msg.error(`⚠️   Publishing should only occur from the master branch`)
+    // return
+  }
 
   allPackages.push(...await getPackages())
   const shouldBuild = await buildAllPackagesConsent()
@@ -66,7 +74,7 @@ async function publishPackages () {
   msg.info('🌎 Building all packages.')
   // await buildAllPackages(allPackages)
   await getChangedDist()
-  msg.headline(`\nThe following packages have changes when diffed with their last published version.
+  msg.headline(`The following packages have changes when diffed with their last published version.
 Any dependent packages will also require publishing to include dependency changes:`
   )
   const dependencyTree = await getDependencyTree(toBePublished, true)
@@ -90,7 +98,9 @@ Any dependent packages will also require publishing to include dependency change
     await prePublishPackage(pkg, i)
   }
 
-  console.log(prePublished)
+  msg.headline(`All packages configured. Preparing publish...`)
+  msg.info(`The following changes will be commited and published.\nPlease review and confirm:\n`)
+  drawPublishPreviewGraph(prePublished)
 }
 
 /**
@@ -101,7 +111,7 @@ async function prePublishPackage (pkg, index) {
   const commitNumber = 5
   const relevantCommits = getLatestPackageCommits(pkg, commitNumber)
 
-  msg.headline(`\n 🔧  Configuring ${pkg}...`)
+  msg.headline(`🔧  Configuring ${pkg}...`)
 
   if (index > 0) {
     // check for dependencies in published object and bump version(s)
@@ -243,6 +253,23 @@ async function getChangedDist () {
 async function getPublishOrder (packages) {
   const dependentsTree = await getDependencyTree(packages, true)
   return await flattenDependencyTree(dependentsTree)
+}
+
+/**
+ * Given a list of changed packages (prePublish) generate a tree view
+ * that shows all applied changes
+ */
+function drawPublishPreviewGraph (packages) {
+  for (const [title, pkg] of Object.entries(packages)) {
+    console.log(`${title}: ` + chalk.red(pkg.oldVersion) + ' -> ' + chalk.green(pkg.newVersion))
+
+    if (pkg.newDependencies) {
+      console.log(chalk.dim(`  ∟ dependencies:`))
+      for (const [depTitle, dep] of Object.entries(pkg.newDependencies)) {
+        console.log(chalk.dim(`    ∟ ${depTitle}: `) + chalk.red.dim(pkg.oldDependencies[depTitle]) + ' -> ' + chalk.green.dim(pkg.newDependencies[depTitle]))
+      }
+    }
+  }
 }
 
 /**
