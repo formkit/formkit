@@ -190,8 +190,11 @@ async function promptForGitCommit () {
       name: 'commitMessage',
       message: `✏️   Committing changes. Please provide a commit message: `,
     })
-    execSync(`git commit -m "${commitMessage}"`)
-    return true
+    if (commitMessage) {
+      execSync(`git commit -m "${commitMessage}"`)
+      return true
+    }
+    return false
   } catch (e) {
     console.log(e)
     msg.error(`Changes were not committed`)
