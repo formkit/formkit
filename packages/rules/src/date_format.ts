@@ -4,6 +4,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value matches a specific date
  * @param context - The FormKitValidationContext
+ * @public
  */
 const date_format: FormKitValidationRule = function date(
   { value },

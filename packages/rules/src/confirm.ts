@@ -5,6 +5,7 @@ const hasConfirm = /(_confirm(?:ed)?)$/
 /**
  * Determine if the given input's value matches another input's value
  * @param context - The FormKitValidationContext
+ * @public
  */
 const confirm: FormKitValidationRule = function confirm(
   { value, node },

@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value length is full width.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const length: FormKitValidationRule = function length(
   { value },

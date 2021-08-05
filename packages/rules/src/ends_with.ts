@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value ends with a given string
  * @param context - The FormKitValidationContext
+ * @public
  */
 const ends_with: FormKitValidationRule = function ends_with(
   { value },

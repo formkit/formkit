@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value matches one or more regular expressions.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const matches: FormKitValidationRule = function matches({ value }, ...stack) {
   return stack.some((pattern) => {

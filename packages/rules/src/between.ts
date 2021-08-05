@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value is between two other values.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const between: FormKitValidationRule = function between(
   { value },

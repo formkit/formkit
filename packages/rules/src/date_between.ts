@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value is between two other dates
  * @param context - The FormKitValidationContext
+ * @public
  */
 const date_between: FormKitValidationRule = function date_between(
   { value },

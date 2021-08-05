@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value is an http url
  * @param context - The FormKitValidationContext
+ * @public
  */
 const url: FormKitValidationRule = function url({ value }, ...stack) {
   try {
