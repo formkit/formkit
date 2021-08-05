@@ -7,23 +7,22 @@ describe('after rule', () => {
   const yesterday = new Date()
   tomorrow.setDate(today.getDate() + 1)
   yesterday.setDate(today.getDate() - 1)
-  const node = createNode()
 
   it('passes with tomorrow’s date object', () =>
-    expect(after({ value: tomorrow, node })).toBe(true))
+    expect(after(createNode({ value: tomorrow }))).toBe(true))
 
   it('passes with future date', () =>
-    expect(after({ value: 'January 15, 2999', node })).toBe(true))
+    expect(after(createNode({ value: 'January 15, 2999' }))).toBe(true))
 
   it('passes with long past date', () =>
-    expect(after({ value: yesterday, node }, 'Jan 15, 2000')).toBe(true))
+    expect(after(createNode({ value: yesterday }), 'Jan 15, 2000')).toBe(true))
 
   it('fails with yesterday’s date', () =>
-    expect(after({ value: yesterday, node })).toBe(false))
+    expect(after(createNode({ value: yesterday }))).toBe(false))
 
   it('fails with old date string', () =>
-    expect(after({ value: 'January, 2000', node })).toBe(false))
+    expect(after(createNode({ value: 'January, 2000' }))).toBe(false))
 
   it('fails with invalid value', () =>
-    expect(after({ value: '', node })).toBe(false))
+    expect(after(createNode({ value: '' }))).toBe(false))
 })

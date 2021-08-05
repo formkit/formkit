@@ -2,24 +2,25 @@ import { createNode } from '@formkit/core'
 import not from '../src/not'
 
 describe('not rule', () => {
-  const node = createNode()
   it('passes when a number string', () =>
-    expect(not({ value: '5', node }, '6')).toBe(true))
+    expect(not(createNode({ value: '5' }), '6')).toBe(true))
 
   it('passes when a number', () =>
-    expect(not({ value: 1, node }, 30)).toBe(true))
+    expect(not(createNode({ value: 1 }), 30)).toBe(true))
 
   it('passes when a string', () =>
-    expect(not({ value: 'abc', node }, 'def')).toBe(true))
+    expect(not(createNode({ value: 'abc' }), 'def')).toBe(true))
 
   it('fails when a shallow equal array', () =>
-    expect(not({ value: ['abc'], node }, ['abc'])).toBe(false))
+    expect(not(createNode({ value: ['abc'] }), ['abc'])).toBe(false))
 
   it('fails when a shallow equal object', () =>
-    expect(not({ value: { a: 'abc' }, node }, ['123'], { a: 'abc' })).toBe(
-      false
-    ))
+    expect(
+      not(createNode({ value: { a: 'abc' } }), ['123'], { a: 'abc' })
+    ).toBe(false))
 
   it('fails when string is in stack', () =>
-    expect(not({ value: 'a', node }, 'b', 'c', 'd', 'a', 'f')).toBe(false))
+    expect(not(createNode({ value: 'a' }), 'b', 'c', 'd', 'a', 'f')).toBe(
+      false
+    ))
 })
