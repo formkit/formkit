@@ -92,3 +92,43 @@ export function empty(
   }
   return false
 }
+
+/**
+ * Escape a string for use in regular expressions.
+ * @param string - The string to escape.
+ * @public
+ */
+export function escapeExp(string: string): string {
+  // $& means the whole matched string
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/**
+ * The date token strings that can be used for date formatting.
+ * @public
+ */
+export type FormKitDateTokens = 'MM' | 'M' | 'DD' | 'D' | 'YYYY' | 'YY'
+
+/**
+ * Given a string format (date) return a regex to match against.
+ * @param format - The format of the string
+ * @returns
+ * @public
+ */
+export function regexForFormat(format: string): RegExp {
+  const escaped = `^${escapeExp(format)}$`
+  const formats: Record<FormKitDateTokens, string> = {
+    MM: '(0[1-9]|1[012])',
+    M: '([1-9]|1[012])',
+    DD: '([012][0-9]|3[01])',
+    D: '([012]?[0-9]|3[01])',
+    YYYY: '\\d{4}',
+    YY: '\\d{2}',
+  }
+  const tokens = Object.keys(formats) as FormKitDateTokens[]
+  return new RegExp(
+    tokens.reduce((regex, format) => {
+      return regex.replace(format, formats[format])
+    }, escaped)
+  )
+}

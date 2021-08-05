@@ -92,4 +92,7 @@ describe('confirm rule', () => {
       true
     )
   })
+
+  // TODO - not sure where this should be but we need sample
+  // implementations of watcher/dependency behavior once it is implemented.
 })
