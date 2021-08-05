@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@formkit/validation",
+  "name": "@formkit/rules",
   "version": "1.0.0-alpha.0",
-  "description": "Validation plugin for FormKit",
+  "description": "Validation rules for FormKit",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -15,8 +15,10 @@
     "test": "jest"
   },
   "type": "module",
+  "devDependencies": {},
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.0"
-  },
-  "devDependencies": {}
+    "@formkit/core": "1.0.0-alpha.0",
+    "@formkit/utils": "1.0.0-alpha.0",
+    "@formkit/validation": "1.0.0-alpha.0"
+  }
 }

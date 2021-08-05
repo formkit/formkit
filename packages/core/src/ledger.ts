@@ -9,13 +9,15 @@ import { has } from '@formkit/utils'
  * @public
  */
 export interface FormKitLedger {
-  init: (node: FormKitNode<any>) => void
   count: (
     name: string,
     condition?: FormKitCounterCondition,
     increment?: number
   ) => Promise<void>
+  init: (node: FormKitNode<any>) => void
+  merge: (child: FormKitNode<any>) => void
   settled: (name: string) => Promise<void>
+  unmerge: (child: FormKitNode<any>) => void
   value: (name: string) => number
 }
 
@@ -34,12 +36,12 @@ export interface FormKitCounterCondition {
  * @public
  */
 export interface FormKitCounter {
-  name: string
+  condition: FormKitCounterCondition
   count: number
+  name: string
   node: FormKitNode<any>
   promise: Promise<void>
   resolve: () => void
-  condition: FormKitCounterCondition
 }
 
 /**
@@ -64,11 +66,13 @@ export function createLedger(): FormKitLedger {
       node.on('message-added.deep', add(ledger, 1))
       node.on('message-removed.deep', add(ledger, -1))
     },
+    merge: (child) => merge(n, ledger, child),
     settled(counterName: string): Promise<void> {
       return has(ledger, counterName)
         ? ledger[counterName].promise
         : Promise.resolve()
     },
+    unmerge: (child) => merge(n, ledger, child, true),
     value(counterName: string) {
       return has(ledger, counterName) ? ledger[counterName].count : 0
     },
@@ -109,8 +113,6 @@ function createCounter(
       child.ledger.count(counter.name, counter.condition)
       increment += child.ledger.value(counter.name)
     })
-  } else if (ledger[counterName].condition !== condition) {
-    ledger[counterName].condition = condition
   }
   return count(ledger[counterName], increment).promise
 }
@@ -162,5 +164,31 @@ function add(ledger: FormKitLedgerStore, delta: number) {
         count(counter, delta)
       }
     }
+  }
+}
+
+/**
+ * Given a child node, any the parent node's counters to the child and then
+ * rectify the upstream ledger counts. Generally used when attaching a child
+ * to an already counted tree.
+ * @param parent - The parent that is "receiving" the child
+ * @param ledger - The ledger object
+ * @param child - The child (can be a subtree) that is being attached
+ */
+function merge(
+  parent: FormKitNode<any> | null,
+  ledger: FormKitLedgerStore,
+  child: FormKitNode<any>,
+  remove = false
+) {
+  for (const key in ledger) {
+    const condition = ledger[key].condition
+    if (!remove) child.ledger.count(key, condition)
+    const increment = child.ledger.value(key) * (remove ? -1 : 1)
+    if (!parent) continue
+    do {
+      parent.ledger.count(key, condition, increment)
+      parent = parent.parent
+    } while (parent)
   }
 }

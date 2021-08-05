@@ -354,17 +354,18 @@ describe('validation rule sequencing', () => {
     expect(node.store).not.toHaveProperty('rule_exists')
   })
 
-  // it('sets an validating message during validation runs', async () => {
-  //   const node = createNode({
-  //     plugins: [validationPlugin],
-  //     props: {
-  //       validation: 'required|length:5|exists|^contains:bar',
-  //     },
-  //     value: 'abcdef',
-  //   })
-  //   await nextTick()
-  //   expect(node.store).not.toHaveProperty('validating')
-  //   node.input('foobar')
-  //   expect(node.store).toHaveProperty('validating')
-  // })
+  it('sets a validating message during validation runs', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|length:5|exists|^contains:bar',
+      },
+      value: 'abcdef',
+    })
+    expect(node.store).toHaveProperty('validating')
+    await node.ledger.settled('validating')
+    expect(node.store).not.toHaveProperty('validating')
+    node.input('foobar', false)
+    expect(node.store).toHaveProperty('validating')
+  })
 })

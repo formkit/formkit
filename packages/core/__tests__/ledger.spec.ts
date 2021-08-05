@@ -177,4 +177,76 @@ describe('ledger tracking on a tree', () => {
     await nextTick()
     expect(settledListener).toHaveBeenCalledTimes(1)
   })
+
+  it('adds to store counts from new children', () => {
+    const node = createNode({
+      type: 'group',
+    })
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    node.ledger.count('blocking', (m) => m.blocking)
+    node.store.set(error())
+    expect(node.ledger.value('blocking')).toBe(1)
+    const subtree = createNode({
+      type: 'group',
+      children: [createNode({ name: 'username' })],
+    })
+    subtree.store.set(error())
+    subtree.at('username')!.store.set(error())
+    node.add(subtree)
+    expect(node.ledger.value('blocking')).toBe(3)
+  })
+
+  it('removes from store counts for removed children', () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'username' })],
+    })
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    node.ledger.count('blocking', (m) => m.blocking)
+    node.at('username')!.store.set(error())
+    expect(node.ledger.value('blocking')).toBe(1)
+    node.remove(node.at('username')!)
+    expect(node.ledger.value('blocking')).toBe(0)
+  })
+
+  it('can deeply add and remove subtree ledger counts', () => {
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    const tree = createShippingTree()
+    tree.at('form')!.store.set(error())
+    tree.at('form.address')!.store.set(error())
+    tree.at('form.address.state')!.store.set(error())
+    tree.at('form.products.1.price')!.store.set(error())
+    tree.ledger.count('blocking', (m) => m.blocking)
+    expect(tree.ledger.value('blocking')).toBe(4)
+    const address = tree.at('address')!
+    tree.remove(address)
+    expect(tree.ledger.value('blocking')).toBe(2)
+    expect(address.ledger.value('blocking')).toBe(2)
+    const subNode = createNode({ name: 'street2' })
+    subNode.store.set(
+      createMessage({
+        type: 'help',
+        value: 'hello world',
+      })
+    )
+    subNode.store.set(error())
+    address.add(subNode)
+    tree.add(address)
+    expect(tree.ledger.value('blocking')).toBe(5)
+  })
 })

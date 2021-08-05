@@ -1,3 +1,4 @@
+import { token } from '@formkit/utils'
 import { FormKitContext, FormKitNode, isNode } from './node'
 
 /**
@@ -6,6 +7,7 @@ import { FormKitContext, FormKitNode, isNode } from './node'
  */
 export interface FormKitEventListener {
   (event: FormKitEvent): void
+  receipt?: string
 }
 
 /**
@@ -27,6 +29,7 @@ export interface FormKitEventListenerWrapper {
   event: string
   listener: FormKitEventListener
   modifiers: string[]
+  receipt: string
 }
 
 /**
@@ -35,7 +38,8 @@ export interface FormKitEventListenerWrapper {
  */
 export interface FormKitEventEmitter {
   (node: FormKitNode<any>, event: FormKitEvent): void
-  on: (eventName: string, listener: FormKitEventListener) => void
+  on: (eventName: string, listener: FormKitEventListener) => string
+  off: (receipt: string) => void
 }
 
 /**
@@ -45,6 +49,7 @@ export interface FormKitEventEmitter {
  */
 export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
+  const receipts = new Map<string, string[]>()
 
   const emitter = (node: FormKitNode<any>, event: FormKitEvent) => {
     if (listeners.has(event.name)) {
@@ -59,18 +64,52 @@ export function createEmitter(): FormKitEventEmitter {
       node.bubble(event)
     }
   }
+
+  /**
+   * Add an event listener
+   * @param eventName - The name of the event to listen to
+   * @param listener - The callback
+   * @returns string
+   */
   emitter.on = (eventName: string, listener: FormKitEventListener) => {
     const [event, ...modifiers] = eventName.split('.')
+    const receipt = listener.receipt || token()
     const wrapper: FormKitEventListenerWrapper = {
       modifiers,
       event,
       listener,
+      receipt,
     }
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
     listeners.has(event)
-      ? listeners.get(event)!.push(wrapper) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+      ? listeners.get(event)!.push(wrapper)
       : listeners.set(event, [wrapper])
-    return
+    receipts.has(receipt)
+      ? receipts.get(receipt)!.push(event)
+      : receipts.set(receipt, [event])
+    /* eslint-enable @typescript-eslint/no-non-null-assertion */
+    return receipt
   }
+
+  /**
+   * Remove an event listener
+   * @param listenerOrReceipt - Either a receipt or the callback function.
+   */
+  emitter.off = (receipt: string) => {
+    if (receipts.has(receipt)) {
+      receipts.get(receipt)?.forEach((event) => {
+        const eventListeners = listeners.get(event)
+        if (Array.isArray(eventListeners)) {
+          listeners.set(
+            event,
+            eventListeners.filter((wrapper) => wrapper.receipt !== receipt)
+          )
+        }
+      })
+      receipts.delete(receipt)
+    }
+  }
+
   return emitter
 }
 
@@ -125,11 +164,26 @@ export function bubble<T>(
  * @returns FormKitNode
  */
 export function on<T>(
-  node: FormKitNode<T>,
+  _node: FormKitNode<T>,
   context: FormKitContext<T>,
   name: string,
   listener: FormKitEventListener
+): string {
+  return context._e.on(name, listener)
+}
+
+/**
+ * Removes an event listener from a node by the returned receipt from .on().
+ * @param node - The node to remote the listener from
+ * @param context - The context to remove
+ * @param receipt - The receipt returned by .on()
+ * @returns FormKitNode
+ */
+export function off<T>(
+  node: FormKitNode<T>,
+  context: FormKitContext<T>,
+  receipt: string
 ): FormKitNode<T> {
-  context._e.on(name, listener)
+  context._e.off(receipt)
   return node
 }

@@ -7,7 +7,8 @@ describe('emitting and listening to events', () => {
   it('can emit an arbitrary event', () => {
     const name = createNode()
     const listener = jest.fn()
-    name.on('blur', listener).emit('blur', 'hello')
+    name.on('blur', listener)
+    name.emit('blur', 'hello')
     expect(listener).toHaveBeenCalledTimes(1)
     expect(listener).toHaveBeenCalledWith({
       name: 'blur',
@@ -57,5 +58,32 @@ describe('emitting and listening to events', () => {
     product.input('Sweater')
     expect(bubblePreventer).toHaveBeenCalledTimes(1)
     expect(listener).toHaveBeenCalledTimes(0)
+  })
+
+  it('can remove an event listener by the receipt', () => {
+    const node = createNode()
+    const listener = jest.fn()
+    const receipt = node.on('dothings', listener)
+    node.emit('dothings')
+    expect(listener).toHaveBeenCalledTimes(1)
+    node.off(receipt)
+    node.emit('dothings')
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
+  it('can add an event listener with it’s own receipt to multiple events', () => {
+    const listener = jest.fn()
+    const greeting = () => listener()
+    greeting.receipt = 'foobar'
+    const node = createNode()
+    node.on('hello', greeting)
+    node.on('goodbye', greeting)
+    node.emit('hello')
+    node.emit('goodbye')
+    expect(listener).toHaveBeenCalledTimes(2)
+    node.off('foobar')
+    node.emit('hello')
+    node.emit('goodbye')
+    expect(listener).toHaveBeenCalledTimes(2)
   })
 })
