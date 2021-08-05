@@ -61,25 +61,13 @@ export type FormKitValidation = {
 export type FormKitValidationIntent = [string | FormKitValidationRule, ...any[]]
 
 /**
- * Validation rules are called with the first argument being a context object
- * containing the input's value.
- * @public
- */
-export interface FormKitValidationRuleContext {
-  value: any
-  node: FormKitNode<any>
-}
-
-/**
  * Signature for a generic validation rule. It accepts an input, often a string
  * but validation rules should be able to accept any input type, and returns a
  * boolean indicating whether or not it passed validation.
  * @public
  */
 export type FormKitValidationRule = {
-  (context: FormKitValidationRuleContext, ...args: any[]):
-    | boolean
-    | Promise<boolean>
+  (node: FormKitNode<any>, ...args: any[]): boolean | Promise<boolean>
   ruleName?: string
 } & Partial<FormKitValidationHints>
 
@@ -204,7 +192,7 @@ async function run(
     await debounce(validation)
   }
   // We don't know yet if the rule will be async or not, so store the return
-  const willBeResult = validation.rule({ value, node }, ...validation.args)
+  const willBeResult = validation.rule(node, ...validation.args)
   // Check if we got a promise out of it, if we did it's obviously async
   const isAsync = willBeResult instanceof Promise
   const result = isAsync ? await willBeResult : willBeResult

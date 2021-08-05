@@ -4,6 +4,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value was required.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const required: FormKitValidationRule = function required({ value }) {
   return !empty(value)

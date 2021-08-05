@@ -34,3 +34,9 @@ export {
   FormKitEvent,
   FormKitEventEmitter,
 } from './events'
+
+/**
+ * Export optional watchers, these are not used in core itself but can be a
+ * useful helper utility.
+ */
+export { FormKitWatchable, watch, killWatch } from './watch'

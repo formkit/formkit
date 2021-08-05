@@ -3,6 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value before a given date.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const before: FormKitValidationRule = function ({ value }, compare = false) {
   const timestamp = Date.parse(compare || new Date())

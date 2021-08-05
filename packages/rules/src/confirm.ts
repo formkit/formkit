@@ -5,9 +5,10 @@ const hasConfirm = /(_confirm(?:ed)?)$/
 /**
  * Determine if the given input's value matches another input's value
  * @param context - The FormKitValidationContext
+ * @public
  */
 const confirm: FormKitValidationRule = function confirm(
-  { value, node },
+  node,
   address?,
   comparison = 'loose'
 ) {
@@ -18,8 +19,8 @@ const confirm: FormKitValidationRule = function confirm(
   }
   const foreignValue = node.at(address)?.value
   return comparison === 'strict'
-    ? value === foreignValue
-    : value == foreignValue
+    ? node.value === foreignValue
+    : node.value == foreignValue
 }
 
 export default confirm

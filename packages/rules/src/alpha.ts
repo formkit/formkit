@@ -4,6 +4,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 /**
  * Determine if the given input's value is only alpha characters.
  * @param context - The FormKitValidationContext
+ * @public
  */
 const alpha: FormKitValidationRule = function ({ value }, set = 'default') {
   const sets = {

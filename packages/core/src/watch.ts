@@ -1,10 +1,11 @@
 import { token, has } from '@formkit/utils'
-import { FormKitNode, FormKitContext } from './index'
+import { FormKitNode } from './index'
 import { isNode } from './node'
 
 /**
  * A function that is called during the watch process. Any node dependencies
  * touched during this call are considered dependents.
+ * @public
  */
 export interface FormKitWatchable {
   (node: FormKitNode<unknown>): void | Promise<void>
@@ -30,12 +31,21 @@ const watchers: { [index: string]: FormKitNodeWatcher } = {}
  * Allows authors or developer to watch a callback for any other node
  * dependencies, and then re-run the callback if certain events are triggered
  * on those dependency nodes.
+ *
+ * NOTE: This watch function is not yet optimized, it does a _very_ basic job
+ * off determining which nodes were selected, and re-running those code blocks
+ * but it is not yet a good general-purpose algorithm.
+ *
+ * TODO: We need to convert this watcher to a more generalized solution that
+ * knows automatically which events to bind to. For example accessing a
+ * node.value should produce a 'commit' listener, while a node.props.x should
+ * produce a 'prop' listener.
+ * @param node - The node to create the watcher proxy for.
  * @param block - The block of code to watch for dependencies in
  * @param events - Bind these listeners to all dependencies to re-run the block
  */
 export function watch(
   node: FormKitNode<any>,
-  _context: FormKitContext<any>,
   block: FormKitWatchable,
   events: string[]
 ): string {
@@ -50,11 +60,7 @@ export function watch(
  * Stop all watching for a given watcher.
  * @param receipt - The string returned by the watch() function
  */
-export function stopWatch(
-  _node: FormKitNode<any>,
-  _context: FormKitContext<any>,
-  receipt: string
-): void {
+export function killWatch(receipt: string): void {
   if (has(watchers, receipt)) {
     watchers[receipt].end().forEach((node) => node.off(receipt))
   }
