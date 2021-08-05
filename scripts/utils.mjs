@@ -47,9 +47,6 @@ export function getBuildOrder(packages = [], orderedPackages = []) {
         const nestedDeps = getBuildOrder([dep], [...orderedPackagesSet])
         orderedPackagesSet = new Set([...nestedDeps, dep])
       }
-      if (!orderedPackagesSet.has(pkg)) {
-        orderedPackagesSet = new Set([...orderedPackagesSet, pkg])
-      }
     }
     if (packagesSet && packages.size) {
       return getBuildOrder(packages, orderedPackages)
