@@ -12,7 +12,9 @@ process.
 - Confirm rule now uses node address syntax, and has a strict or loose comparison argument (loose by default)
 - The date rule is now the date_format rule
 - The `in` rule has been renamed `is`
-- The min rule now only works on arrays and numbers. use `length_min`
+- The `min` rule now only works on arrays and numbers. use `length_min`
+- The `max` rule now only works on arrays and numbers. use `length_max`
+- The `url` rule now uses the JavaScript native URL for parsing
 
 ## Validation rules TODO:
 
