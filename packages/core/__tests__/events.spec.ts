@@ -86,4 +86,15 @@ describe('emitting and listening to events', () => {
     node.emit('goodbye')
     expect(listener).toHaveBeenCalledTimes(2)
   })
+
+  it('emits a non-bubbling prop event for the compound prop and prop name', () => {
+    const tree = createShippingTree()
+    const topListener = jest.fn()
+    const innerListener = jest.fn()
+    tree.on('prop:label', topListener)
+    tree.at('name')!.on('prop:label', innerListener)
+    tree.at('name')!.props.label = 'hello world'
+    expect(topListener).toHaveBeenCalledTimes(0)
+    expect(innerListener).toHaveBeenCalledTimes(1)
+  })
 })

@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "@formkit/observer",
+  "version": "1.0.0-alpha.0",
+  "description": "Utility to wrap a FormKitNode in a dependency tracking observer proxy",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "author": "Justin Schroeder <justin@wearebraid.com>",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "type": "module",
+  "dependencies": {
+    "@formkit/core": "1.0.0-alpha.0",
+    "@formkit/utils": "1.0.0-alpha.0"
+  },
+  "devDependencies": {}
+}
