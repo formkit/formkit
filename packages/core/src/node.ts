@@ -930,7 +930,7 @@ function removeChild<T>(
       value: valueRemoved,
     })
     child.parent = null
-    // Remove the child from the config
+    // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
     child.config._rmn = child
   }
   node.ledger.unmerge(child)
