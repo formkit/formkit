@@ -22,7 +22,7 @@ import { has } from '@formkit/utils'
  * @public
  */
 export interface FormKitLocaleMessages {
-  [index: string]: string | ((fragment?: FormKitTextFragment) => string)
+  [index: string]: string | ((...args: any[]) => string)
 }
 
 /**
@@ -54,8 +54,13 @@ export function createI18nPlugin(
   registry: FormKitLocaleRegistry
 ): FormKitPlugin {
   return function i18nPlugin(node: FormKitNode<any>) {
-    const localeKey = parseLocale(node.config.locale, registry)
-    const locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
+    let localeKey = parseLocale(node.config.locale, registry)
+    let locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
+    /* If the locale changes — change we change the active locale */
+    node.on('config:locale', ({ payload: lang }) => {
+      localeKey = parseLocale(lang, registry)
+      locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
+    })
     /**
      * Hook into the core text or t() hook to perform localization on the
      * output of core functionality.

@@ -36,6 +36,31 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
+  it('emits config:{property} events when configuration options change', () => {
+    const node = createNode({
+      config: { locale: 'en' },
+      type: 'group',
+      children: [createNode({ name: 'child' })],
+    })
+    const listenerA = jest.fn()
+    const listenerB = jest.fn()
+    node.on('config:locale', listenerA)
+    node.at('child')!.on('config:locale', listenerB)
+    node.at('child')!.config.locale = 'fr'
+    expect(listenerA).toHaveBeenCalledTimes(1)
+    expect(listenerA).toHaveBeenLastCalledWith(
+      expect.objectContaining({ payload: 'fr' })
+    )
+    expect(listenerB).toHaveBeenCalledTimes(1)
+    expect(listenerB).toHaveBeenLastCalledWith(
+      expect.objectContaining({ payload: 'fr' })
+    )
+    node.remove(node.at('child')!)
+    node.config.locale = 'zh'
+    expect(listenerA).toHaveBeenCalledTimes(2)
+    expect(listenerB).toHaveBeenCalledTimes(1)
+  })
+
   it('does not allow nodes of type input to be created with children', () => {
     expect(() => {
       createNode({ children: [createNode()] })

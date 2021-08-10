@@ -38,7 +38,7 @@ describe('date_between', () => {
     expect(
       date_between(
         createNode({
-          value: new Date(),
+          value: d,
         }),
         new Date(d.getFullYear() + 1, d.getMonth(), d.getDate())
       )

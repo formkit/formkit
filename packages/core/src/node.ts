@@ -930,6 +930,8 @@ function removeChild<T>(
       value: valueRemoved,
     })
     child.parent = null
+    // Remove the child from the config
+    child.config._rmn = child
   }
   node.ledger.unmerge(child)
   return node
@@ -979,6 +981,7 @@ function setConfig<T>(
   config: FormKitConfig
 ) {
   context.config = config
+  config._n = node
   node.walk((n) => n.setConfig(config))
 }
 
@@ -1227,11 +1230,33 @@ function createConfig(
   if (parent && configOptions) {
     return Object.assign(parent.config, configOptions)
   }
-  return {
-    delimiter: '.',
-    delay: 0,
-    ...configOptions,
-  }
+  const nodes = new Set<FormKitNode<any>>()
+  return new Proxy(
+    {
+      delimiter: '.',
+      delay: 0,
+      locale: 'en',
+      ...configOptions,
+    },
+    {
+      set(...args) {
+        if (args[1] === '_n') {
+          nodes.add(args[2])
+          return true
+        }
+        if (args[1] === '_rmn') {
+          nodes.delete(args[2])
+          return true
+        }
+        const didSet = Reflect.set(...args)
+        if (nodes.size && typeof args[1] === 'string')
+          nodes.forEach((n) =>
+            n.emit(`config:${args[1] as string}`, args[2], false)
+          )
+        return didSet
+      },
+    }
+  )
 }
 
 /**
@@ -1344,8 +1369,8 @@ function nodeInit<T>(
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
   node.ledger.init(node)
-  // Set the internal node on the props and store proxies
-  node.store._n = node.props._n = node
+  // Set the internal node on the props, config, and store proxies
+  node.store._n = node.props._n = node.config._n = node
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
   // If the options has plugins, we apply them

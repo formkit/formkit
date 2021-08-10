@@ -2,7 +2,7 @@ import { empty } from '@formkit/utils'
 import {
   parseRules,
   defaultHints,
-  createValidation,
+  createValidationPlugin,
   FormKitValidationRule,
 } from '../src/validation'
 import { createNode } from '@formkit/core'
@@ -253,7 +253,7 @@ describe('validation rule parsing', () => {
 describe('validation rule sequencing', () => {
   const required: FormKitValidationRule = ({ value }) => !empty(value)
   required.skipEmpty = false
-  const validationPlugin = createValidation({
+  const validationPlugin = createValidationPlugin({
     required,
     length: ({ value }, length) => ('' + value).length >= parseInt(length),
     contains: ({ value }, substr) => ('' + value).includes(substr),

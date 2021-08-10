@@ -124,7 +124,7 @@ const validatingMessage = createMessage({
  * @param node - The node to bind validation to.
  * @public
  */
-export function createValidation(baseRules: FormKitValidationRules = {}) {
+export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
   return function validationPlugin(node: FormKitNode): void {
     const availableRules = Object.assign(
       {},

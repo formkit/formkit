@@ -6,6 +6,15 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * assists in creating good validation messages for your locale.
  */
 import { sentence as s } from '../formatters'
+import { FormKitLocaleMessages } from '../i18n'
+
+/**
+ * Standard language for interface features.
+ * @public
+ */
+export const ui: FormKitLocaleMessages = {
+  remove: 'Remove',
+}
 
 /**
  * These are all the possible strings that pertain to validation messages.

@@ -60,7 +60,7 @@ export type FormKitStore = FormKitMessageStore & {
  * The available traps on the FormKit store.
  */
 export interface FormKitStoreTraps {
-  set: (message: FormKitMessage) => FormKitStore
+  set: (message: FormKitMessageProps) => FormKitStore
   remove: (key: string) => FormKitStore
   filter: (
     callback: (message: FormKitMessage) => boolean,
@@ -81,7 +81,7 @@ export interface FormKitStoreTraps {
 export function createMessage(
   conf: Partial<FormKitMessage>,
   node?: FormKitNode<any>
-): FormKitMessage {
+): FormKitMessageProps {
   const m = {
     blocking: false,
     key: token(),
@@ -153,9 +153,17 @@ function setMessage(
   messageStore: FormKitMessageStore,
   store: FormKitStore,
   node: FormKitNode,
-  message: FormKitMessage
+  message: FormKitMessageProps
 ): FormKitStore {
   if (messageStore[message.key] !== message) {
+    if (typeof message.value === 'string' && message.meta.localize !== false) {
+      // Expose the value to translation
+      const previous = message.value
+      message.value = node.t(message as FormKitTextFragment)
+      if (message.value !== previous) {
+        message.meta.locale = node.config.locale
+      }
+    }
     const e = `message-${has(messageStore, message.key) ? 'updated' : 'added'}`
     messageStore[message.key] = Object.freeze(message)
     node.emit(e, message)

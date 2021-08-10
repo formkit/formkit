@@ -147,10 +147,12 @@ describe('removing store messages', () => {
       return next(frag)
     })
     node.store.set(
-      createMessage(
-        { key: 'foo', type: 'foo', value: 'house', meta: { localize: false } },
-        node
-      )
+      createMessage({
+        key: 'foo',
+        type: 'foo',
+        value: 'house',
+        meta: { localize: false },
+      })
     )
     expect(node.store.foo.value).toBe('house')
   })
