@@ -7,4 +7,5 @@ export {
   FormKitValidationIntent,
   FormKitValidationRule,
   FormKitValidationRules,
+  FormKitValidationMessages,
 } from './validation'

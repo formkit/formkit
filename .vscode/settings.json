@@ -5,6 +5,8 @@
         "dedupe",
         "dispatchable",
         "execa",
+        "preprocessors",
+        "proxied",
         "setify",
         "unmerge"
     ]

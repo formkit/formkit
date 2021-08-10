@@ -14,6 +14,7 @@ import {
 } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
+import { has } from '@formkit/utils'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -1016,6 +1017,27 @@ describe('value propagation in a node tree', () => {
       const searcher = jest.fn(() => false)
       bfs(parent, 'jim', searcher)
       expect(searcher.mock.calls.length).toBe(7)
+    })
+  })
+
+  describe('text hook', () => {
+    it('can pass a string of text directly through core with no modifications', () => {
+      const node = createNode()
+      expect(node.t('hello world')).toBe('hello world')
+    })
+
+    it('can modify a string of text', () => {
+      const node = createNode()
+      type Translations = 'hello'
+      const map: Record<Translations, string> = { hello: 'ciao' }
+      node.hook.text((frag, next) => {
+        if (has(map, frag.key)) {
+          frag.value = map[frag.key as Translations]
+        }
+        return next(frag)
+      })
+      expect(node.t('justin')).toBe('justin')
+      expect(node.t('hello')).toBe('ciao')
     })
   })
 })

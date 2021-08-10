@@ -21,3 +21,9 @@ process.
 - Add `date_between` rule
 - Add `mime` type once we determine how file uploads will work
 - Add `length` rule
+
+
+## Other stuff
+
+- `validation-name` is now `message-name`
+- New `messageNameStrategy`

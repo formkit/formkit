@@ -127,4 +127,31 @@ describe('removing store messages', () => {
     node.store.filter(filter, 'bar')
     expect(Object.keys(node.store)).toEqual(['chocolate'])
   })
+
+  it('can change the value of a message using t()', () => {
+    const node = createNode()
+    node.hook.text((frag, next) => {
+      frag.value = 'casa'
+      return next(frag)
+    })
+    node.store.set(
+      createMessage({ key: 'foo', type: 'foo', value: 'house' }, node)
+    )
+    expect(node.store.foo.value).toBe('casa')
+  })
+
+  it('can prevent localizing the value of a message by setting meta.localize to false', () => {
+    const node = createNode()
+    node.hook.text((frag, next) => {
+      frag.value = 'casa'
+      return next(frag)
+    })
+    node.store.set(
+      createMessage(
+        { key: 'foo', type: 'foo', value: 'house', meta: { localize: false } },
+        node
+      )
+    )
+    expect(node.store.foo.value).toBe('house')
+  })
 })

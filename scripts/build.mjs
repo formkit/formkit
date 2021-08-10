@@ -174,7 +174,7 @@ async function apiExtractor(p)
   })
   if (result.succeeded) {
     const distRoot = `${packagesDir}/${p}/dist`
-    const distFiles = await fs.readdir(distRoot)
+    const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
     await Promise.all(distFiles.map(file => {
       return (file !== 'index.all.d.ts' && file.endsWith('d.ts')) ? fs.rm(resolve(distRoot, file)) : Promise.resolve()
     }))
