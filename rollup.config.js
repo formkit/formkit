@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript'
+import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -16,11 +17,16 @@ const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
 export default {
-  input: `${rootPath}/src/index.ts`,
+  input: createInputPath(),
   output: createOutputConfig(),
-  plugins: [
-    typescript(tsConfig)
-  ]
+  plugins: createPluginsConfig()
+}
+
+/**
+ * Create the expected path for the input file.
+ */
+function createInputPath() {
+  return `${rootPath}/src/index.ts`
 }
 
 /**
@@ -38,6 +44,22 @@ function createOutputConfig()
     dir: `${rootPath}/dist`,
     format: 'esm'
   }
+}
+
+/**
+ * Creates the appropriate plugins array.
+ */
+function createPluginsConfig()
+{
+  const plugins = [
+    typescript(tsConfig)
+  ]
+  if (pkg === 'vue') {
+    plugins.unshift(vue({
+      exposeFilename: false
+    }))
+  }
+  return plugins
 }
 
 /**
