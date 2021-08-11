@@ -40,6 +40,14 @@ module.exports = {
         '@typescript-eslint/no-empty-function': 0,
         '@typescript-eslint/no-non-null-assertion': 0
       }
+    },
+    {
+      files: "*.vue",
+      extends: [
+        "plugin:vue/vue3-recommended",
+        "eslint:recommended",
+        "@vue/typescript/recommended"
+      ]
     }
   ]
 }

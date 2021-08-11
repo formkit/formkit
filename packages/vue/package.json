@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "name": "@formkit/vue",
+  "version": "1.0.0-alpha.0",
+  "description": "The fastest way to build forms in Vue.",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "author": "Justin Schroeder <justin@wearebraid.com>",
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "type": "module",
+  "dependencies": {},
+  "devDependencies": {},
+  "peerDependencies": {
+    "vue": "^3.2.1"
+  }
+}
