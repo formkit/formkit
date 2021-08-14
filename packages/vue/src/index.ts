@@ -1,1 +1,1 @@
-export { default as FormKitInput } from './FormKitInput.vue'
+export { default as formKitPlugin } from './plugin'

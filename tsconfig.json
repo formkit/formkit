@@ -16,9 +16,10 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-  },
-  // "include": [
-  //   "packages/*/src",
-  //   "packages/*/__tests__"
-  // ]
+    "paths": {
+      "@components": [
+        "packages/vue/src/components/*"
+      ]
+    }
+  }
 }

@@ -40,7 +40,7 @@ export type FormKitTextFragment = Partial<FormKitMessageProps> & {
  */
 export interface FormKitHooks<ValueType> {
   commit: FormKitDispatcher<ValueType>
-  error: FormKitDispatcher<string | false>
+  error: FormKitDispatcher<string>
   init: FormKitDispatcher<ValueType>
   input: FormKitDispatcher<ValueType>
   prop: FormKitDispatcher<{
@@ -607,7 +607,7 @@ function trap<T>(
 function createHooks<T>(): FormKitHooks<FormKitNodeValue<T>> {
   return {
     commit: createDispatcher<FormKitNodeValue<T>>(),
-    error: createDispatcher<string | false>(),
+    error: createDispatcher<string>(),
     init: createDispatcher<FormKitNodeValue<T>>(),
     input: createDispatcher<FormKitNodeValue<T>>(),
     prop: createDispatcher<{ prop: string | symbol; value: any }>(),
@@ -1283,10 +1283,10 @@ function text<T>(
  * @param errorCode -
  * @public
  */
-export function createError(node: FormKitNode<any>, errorCode: number): void {
-  const e: string | false = node.hook.error.dispatch(`E${errorCode}`)
+export function createError(node: FormKitNode<any>, errorCode: number): never {
+  const e: string = node.hook.error.dispatch(`E${errorCode}`)
   node.emit('error', e)
-  if (e !== false) throw new Error(e)
+  throw new Error(e)
 }
 
 /**

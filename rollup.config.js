@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript'
+import typescript2 from 'rollup-plugin-typescript2'
 import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
@@ -17,6 +18,7 @@ const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
 export default {
+  external: ['vue', '@formkit/core'],
   input: createInputPath(),
   output: createOutputConfig(),
   plugins: createPluginsConfig()
@@ -51,13 +53,14 @@ function createOutputConfig()
  */
 function createPluginsConfig()
 {
-  const plugins = [
-    typescript(tsConfig)
-  ]
+  const plugins = []
   if (pkg === 'vue') {
-    plugins.unshift(vue({
+    plugins.push(typescript2(tsConfig))
+    plugins.push(vue({
       exposeFilename: false
     }))
+  } else {
+    plugins.push(typescript(tsConfig))
   }
   return plugins
 }
@@ -73,7 +76,7 @@ function createTypeScriptConfig()
     outDir: `${rootPath}/dist`,
     include: [
       `./packages/${pkg}/src/*.ts`,
-      `./packages/${pkg}/src/*/*.ts`,
+      `./packages/${pkg}/src/*/*.ts`
     ],
     noEmitOnError: true
   }

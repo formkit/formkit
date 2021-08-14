@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "name": "@formkit/examples",
+  "version": "1.0.0-alpha.0",
+  "description": "FormKit examples",
+  "main": "index.js",
+  "author": "Justin Schroeder",
+  "license": "MIT",
+  "dependencies": {
+    "@vitejs/plugin-vue": "^1.4.0",
+    "vite": "^2.4.4",
+    "vue": "^3.2.2"
+  }
+}

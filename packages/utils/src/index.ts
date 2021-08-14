@@ -132,3 +132,14 @@ export function regexForFormat(format: string): RegExp {
     }, escaped)
   )
 }
+
+/**
+ * Given a FormKit input type
+ * @param type - Any FormKit input type
+ */
+export function nodeType(type: string): 'list' | 'group' | 'input' {
+  const t = type.toLowerCase()
+  if (t === 'list') return 'list'
+  if (t === 'group') return 'group'
+  return 'input'
+}
