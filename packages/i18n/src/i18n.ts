@@ -56,7 +56,7 @@ export function createI18nPlugin(
   return function i18nPlugin(node: FormKitNode<any>) {
     let localeKey = parseLocale(node.config.locale, registry)
     let locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
-    /* If the locale changes — change we change the active locale */
+    /* If the locale changes — change the active locale */
     node.on('config:locale', ({ payload: lang }) => {
       localeKey = parseLocale(lang, registry)
       locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
