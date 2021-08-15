@@ -125,12 +125,13 @@ export function emit<T>(
   node: FormKitNode<T>,
   context: FormKitContext<T>,
   name: string,
-  payload?: any // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
+  payload?: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types,
+  bubble = true
 ): FormKitNode<T> {
   context._e(node, {
     payload,
     name,
-    bubble: true,
+    bubble,
     origin: node,
   })
   return node

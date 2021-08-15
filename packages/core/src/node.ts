@@ -277,7 +277,7 @@ export type FormKitNode<T = void> = {
   config: FormKitConfig
   disturb: () => FormKitNode<T>
   each: (callback: FormKitChildCallback) => void
-  emit: (event: string, payload?: any) => FormKitNode<T>
+  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode<T>
   find: (
     selector: string,
     searcher?: keyof FormKitNode | FormKitSearchFunction<T>
@@ -1085,6 +1085,7 @@ function createProps<T>(type: FormKitNodeType) {
       })
       const didSet = Reflect.set(target, prop, value, receiver)
       node.emit('prop', { prop, value })
+      if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
       return didSet
     },
   })
