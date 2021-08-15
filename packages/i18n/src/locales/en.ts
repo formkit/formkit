@@ -46,7 +46,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Rule: checks if the value is alpha numeric
+   The value is not alphanumeric
    */
   alphanumeric({ name }) {
     return `${s(name)} can only contain letters and numbers.`
