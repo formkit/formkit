@@ -53,7 +53,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * The date is not before.
+   * The date is not before
    */
   before({ name, args }) {
     if (Array.isArray(args) && args.length) {
