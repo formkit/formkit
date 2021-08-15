@@ -13,6 +13,6 @@ const required: FormKitValidationRule = function required({ value }) {
 /**
  * This rules should run even if the inputs is empty (obviously)
  */
-required.skipEmpty = true
+required.skipEmpty = false
 
 export default required

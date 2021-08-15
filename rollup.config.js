@@ -51,6 +51,7 @@ function createTypeScriptConfig()
     outDir: `${rootPath}/dist`,
     include: [
       `./packages/${pkg}/src/*.ts`,
+      `./packages/${pkg}/src/*/*.ts`,
     ],
     noEmitOnError: true
   }

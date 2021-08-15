@@ -2,9 +2,10 @@
  * Export the validation and the public typings
  */
 export {
-  createValidation,
+  createValidationPlugin,
   FormKitValidation,
   FormKitValidationIntent,
   FormKitValidationRule,
   FormKitValidationRules,
+  FormKitValidationMessages,
 } from './validation'

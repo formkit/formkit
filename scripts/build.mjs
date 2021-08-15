@@ -175,9 +175,9 @@ async function apiExtractor(p)
   })
   if (result.succeeded) {
     const distRoot = `${packagesDir}/${p}/dist`
-    const distFiles = await fs.readdir(distRoot)
+    const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
     await Promise.all(distFiles.map(file => {
-      return (file !== 'index.all.d.ts' && file.endsWith('d.ts')) ? fs.rm(resolve(distRoot, file)) : Promise.resolve()
+      return (file.name !== 'index.all.d.ts' && (file.isDirectory() || file.name.endsWith('d.ts'))) ? fs.rm(resolve(distRoot, file.name), { recursive: true }) : Promise.resolve()
     }))
     await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
     fs.rename(resolve(distRoot, 'index.all.d.ts'), resolve(distRoot, 'index.d.ts'))

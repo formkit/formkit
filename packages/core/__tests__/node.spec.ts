@@ -14,6 +14,7 @@ import {
 } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
+import { has } from '@formkit/utils'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -33,6 +34,31 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('#')
     node.config.delimiter = '$'
     expect(email.config.delimiter).toBe('$')
+  })
+
+  it('emits config:{property} events when configuration options change', () => {
+    const node = createNode({
+      config: { locale: 'en' },
+      type: 'group',
+      children: [createNode({ name: 'child' })],
+    })
+    const listenerA = jest.fn()
+    const listenerB = jest.fn()
+    node.on('config:locale', listenerA)
+    node.at('child')!.on('config:locale', listenerB)
+    node.at('child')!.config.locale = 'fr'
+    expect(listenerA).toHaveBeenCalledTimes(1)
+    expect(listenerA).toHaveBeenLastCalledWith(
+      expect.objectContaining({ payload: 'fr' })
+    )
+    expect(listenerB).toHaveBeenCalledTimes(1)
+    expect(listenerB).toHaveBeenLastCalledWith(
+      expect.objectContaining({ payload: 'fr' })
+    )
+    node.remove(node.at('child')!)
+    node.config.locale = 'zh'
+    expect(listenerA).toHaveBeenCalledTimes(2)
+    expect(listenerB).toHaveBeenCalledTimes(1)
   })
 
   it('does not allow nodes of type input to be created with children', () => {
@@ -1016,6 +1042,27 @@ describe('value propagation in a node tree', () => {
       const searcher = jest.fn(() => false)
       bfs(parent, 'jim', searcher)
       expect(searcher.mock.calls.length).toBe(7)
+    })
+  })
+
+  describe('text hook', () => {
+    it('can pass a string of text directly through core with no modifications', () => {
+      const node = createNode()
+      expect(node.t('hello world')).toBe('hello world')
+    })
+
+    it('can modify a string of text', () => {
+      const node = createNode()
+      type Translations = 'hello'
+      const map: Record<Translations, string> = { hello: 'ciao' }
+      node.hook.text((frag, next) => {
+        if (has(map, frag.key)) {
+          frag.value = map[frag.key as Translations]
+        }
+        return next(frag)
+      })
+      expect(node.t('justin')).toBe('justin')
+      expect(node.t('hello')).toBe('ciao')
     })
   })
 })

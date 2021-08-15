@@ -10,7 +10,7 @@ import {
   off,
   FormKitEventListener,
 } from './events'
-import { createStore, FormKitStore } from './store'
+import { createStore, FormKitMessageProps, FormKitStore } from './store'
 import { createLedger, FormKitLedger } from './ledger'
 
 /**
@@ -23,18 +23,31 @@ export interface FormKitPlugin<T = any> {
 }
 
 /**
+ * Text fragments are small pieces of text used for things like interface
+ * validation messages, or errors that may be exposed for modification or
+ * even translation.
+ * @public
+ */
+export type FormKitTextFragment = Partial<FormKitMessageProps> & {
+  key: string
+  value: string
+  type: string
+}
+
+/**
  * The available hooks for middleware.
  * @public
  */
 export interface FormKitHooks<ValueType> {
-  init: FormKitDispatcher<ValueType>
   commit: FormKitDispatcher<ValueType>
+  error: FormKitDispatcher<string | false>
+  init: FormKitDispatcher<ValueType>
   input: FormKitDispatcher<ValueType>
   prop: FormKitDispatcher<{
     prop: string | symbol
     value: any
   }>
-  error: FormKitDispatcher<string | false>
+  text: FormKitDispatcher<FormKitTextFragment>
 }
 
 /**
@@ -199,6 +212,7 @@ export interface FormKitConfig {
  */
 export type FormKitProps = {
   delay: number
+  messageNameStrategy?: (node: FormKitNode<any>) => string
   [index: string]: any
 } & FormKitConfig
 
@@ -208,24 +222,82 @@ export type FormKitProps = {
  * @public
  */
 export interface FormKitContext<ValueType = any> {
+  /**
+   * A node’s internal disturbance counter.
+   */
   _d: number
+  /**
+   * A node’s internal event emitter.
+   */
   _e: FormKitEventEmitter
+  /**
+   * A node’s internal disturbance counter promise.
+   */
   _resolve: ((value: ValueType) => void) | false
-  _t: number | false
+  /**
+   * A node’s internal input timeout.
+   */
+  _tmo: number | false
+  /**
+   * A node’s internal pre-commit value.
+   */
   _value: ValueType
+  /**
+   * An array of child nodes (groups and lists)
+   */
   children: Array<FormKitNode<any>>
+  /**
+   * Configuration state for a given tree.
+   */
   config: FormKitConfig
+  /**
+   * Set of hooks
+   */
   hook: FormKitHooks<ValueType>
+  /**
+   * Boolean determines if the node is in a settled state or not.
+   */
   isSettled: boolean
+  /**
+   * A counting ledger for arbitrary message counters.
+   */
   ledger: FormKitLedger
+  /**
+   * The name of the input — should be treated as readonly.
+   */
   name: string | symbol
+  /**
+   * The parent of a node.
+   */
   parent: FormKitNode<any> | null
+  /**
+   * A Set of plugins registered on this node that can be inherited by children.
+   */
   plugins: Set<FormKitPlugin>
+  /**
+   * An proxied object of props. These are typically provided by the adapter
+   * of choice.
+   */
   props: Partial<FormKitProps>
+  /**
+   * A promise that resolves when an input is in a settled state.
+   */
   settled: Promise<ValueType>
+  /**
+   * The internal node store.
+   */
   store: FormKitStore
+  /**
+   * The traps available to a node.
+   */
   traps: FormKitTraps<ValueType>
+  /**
+   * The type of node, should only be 'input', 'list', or 'group'.
+   */
   type: FormKitNodeType
+  /**
+   * The actual value of the node.
+   */
   value: ValueType
 }
 
@@ -266,36 +338,149 @@ export interface FormKitChildValue {
  * @public
  */
 export type FormKitNode<T = void> = {
+  /**
+   * Boolean true indicating this object is a valid FormKitNode
+   */
   readonly __FKNode__: true
+  /**
+   * The value of the input. This should never be directly modified. Any
+   * desired mutations should be made through node.input()
+   */
   readonly value: T extends void ? any : T
+  /**
+   * The internal FormKitContext object — this is not a public API and should
+   * never be used outside of the core package itself. It is only here for
+   * internal use and as an escape hatch.
+   */
   _c: FormKitContext
+  /**
+   * Add a child to a node, the node must be a group or list.
+   */
   add: (node: FormKitNode<any>) => FormKitNode<T>
+  /**
+   * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
+   * of node names. For example: form.users.0.first_name There are a few
+   * "special" traversal tokens as well:
+   * $root - Selects the root node
+   * $parent - Selects the parent node
+   * $self — Selects the current node
+   */
   at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
+  /**
+   * The address of the current node, from the root of the tree.
+   */
   address: FormKitAddress
+  /**
+   * An internal function used to bubble an event from a child to a parent.
+   */
   bubble: (event: FormKitEvent) => FormKitNode<T>
+  /**
+   * An internal mechanism for calming a disturbance — which is a mechanism
+   * used to know the state of input settlement in the tree.
+   */
   calm: (childValue?: FormKitChildValue) => void
+  /**
+   * An object that is shared tree-wide with various configuration options that
+   * should be applied to the entire tree.
+   */
   config: FormKitConfig
+  /**
+   * Increments a disturbance. A disturbance is a record that the input or a
+   * member of its subtree is no longer "settled". Disturbed nodes are ones
+   * that have had their value modified, but have not yet committed that value
+   * to the rest of the tree.
+   */
   disturb: () => FormKitNode<T>
+  /**
+   * Perform given callback on each of the given node's children.
+   */
   each: (callback: FormKitChildCallback) => void
+  /**
+   * Emit an event from the node.
+   */
   emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode<T>
+  /**
+   * Within a given tree, find a node matching a given selector. Selectors
+   * can be simple strings or a function.
+   */
   find: (
     selector: string,
     searcher?: keyof FormKitNode | FormKitSearchFunction<T>
   ) => FormKitNode | undefined
+  /**
+   * An internal mechanism to hydrate values down a node tree.
+   */
   hydrate: () => FormKitNode<T>
+  /**
+   * The index of a node compared to its siblings. This is only applicable in
+   * cases where a node is a child of a list.
+   */
   index: number
+  /**
+   * The function used to set the value of a node. All changes to a node's value
+   * should use this function as it ensures the tree's state is always fully
+   * tracked.
+   */
   input: (value: T, async?: boolean) => Promise<T>
+  /**
+   * The name of the input in the node tree. When a node is a child of a list
+   * this automatically becomes its index.
+   */
   name: string
+  /**
+   * Adds an event listener for a given event, and returns a "receipt" which is
+   * a random string token. This token should be used to remove the listener
+   * in the future. Alternatively you can assign a "receipt" property to the
+   * listener function and that receipt will be used instead — this allows
+   * multiple listeners to all be de-registered with a single off() call if they
+   * share the same receipt.
+   */
   on: (eventName: string, listener: FormKitEventListener) => string
+  /**
+   * Removes an event listener by its token. Receipts can be shared among many
+   * event listeners by explicitly declaring the "receipt" property of the
+   * listener function.
+   */
   off: (receipt: string) => FormKitNode<T>
+  /**
+   * Remove a child from a node.
+   */
   remove: (node: FormKitNode<any>) => FormKitNode<T>
+  /**
+   * Retrieves the root node of a tree. This is accomplished via tree-traversal
+   * on-request, and as such should not be used in frequently called functions.
+   */
   root: FormKitNode<any>
+  /**
+   * Sets the configuration of a node.
+   */
   setConfig: (config: FormKitConfig) => void
+  /**
+   * A promise that resolves when a node and its entire subtree is settled.
+   * In other words — all the inputs are done committing their values.
+   */
   settled: Promise<T>
+  /**
+   * A text or translation function that exposes a given string to the "text"
+   * hook — all text shown to users should be passed through this function
+   * before being displayed — especially for core and plugin authors.
+   */
+  t: (key: string | FormKitTextFragment) => string
+  /**
+   * Boolean reflecting the settlement state of the node and its subtree.
+   */
   isSettled: boolean
+  /**
+   * Registers a new plugin on the node and its subtree.
+   */
   use: (
     plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
   ) => FormKitNode<T>
+  /**
+   * Performs a function on the node and every node in the subtree. This is an
+   * expensive operation so it should be done very rarely and only lifecycle
+   * events that are relatively rare like boot up and shut down.
+   */
   walk: (callback: FormKitChildCallback) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
@@ -385,6 +570,7 @@ function createTraps<T>(): FormKitTraps<T> {
       remove: trap<T>(removeChild),
       root: trap<T>(getRoot, invalidSetter, false),
       setConfig: trap<T>(setConfig),
+      t: trap<T>(text),
       use: trap<T>(use),
       name: trap<T>(getName, false, false),
       walk: trap<T>(walkTree),
@@ -420,11 +606,12 @@ function trap<T>(
  */
 function createHooks<T>(): FormKitHooks<FormKitNodeValue<T>> {
   return {
+    commit: createDispatcher<FormKitNodeValue<T>>(),
+    error: createDispatcher<string | false>(),
     init: createDispatcher<FormKitNodeValue<T>>(),
     input: createDispatcher<FormKitNodeValue<T>>(),
-    commit: createDispatcher<FormKitNodeValue<T>>(),
     prop: createDispatcher<{ prop: string | symbol; value: any }>(),
-    error: createDispatcher<string | false>(),
+    text: createDispatcher<FormKitTextFragment>(),
   }
 }
 
@@ -516,8 +703,8 @@ function input<T>(
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (async) {
-    if (context._t) clearTimeout(context._t)
-    context._t = setTimeout(commit, node.props.delay, node, context)
+    if (context._tmo) clearTimeout(context._tmo)
+    context._tmo = setTimeout(commit, node.props.delay, node, context)
   } else {
     commit(node, context)
   }
@@ -743,6 +930,8 @@ function removeChild<T>(
       value: valueRemoved,
     })
     child.parent = null
+    // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
+    child.config._rmn = child
   }
   node.ledger.unmerge(child)
   return node
@@ -792,6 +981,7 @@ function setConfig<T>(
   config: FormKitConfig
 ) {
   context.config = config
+  config._n = node
   node.walk((n) => n.setConfig(config))
 }
 
@@ -972,9 +1162,11 @@ function select(
 /**
  * Perform a breadth first search and return the first instance of a node that
  * is found in the subtree or undefined.
- * @param node -
- * @param name -
- * @returns FormKitNode | undefined
+ * @param node - The node to start the search on/under
+ * @param _context - The context object
+ * @param searchTerm - The term we are searching for
+ * @param searcher - Either a key to search on, or a function
+ * @returns
  */
 function find<T>(
   node: FormKitNode<T>,
@@ -1038,11 +1230,51 @@ function createConfig(
   if (parent && configOptions) {
     return Object.assign(parent.config, configOptions)
   }
-  return {
-    delimiter: '.',
-    delay: 0,
-    ...configOptions,
-  }
+  const nodes = new Set<FormKitNode<any>>()
+  return new Proxy(
+    {
+      delimiter: '.',
+      delay: 0,
+      locale: 'en',
+      ...configOptions,
+    },
+    {
+      set(...args) {
+        if (args[1] === '_n') {
+          nodes.add(args[2])
+          return true
+        }
+        if (args[1] === '_rmn') {
+          nodes.delete(args[2])
+          return true
+        }
+        const didSet = Reflect.set(...args)
+        if (nodes.size && typeof args[1] === 'string')
+          nodes.forEach((n) =>
+            n.emit(`config:${args[1] as string}`, args[2], false)
+          )
+        return didSet
+      },
+    }
+  )
+}
+
+/**
+ * Given a string of text, expose it for modification, translation, or full
+ * replacement.
+ * @param key - A message key, or generic string of text
+ * @returns
+ */
+function text<T>(
+  node: FormKitNode<T>,
+  _context: FormKitContext<T>,
+  key: string | FormKitTextFragment,
+  type = 'ui'
+): string {
+  const fragment = typeof key === 'string' ? { key, value: key, type } : key
+  const value = node.hook.text.dispatch(fragment)
+  node.emit('text', value, false)
+  return value.value
 }
 
 /**
@@ -1093,7 +1325,7 @@ function createProps<T>(type: FormKitNodeType) {
 
 /**
  * Create a new context object for our a FormKit node, given default information
- * @param options -
+ * @param options - An options object to override the defaults.
  * @returns FormKitContext
  */
 function createContext<T extends FormKitOptions>(
@@ -1106,7 +1338,7 @@ function createContext<T extends FormKitOptions>(
     _d: 0,
     _e: createEmitter(),
     _resolve: false,
-    _t: false,
+    _tmo: false,
     _value: value,
     children: dedupe(options.children || []),
     config,
@@ -1127,7 +1359,7 @@ function createContext<T extends FormKitOptions>(
 
 /**
  * Initialize a node object's internal properties.
- * @param node -
+ * @param node - The node to initialize
  * @returns FormKitNode
  */
 function nodeInit<T>(
@@ -1137,8 +1369,8 @@ function nodeInit<T>(
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
   node.ledger.init(node)
-  // Set the internal node on the props and store proxies
-  node.store._n = node.props._n = node
+  // Set the internal node on the props, config, and store proxies
+  node.store._n = node.props._n = node.config._n = node
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
   // If the options has plugins, we apply them
@@ -1157,7 +1389,7 @@ function nodeInit<T>(
  * Creates a new instance of a FormKit Node. Nodes are the atomic unit of
  * a FormKit graph.
  *
- * @param options -
+ * @param options - An object of options to define the node.
  * @returns FormKitNode
  * @public
  */

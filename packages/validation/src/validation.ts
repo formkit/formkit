@@ -90,6 +90,26 @@ export interface FormKitValidationRules {
 }
 
 /**
+ * The interface for the localized validation message registry.
+ * @public
+ */
+export interface FormKitValidationMessages {
+  [index: string]: string | ((...args: FormKitValidationI18NArgs) => string)
+}
+
+/**
+ * The arguments that are passed to the validation messages in the i18n plugin.
+ * @public
+ */
+type FormKitValidationI18NArgs = [
+  {
+    node: FormKitNode<any>
+    name: string
+    args: any[]
+  }
+]
+
+/**
  * Message that gets set when the node is awaiting validation.
  */
 const validatingMessage = createMessage({
@@ -104,8 +124,8 @@ const validatingMessage = createMessage({
  * @param node - The node to bind validation to.
  * @public
  */
-export function createValidation(baseRules: FormKitValidationRules = {}) {
-  return function plugin(node: FormKitNode): void {
+export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
+  return function validationPlugin(node: FormKitNode): void {
     const availableRules = Object.assign(
       {},
       baseRules,
@@ -265,17 +285,58 @@ function createFailedMessage(
     key: `rule_${validation.name}`,
     meta: {
       /**
+       * Use this key instead of the message root key to produce i18n validation
+       * messages.
+       */
+      messageKey: validation.name,
+      /**
        * For messages that were created *by or after* a debounced or async
        * validation rule — we make note of it so we can immediately remove them
        * as soon as the next commit happens.
        */
       removeImmediately,
+      /**
+       * The arguments that will be passed to the validation rules
+       */
+      i18nArgs: i18nArgs(node, validation),
     },
     type: 'validation',
-    value: 'Invalid',
+    value: 'This field is not valid.',
   })
   node.store.set(message)
   return message
+}
+
+/**
+ * Creates the arguments passed to the i18n
+ * @param node - The node that performed the validation
+ * @param validation - The validation that failed
+ */
+function i18nArgs(
+  node: FormKitNode<any>,
+  validation: FormKitValidation
+): FormKitValidationI18NArgs {
+  return [
+    {
+      node,
+      name: createMessageName(node),
+      args: validation.args,
+    },
+  ]
+}
+
+/**
+ * The name used in validation messages.
+ * @param node - The node to display
+ * @returns
+ */
+function createMessageName(node: FormKitNode<any>): string {
+  if (typeof node.props.messageNameStrategy === 'function') {
+    return node.props.messageNameStrategy(node)
+  }
+  return (
+    node.props.messageName || node.props.label || node.props.name || node.name
+  )
 }
 
 /**

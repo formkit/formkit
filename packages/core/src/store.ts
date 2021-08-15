@@ -1,4 +1,4 @@
-import { FormKitNode, createError } from './node'
+import { FormKitNode, createError, FormKitTextFragment } from './node'
 import { has, token } from '@formkit/utils'
 
 /**
@@ -27,6 +27,17 @@ export type FormKitMessage = Readonly<FormKitMessageProps>
  */
 export interface FormKitMessageMeta {
   [index: string]: any
+  /**
+   * If this property is set, then message producers (like formkit/i18n) should
+   * use this key instead of the message key as the lookup for the proper
+   * message to produce.
+   */
+  messageKey?: string
+  /**
+   * If this property is set on a message then only the values in this property
+   * will be passed as arguments to an i18n message localization function.
+   */
+  i18nArgs?: any[]
 }
 
 /**
@@ -49,7 +60,7 @@ export type FormKitStore = FormKitMessageStore & {
  * The available traps on the FormKit store.
  */
 export interface FormKitStoreTraps {
-  set: (message: FormKitMessage) => FormKitStore
+  set: (message: FormKitMessageProps) => FormKitStore
   remove: (key: string) => FormKitStore
   filter: (
     callback: (message: FormKitMessage) => boolean,
@@ -67,15 +78,23 @@ export interface FormKitStoreTraps {
  * @returns FormKitMessage
  * @public
  */
-export function createMessage(conf: Partial<FormKitMessage>): FormKitMessage {
-  return {
+export function createMessage(
+  conf: Partial<FormKitMessage>,
+  node?: FormKitNode<any>
+): FormKitMessageProps {
+  const m = {
     blocking: false,
     key: token(),
-    meta: {},
+    meta: {} as FormKitMessageMeta,
     type: 'state',
     visible: true,
     ...conf,
   }
+  if (node && m.value && m.meta.localize !== false) {
+    m.value = node.t(m as FormKitTextFragment)
+    m.meta.locale = node.config.locale
+  }
+  return m
 }
 
 /**
@@ -134,9 +153,17 @@ function setMessage(
   messageStore: FormKitMessageStore,
   store: FormKitStore,
   node: FormKitNode,
-  message: FormKitMessage
+  message: FormKitMessageProps
 ): FormKitStore {
   if (messageStore[message.key] !== message) {
+    if (typeof message.value === 'string' && message.meta.localize !== false) {
+      // Expose the value to translation
+      const previous = message.value
+      message.value = node.t(message as FormKitTextFragment)
+      if (message.value !== previous) {
+        message.meta.locale = node.config.locale
+      }
+    }
     const e = `message-${has(messageStore, message.key) ? 'updated' : 'added'}`
     messageStore[message.key] = Object.freeze(message)
     node.emit(e, message)
