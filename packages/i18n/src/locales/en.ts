@@ -79,7 +79,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Is not a valid date.
+   * The value is not a valid date
    */
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
