@@ -1,4 +1,11 @@
 import { FormKitNode, FormKitMessage, createMessage } from '@formkit/core'
+import {
+  FormKitObservedNode,
+  createObserver,
+  applyListeners,
+  diffDeps,
+  FormKitDependencies,
+} from '@formkit/observer'
 import { has, empty, token } from '@formkit/utils'
 
 /**
@@ -51,6 +58,20 @@ export type FormKitValidation = {
    * The debounce timer for this input.
    */
   timer: number
+  /**
+   * The state of a validation, can be true, false, or null which means unknown.
+   */
+  state: boolean | null
+  /**
+   * Determines if the rule should be considered for the next run cycle. This
+   * does not mean the rule will be validated, it just means that it should be
+   * considered.
+   */
+  queued: boolean
+  /**
+   * Dependencies this validation rule is observing.
+   */
+  deps: FormKitDependencies
 } & FormKitValidationHints
 
 /**
@@ -98,6 +119,16 @@ export interface FormKitValidationMessages {
 }
 
 /**
+ * Determines the validation nonce.
+ * @public
+ */
+interface FormKitValidationState {
+  input: string | null
+  rerun: number | null
+  isPassing: boolean
+}
+
+/**
  * The arguments that are passed to the validation messages in the i18n plugin.
  * @public
  */
@@ -141,20 +172,18 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       'validating',
       (m) => m.key === 'validating' && m.type === 'validation'
     )
-
-    // Parse the rules on creation:
-    let rules = parseRules(node.props.validation, availableRules)
-    const nonce = { value: token() }
+    // create an observed node
+    const observedNode = createObserver(node)
     // If the node's validation prop changes, update the rules:
     node.on('prop', (event) => {
       if (event.payload.prop === 'validation') {
-        rules = parseRules(event.payload.value, availableRules)
+        // Destroy all observers that may re-trigger validation on an old stack
+        observedNode.kill()
+        validate(observedNode, parseRules(event.payload.value, availableRules))
       }
     })
     // Validate the field when this plugin is initialized
-    validate(node.value, node, rules, nonce)
-    // When values of this input are actually committed, run validation:
-    node.on('commit', ({ payload }) => validate(payload, node, rules, nonce))
+    validate(observedNode, parseRules(node.props.validation, availableRules))
   }
 }
 
@@ -165,24 +194,20 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
  * @param node - The Node this value belongs to
  * @param rules - The rules
  */
-async function validate(
-  value: any,
-  node: FormKitNode<any>,
-  rules: FormKitValidation[],
-  nonce: { value: string }
-): Promise<void> {
-  // Create a new nonce, canceling any existing async validators
-  nonce.value = token()
-  let validations = [...rules]
-  removeFlaggedMessages(node)
-  validations.forEach((v) => v.debounce && clearTimeout(v.timer))
-  if (empty(value)) {
-    validations = validations.filter((v) => !v.skipEmpty)
-  }
+function validate(
+  node: FormKitObservedNode<any>,
+  validations: FormKitValidation[]
+) {
+  const state = { input: token(), rerun: null, isPassing: true }
+  node.store.filter((message) => !message.meta.removeImmediately, 'validation')
+  validations.forEach(
+    (validation) => validation.debounce && clearTimeout(validation.timer)
+  )
   if (validations.length) {
     node.store.set(validatingMessage)
-    await run(value, validations, node, nonce, false)
-    node.store.remove('validating')
+    run(0, validations, node, state, false, () => {
+      node.store.remove('validating')
+    })
   }
 }
 
@@ -190,60 +215,93 @@ async function validate(
  * Recursively run validation rules creating messages as we go, the return value
  * is a promise that resolves to either false or a stack of messages that were
  * set on the node.
- * @param value - The value of the input
+ * @param current - The index of the current validation rule
  * @param validations - The remaining validation rule stack to run
- * @param nonce - An object-referenced nonce that can act as a semaphore
- * @param messages - A collection of messages that were added to the node
+ * @param node - An observed node, the owner of this validation stack
+ * @param state - An object of state information about this run
  * @param removeImmediately - Should messages created during this call be removed immediately when a new commit takes place?
  * @returns
  */
-async function run(
-  value: any,
+function run(
+  current: number,
   validations: FormKitValidation[],
-  node: FormKitNode<any>,
-  nonce: { value: string },
-  removeImmediately: boolean
-): Promise<void | 0> {
-  const currentRun = nonce.value
-  const validation = validations.shift()
-  if (!validation) return
-  if (validation.debounce) {
-    removeImmediately = true
-    await debounce(validation)
+  node: FormKitObservedNode<FormKitNode<any>>,
+  state: FormKitValidationState,
+  removeImmediately: boolean,
+  complete: () => void
+) {
+  const validation = validations[current]
+  const currentRun = state.input
+  validation.state = null
+
+  function next(async: boolean, result: boolean | null): void {
+    state.isPassing = state.isPassing && !!result
+    const newDeps = node.stopObserve()
+    applyListeners(node, diffDeps(validation.deps, newDeps), () => {
+      validation.queued = true
+      if (state.rerun) clearTimeout(state.rerun)
+      state.rerun = setTimeout(validate, 0, node, validations)
+    })
+    validation.deps = newDeps
+    if (state.input === currentRun) {
+      validation.state = result
+      if (result === false) {
+        createFailedMessage(node, validation, removeImmediately || async)
+      } else {
+        removeMessage(node, validation)
+      }
+      if (validations.length > current + 1) {
+        run(
+          current + 1,
+          validations,
+          node,
+          state,
+          removeImmediately || async,
+          complete
+        )
+      } else {
+        // The validation has completed
+        complete()
+      }
+    }
   }
-  // We don't know yet if the rule will be async or not, so store the return
-  const willBeResult = validation.rule(node, ...validation.args)
-  // Check if we got a promise out of it, if we did it's obviously async
-  const isAsync = willBeResult instanceof Promise
-  const result = isAsync ? await willBeResult : willBeResult
-  // The input has been edited since we started validating — kill the stack
-  if (currentRun !== nonce.value) return
-  // Async messages need to be trashed immediately.
-  if (!removeImmediately && isAsync) removeImmediately = true
-  if (!result) {
-    createFailedMessage(node, value, validation, removeImmediately)
-    // The rule failed so filter out any remaining rules that are not forced
-    validations = validations.filter((v) => v.force)
+
+  if (
+    (!empty(node.value) || !validation.skipEmpty) &&
+    (state.isPassing || validation.force)
+  ) {
+    runRule(validation, node, (result: boolean | Promise<boolean>) => {
+      result instanceof Promise
+        ? result.then((r) => next(true, r))
+        : next(false, result)
+    })
   } else {
-    removeMessage(node, validation)
+    // This rule is not being run because either:
+    //  1. The field is empty and this rule should not run when empty
+    //  2. A previous validation rule is failing and this one is not forced
+    // In this case we should call next validation messages.
+    next(false, null)
   }
-  return (
-    validations.length &&
-    (await run(value, validations, node, nonce, removeImmediately))
-  )
 }
 
 /**
- * Create a promise that waits for a void timeout for a validation rule.
+ * Run a validation rule debounced or not.
  * @param validation - A validation to debounce
  */
-function debounce(validation: FormKitValidation) {
-  return new Promise<void>((r) => {
-    validation.timer = (setTimeout(
-      () => r(),
-      validation.debounce
-    ) as unknown) as number
-  })
+function runRule(
+  validation: FormKitValidation,
+  node: FormKitObservedNode<FormKitNode<any>>,
+  after: (result: boolean | Promise<boolean>) => void
+) {
+  if (validation.debounce) {
+    validation.timer = (setTimeout(() => {
+      node.observe()
+      after(validation.rule(node, ...validation.args))
+    }, validation.debounce) as unknown) as number
+  } else {
+    node.observe()
+    after(validation.rule(node, ...validation.args))
+  }
 }
 
 /**
@@ -261,22 +319,12 @@ function removeMessage(node: FormKitNode<any>, validation: FormKitValidation) {
 }
 
 /**
- * Remove any messages that were flagged for immediate removal on a new
- * validation cycle.
- * @param node - The node to operate on
- */
-function removeFlaggedMessages(node: FormKitNode<any>) {
-  node.store.filter((message) => !message.meta.removeImmediately, 'validation')
-}
-
-/**
  *
  * @param value - The value that is failing
  * @param validation - The validation object
  */
 function createFailedMessage(
   node: FormKitNode<any>,
-  _value: any,
   validation: FormKitValidation,
   removeImmediately: boolean
 ): FormKitMessage {
@@ -413,6 +461,9 @@ export function parseRules(
         rule,
         args,
         timer: 0,
+        state: null,
+        queued: true,
+        deps: new Map(),
         ...defaultHints,
         ...fnHints(hints, rule),
       })

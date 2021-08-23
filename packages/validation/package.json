@@ -16,7 +16,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.0"
+    "@formkit/core": "1.0.0-alpha.0",
+    "@formkit/observer": "1.0.0-alpha.0"
   },
   "devDependencies": {}
 }

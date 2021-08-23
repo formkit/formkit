@@ -227,8 +227,9 @@ async function watch<T>(
  * @param previous - The previous watcher dependencies
  * @param current - The new/current watcher dependencies
  * @returns
+ * @public
  */
-function diffDeps(
+export function diffDeps(
   previous: FormKitDependencies,
   current: FormKitDependencies
 ): [FormKitDependencies, FormKitDependencies] {

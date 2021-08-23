@@ -7,7 +7,13 @@ import {
 } from '../src/validation'
 import { createNode } from '@formkit/core'
 
-const defaultValidation = { ...defaultHints, timer: 0 }
+const defaultValidation = {
+  ...defaultHints,
+  timer: 0,
+  queued: true,
+  state: null,
+  deps: new Map(),
+}
 const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('validation rule parsing', () => {
@@ -274,7 +280,6 @@ describe('validation rule sequencing', () => {
       },
       value: '',
     })
-    await nextTick()
     expect(node.store).toHaveProperty('rule_required')
     // Should not exist because of empty
     expect(node.store).not.toHaveProperty('rule_length')
@@ -324,7 +329,6 @@ describe('validation rule sequencing', () => {
       },
       value: 'abcdef',
     })
-    await nextTick()
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
     await new Promise((r) => setTimeout(r, 105))
@@ -333,6 +337,7 @@ describe('validation rule sequencing', () => {
     node.input('foobars', false)
     // These messages should be removed because they have been tagged with
     // 'removeImmediately' since they come on or after an async rule
+    await nextTick()
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
   })
@@ -366,6 +371,7 @@ describe('validation rule sequencing', () => {
     await node.ledger.settled('validating')
     expect(node.store).not.toHaveProperty('validating')
     node.input('foobar', false)
+    await nextTick()
     expect(node.store).toHaveProperty('validating')
   })
 })
