@@ -4,6 +4,7 @@ import {
   createObserver,
   applyListeners,
   diffDeps,
+  removeListeners,
   FormKitDependencies,
 } from '@formkit/observer'
 import { has, empty, token } from '@formkit/utils'
@@ -178,7 +179,9 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
     node.on('prop', (event) => {
       if (event.payload.prop === 'validation') {
         // Destroy all observers that may re-trigger validation on an old stack
-        observedNode.kill()
+        removeListeners(observedNode.receipts)
+        // Remove all existing messages before re-validating
+        node.store.filter(() => false, 'validation')
         validate(observedNode, parseRules(event.payload.value, availableRules))
       }
     })
@@ -236,6 +239,7 @@ function run(
 
   function next(async: boolean, result: boolean | null): void {
     state.isPassing = state.isPassing && !!result
+    validation.queued = false
     const newDeps = node.stopObserve()
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       validation.queued = true
@@ -270,11 +274,18 @@ function run(
     (!empty(node.value) || !validation.skipEmpty) &&
     (state.isPassing || validation.force)
   ) {
-    runRule(validation, node, (result: boolean | Promise<boolean>) => {
-      result instanceof Promise
-        ? result.then((r) => next(true, r))
-        : next(false, result)
-    })
+    if (validation.queued) {
+      runRule(validation, node, (result: boolean | Promise<boolean>) => {
+        result instanceof Promise
+          ? result.then((r) => next(true, r))
+          : next(false, result)
+      })
+    } else {
+      // In this case our rule is not queued, so literally nothing happened that
+      // would affect it, we just need to move past this rule and make no
+      // modifications to state
+      run(current + 1, validations, node, state, removeImmediately, complete)
+    }
   } else {
     // This rule is not being run because either:
     //  1. The field is empty and this rule should not run when empty
