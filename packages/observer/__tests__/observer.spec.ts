@@ -3,6 +3,8 @@ import { createObserver, FormKitWatchable } from '../src'
 import { jest } from '@jest/globals'
 import {} from 'packages/core/src'
 
+const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
+
 describe('observer', () => {
   it('can detect requests for value on primary node', () => {
     const node = createNode({ value: 123 })
@@ -144,5 +146,38 @@ describe('observer', () => {
     expect(watcher).toHaveBeenCalledTimes(1)
     expect(success).toHaveBeenCalledTimes(0)
     expect(() => obs.value).toThrow(TypeError)
+  })
+
+  it('can observe a node during an async operation', async () => {
+    const childA = createNode({ name: 'username', value: 'foo' })
+    const childB = createNode({ name: 'password', value: 'foo' })
+    const childC = createNode({ name: 'name', value: 'foo' })
+    createNode({
+      type: 'group',
+      children: [childA, childB, childC],
+    })
+    const obs = createObserver(childA)
+    const watcher: FormKitWatchable = jest.fn((node) => {
+      return new Promise((r) => {
+        setTimeout(() => {
+          if (node.at('password')?.value === 'foobar') {
+            r(true)
+          } else {
+            r(false)
+          }
+        }, 100)
+      })
+    })
+    obs.watch(watcher)
+    childA.at('name')?.value // just touch the name input while the promise is resolving
+    await new Promise((r) => setTimeout(r, 120))
+    expect(watcher).toHaveBeenCalledTimes(1)
+    childC.input('hello', false)
+    await nextTick()
+    // Should not affect our watcher
+    expect(watcher).toHaveBeenCalledTimes(1)
+    childB.input('hi', false)
+    await nextTick()
+    expect(watcher).toHaveBeenCalledTimes(2)
   })
 })
