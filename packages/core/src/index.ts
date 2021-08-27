@@ -34,8 +34,3 @@ export {
   FormKitEvent,
   FormKitEventEmitter,
 } from './events'
-
-/**
- * Export common typings.
- */
-export { FormKitSchemaNode, FormKitLibrary, FormKitType } from './common'

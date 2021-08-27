@@ -1,7 +1,13 @@
+import ReactDom from 'react-dom'
+import React from 'react'
 import { createApp } from 'vue'
-import App from './Examples.vue'
-import { formKitPlugin } from '../../packages/vue/src/index'
+import vueApp from './vue/Examples'
+import reactApp from './react/Examples'
 
-const app = createApp(App)
-app.use(formKitPlugin)
-app.mount('#app')
+const app = createApp(vueApp)
+app.mount('#vue-app')
+
+ReactDom.render(
+  React.createElement(reactApp),
+  document.getElementById('react-app')
+)

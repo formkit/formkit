@@ -5,9 +5,56 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .stage {
+        min-height: 100%;
+        display: flex;
+        width: 100%;
+      }
+      .stage > div {
+        width: 50%;
+        flex: 0 0 50%;
+        padding: 0 2em 2em;
+        vertical-align: top;
+        border-left: 1px solid grey;
+        box-sizing: border-box;
+      }
+      td:first-child {
+        border-left-color: transparent
+      }
+      .logo {
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      label {
+        display: block;
+        font-weight: bold
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div class="stage">
+      <div>
+        <div class="logo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" width="90">
+        </div>
+        <div id="vue-app"></div>
+      </div>
+      <div>
+        <div class="logo">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" width="150">
+        </div>
+        <div id="react-app"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

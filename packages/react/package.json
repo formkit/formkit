@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@formkit/vue",
+  "name": "@formkit/react",
   "version": "1.0.0-alpha.0",
-  "description": "Build industry leading Vue forms 10x faster.",
+  "description": "Build industry leading React forms 10x faster.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -22,6 +22,8 @@
   },
   "devDependencies": {},
   "peerDependencies": {
-    "vue": "^3.2.1"
+    "@types/react": "^17.0.19",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

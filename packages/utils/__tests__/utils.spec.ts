@@ -1,4 +1,4 @@
-import { eq, empty } from '../src/index'
+import { eq, empty, extend, isPojo } from '../src/index'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
@@ -98,4 +98,65 @@ describe('empty', () => {
     expect(empty(['a'])).toBe(false))
   it('considers an object with key not empty', () =>
     expect(empty({ a: undefined })).toBe(false))
+})
+
+describe('isPojo', () => {
+  it('does not consider a FormKitNode a pojo', () => {
+    expect(isPojo({ __FKNode__: true })).toBe(false)
+  })
+  it('checks the __POJO__ property', () => {
+    expect(isPojo({ __POJO__: false })).toBe(false)
+  })
+})
+
+describe('extend', () => {
+  it('adds properties to objects as base depth', () =>
+    expect(extend({ a: 123 }, { b: 123 })).toEqual({ a: 123, b: 123 }))
+
+  it('changes properties to objects as base depth', () =>
+    expect(extend({ a: 123 }, { a: 345 })).toEqual({ a: 345 }))
+
+  it('removes properties to objects as base depth', () =>
+    expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
+
+  it('removes properties to objects as base depth', () =>
+    expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
+
+  it('replaces array values completely', () =>
+    expect(extend({ a: ['first'] }, { a: ['second'] })).toEqual({
+      a: ['second'],
+    }))
+
+  it('can change a property at depth', () => {
+    expect(
+      extend(
+        {
+          a: 123,
+          b: {
+            first: {
+              third: 3,
+            },
+            second: {
+              z: 'fire',
+            },
+          },
+          c: 'boop',
+        },
+        {
+          b: { second: { z: 'ice' } },
+        }
+      )
+    ).toEqual({
+      a: 123,
+      b: {
+        first: {
+          third: 3,
+        },
+        second: {
+          z: 'ice',
+        },
+      },
+      c: 'boop',
+    })
+  })
 })

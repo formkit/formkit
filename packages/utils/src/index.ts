@@ -136,10 +136,78 @@ export function regexForFormat(format: string): RegExp {
 /**
  * Given a FormKit input type
  * @param type - Any FormKit input type
+ * @public
  */
 export function nodeType(type: string): 'list' | 'group' | 'input' {
   const t = type.toLowerCase()
   if (t === 'list') return 'list'
   if (t === 'group') return 'group'
   return 'input'
+}
+
+/**
+ * Determines if an object is an object or not.
+ * @param o - any value
+ * @returns
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isObject(o: any): boolean {
+  return Object.prototype.toString.call(o) === '[object Object]'
+}
+
+/**
+ * Attempts to determine if an object is a plain object. Mostly lifted from
+ * is-plain-object: https://github.com/jonschlinkert/is-plain-object
+ * Copyright (c) 2014-2017, Jon Schlinkert.
+ * @param o - any value
+ * @returns
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isPojo(o: any): boolean {
+  if (isObject(o) === false) return false
+  if (o.__FKNode__ || o.__POJO__ === false) return false
+  const ctor = o.constructor
+  if (ctor === undefined) return true
+  const prot = ctor.prototype
+  if (isObject(prot) === false) return false
+  if (prot.hasOwnProperty('isPrototypeOf') === false) {
+    return false
+  }
+  return true
+}
+
+/**
+ * Recursively merge data from additional into original returning a new object.
+ * Note: This function does not merge arrays, it replaces them.
+ * @param original - An object to extend
+ * @param additional - An object to modify the original object with.
+ * @public
+ */
+export function extend(
+  original: { [index: string]: any },
+  additional: { [index: string]: any }
+): { [index: string]: any } {
+  const merged: { [index: string]: any } = {}
+  for (const key in original) {
+    if (has(additional, key)) {
+      if (additional[key] === undefined) {
+        continue
+      }
+      if (isPojo(original[key]) && isPojo(additional[key])) {
+        merged[key] = extend(original[key], additional[key])
+      } else {
+        merged[key] = additional[key]
+      }
+    } else {
+      merged[key] = original[key]
+    }
+  }
+  for (const key in additional) {
+    if (!has(merged, key) && additional[key] !== undefined) {
+      merged[key] = additional[key]
+    }
+  }
+  return merged
 }
