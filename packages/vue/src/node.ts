@@ -1,11 +1,18 @@
 import { createNode, FormKitNodeType, FormKitProps } from '@formkit/core'
 import { extend } from '@formkit/utils'
 import { FormKitSchemaNode, FormKitSchemaContext } from '@formkit/schema'
-import { defineComponent, PropType, Component, reactive } from 'vue'
-import { createElements } from './render'
+import { defineComponent, PropType, Component, reactive, ref } from 'vue'
+import { createRenderFunction } from './render'
+
+const RenderValue = defineComponent(function (props: { value?: any }) {
+  return () => (props.value ? [props.value] : null)
+})
 
 export default defineComponent({
   inheritAttrs: false,
+  components: {
+    RenderValue: RenderValue,
+  },
   props: {
     id: {
       type: String,
@@ -37,36 +44,51 @@ export default defineComponent({
     const type = ['input', 'group', 'list'].includes(props.type)
       ? props.type
       : 'input'
+    const value =
+      props.value || (type === 'group' ? {} : type === 'list' ? [] : '')
     const node = createNode({
       type: type as FormKitNodeType,
       name: props.name,
-      value: props.value as any,
+      value: value as any,
       props: props.props,
     })
-    const reactiveNode = reactive({
+    let inputNode: HTMLInputElement
+
+    const nodeValue = ref(node.value)
+    const schemaNodeData = {
       __POJO__: false,
-      value: node.value,
+      value: nodeValue,
+      _value: node.value,
       props: props.props,
       name: node.name,
-      input: (event: InputEvent) =>
-        node.input((event.target as HTMLInputElement).value),
+      input: (event: InputEvent) => {
+        inputNode = event.target as HTMLInputElement
+        node.input((event.target as HTMLInputElement).value)
+      },
       node,
-    })
+    }
+
+    const context = reactive(
+      extend(props.schemaContext, {
+        nodes: {
+          [props.id]: schemaNodeData,
+        },
+      }) as FormKitSchemaContext<Component>
+    )
+
     // Listen to the commit
     node.on('commit', ({ payload }) => {
-      reactiveNode.value = payload
+      schemaNodeData.value = payload
     })
-    if (props.children && props.children.length) {
-      return () =>
-        createElements(
-          props.children,
-          extend(props.schemaContext, {
-            nodes: {
-              [props.id]: reactiveNode,
-            },
-          }) as FormKitSchemaContext<Component>
-        )
-    }
-    return () => null
+    // Listen to the input
+    node.on('input', ({ payload }) => {
+      if (inputNode) {
+        nodeValue.value = payload
+        console.log(payload)
+      }
+      schemaNodeData._value = payload
+    })
+    const render = createRenderFunction(props.children, context)
+    return render
   },
 })

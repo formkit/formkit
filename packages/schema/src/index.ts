@@ -7,6 +7,5 @@ export {
   FormKitSchemaContext,
   isDOM,
   isNode,
+  isConditional,
 } from './schema'
-
-export { createParser } from './parser'

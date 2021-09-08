@@ -18,16 +18,17 @@ export function createParser<ComponentType, VirtualNode>(
     schema: FormKitSchemaNode[],
     context: FormKitSchemaContext<ComponentType>
   ): Array<VirtualNode | string | null> {
-    return schema.map(createVueElement.bind(null, context))
+    return schema.map(createVNode.bind(null, context))
   }
 
-  function createVueElement(
+  function createVNode(
     context: FormKitSchemaContext<ComponentType>,
     node: FormKitSchemaNode,
     index: number
   ) {
     // $el — Render DOM elements
     if (isDOM(node)) {
+      console.log(`parse ${node.$el}`)
       return h(
         node.$el,
         {

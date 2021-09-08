@@ -35,22 +35,30 @@ const nodeComponent: FunctionComponent<NodeProps> = function (
       props: props.props,
     })
   )
+  const [value, setValue] = useState(node.value || '')
+
+  const [_value, setInputValue] = useState(value)
 
   const [reactiveNode, setReactiveNode] = useState(() => ({
     __POJO__: false,
     value: props.value,
+    _value: props.value,
     props: props.props,
     name: props.name,
-    input: (event: InputEvent) =>
-      node?.input((event.target as HTMLInputElement).value),
+    input: (event: InputEvent) => {
+      node?.input((event.target as HTMLInputElement).value)
+    },
     node,
   }))
 
   useEffect(() => {
-    node.on('commit', ({ payload }) => {
-      setReactiveNode({ ...reactiveNode, value: payload })
-    })
-  }, [node])
+    node.on('commit', ({ payload }) => setValue(payload))
+    node.on('input', ({ payload }) => setInputValue(payload))
+  }, [])
+
+  useEffect(() => {
+    setReactiveNode({ ...reactiveNode, value, _value })
+  }, [value, _value])
 
   return React.createElement(
     React.Fragment,
