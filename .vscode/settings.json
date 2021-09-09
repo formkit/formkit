@@ -5,6 +5,7 @@
         "dedupe",
         "dispatchable",
         "execa",
+        "Logicals",
         "preprocessors",
         "proxied",
         "setify",

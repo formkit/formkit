@@ -87,13 +87,17 @@ export type FormKitSchemaNode =
   | FormKitSchemaTextNode
 
 /**
- * A tuple where the first value describes the required arguments of the second
- * value — a function that returns a conditional function.
+ * Logical operations are always a left/right fn
  */
-export type FormKitExtractedCondition = [
-  tokens: string[],
-  createCondition: () => () => boolean
-]
+type LogicOperator = (l: any, r: any) => boolean
+
+/**
+ * A set of logical operators used for parsing string logic.
+ * @internal
+ */
+interface LogicOperators {
+  [index: string]: LogicOperator
+}
 
 /**
  * Type narrow that a node is a DOM node.
@@ -132,39 +136,84 @@ export function isConditional(node: FormKitSchemaNode): boolean {
 }
 
 /**
- * Comprehensive list of comparison operators.
-//  */
-// const comparisons: { [index: string]: (l: any, r: any) => boolean } = {
-//   '==': (l: any, r: any) => l == r,
-//   '!=': (l: any, r: any) => l != r,
-//   '>': (l: any, r: any) => l > r,
-//   '>=': (l: any, r: any) => l >= r,
-//   '<': (l: any, r: any) => l < r,
-//   '<=': (l: any, r: any) => l <= r,
-// }
-
-const booleanOps = {
-  '&': (l: any, r: any) => {
-    const left = typeof l === 'function' ? l() : l
-    const right = typeof r === 'function' ? r() : r
-    return left && right
-  },
-  '|': (l: any, r: any) => {
-    const left = typeof l === 'function' ? l() : l
-    const right = typeof r === 'function' ? r() : r
-    return left || right
-  },
+ * Expands the current value if it is a function.
+ * @param operand - A left or right hand operand
+ * @returns
+ */
+const x = function expand(operand: any): any {
+  return typeof operand === 'function' ? operand() : operand
 }
 
-export function parseBools(expression: string): () => boolean {
-  let depth = 0
+/**
+ * Comprehensive list of logical and comparison operators. This list MUST be
+ * ordered by the length of the operator characters in descending order.
+ */
+const operators: LogicOperators = {
+  '&&': (l, r) => x(l) && x(r),
+  '||': (l, r) => x(l) || x(r),
+  '==': (l, r) => x(l) == x(r),
+  '!=': (l, r) => x(l) != x(r),
+  '>=': (l, r) => x(l) >= x(r),
+  '<=': (l, r) => x(l) <= x(r),
+  '>': (l, r) => x(l) > x(r),
+  '<': (l, r) => x(l) < x(r),
+}
+
+/**
+ * Determines if the current character is the start of an operator symbol, if it
+ * is, it returns that symbol.
+ * @param symbols - An array of symbols that are considered operators
+ * @param char - The current character being operated on
+ * @param p - The position of the pointer
+ * @param expression - The full string expression
+ * @returns
+ */
+function getOp(
+  symbols: string[],
+  char: string,
+  p: number,
+  expression: string
+): false | undefined | string {
+  const candidates = symbols.filter((s) => s.startsWith(char))
+  if (!candidates.length) return false
+  return candidates.find((symbol) => {
+    if (expression.length >= p + symbol.length) {
+      const nextChars = expression.substr(p, symbol.length)
+      if (nextChars === symbol) return symbol
+    }
+    return false
+  })
+}
+
+/**
+ * Parse a string expression into a function that returns a boolean. This is
+ * the magic behind schema logic like $if.
+ * @param expression - A string expression to parse
+ * @returns
+ */
+export function parseLogicals(expression: string): () => boolean {
   const length = expression.length
+  const symbols = Object.keys(operators)
+  let depth = 0
+  let quote: false | string = false
   let op: null | ((l: any, r: any) => boolean) = null
   let operand: string | (() => boolean) = ''
   let left: null | (() => boolean) = null
+  let operation: false | undefined | string
+  let lastChar = ''
+  let char = ''
   for (let p = 0; p < length; p++) {
-    const char = expression.charAt(p)
-    if (char === ' ') {
+    lastChar = char
+    char = expression.charAt(p)
+    if (!quote && (char === "'" || char === '"') && lastChar !== '\\') {
+      quote = char
+      continue
+    } else if (quote && (char !== quote || lastChar === '\\')) {
+      operand += char
+    } else if (quote === char) {
+      quote = false
+      operand = `"${operand}"`
+    } else if (char === ' ') {
       continue
     } else if (char === '(') {
       depth++
@@ -172,29 +221,39 @@ export function parseBools(expression: string): () => boolean {
       depth--
       if (depth === 0) {
         // we just dropped back down to the base level
-        operand = parseBools(operand as string)
+        operand = parseLogicals(operand as string)
       }
     } else if (
       depth === 0 &&
-      (char === '&' || char === '|') &&
-      p < length + 1 &&
-      expression.charAt(p + 1) === char
+      (operation = getOp(symbols, char, p, expression))
     ) {
-      p++ // skip the next logical operator
+      if (p === 0)
+        throw new Error(
+          `Schema conditional expression cannot start with operator (${operation})`
+        )
+
+      // We identified the operator by looking ahead in the string, so we need
+      // our position to move past the operator
+      p += operation.length - 1
+      if (p === expression.length - 1) {
+        throw new Error(
+          `Schema conditional expression cannot end with operator (${operation})`
+        )
+      }
       if (!op) {
         // Bind the left hand operand
         if (left) {
           // In this case we've already parsed the left hand operator
-          op = booleanOps[char].bind(null, evaluate(left))
+          op = operators[operation].bind(null, evaluate(left))
           left = null
         } else {
-          op = booleanOps[char].bind(null, evaluate(operand))
+          op = operators[operation].bind(null, evaluate(operand))
           operand = ''
         }
       } else {
         // Bind the right hand operand, and return the resulting expression as a new left hand operator
         left = op.bind(null, evaluate(operand)) as () => boolean
-        op = booleanOps[char].bind(null, left)
+        op = operators[operation].bind(null, left)
         operand = ''
       }
       continue
@@ -206,24 +265,47 @@ export function parseBools(expression: string): () => boolean {
     }
   }
   if (operand && op) {
+    // If we were left with an operand after the loop, and an op, it should
+    // be the right hand assignment.
     op = op.bind(null, evaluate(operand))
   }
+
+  // If we don't have an op, but we do have a left hand assignment, then that
+  // is actually our operator, so just re-assign it to op
   op = !op && left ? left : op
-  if (!op) {
+
+  if (!op && operand) {
+    // If we don't have any op but we do have an operand so there is no boolean
+    // logic to perform, but that operand still means something so we need to
+    // evaluate it and return it as a function
+    op = (v: any): boolean => (typeof v === 'function' ? v() : v)
+    op = op.bind(null, evaluate(operand))
+  }
+
+  if (!op && !operand) {
     throw new Error('Schema conditional syntax error')
   }
   return op as () => boolean
 }
 
+/**
+ * Given a string like '$name==bobby' evaluate it to true or false
+ * @param operand - A left or right boolean operand — usually conditions
+ * @returns
+ */
 function evaluate(
-  condition: string | (() => boolean)
-): boolean | (() => boolean) {
-  if (typeof condition === 'string') {
-    if (condition === 'true') return true
-    if (condition === 'false') return false
-    throw Error(`Unknown statement (${typeof condition}) ${condition}`)
+  operand: string | (() => boolean)
+): boolean | string | number | (() => boolean) {
+  if (typeof operand === 'string') {
+    if (operand === 'true') return true
+    if (operand === 'false') return false
+    if (operand.startsWith('"') && operand.endsWith('"'))
+      return operand.substr(1, operand.length - 2)
+    if (!isNaN(+operand)) return Number(operand)
+    if (operand) return operand
+    // throw Error(`Unknown statement (${typeof operand}) ${operand}`)
   }
-  return condition as () => boolean
+  return operand as () => boolean
 }
 
 /**
