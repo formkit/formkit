@@ -1,6 +1,7 @@
 <template>
   <div>
     <h2>Vue Schema</h2>
+    Enter a name
     <input
       type="text"
       @input="setValue"
@@ -17,10 +18,10 @@ import schema from '../simpleSchema'
 import FormKitSchema from '../../../packages/vue/src/FormKitSchema'
 
 const data = reactive({
-  value: ''
+  name: ''
 })
 
 const setValue = (e: Event) => {
-  data.value = (e.target as HTMLInputElement).value
+  data.name = (e.target as HTMLInputElement).value
 }
 </script>
