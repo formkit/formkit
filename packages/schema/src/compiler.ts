@@ -45,6 +45,7 @@ interface LogicOperators {
  * ```
  * @param condition - A string to compile
  * @returns
+ * @public
  */
 export function compileCondition(condition: string): FormKitConditionCompiler {
   /**
@@ -71,15 +72,16 @@ export function compileCondition(condition: string): FormKitConditionCompiler {
    * ordered by the length of the operator characters in descending order.
    */
   const operators: LogicOperators = {
-    '===': (l, r) => x(l) === x(r),
-    '&&': (l, r) => x(l) && x(r),
-    '||': (l, r) => x(l) || x(r),
-    '==': (l, r) => x(l) == x(r),
-    '!=': (l, r) => x(l) != x(r),
-    '>=': (l, r) => x(l) >= x(r),
-    '<=': (l, r) => x(l) <= x(r),
-    '>': (l, r) => x(l) > x(r),
-    '<': (l, r) => x(l) < x(r),
+    '===': (l, r) => !!(x(l) === x(r)),
+    '!==': (l, r) => !!(x(l) !== x(r)),
+    '&&': (l, r) => !!(x(l) && x(r)),
+    '||': (l, r) => !!(x(l) || x(r)),
+    '==': (l, r) => !!(x(l) == x(r)),
+    '!=': (l, r) => !!(x(l) != x(r)),
+    '>=': (l, r) => !!(x(l) >= x(r)),
+    '<=': (l, r) => !!(x(l) <= x(r)),
+    '>': (l, r) => !!(x(l) > x(r)),
+    '<': (l, r) => !!(x(l) < x(r)),
   }
 
   /**
@@ -226,8 +228,9 @@ export function compileCondition(condition: string): FormKitConditionCompiler {
         return operand.substr(1, operand.length - 2)
       if (!isNaN(+operand)) return Number(operand)
       if (operand.startsWith('$')) {
-        requirements.add(operand)
-        return () => (has(tokens, operand) ? tokens[operand]() : undefined)
+        const cleaned = operand.substr(1)
+        requirements.add(cleaned)
+        return () => (has(tokens, cleaned) ? tokens[cleaned]() : undefined)
       }
       return operand
     }

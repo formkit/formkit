@@ -1,6 +1,12 @@
-export default Array(1000)
-  .fill(0)
-  .map(() => ({
-    $el: 'fieldset',
-    children: '$name',
-  }))
+export default [
+  {
+    $el: 'h1',
+    children: [
+      {
+        $el: 'em',
+        children: '$input',
+        $if: '$input == "bob" || $input == "justin"',
+      },
+    ],
+  },
+]

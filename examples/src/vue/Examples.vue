@@ -4,6 +4,7 @@
     Enter a name
     <input
       type="text"
+      :value="data.input"
       @input="setValue"
     >
     <FormKitSchema
@@ -18,10 +19,10 @@ import schema from '../simpleSchema'
 import FormKitSchema from '../../../packages/vue/src/FormKitSchema'
 
 const data = reactive({
-  name: ''
+  input: '100'
 })
 
 const setValue = (e: Event) => {
-  data.name = (e.target as HTMLInputElement).value
+  data.input = (e.target as HTMLInputElement).value
 }
 </script>

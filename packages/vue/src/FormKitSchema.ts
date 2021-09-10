@@ -1,10 +1,20 @@
-import { h, defineComponent, PropType, toRef, VNode } from 'vue'
+import {
+  h,
+  defineComponent,
+  PropType,
+  toRef,
+  createTextVNode,
+  VNode,
+} from 'vue'
 import {
   FormKitSchemaAttributes,
   FormKitSchemaNode,
   isDOM,
   isConditional,
+  isComponent,
+  compileCondition,
 } from '@formkit/schema'
+import { has, isPojo } from '@formkit/utils'
 
 interface FormKitSchemaContext {
   [index: string]: any
@@ -23,7 +33,24 @@ type RenderContent = [
 /**
  * The format children elements can be in.
  */
-type RenderChildren = string | Array<string | (() => VNode<any>)> | null
+type RenderChildren = () => string | Array<string | VNode | null>
+
+/**
+ * Extracts a reference object from a set of (reactive) data.
+ * @param data - Returns a Vue ref object for the given path
+ * @param token - A dot-notation path like: user.name
+ * @returns
+ * @internal
+ */
+function getRef(data: FormKitSchemaContext, token: string): { value: any } {
+  const path = token.split('.')
+  return path.reduce((obj: any, segment: string) => {
+    if (has(obj, segment) && isPojo(obj[segment])) {
+      return obj[segment]
+    }
+    return toRef(obj, segment)
+  }, data)
+}
 
 /**
  * Given a single schema node, parse it and extract the value.
@@ -36,21 +63,42 @@ function parseNode(
   node: FormKitSchemaNode
 ): RenderContent {
   let element = null
-  const attrs: FormKitSchemaAttributes = {}
+  let attrs: FormKitSchemaAttributes = {}
   let condition: false | (() => boolean) = false
+  let children: RenderChildren = () => []
+
+  // Parse DOM nodes
   if (isDOM(node)) {
     element = node.$el
+    attrs = node.attrs || {}
   }
 
-  if (isConditional(node)) {
-    const [requirements, conditional] = extractCondition(node.$if)
-    const refs = requirements.map((token) => tokenToRef(data, token))
-    condition = () => {
-      return conditional(...refs.map((token) => token.value))
+  if (isComponent(node)) {
+    attrs = node.props || {}
+  }
+
+  if (typeof node !== 'string') {
+    // Parse conditionals
+    if (isConditional(node) && has(node, '$if')) {
+      condition = compileCondition(node.$if as string).provide((token) => {
+        const value = getRef(data, token)
+        return () => {
+          return value.value
+        }
+      })
+    }
+
+    if (has(node, 'children')) {
+      const nodes =
+        typeof node.children == 'string' ? [node.children] : node.children
+      if (Array.isArray(nodes)) {
+        const elements = nodes.map(createElement.bind(null, data))
+        children = () => elements.map((e) => e())
+      }
     }
   }
 
-  return [condition, element, attrs, null]
+  return [condition, element, attrs, children]
 }
 
 /**
@@ -60,15 +108,25 @@ function parseNode(
  * @returns
  */
 function createElement(data: FormKitSchemaContext, node: FormKitSchemaNode) {
+  if (typeof node === 'string') {
+    console.log('parsing element')
+    const textNode = node.startsWith('$')
+      ? getRef(data, node.substr(1))
+      : { value: node }
+    return () => createTextVNode(textNode.value)
+  }
   const [condition, element, attrs, children] = parseNode(data, node)
   return () => {
     if (element && (!condition || condition())) {
-      return h(element, attrs, unwrap(children))
+      return h(element, attrs, children())
     }
     return null
   }
 }
 
+/**
+ * The FormKitSchema vue component:
+ */
 const FormKitSchema = defineComponent({
   props: {
     schema: {
@@ -82,9 +140,7 @@ const FormKitSchema = defineComponent({
   },
   setup(props) {
     const elements = props.schema.map(createElement.bind(null, props.data))
-    return () => {
-      return elements.map((e) => e())
-    }
+    return () => elements.map((e) => e())
   },
 })
 

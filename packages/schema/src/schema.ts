@@ -97,6 +97,18 @@ export function isDOM(node: FormKitSchemaNode): node is FormKitSchemaDOMNode {
 }
 
 /**
+ * Type narrow that a node is a DOM node.
+ * @param node - A schema node to check
+ * @returns
+ * @public
+ */
+export function isComponent(
+  node: FormKitSchemaNode
+): node is FormKitSchemaComponent {
+  return typeof node !== 'string' && has(node, '$cmp')
+}
+
+/**
  * Determines if t a node is a $formkit schema node.
  * @param node - A schema node to check
  * @returns

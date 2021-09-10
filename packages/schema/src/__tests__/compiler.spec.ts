@@ -84,16 +84,42 @@ describe('boolean logic parser', () => {
   it('ignores quotes for strings', () => {
     expect(compileCondition('"abc" == abc')()).toBe(true)
   })
+  it('allows loose type checking', () => {
+    expect(compileCondition('"300" == 300')()).toBe(true)
+  })
+  it('allows strict type checking (===)', () => {
+    expect(compileCondition('"300" === 300')()).toBe(false)
+  })
+  it('allows strict inverse checking (!==)', () => {
+    expect(compileCondition('"300" !== 300')()).toBe(true)
+  })
+  it.only('can compare multiple strings', () => {
+    const condition = compileCondition(
+      '$input == bob || $input == justin'
+    ).provide(() => {
+      return () => 'bob'
+    })
+    expect(condition()).toBe(true)
+  })
 
   // Token provider
   it('can provide tokenized values to condition', () => {
     const condition = compileCondition('$name === "bob"')
     const tokens: { [index: string]: any } = {
-      $name: 'bob',
+      name: 'bob',
     }
     condition.provide((token) => () => tokens[token])
     expect(condition()).toBe(true)
-    tokens.$name = 'fred'
+    tokens.name = 'fred'
     expect(condition()).toBe(false)
+  })
+  it('can provide numeric type tokenized values', () => {
+    const condition = compileCondition('$account > 2.99 && $price < $account')
+    const tokens: { [index: string]: any } = {
+      account: 5.2,
+      price: 3.22,
+    }
+    condition.provide((token) => () => tokens[token])
+    expect(condition()).toBe(true)
   })
 })
