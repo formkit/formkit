@@ -1,4 +1,4 @@
-import { eq, empty, extend, isPojo } from '../src/index'
+import { eq, empty, extend, isPojo, isQuotedString } from '../src/index'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
@@ -159,4 +159,24 @@ describe('extend', () => {
       c: 'boop',
     })
   })
+})
+
+describe('isQuotedString', () => {
+  it('properly detects simple single quoted strings', () =>
+    expect(isQuotedString("'hello world'")).toBe(true))
+
+  it('properly detects simple double quoted strings', () =>
+    expect(isQuotedString('"hello world"')).toBe(true))
+
+  it('detects non quotes', () =>
+    expect(isQuotedString('hello world"')).toBe(false))
+
+  it('detects unterminated quotes', () =>
+    expect(isQuotedString('"hello world')).toBe(false))
+
+  it('detects multiple quotes', () =>
+    expect(isQuotedString('"hello" "world"')).toBe(false))
+
+  it('allows escaped quotes', () =>
+    expect(isQuotedString('"hello\\"this\\"world"')).toBe(true))
 })

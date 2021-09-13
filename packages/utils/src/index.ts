@@ -211,3 +211,33 @@ export function extend(
   }
   return merged
 }
+
+/**
+ * Determine if the given string is fully quoted. Examples:
+ * hello - false
+ * "hello" - true
+ * 'world' - true
+ * "hello"=="world" - false
+ * "hello'this'" - false
+ * "hello"'there' - false
+ * "hello""there" - false
+ * 'hello === world' - true
+ * @param str - A string to check.
+ * @public
+ */
+export function isQuotedString(str: string): boolean {
+  // quickly return false if the value is note quoted
+  if (str[0] !== '"' && str[0] !== "'") return false
+  if (str[0] !== str[str.length - 1]) return false
+  const quoteType = str[0]
+  for (let p = 1; p < str.length; p++) {
+    if (
+      str[p] === quoteType &&
+      (p === 1 || str[p - 1] !== '\\') &&
+      p !== str.length - 1
+    ) {
+      return false
+    }
+  }
+  return true
+}

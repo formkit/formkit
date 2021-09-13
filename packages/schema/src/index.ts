@@ -12,4 +12,4 @@ export {
   isConditional,
 } from './schema'
 
-export { compileCondition } from './compiler'
+export { compile } from './compiler'

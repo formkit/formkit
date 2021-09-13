@@ -5,6 +5,8 @@ import {
   toRef,
   createTextVNode,
   VNode,
+  resolveComponent,
+  ConcreteComponent,
 } from 'vue'
 import {
   FormKitSchemaAttributes,
@@ -12,7 +14,7 @@ import {
   isDOM,
   isConditional,
   isComponent,
-  compileCondition,
+  compile,
 } from '@formkit/schema'
 import { has, isPojo } from '@formkit/utils'
 
@@ -21,11 +23,19 @@ interface FormKitSchemaContext {
 }
 
 /**
+ * A library of components available to the schema (in addition to globally
+ * registered ones)
+ */
+interface FormKitComponentLibrary {
+  [index: string]: ConcreteComponent
+}
+
+/**
  * Defines the structure a parsed node.
  */
 type RenderContent = [
-  condition: false | (() => boolean),
-  element: string | null,
+  condition: false | (() => boolean | number | string),
+  element: string | ConcreteComponent | null,
   attrs: FormKitSchemaAttributes,
   children: RenderChildren
 ]
@@ -60,11 +70,12 @@ function getRef(data: FormKitSchemaContext, token: string): { value: any } {
  */
 function parseNode(
   data: FormKitSchemaContext,
+  library: FormKitComponentLibrary,
   node: FormKitSchemaNode
 ): RenderContent {
   let element = null
   let attrs: FormKitSchemaAttributes = {}
-  let condition: false | (() => boolean) = false
+  let condition: false | (() => boolean | number | string) = false
   let children: RenderChildren = () => []
 
   // Parse DOM nodes
@@ -74,13 +85,21 @@ function parseNode(
   }
 
   if (isComponent(node)) {
+    if (typeof node.$cmp === 'string') {
+      element = has(library, node.$cmp)
+        ? library[node.$cmp]
+        : resolveComponent(node.$cmp)
+    } else {
+      // in this case it must be an actual component
+      element = node.$cmp
+    }
     attrs = node.props || {}
   }
 
   if (typeof node !== 'string') {
     // Parse conditionals
     if (isConditional(node) && has(node, '$if')) {
-      condition = compileCondition(node.$if as string).provide((token) => {
+      condition = compile(node.$if as string).provide((token) => {
         const value = getRef(data, token)
         return () => {
           return value.value
@@ -92,7 +111,7 @@ function parseNode(
       const nodes =
         typeof node.children == 'string' ? [node.children] : node.children
       if (Array.isArray(nodes)) {
-        const elements = nodes.map(createElement.bind(null, data))
+        const elements = nodes.map(createElement.bind(null, data, library))
         children = () => elements.map((e) => e())
       }
     }
@@ -107,15 +126,23 @@ function parseNode(
  * @param node - The schema node to render
  * @returns
  */
-function createElement(data: FormKitSchemaContext, node: FormKitSchemaNode) {
+function createElement(
+  data: FormKitSchemaContext,
+  library: FormKitComponentLibrary,
+  node: FormKitSchemaNode
+) {
   if (typeof node === 'string') {
-    console.log('parsing element')
-    const textNode = node.startsWith('$')
-      ? getRef(data, node.substr(1))
-      : { value: node }
-    return () => createTextVNode(textNode.value)
+    const value = node.startsWith('$')
+      ? compile(node).provide((token: string) => {
+          const value = getRef(data, token)
+          return () => {
+            return value.value
+          }
+        })
+      : () => node
+    return () => createTextVNode(String(value()))
   }
-  const [condition, element, attrs, children] = parseNode(data, node)
+  const [condition, element, attrs, children] = parseNode(data, library, node)
   return () => {
     if (element && (!condition || condition())) {
       return h(element, attrs, children())
@@ -137,9 +164,15 @@ const FormKitSchema = defineComponent({
       type: Object as PropType<FormKitSchemaContext>,
       default: () => ({}),
     },
+    library: {
+      type: Object as PropType<FormKitComponentLibrary>,
+      default: () => ({}),
+    },
   },
   setup(props) {
-    const elements = props.schema.map(createElement.bind(null, props.data))
+    const elements = props.schema.map(
+      createElement.bind(null, props.data, props.library)
+    )
     return () => elements.map((e) => e())
   },
 })
