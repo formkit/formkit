@@ -1,4 +1,11 @@
-import { eq, empty, extend, isPojo, isQuotedString } from '../src/index'
+import {
+  eq,
+  empty,
+  extend,
+  isPojo,
+  isQuotedString,
+  assignDeep,
+} from '../src/index'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
@@ -179,4 +186,31 @@ describe('isQuotedString', () => {
 
   it('allows escaped quotes', () =>
     expect(isQuotedString('"hello\\"this\\"world"')).toBe(true))
+})
+
+describe('assignDeep', () => {
+  it('assigns on the original object', () => {
+    const a = { a: 123 }
+    const b = { a: 456 }
+    const refA = a
+    assignDeep(a, b)
+    expect(a).toBe(refA)
+    expect(a.a).toBe(456)
+  })
+
+  it('child objects are the same reference', () => {
+    const c = { b: 123 }
+    const a = { a: c }
+    const b = { a: { b: 345 } }
+    assignDeep(a, b)
+    expect(a.a).toBe(c)
+    expect(a.a.b).toBe(345)
+  })
+
+  it('can add new properties', () => {
+    const a = { a: 123 }
+    const b = { b: 456 }
+    assignDeep(a, b)
+    expect(a).toEqual({ a: 123, b: 456 })
+  })
 })

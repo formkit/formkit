@@ -1,14 +1,15 @@
 import {
-  h,
-  defineComponent,
-  PropType,
-  toRef,
-  createTextVNode,
-  VNode,
-  resolveComponent,
   ConcreteComponent,
-  RendererNode,
+  PropType,
   RendererElement,
+  RendererNode,
+  VNode,
+  createTextVNode,
+  defineComponent,
+  h,
+  ref,
+  resolveComponent,
+  watchEffect,
 } from 'vue'
 import {
   FormKitSchemaAttributes,
@@ -40,11 +41,17 @@ type RenderContent = [
   children: RenderChildren | null,
   alternate: RenderChildren | null
 ]
-
+/**
+ * The actual signature of a VNode in Vue.
+ */
 type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
-
+/**
+ * The types of values that can be rendered by Vue.
+ */
 type Renderable = null | string | VirtualNode
-
+/**
+ * Describes renderable children.
+ */
 type RenderChildren = () =>
   | Renderable
   | Renderable[]
@@ -55,16 +62,6 @@ type RenderChildren = () =>
  */
 type RenderNodes = () => Renderable | Renderable[]
 
-// /**
-//  * The output of createElement()
-//  * @internal
-//  */
-// type SchemaRenderFunction = () =>
-//   | string
-//   | VirtualNode
-//   | (string | VirtualNode | null)[]
-//   | null
-
 /**
  * Extracts a reference object from a set of (reactive) data.
  * @param data - Returns a Vue ref object for the given path
@@ -74,12 +71,16 @@ type RenderNodes = () => Renderable | Renderable[]
  */
 function getRef(data: FormKitSchemaContext, token: string): { value: any } {
   const path = token.split('.')
-  return path.reduce((obj: any, segment: string) => {
-    if (has(obj, segment) && isPojo(obj[segment])) {
-      return obj[segment]
-    }
-    return toRef(obj, segment)
-  }, data)
+  const value = ref(null)
+  watchEffect(() =>
+    path.reduce((obj: any, segment: string) => {
+      if (has(obj, segment) && isPojo(obj[segment])) {
+        return obj[segment]
+      }
+      value.value = obj[segment]
+    }, data)
+  )
+  return value
 }
 
 /**
@@ -240,7 +241,7 @@ function parseSchema(
 /**
  * The FormKitSchema vue component:
  */
-const FormKitSchema = defineComponent({
+export const FormKitSchema = defineComponent({
   props: {
     schema: {
       type: [Array, Object] as PropType<
@@ -258,16 +259,10 @@ const FormKitSchema = defineComponent({
     },
   },
   setup(props) {
-    const element = parseSchema(props.data, props.library, props.schema)
-    // if (Array.isArray(props.schema)) {
-    //   const elements = props.schema.map(
-    //     createElement.bind(null, props.data, props.library)
-    //   )
-    //   return () => elements.map((e) => e())
-    // }
-    // const element = createElement(props.data, props.library, props.schema)
+    let element: RenderNodes | RenderChildren
+    watchEffect(() => {
+      element = parseSchema(props.data, props.library, props.schema)
+    })
     return () => element()
   },
 })
-
-export default FormKitSchema

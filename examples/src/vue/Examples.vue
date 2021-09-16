@@ -1,28 +1,18 @@
 <template>
-  <div>
-    <h2>Vue Schema</h2>
-    Enter a name
-    <input
-      type="text"
-      :value="data.input"
-      @input="setValue"
-    >
-    <FormKitSchema
-      :schema="schema"
-      :data="data"
-    />
-  </div>
+  <Example1 />
+  <hr>
+  <Example2 />
 </template>
-<script lang="ts" setup>
-import { reactive } from 'vue'
-import schema from '../simpleSchema'
-import FormKitSchema from '../../../packages/vue/src/FormKitSchema'
 
-const data = reactive({
-  input: '100'
+<script lang="ts">
+import { defineComponent } from 'vue'
+import Example1 from './Example1.vue'
+import Example2 from './Example2.vue'
+
+export default defineComponent({
+  components: {
+    Example1,
+    Example2
+  }
 })
-
-const setValue = (e: Event) => {
-  data.input = (e.target as HTMLInputElement).value
-}
 </script>

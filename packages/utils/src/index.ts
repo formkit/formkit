@@ -241,3 +241,32 @@ export function isQuotedString(str: string): boolean {
   }
   return true
 }
+
+/**
+ * Performs a recursive Object.assign like operation.
+ * @param a - An object to be extended by object b
+ * @param b - An object to copy values from
+ * @public
+ */
+export function assignDeep<
+  A extends Record<PropertyKey, any>,
+  B extends Record<PropertyKey, any>
+>(a: A, b: B): A & B {
+  for (const key in a) {
+    if (
+      has(b, key) &&
+      a[key] !== b[key] &&
+      !(isPojo(a[key]) && isPojo(b[key]))
+    ) {
+      a[key] = b[key]
+    } else if (isPojo(a[key]) && isPojo(b[key])) {
+      assignDeep(a[key], b[key])
+    }
+  }
+  for (const key in b) {
+    if (!has(a, key)) {
+      a[key] = b[key]
+    }
+  }
+  return a
+}

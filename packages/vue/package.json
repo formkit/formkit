@@ -20,7 +20,9 @@
     "@formkit/schema": "1.0.0-alpha.0",
     "@formkit/utils": "1.0.0-alpha.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@vue/test-utils": "^2.0.0-rc.14"
+  },
   "peerDependencies": {
     "vue": "^3.2.1"
   }
