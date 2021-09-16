@@ -1,6 +1,23 @@
 export default [
   {
     $el: 'h1',
-    children: ['Total: ', '$: ($input * 2.99) + 5'],
+    children: {
+      $if: '$input > 100',
+      $then: [
+        {
+          $el: 'em',
+          children: 'You’re rich',
+        },
+        {
+          $el: 'strong',
+          children: [' ($', '$input', ')'],
+        },
+      ],
+      $else: {
+        $if: '$input > 50',
+        $then: 'You’re medium',
+        $else: 'You’re really poor',
+      },
+    },
   },
 ]

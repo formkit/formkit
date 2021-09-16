@@ -3,6 +3,7 @@ export {
   FormKitSchemaComponent,
   FormKitSchemaFormKitNode,
   FormKitSchemaTextNode,
+  FormKitSchemaCondition,
   FormKitSchemaDOMNode,
   FormKitSchemaAttributes,
   FormKitSchemaContext,

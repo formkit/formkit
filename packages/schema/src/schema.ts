@@ -1,5 +1,5 @@
 import { has } from '@formkit/utils'
-import { FormKitNode, FormKitProps } from '@formkit/core'
+import { FormKitProps } from '@formkit/core'
 
 /**
  * Properties available in all schema nodes.
@@ -7,8 +7,7 @@ import { FormKitNode, FormKitProps } from '@formkit/core'
  */
 export interface FormKitSchemaProps {
   value?: any
-  children?: string | FormKitSchemaNode[]
-  content?: string | FormKitSchemaNode[]
+  children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
   key?: string
   $if?: string
 }
@@ -64,16 +63,21 @@ export type FormKitSchemaComponent = {
 } & FormKitSchemaProps
 
 /**
+ * A schema node that determines _which_ content to render.
+ * @public
+ */
+export type FormKitSchemaCondition = {
+  $if: string
+  $then: FormKitSchemaNode | FormKitSchemaNode[]
+  $else?: FormKitSchemaNode | FormKitSchemaNode[]
+}
+
+/**
  * The context that is passed from one schema render to the next.
  * @public
  */
-export type FormKitSchemaContext<ComponentType> = {
-  library: {
-    [index: string]: ComponentType
-  }
-  nodes: {
-    [index: string]: FormKitNode<any>
-  }
+export interface FormKitSchemaContext {
+  [index: string]: any
 }
 
 /**
@@ -85,6 +89,7 @@ export type FormKitSchemaNode =
   | FormKitSchemaDOMNode
   | FormKitSchemaComponent
   | FormKitSchemaTextNode
+  | FormKitSchemaCondition
 
 /**
  * Type narrow that a node is a DOM node.
@@ -126,10 +131,9 @@ export function isNode(
  * @returns
  * @public
  */
-export function isConditional(node: FormKitSchemaNode): boolean {
+export function isConditional(
+  node: FormKitSchemaNode
+): node is FormKitSchemaCondition {
   if (typeof node === 'string') return false
-  if (has(node, '$if')) {
-    return true
-  }
-  return false
+  return has(node, '$if') && has(node, '$then')
 }

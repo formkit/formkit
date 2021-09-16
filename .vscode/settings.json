@@ -8,6 +8,7 @@
         "Logicals",
         "preprocessors",
         "proxied",
+        "Renderable",
         "setify",
         "unmerge"
     ]
