@@ -37,7 +37,7 @@ interface FormKitComponentLibrary {
 type RenderContent = [
   condition: false | (() => boolean | number | string),
   element: string | ConcreteComponent | null,
-  attrs: FormKitSchemaAttributes,
+  attrs: () => FormKitSchemaAttributes,
   children: RenderChildren | null,
   alternate: RenderChildren | null
 ]
@@ -105,6 +105,52 @@ function parseCondition(
 }
 
 /**
+ * Parse attributes for dynamic content.
+ * @param attrs - Object of attributes
+ * @returns
+ */
+function parseAttrs(
+  data: FormKitSchemaContext,
+  unparsedAttrs?: FormKitSchemaAttributes
+): () => FormKitSchemaAttributes {
+  if (unparsedAttrs) {
+    const attrs: FormKitSchemaAttributes = {}
+    const setters: Array<() => void> = []
+    for (const attr in unparsedAttrs) {
+      attrs[attr] = undefined
+      const value = unparsedAttrs[attr]
+      if (
+        typeof value === 'string' &&
+        value.startsWith('$') &&
+        value.length > 1
+      ) {
+        // In this case we have a dynamic value, so we create a "setter" function
+        // that will manipulate the value of our attribute at runtime.
+        const dynamicValue = getRef(data, value.substr(1))
+        setters.push(() => {
+          Object.assign(attrs, { [attr]: dynamicValue.value })
+        })
+      } else if (typeof value === 'object' && isPojo(value)) {
+        // In this case we need to recurse
+        const subAttrs = parseAttrs(data, value)
+        setters.push(() => {
+          Object.assign(attrs, { [attr]: subAttrs() })
+        })
+      } else {
+        // In all other cases, the value is static
+        attrs[attr] = value
+      }
+    }
+    return () => {
+      setters.forEach((setter) => setter())
+      // Unfortunately this spreading is necessary to trigger reactivity
+      return { ...attrs }
+    }
+  }
+  return () => null
+}
+
+/**
  * Given a single schema node, parse it and extract the value.
  * @param data - A state object provided to each node
  * @param node - The schema node being parsed
@@ -116,7 +162,7 @@ function parseNode(
   node: FormKitSchemaNode
 ): RenderContent {
   let element: RenderContent[1] = null
-  let attrs: FormKitSchemaAttributes = {}
+  let attrs: () => FormKitSchemaAttributes = () => null
   let condition: false | (() => boolean | number | string) = false
   let children: RenderContent[3] = null
   let alternate: RenderContent[4] = null
@@ -127,7 +173,7 @@ function parseNode(
   if (isDOM(node)) {
     // This is an actual HTML DOM element
     element = node.$el
-    attrs = node.attrs || {}
+    attrs = parseAttrs(data, node.attrs)
   } else if (isComponent(node)) {
     // This is a Vue Component
     if (typeof node.$cmp === 'string') {
@@ -138,7 +184,7 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
-    attrs = node.props || {}
+    attrs = parseAttrs(data, node.props)
   } else if (isConditional(node)) {
     // This is an $if/$then schema statement
     ;[condition, children, alternate] = parseCondition(data, library, node)
@@ -209,7 +255,7 @@ function createElement(
       // Handle standard elements and components
       return h(
         element,
-        attrs,
+        attrs(),
         typeof children === 'function' ? (children() as Renderable[]) : []
       )
     }

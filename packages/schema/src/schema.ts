@@ -51,7 +51,7 @@ export type FormKitSchemaAttributes = {
     | boolean
     | undefined
     | { [index: string]: string | number }
-}
+} | null
 
 /**
  * Properties available when defining a generic non-formkit component.
