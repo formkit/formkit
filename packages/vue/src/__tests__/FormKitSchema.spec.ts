@@ -225,4 +225,107 @@ describe('parsing dom elements', () => {
     await flushPromises()
     expect(wrapper.html()).toBe('<button style="color: green;"></button>')
   })
+
+  it('can perform string concatenation in dynamic attributes', async () => {
+    const data = reactive({ size: 10 })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'button',
+            attrs: {
+              style: {
+                fontSize: '$size + 1 + em',
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<button style="font-size: 11em;"></button>')
+    data.size = 5
+    await nextTick()
+    expect(wrapper.html()).toBe('<button style="font-size: 6em;"></button>')
+  })
+
+  it('can render conditional set of attributes', async () => {
+    const data = reactive({ status: 'warning' })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'div',
+            attrs: {
+              $if: "$status === 'warning'",
+              $then: {
+                'data-status': '$status',
+                style: {
+                  color: 'red',
+                },
+              },
+              $else: {
+                $if: '$status === information',
+                $then: {
+                  'data-info': 'true',
+                },
+                $else: {
+                  'data-status': '$status',
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(
+      '<div data-status="warning" style="color: red;"></div>'
+    )
+    data.status = 'information'
+    await nextTick()
+    expect(wrapper.html()).toBe('<div data-info="true"></div>')
+    data.status = 'error'
+    await nextTick()
+    expect(wrapper.html()).toBe('<div data-status="error"></div>')
+  })
+
+  it('can render a single complex conditional attribute', async () => {
+    const data = reactive({ size: 1 })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'button',
+            attrs: {
+              'data-size': {
+                $if: '$size < 5',
+                $then: 'extra-small',
+                $else: {
+                  $if: '$size >= 5 && $size < 10',
+                  $then: 'medium',
+                  $else: {
+                    $if: '$size >= 10 && $size < 20',
+                    $then: 'large',
+                    $else: 'extra-large',
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<button data-size="extra-small"></button>')
+    data.size = 5
+    await nextTick()
+    expect(wrapper.html()).toBe('<button data-size="medium"></button>')
+    data.size = 10
+    await nextTick()
+    expect(wrapper.html()).toBe('<button data-size="large"></button>')
+    data.size = 50
+    await nextTick()
+    expect(wrapper.html()).toBe('<button data-size="extra-large"></button>')
+  })
 })

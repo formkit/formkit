@@ -40,18 +40,37 @@ export type FormKitSchemaDOMNode = {
 export type FormKitSchemaTextNode = string
 
 /**
+ * The possible value types of attributes (in the schema)
+ * @public
+ */
+export type FormKitAttributeValue =
+  | string
+  | number
+  | boolean
+  | undefined
+  | FormKitSchemaAttributes
+  | FormKitSchemaAttributesCondition
+
+/**
+ * Conditions nested inside attribute declarations
+ * @public
+ */
+export interface FormKitSchemaAttributesCondition {
+  $if: string
+  $then: FormKitAttributeValue
+  $else?: FormKitAttributeValue
+}
+
+/**
  * DOM attributes are simple string dictionaries.
  * @public
  */
-export type FormKitSchemaAttributes = {
-  style?: { [index: string]: string | number }
-  [index: string]:
-    | string
-    | number
-    | boolean
-    | undefined
-    | { [index: string]: string | number }
-} | null
+export type FormKitSchemaAttributes =
+  | {
+      [index: string]: FormKitAttributeValue
+    }
+  | null
+  | FormKitSchemaAttributesCondition
 
 /**
  * Properties available when defining a generic non-formkit component.
@@ -133,7 +152,28 @@ export function isNode(
  */
 export function isConditional(
   node: FormKitSchemaNode
-): node is FormKitSchemaCondition {
-  if (typeof node === 'string') return false
+): node is FormKitSchemaCondition
+/**
+ * Determines if an attribute is a conditional.
+ * @param node - A schema node to check
+ * @returns
+ * @public
+ */
+export function isConditional(
+  node: FormKitSchemaAttributesCondition | FormKitSchemaAttributes
+): node is FormKitSchemaAttributesCondition
+/**
+ * Root declaration.
+ * @param node - An object to check
+ * @returns
+ * @public
+ */
+export function isConditional(
+  node:
+    | FormKitSchemaNode
+    | FormKitSchemaAttributesCondition
+    | FormKitSchemaAttributes
+): node is FormKitSchemaNode | FormKitSchemaAttributesCondition {
+  if (!node || typeof node === 'string') return false
   return has(node, '$if') && has(node, '$then')
 }

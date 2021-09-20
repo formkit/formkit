@@ -20,6 +20,8 @@ import {
   isComponent,
   compile,
   FormKitSchemaCondition,
+  FormKitSchemaAttributesCondition,
+  FormKitAttributeValue,
 } from '@formkit/schema'
 import { has, isPojo } from '@formkit/utils'
 
@@ -104,6 +106,28 @@ function parseCondition(
   return [condition, children, alternate]
 }
 
+function parseConditionAttr(
+  data: FormKitSchemaContext,
+  attr: FormKitSchemaAttributesCondition,
+  _default: FormKitAttributeValue
+): () => FormKitAttributeValue | FormKitSchemaAttributes {
+  const condition = compile(attr.$if).provide((token) => {
+    const value = getRef(data, token)
+    return () => value.value
+  })
+  let b: () => FormKitAttributeValue = () => _default
+  const a =
+    attr.$then && typeof attr.$then === 'object'
+      ? parseAttrs(data, attr.$then)
+      : () => attr.$then
+  if (has(attr, '$else') && typeof attr.$else === 'object') {
+    b = parseAttrs(data, attr.$else)
+  } else if (has(attr, '$else')) {
+    b = () => attr.$else
+  }
+  return () => (condition() ? a() : b())
+}
+
 /**
  * Parse attributes for dynamic content.
  * @param attrs - Object of attributes
@@ -111,11 +135,21 @@ function parseCondition(
  */
 function parseAttrs(
   data: FormKitSchemaContext,
-  unparsedAttrs?: FormKitSchemaAttributes
+  unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition
 ): () => FormKitSchemaAttributes {
   if (unparsedAttrs) {
     const attrs: FormKitSchemaAttributes = {}
     const setters: Array<() => void> = []
+    if (isConditional(unparsedAttrs)) {
+      // This is a root conditional object that must produce an object of
+      // attributes.
+      const condition = parseConditionAttr(
+        data,
+        unparsedAttrs,
+        {}
+      ) as () => FormKitSchemaAttributes
+      return condition
+    }
     for (const attr in unparsedAttrs) {
       attrs[attr] = undefined
       const value = unparsedAttrs[attr]
@@ -124,11 +158,19 @@ function parseAttrs(
         value.startsWith('$') &&
         value.length > 1
       ) {
-        // In this case we have a dynamic value, so we create a "setter" function
-        // that will manipulate the value of our attribute at runtime.
-        const dynamicValue = getRef(data, value.substr(1))
+        // In this case we have a dynamic value, so we create a "setter"
+        // function that will manipulate the value of our attribute at runtime.
+        const dynamicValue = compile(value).provide((token) => {
+          const value = getRef(data, token)
+          return () => value.value
+        })
         setters.push(() => {
-          Object.assign(attrs, { [attr]: dynamicValue.value })
+          Object.assign(attrs, { [attr]: dynamicValue() })
+        })
+      } else if (typeof value === 'object' && isConditional(value)) {
+        const condition = parseConditionAttr(data, value, null)
+        setters.push(() => {
+          Object.assign(attrs, { [attr]: condition() })
         })
       } else if (typeof value === 'object' && isPojo(value)) {
         // In this case we need to recurse

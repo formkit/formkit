@@ -1,16 +1,18 @@
 export {
-  FormKitSchemaNode,
-  FormKitSchemaComponent,
-  FormKitSchemaFormKitNode,
-  FormKitSchemaTextNode,
-  FormKitSchemaCondition,
-  FormKitSchemaDOMNode,
+  FormKitAttributeValue,
   FormKitSchemaAttributes,
+  FormKitSchemaAttributesCondition,
+  FormKitSchemaComponent,
+  FormKitSchemaCondition,
   FormKitSchemaContext,
-  isDOM,
-  isNode,
+  FormKitSchemaDOMNode,
+  FormKitSchemaFormKitNode,
+  FormKitSchemaNode,
+  FormKitSchemaTextNode,
   isComponent,
   isConditional,
+  isDOM,
+  isNode,
 } from './schema'
 
 export { compile } from './compiler'
