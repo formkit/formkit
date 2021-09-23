@@ -6,18 +6,7 @@
       :value="data.input"
       @input="setValue"
     > -->
-    <button @click="setLocation">
-      Go to earth
-    </button>
-    <button @click="setLocationByParent">
-      Go to mars
-    </button>
-    <button @click="setLocationByReplacement">
-      Go to venus
-    </button>
-    <button @click="changeSchema">
-      changeSchema
-    </button>
+
     <FormKitSchema
       :schema="schema"
       :data="data"

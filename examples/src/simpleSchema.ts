@@ -1,9 +1,21 @@
-export default [
+import { FormKitSchemaNode } from '@formkit/schema'
+
+const schema: FormKitSchemaNode[] = [
   {
     $el: 'h1',
-    attrs: {
-      'data-location': '$location.planet',
-    },
-    children: ['I am on ', '$location.planet'],
+    // for: ['value', 10],
+    children: ['Hello world', '$location.planet'],
+  },
+  {
+    $el: 'h1',
+    // for: ['value', 10],
+    children: ['Hello world', '$location.planet'],
+  },
+  {
+    $el: 'h1',
+    // for: ['value', 10],
+    children: ['Hello world', '$location.planet'],
   },
 ]
+
+export default schema

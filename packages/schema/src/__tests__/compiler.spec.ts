@@ -150,6 +150,15 @@ describe('boolean logic parser', () => {
     expect(compile('(33 - 3) * 2 - 5 + 1 === 56')()).toBe(true)
   })
 
+  it('uses parenthesis for the order of operations', () => {
+    expect(compile('5 * 3 * (1 + .1)')()).toBe(16.5)
+    expect(compile('(1 + .1) * 5 * 3')()).toBe(16.5)
+    expect(compile('5 * (1 + .1) === 5.5')()).toBe(true)
+    expect(compile('5 + (1 * .1) * 3')()).toBe(5.3)
+    expect(compile('5 + (3) * 2')()).toBe(11)
+    expect(compile('(3) * 5')()).toBe(15)
+  })
+
   it('can do math and then concatenate strings', () => {
     let padding = 10
     const makePadding = compile('$padding / 5 + em').provide(() => {

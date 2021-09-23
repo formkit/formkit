@@ -8,6 +8,7 @@ import {
   defineComponent,
   h,
   ref,
+  reactive,
   resolveComponent,
   watchEffect,
 } from 'vue'
@@ -34,6 +35,11 @@ interface FormKitComponentLibrary {
 }
 
 /**
+ * The internal path for hierarchical memory scoping.
+ */
+type ScopePath = symbol[]
+
+/**
  * Defines the structure a parsed node.
  */
 type RenderContent = [
@@ -41,7 +47,8 @@ type RenderContent = [
   element: string | ConcreteComponent | null,
   attrs: () => FormKitSchemaAttributes,
   children: RenderChildren | null,
-  alternate: RenderChildren | null
+  alternate: RenderChildren | null,
+  scopes: ScopePath
 ]
 /**
  * The actual signature of a VNode in Vue.
@@ -62,31 +69,69 @@ type RenderChildren = () =>
 /**
  * The format children elements can be in.
  */
-type RenderNodes = () => Renderable | Renderable[]
+interface RenderNodes {
+  (): Renderable | Renderable[]
+  set: (key: string, value: any) => void
+}
 
 /**
  * Extracts a reference object from a set of (reactive) data.
- * @param data - Returns a Vue ref object for the given path
+ * @param data - The formkit context object object for the given path
  * @param token - A dot-notation path like: user.name
  * @returns
  * @internal
  */
-function getRef(data: FormKitSchemaContext, token: string): { value: any } {
+function getRef(
+  data: FormKitSchemaContext,
+  scopes: ScopePath,
+  token: string
+): { value: any } {
   const path = token.split('.')
   const value = ref(null)
-  watchEffect(() =>
-    path.reduce((obj: any, segment: string) => {
-      if (has(obj, segment) && isPojo(obj[segment])) {
-        return obj[segment]
-      }
-      value.value = obj[segment]
-    }, data)
-  )
+  watchEffect(() => {
+    const sets = scopes
+      .map((scope) => data.__FK_SCP.get(scope) || false)
+      .filter((s) => s)
+    sets.push(data)
+    for (const set of sets) {
+      let found = false
+      path.reduce((obj: any, segment: string, i: number) => {
+        const next = typeof obj[segment] === 'object' ? obj[segment] : {}
+        if (i === path.length - 1 && has(obj, segment)) {
+          found = true
+          value.value = obj[segment]
+        }
+        return next
+      }, set)
+      if (found) break
+    }
+  })
   return value
 }
 
 /**
- * Given an $if/$then/$else schema node, pre-compile the node and return the
+ * Sets a value (available with the schema) in the current scope.
+ * @param data - The formkit context object
+ * @param scopes - An array of symbols representing the scope path
+ * @param key - A key or "variable name" to set within the given scope
+ * @param value - A value to assign to that key
+ */
+function setValue(
+  data: FormKitSchemaContext,
+  scopes: ScopePath,
+  key: string,
+  value: any
+): void {
+  const scope = scopes[scopes.length - 1]
+  if (data.__FK_SCP.has(scope)) {
+    Object.assign(data.__FK_SCP.get(scope), { [key]: value })
+  } else {
+    data.__FK_SCP.set(scope, { [key]: value })
+  }
+}
+
+/**
+ * Given an if/then/else schema node, pre-compile the node and return the
  * artifacts for the render function.
  * @param data - The schema context object
  * @param library - The available components
@@ -94,36 +139,47 @@ function getRef(data: FormKitSchemaContext, token: string): { value: any } {
  */
 function parseCondition(
   data: FormKitSchemaContext,
+  scopes: ScopePath,
   library: FormKitComponentLibrary,
   node: FormKitSchemaCondition
 ): [RenderContent[0], RenderContent[3], RenderContent[4]] {
-  const condition = compile(node.$if).provide((token) => {
-    const value = getRef(data, token)
+  const condition = compile(node.if).provide((token) => {
+    const value = getRef(data, scopes, token)
     return () => value.value
   })
-  const children = parseSchema(data, library, node.$then)
-  const alternate = node.$else ? parseSchema(data, library, node.$else) : null
+  const children = parseSchema(data, scopes, library, node.then)
+  const alternate = node.else
+    ? parseSchema(data, scopes, library, node.else)
+    : null
   return [condition, children, alternate]
 }
 
+/**
+ * Parses a conditional if/then/else attribute statement.
+ * @param data - The data object
+ * @param attr - The attribute
+ * @param _default - The default value
+ * @returns
+ */
 function parseConditionAttr(
   data: FormKitSchemaContext,
+  scopes: ScopePath,
   attr: FormKitSchemaAttributesCondition,
   _default: FormKitAttributeValue
 ): () => FormKitAttributeValue | FormKitSchemaAttributes {
-  const condition = compile(attr.$if).provide((token) => {
-    const value = getRef(data, token)
+  const condition = compile(attr.if).provide((token) => {
+    const value = getRef(data, scopes, token)
     return () => value.value
   })
   let b: () => FormKitAttributeValue = () => _default
   const a =
-    attr.$then && typeof attr.$then === 'object'
-      ? parseAttrs(data, attr.$then)
-      : () => attr.$then
-  if (has(attr, '$else') && typeof attr.$else === 'object') {
-    b = parseAttrs(data, attr.$else)
-  } else if (has(attr, '$else')) {
-    b = () => attr.$else
+    attr.then && typeof attr.then === 'object'
+      ? parseAttrs(data, scopes, attr.then)
+      : () => attr.then
+  if (has(attr, 'else') && typeof attr.else === 'object') {
+    b = parseAttrs(data, scopes, attr.else)
+  } else if (has(attr, 'else')) {
+    b = () => attr.else
   }
   return () => (condition() ? a() : b())
 }
@@ -135,6 +191,7 @@ function parseConditionAttr(
  */
 function parseAttrs(
   data: FormKitSchemaContext,
+  scopes: ScopePath,
   unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition
 ): () => FormKitSchemaAttributes {
   if (unparsedAttrs) {
@@ -145,6 +202,7 @@ function parseAttrs(
       // attributes.
       const condition = parseConditionAttr(
         data,
+        scopes,
         unparsedAttrs,
         {}
       ) as () => FormKitSchemaAttributes
@@ -161,20 +219,20 @@ function parseAttrs(
         // In this case we have a dynamic value, so we create a "setter"
         // function that will manipulate the value of our attribute at runtime.
         const dynamicValue = compile(value).provide((token) => {
-          const value = getRef(data, token)
+          const value = getRef(data, scopes, token)
           return () => value.value
         })
         setters.push(() => {
           Object.assign(attrs, { [attr]: dynamicValue() })
         })
       } else if (typeof value === 'object' && isConditional(value)) {
-        const condition = parseConditionAttr(data, value, null)
+        const condition = parseConditionAttr(data, scopes, value, null)
         setters.push(() => {
           Object.assign(attrs, { [attr]: condition() })
         })
       } else if (typeof value === 'object' && isPojo(value)) {
         // In this case we need to recurse
-        const subAttrs = parseAttrs(data, value)
+        const subAttrs = parseAttrs(data, scopes, value)
         setters.push(() => {
           Object.assign(attrs, { [attr]: subAttrs() })
         })
@@ -200,22 +258,53 @@ function parseAttrs(
  */
 function parseNode(
   data: FormKitSchemaContext,
+  _scopes: ScopePath,
   library: FormKitComponentLibrary,
-  node: FormKitSchemaNode
+  _node: FormKitSchemaNode
 ): RenderContent {
   let element: RenderContent[1] = null
   let attrs: () => FormKitSchemaAttributes = () => null
   let condition: false | (() => boolean | number | string) = false
   let children: RenderContent[3] = null
   let alternate: RenderContent[4] = null
-  if (typeof node === 'string') {
-    throw new Error('Invalid schema')
-  }
-
+  const scopes = [..._scopes, Symbol()]
+  const node: Exclude<FormKitSchemaNode, string> =
+    typeof _node === 'string'
+      ? {
+          $el: 'text',
+          children: _node,
+        }
+      : _node
+  // if ('for' in node && node.for) {
+  //   // This node needs to be repeated
+  //   const iterator = node.for.length === 3 ? node.for[2] : node.for[1]
+  //   let values: () => any
+  //   if (typeof iterator === 'string' && iterator.startsWith('$')) {
+  //     values = compile(iterator).provide((token) => {
+  //       const value = getRef(data, token)
+  //       return () => value.value
+  //     })
+  //   } else {
+  //     values = () => iterator
+  //   }
+  //   children = () => {
+  //     let iterator = values()
+  //     if (!isNaN(iterator)) {
+  //       iterator = Array(Number(iterator))
+  //         .fill(0)
+  //         .map((_, i) => i)
+  //     }
+  //     for (const key in iterator) {
+  //       const value = iterator[key]
+  //     }
+  //   }
+  //   return [() => true, null, () => null, children, () => null]
+  // }
   if (isDOM(node)) {
     // This is an actual HTML DOM element
     element = node.$el
-    attrs = parseAttrs(data, node.attrs)
+    attrs =
+      node.$el !== 'text' ? parseAttrs(data, scopes, node.attrs) : () => null
   } else if (isComponent(node)) {
     // This is a Vue Component
     if (typeof node.$cmp === 'string') {
@@ -226,37 +315,62 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
-    attrs = parseAttrs(data, node.props)
+    attrs = parseAttrs(data, scopes, node.props)
   } else if (isConditional(node)) {
-    // This is an $if/$then schema statement
-    ;[condition, children, alternate] = parseCondition(data, library, node)
+    // This is an if/then schema statement
+    ;[condition, children, alternate] = parseCondition(
+      data,
+      scopes,
+      library,
+      node
+    )
   }
 
-  // This is the same as a "v-if" statement — not an $if/$else statement
-  if (!isConditional(node) && '$if' in node) {
-    condition = compile(node.$if as string).provide((token) => {
-      const value = getRef(data, token)
+  // This is the same as a "v-if" statement — not an if/else statement
+  if (!isConditional(node) && 'if' in node) {
+    condition = compile(node.if as string).provide((token) => {
+      const value = getRef(data, scopes, token)
       return () => value.value
     })
   }
 
+  // Assign any explicitly scoped variables
+  if ('let' in node && node.let) {
+    for (const key in node.let) {
+      setValue(data, scopes, key, node.let[key])
+    }
+  }
+
   // Compile children down
   if ('children' in node && node.children) {
-    const nodes =
-      typeof node.children == 'string' ? [node.children] : node.children
-    if (Array.isArray(nodes)) {
+    if (typeof node.children === 'string') {
+      // We are dealing with a raw string value
+      if (node.children.startsWith('$') && node.children.length > 1) {
+        const value = compile(node.children).provide((token: string) => {
+          const value = getRef(data, scopes, token)
+          return () => value.value
+        })
+        children = () => String(value())
+      } else {
+        children = () => String(node.children)
+      }
+    } else if (Array.isArray(node.children)) {
       // We are dealing with node sub-children
-      const elements = nodes.map(createElement.bind(null, data, library))
-      children = () => elements.map((e) => e())
+      children = parseSchema(data, scopes, library, node.children)
     } else {
-      // This is a conditional $if/$else clause
-      const [childCondition, c, a] = parseCondition(data, library, nodes)
+      // This is a conditional if/else clause
+      const [childCondition, c, a] = parseCondition(
+        data,
+        scopes,
+        library,
+        node.children
+      )
       children = () =>
         childCondition && childCondition() ? c && c() : a && a()
     }
   }
 
-  return [condition, element, attrs, children, alternate]
+  return [condition, element, attrs, children, alternate, scopes]
 }
 
 /**
@@ -267,42 +381,39 @@ function parseNode(
  */
 function createElement(
   data: FormKitSchemaContext,
+  parentScope: ScopePath,
   library: FormKitComponentLibrary,
   node: FormKitSchemaNode
 ): RenderNodes {
-  if (typeof node === 'string') {
-    const value =
-      node.startsWith('$') && node.length > 1
-        ? compile(node).provide((token: string) => {
-            const value = getRef(data, token)
-            return () => {
-              return value.value
-            }
-          })
-        : () => node
-    return () => createTextVNode(String(value()))
-  }
-  const [condition, element, attrs, children, alternate] = parseNode(
+  // Parses the schema node into pertinent parts
+  const [condition, element, attrs, children, alternate, scopes] = parseNode(
     data,
+    parentScope,
     library,
     node
   )
-  return (() => {
+  // This is a sub-render function (called within a render function). It must
+  // only use pre-compiled features, and be organized in the most efficient
+  // manner possible.
+  const createNodes = () => {
     if (condition && element === null && children) {
-      // Handle conditional $if/$then statements
+      // Handle conditional if/then statements
       return condition() ? children() : alternate && alternate()
     }
 
     if (element && (!condition || condition())) {
+      // handle text nodes
+      if (element === 'text' && children) {
+        return createTextVNode(String(children()))
+      }
       // Handle standard elements and components
-      return h(
-        element,
-        attrs(),
-        typeof children === 'function' ? (children() as Renderable[]) : []
-      )
+      return h(element, attrs(), children ? (children() as Renderable[]) : [])
     }
+
     return typeof alternate === 'function' ? alternate() : alternate
-  }) as RenderNodes
+  }
+  createNodes.set = setValue.bind(null, data, scopes)
+  return createNodes as RenderNodes
 }
 
 /**
@@ -314,15 +425,16 @@ function createElement(
  */
 function parseSchema(
   data: FormKitSchemaContext,
+  parentScope: ScopePath,
   library: FormKitComponentLibrary,
   nodes: FormKitSchemaNode | FormKitSchemaNode[]
 ): RenderNodes | RenderChildren {
   if (Array.isArray(nodes)) {
-    const els = nodes.map(createElement.bind(null, data, library))
+    const els = nodes.map(createElement.bind(null, data, parentScope, library))
     return () => els.map((e) => e())
   }
   // Single node to render
-  const element = createElement(data, library, nodes)
+  const element = createElement(data, parentScope, library, nodes)
   return () => element()
 }
 
@@ -338,7 +450,7 @@ export const FormKitSchema = defineComponent({
       required: true,
     },
     data: {
-      type: Object as PropType<FormKitSchemaContext>,
+      type: Object as PropType<Record<string, any>>,
       default: () => ({}),
     },
     library: {
@@ -349,7 +461,10 @@ export const FormKitSchema = defineComponent({
   setup(props) {
     let element: RenderNodes | RenderChildren
     watchEffect(() => {
-      element = parseSchema(props.data, props.library, props.schema)
+      const data = Object.assign(reactive(props.data), {
+        __FK_SCP: new Map<symbol, Record<string, any>>(),
+      })
+      element = parseSchema(data, [Symbol()], props.library, props.schema)
     })
     return () => element()
   },

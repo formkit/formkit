@@ -85,12 +85,12 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toContain('g')
   })
 
-  it('can remove a node with the $if property', async () => {
+  it('can remove a node with the "if" property', async () => {
     const data = reactive({ a: { b: 'c' } })
     const wrapper = mount(FormKitSchema, {
       props: {
         data,
-        schema: [{ $el: 'h1', children: '$a.b', $if: "$a.b === 'c'" }],
+        schema: [{ $el: 'h1', children: '$a.b', if: "$a.b === 'c'" }],
       },
     })
     expect(wrapper.html()).toBe('<h1>c</h1>')
@@ -102,18 +102,18 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<h1>c</h1>')
   })
 
-  it('can render different children with $if/$then/$else at root', async () => {
+  it('can render different children with if/then/else at root', async () => {
     const data = reactive({ value: 100 })
     const wrapper = mount(FormKitSchema, {
       props: {
         data,
         schema: {
-          $if: '$value >= 100',
-          $then: [{ $el: 'h1', children: ['$', '$value'] }],
-          $else: {
-            $if: '$value > 50',
-            $then: [{ $el: 'h2', children: ['$', '$value'] }],
-            $else: [{ $el: 'h3', children: 'You need a job!' }],
+          if: '$value >= 100',
+          then: [{ $el: 'h1', children: ['$', '$value'] }],
+          else: {
+            if: '$value > 50',
+            then: [{ $el: 'h2', children: ['$', '$value'] }],
+            else: [{ $el: 'h3', children: 'You need a job!' }],
           },
         },
       },
@@ -127,7 +127,7 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<h3>You need a job!</h3>')
   })
 
-  it('can render different sibling children with $if/$then/$else at root', async () => {
+  it('can render different sibling children with if/then/else at root', async () => {
     const data = reactive({ value: 100 })
     const wrapper = mount(FormKitSchema, {
       props: {
@@ -138,12 +138,12 @@ describe('parsing dom elements', () => {
             children: 'What is your salary?',
           },
           {
-            $if: '$value >= 100',
-            $then: [{ $el: 'h1', children: ['$', '$value'] }],
-            $else: {
-              $if: '$value > 20',
-              $then: [{ $el: 'h2', children: ['$', '$value'] }],
-              $else: [{ $el: 'h3', children: 'You need a new job!' }],
+            if: '$value >= 100',
+            then: [{ $el: 'h1', children: ['$', '$value'] }],
+            else: {
+              if: '$value > 20',
+              then: [{ $el: 'h2', children: ['$', '$value'] }],
+              else: [{ $el: 'h3', children: 'You need a new job!' }],
             },
           },
           {
@@ -258,19 +258,19 @@ describe('parsing dom elements', () => {
           {
             $el: 'div',
             attrs: {
-              $if: "$status === 'warning'",
-              $then: {
+              if: "$status === 'warning'",
+              then: {
                 'data-status': '$status',
                 style: {
                   color: 'red',
                 },
               },
-              $else: {
-                $if: '$status === information',
-                $then: {
+              else: {
+                if: '$status === information',
+                then: {
                   'data-info': 'true',
                 },
-                $else: {
+                else: {
                   'data-status': '$status',
                 },
               },
@@ -300,15 +300,15 @@ describe('parsing dom elements', () => {
             $el: 'button',
             attrs: {
               'data-size': {
-                $if: '$size < 5',
-                $then: 'extra-small',
-                $else: {
-                  $if: '$size >= 5 && $size < 10',
-                  $then: 'medium',
-                  $else: {
-                    $if: '$size >= 10 && $size < 20',
-                    $then: 'large',
-                    $else: 'extra-large',
+                if: '$size < 5',
+                then: 'extra-small',
+                else: {
+                  if: '$size >= 5 && $size < 10',
+                  then: 'medium',
+                  else: {
+                    if: '$size >= 10 && $size < 20',
+                    then: 'large',
+                    else: 'extra-large',
                   },
                 },
               },
@@ -328,4 +328,80 @@ describe('parsing dom elements', () => {
     await nextTick()
     expect(wrapper.html()).toBe('<button data-size="extra-large"></button>')
   })
+
+  it('can access scoped variables', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $el: 'div',
+            let: { foo: 'bar' },
+            children: '$foo',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<div>bar</div>')
+  })
+
+  it('shadows pre-existing variables within scope', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          foo: 'car',
+        },
+        schema: [
+          {
+            $el: 'div',
+            let: { foo: 'bar' },
+            children: '$foo',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<div>bar</div>')
+  })
+
+  it('can use variables directly in compiled operations', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          foo: 'car',
+        },
+        schema: [
+          {
+            $el: 'div',
+            let: {
+              quantity: 3,
+              price: 5,
+              taxes: 0.1,
+              fee: 2,
+            },
+            children: ['$', '$price * $quantity * (1 + $taxes) + $fee'],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<div>$18.5</div>')
+  })
+
+  // it('can render a list of items', () => {
+  //   const wrapper = mount(FormKitSchema, {
+  //     props: {
+  //       schema: [
+  //         {
+  //           $el: 'ul',
+  //           children: [
+  //             {
+  //               $el: 'li',
+  //               for: ['value', 3],
+  //               children: '$value',
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   })
+  //   expect(wrapper.html()).toBe('<ul><li>0</li><li>1</li><li>2</li></ul>')
+  // })
 })

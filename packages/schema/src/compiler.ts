@@ -135,6 +135,27 @@ export function compile(expr: string): FormKitConditionCompiler {
   }
 
   /**
+   * Determines the step number of the right hand operator.
+   * @param p - The position of the pointer
+   * @param expression - The full string expression
+   */
+  function getStep(p: number, expression: string, direction = 1): number {
+    let next = direction
+      ? expression.substr(p + 1).trim()
+      : expression.substr(0, p).trim()
+    if (!next.length) return -1
+    if (!direction) {
+      if (next.length > 3) next = next.substr(-3)
+      next = next.split('').reverse().join('')
+    }
+    const char = next[0]
+    return operatorRegistry.findIndex((operators) => {
+      const symbols = Object.keys(operators)
+      return !!getOp(symbols, char, 0, next)
+    })
+  }
+
+  /**
    * Parse a string expression into a function that returns a boolean. This is
    * the magic behind schema logic like $if.
    * @param expression - A string expression to parse
@@ -150,12 +171,14 @@ export function compile(expr: string): FormKitConditionCompiler {
     let depth = 0
     let quote: false | string = false
     let op: null | ((l: any, r: any) => boolean | number | string) = null
-    let operand: string | (() => boolean | number | string) = ''
-    let left: null | (() => boolean | number | string) = null
+    let operand: string | number | boolean | (() => boolean | number | string) =
+      ''
+    let left: null | ((r?: any) => boolean | number | string) = null
     let operation: false | undefined | string
     let lastChar = ''
     let char = ''
-    let parentheticalOperand = ''
+    let parenthetical = ''
+    let startP = 0
     for (let p = 0; p < length; p++) {
       lastChar = char
       char = expression.charAt(p)
@@ -173,21 +196,44 @@ export function compile(expr: string): FormKitConditionCompiler {
       } else if (char === ' ') {
         continue
       } else if (char === '(') {
+        if (depth === 0) {
+          startP = p
+        }
         depth++
       } else if (char === ')') {
         depth--
         if (depth === 0) {
-          // we just dropped back down to the base level so we assume this
-          // operand is ready to use, but in case it comes "early" we store the
-          // string value so it can replayed in a later parse step. Example:
-          // (33 - 3) * 2 - 5 === 55
-          // in this case (33 - 3) would be considered the left hand operand of
-          // the boolean operator step initially, but when it hits "*2-5" the
-          // parser would "choke" because the left hand operand is a function
-          // so we need to store the original string value and fall back to
-          // just using the string.
-          parentheticalOperand = operand as string
-          operand = parseLogicals(operand as string)
+          // Parenthetical statements cannot be grouped up in the implicit order
+          // of left/right statements based on which step they are on because
+          // they are parsed on every step and then must be applied to the
+          // operator. Example:
+          //
+          // 5 + (3) * 2
+          //
+          // This should yield 11 not 16. This order is normally implicit in the
+          // sequence of operators being parsed, but with parenthesis the parse
+          // happens each time. Instead we need to know if the resulting value
+          // should be applied to the left or the right hand operator. The
+          // general algorithm is:
+          //
+          // 1. Does this paren have an operator on the left or right side
+          // 2. If not, it's unnecessarily wrapped (3 + 2)
+          // 3. If it does, then which order of operation is highest?
+          // 4. Wait for the highest order of operation to bind to an operator.
+          const lStep = op ? step : getStep(startP, expression, 0)
+          const rStep = getStep(p, expression)
+          if (lStep === -1 && rStep === -1) {
+            // This parenthetical was unnecessarily wrapped
+            operand = evaluate(parenthetical, -1)
+          } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
+            // has a left hand operator with a lower order of operation
+            op = op.bind(null, evaluate(parenthetical, -1))
+          } else if (rStep > lStep && step === rStep) {
+            operand = evaluate(parenthetical, -1)
+          } else {
+            operand += `(${parenthetical})`
+          }
+          parenthetical = ''
         }
       } else if (
         depth === 0 &&
@@ -227,11 +273,10 @@ export function compile(expr: string): FormKitConditionCompiler {
         }
         continue
       } else {
-        if (typeof operand === 'function') {
-          // See comment about the parenthetical operand above.
-          operand = `(${parentheticalOperand})${char}`
-        } else {
+        if (depth === 0) {
           operand += char
+        } else {
+          parenthetical += char
         }
       }
     }
@@ -265,7 +310,7 @@ export function compile(expr: string): FormKitConditionCompiler {
    * @returns
    */
   function evaluate(
-    operand: string | (() => boolean | number | string),
+    operand: string | number | boolean | (() => boolean | number | string),
     step: number
   ): boolean | string | number | (() => boolean | number | string) {
     if (typeof operand === 'string') {
@@ -292,7 +337,7 @@ export function compile(expr: string): FormKitConditionCompiler {
         return operand
       }
     }
-    return operand as () => boolean | number | string
+    return operand
   }
 
   const compiledCondition = parseLogicals(

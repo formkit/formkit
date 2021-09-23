@@ -9,6 +9,8 @@ export {
   FormKitSchemaFormKitNode,
   FormKitSchemaNode,
   FormKitSchemaTextNode,
+  FormKitListValue,
+  FormKitListStatement,
   isComponent,
   isConditional,
   isDOM,

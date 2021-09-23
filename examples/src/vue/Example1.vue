@@ -1,14 +1,7 @@
 <template>
   <div>
     <h2>Vue Schema (Composition API)</h2>
-    <!-- <input
-      type="text"
-      :value="data.input"
-      @input="setValue"
-    > -->
-    <button @click="setLocation">
-      Go to mars
-    </button>
+    <button @click="setLocation">Click</button>
     <FormKitSchema
       :schema="schema"
       :data="data"

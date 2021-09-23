@@ -2,14 +2,33 @@ import { has } from '@formkit/utils'
 import { FormKitProps } from '@formkit/core'
 
 /**
+ * The value being listed out. Can be an array, an object, or a number.
+ * @public
+ */
+export type FormKitListValue =
+  | string
+  | Record<string, any>
+  | Array<string | number | Record<string, any>>
+  | number
+
+/**
+ * A full loop statement in tuple syntax. Can be read like "foreach value, key? in list"
+ * @public
+ */
+export type FormKitListStatement =
+  | [value: any, key: number | string, list: FormKitListValue]
+  | [value: any, list: FormKitListValue]
+
+/**
  * Properties available in all schema nodes.
  * @public
  */
 export interface FormKitSchemaProps {
-  value?: any
   children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
   key?: string
-  $if?: string
+  if?: string
+  let?: Record<string, any>
+  for?: FormKitListStatement
 }
 
 /**
@@ -56,9 +75,9 @@ export type FormKitAttributeValue =
  * @public
  */
 export interface FormKitSchemaAttributesCondition {
-  $if: string
-  $then: FormKitAttributeValue
-  $else?: FormKitAttributeValue
+  if: string
+  then: FormKitAttributeValue
+  else?: FormKitAttributeValue
 }
 
 /**
@@ -86,9 +105,9 @@ export type FormKitSchemaComponent = {
  * @public
  */
 export type FormKitSchemaCondition = {
-  $if: string
-  $then: FormKitSchemaNode | FormKitSchemaNode[]
-  $else?: FormKitSchemaNode | FormKitSchemaNode[]
+  if: string
+  then: FormKitSchemaNode | FormKitSchemaNode[]
+  else?: FormKitSchemaNode | FormKitSchemaNode[]
 }
 
 /**
@@ -97,6 +116,7 @@ export type FormKitSchemaCondition = {
  */
 export interface FormKitSchemaContext {
   [index: string]: any
+  __FK_SCP: Map<symbol, Record<string, any>>
 }
 
 /**
@@ -116,7 +136,9 @@ export type FormKitSchemaNode =
  * @returns
  * @public
  */
-export function isDOM(node: FormKitSchemaNode): node is FormKitSchemaDOMNode {
+export function isDOM(
+  node: string | Record<PropertyKey, any>
+): node is FormKitSchemaDOMNode {
   return typeof node !== 'string' && has(node, '$el')
 }
 
@@ -127,7 +149,7 @@ export function isDOM(node: FormKitSchemaNode): node is FormKitSchemaDOMNode {
  * @public
  */
 export function isComponent(
-  node: FormKitSchemaNode
+  node: string | Record<PropertyKey, any>
 ): node is FormKitSchemaComponent {
   return typeof node !== 'string' && has(node, '$cmp')
 }
@@ -139,7 +161,7 @@ export function isComponent(
  * @public
  */
 export function isNode(
-  node: FormKitSchemaNode
+  node: string | Record<PropertyKey, any>
 ): node is FormKitSchemaFormKitNode {
   return typeof node !== 'string' && has(node, '$node')
 }
@@ -175,5 +197,5 @@ export function isConditional(
     | FormKitSchemaAttributes
 ): node is FormKitSchemaNode | FormKitSchemaAttributesCondition {
   if (!node || typeof node === 'string') return false
-  return has(node, '$if') && has(node, '$then')
+  return has(node, 'if') && has(node, 'then')
 }
