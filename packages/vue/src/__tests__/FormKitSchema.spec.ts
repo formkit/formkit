@@ -385,6 +385,35 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<div>$18.5</div>')
   })
 
+  it('can shadow scoped variables', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          quantity: 2,
+        },
+        schema: [
+          {
+            $el: 'span',
+            let: {
+              total: 3,
+            },
+            children: [
+              '$total',
+              {
+                $el: 'span',
+                let: {
+                  total: 5,
+                },
+                children: '$total',
+              },
+            ],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<span>3<span>5</span></span>')
+  })
+
   it('can render a list of items', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
@@ -460,6 +489,56 @@ describe('parsing dom elements', () => {
     await nextTick()
     expect(wrapper.html()).toBe(
       '<span>fred</span><span>bob</span><span>ted</span>'
+    )
+  })
+
+  it('can shadow nested loop scoped variables', async () => {
+    const data = reactive({
+      users: ['fred', 'ted'],
+      foods: ['ice cream', 'pizza'],
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'div',
+            for: ['foobar', '$users'],
+            children: [
+              {
+                $el: 'h2',
+                children: '$foobar',
+              },
+              {
+                $el: 'ul',
+                children: [
+                  {
+                    $el: 'li',
+                    for: ['foobar', '$foods'],
+                    children: '$foobar',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(
+      `<div>
+  <h2>fred</h2>
+  <ul>
+    <li>ice cream</li>
+    <li>pizza</li>
+  </ul>
+</div>
+<div>
+  <h2>ted</h2>
+  <ul>
+    <li>ice cream</li>
+    <li>pizza</li>
+  </ul>
+</div>`
     )
   })
 })

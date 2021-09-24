@@ -146,7 +146,7 @@ function setValue(
   key: string | Record<string, any>,
   value?: any
 ): void {
-  const scope = scopes[scopes.length - 1]
+  const scope = scopes[0]
   const newData = typeof key === 'string' ? { [key]: value } : key
   if (data.__FK_SCP.has(scope)) {
     Object.assign(data.__FK_SCP.get(scope), newData)
@@ -315,7 +315,7 @@ function parseNode(
   let children: RenderContent[3] = null
   let alternate: RenderContent[4] = null
   let iterator: RenderContent[6] = null
-  const scopes = [..._scopes, Symbol()]
+  const scopes = [Symbol(), ..._scopes]
   const node: Exclude<FormKitSchemaNode, string> =
     typeof _node === 'string'
       ? {
@@ -323,6 +323,13 @@ function parseNode(
           children: _node,
         }
       : _node
+
+  // Assign any explicitly scoped variables
+  if ('let' in node && node.let) {
+    for (const key in node.let) {
+      setValue(data, scopes, key, node.let[key])
+    }
+  }
 
   if (isDOM(node)) {
     // This is an actual HTML DOM element
@@ -356,13 +363,6 @@ function parseNode(
       const value = getRef(data, scopes, token)
       return () => checkScope(value.value, token)
     })
-  }
-
-  // Assign any explicitly scoped variables
-  if ('let' in node && node.let) {
-    for (const key in node.let) {
-      setValue(data, scopes, key, node.let[key])
-    }
   }
 
   // Compile children down to a function
@@ -469,12 +469,12 @@ function createElement(
       const fragment = []
       if (typeof values !== 'object') return null
       for (const key in values) {
-        iterationScopes.push({
+        iterationScopes.unshift({
           [valueName]: values[key],
           ...(keyName !== null ? { [keyName]: key } : {}),
         })
         fragment.push(repeatedNode())
-        iterationScopes.pop()
+        iterationScopes.shift()
       }
       return fragment
     }) as RenderNodes

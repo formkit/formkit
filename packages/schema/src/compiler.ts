@@ -105,6 +105,7 @@ export function compile(expr: string): FormKitConditionCompiler {
     {
       '*': (l, r) => x(l) * x(r),
       '/': (l, r) => x(l) / x(r),
+      '%': (l, r) => x(l) % x(r),
     },
   ]
 

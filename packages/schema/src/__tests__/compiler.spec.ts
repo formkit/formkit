@@ -150,6 +150,13 @@ describe('boolean logic parser', () => {
     expect(compile('(33 - 3) * 2 - 5 + 1 === 56')()).toBe(true)
   })
 
+  it('can perform modulus', () => {
+    expect(compile('6 % 2 === 0')()).toBe(true)
+    expect(compile('10 % 3')()).toBe(1)
+    expect(compile('10 % 3 + 7')()).toBe(8)
+    expect(compile('1 - 437 % 22')()).toBe(-18)
+  })
+
   it('uses parenthesis for the order of operations', () => {
     expect(compile('5 * 3 * (1 + .1)')()).toBe(16.5)
     expect(compile('(1 + .1) * 5 * 3')()).toBe(16.5)
