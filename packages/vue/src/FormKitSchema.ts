@@ -48,7 +48,19 @@ type RenderContent = [
   attrs: () => FormKitSchemaAttributes,
   children: RenderChildren | null,
   alternate: RenderChildren | null,
-  scopes: ScopePath
+  scopes: ScopePath,
+  iterator:
+    | null
+    | [
+        getValues: () =>
+          | number
+          | string
+          | boolean
+          | any[]
+          | Record<string, any>,
+        valueName: string,
+        keyName: string | null
+      ]
 ]
 /**
  * The actual signature of a VNode in Vue.
@@ -71,7 +83,6 @@ type RenderChildren = () =>
  */
 interface RenderNodes {
   (): Renderable | Renderable[]
-  set: (key: string, value: any) => void
 }
 
 /**
@@ -93,20 +104,33 @@ function getRef(
       .map((scope) => data.__FK_SCP.get(scope) || false)
       .filter((s) => s)
     sets.push(data)
-    for (const set of sets) {
-      let found = false
-      path.reduce((obj: any, segment: string, i: number) => {
-        const next = typeof obj[segment] === 'object' ? obj[segment] : {}
-        if (i === path.length - 1 && has(obj, segment)) {
-          found = true
-          value.value = obj[segment]
-        }
-        return next
-      }, set)
-      if (found) break
+    const foundValue = findValue(sets, path)
+    if (foundValue !== undefined) {
+      value.value = foundValue
     }
   })
   return value
+}
+
+/**
+ * Returns a value inside a set of data objects.
+ * @param sets - An array of objects to search through
+ * @param path - A array of string paths easily produced by split()
+ * @returns
+ */
+function findValue(sets: (false | Record<string, any>)[], path: string[]) {
+  for (const set of sets) {
+    let found = undefined
+    path.reduce((obj: any, segment: string, i: number) => {
+      const next = typeof obj[segment] === 'object' ? obj[segment] : {}
+      if (i === path.length - 1 && has(obj, segment)) {
+        found = obj[segment]
+      }
+      return next
+    }, set)
+    if (found !== undefined) return found
+  }
+  return undefined
 }
 
 /**
@@ -119,14 +143,15 @@ function getRef(
 function setValue(
   data: FormKitSchemaContext,
   scopes: ScopePath,
-  key: string,
-  value: any
+  key: string | Record<string, any>,
+  value?: any
 ): void {
   const scope = scopes[scopes.length - 1]
+  const newData = typeof key === 'string' ? { [key]: value } : key
   if (data.__FK_SCP.has(scope)) {
-    Object.assign(data.__FK_SCP.get(scope), { [key]: value })
+    Object.assign(data.__FK_SCP.get(scope), newData)
   } else {
-    data.__FK_SCP.set(scope, { [key]: value })
+    data.__FK_SCP.set(scope, newData)
   }
 }
 
@@ -145,7 +170,7 @@ function parseCondition(
 ): [RenderContent[0], RenderContent[3], RenderContent[4]] {
   const condition = compile(node.if).provide((token) => {
     const value = getRef(data, scopes, token)
-    return () => value.value
+    return () => checkScope(value.value, token)
   })
   const children = parseSchema(data, scopes, library, node.then)
   const alternate = node.else
@@ -169,7 +194,7 @@ function parseConditionAttr(
 ): () => FormKitAttributeValue | FormKitSchemaAttributes {
   const condition = compile(attr.if).provide((token) => {
     const value = getRef(data, scopes, token)
-    return () => value.value
+    return () => checkScope(value.value, token)
   })
   let b: () => FormKitAttributeValue = () => _default
   const a =
@@ -182,6 +207,28 @@ function parseConditionAttr(
     b = () => attr.else
   }
   return () => (condition() ? a() : b())
+}
+
+/**
+ * A global scope object used exclusively in render functions for iteration
+ * based scope data like key/value pairs.
+ */
+const iterationScopes: Record<string, any>[] = []
+
+/**
+ * Before returning a value in a render function, check to see if there are
+ * any local iteration values that should be used.
+ * @param value - A value to fallback to
+ * @param token - A token to lookup in a global iteration scope
+ * @returns
+ */
+function checkScope(value: any, token: string): any {
+  if (iterationScopes.length) {
+    const path = token.split('.')
+    const foundValue = findValue(iterationScopes, path)
+    return foundValue !== undefined ? foundValue : value
+  }
+  return value
 }
 
 /**
@@ -220,7 +267,7 @@ function parseAttrs(
         // function that will manipulate the value of our attribute at runtime.
         const dynamicValue = compile(value).provide((token) => {
           const value = getRef(data, scopes, token)
-          return () => value.value
+          return () => checkScope(value.value, token)
         })
         setters.push(() => {
           Object.assign(attrs, { [attr]: dynamicValue() })
@@ -267,6 +314,7 @@ function parseNode(
   let condition: false | (() => boolean | number | string) = false
   let children: RenderContent[3] = null
   let alternate: RenderContent[4] = null
+  let iterator: RenderContent[6] = null
   const scopes = [..._scopes, Symbol()]
   const node: Exclude<FormKitSchemaNode, string> =
     typeof _node === 'string'
@@ -275,31 +323,7 @@ function parseNode(
           children: _node,
         }
       : _node
-  // if ('for' in node && node.for) {
-  //   // This node needs to be repeated
-  //   const iterator = node.for.length === 3 ? node.for[2] : node.for[1]
-  //   let values: () => any
-  //   if (typeof iterator === 'string' && iterator.startsWith('$')) {
-  //     values = compile(iterator).provide((token) => {
-  //       const value = getRef(data, token)
-  //       return () => value.value
-  //     })
-  //   } else {
-  //     values = () => iterator
-  //   }
-  //   children = () => {
-  //     let iterator = values()
-  //     if (!isNaN(iterator)) {
-  //       iterator = Array(Number(iterator))
-  //         .fill(0)
-  //         .map((_, i) => i)
-  //     }
-  //     for (const key in iterator) {
-  //       const value = iterator[key]
-  //     }
-  //   }
-  //   return [() => true, null, () => null, children, () => null]
-  // }
+
   if (isDOM(node)) {
     // This is an actual HTML DOM element
     element = node.$el
@@ -330,7 +354,7 @@ function parseNode(
   if (!isConditional(node) && 'if' in node) {
     condition = compile(node.if as string).provide((token) => {
       const value = getRef(data, scopes, token)
-      return () => value.value
+      return () => checkScope(value.value, token)
     })
   }
 
@@ -341,14 +365,14 @@ function parseNode(
     }
   }
 
-  // Compile children down
+  // Compile children down to a function
   if ('children' in node && node.children) {
     if (typeof node.children === 'string') {
       // We are dealing with a raw string value
       if (node.children.startsWith('$') && node.children.length > 1) {
         const value = compile(node.children).provide((token: string) => {
           const value = getRef(data, scopes, token)
-          return () => value.value
+          return () => checkScope(value.value, token)
         })
         children = () => String(value())
       } else {
@@ -370,7 +394,23 @@ function parseNode(
     }
   }
 
-  return [condition, element, attrs, children, alternate, scopes]
+  // Compile the for loop down
+  if ('for' in node && node.for) {
+    const values = node.for.length === 3 ? node.for[2] : node.for[1]
+    const getValues =
+      typeof values === 'string' && values.startsWith('$')
+        ? compile(values).provide((token) => {
+            const value = getRef(data, scopes, token)
+            return () => checkScope(value.value, token)
+          })
+        : () => values
+    iterator = [
+      getValues,
+      node.for[0],
+      node.for.length === 3 ? String(node.for[1]) : null,
+    ]
+  }
+  return [condition, element, attrs, children, alternate, scopes, iterator]
 }
 
 /**
@@ -386,16 +426,19 @@ function createElement(
   node: FormKitSchemaNode
 ): RenderNodes {
   // Parses the schema node into pertinent parts
-  const [condition, element, attrs, children, alternate, scopes] = parseNode(
-    data,
-    parentScope,
-    library,
-    node
-  )
+  const [
+    condition,
+    element,
+    attrs,
+    children,
+    alternate,
+    _scope,
+    iterator,
+  ] = parseNode(data, parentScope, library, node)
   // This is a sub-render function (called within a render function). It must
   // only use pre-compiled features, and be organized in the most efficient
   // manner possible.
-  const createNodes = () => {
+  let createNodes: RenderNodes = (() => {
     if (condition && element === null && children) {
       // Handle conditional if/then statements
       return condition() ? children() : alternate && alternate()
@@ -411,8 +454,31 @@ function createElement(
     }
 
     return typeof alternate === 'function' ? alternate() : alternate
+  }) as RenderNodes
+
+  if (iterator) {
+    const repeatedNode = createNodes
+    const [getValues, valueName, keyName] = iterator
+    createNodes = (() => {
+      const _v = getValues()
+      const values = !isNaN(_v as number)
+        ? Array(Number(_v))
+            .fill(0)
+            .map((_, i) => i)
+        : _v
+      const fragment = []
+      if (typeof values !== 'object') return null
+      for (const key in values) {
+        iterationScopes.push({
+          [valueName]: values[key],
+          ...(keyName !== null ? { [keyName]: key } : {}),
+        })
+        fragment.push(repeatedNode())
+        iterationScopes.pop()
+      }
+      return fragment
+    }) as RenderNodes
   }
-  createNodes.set = setValue.bind(null, data, scopes)
   return createNodes as RenderNodes
 }
 

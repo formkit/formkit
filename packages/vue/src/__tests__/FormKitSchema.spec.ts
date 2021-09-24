@@ -366,7 +366,7 @@ describe('parsing dom elements', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
         data: {
-          foo: 'car',
+          quantity: 2,
         },
         schema: [
           {
@@ -385,23 +385,81 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<div>$18.5</div>')
   })
 
-  // it('can render a list of items', () => {
-  //   const wrapper = mount(FormKitSchema, {
-  //     props: {
-  //       schema: [
-  //         {
-  //           $el: 'ul',
-  //           children: [
-  //             {
-  //               $el: 'li',
-  //               for: ['value', 3],
-  //               children: '$value',
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //   })
-  //   expect(wrapper.html()).toBe('<ul><li>0</li><li>1</li><li>2</li></ul>')
-  // })
+  it('can render a list of items', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $el: 'ul',
+            children: [
+              {
+                $el: 'li',
+                for: ['value', 'key', ['a', 'b', 'c']],
+                children: [
+                  {
+                    $el: 'span',
+                    for: ['price', 2],
+                    children: ['$key', ':', '$value', ', ', '$price'],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(
+      `<ul>
+  <li><span>0:a, 0</span><span>0:a, 1</span></li>
+  <li><span>1:b, 0</span><span>1:b, 1</span></li>
+  <li><span>2:c, 0</span><span>2:c, 1</span></li>
+</ul>`
+    )
+  })
+
+  it('reacts to iteration data changes', async () => {
+    const data = reactive({
+      alphabet: ['a', 'b', 'c'],
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'span',
+            for: ['value', '$alphabet'],
+            children: '$value',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<span>a</span><span>b</span><span>c</span>')
+    data.alphabet[1] = 'd'
+    await nextTick()
+    expect(wrapper.html()).toBe('<span>a</span><span>d</span><span>c</span>')
+  })
+
+  it('can access nested iteration data', async () => {
+    const data = reactive({
+      accounts: [{ user: { name: 'bob' } }, { user: { name: 'ted' } }],
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'span',
+            for: ['account', '$accounts'],
+            children: '$account.user.name',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<span>bob</span><span>ted</span>')
+    data.accounts.unshift({ user: { name: 'fred' } })
+    await nextTick()
+    expect(wrapper.html()).toBe(
+      '<span>fred</span><span>bob</span><span>ted</span>'
+    )
+  })
 })
