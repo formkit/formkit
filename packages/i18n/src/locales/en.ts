@@ -22,14 +22,14 @@ export const ui: FormKitLocaleMessages = {
  */
 export const validation: FormKitValidationMessages = {
   /**
-   * Valid accepted value.
+   * Valid accepted value
    */
   accepted({ name }): string {
     return `Please accept the ${name}.`
   },
 
   /**
-   * The date is not after.
+   * The date is not after
    */
   after({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -46,14 +46,14 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Rule: checks if the value is alpha numeric
+   The value is not alphanumeric
    */
   alphanumeric({ name }) {
     return `${s(name)} can only contain letters and numbers.`
   },
 
   /**
-   * The date is not before.
+   * The date is not before
    */
   before({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -79,7 +79,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Is not a valid date.
+   * The value is not a valid date
    */
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -89,33 +89,33 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Is not a valid date.
+   * Is not within expected date range
    */
   date_between({ name, args }) {
     return `${s(name)} must be between ${args[0]} and ${args[1]}`
   },
 
   /**
-   * Is not a valid email address.
+   * Is not a valid email address
    */
   email: 'Please enter a valid email address.',
 
   /**
-   * Ends with specified value
+   * Does not end with the specified value
    */
   ends_with({ name }) {
     return `${s(name)} must doesn’t end with a valid value.`
   },
 
   /**
-   * Value is an allowed value.
+   * Is not an allowed value
    */
   is({ name }) {
     return `${s(name)} is not an allowed value.`
   },
 
   /**
-   * The character length.
+   * Does not match specified length
    */
   length({ name, args }) {
     if (args.length === 1) {
@@ -130,14 +130,14 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Value is not a match.
+   * Value is not a match
    */
   matches({ name }) {
     return `${s(name)} is not an allowed value.`
   },
 
   /**
-   * The maximum value allowed.
+   * Exceeds maximum allowed value
    */
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -147,7 +147,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * The (field-level) error message for mime errors.
+   * The (field-level) value does not match specified mime type
    */
   mime({ name, args }) {
     return `${s(name)} must be of the type: ${
@@ -156,7 +156,7 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * The maximum value allowed.
+   * Does not fulfill minimum allowed value
    */
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -166,14 +166,14 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * The field is not an allowed value
+   * Is not an allowed value
    */
   not({ name, node: { value } }) {
     return `“${value}” is not an allowed ${name}.`
   },
 
   /**
-   * The field is not a number
+   *  Is not a number
    */
   number({ name }) {
     return `${s(name)} must be a number.`
@@ -187,14 +187,14 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
-   * Starts with specified value
+   * Does not start with specified value
    */
   startsWith({ name }) {
     return `${s(name)} doesn’t start with a valid value.`
   },
 
   /**
-   * Value is not a url.
+   * Is not a url
    */
   url() {
     return `Please include a valid url.`
