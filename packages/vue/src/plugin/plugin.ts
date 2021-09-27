@@ -2,11 +2,9 @@ import { has } from '@formkit/utils'
 import {
   FormKitSchemaNode,
   FormKitLibrary,
-  createError,
   FormKitOptions,
-  createNode,
 } from '@formkit/core'
-import FormKitGenerator from './components/FormKitGenerator'
+import { FormKitSchemaCondition } from '@formkit/schema'
 import { App, Plugin } from 'vue'
 
 /**
@@ -32,7 +30,8 @@ export interface FormKitVueConfig {
  * The global instance of the FormKit plugin.
  */
 export interface FormKitVuePlugin {
-  schema: (type: string) => FormKitSchemaNode[]
+  schema: (type: string) => FormKitSchemaCondition | FormKitSchemaNode[] | null
+  library: FormKitLibrary
 }
 
 /**
@@ -44,19 +43,11 @@ function createPlugin(
   app: App<any>,
   config: FormKitVueConfig
 ): FormKitVuePlugin {
-  app.component(config.alias, FormKitGenerator)
-  // Create root node that is only used for plugin behaviors
-  const pluginNode = createNode({
-    type: 'group',
-    plugins: config.nodeOptions.plugins,
-  })
   return {
     schema: (type) => {
-      if (has(config.library, type)) {
-        return config.library[type].schema
-      }
-      createError(pluginNode, 100)
+      return has(config.library, type) ? config.library[type].schema : null
     },
+    library: config.library,
   }
 }
 
