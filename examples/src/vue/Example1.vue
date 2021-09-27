@@ -1,15 +1,17 @@
 <template>
-  <div>
-    <h2>Vue Schema (Composition API)</h2>
-    <input
-      :value="data.value"
-      @input="setValue"
-    >
-    <input
-      @input="setQuantity"
-      :value="data.quantity"
-      type="number"
-    >
+  <div class="container">
+    <h2>FormKit Schema (Composition API)</h2>
+    <div class="inputs">
+      <input
+        :value="data.value"
+        @input="setValue"
+      >
+      <input
+        @input="setQuantity"
+        :value="data.quantity"
+        type="number"
+      >
+    </div>
     <FormKitSchema
       :schema="schema"
       :data="data"
@@ -33,3 +35,13 @@ const setQuantity = (event) => {
   data.quantity = (event.target as HTMLInputElement).value
 }
 </script>
+
+<style scoped>
+.container {
+  margin: 0 auto;
+  max-width: 600px;
+}
+.inputs {
+  display: flex;
+}
+</style>

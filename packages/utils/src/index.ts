@@ -243,6 +243,25 @@ export function isQuotedString(str: string): boolean {
 }
 
 /**
+ * Remove extra escape characters.
+ * @param str - A string to remove escape characters from.
+ * @public
+ */
+export function rmEscapes(str: string): string {
+  if (!str.length) return ''
+  let clean = ''
+  let lastChar = ''
+  for (let p = 0; p < str.length; p++) {
+    const char = str.charAt(p)
+    if (char !== '\\' || lastChar === '\\') {
+      clean += char
+    }
+    lastChar = char
+  }
+  return clean
+}
+
+/**
  * Performs a recursive Object.assign like operation.
  * @param a - An object to be extended by object b
  * @param b - An object to copy values from

@@ -1,4 +1,4 @@
-import { has, isQuotedString } from '@formkit/utils'
+import { has, isQuotedString, rmEscapes } from '@formkit/utils'
 
 /**
  * Tokens are strings that map to functions.
@@ -180,19 +180,27 @@ export function compile(expr: string): FormKitConditionCompiler {
     let char = ''
     let parenthetical = ''
     let startP = 0
+    const addTo = (depth: number, char: string) => {
+      depth ? (parenthetical += char) : (operand += char)
+    }
     for (let p = 0; p < length; p++) {
       lastChar = char
       char = expression.charAt(p)
-      if (!quote && (char === "'" || char === '"') && lastChar !== '\\') {
+      if (
+        !quote &&
+        (char === "'" || char === '"') &&
+        lastChar !== '\\' &&
+        depth === 0
+      ) {
         quote = char
-        operand += char
+        addTo(depth, char)
         continue
       } else if (quote && (char !== quote || lastChar === '\\')) {
-        operand += char
+        addTo(depth, char)
         continue
       } else if (quote === char) {
         quote = false
-        operand += char
+        addTo(depth, char)
         continue
       } else if (char === ' ') {
         continue
@@ -274,11 +282,7 @@ export function compile(expr: string): FormKitConditionCompiler {
         }
         continue
       } else {
-        if (depth === 0) {
-          operand += char
-        } else {
-          parenthetical += char
-        }
+        addTo(depth, char)
       }
     }
     if (operand && op) {
@@ -320,7 +324,8 @@ export function compile(expr: string): FormKitConditionCompiler {
       if (operand === 'false') return false
 
       // Truly quotes strings cannot contain an operation, return the string
-      if (isQuotedString(operand)) return operand.substr(1, operand.length - 2)
+      if (isQuotedString(operand))
+        return rmEscapes(operand.substr(1, operand.length - 2))
 
       // Actual numbers cannot be contain an operation
       if (!isNaN(+operand)) return Number(operand)

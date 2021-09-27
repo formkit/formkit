@@ -315,7 +315,7 @@ function parseNode(
   let children: RenderContent[3] = null
   let alternate: RenderContent[4] = null
   let iterator: RenderContent[6] = null
-  const scopes = [Symbol(), ..._scopes]
+  const scopes = reactive([Symbol(), ..._scopes])
   const node: Exclude<FormKitSchemaNode, string> =
     typeof _node === 'string'
       ? {
@@ -530,7 +530,12 @@ export const FormKitSchema = defineComponent({
       const data = Object.assign(reactive(props.data), {
         __FK_SCP: new Map<symbol, Record<string, any>>(),
       })
-      element = parseSchema(data, [Symbol()], props.library, props.schema)
+      element = parseSchema(
+        data,
+        reactive([Symbol()]),
+        props.library,
+        props.schema
+      )
     })
     return () => element()
   },

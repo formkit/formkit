@@ -166,6 +166,11 @@ describe('boolean logic parser', () => {
     expect(compile('(3) * 5')()).toBe(15)
   })
 
+  it('can handle double quoted string', () => {
+    expect(compile('(andrew === "andrew")')()).toBe(true)
+    expect(compile('"(first \\"name\\")"')()).toBe('(first "name")')
+  })
+
   it('can do math and then concatenate strings', () => {
     let padding = 10
     const makePadding = compile('$padding / 5 + em').provide(() => {

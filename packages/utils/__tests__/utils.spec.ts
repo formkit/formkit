@@ -5,6 +5,7 @@ import {
   isPojo,
   isQuotedString,
   assignDeep,
+  rmEscapes,
 } from '../src/index'
 
 describe('eq', () => {
@@ -186,6 +187,24 @@ describe('isQuotedString', () => {
 
   it('allows escaped quotes', () =>
     expect(isQuotedString('"hello\\"this\\"world"')).toBe(true))
+
+  it('allows escaped quotes inside of quotes inside of parens', () =>
+    expect(isQuotedString('"(first \\"name\\")"')).toBe(true))
+})
+
+describe('rmEscapes', () => {
+  it('performs no operation on non escaped strings', () => {
+    expect(rmEscapes('"Hello world"')).toBe('"Hello world"')
+    expect(rmEscapes("*P(*&)*&^%*&'$GJHASDFHKJ")).toBe(
+      "*P(*&)*&^%*&'$GJHASDFHKJ"
+    )
+  })
+  it('removes extra escape characters that are in the string literal', () => {
+    expect(rmEscapes('\\"Hello \\"world\\""')).toBe('"Hello "world""')
+  })
+  it('does not remove escape characters that are actually escaped', () => {
+    expect(rmEscapes('\\\\"Hello \\"world\\""')).toBe('\\"Hello "world""')
+  })
 })
 
 describe('assignDeep', () => {

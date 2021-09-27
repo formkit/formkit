@@ -2,10 +2,14 @@ import { FormKitSchemaNode } from '@formkit/schema'
 
 const schema: FormKitSchemaNode[] = [
   {
-    $el: 'h1',
-    for: ['total', 'key', '$quantity'],
-    if: '($value * $key) % 2 === 0',
-    children: ['$key', ': ', '$value * $key + $key', ' is even!'],
+    $el: 'div',
+    children: [
+      {
+        $el: 'h1',
+        if: '(andrew === "andrew")',
+        children: 'SHOWING',
+      },
+    ],
   },
 ]
 
