@@ -1,11 +1,7 @@
-import { has } from '@formkit/utils'
-import {
-  FormKitSchemaNode,
-  FormKitLibrary,
-  FormKitOptions,
-} from '@formkit/core'
-import { FormKitSchemaCondition } from '@formkit/schema'
-import { App, Plugin } from 'vue'
+import { FormKitOptions } from '@formkit/core'
+import { FormKitLibrary } from '@formkit/inputs'
+import { App, Plugin, InjectionKey } from 'vue'
+import FormKit from './FormKit'
 
 /**
  * Augment Vue’s globalProperties.
@@ -30,7 +26,6 @@ export interface FormKitVueConfig {
  * The global instance of the FormKit plugin.
  */
 export interface FormKitVuePlugin {
-  schema: (type: string) => FormKitSchemaCondition | FormKitSchemaNode[] | null
   library: FormKitLibrary
 }
 
@@ -43,10 +38,8 @@ function createPlugin(
   app: App<any>,
   config: FormKitVueConfig
 ): FormKitVuePlugin {
+  app.component(config.alias, FormKit)
   return {
-    schema: (type) => {
-      return has(config.library, type) ? config.library[type].schema : null
-    },
     library: config.library,
   }
 }
@@ -62,9 +55,16 @@ export const minConfig: FormKitVueConfig = {
 }
 
 /**
+ * The symbol key for accessing the formkit config.
+ */
+export const configSymbol: InjectionKey<FormKitVueConfig> = Symbol(
+  'FormKitConfig'
+)
+
+/**
  * Create the FormKit plugin.
  */
-const formKitPlugin: Plugin = {
+const plugin: Plugin = {
   install(app, options): void {
     /**
      * Extend the default configuration options.
@@ -75,7 +75,11 @@ const formKitPlugin: Plugin = {
      * Register the global $formkit plugin property.
      */
     app.config.globalProperties.$formkit = createPlugin(app, config)
+    /**
+     * Provide the config to the application for injection.
+     */
+    app.provide(configSymbol, config)
   },
 }
 
-export default formKitPlugin
+export default plugin

@@ -1,12 +1,13 @@
-// import ReactDom from 'react-dom'
-// import React from 'react'
 import { createApp } from 'vue'
+import { plugin, defaultConfig } from '../../packages/vue/src/index'
 import vueApp from './vue/Examples.vue'
-// import reactApp from './react/Examples'
 
-const app = createApp(vueApp)
+const app = createApp(vueApp).use(plugin, defaultConfig)
 app.mount('#vue-app')
 
+// import ReactDom from 'react-dom'
+// import React from 'react'
+// import reactApp from './react/Examples'
 // ReactDom.render(
 //   React.createElement(reactApp),
 //   document.getElementById('react-app')

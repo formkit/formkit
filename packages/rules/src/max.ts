@@ -9,7 +9,7 @@ const max: FormKitValidationRule = function max({ value }, maximum = 10) {
   if (Array.isArray(value)) {
     return value.length <= maximum
   }
-  return value <= maximum
+  return Number(value) <= Number(maximum)
 }
 
 export default max

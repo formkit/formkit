@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@formkit/vue",
+  "name": "@formkit/inputs",
   "version": "1.0.0-alpha.0",
-  "description": "Build industry leading Vue forms 10x faster.",
+  "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -17,14 +17,7 @@
   "type": "module",
   "dependencies": {
     "@formkit/core": "1.0.0-alpha.0",
-    "@formkit/inputs": "1.0.0-alpha.0",
-    "@formkit/schema": "1.0.0-alpha.0",
-    "@formkit/utils": "1.0.0-alpha.0"
+    "@formkit/schema": "1.0.0-alpha.0"
   },
-  "devDependencies": {
-    "@vue/test-utils": "^2.0.0-rc.14"
-  },
-  "peerDependencies": {
-    "vue": "^3.2.1"
-  }
+  "devDependencies": {}
 }

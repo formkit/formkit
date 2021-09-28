@@ -9,7 +9,7 @@ const min: FormKitValidationRule = function min({ value }, minimum = 1) {
   if (Array.isArray(value)) {
     return value.length >= minimum
   }
-  return value >= minimum
+  return Number(value) >= Number(minimum)
 }
 
 export default min

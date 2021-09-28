@@ -1,9 +1,16 @@
-import { h } from 'examples/node_modules/vue/dist/vue'
-import { has } from 'packages/utils/dist'
-import { defineComponent } from 'vue'
+import { FormKitNode } from '@formkit/core'
+import { h, defineComponent, InjectionKey } from 'vue'
 import { useLibrary, useInput } from './composables/index'
 import { FormKitSchema } from './FormKitSchema'
 
+/**
+ * The symbol that represents the formkit parent injection value.
+ */
+export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
+
+/**
+ * The root FormKit component.
+ */
 const FormKit = defineComponent({
   props: {
     type: {
@@ -15,13 +22,12 @@ const FormKit = defineComponent({
       default: '',
     },
   },
-  setup(props) {
-    const library = useLibrary()
-    const inputType = has(library, props.type) ? library[props.type] : null
-    if (!inputType)
-      throw new Error(`The input type ${props.type} is not in the library.`)
-    const [data] = useInput(inputType.type, props.name)
-    return () => h(FormKitSchema, { schema: inputType.schema, data })
+  inheritAttrs: false,
+  setup(props, context) {
+    const libInput = useLibrary(props.type)
+    const [data] = useInput(libInput.type, props, context.attrs)
+
+    return () => h(FormKitSchema, { schema: libInput.schema, data })
   },
 })
 

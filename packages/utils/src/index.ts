@@ -289,3 +289,14 @@ export function assignDeep<
   }
   return a
 }
+
+/**
+ * Filters out values from an object that should not be considered "props" of
+ * a core node, like "value" and "name".
+ * @param props - An object to treat as node props.
+ * @public
+ */
+export function nodeProps(props: Record<string, any>): Record<string, any> {
+  const { value, name, ...validProps } = props // eslint-disable-line
+  return validProps
+}
