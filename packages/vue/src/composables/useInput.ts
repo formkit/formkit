@@ -25,10 +25,9 @@ import { minConfig } from '../plugin'
  */
 export function useInput(
   type: FormKitNodeType,
-  props: { type: string },
+  props: { type: string; name: string },
   context: SetupContext<Record<string, any>>
 ): [Record<string, any>, FormKitNode] {
-  const { name } = context.attrs
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
@@ -56,7 +55,7 @@ export function useInput(
   const node = createNode({
     ...config.nodeOptions,
     type,
-    name: String(name) || undefined,
+    name: props.name || undefined,
     value,
     parent,
     props: nodeProps(context.attrs),
@@ -106,7 +105,16 @@ export function useInput(
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    data.value = payload
+    switch (type) {
+      case 'group':
+        data.value = { ...payload }
+        break
+      case 'list':
+        data.value = [...payload]
+        break
+      default:
+        data.value = payload
+    }
   })
 
   /**

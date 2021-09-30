@@ -1,11 +1,11 @@
-import { has, isQuotedString, rmEscapes } from '@formkit/utils'
+import { has, isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
 
 /**
  * Tokens are strings that map to functions.
  * @internal
  */
 interface FormKitTokens {
-  [index: string]: () => any
+  [index: string]: (...args: any[]) => any
 }
 /**
  * The compiler output, a function that adds the required tokens.
@@ -110,6 +110,14 @@ export function compile(expr: string): FormKitConditionCompiler {
   ]
 
   /**
+   * An array of the first character of each operator.
+   */
+  const operatorChars = operatorRegistry.reduce((o, r) => {
+    Object.keys(r).map((k) => o.add(k[0]))
+    return o
+  }, new Set())
+
+  /**
    * Determines if the current character is the start of an operator symbol, if it
    * is, it returns that symbol.
    * @param symbols - An array of symbols that are considered operators
@@ -146,8 +154,10 @@ export function compile(expr: string): FormKitConditionCompiler {
       : expression.substr(0, p).trim()
     if (!next.length) return -1
     if (!direction) {
-      if (next.length > 3) next = next.substr(-3)
-      next = next.split('').reverse().join('')
+      // left hand direction could include a function name we need to remove
+      const reversed = next.split('').reverse()
+      const start = reversed.findIndex((char) => operatorChars.has(char))
+      next = reversed.slice(start).join('')
     }
     const char = next[0]
     return operatorRegistry.findIndex((operators) => {
@@ -229,16 +239,25 @@ export function compile(expr: string): FormKitConditionCompiler {
           // 2. If not, it's unnecessarily wrapped (3 + 2)
           // 3. If it does, then which order of operation is highest?
           // 4. Wait for the highest order of operation to bind to an operator.
+
+          // If the parenthetical has a preceding token like $fn(1 + 2) then we
+          // need to subtract the existing operand length from the start
+          // to determine if this is a left or right operation
           const lStep = op ? step : getStep(startP, expression, 0)
           const rStep = getStep(p, expression)
+          const fn =
+            typeof operand === 'string' && operand.startsWith('$')
+              ? operand
+              : undefined
           if (lStep === -1 && rStep === -1) {
             // This parenthetical was unnecessarily wrapped
-            operand = evaluate(parenthetical, -1)
+            operand = evaluate(parenthetical, -1, fn)
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
             // has a left hand operator with a lower order of operation
-            op = op.bind(null, evaluate(parenthetical, -1))
+            op = op.bind(null, evaluate(parenthetical, -1, fn))
           } else if (rStep > lStep && step === rStep) {
-            operand = evaluate(parenthetical, -1)
+            // should be applied to the right hand operator when it gets
+            operand = evaluate(parenthetical, -1, fn)
           } else {
             operand += `(${parenthetical})`
           }
@@ -315,10 +334,31 @@ export function compile(expr: string): FormKitConditionCompiler {
    * @returns
    */
   function evaluate(
-    operand: string | number | boolean | (() => boolean | number | string),
-    step: number
-  ): boolean | string | number | (() => boolean | number | string) {
-    if (typeof operand === 'string') {
+    operand:
+      | string
+      | number
+      | boolean
+      | ((...args: any[]) => boolean | number | string),
+    step: number,
+    fnToken?: string
+  ):
+    | boolean
+    | string
+    | number
+    | ((...args: any[]) => boolean | number | string) {
+    if (fnToken) {
+      const fn = evaluate(fnToken, operatorRegistry.length)
+      if (typeof fn === 'function') {
+        const args = parseArgs(String(operand)).map((arg: string) =>
+          evaluate(arg, -1)
+        )
+        return () => {
+          return fn(
+            ...args.map((arg) => (typeof arg === 'function' ? arg() : arg))
+          )
+        }
+      }
+    } else if (typeof operand === 'string') {
       // the word true or false will never contain further operations
       if (operand === 'true') return true
       if (operand === 'false') return false
@@ -336,7 +376,8 @@ export function compile(expr: string): FormKitConditionCompiler {
         if (operand.startsWith('$')) {
           const cleaned = operand.substr(1)
           requirements.add(cleaned)
-          return () => (has(tokens, cleaned) ? tokens[cleaned]() : undefined)
+          return (...args) =>
+            has(tokens, cleaned) ? tokens[cleaned](...args) : undefined
         }
         // In this case we are dealing with an unquoted string, just treat it
         // as a plain string.

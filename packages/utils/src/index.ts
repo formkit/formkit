@@ -300,3 +300,41 @@ export function nodeProps(props: Record<string, any>): Record<string, any> {
   const { value, name, ...validProps } = props // eslint-disable-line
   return validProps
 }
+
+/**
+ * Parse a string for comma-separated arguments
+ * @param str - A string to parse
+ * @public
+ */
+export function parseArgs(str: string): string[] {
+  const args: string[] = []
+  let arg = ''
+  let depth = 0
+  let quote = ''
+  let lastChar = ''
+  for (let p = 0; p < str.length; p++) {
+    const char = str.charAt(p)
+    if (char === quote && lastChar !== '\\') {
+      quote = ''
+    } else if ((char === "'" || char === '"') && !quote && lastChar !== '\\') {
+      quote = char
+    } else if (char === '(' && !quote) {
+      depth++
+    } else if (char === ')' && !quote) {
+      depth--
+    }
+    if (char === ',' && !quote && depth === 0) {
+      if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
+      args.push(arg)
+      arg = ''
+    } else if (char !== ' ' || quote) {
+      arg += char
+    }
+    lastChar = char
+  }
+  if (arg) {
+    if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
+    args.push(arg)
+  }
+  return args
+}

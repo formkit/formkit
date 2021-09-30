@@ -212,4 +212,51 @@ describe('boolean logic parser', () => {
     const evaluate = compile('$: $value * 10').provide(() => () => 23)
     expect(evaluate()).toBe(230)
   })
+
+  it('can execute functions', () => {
+    const data: Record<string, any> = {
+      fn: (value: any) => value + 5,
+    }
+    const evaluate = compile('3 + $fn(1 + 2) + 2').provide((token) => {
+      if (token in data) {
+        return data[token]
+      }
+      return undefined
+    })
+    expect(evaluate()).toBe(13)
+  })
+
+  it('can execute functions with the correct order of operations', () => {
+    const data: Record<string, any> = {
+      addFive: (value: any) => value + 5,
+    }
+    expect(
+      compile('3 + $addFive(1 + 2) * 2').provide((token) => {
+        if (token in data) {
+          return data[token]
+        }
+        return undefined
+      })()
+    ).toBe(19)
+    expect(
+      compile('3 * $addFive(1 + 2) + 2').provide((token) => {
+        if (token in data) {
+          return data[token]
+        }
+        return undefined
+      })()
+    ).toBe(26)
+  })
+
+  it('can pass multiple arguments to a function', () => {
+    const data: Record<string, any> = {
+      multiply: (first: number, second: number) => first * second,
+    }
+    expect(
+      compile('$multiply(5 + 2, 6 + 3)').provide((token) => {
+        if (token in data) return data[token]
+        return undefined
+      })()
+    ).toBe(63)
+  })
 })

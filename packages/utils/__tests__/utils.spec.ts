@@ -6,6 +6,7 @@ import {
   isQuotedString,
   assignDeep,
   rmEscapes,
+  parseArgs,
 } from '../src/index'
 
 describe('eq', () => {
@@ -231,5 +232,30 @@ describe('assignDeep', () => {
     const b = { b: 456 }
     assignDeep(a, b)
     expect(a).toEqual({ a: 123, b: 456 })
+  })
+})
+
+describe('parseArgs', () => {
+  it('can parse simple numbers and characters', () => {
+    expect(parseArgs('abc, 123')).toEqual(['abc', '123'])
+  })
+  it('can parse simple strings with quotes containing commas', () => {
+    expect(parseArgs('"abc,123", 123')).toEqual(['abc,123', '123'])
+  })
+  it('can parse arguments that contain parenthetical with commas', () => {
+    expect(parseArgs('1, (1 + 2, "345, 678"), 500')).toEqual([
+      '1',
+      '(1+2,"345, 678")',
+      '500',
+    ])
+  })
+  it('can parse single arguments', () => {
+    expect(parseArgs("'hello world'")).toEqual(['hello world'])
+  })
+  it('can use escaped quotes', () => {
+    expect(parseArgs("'this isn\\'t counted', 456")).toEqual([
+      "this isn't counted",
+      '456',
+    ])
   })
 })

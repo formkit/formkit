@@ -26,9 +26,22 @@ const FormKit = defineComponent({
   setup(props, context) {
     const libInput = useLibrary(props.type)
     const [data] = useInput(libInput.type, props, context)
-
-    return () =>
-      h(FormKitSchema, { schema: libInput.schema, data }, { ...context.slots })
+    return () => {
+      return [
+        h(
+          FormKitSchema,
+          { schema: libInput.schema, data },
+          { ...context.slots }
+        ),
+        h(
+          'pre',
+          {},
+          typeof data.value === 'string'
+            ? data.value
+            : JSON.stringify(data.value)
+        ),
+      ]
+    }
   },
 })
 
