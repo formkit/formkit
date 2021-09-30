@@ -541,4 +541,38 @@ describe('parsing dom elements', () => {
 </div>`
     )
   })
+
+  it('can render slots as the only child', () => {
+    const wrapper = mount(FormKitSchema, {
+      slots: {
+        default: 'click me',
+      },
+      props: {
+        schema: [
+          {
+            $el: 'button',
+            children: '$slots.default',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<button>click me</button>')
+  })
+
+  it('can render slots as one of many children', () => {
+    const wrapper = mount(FormKitSchema, {
+      slots: {
+        default: 'click me',
+      },
+      props: {
+        schema: [
+          {
+            $el: 'button',
+            children: ['$slots.default', ' to buy'],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<button>click me to buy</button>')
+  })
 })

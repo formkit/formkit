@@ -10,6 +10,7 @@ import {
   off,
   FormKitEventListener,
 } from './events'
+import { error } from './errors'
 import { createStore, FormKitMessageProps, FormKitStore } from './store'
 import { createLedger, FormKitLedger } from './ledger'
 
@@ -1284,9 +1285,7 @@ function text<T>(
  * @public
  */
 export function createError(node: FormKitNode<any>, errorCode: number): never {
-  const e: string = node.hook.error.dispatch(`E${errorCode}`)
-  node.emit('error', e)
-  throw new Error(e)
+  error(errorCode, node)
 }
 
 /**

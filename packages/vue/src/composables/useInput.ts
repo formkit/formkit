@@ -6,7 +6,14 @@ import {
   FormKitMessage,
 } from '@formkit/core'
 import { nodeProps } from '@formkit/utils'
-import { reactive, inject, provide, watchEffect, toRef } from 'vue'
+import {
+  reactive,
+  inject,
+  provide,
+  watchEffect,
+  toRef,
+  SetupContext,
+} from 'vue'
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
 
@@ -19,9 +26,9 @@ import { minConfig } from '../plugin'
 export function useInput(
   type: FormKitNodeType,
   props: { type: string },
-  attrs: Record<string, any>
+  context: SetupContext<Record<string, any>>
 ): [Record<string, any>, FormKitNode] {
-  const { name } = attrs
+  const { name } = context.attrs
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
@@ -36,7 +43,7 @@ export function useInput(
   /**
    * Define the initial component
    */
-  let value = attrs.value
+  let value: any = context.attrs.value
   if (!value) {
     if (type === 'input') value = ''
     if (type === 'group') value = {}
@@ -49,10 +56,10 @@ export function useInput(
   const node = createNode({
     ...config.nodeOptions,
     type,
-    name,
+    name: String(name) || undefined,
     value,
     parent,
-    props: nodeProps(attrs),
+    props: nodeProps(context.attrs),
   })
 
   /**
@@ -70,10 +77,10 @@ export function useInput(
       }
       return store
     }, {} as Record<string, FormKitMessage>),
-    label: toRef(attrs, 'label'),
-    help: toRef(attrs, 'help'),
-    input: attrs.input
-      ? toRef(attrs, 'input')
+    label: toRef(context.attrs, 'label'),
+    help: toRef(context.attrs, 'help'),
+    input: context.attrs.input
+      ? toRef(context.attrs, 'input')
       : (e: Event) => node.input((e.target as HTMLInputElement).value),
   })
 
@@ -82,7 +89,7 @@ export function useInput(
    * reactive.
    */
   watchEffect(() => {
-    const props = nodeProps(attrs)
+    const props = nodeProps(context.attrs)
     for (const propName in props) {
       node.props[propName] = props[propName]
     }
@@ -118,8 +125,6 @@ export function useInput(
   if (node.type !== 'input') {
     provide(parentSymbol, node)
   }
-
-  console.log(data)
 
   return [data, node]
 }

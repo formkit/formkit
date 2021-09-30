@@ -25,6 +25,7 @@ import {
   FormKitAttributeValue,
 } from '@formkit/schema'
 import { has, isPojo } from '@formkit/utils'
+import { warn } from '@formkit/core'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -85,6 +86,11 @@ interface RenderNodes {
   (): Renderable | Renderable[]
 }
 
+// const Fragment: FunctionalComponent = function (_props, context) {
+//   const value = context.slots.default ? context.slots.default() : null
+//   return value
+// }
+
 /**
  * Extracts a reference object from a set of (reactive) data.
  * @param data - The formkit context object object for the given path
@@ -118,7 +124,7 @@ function getRef(
  * @param path - A array of string paths easily produced by split()
  * @returns
  */
-function findValue(sets: (false | Record<string, any>)[], path: string[]) {
+function findValue(sets: (false | Record<string, any>)[], path: string[]): any {
   for (const set of sets) {
     let found = undefined
     path.reduce((obj: any, segment: string, i: number) => {
@@ -369,7 +375,13 @@ function parseNode(
   if ('children' in node && node.children) {
     if (typeof node.children === 'string') {
       // We are dealing with a raw string value
-      if (node.children.startsWith('$') && node.children.length > 1) {
+      if (node.children.startsWith('$slots.')) {
+        const slot = node.children.substr(7)
+        if (has(data.slots, slot)) {
+          element = element === 'text' ? 'slot' : element
+          children = data.slots[slot]
+        }
+      } else if (node.children.startsWith('$') && node.children.length > 1) {
         const value = compile(node.children).provide((token: string) => {
           const value = getRef(data, scopes, token)
           return () => checkScope(value.value, token)
@@ -449,7 +461,11 @@ function createElement(
       if (element === 'text' && children) {
         return createTextVNode(String(children()))
       }
-      // Handle standard elements and components
+      // Handle slots
+      if (element === 'slot' && children) {
+        return children()
+      }
+      // Handle dom elements and components
       return h(element, attrs(), children ? (children() as Renderable[]) : [])
     }
 
@@ -524,10 +540,12 @@ export const FormKitSchema = defineComponent({
       default: () => ({}),
     },
   },
-  setup(props) {
+  setup(props, context) {
     let element: RenderNodes | RenderChildren
     watchEffect(() => {
+      if ('slots' in props.data) warn(456)
       const data = Object.assign(reactive(props.data), {
+        slots: context.slots,
         __FK_SCP: new Map<symbol, Record<string, any>>(),
       })
       element = parseSchema(

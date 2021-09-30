@@ -34,3 +34,14 @@ export {
   FormKitEvent,
   FormKitEventEmitter,
 } from './events'
+
+/**
+ * Export errors emitters.
+ */
+export {
+  FormKitHandlerPayload,
+  errorHandler,
+  warningHandler,
+  warn,
+  error,
+} from './errors'

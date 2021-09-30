@@ -25,9 +25,10 @@ const FormKit = defineComponent({
   inheritAttrs: false,
   setup(props, context) {
     const libInput = useLibrary(props.type)
-    const [data] = useInput(libInput.type, props, context.attrs)
+    const [data] = useInput(libInput.type, props, context)
 
-    return () => h(FormKitSchema, { schema: libInput.schema, data })
+    return () =>
+      h(FormKitSchema, { schema: libInput.schema, data }, { ...context.slots })
   },
 })
 

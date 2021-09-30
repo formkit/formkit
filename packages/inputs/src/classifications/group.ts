@@ -3,7 +3,7 @@ import { FormKitSchemaNode } from '@formkit/schema'
 const group: FormKitSchemaNode[] = [
   {
     $el: 'div',
-    children: '$children',
+    children: ['hello', '$slots.default'],
   },
 ]
 

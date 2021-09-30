@@ -1,5 +1,6 @@
 import { FormKitTypeDefinition } from './index'
 import textSchema from './classifications/text'
+import groupSchema from './classifications/group'
 
 /**
  * Default classifications that are available.
@@ -20,3 +21,12 @@ export const text = textClassification
  * @public
  */
 export const number = textClassification
+
+/**
+ * The group input type.
+ * @public
+ */
+export const group = {
+  type: 'group',
+  schema: groupSchema,
+}

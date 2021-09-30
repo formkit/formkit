@@ -1,15 +1,15 @@
 <template>
   <div class="container">
     <h2>FormKit Vue (Composition API)</h2>
-    <!-- <FormKit
-      type="group"
-    > -->
     <FormKit
-      label="Hello world!"
-      validation="required|min:20"
-      type="number"
-    />
-    <!-- </FormKit> -->
+      type="group"
+    >
+      <FormKit
+        label="Hello world!"
+        validation="required|min:20"
+        type="number"
+      />
+    </FormKit>
   </div>
 </template>
 <script lang="ts" setup>
