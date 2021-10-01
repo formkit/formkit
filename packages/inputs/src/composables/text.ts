@@ -1,8 +1,10 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const text: FormKitSchemaComposable = (schema = {}) =>
-  extend(
+const text: FormKitSchemaComposable = (schema = {}) => ({
+  if: '$slots.input',
+  then: '$slots.input',
+  else: extend(
     {
       $el: 'input',
       attrs: {
@@ -14,6 +16,7 @@ const text: FormKitSchemaComposable = (schema = {}) =>
       },
     },
     schema
-  ) as FormKitSchemaNode
+  ) as FormKitSchemaNode,
+})
 
 export default text

@@ -1,8 +1,10 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const message: FormKitSchemaComposable = (schema = {}, children = []) =>
-  extend(
+const message: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.message',
+  then: '$slots.message',
+  else: extend(
     {
       $el: 'li',
       for: ['message', '$messages'],
@@ -12,6 +14,7 @@ const message: FormKitSchemaComposable = (schema = {}, children = []) =>
       children,
     },
     schema
-  ) as FormKitSchemaNode
+  ) as FormKitSchemaNode,
+})
 
 export default message

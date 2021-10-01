@@ -1,8 +1,10 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const help: FormKitSchemaComposable = (schema = {}, children = []) =>
-  extend(
+const help: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.help',
+  then: '$slots.help',
+  else: extend(
     {
       $el: 'div',
       attrs: {
@@ -12,6 +14,7 @@ const help: FormKitSchemaComposable = (schema = {}, children = []) =>
       children,
     },
     schema
-  ) as FormKitSchemaNode
+  ) as FormKitSchemaNode,
+})
 
 export default help

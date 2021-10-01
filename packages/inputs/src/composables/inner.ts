@@ -1,8 +1,10 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const inner: FormKitSchemaComposable = (schema = {}, children = []) =>
-  extend(
+const inner: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.inner',
+  then: '$slots.inner',
+  else: extend(
     {
       $el: 'div',
       attrs: {
@@ -11,6 +13,7 @@ const inner: FormKitSchemaComposable = (schema = {}, children = []) =>
       children,
     },
     schema
-  ) as FormKitSchemaNode
+  ) as FormKitSchemaNode,
+})
 
 export default inner

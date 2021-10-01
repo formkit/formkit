@@ -1,8 +1,10 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const wrapper: FormKitSchemaComposable = (schema = {}, children = []) =>
-  extend(
+const wrapper: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.wrapper',
+  then: '$slots.wrapper',
+  else: extend(
     {
       $el: 'div',
       attrs: {
@@ -11,6 +13,7 @@ const wrapper: FormKitSchemaComposable = (schema = {}, children = []) =>
       children,
     },
     schema
-  ) as FormKitSchemaNode
+  ) as FormKitSchemaNode,
+})
 
 export default wrapper

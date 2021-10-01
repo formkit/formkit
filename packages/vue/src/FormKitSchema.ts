@@ -11,6 +11,7 @@ import {
   reactive,
   resolveComponent,
   watchEffect,
+  Slot,
 } from 'vue'
 import {
   FormKitSchemaAttributes,
@@ -463,7 +464,7 @@ function createElement(
       }
       // Handle slots
       if (element === 'slot' && children) {
-        return children()
+        return (children as Slot)(data)
       }
       // Handle dom elements and components
       return h(element, attrs(), children ? (children() as Renderable[]) : [])

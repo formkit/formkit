@@ -1,16 +1,20 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
 import { extend } from '@formkit/utils'
 
-const label: FormKitSchemaComposable = (schema = {}, children = []) =>
-  extend(
-    {
-      $el: 'label',
-      attrs: {
-        for: '$id',
+const label: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.foobar',
+  then: '$slots.foobar',
+  else: [
+    extend(
+      {
+        $el: 'label',
+        attrs: {
+          for: '$id',
+        },
+        children,
       },
-      children,
-    },
-    schema
-  ) as FormKitSchemaNode
-
+      schema
+    ) as FormKitSchemaNode,
+  ],
+})
 export default label
