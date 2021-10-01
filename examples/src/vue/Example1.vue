@@ -1,22 +1,22 @@
 <template>
   <div class="container">
-    <h2>FormKit Vue (Composition API)</h2>
+    <h2>FormKit Playground</h2>
     <FormKit
-      label="Hello world!"
-      validation="required|min:20"
       type="text"
+      label="Name"
+      help="Fill out your name"
+      validation="required|length:10"
     />
   </div>
 </template>
-<script lang="ts" setup>
+
+<script setup lang="ts">
+
 </script>
 
-<style scoped>
+<style>
 .container {
-  margin: 0 auto;
   max-width: 600px;
-}
-.inputs {
-  display: flex;
+  margin: 0 auto;
 }
 </style>

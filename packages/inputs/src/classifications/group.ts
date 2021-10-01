@@ -1,5 +1,8 @@
-import { FormKitSchemaNode } from '@formkit/schema'
+import { FormKitExtendableSchemaRoot } from '@formkit/schema'
+import fragment from '../composables/fragment'
 
-const group: FormKitSchemaNode[] = ['$slots.default']
+const groupSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
+  return [fragment(extensions.wrapper, '$slots.default')]
+}
 
-export default group
+export default groupSchema

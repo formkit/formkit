@@ -26,7 +26,7 @@ import { minConfig } from '../plugin'
 export function useInput(
   type: FormKitNodeType,
   props: { type: string; name: string },
-  context: SetupContext<Record<string, any>>
+  context: SetupContext<any>
 ): [Record<string, any>, FormKitNode] {
   /**
    * The configuration options, these are provided by either the plugin or by
@@ -81,6 +81,7 @@ export function useInput(
     }, {} as Record<string, FormKitMessage>),
     label: toRef(context.attrs, 'label'),
     help: toRef(context.attrs, 'help'),
+    options: toRef(context.attrs, 'options'),
     input: context.attrs.input
       ? toRef(context.attrs, 'input')
       : (e: Event) => node.input((e.target as HTMLInputElement).value),
