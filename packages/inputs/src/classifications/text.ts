@@ -1,12 +1,12 @@
 import { FormKitExtendableSchemaRoot } from '@formkit/schema'
-import label from '../partials/label'
-import outer from '../partials/outer'
-import wrapper from '../partials/outer'
-import inner from '../partials/inner'
-import text from '../partials/text'
-import help from '../partials/help'
-import messages from '../partials/messages'
-import message from '../partials/message'
+import label from '../composables/label'
+import outer from '../composables/outer'
+import wrapper from '../composables/outer'
+import inner from '../composables/inner'
+import text from '../composables/text'
+import help from '../composables/help'
+import messages from '../composables/messages'
+import message from '../composables/message'
 
 /**
  * The schema for text classifications.
