@@ -2,16 +2,10 @@
   <div class="container">
     <h2>FormKit Vue (Composition API)</h2>
     <FormKit
-      type="group"
-      name="numbers"
-    >
-      <FormKit
-        name="pizza"
-        label="Hello world!"
-        validation="required|min:20"
-        type="text"
-      />
-    </FormKit>
+      label="Hello world!"
+      validation="required|min:20"
+      type="text"
+    />
   </div>
 </template>
 <script lang="ts" setup>

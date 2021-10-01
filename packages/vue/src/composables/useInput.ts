@@ -70,6 +70,9 @@ export function useInput(
     _value: node.value,
     value: node.value,
     node,
+    fns: {
+      length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
+    },
     messages: node.store.reduce((store, message) => {
       if (message.visible) {
         store[message.key] = message

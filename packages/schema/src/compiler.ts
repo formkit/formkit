@@ -1,4 +1,5 @@
 import { has, isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
+import { warn } from '@formkit/core'
 
 /**
  * Tokens are strings that map to functions.
@@ -251,13 +252,13 @@ export function compile(expr: string): FormKitConditionCompiler {
               : undefined
           if (lStep === -1 && rStep === -1) {
             // This parenthetical was unnecessarily wrapped
-            operand = evaluate(parenthetical, -1, fn)
+            operand = evaluate(parenthetical, -1, fn) as string
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
             // has a left hand operator with a lower order of operation
             op = op.bind(null, evaluate(parenthetical, -1, fn))
           } else if (rStep > lStep && step === rStep) {
             // should be applied to the right hand operator when it gets
-            operand = evaluate(parenthetical, -1, fn)
+            operand = evaluate(parenthetical, -1, fn) as string
           } else {
             operand += `(${parenthetical})`
           }
@@ -345,7 +346,7 @@ export function compile(expr: string): FormKitConditionCompiler {
     | boolean
     | string
     | number
-    | ((...args: any[]) => boolean | number | string) {
+    | ((...args: any[]) => boolean | number | string | CallableFunction) {
     if (fnToken) {
       const fn = evaluate(fnToken, operatorRegistry.length)
       if (typeof fn === 'function') {
@@ -353,7 +354,12 @@ export function compile(expr: string): FormKitConditionCompiler {
           evaluate(arg, -1)
         )
         return () => {
-          return fn(
+          const userFunc = fn()
+          if (typeof userFunc !== 'function') {
+            warn(234)
+            return userFunc
+          }
+          return userFunc(
             ...args.map((arg) => (typeof arg === 'function' ? arg() : arg))
           )
         }
@@ -376,8 +382,7 @@ export function compile(expr: string): FormKitConditionCompiler {
         if (operand.startsWith('$')) {
           const cleaned = operand.substr(1)
           requirements.add(cleaned)
-          return (...args) =>
-            has(tokens, cleaned) ? tokens[cleaned](...args) : undefined
+          return () => (has(tokens, cleaned) ? tokens[cleaned]() : undefined)
         }
         // In this case we are dealing with an unquoted string, just treat it
         // as a plain string.

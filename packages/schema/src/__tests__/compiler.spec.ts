@@ -218,10 +218,7 @@ describe('boolean logic parser', () => {
       fn: (value: any) => value + 5,
     }
     const evaluate = compile('3 + $fn(1 + 2) + 2').provide((token) => {
-      if (token in data) {
-        return data[token]
-      }
-      return undefined
+      return () => data[token]
     })
     expect(evaluate()).toBe(13)
   })
@@ -232,18 +229,12 @@ describe('boolean logic parser', () => {
     }
     expect(
       compile('3 + $addFive(1 + 2) * 2').provide((token) => {
-        if (token in data) {
-          return data[token]
-        }
-        return undefined
+        return () => data[token]
       })()
     ).toBe(19)
     expect(
       compile('3 * $addFive(1 + 2) + 2').provide((token) => {
-        if (token in data) {
-          return data[token]
-        }
-        return undefined
+        return () => data[token]
       })()
     ).toBe(26)
   })
@@ -254,8 +245,7 @@ describe('boolean logic parser', () => {
     }
     expect(
       compile('$multiply(5 + 2, 6 + 3)').provide((token) => {
-        if (token in data) return data[token]
-        return undefined
+        return () => data[token]
       })()
     ).toBe(63)
   })

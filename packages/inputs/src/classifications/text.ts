@@ -1,73 +1,28 @@
-import { FormKitSchemaNode } from '@formkit/schema'
+import { FormKitExtendableSchemaRoot } from '@formkit/schema'
+import label from '../partials/label'
+import outer from '../partials/outer'
+import wrapper from '../partials/outer'
+import inner from '../partials/inner'
+import text from '../partials/text'
+import help from '../partials/help'
+import messages from '../partials/messages'
+import message from '../partials/message'
 
 /**
  * The schema for text classifications.
  * @public
  */
-const textSchema: FormKitSchemaNode[] = [
-  {
-    $el: 'div',
-    attrs: {
-      class: '$outerClasses',
-    },
-    children: [
-      {
-        $el: 'div',
-        attrs: {
-          class: '$wrapperClasses',
-        },
-        children: [
-          {
-            $el: 'label',
-            if: '$label',
-            attrs: {
-              class: '$labelClasses',
-              for: '$id',
-            },
-            children: '$label',
-          },
-          {
-            $el: 'div',
-            attrs: {
-              class: '$innerClasses',
-            },
-            children: [
-              {
-                $el: 'input',
-                attrs: {
-                  type: '$type',
-                  name: '$node.name',
-                  onInput: '$input',
-                  value: '$_value',
-                },
-              },
-            ],
-          },
-        ],
-      },
-      {
-        $el: 'div',
-        attrs: {
-          class: '$helpClasses',
-        },
-        if: '$help',
-        children: '$help',
-      },
-      {
-        $el: 'ul',
-        children: [
-          {
-            $el: 'li',
-            for: ['message', '$messages'],
-            attrs: {
-              class: '$message.classes',
-            },
-            children: '$message.value',
-          },
-        ],
-      },
-    ],
-  },
+const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
+  outer(extensions.outer, [
+    wrapper(extensions.wrapper, [
+      label(extensions.label, '$label'),
+      inner(extensions.inner, [text(extensions.input)]),
+    ]),
+    help(extensions.help, '$help'),
+    messages(extensions.messages, [
+      message(extensions.message, '$message.value'),
+    ]),
+  ]),
 ]
 
 export default textSchema

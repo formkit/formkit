@@ -186,10 +186,11 @@ export function isPojo(o: any): boolean {
  * @public
  */
 export function extend(
-  original: { [index: string]: any },
-  additional: { [index: string]: any }
-): { [index: string]: any } {
-  const merged: { [index: string]: any } = {}
+  original: Record<string, any>,
+  additional: Record<string, any> | string
+): Record<string, any> | string {
+  const merged: Record<string, any> = {}
+  if (typeof additional === 'string') return additional
   for (const key in original) {
     if (has(additional, key)) {
       if (additional[key] === undefined) {

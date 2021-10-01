@@ -1,5 +1,6 @@
 import { FormKitNode } from '@formkit/core'
-import { h, defineComponent, InjectionKey } from 'vue'
+import { FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/schema'
+import { h, defineComponent, InjectionKey, PropType } from 'vue'
 import { useLibrary, useInput } from './composables/index'
 import { FormKitSchema } from './FormKitSchema'
 
@@ -21,18 +22,24 @@ const FormKit = defineComponent({
       type: String,
       default: '',
     },
+    schema: {
+      type: Object as PropType<
+        Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
+      >,
+      default: {},
+    },
   },
   inheritAttrs: false,
   setup(props, context) {
     const libInput = useLibrary(props.type)
+    const schema =
+      typeof libInput.schema === 'function'
+        ? libInput.schema(props.schema)
+        : libInput.schema
     const [data] = useInput(libInput.type, props, context)
     return () => {
       return [
-        h(
-          FormKitSchema,
-          { schema: libInput.schema, data },
-          { ...context.slots }
-        ),
+        h(FormKitSchema, { schema, data }, { ...context.slots }),
         h(
           'pre',
           {},

@@ -1,5 +1,9 @@
 import { FormKitNodeType } from '@formkit/core'
-import { FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/schema'
+import {
+  FormKitExtendableSchemaRoot,
+  FormKitSchemaNode,
+  FormKitSchemaCondition,
+} from '@formkit/schema'
 import * as library from './types'
 
 /**
@@ -9,7 +13,10 @@ import * as library from './types'
  */
 export type FormKitTypeDefinition = {
   type: FormKitNodeType
-  schema: FormKitSchemaNode[] | FormKitSchemaCondition
+  schema:
+    | FormKitExtendableSchemaRoot
+    | FormKitSchemaNode[]
+    | FormKitSchemaCondition
 }
 
 /**

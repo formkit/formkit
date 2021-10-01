@@ -575,4 +575,27 @@ describe('parsing dom elements', () => {
     })
     expect(wrapper.html()).toBe('<button>click me to buy</button>')
   })
+
+  it('can render functional data reactively', async () => {
+    const data = reactive({
+      price: 10,
+      quantity: 2,
+      cost: (p: number, q: number) => p * q,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'button',
+            children: ['Total $', '$cost($price, $quantity + 2) + 1'],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<button>Total $41</button>')
+    data.price = 11
+    await nextTick()
+    expect(wrapper.html()).toBe('<button>Total $45</button>')
+  })
 })

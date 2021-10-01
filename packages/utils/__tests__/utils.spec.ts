@@ -168,6 +168,10 @@ describe('extend', () => {
       c: 'boop',
     })
   })
+
+  it('can completely replace with a string', () => {
+    expect(extend({ foo: 123 }, 'bar')).toBe('bar')
+  })
 })
 
 describe('isQuotedString', () => {

@@ -131,6 +131,30 @@ export type FormKitSchemaNode =
   | FormKitSchemaCondition
 
 /**
+ * Definition for a function that can extend a given schema node.
+ * @public
+ */
+export interface FormKitSchemaComposable {
+  (
+    extendWith?: Partial<FormKitSchemaNode>,
+    children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
+  ): FormKitSchemaNode
+}
+
+/**
+ * Defines a function that allows selectively overriding a given schema.
+ * @public
+ */
+export interface FormKitExtendableSchemaRoot {
+  (
+    extensions: Record<
+      string,
+      Partial<FormKitSchemaNode> | FormKitSchemaCondition
+    >
+  ): FormKitSchemaNode[]
+}
+
+/**
  * Type narrow that a node is a DOM node.
  * @param node - A schema node to check
  * @returns
