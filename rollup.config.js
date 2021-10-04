@@ -1,6 +1,6 @@
 import typescript from '@rollup/plugin-typescript'
-import typescript2 from 'rollup-plugin-typescript2'
-import vue from 'rollup-plugin-vue'
+// import typescript2 from 'rollup-plugin-typescript2'
+// import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -21,7 +21,7 @@ export default {
   external: ['vue', '@formkit/core'],
   input: createInputPath(),
   output: createOutputConfig(),
-  plugins: createPluginsConfig()
+  plugins: createPluginsConfig(),
 }
 
 /**
@@ -34,34 +34,35 @@ function createInputPath() {
 /**
  * Creates rollup output configuration.
  */
-function createOutputConfig()
-{
+function createOutputConfig() {
   if (!declarations) {
     return {
       file: `${rootPath}/dist/index.${format}.js`,
-      format
+      name: `@formkit/${pkg}`,
+      format,
     }
   }
   return {
     dir: `${rootPath}/dist`,
-    format: 'esm'
+    format: 'esm',
   }
 }
 
 /**
  * Creates the appropriate plugins array.
  */
-function createPluginsConfig()
-{
+function createPluginsConfig() {
   const plugins = []
-  if (pkg === 'vue') {
-    plugins.push(typescript2(tsConfig))
-    plugins.push(vue({
-      exposeFilename: false
-    }))
-  } else {
-    plugins.push(typescript(tsConfig))
-  }
+  // if (pkg === 'vue') {
+  //   plugins.push(typescript2(tsConfig))
+  //   plugins.push(
+  //     vue({
+  //       exposeFilename: false,
+  //     })
+  //   )
+  // } else {
+  plugins.push(typescript(tsConfig))
+  // }
   return plugins
 }
 
@@ -69,22 +70,18 @@ function createPluginsConfig()
  * Creates the rollup/plugin-typescript plugin configuration, which is roughly
  * equivalent to the typescript compilerOptions.
  */
-function createTypeScriptConfig()
-{
+function createTypeScriptConfig() {
   const base = {
     tsconfig: 'tsconfig.json',
     outDir: `${rootPath}/dist`,
-    include: [
-      `./packages/${pkg}/src/*.ts`,
-      `./packages/${pkg}/src/*/*.ts`
-    ],
-    noEmitOnError: true
+    include: [`./packages/${pkg}/src/*.ts`, `./packages/${pkg}/src/*/*.ts`],
+    noEmitOnError: true,
   }
   if (!declarations) {
     return base
   }
   return Object.assign(base, {
     declaration: true,
-    emitDeclarationOnly: true
+    emitDeclarationOnly: true,
   })
 }

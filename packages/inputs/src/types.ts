@@ -27,7 +27,7 @@ export const number = textClassification
  * The group input type.
  * @public
  */
-export const select = {
+export const select: FormKitTypeDefinition = {
   type: 'input',
   schema: selectSchema,
 }
@@ -36,7 +36,7 @@ export const select = {
  * The group input type.
  * @public
  */
-export const group = {
+export const group: FormKitTypeDefinition = {
   type: 'group',
   schema: groupSchema,
 }
@@ -45,7 +45,7 @@ export const group = {
  * The group input type.
  * @public
  */
-export const form = {
+export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: groupSchema,
 }

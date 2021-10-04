@@ -1,7 +1,8 @@
 import { FormKitNode } from '@formkit/core'
 import { FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/schema'
 import { h, defineComponent, InjectionKey, PropType, watchEffect } from 'vue'
-import { useLibrary, useInput } from './composables/index'
+import { useInput } from './composables/useInput'
+import { useLibrary } from './composables/useLibrary'
 import { FormKitSchema } from './FormKitSchema'
 
 /**
@@ -11,6 +12,7 @@ export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
  * The root FormKit component.
+ * @public
  */
 const FormKit = defineComponent({
   props: {

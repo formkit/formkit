@@ -17,9 +17,12 @@
   "type": "module",
   "dependencies": {
     "@formkit/core": "1.0.0-alpha.0",
+    "@formkit/i18n": "1.0.0-alpha.0",
     "@formkit/inputs": "1.0.0-alpha.0",
+    "@formkit/rules": "1.0.0-alpha.0",
     "@formkit/schema": "1.0.0-alpha.0",
-    "@formkit/utils": "1.0.0-alpha.0"
+    "@formkit/utils": "1.0.0-alpha.0",
+    "@formkit/validation": "1.0.0-alpha.0"
   },
   "devDependencies": {
     "@vue/test-utils": "^2.0.0-rc.14"

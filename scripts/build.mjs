@@ -20,15 +20,8 @@ import fs from 'fs/promises'
 import execa from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import {
-  Extractor,
-  ExtractorConfig
-} from '@microsoft/api-extractor'
-import {
-  getPackages,
-  getBuildOrder,
-  msg
-} from './utils.mjs'
+import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
+import { getPackages, getBuildOrder, msg } from './utils.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -39,7 +32,7 @@ const rollup = `${rootDir}/node_modules/.bin/rollup`
 /**
  * Prompt a user to select a package.
  */
-async function selectPackage () {
+async function selectPackage() {
   const packages = getPackages()
   packages.unshift('🌎 build all')
   packages.push('🧨 cancel')
@@ -47,10 +40,10 @@ async function selectPackage () {
     type: 'select',
     name: 'selection',
     message: 'Which FormKit package do you want to build?',
-    choices: packages.map(name => ({
+    choices: packages.map((name) => ({
       title: name,
-      value: name
-    }))
+      value: name,
+    })),
   })
   buildPackage(selection)
 }
@@ -60,7 +53,7 @@ async function selectPackage () {
  * @param p package name
  * @returns
  */
-export async function buildPackage (p) {
+export async function buildPackage(p) {
   const packages = getPackages()
   if (!p) {
     return selectPackage()
@@ -82,6 +75,7 @@ export async function buildPackage (p) {
   msg.loader.start()
   await bundle(p, 'esm')
   await bundle(p, 'cjs')
+  await bundle(p, 'umd')
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
@@ -98,7 +92,7 @@ export async function buildAllPackages(packages) {
   msg.info('» Building packages in dependency order:')
   console.log(orderedPackages)
   for (const [i, p] of orderedPackages.entries()) {
-    msg.label(`» Building ${i+1}/${orderedPackages.length}: @formkit/${p}`)
+    msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
     await buildPackage(p)
   }
 }
@@ -112,7 +106,9 @@ async function cleanDist(p) {
   try {
     await fs.access(distDir)
     const files = await fs.readdir(distDir)
-    await Promise.all(files.map(file => fs.rm(resolve(distDir, file), { recursive: true })))
+    await Promise.all(
+      files.map((file) => fs.rm(resolve(distDir, file), { recursive: true }))
+    )
   } catch {
     // directory is already missing, no need to clean it
   }
@@ -131,10 +127,10 @@ async function bundle(p, format) {
     '--environment',
     [
       { name: 'PKG', value: p },
-      { name: 'FORMAT', value: format }
+      { name: 'FORMAT', value: format },
     ]
       .map(({ name, value }) => `${name}:${value}`)
-      .join(',')
+      .join(','),
   ])
 }
 
@@ -144,17 +140,21 @@ async function bundle(p, format) {
  */
 async function declarations(p) {
   msg.loader.text = `Emitting type declarations`
-  await execa(rollup, [
+  const output = await execa(rollup, [
     '-c',
     '--environment',
     [
       { name: 'PKG', value: p },
       { name: 'FORMAT', value: 'esm' },
-      { name: 'DECLARATIONS', value: 1 }
+      { name: 'DECLARATIONS', value: 1 },
     ]
       .map(({ name, value }) => `${name}:${value}`)
-      .join(',')
+      .join(','),
   ])
+  if (output.exitCode) {
+    console.log(output)
+    process.exit()
+  }
   // Annoyingly even though we tell @rollup/plugin-typescript
   // emitDeclarationOnly it still outputs an index.js — is this a bug?
   await fs.rm(`${packagesDir}/${p}/dist/index.js`)
@@ -165,22 +165,29 @@ async function declarations(p) {
 /**
  * Use API Extractor to rollup the type declarations.
  */
-async function apiExtractor(p)
-{
+async function apiExtractor(p) {
   const configPath = `${packagesDir}/${p}/api-extractor.json`
-  const config = ExtractorConfig.loadFileAndPrepare(configPath);
+  const config = ExtractorConfig.loadFileAndPrepare(configPath)
   const result = Extractor.invoke(config, {
     localBuild: true,
-    showVerboseMessages: false
+    showVerboseMessages: false,
   })
   if (result.succeeded) {
     const distRoot = `${packagesDir}/${p}/dist`
     const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
-    await Promise.all(distFiles.map(file => {
-      return (file.name !== 'index.all.d.ts' && (file.isDirectory() || file.name.endsWith('d.ts'))) ? fs.rm(resolve(distRoot, file.name), { recursive: true }) : Promise.resolve()
-    }))
+    await Promise.all(
+      distFiles.map((file) => {
+        return file.name !== 'index.all.d.ts' &&
+          (file.isDirectory() || file.name.endsWith('d.ts'))
+          ? fs.rm(resolve(distRoot, file.name), { recursive: true })
+          : Promise.resolve()
+      })
+    )
     await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
-    fs.rename(resolve(distRoot, 'index.all.d.ts'), resolve(distRoot, 'index.d.ts'))
+    fs.rename(
+      resolve(distRoot, 'index.all.d.ts'),
+      resolve(distRoot, 'index.d.ts')
+    )
   } else {
     msg.error('Api extractor failed.')
     process.exitCode = 1
@@ -192,14 +199,11 @@ async function apiExtractor(p)
  */
 export default function () {
   const cli = cac()
-  cli.command(
-    '[package]',
-    'Builds a specific package',
-    { allowUnknownOptions: true }
-  )
-  .action(buildPackage);
-  cli.help();
-  cli.parse();
+  cli
+    .command('[package]', 'Builds a specific package', {
+      allowUnknownOptions: true,
+    })
+    .action(buildPackage)
+  cli.help()
+  cli.parse()
 }
-
-

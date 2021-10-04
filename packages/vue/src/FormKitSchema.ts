@@ -523,6 +523,7 @@ function parseSchema(
 
 /**
  * The FormKitSchema vue component:
+ * @public
  */
 export const FormKitSchema = defineComponent({
   props: {

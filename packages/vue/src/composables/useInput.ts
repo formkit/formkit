@@ -22,6 +22,7 @@ import { minConfig } from '../plugin'
  * @param type - The type of node (input, group, list)
  * @param attrs - The FormKit "props" — which is really the attrs list.
  * @returns
+ * @public
  */
 export function useInput(
   type: FormKitNodeType,

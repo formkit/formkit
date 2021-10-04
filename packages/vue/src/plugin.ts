@@ -24,6 +24,7 @@ export interface FormKitVueConfig {
 
 /**
  * The global instance of the FormKit plugin.
+ * @public
  */
 export interface FormKitVuePlugin {
   library: FormKitLibrary
@@ -47,6 +48,7 @@ function createPlugin(
 /**
  * These are the absolute minimum configuration options
  * to boot up FormKit.
+ * @public
  */
 export const minConfig: FormKitVueConfig = {
   alias: 'FormKit',
@@ -56,6 +58,7 @@ export const minConfig: FormKitVueConfig = {
 
 /**
  * The symbol key for accessing the formkit config.
+ * @public
  */
 export const configSymbol: InjectionKey<FormKitVueConfig> = Symbol(
   'FormKitConfig'
@@ -63,8 +66,9 @@ export const configSymbol: InjectionKey<FormKitVueConfig> = Symbol(
 
 /**
  * Create the FormKit plugin.
+ * @public
  */
-const plugin: Plugin = {
+export const plugin: Plugin = {
   install(app, options): void {
     /**
      * Extend the default configuration options.
@@ -81,5 +85,3 @@ const plugin: Plugin = {
     app.provide(configSymbol, config)
   },
 }
-
-export default plugin
