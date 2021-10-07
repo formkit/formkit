@@ -598,4 +598,67 @@ describe('parsing dom elements', () => {
     await nextTick()
     expect(wrapper.html()).toBe('<button>Total $45</button>')
   })
+
+  it('can bind arbitrary objects as attrs', async () => {
+    const data = reactive({
+      details: {
+        type: 'number',
+        name: 'foobar',
+        min: '20',
+        step: '1',
+      },
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'input',
+            bind: '$details',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(
+      '<input type="number" name="foobar" min="20" step="1">'
+    )
+    data.details.name = 'barfoo'
+    await nextTick()
+    expect(wrapper.html()).toBe(
+      '<input type="number" name="barfoo" min="20" step="1">'
+    )
+  })
+
+  it('can bind arbitrary objects as attrs but attrs override them', async () => {
+    const data = reactive({
+      details: {
+        type: 'number',
+        name: 'foobar',
+        min: '20',
+        step: '1',
+      },
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'input',
+            bind: '$details',
+            attrs: {
+              type: 'text',
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(
+      '<input type="text" name="foobar" min="20" step="1">'
+    )
+    data.details.type = 'jimbo'
+    await nextTick()
+    expect(wrapper.html()).toBe(
+      '<input type="text" name="foobar" min="20" step="1">'
+    )
+  })
 })

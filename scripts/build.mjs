@@ -75,7 +75,9 @@ export async function buildPackage(p) {
   msg.loader.start()
   await bundle(p, 'esm')
   await bundle(p, 'cjs')
-  await bundle(p, 'umd')
+  if (p === 'vue') {
+    await bundle(p, 'iife')
+  }
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()

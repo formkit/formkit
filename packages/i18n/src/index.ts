@@ -7,6 +7,7 @@ export * from './i18n'
 
 /**
  * Export all the available locales at once.
+ * @public
  */
 export const locales = {
   en,

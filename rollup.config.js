@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript'
+import { nodeResolve } from '@rollup/plugin-node-resolve'
 // import typescript2 from 'rollup-plugin-typescript2'
 // import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
@@ -18,7 +19,7 @@ const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
 export default {
-  external: ['vue', '@formkit/core'],
+  external: ['vue', 'react'],
   input: createInputPath(),
   output: createOutputConfig(),
   plugins: createPluginsConfig(),
@@ -36,10 +37,22 @@ function createInputPath() {
  */
 function createOutputConfig() {
   if (!declarations) {
+    const extras = {}
+    const fileName =
+      format !== 'iife' ? `index.${format}.js` : `formkit-${pkg}.js`
+    if (format === 'iife') {
+      extras.globals = {
+        vue: 'Vue',
+      }
+    }
     return {
-      file: `${rootPath}/dist/index.${format}.js`,
-      name: `@formkit/${pkg}`,
+      file: `${rootPath}/dist/${fileName}`,
+      name:
+        format === 'iife'
+          ? `FormKit${pkg[0].toUpperCase()}${pkg.substr(1)}`
+          : `@formkit/${pkg}`,
       format,
+      ...extras,
     }
   }
   return {
@@ -53,6 +66,11 @@ function createOutputConfig() {
  */
 function createPluginsConfig() {
   const plugins = []
+  if (format === 'iife' && pkg === 'vue') {
+    plugins.push(nodeResolve())
+  }
+  // This commented out code is used for compiling
+  // .vue SFC files — current we dont have any:
   // if (pkg === 'vue') {
   //   plugins.push(typescript2(tsConfig))
   //   plugins.push(

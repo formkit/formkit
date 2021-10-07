@@ -29,6 +29,7 @@ export interface FormKitSchemaProps {
   if?: string
   let?: Record<string, any>
   for?: FormKitListStatement
+  bind?: string
 }
 
 /**

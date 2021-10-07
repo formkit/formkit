@@ -246,11 +246,28 @@ function checkScope(value: any, token: string): any {
 function parseAttrs(
   data: FormKitSchemaContext,
   scopes: ScopePath,
-  unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition
+  unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition,
+  bindExp?: string
 ): () => FormKitSchemaAttributes {
+  const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
+  const boundAttrs = bindExp
+    ? compile(bindExp).provide((token) => {
+        const value = getRef(data, scopes, token)
+        return () => checkScope(value.value, token)
+      })
+    : () => ({})
+  const attrs: FormKitSchemaAttributes = {}
+  const setters: Array<() => void> = [
+    () => {
+      const bound: any = boundAttrs()
+      for (const attr in bound) {
+        if (!explicitAttrs.has(attr)) {
+          attrs[attr] = bound[attr]
+        }
+      }
+    },
+  ]
   if (unparsedAttrs) {
-    const attrs: FormKitSchemaAttributes = {}
-    const setters: Array<() => void> = []
     if (isConditional(unparsedAttrs)) {
       // This is a root conditional object that must produce an object of
       // attributes.
@@ -301,7 +318,10 @@ function parseAttrs(
       return { ...attrs }
     }
   }
-  return () => null
+  return () => {
+    setters.forEach((setter) => setter())
+    return { ...attrs }
+  }
 }
 
 /**
@@ -342,7 +362,9 @@ function parseNode(
     // This is an actual HTML DOM element
     element = node.$el
     attrs =
-      node.$el !== 'text' ? parseAttrs(data, scopes, node.attrs) : () => null
+      node.$el !== 'text'
+        ? parseAttrs(data, scopes, node.attrs, node.bind)
+        : () => null
   } else if (isComponent(node)) {
     // This is a Vue Component
     if (typeof node.$cmp === 'string') {
@@ -353,7 +375,7 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
-    attrs = parseAttrs(data, scopes, node.props)
+    attrs = parseAttrs(data, scopes, node.props, node.bind)
   } else if (isConditional(node)) {
     // This is an if/then schema statement
     ;[condition, children, alternate] = parseCondition(
