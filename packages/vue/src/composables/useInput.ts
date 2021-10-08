@@ -1,11 +1,7 @@
 import { parentSymbol } from '../FormKit'
-import {
-  createNode,
-  FormKitNode,
-  FormKitNodeType,
-  FormKitMessage,
-} from '@formkit/core'
-import { nodeProps } from '@formkit/utils'
+import { createNode, FormKitNode, FormKitMessage } from '@formkit/core'
+import { nodeProps, except, camel } from '@formkit/utils'
+import { FormKitTypeDefinition } from '@formkit/inputs'
 import {
   reactive,
   inject,
@@ -17,6 +13,25 @@ import {
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
 
+interface FormKitComponentProps {
+  type: string
+  name: string
+}
+
+/**
+ * Props that are extracted from the attrs object.
+ * TODO: Currently local, this should probably exported to a inputs or another
+ * package.
+ */
+const universalProps = [
+  'help',
+  'label',
+  'options',
+  'validation',
+  'message-name',
+  'message-name-strategy',
+]
+
 /**
  * A composable for creating a new FormKit node.
  * @param type - The type of node (input, group, list)
@@ -25,10 +40,12 @@ import { minConfig } from '../plugin'
  * @public
  */
 export function useInput(
-  type: FormKitNodeType,
-  props: { type: string; name: string },
+  input: FormKitTypeDefinition,
+  props: Partial<FormKitComponentProps>,
   context: SetupContext<any>
 ): [Record<string, any>, FormKitNode] {
+  const type = input.type
+
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
@@ -86,6 +103,10 @@ export function useInput(
     input: context.attrs.input
       ? toRef(context.attrs, 'input')
       : (e: Event) => node.input((e.target as HTMLInputElement).value),
+    attrs: except(
+      context.attrs,
+      new Set(universalProps.concat(input.props || []))
+    ),
   })
 
   /**
@@ -94,8 +115,9 @@ export function useInput(
    */
   watchEffect(() => {
     const props = nodeProps(context.attrs)
+    node.props.type = props.type
     for (const propName in props) {
-      node.props[propName] = props[propName]
+      node.props[camel(propName)] = props[propName]
     }
   })
 

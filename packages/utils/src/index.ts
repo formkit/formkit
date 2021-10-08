@@ -294,7 +294,7 @@ export function assignDeep<
 /**
  * Filters out values from an object that should not be considered "props" of
  * a core node, like "value" and "name".
- * @param props - An object to treat as node props.
+ * @param attrs - An object to extract core node config from.
  * @public
  */
 export function nodeProps(props: Record<string, any>): Record<string, any> {
@@ -338,4 +338,36 @@ export function parseArgs(str: string): string[] {
     args.push(arg)
   }
   return args
+}
+
+/**
+ * Return a new (shallow) object with all properties from a given object
+ * that are present in the array.
+ * @param obj - An object to clone
+ * @param toRemove - An array of keys to remove
+ * @public
+ */
+export function except(
+  obj: Record<string, any>,
+  toRemove?: Set<string>
+): Record<string, any> {
+  const clean: Record<string, any> = {}
+  for (const key in obj) {
+    if (!toRemove || !toRemove.has(key)) {
+      clean[key] = obj[key]
+    }
+  }
+  return clean
+}
+
+/**
+ * This converts kebab-case to camelCase. It ONLY converts from kebab for
+ * efficiency stake.
+ * @param str - String to convert.
+ * @public
+ */
+export function camel(str: string): string {
+  return str.replace(/-([a-z0-9])/gi, (_s: string, g: string) =>
+    g.toUpperCase()
+  )
 }

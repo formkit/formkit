@@ -658,7 +658,7 @@ function createName(
   type: FormKitNodeType
 ): string | symbol {
   if (options.parent?.type === 'list') return useIndex
-  return options.name || `${type}_${++nodeCount}`
+  return options.name || `${options.props?.type || type}_${++nodeCount}`
 }
 
 /**

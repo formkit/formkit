@@ -7,6 +7,7 @@ const text: FormKitSchemaComposable = (schema = {}) => ({
   else: extend(
     {
       $el: 'input',
+      bind: '$attrs',
       attrs: {
         type: '$type',
         class: '$classes.input',

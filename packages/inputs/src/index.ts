@@ -13,6 +13,7 @@ import * as library from './types'
  */
 export type FormKitTypeDefinition = {
   type: FormKitNodeType
+  props?: string[]
   schema:
     | FormKitExtendableSchemaRoot
     | FormKitSchemaNode[]

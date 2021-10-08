@@ -235,6 +235,11 @@ describe('node', () => {
     expect(parent.at('howdy')).toBeFalsy()
   })
 
+  it('uses prop type as prefix for children', () => {
+    const node = createNode({ type: 'input', props: { type: 'select' } })
+    expect(/select_\d+/.test(node.name)).toBe(true)
+  })
+
   it('can fetch a nested node’s address', () => {
     const email = createNode({ name: 'email' })
     createNode({

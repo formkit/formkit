@@ -18,11 +18,11 @@ const FormKit = defineComponent({
   props: {
     type: {
       type: String,
-      required: true,
+      default: 'text',
     },
     name: {
       type: String,
-      default: '',
+      required: false,
     },
     schema: {
       type: Object as PropType<
@@ -39,7 +39,7 @@ const FormKit = defineComponent({
       typeof libInput.schema === 'function'
         ? libInput.schema(props.schema)
         : libInput.schema
-    const [data] = useInput(libInput.type, props, context)
+    const [data] = useInput(libInput, props, context)
     watchEffect(() => context.emit('value', data.value))
     return () => h(FormKitSchema, { schema, data }, { ...context.slots })
   },

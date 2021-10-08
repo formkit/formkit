@@ -7,6 +7,8 @@ import {
   assignDeep,
   rmEscapes,
   parseArgs,
+  except,
+  camel,
 } from '../src/index'
 
 describe('eq', () => {
@@ -261,5 +263,27 @@ describe('parseArgs', () => {
       "this isn't counted",
       '456',
     ])
+  })
+})
+
+describe('except', () => {
+  it('can remove a simple string', () => {
+    expect(except({ a: 123, b: 456 }, new Set(['b']))).toEqual({ a: 123 })
+  })
+
+  it('can remove nothing if the input is undefined', () => {
+    expect(except({ a: 123, b: 123 })).toEqual({ a: 123, b: 123 })
+  })
+})
+
+describe('camel', () => {
+  it('converts a single kebab to camel case', () => {
+    expect(camel('hello-world')).toBe('helloWorld')
+  })
+  it('converts multi kebab to camel case', () => {
+    expect(camel('this-Is-awesome')).toBe('thisIsAwesome')
+  })
+  it('leaves spaces alone', () => {
+    expect(camel('lets-do this thing')).toBe('letsDo this thing')
   })
 })

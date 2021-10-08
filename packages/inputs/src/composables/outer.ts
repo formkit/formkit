@@ -8,7 +8,7 @@ const outer: FormKitSchemaComposable = (schema = {}, children = []) => ({
     {
       $el: 'div',
       attrs: {
-        class: 'outer',
+        class: '$classes.outer',
       },
       children,
     },
