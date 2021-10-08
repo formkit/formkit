@@ -1,6 +1,6 @@
 import { FormKitNode } from '@formkit/core'
 import { FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/schema'
-import { h, defineComponent, InjectionKey, PropType, watchEffect } from 'vue'
+import { h, defineComponent, InjectionKey, PropType } from 'vue'
 import { useInput } from './composables/useInput'
 import { useLibrary } from './composables/useLibrary'
 import { FormKitSchema } from './FormKitSchema'
@@ -24,14 +24,21 @@ const FormKit = defineComponent({
       type: String,
       required: false,
     },
+    errors: {
+      type: Array as PropType<string[]>,
+      default: [],
+    },
     schema: {
       type: Object as PropType<
         Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
       >,
       default: {},
     },
+    modelValue: {
+      required: false,
+    },
   },
-  emits: ['value'],
+  emits: ['value', 'update:modelValue'],
   inheritAttrs: false,
   setup(props, context) {
     const libInput = useLibrary(props.type)
@@ -40,7 +47,6 @@ const FormKit = defineComponent({
         ? libInput.schema(props.schema)
         : libInput.schema
     const [data] = useInput(libInput, props, context)
-    watchEffect(() => context.emit('value', data.value))
     return () => h(FormKitSchema, { schema, data }, { ...context.slots })
   },
 })

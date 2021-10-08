@@ -1,5 +1,5 @@
 import { parentSymbol } from '../FormKit'
-import { createNode, FormKitNode, FormKitMessage } from '@formkit/core'
+import { createNode, FormKitNode, FormKitMessage, warn } from '@formkit/core'
 import { nodeProps, except, camel } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
 import {
@@ -7,6 +7,7 @@ import {
   inject,
   provide,
   watchEffect,
+  watch,
   toRef,
   SetupContext,
 } from 'vue'
@@ -14,8 +15,10 @@ import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
 
 interface FormKitComponentProps {
-  type: string
-  name: string
+  type?: string
+  name?: string
+  modelValue?: any
+  errors: string[]
 }
 
 /**
@@ -41,7 +44,7 @@ const universalProps = [
  */
 export function useInput(
   input: FormKitTypeDefinition,
-  props: Partial<FormKitComponentProps>,
+  props: FormKitComponentProps,
   context: SetupContext<any>
 ): [Record<string, any>, FormKitNode] {
   const type = input.type
@@ -60,8 +63,9 @@ export function useInput(
   /**
    * Define the initial component
    */
-  let value: any = context.attrs.value
-  if (!value) {
+  let value: any =
+    props.modelValue !== undefined ? props.modelValue : context.attrs.value
+  if (value === undefined) {
     if (type === 'input') value = ''
     if (type === 'group') value = {}
     if (type === 'list') value = []
@@ -77,6 +81,27 @@ export function useInput(
     value,
     parent,
     props: nodeProps(context.attrs),
+  })
+
+  /**
+   * Add any/all "prop" errors to the store.
+   */
+  watchEffect(() => {
+    // Remove any that are not in the set
+    node.store.filter(
+      (message) => props.errors.includes(message.value as string),
+      'error'
+    )
+    props.errors.forEach((error) => {
+      node.store.set({
+        key: error,
+        type: 'error',
+        value: error,
+        visible: true,
+        blocking: false,
+        meta: {},
+      })
+    })
   })
 
   /**
@@ -142,6 +167,9 @@ export function useInput(
       default:
         data.value = payload
     }
+    // Emit the values after commit
+    context.emit('value', data.value)
+    context.emit('update:modelValue', data.value)
   })
 
   /**
@@ -159,6 +187,22 @@ export function useInput(
 
   if (node.type !== 'input') {
     provide(parentSymbol, node)
+  }
+
+  /**
+   * Enabled support for v-model, this is not really recommended.
+   */
+  if (props.modelValue !== undefined) {
+    watch(
+      () => props.modelValue,
+      (value) => {
+        if (node.type !== 'input') warn(678)
+        node.input(value, false)
+      },
+      {
+        deep: true,
+      }
+    )
   }
 
   return [data, node]

@@ -49,7 +49,7 @@ export type FormKitSchemaFormKitNode = {
  * @public
  */
 export type FormKitSchemaDOMNode = {
-  $el: string
+  $el: string | null
   attrs?: FormKitSchemaAttributes
 } & FormKitSchemaProps
 

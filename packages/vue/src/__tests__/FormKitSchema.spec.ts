@@ -661,4 +661,30 @@ describe('parsing dom elements', () => {
       '<input type="text" name="foobar" min="20" step="1">'
     )
   })
+
+  it('can "unwrap" a schema node by having a null value.', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $el: null,
+            children: [
+              {
+                $el: 'label',
+                children: [
+                  {
+                    $el: 'input',
+                    attrs: {
+                      type: 'checkbox',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<label><input type="checkbox"></label>')
+  })
 })

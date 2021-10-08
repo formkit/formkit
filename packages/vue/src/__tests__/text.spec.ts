@@ -24,13 +24,14 @@ describe('text classification', () => {
       },
       attrs: {
         id: 'foobar',
+        placeholder: 'Favorite food?',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
       },
     })
     expect(wrapper.html()).toContain(
-      '<input type="text" name="food" id="foobar">'
+      '<input type="text" name="food" id="foobar" placeholder="Favorite food?">'
     )
   })
 })

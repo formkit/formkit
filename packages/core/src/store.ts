@@ -195,10 +195,11 @@ function removeMessage(
 
 /**
  * Iterates over all messages removing those that are no longer wanted.
- * @param messageStore -
- * @param store -
- * @param node -
+ * @param messageStore - The message store object
+ * @param store - The store interface
+ * @param node - The node to filter for
  * @param callback - A callback accepting a message and returning a boolean
+ * @param type - Pre filtered by a given message type
  */
 function filterMessages(
   messageStore: FormKitMessageStore,

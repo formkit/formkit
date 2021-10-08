@@ -392,6 +392,10 @@ function parseNode(
       const value = getRef(data, scopes, token)
       return () => checkScope(value.value, token)
     })
+  } else if (!isConditional(node) && element === null) {
+    // In this odd case our element is actually a partial and
+    // we only want to render the children.
+    condition = () => true
   }
 
   // Compile children down to a function
