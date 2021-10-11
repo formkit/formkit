@@ -25,5 +25,5 @@ process.
 
 ## Other stuff
 
-- `validation-name` is now `message-name`
-- New `messageNameStrategy`
+- `validation-name` is now `validation-label`
+- New `validationLabelStrategy`

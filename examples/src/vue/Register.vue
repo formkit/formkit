@@ -3,7 +3,7 @@
     <h2>Registration</h2>
     <FormKit
       type="form"
-      @value="setLocalValue"
+      @input="setLocalValue"
     >
       <div class="double">
         <FormKit
@@ -11,6 +11,7 @@
           name="first"
           validation="required"
           type="text"
+          ref="first"
         />
         <FormKit
           label="Last name"
@@ -64,14 +65,17 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { reactive } from "vue"
+import { reactive, ref } from "vue"
 
 const data = reactive({
   value: {}
 })
 
+const name = ref<any>(null)
+
 const setLocalValue = (value: Record<string, any>) => {
   data.value = { ...value }
+  console.log(name)
 }
 </script>
 

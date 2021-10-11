@@ -368,4 +368,36 @@ describe('validation rule sequencing', () => {
     node.input('foobar', false)
     expect(node.store).toHaveProperty('validating')
   })
+
+  it('can run arbitrary validation rules', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        label: 'ABC Field',
+        validation: 'abc',
+        validationRules: {
+          abc: ({ value }) => value === 'abc',
+        },
+        validationMessages: {
+          abc: ({ name }) => `${name} should be 'abc'`,
+        },
+      },
+      value: 'abcdef',
+    })
+    expect(node.store.rule_abc.value).toBe("ABC Field should be 'abc'")
+  })
+
+  it('can replace a validation message with a string', () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required',
+        validationMessages: {
+          required: 'Fill this out!',
+        },
+      },
+      value: '',
+    })
+    expect(node.store.rule_required.value).toBe('Fill this out!')
+  })
 })

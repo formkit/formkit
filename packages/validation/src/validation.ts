@@ -106,6 +106,7 @@ type FormKitValidationI18NArgs = [
     node: FormKitNode<any>
     name: string
     args: any[]
+    message?: string
   }
 ]
 
@@ -280,6 +281,13 @@ function createFailedMessage(
   validation: FormKitValidation,
   removeImmediately: boolean
 ): FormKitMessage {
+  let i18nArgs: FormKitValidationI18NArgs | undefined = createI18nArgs(
+    node,
+    validation
+  )
+  const customMessage = createCustomMessage(node, validation, i18nArgs)
+  // Here we short circuit the i18n system to force the output.
+  if (customMessage) i18nArgs = undefined
   const message = createMessage({
     blocking: validation.blocking,
     key: `rule_${validation.name}`,
@@ -298,13 +306,34 @@ function createFailedMessage(
       /**
        * The arguments that will be passed to the validation rules
        */
-      i18nArgs: i18nArgs(node, validation),
+      i18nArgs,
     },
     type: 'validation',
-    value: 'This field is not valid.',
+    value: customMessage || 'This field is not valid.',
   })
   node.store.set(message)
   return message
+}
+
+/**
+ * Returns a custom validation message if applicable.
+ * @param node - FormKit Node
+ * @param validation - The validation rule being processed.
+ */
+function createCustomMessage(
+  node: FormKitNode<any>,
+  validation: FormKitValidation,
+  i18nArgs: FormKitValidationI18NArgs
+): string | undefined {
+  const customMessage =
+    node.props.validationMessages &&
+    has(node.props.validationMessages, validation.name)
+      ? node.props.validationMessages[validation.name]
+      : undefined
+  if (typeof customMessage === 'function') {
+    return customMessage(...i18nArgs)
+  }
+  return customMessage
 }
 
 /**
@@ -312,10 +341,11 @@ function createFailedMessage(
  * @param node - The node that performed the validation
  * @param validation - The validation that failed
  */
-function i18nArgs(
+function createI18nArgs(
   node: FormKitNode<any>,
   validation: FormKitValidation
 ): FormKitValidationI18NArgs {
+  // If a custom message has been found, short circuit the i18n system.
   return [
     {
       node,
@@ -331,11 +361,14 @@ function i18nArgs(
  * @returns
  */
 function createMessageName(node: FormKitNode<any>): string {
-  if (typeof node.props.messageNameStrategy === 'function') {
-    return node.props.messageNameStrategy(node)
+  if (typeof node.props.validationLabelStrategy === 'function') {
+    return node.props.validationLabelStrategy(node)
   }
   return (
-    node.props.messageName || node.props.label || node.props.name || node.name
+    node.props.validationLabel ||
+    node.props.label ||
+    node.props.name ||
+    node.name
   )
 }
 

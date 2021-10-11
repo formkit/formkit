@@ -297,9 +297,13 @@ export function assignDeep<
  * @param attrs - An object to extract core node config from.
  * @public
  */
-export function nodeProps(props: Record<string, any>): Record<string, any> {
-  const { value, name, ...validProps } = props // eslint-disable-line
-  return validProps
+export function nodeProps(
+  ...sets: Array<Record<string, any>>
+): Record<string, any> {
+  return sets.reduce((valid, props) => {
+    const { value, name, modelValue, ...validProps } = props // eslint-disable-line
+    return Object.assign(valid, validProps)
+  }, {})
 }
 
 /**

@@ -1,5 +1,11 @@
 import { parentSymbol } from '../FormKit'
-import { createNode, FormKitNode, FormKitMessage, warn } from '@formkit/core'
+import {
+  createNode,
+  FormKitNode,
+  FormKitMessage,
+  FormKitProps,
+  warn,
+} from '@formkit/core'
 import { nodeProps, except, camel } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
 import {
@@ -46,7 +52,7 @@ export function useInput(
   input: FormKitTypeDefinition,
   props: FormKitComponentProps,
   context: SetupContext<any>
-): [Record<string, any>, FormKitNode] {
+): [Record<string, any>, FormKitNode<any>] {
   const type = input.type
 
   /**
@@ -71,6 +77,12 @@ export function useInput(
     if (type === 'list') value = []
   }
 
+  const p = nodeProps(context.attrs, props)
+  const initialProps: Partial<FormKitProps> = {}
+  for (const propName in p) {
+    initialProps[camel(propName)] = p[propName]
+  }
+
   /**
    * Create the FormKitNode.
    */
@@ -80,8 +92,8 @@ export function useInput(
     name: props.name || undefined,
     value,
     parent,
-    props: nodeProps(context.attrs),
-  })
+    props: initialProps,
+  }) as FormKitNode<any>
 
   /**
    * Add any/all "prop" errors to the store.
@@ -139,10 +151,9 @@ export function useInput(
    * reactive.
    */
   watchEffect(() => {
-    const props = nodeProps(context.attrs)
-    node.props.type = props.type
-    for (const propName in props) {
-      node.props[camel(propName)] = props[propName]
+    const p = nodeProps(context.attrs, props)
+    for (const propName in p) {
+      node.props[camel(propName)] = p[propName]
     }
   })
 
@@ -168,7 +179,7 @@ export function useInput(
         data.value = payload
     }
     // Emit the values after commit
-    context.emit('value', data.value)
+    context.emit('input', data.value)
     context.emit('update:modelValue', data.value)
   })
 

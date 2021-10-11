@@ -34,11 +34,43 @@ const FormKit = defineComponent({
       >,
       default: {},
     },
+    validation: {
+      type: [String, Array] as PropType<
+        string | Array<[rule: string, ...args: any]>
+      >,
+      required: false,
+    },
+    validationMessages: {
+      type: Object as PropType<
+        Record<
+          string,
+          | string
+          | ((ctx: {
+              node: FormKitNode<any>
+              name: string
+              args: any[]
+            }) => string)
+        >
+      >,
+      required: false,
+    },
+    validationRules: {
+      type: Object as PropType<
+        Record<string, (node: FormKitNode<any>) => boolean>
+      >,
+      required: false,
+    },
     modelValue: {
       required: false,
     },
   },
-  emits: ['value', 'update:modelValue'],
+  emits: {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    input: (_value: any) => true,
+    'update:modelValue': (_value: any) => true,
+    node: (node: FormKitNode<any>) => !!node,
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  },
   inheritAttrs: false,
   setup(props, context) {
     const libInput = useLibrary(props.type)
@@ -46,7 +78,8 @@ const FormKit = defineComponent({
       typeof libInput.schema === 'function'
         ? libInput.schema(props.schema)
         : libInput.schema
-    const [data] = useInput(libInput, props, context)
+    const [data, node] = useInput(libInput, props, context)
+    context.emit('node', node)
     return () => h(FormKitSchema, { schema, data }, { ...context.slots })
   },
 })

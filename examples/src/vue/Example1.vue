@@ -6,6 +6,9 @@
       label="Name"
       help="Fill out your name"
       validation="required|length:10"
+      :validation-rules="{
+        abc: ({ value }) => value === 'abc'
+      }"
     />
   </div>
 </template>
