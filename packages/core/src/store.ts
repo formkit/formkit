@@ -74,7 +74,7 @@ export interface FormKitStoreTraps {
 
 /**
  * Creates a new FormKitMessage object.
- * @param conf -
+ * @param conf - The message configuration
  * @returns FormKitMessage
  * @public
  */
@@ -143,10 +143,10 @@ export function createStore(): FormKitStore {
 
 /**
  * Adds a new value to a FormKit message bag.
- * @param store -
- * @param bag -
- * @param node -
- * @param message -
+ * @param store - The store itself
+ * @param store - The store interface
+ * @param node - The node this store belongs to
+ * @param message - The message object
  * @returns FormKitStore
  */
 function setMessage(
@@ -173,10 +173,10 @@ function setMessage(
 
 /**
  * Remove a message from the store.
- * @param messageStore -
- * @param store -
- * @param node -
- * @param key -
+ * @param store - The store itself
+ * @param store - The store interface
+ * @param node - The node this store belongs to
+ * @param key - The message key
  * @returns FormKitStore
  */
 function removeMessage(
@@ -195,7 +195,7 @@ function removeMessage(
 
 /**
  * Iterates over all messages removing those that are no longer wanted.
- * @param messageStore - The message store object
+ * @param messageStore - The store itself
  * @param store - The store interface
  * @param node - The node to filter for
  * @param callback - A callback accepting a message and returning a boolean
@@ -218,7 +218,7 @@ function filterMessages(
 
 /**
  * Reduce the message store to some other generic value.
- * @param messageStore - The message store object
+ * @param messageStore - The store itself
  * @param _store - Unused but curried — the store interface itself
  * @param _node - The node owner of this store
  * @param reducer - The callback that performs the reduction

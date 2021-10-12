@@ -124,4 +124,39 @@ describe('validation', () => {
     )
     expect(wrapper.html()).toContain('<li>ABC should be abc</li>')
   })
+
+  it('can override the validation label', () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            label="foo"
+            validation="required"
+            validation-label="bar"
+          />
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<li>Bar is required.</li>')
+  })
+
+  it('can override the validation label strategy', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        label: 'foo',
+        validation: [['required']],
+        'data-foo': 'hi there',
+        validationLabel: (node: FormKitNode<any>) => node.props.dataFoo,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toContain('<li>Hi there is required.</li>')
+  })
 })

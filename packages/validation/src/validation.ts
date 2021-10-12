@@ -361,8 +361,8 @@ function createI18nArgs(
  * @returns
  */
 function createMessageName(node: FormKitNode<any>): string {
-  if (typeof node.props.validationLabelStrategy === 'function') {
-    return node.props.validationLabelStrategy(node)
+  if (typeof node.props.validationLabel === 'function') {
+    return node.props.validationLabel(node)
   }
   return (
     node.props.validationLabel ||

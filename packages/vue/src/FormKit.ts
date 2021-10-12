@@ -60,6 +60,12 @@ const FormKit = defineComponent({
       >,
       required: false,
     },
+    validationLabel: {
+      type: [String, Function] as PropType<
+        string | ((node: FormKitNode<any>) => string)
+      >,
+      required: false,
+    },
     modelValue: {
       required: false,
     },

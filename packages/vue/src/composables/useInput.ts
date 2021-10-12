@@ -32,14 +32,7 @@ interface FormKitComponentProps {
  * TODO: Currently local, this should probably exported to a inputs or another
  * package.
  */
-const universalProps = [
-  'help',
-  'label',
-  'options',
-  'validation',
-  'message-name',
-  'message-name-strategy',
-]
+const universalProps = ['help', 'label', 'options']
 
 /**
  * A composable for creating a new FormKit node.
