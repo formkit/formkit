@@ -77,6 +77,8 @@ export function useInput(
     initialProps[camel(propName)] = p[propName]
   }
 
+  console.log('SETUP')
+
   /**
    * Create the FormKitNode.
    */
@@ -92,7 +94,7 @@ export function useInput(
   /**
    * Start a validity counter on all blocking messages.
    */
-  node.ledger.count('valid', (m) => m.blocking)
+  node.ledger.count('blocking', (m) => m.blocking)
 
   /**
    * Add any/all "prop" errors to the store.
@@ -154,7 +156,7 @@ export function useInput(
     node,
     options: toRef(context.attrs, 'options'),
     state: {
-      valid: node.ledger.value('valid'),
+      valid: node.ledger.value('blocking'),
     } as Record<string, any>,
     type: toRef(props, 'type'),
     value: node.value,
@@ -192,6 +194,7 @@ export function useInput(
       default:
         data.value = payload
     }
+    console.log('committed')
     // The input is dirty after a value has been input by a user
     if (!data.state.dirty) data.handlers.dirty()
     // Emit the values after commit
@@ -206,7 +209,6 @@ export function useInput(
   const updateState = (message: FormKitMessage) => {
     if (message.visible) data.messages[message.key] = message
     if (message.type === 'state') data.state[message.key] = message.value
-    data.state.valid = node.ledger.value('valid')
   }
 
   /**
@@ -217,7 +219,14 @@ export function useInput(
   node.on('message-removed', ({ payload: message }) => {
     delete data.messages[message.key]
     delete data.state[message.key]
-    data.state.valid = node.ledger.value('valid')
+  })
+  node.on('settled:blocking', ({ payload: count }) => {
+    console.log('settled:blocking ', node.name, node.ledger.value('blocking'))
+    data.state.valid = count
+  })
+  node.on('unsettled:blocking', ({ payload: count }) => {
+    console.log('unsettled:blocking', node.name, node.ledger.value('blocking'))
+    data.state.valid = count
   })
 
   if (node.type !== 'input') {
@@ -225,13 +234,14 @@ export function useInput(
   }
 
   /**
-   * Enabled support for v-model, this is not really recommended.
+   * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (props.modelValue !== undefined) {
     watch(
       () => props.modelValue,
       (value) => {
         if (node.type !== 'input') warn(678)
+        console.log('watch was triggered')
         node.input(value, false)
       },
       {

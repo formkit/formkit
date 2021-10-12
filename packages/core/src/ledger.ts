@@ -63,8 +63,9 @@ export function createLedger(): FormKitLedger {
     count: (...args) => createCounter(n, ledger, ...args),
     init(node: FormKitNode<any>) {
       n = node
-      node.on('message-added.deep', add(ledger, 1))
-      node.on('message-removed.deep', add(ledger, -1))
+      // TODO - remove node passthrough here as third argument
+      node.on('message-added.deep', add(ledger, 1, n))
+      node.on('message-removed.deep', add(ledger, -1, n))
     },
     merge: (child) => merge(n, ledger, child),
     settled(counterName: string): Promise<void> {
@@ -142,9 +143,11 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
   const post = counter.count + increment
   counter.count = post
   if (initial === 0 && post !== 0) {
-    counter.node.emit(`unsettled:${counter.name}`)
+    counter.node.emit(`unsettled:${counter.name}`, counter.count)
     counter.promise = new Promise((r) => (counter.resolve = r))
-    counter.promise.then(() => counter.node.emit(`settled:${counter.name}`))
+    counter.promise.then(() =>
+      counter.node.emit(`settled:${counter.name}`, counter.count)
+    )
   } else if (initial !== 0 && post === 0) {
     counter.resolve()
   }
@@ -157,8 +160,17 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
  * @param delta - The amount to add or subtract
  * @returns
  */
-function add(ledger: FormKitLedgerStore, delta: number) {
+function add(
+  ledger: FormKitLedgerStore,
+  delta: number,
+  node: FormKitNode<any>
+) {
   return (e: FormKitEvent) => {
+    console.log(
+      delta > 0 ? 'message-added' : 'message-removed',
+      node.name,
+      e.payload
+    )
     for (const name in ledger) {
       const counter = ledger[name]
       if (counter.condition(e.payload)) {

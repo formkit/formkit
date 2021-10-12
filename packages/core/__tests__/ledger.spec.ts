@@ -169,6 +169,7 @@ describe('ledger tracking on a tree', () => {
     const listener = jest.fn()
     tree.on('unsettled:blocking', listener)
     tree.at('form.address.state')!.store.set(error())
+    tree.at('form.address.city')!.store.set(error())
     expect(listener).toHaveBeenCalledTimes(1)
   })
 

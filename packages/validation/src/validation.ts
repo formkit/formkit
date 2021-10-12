@@ -247,7 +247,7 @@ function run(
   complete: () => void
 ): void {
   const validation = validations[current]
-  if (!validation) return complete()
+  // if (!validation) return complete()
   const currentRun = state.input
   validation.state = null
 
@@ -255,12 +255,15 @@ function run(
     state.isPassing = state.isPassing && !!result
     validation.queued = false
     const newDeps = node.stopObserve()
+    console.log(diffDeps(validation.deps, newDeps))
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
+      console.log('dependencies', node.name, node.receipts.get(node))
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
       state.rerun = setTimeout(validate, 0, node, validations, state)
     })
     validation.deps = newDeps
+
     if (state.input === currentRun) {
       validation.state = result
       if (result === false) {
