@@ -11,7 +11,7 @@ export interface FormKitMessageProps {
   key: string
   meta: FormKitMessageMeta
   type: string
-  value?: string
+  value?: string | number | boolean
   visible: boolean
 }
 

@@ -5,9 +5,12 @@
       type="text"
       label="Name"
       help="Fill out your name"
+      value="foo"
       validation="required|length:10"
-      :validation-rules="{
-        abc: ({ value }) => value === 'abc'
+      :schema="{
+        label: {
+          children: ['blurred: ', '$fns.json($state)']
+        }
       }"
     />
   </div>

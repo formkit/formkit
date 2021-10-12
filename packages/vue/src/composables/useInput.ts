@@ -5,6 +5,7 @@ import {
   FormKitMessage,
   FormKitProps,
   warn,
+  createMessage,
 } from '@formkit/core'
 import { nodeProps, except, camel } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
@@ -114,29 +115,42 @@ export function useInput(
    * forms. It is a subset of data in the core node object.
    */
   const data = reactive({
-    type: toRef(props, 'type'),
     _value: node.value,
-    value: node.value,
-    node,
+    attrs: except(
+      context.attrs,
+      new Set(universalProps.concat(input.props || []))
+    ),
     fns: {
       length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
+      number: (value: any) => Number(value),
+      string: (value: any) => String(value),
+      json: (value: any) => JSON.stringify(value),
     },
+    handlers: {
+      blur: () =>
+        node.store.set(
+          createMessage({ key: 'blurred', visible: false, value: true })
+        ),
+      dirty: () => {
+        node.store.set(
+          createMessage({ key: 'dirty', visible: false, value: true })
+        )
+      },
+      DOMInput: (e: Event) => node.input((e.target as HTMLInputElement).value),
+    },
+    help: toRef(context.attrs, 'help'),
+    label: toRef(context.attrs, 'label'),
     messages: node.store.reduce((store, message) => {
       if (message.visible) {
         store[message.key] = message
       }
       return store
     }, {} as Record<string, FormKitMessage>),
-    label: toRef(context.attrs, 'label'),
-    help: toRef(context.attrs, 'help'),
+    node,
     options: toRef(context.attrs, 'options'),
-    input: context.attrs.input
-      ? toRef(context.attrs, 'input')
-      : (e: Event) => node.input((e.target as HTMLInputElement).value),
-    attrs: except(
-      context.attrs,
-      new Set(universalProps.concat(input.props || []))
-    ),
+    state: {} as Record<string, boolean>,
+    type: toRef(props, 'type'),
+    value: node.value,
   })
 
   /**
@@ -181,12 +195,15 @@ export function useInput(
    */
   node.on('message-added', ({ payload: message }) => {
     if (message.visible) data.messages[message.key] = message
+    if (message.type === 'state') data.state[message.key] = message.value
   })
   node.on('message-removed', ({ payload: message }) => {
     delete data.messages[message.key]
+    delete data.state[message.key]
   })
   node.on('message-updated', ({ payload: message }) => {
     if (message.visible) data.messages[message.key] = message
+    if (message.type === 'state') data.state[message.key] = message.value
   })
 
   if (node.type !== 'input') {
