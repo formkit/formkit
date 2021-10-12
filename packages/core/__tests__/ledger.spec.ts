@@ -157,6 +157,21 @@ describe('ledger tracking on a tree', () => {
     expect(tree.at('form.address')!.ledger.value('blocking')).toBe(2)
   })
 
+  it('emits an unsettled event when counting', () => {
+    const error = () =>
+      createMessage({
+        type: 'validation',
+        key: 'required_rule',
+        blocking: true,
+      })
+    const tree = createShippingTree()
+    tree.ledger.count('blocking', (m) => m.blocking)
+    const listener = jest.fn()
+    tree.on('unsettled:blocking', listener)
+    tree.at('form.address.state')!.store.set(error())
+    expect(listener).toHaveBeenCalledTimes(1)
+  })
+
   it('emits a settled event when settling', async () => {
     const error = () =>
       createMessage({

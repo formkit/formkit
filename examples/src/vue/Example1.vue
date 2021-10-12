@@ -2,8 +2,10 @@
   <div class="container">
     <h2>FormKit Playground</h2>
     <FormKit
+      v-slot="{ state }"
       type="group"
     >
+      {{ state }}
       <FormKit
         type="text"
         label="Name"
@@ -24,7 +26,7 @@
 <script setup lang="ts">
 const longrun = (node) => {
   return new Promise((resolve) => setTimeout(() => {
-    if (node.value === 'i love my wife') {
+    if (node.value === 'lets get lunch') {
       resolve(true)
     } else {
       resolve(false)

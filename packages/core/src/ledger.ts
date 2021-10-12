@@ -142,6 +142,7 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
   const post = counter.count + increment
   counter.count = post
   if (initial === 0 && post !== 0) {
+    counter.node.emit(`unsettled:${counter.name}`)
     counter.promise = new Promise((r) => (counter.resolve = r))
     counter.promise.then(() => counter.node.emit(`settled:${counter.name}`))
   } else if (initial !== 0 && post === 0) {

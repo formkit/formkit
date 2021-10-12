@@ -45,7 +45,7 @@ const FormKit = defineComponent({
         Record<
           string,
           | string
-          | ((ctx?: {
+          | ((ctx: {
               node: FormKitNode<any>
               name: string
               args: any[]
@@ -56,13 +56,13 @@ const FormKit = defineComponent({
     },
     validationRules: {
       type: Object as PropType<
-        Record<string, (node?: FormKitNode<any>) => boolean | Promise<boolean>>
+        Record<string, (node: FormKitNode<any>) => boolean | Promise<boolean>>
       >,
       required: false,
     },
     validationLabel: {
       type: [String, Function] as PropType<
-        string | ((node?: FormKitNode<any>) => string)
+        string | ((node: FormKitNode<any>) => string)
       >,
       required: false,
     },

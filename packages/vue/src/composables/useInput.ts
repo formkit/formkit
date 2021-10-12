@@ -90,6 +90,11 @@ export function useInput(
   }) as FormKitNode<any>
 
   /**
+   * Start a validity counter on all blocking messages.
+   */
+  node.ledger.count('valid', (m) => m.blocking)
+
+  /**
    * Add any/all "prop" errors to the store.
    */
   watchEffect(() => {
@@ -148,7 +153,9 @@ export function useInput(
     }, {} as Record<string, FormKitMessage>),
     node,
     options: toRef(context.attrs, 'options'),
-    state: {} as Record<string, boolean>,
+    state: {
+      valid: node.ledger.value('valid'),
+    } as Record<string, any>,
     type: toRef(props, 'type'),
     value: node.value,
   })
@@ -193,21 +200,24 @@ export function useInput(
   })
 
   /**
+   * Update the local state in response to messages.
+   * @param message - A formkit message
+   */
+  const updateState = (message: FormKitMessage) => {
+    if (message.visible) data.messages[message.key] = message
+    if (message.type === 'state') data.state[message.key] = message.value
+    data.state.valid = node.ledger.value('valid')
+  }
+
+  /**
    * Listen to message events and modify the local message data values.
    */
-  node.on('message-added', ({ payload: message }) => {
-    if (message.visible) data.messages[message.key] = message
-    if (message.type === 'state') {
-      data.state[message.key] = message.value
-    }
-  })
+  node.on('message-added', (e) => updateState(e.payload))
+  node.on('message-updated', (e) => updateState(e.payload))
   node.on('message-removed', ({ payload: message }) => {
     delete data.messages[message.key]
     delete data.state[message.key]
-  })
-  node.on('message-updated', ({ payload: message }) => {
-    if (message.visible) data.messages[message.key] = message
-    if (message.type === 'state') data.state[message.key] = message.value
+    data.state.valid = node.ledger.value('valid')
   })
 
   if (node.type !== 'input') {
