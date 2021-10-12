@@ -87,11 +87,6 @@ interface RenderNodes {
   (): Renderable | Renderable[]
 }
 
-// const Fragment: FunctionalComponent = function (_props, context) {
-//   const value = context.slots.default ? context.slots.default() : null
-//   return value
-// }
-
 /**
  * Extracts a reference object from a set of (reactive) data.
  * @param data - The formkit context object object for the given path

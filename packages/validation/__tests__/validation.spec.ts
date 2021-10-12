@@ -486,7 +486,7 @@ describe('validation rule sequencing', () => {
       value: 'abcdef',
     })
     node.input('foo', false)
-    await new Promise((r) => setTimeout(r, 105))
+    await new Promise((r) => setTimeout(r, 120))
     expect(node.store).toHaveProperty('rule_exists') // value is not foobar
     node.input('', false)
     await nextTick()
@@ -521,5 +521,44 @@ describe('validation rule sequencing', () => {
     node.props.validation = 'contains:bar'
     expect(node.store).not.toHaveProperty('rule_length')
     expect(node.store).toHaveProperty('rule_contains')
+  })
+
+  it('fails multiple times with long running validation rules', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|length:5|longrun',
+        validationRules: {
+          longrun(node) {
+            return new Promise<boolean>((r) => {
+              setTimeout(() => {
+                if (node.value !== 'barbar') return r(false)
+                r(true)
+              }, 100)
+            })
+          },
+        },
+      },
+      value: 'foo',
+    })
+    expect(node.store).toHaveProperty('rule_length')
+    node.input('foobar', false)
+    await nextTick()
+    expect(node.store).toHaveProperty('validating')
+    await new Promise((r) => setTimeout(r, 120))
+    expect(node.store).not.toHaveProperty('validating')
+    expect(node.store).toHaveProperty('rule_longrun')
+    node.input('foobars', false)
+    await nextTick()
+    expect(node.store).toHaveProperty('validating')
+    await new Promise((r) => setTimeout(r, 120))
+    expect(node.store).not.toHaveProperty('validating')
+    expect(node.store).toHaveProperty('rule_longrun')
+    node.input('foobarss', false)
+    await nextTick()
+    node.input('foo', false)
+    await new Promise((r) => setTimeout(r, 200))
+    expect(node.store).toHaveProperty('rule_length')
+    expect(node.store).not.toHaveProperty('rule_longrun')
   })
 })

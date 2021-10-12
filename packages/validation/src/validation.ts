@@ -146,9 +146,10 @@ type FormKitValidationI18NArgs = [
  * Message that gets set when the node is awaiting validation.
  */
 const validatingMessage = createMessage({
-  type: 'validation',
+  type: 'state',
   blocking: true,
   visible: false,
+  value: true,
   key: 'validating',
 })
 
@@ -172,10 +173,11 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
     // Initialize the validating counter
     node.ledger.count(
       'validating',
-      (m) => m.key === 'validating' && m.type === 'validation'
+      (m) => m.key === 'validating' && m.type === 'state'
     )
     // create an observed node
     const observedNode = createObserver(node)
+    const state = { input: token(), rerun: null, isPassing: true }
     // If the node's validation prop changes, update the rules:
     node.on('prop', (event) => {
       if (event.payload.prop === 'validation') {
@@ -183,11 +185,19 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
         removeListeners(observedNode.receipts)
         // Remove all existing messages before re-validating
         node.store.filter(() => false, 'validation')
-        validate(observedNode, parseRules(event.payload.value, availableRules))
+        validate(
+          observedNode,
+          parseRules(event.payload.value, availableRules),
+          state
+        )
       }
     })
     // Validate the field when this plugin is initialized
-    validate(observedNode, parseRules(node.props.validation, availableRules))
+    validate(
+      observedNode,
+      parseRules(node.props.validation, availableRules),
+      state
+    )
   }
 }
 
@@ -200,9 +210,11 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
  */
 function validate(
   node: FormKitObservedNode<any>,
-  validations: FormKitValidation[]
+  validations: FormKitValidation[],
+  state: FormKitValidationState
 ) {
-  const state = { input: token(), rerun: null, isPassing: true }
+  state.input = token()
+  state.isPassing = true
   node.store.filter((message) => !message.meta.removeImmediately, 'validation')
   validations.forEach(
     (validation) => validation.debounce && clearTimeout(validation.timer)
@@ -235,6 +247,7 @@ function run(
   complete: () => void
 ): void {
   const validation = validations[current]
+  if (!validation) return complete()
   const currentRun = state.input
   validation.state = null
 
@@ -245,7 +258,7 @@ function run(
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
-      state.rerun = setTimeout(validate, 0, node, validations)
+      state.rerun = setTimeout(validate, 0, node, validations, state)
     })
     validation.deps = newDeps
     if (state.input === currentRun) {

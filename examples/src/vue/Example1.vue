@@ -2,22 +2,35 @@
   <div class="container">
     <h2>FormKit Playground</h2>
     <FormKit
-      type="text"
-      label="Name"
-      help="Fill out your name"
-      value="foo"
-      validation="required|length:10"
-      :schema="{
-        label: {
-          children: ['blurred: ', '$fns.json($state)']
-        }
-      }"
-    />
+      type="group"
+    >
+      <FormKit
+        type="text"
+        label="Name"
+        help="Fill out your name"
+        value="foo"
+        validation="required|length:10|longrun"
+        :validation-rules="{
+          longrun
+        }"
+        :schema="{
+          help: { children: '$fns.json($state)' }
+        }"
+      />
+    </FormKit>
   </div>
 </template>
 
 <script setup lang="ts">
-
+const longrun = (node) => {
+  return new Promise((resolve) => setTimeout(() => {
+    if (node.value === 'i love my wife') {
+      resolve(true)
+    } else {
+      resolve(false)
+    }
+  }, 1000))
+}
 </script>
 
 <style>

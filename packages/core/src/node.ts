@@ -213,8 +213,11 @@ export interface FormKitConfig {
  */
 export type FormKitProps = {
   delay: number
-  validationLabelStrategy?: (node: FormKitNode<any>) => string
-  validationRules?: Record<string, (node: FormKitNode<any>) => boolean>
+  validationLabelStrategy?: (node?: FormKitNode<any>) => string
+  validationRules?: Record<
+    string,
+    (node: FormKitNode<any>) => boolean | Promise<boolean>
+  >
   validationMessages?: Record<
     string,
     | ((ctx: { name: string; args: any[]; node: FormKitNode<any> }) => string)

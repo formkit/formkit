@@ -185,6 +185,8 @@ export function useInput(
       default:
         data.value = payload
     }
+    // The input is dirty after a value has been input by a user
+    if (!data.state.dirty) data.handlers.dirty()
     // Emit the values after commit
     context.emit('input', data.value)
     context.emit('update:modelValue', data.value)
@@ -195,7 +197,9 @@ export function useInput(
    */
   node.on('message-added', ({ payload: message }) => {
     if (message.visible) data.messages[message.key] = message
-    if (message.type === 'state') data.state[message.key] = message.value
+    if (message.type === 'state') {
+      data.state[message.key] = message.value
+    }
   })
   node.on('message-removed', ({ payload: message }) => {
     delete data.messages[message.key]
