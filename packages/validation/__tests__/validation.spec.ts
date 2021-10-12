@@ -6,8 +6,15 @@ import {
   FormKitValidationRule,
 } from '../src/validation'
 import { createNode } from '@formkit/core'
+import { jest } from '@jest/globals'
 
-const defaultValidation = { ...defaultHints, timer: 0 }
+const defaultValidation = {
+  ...defaultHints,
+  timer: 0,
+  queued: true,
+  state: null,
+  deps: new Map(),
+}
 const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('validation rule parsing', () => {
@@ -264,6 +271,9 @@ describe('validation rule sequencing', () => {
         }, 100)
       )
     },
+    confirm: (node, address) => {
+      return node.value === node.at(address)!.value
+    },
   })
 
   it('runs non-async non-debounced rules synchronously with bailing', async () => {
@@ -274,7 +284,6 @@ describe('validation rule sequencing', () => {
       },
       value: '',
     })
-    await nextTick()
     expect(node.store).toHaveProperty('rule_required')
     // Should not exist because of empty
     expect(node.store).not.toHaveProperty('rule_length')
@@ -324,7 +333,6 @@ describe('validation rule sequencing', () => {
       },
       value: 'abcdef',
     })
-    await nextTick()
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
     await new Promise((r) => setTimeout(r, 105))
@@ -333,6 +341,7 @@ describe('validation rule sequencing', () => {
     node.input('foobars', false)
     // These messages should be removed because they have been tagged with
     // 'removeImmediately' since they come on or after an async rule
+    await nextTick()
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
   })
@@ -350,7 +359,7 @@ describe('validation rule sequencing', () => {
     await nextTick()
     expect(node.store).not.toHaveProperty('rule_exists')
     node.input('foobar', false)
-    await new Promise((r) => setTimeout(r, 103))
+    await new Promise((r) => setTimeout(r, 110))
     expect(node.store).not.toHaveProperty('rule_exists')
   })
 
@@ -366,6 +375,7 @@ describe('validation rule sequencing', () => {
     await node.ledger.settled('validating')
     expect(node.store).not.toHaveProperty('validating')
     node.input('foobar', false)
+    await nextTick()
     expect(node.store).toHaveProperty('validating')
   })
 
@@ -399,5 +409,117 @@ describe('validation rule sequencing', () => {
       value: '',
     })
     expect(node.store.rule_required.value).toBe('Fill this out!')
+  })
+
+  it('can re-run a rule after it has failed, passed, and then failed again', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required',
+      },
+      value: 'abcdef',
+    })
+    expect(node.store).not.toHaveProperty('rule_required')
+    node.input('', false)
+    await nextTick()
+    expect(node.store).toHaveProperty('rule_required')
+    node.input('abc', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_required')
+    node.input('', false)
+    await nextTick()
+    expect(node.store).toHaveProperty('rule_required')
+  })
+
+  it('tracks dependencies on other inputs', async () => {
+    const confirm: FormKitValidationRule = jest.fn((node, address) => {
+      return node.value === node.at(address)!.value
+    })
+    const length: FormKitValidationRule = jest.fn(
+      ({ value }, length) => ('' + value).length >= parseInt(length)
+    )
+    const required: FormKitValidationRule = jest.fn(({ value }) => !!value)
+    required.skipEmpty = false
+    const validation = createValidationPlugin({
+      confirm,
+      length,
+      required,
+    })
+    const parent = createNode({
+      type: 'group',
+      plugins: [validation],
+    })
+    const bar = createNode({ name: 'bar', value: 'def', parent })
+    const foo = createNode({
+      name: 'foo',
+      value: 'abc',
+      props: { validation: 'required|confirm:bar|length:20' },
+      parent,
+    })
+    expect(foo.store).not.toHaveProperty('rule_required')
+    expect(foo.store).toHaveProperty('rule_confirm')
+    expect(foo.store).not.toHaveProperty('rule_length')
+    expect(required).toHaveBeenCalledTimes(1)
+    expect(confirm).toHaveBeenCalledTimes(1)
+    expect(length).toHaveBeenCalledTimes(0) // Should not have been called because confirm failed.
+    bar.input('abc', false)
+    await nextTick()
+    expect(foo.store).not.toHaveProperty('rule_required')
+    expect(foo.store).not.toHaveProperty('rule_confirm')
+    expect(foo.store).toHaveProperty('rule_length')
+    expect(required).toHaveBeenCalledTimes(1) // Should not have been called again
+    expect(confirm).toHaveBeenCalledTimes(2)
+    expect(length).toHaveBeenCalledTimes(1) // have been should be triggered because it's state was null ie "unknown"
+    foo.input('', false)
+    await nextTick()
+    expect(foo.store).toHaveProperty('rule_required')
+    expect(foo.store).not.toHaveProperty('rule_confirm')
+    expect(foo.store).not.toHaveProperty('rule_length')
+  })
+
+  it('removes validation messages that come after failing rules', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'required|exists',
+      },
+      value: 'abcdef',
+    })
+    node.input('foo', false)
+    await new Promise((r) => setTimeout(r, 105))
+    expect(node.store).toHaveProperty('rule_exists') // value is not foobar
+    node.input('', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_exists')
+  })
+
+  it('shows forced validation messages even after a failing rule', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'length:7|^contains:hij',
+      },
+      value: 'abcdef',
+    })
+    expect(node.store).toHaveProperty('rule_length')
+    expect(node.store).toHaveProperty('rule_contains')
+    node.input('abcdefhij', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_length')
+    expect(node.store).not.toHaveProperty('rule_contains')
+  })
+
+  it('removes old validations when validation prop changes', () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'length:7',
+      },
+      value: 'abcdef',
+    })
+    expect(node.store).toHaveProperty('rule_length')
+    node.props.validation = 'contains:bar'
+    expect(node.store).not.toHaveProperty('rule_length')
+    expect(node.store).toHaveProperty('rule_contains')
   })
 })
