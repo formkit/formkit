@@ -2,24 +2,43 @@
   <div class="container">
     <h2>FormKit Playground</h2>
     <FormKit
-      v-slot="{ state }"
-      name="group"
+      v-slot="{ value }"
       type="group"
     >
-      {{ state }}
+      {{ value }}
       <FormKit
-        type="text"
-        label="Name"
-        help="Fill out your name"
-        value="lets get lunch"
-        validation="required|length:10|longrun"
-        :validation-rules="{
-          longrun
-        }"
-        :schema="{
-          help: { children: '$fns.json($state)' }
-        }"
-      />
+        name="actions"
+        type="list"
+      >
+        <FormKit
+          v-for="i in 100"
+          :key="i"
+          name="group"
+          type="group"
+        >
+          <FormKit
+            type="text"
+            label="Email address"
+            name="email"
+            placeholder="foo@bar.com"
+            help="What is your address"
+            validation="required|length:10|longrun"
+            :validation-rules="{
+              longrun
+            }"
+          />
+          <FormKit
+            type="text"
+            label="What do you want to do?"
+            name="action"
+            help="Only: “lets get lunch” is a valid value"
+            validation="required|length:10|longrun"
+            :validation-rules="{
+              longrun
+            }"
+          />
+        </FormKit>
+      </FormKit>
     </FormKit>
   </div>
 </template>

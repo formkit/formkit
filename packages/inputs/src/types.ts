@@ -1,6 +1,7 @@
 import { FormKitTypeDefinition } from './index'
 import textSchema from './classifications/text'
 import groupSchema from './classifications/group'
+import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 
 /**
@@ -48,4 +49,13 @@ export const group: FormKitTypeDefinition = {
 export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: groupSchema,
+}
+
+/**
+ * The group input type.
+ * @public
+ */
+export const list: FormKitTypeDefinition = {
+  type: 'list',
+  schema: listSchema,
 }
