@@ -63,9 +63,8 @@ export function createLedger(): FormKitLedger {
     count: (...args) => createCounter(n, ledger, ...args),
     init(node: FormKitNode<any>) {
       n = node
-      // TODO - remove node passthrough here as third argument
-      node.on('message-added.deep', add(ledger, 1, n))
-      node.on('message-removed.deep', add(ledger, -1, n))
+      node.on('message-added.deep', add(ledger, 1))
+      node.on('message-removed.deep', add(ledger, -1))
     },
     merge: (child) => merge(n, ledger, child),
     settled(counterName: string): Promise<void> {
@@ -145,10 +144,8 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
   if (initial === 0 && post !== 0) {
     counter.node.emit(`unsettled:${counter.name}`, counter.count)
     counter.promise = new Promise((r) => (counter.resolve = r))
-    counter.promise.then(() =>
-      counter.node.emit(`settled:${counter.name}`, counter.count)
-    )
   } else if (initial !== 0 && post === 0) {
+    counter.node.emit(`settled:${counter.name}`, counter.count)
     counter.resolve()
   }
   return counter
@@ -160,17 +157,8 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
  * @param delta - The amount to add or subtract
  * @returns
  */
-function add(
-  ledger: FormKitLedgerStore,
-  delta: number,
-  node: FormKitNode<any>
-) {
+function add(ledger: FormKitLedgerStore, delta: number) {
   return (e: FormKitEvent) => {
-    console.log(
-      delta > 0 ? 'message-added' : 'message-removed',
-      node.name,
-      e.payload
-    )
     for (const name in ledger) {
       const counter = ledger[name]
       if (counter.condition(e.payload)) {
@@ -181,7 +169,7 @@ function add(
 }
 
 /**
- * Given a child node, any the parent node's counters to the child and then
+ * Given a child node, add the parent node's counters to the child and then
  * rectify the upstream ledger counts. Generally used when attaching a child
  * to an already counted tree.
  * @param parent - The parent that is "receiving" the child

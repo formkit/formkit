@@ -265,4 +265,16 @@ describe('ledger tracking on a tree', () => {
     tree.add(address)
     expect(tree.ledger.value('blocking')).toBe(5)
   })
+
+  it('a plugin can emit a counted message to a parent before complete registration', () => {
+    const parent = createNode({
+      type: 'group',
+    })
+    parent.ledger.count('blocking', (m) => m.blocking)
+    createNode({
+      parent,
+      plugins: [(node) => node.store.set(createMessage({ blocking: true }))],
+    })
+    expect(parent.ledger.value('blocking')).toBe(1)
+  })
 })

@@ -165,16 +165,6 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       baseRules,
       node.props.validationRules as FormKitValidationRules
     )
-    // Initialize the validation counter, we count blocking validations only
-    node.ledger.count(
-      'validation',
-      (m) => m.type === 'validation' && m.blocking
-    )
-    // Initialize the validating counter
-    node.ledger.count(
-      'validating',
-      (m) => m.key === 'validating' && m.type === 'state'
-    )
     // create an observed node
     const observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
@@ -247,7 +237,7 @@ function run(
   complete: () => void
 ): void {
   const validation = validations[current]
-  // if (!validation) return complete()
+  if (!validation) return complete()
   const currentRun = state.input
   validation.state = null
 
@@ -255,9 +245,7 @@ function run(
     state.isPassing = state.isPassing && !!result
     validation.queued = false
     const newDeps = node.stopObserve()
-    console.log(diffDeps(validation.deps, newDeps))
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
-      console.log('dependencies', node.name, node.receipts.get(node))
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
       state.rerun = setTimeout(validate, 0, node, validations, state)

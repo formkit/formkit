@@ -371,6 +371,11 @@ describe('validation rule sequencing', () => {
       },
       value: 'abcdef',
     })
+    // Initialize a validating counter
+    node.ledger.count(
+      'validating',
+      (m) => m.key === 'validating' && m.type === 'state'
+    )
     expect(node.store).toHaveProperty('validating')
     await node.ledger.settled('validating')
     expect(node.store).not.toHaveProperty('validating')

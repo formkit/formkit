@@ -1358,7 +1358,7 @@ function createContext<T extends FormKitOptions>(
     plugins: new Set<FormKitPlugin>(),
     props: createProps(type),
     settled: Promise.resolve(value),
-    store: createStore(),
+    store: createStore(true),
     traps: createTraps<FormKitNodeValue<T>>(),
     type,
     value,
@@ -1376,9 +1376,8 @@ function nodeInit<T>(
 ): FormKitNode<T> {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
-  node.ledger.init(node)
-  // Set the internal node on the props, config, and store proxies
-  node.store._n = node.props._n = node.config._n = node
+  // Set the internal node on the props, config, ledger and store
+  node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
   // If the options has plugins, we apply them
@@ -1390,6 +1389,8 @@ function nodeInit<T>(
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) node.parent.add(node)
+  // Release the store buffer
+  node.store.release()
   return node.emit('created', node)
 }
 

@@ -3,6 +3,7 @@
     <h2>FormKit Playground</h2>
     <FormKit
       v-slot="{ state }"
+      name="group"
       type="group"
     >
       {{ state }}
@@ -10,7 +11,7 @@
         type="text"
         label="Name"
         help="Fill out your name"
-        value="foo"
+        value="lets get lunch"
         validation="required|length:10|longrun"
         :validation-rules="{
           longrun

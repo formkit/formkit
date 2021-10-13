@@ -24,6 +24,7 @@ import { minConfig } from '../plugin'
 interface FormKitComponentProps {
   type?: string
   name?: string
+  validation?: any
   modelValue?: any
   errors: string[]
 }
@@ -76,8 +77,6 @@ export function useInput(
   for (const propName in p) {
     initialProps[camel(propName)] = p[propName]
   }
-
-  console.log('SETUP')
 
   /**
    * Create the FormKitNode.
@@ -138,7 +137,7 @@ export function useInput(
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         ),
-      dirty: () => {
+      touch: () => {
         node.store.set(
           createMessage({ key: 'dirty', visible: false, value: true })
         )
@@ -156,22 +155,33 @@ export function useInput(
     node,
     options: toRef(context.attrs, 'options'),
     state: {
-      valid: node.ledger.value('blocking'),
+      valid: !node.ledger.value('blocking'),
     } as Record<string, any>,
     type: toRef(props, 'type'),
     value: node.value,
   })
 
   /**
-   * Watch and dynamically set prop values so both core and vue states are
-   * reactive.
+   * Watch and dynamically set node prop values so both core and vue states are
+   * reactive. First we do this with attributes.
    */
   watchEffect(() => {
-    const p = nodeProps(context.attrs, props)
-    for (const propName in p) {
-      node.props[camel(propName)] = p[propName]
+    const attrProps = nodeProps(context.attrs)
+    for (const propName in attrProps) {
+      node.props[camel(propName)] = attrProps[propName]
     }
   })
+
+  /**
+   * The props object already has properties even if they start as "undefined"
+   * so we can loop over them and individual watchEffect to prevent responding
+   * inappropriately.
+   */
+  for (const prop in node.props) {
+    watchEffect(() => {
+      node.props[prop] = node.props[prop]
+    })
+  }
 
   /**
    * Watch for input events from core.
@@ -194,9 +204,8 @@ export function useInput(
       default:
         data.value = payload
     }
-    console.log('committed')
     // The input is dirty after a value has been input by a user
-    if (!data.state.dirty) data.handlers.dirty()
+    if (!data.state.dirty) data.handlers.touch()
     // Emit the values after commit
     context.emit('input', data.value)
     context.emit('update:modelValue', data.value)
@@ -220,13 +229,11 @@ export function useInput(
     delete data.messages[message.key]
     delete data.state[message.key]
   })
-  node.on('settled:blocking', ({ payload: count }) => {
-    console.log('settled:blocking ', node.name, node.ledger.value('blocking'))
-    data.state.valid = count
+  node.on('settled:blocking', () => {
+    data.state.valid = true
   })
-  node.on('unsettled:blocking', ({ payload: count }) => {
-    console.log('unsettled:blocking', node.name, node.ledger.value('blocking'))
-    data.state.valid = count
+  node.on('unsettled:blocking', () => {
+    data.state.valid = false
   })
 
   if (node.type !== 'input') {
@@ -241,7 +248,6 @@ export function useInput(
       () => props.modelValue,
       (value) => {
         if (node.type !== 'input') warn(678)
-        console.log('watch was triggered')
         node.input(value, false)
       },
       {

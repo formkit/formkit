@@ -54,6 +54,8 @@ export interface FormKitMessageStore {
  */
 export type FormKitStore = FormKitMessageStore & {
   _n: FormKitNode<any>
+  _b: Array<FormKitMessage>
+  buffer: boolean
 } & FormKitStoreTraps
 
 /**
@@ -70,6 +72,7 @@ export interface FormKitStoreTraps {
     reducer: (accumulator: T, message: FormKitMessage) => T,
     accumulator: T
   ) => T
+  release: () => void
 }
 
 /**
@@ -107,18 +110,23 @@ const storeTraps: {
   remove: removeMessage,
   filter: filterMessages,
   reduce: reduceMessages,
+  release: releaseBuffer,
 }
 
 /**
  * Creates a new FormKit message store.
  * @returns FormKitStore
  */
-export function createStore(): FormKitStore {
+export function createStore(_buffer = false): FormKitStore {
   const messages: FormKitMessageStore = {}
   let node: FormKitNode<any>
+  let buffer = _buffer
+  let _b = [] as Array<FormKitMessage>
   const store = new Proxy(messages, {
     get(...args) {
       const [_target, property] = args
+      if (property === 'buffer') return buffer
+      if (property === '_b') return _b
       if (has(storeTraps, property)) {
         return storeTraps[property as keyof FormKitStoreTraps].bind(
           null,
@@ -132,6 +140,12 @@ export function createStore(): FormKitStore {
     set(_t, prop, value) {
       if (prop === '_n') {
         node = value
+        return true
+      } else if (prop === '_b') {
+        _b = value
+        return true
+      } else if (prop === 'buffer') {
+        buffer = value
         return true
       }
       createError(node, 2)
@@ -155,6 +169,10 @@ function setMessage(
   node: FormKitNode,
   message: FormKitMessageProps
 ): FormKitStore {
+  if (store.buffer) {
+    store._b.push(message)
+    return store
+  }
   if (messageStore[message.key] !== message) {
     if (typeof message.value === 'string' && message.meta.localize !== false) {
       // Expose the value to translation
@@ -237,4 +255,19 @@ function reduceMessages<T>(
     accumulator = reducer(accumulator, message)
   }
   return accumulator
+}
+
+/**
+ * Iterates over all buffered messages and applies them in sequence.
+ * @param messageStore - The store itself
+ * @param store - The store interface
+ * @param node - The node to filter for
+ */
+function releaseBuffer(
+  _messageStore: FormKitMessageStore,
+  store: FormKitStore
+) {
+  store.buffer = false
+  store._b.forEach((message) => store.set(message))
+  store._b = []
 }

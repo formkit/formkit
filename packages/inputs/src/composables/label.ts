@@ -11,6 +11,7 @@ const label: FormKitSchemaComposable = (schema = {}, children = []) => ({
         if: '$label',
         attrs: {
           for: '$id',
+          class: '$classes.label',
         },
         children,
       },
