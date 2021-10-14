@@ -1,4 +1,4 @@
-import { compile } from '../compiler'
+import { compile } from '../src/compiler'
 
 describe('boolean logic parser', () => {
   // AND operators only:

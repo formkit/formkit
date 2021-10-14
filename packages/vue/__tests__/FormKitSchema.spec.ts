@@ -1,6 +1,6 @@
 import { reactive, nextTick } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { FormKitSchema } from '../FormKitSchema'
+import { FormKitSchema } from '../src/FormKitSchema'
 
 describe('parsing dom elements', () => {
   it('can render a single simple dom element', () => {

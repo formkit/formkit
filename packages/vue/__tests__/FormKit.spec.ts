@@ -1,9 +1,11 @@
 import { nextTick } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import FormKit from '../FormKit'
-import { plugin } from '../plugin'
-import defaultConfig from '../defaultConfig'
+import FormKit from '../src/FormKit'
+import { plugin } from '../src/plugin'
+import defaultConfig from '../src/defaultConfig'
 import { FormKitNode } from '@formkit/core'
+
+// Object.assign(defaultConfig.nodeOptions, { validationBehavior: 'live' })
 
 describe('props', () => {
   it('can display prop-defined errors', async () => {
@@ -91,6 +93,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required|length:5',
+        validationBehavior: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -112,6 +115,7 @@ describe('validation', () => {
             :validation-messages="{
               abc: ({ name }) => name + ' should be abc'
             }"
+            validation-behavior="live"
             value="foo"
           />
         `,
@@ -133,6 +137,7 @@ describe('validation', () => {
             label="foo"
             validation="required"
             validation-label="bar"
+            validation-behavior="live"
           />
         `,
       },
@@ -145,13 +150,14 @@ describe('validation', () => {
     expect(wrapper.html()).toContain('<li>Bar is required.</li>')
   })
 
-  it('can override the validation label strategy', () => {
+  it('can override the validation label strategy', async () => {
     const wrapper = mount(FormKit, {
       props: {
         label: 'foo',
-        validation: [['required']],
-        'data-foo': 'hi there',
+        validation: 'required',
         validationLabel: (node: FormKitNode<any>) => node.props.dataFoo,
+        validationBehavior: 'live',
+        'data-foo': 'hi there',
       },
       global: {
         plugins: [[plugin, defaultConfig]],

@@ -1,6 +1,6 @@
-import FormKit from '../FormKit'
-import { plugin } from '../plugin'
-import defaultConfig from '../defaultConfig'
+import FormKit from '../src/FormKit'
+import { plugin } from '../src/plugin'
+import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 
 describe('text classification', () => {

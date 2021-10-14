@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 import { mount } from '@vue/test-utils'
-import { plugin } from '../plugin'
-import defaultConfig from '../defaultConfig'
+import { plugin } from '../src/plugin'
+import defaultConfig from '../src/defaultConfig'
 
 describe('group', () => {
   it('can pass values down to children', () => {

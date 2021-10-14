@@ -17,6 +17,7 @@ import {
   watch,
   toRef,
   SetupContext,
+  computed,
 } from 'vue'
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
@@ -35,7 +36,13 @@ interface FormKitComponentProps {
  * TODO: Currently local, this should probably exported to a inputs or another
  * package.
  */
-const universalProps = ['help', 'label', 'options']
+const universalProps = [
+  'help',
+  'label',
+  'options',
+  'errorBehavior',
+  'validationBehavior',
+]
 
 /**
  * A composable for creating a new FormKit node.
@@ -119,52 +126,6 @@ export function useInput(
   })
 
   /**
-   * This is the reactive data object that is provided to all schemas and
-   * forms. It is a subset of data in the core node object.
-   */
-  const data = reactive({
-    _value: node.value,
-    attrs: except(
-      context.attrs,
-      new Set(universalProps.concat(input.props || []))
-    ),
-    fns: {
-      length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
-      number: (value: any) => Number(value),
-      string: (value: any) => String(value),
-      json: (value: any) => JSON.stringify(value),
-    },
-    handlers: {
-      blur: () =>
-        node.store.set(
-          createMessage({ key: 'blurred', visible: false, value: true })
-        ),
-      touch: () => {
-        node.store.set(
-          createMessage({ key: 'dirty', visible: false, value: true })
-        )
-      },
-      DOMInput: (e: Event) => node.input((e.target as HTMLInputElement).value),
-    },
-    help: toRef(context.attrs, 'help'),
-    label: toRef(context.attrs, 'label'),
-    messages: node.store.reduce((store, message) => {
-      if (message.visible) {
-        store[message.key] = message
-      }
-      return store
-    }, {} as Record<string, FormKitMessage>),
-    showMessages: true,
-    node,
-    options: toRef(context.attrs, 'options'),
-    state: {
-      valid: !node.ledger.value('blocking'),
-    } as Record<string, any>,
-    type: toRef(props, 'type'),
-    value: node.value,
-  })
-
-  /**
    * Watch the config prop for any changes.
    */
   watchEffect(() => Object.assign(node.config, props.config))
@@ -193,10 +154,95 @@ export function useInput(
   }
 
   /**
+   * All messages with the visibility state set to true.
+   */
+  const visibleMessages = reactive<Record<string, FormKitMessage>>(
+    node.store.reduce((store, message) => {
+      if (message.visible) {
+        store[message.key] = message
+      }
+      return store
+    }, {} as Record<string, FormKitMessage>)
+  )
+
+  /**
+   * All messages that are currently on display to an end user. This changes
+   * based on the current message type behavior, like errorBehavior.
+   */
+  const messages = computed<Record<string, FormKitMessage>>(() => {
+    const availableMessages: Record<string, FormKitMessage> = {}
+    for (const key in visibleMessages) {
+      const message = visibleMessages[key]
+      let behavior = node.props[`${message.type}Behavior`]
+      if (!behavior) {
+        behavior = message.type === 'validation' ? 'blur' : 'live'
+      }
+      switch (behavior) {
+        case 'live':
+          availableMessages[key] = message
+          break
+        case 'blur':
+          if (data.state.blurred) {
+            availableMessages[key] = message
+          }
+          break
+      }
+    }
+    return availableMessages
+  })
+
+  /**
+   * This is the reactive data object that is provided to all schemas and
+   * forms. It is a subset of data in the core node object.
+   */
+  let inputElement: null | HTMLInputElement = null
+  const data = reactive({
+    _value: node.value,
+    attrs: except(
+      context.attrs,
+      new Set(universalProps.concat(input.props || []))
+    ),
+    fns: {
+      length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
+      number: (value: any) => Number(value),
+      string: (value: any) => String(value),
+      json: (value: any) => JSON.stringify(value),
+    },
+    handlers: {
+      blur: () =>
+        node.store.set(
+          createMessage({ key: 'blurred', visible: false, value: true })
+        ),
+      touch: () => {
+        node.store.set(
+          createMessage({ key: 'dirty', visible: false, value: true })
+        )
+      },
+      DOMInput: (e: Event) => {
+        inputElement = e.target as HTMLInputElement
+        node.input((e.target as HTMLInputElement).value)
+      },
+    },
+    help: toRef(context.attrs, 'help'),
+    label: toRef(context.attrs, 'label'),
+    messages,
+    node,
+    options: toRef(context.attrs, 'options'),
+    state: {
+      valid: !node.ledger.value('blocking'),
+    } as Record<string, any>,
+    type: toRef(props, 'type'),
+    value: node.value,
+  })
+
+  /**
    * Watch for input events from core.
    */
   node.on('input', ({ payload }) => {
     data._value = payload
+    if (inputElement) {
+      inputElement.value = data._value
+    }
   })
 
   /**
@@ -225,7 +271,7 @@ export function useInput(
    * @param message - A formkit message
    */
   const updateState = (message: FormKitMessage) => {
-    if (message.visible) data.messages[message.key] = message
+    if (message.visible) visibleMessages[message.key] = message
     if (message.type === 'state') data.state[message.key] = message.value
   }
 
@@ -235,7 +281,7 @@ export function useInput(
   node.on('message-added', (e) => updateState(e.payload))
   node.on('message-updated', (e) => updateState(e.payload))
   node.on('message-removed', ({ payload: message }) => {
-    delete data.messages[message.key]
+    delete visibleMessages[message.key]
     delete data.state[message.key]
   })
   node.on('settled:blocking', () => {
