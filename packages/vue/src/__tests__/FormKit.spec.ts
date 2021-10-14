@@ -159,4 +159,96 @@ describe('validation', () => {
     })
     expect(wrapper.html()).toContain('<li>Hi there is required.</li>')
   })
+
+  it('knows the validation state of a form', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="group"
+          v-slot="{ state: { valid }}"
+        >
+          <FormKit
+            type="text"
+            validation="required|email"
+            :delay="0"
+          />
+          <FormKit
+            type="text"
+            validation="required|length:5"
+            :delay="0"
+          />
+          <button :disabled="!valid">{{ valid }}</button>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.find('button').attributes()).toHaveProperty('disabled')
+    const [email, name] = wrapper.findAll('input')
+    email.setValue('info@formkit.com')
+    name.setValue('Rockefeller')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
+  })
+})
+
+describe('configuration', () => {
+  it('can change configuration options via prop', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            node1: null as null | FormKitNode<any>,
+            node2: null as null | FormKitNode<any>,
+            node3: null as null | FormKitNode<any>,
+          }
+        },
+        template: `
+        <FormKit
+          type="group"
+          :config="{
+            errorBehavior: 'foobar',
+            flavor: 'apple'
+          }"
+        >
+          <FormKit
+            type="text"
+            @node="(e) => { node1 = e }"
+          />
+          <FormKit
+            type="group"
+            :config="{
+              errorBehavior: 'live'
+            }"
+          >
+            <FormKit
+              type="text"
+              error-behavior="barfoo"
+              @node="(e) => { node2 = e }"
+            />
+            <FormKit
+              type="text"
+              @node="(e) => { node3 = e }"
+            />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.vm.$data.node1?.props.errorBehavior).toBe('foobar')
+    expect(wrapper.vm.$data.node2?.props.errorBehavior).toBe('barfoo')
+    expect(wrapper.vm.$data.node3?.props.errorBehavior).toBe('live')
+  })
 })

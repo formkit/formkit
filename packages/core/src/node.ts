@@ -1234,39 +1234,40 @@ function createConfig(
   parent?: FormKitNode | null,
   configOptions?: Partial<FormKitConfig>
 ): FormKitConfig {
-  if (parent && !configOptions) {
-    return parent.config
-  }
-  if (parent && configOptions) {
-    return Object.assign(parent.config, configOptions)
-  }
   const nodes = new Set<FormKitNode<any>>()
-  return new Proxy(
-    {
-      delimiter: '.',
-      delay: 0,
-      locale: 'en',
-      ...configOptions,
+  const target = !parent
+    ? {
+        delimiter: '.',
+        delay: 0,
+        locale: 'en',
+        ...configOptions,
+      }
+    : {}
+  return new Proxy(target, {
+    get(...args) {
+      const localValue = Reflect.get(...args)
+      if (localValue !== undefined || !parent) {
+        return localValue
+      }
+      return parent.config[args[1] as string]
     },
-    {
-      set(...args) {
-        if (args[1] === '_n') {
-          nodes.add(args[2])
-          return true
-        }
-        if (args[1] === '_rmn') {
-          nodes.delete(args[2])
-          return true
-        }
-        const didSet = Reflect.set(...args)
-        if (nodes.size && typeof args[1] === 'string')
-          nodes.forEach((n) =>
-            n.emit(`config:${args[1] as string}`, args[2], false)
-          )
-        return didSet
-      },
-    }
-  )
+    set(...args) {
+      if (args[1] === '_n') {
+        nodes.add(args[2])
+        return true
+      }
+      if (args[1] === '_rmn') {
+        nodes.delete(args[2])
+        return true
+      }
+      const didSet = Reflect.set(...args)
+      if (nodes.size && typeof args[1] === 'string')
+        nodes.forEach((n) =>
+          n.emit(`config:${args[1] as string}`, args[2], false)
+        )
+      return didSet
+    },
+  }) as FormKitConfig
 }
 
 /**
@@ -1310,7 +1311,7 @@ function createProps<T>(type: FormKitNodeType) {
     get(...args) {
       const [_t, prop] = args
       if (has(props, prop)) return Reflect.get(...args)
-      if (node && has(node.config, prop) && typeof prop === 'string')
+      if (node && typeof prop === 'string' && node.config[prop] !== undefined)
         return node.config[prop]
       return undefined
     },

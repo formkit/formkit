@@ -27,6 +27,7 @@ interface FormKitComponentProps {
   validation?: any
   modelValue?: any
   errors: string[]
+  config: Record<string, any>
 }
 
 /**
@@ -87,6 +88,7 @@ export function useInput(
     name: props.name || undefined,
     value,
     parent,
+    config: props.config,
     props: initialProps,
   }) as FormKitNode<any>
 
@@ -152,6 +154,7 @@ export function useInput(
       }
       return store
     }, {} as Record<string, FormKitMessage>),
+    showMessages: true,
     node,
     options: toRef(context.attrs, 'options'),
     state: {
@@ -160,6 +163,11 @@ export function useInput(
     type: toRef(props, 'type'),
     value: node.value,
   })
+
+  /**
+   * Watch the config prop for any changes.
+   */
+  watchEffect(() => Object.assign(node.config, props.config))
 
   /**
    * Watch and dynamically set node prop values so both core and vue states are
@@ -177,9 +185,10 @@ export function useInput(
    * so we can loop over them and individual watchEffect to prevent responding
    * inappropriately.
    */
-  for (const prop in node.props) {
+  const passThrough = nodeProps(props)
+  for (const prop in passThrough) {
     watchEffect(() => {
-      node.props[prop] = node.props[prop]
+      node.props[prop] = props[prop as keyof FormKitComponentProps]
     })
   }
 

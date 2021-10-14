@@ -35,3 +35,8 @@ export { default as defaultConfig } from './defaultConfig'
 export interface FooBar {
   title: string
 }
+
+/**
+ * Export the reset count explicitly
+ */
+export { resetCount } from '@formkit/core'

@@ -7,7 +7,7 @@ const messages: FormKitSchemaComposable = (schema = {}, children = []) => ({
   else: extend(
     {
       $el: 'ul',
-      if: '$fns.length($messages)',
+      if: '$showMessages && $fns.length($messages)',
       attrs: {
         class: '$classes.messages',
       },

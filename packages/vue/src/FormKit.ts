@@ -34,6 +34,10 @@ const FormKit = defineComponent({
       >,
       default: {},
     },
+    config: {
+      type: Object as PropType<Record<string, any>>,
+      default: {},
+    },
     validation: {
       type: [String, Array] as PropType<
         string | Array<[rule: string, ...args: any]>
