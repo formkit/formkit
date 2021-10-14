@@ -191,6 +191,16 @@ export function useInput(
     return availableMessages
   })
 
+  const classes = {
+    outer: 'formkit-outer',
+    inner: 'formkit-inner',
+    wrapper: 'formkit-wrapper',
+    label: 'formkit-label',
+    help: 'formkit-help',
+    messages: 'formkit-messages',
+    message: 'formkit-message',
+  }
+
   /**
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
@@ -233,6 +243,7 @@ export function useInput(
     } as Record<string, any>,
     type: toRef(props, 'type'),
     value: node.value,
+    classes,
   })
 
   /**

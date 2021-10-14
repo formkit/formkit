@@ -9,7 +9,7 @@ const message: FormKitSchemaComposable = (schema = {}, children = []) => ({
       $el: 'li',
       for: ['message', '$messages'],
       attrs: {
-        class: '$message.classes',
+        class: '$classes.message',
       },
       children,
     },

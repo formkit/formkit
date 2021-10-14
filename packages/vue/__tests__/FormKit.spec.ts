@@ -17,14 +17,22 @@ describe('props', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toContain('<li>This is an error</li>')
-    expect(wrapper.html()).toContain('<li>This is another</li>')
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">This is an error</li>'
+    )
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">This is another</li>'
+    )
     wrapper.setProps({
       errors: ['This is another'],
     })
     await nextTick()
-    expect(wrapper.html()).not.toContain('<li>This is an error</li>')
-    expect(wrapper.html()).toContain('<li>This is another</li>')
+    expect(wrapper.html()).not.toContain(
+      '<li class="formkit-message">This is an error</li>'
+    )
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">This is another</li>'
+    )
   })
 
   it('can only display a single error of the same value', async () => {
@@ -99,7 +107,7 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toContain('<li>')
+    expect(wrapper.html()).toContain('<li class="formkit-message">')
   })
 
   it('can use arbitrarily created validation rules and messages', () => {
@@ -126,7 +134,9 @@ describe('validation', () => {
         },
       }
     )
-    expect(wrapper.html()).toContain('<li>ABC should be abc</li>')
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">ABC should be abc</li>'
+    )
   })
 
   it('can override the validation label', () => {
@@ -147,7 +157,9 @@ describe('validation', () => {
         },
       }
     )
-    expect(wrapper.html()).toContain('<li>Bar is required.</li>')
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">Bar is required.</li>'
+    )
   })
 
   it('can override the validation label strategy', async () => {
@@ -163,7 +175,9 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toContain('<li>Hi there is required.</li>')
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-message">Hi there is required.</li>'
+    )
   })
 
   it('knows the validation state of a form', async () => {
