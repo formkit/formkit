@@ -7,7 +7,8 @@ import {
   warn,
   createMessage,
 } from '@formkit/core'
-import { nodeProps, except, camel } from '@formkit/utils'
+import { createObserver } from '@formkit/observer'
+import { nodeProps, except, camel, has } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
 import {
   reactive,
@@ -18,6 +19,7 @@ import {
   toRef,
   SetupContext,
   computed,
+  ref,
 } from 'vue'
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
@@ -196,15 +198,25 @@ export function useInput(
     return availableMessages
   })
 
-  const classes = {
-    outer: 'formkit-outer',
-    inner: 'formkit-inner',
-    wrapper: 'formkit-wrapper',
-    label: 'formkit-label',
-    help: 'formkit-help',
-    messages: 'formkit-messages',
-    message: 'formkit-message',
-  }
+  const cachedClasses = reactive({})
+  const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
+    get(...args) {
+      const [target, property] = args
+      let className = Reflect.get(...args)
+      if (typeof property === 'string') {
+        if (!has(target, property) && !property.startsWith('__v_')) {
+          const observedNode = createObserver(node)
+          observedNode.watch((node) => {
+            className = node.props[`${property}Class`]
+            target[property] = className
+          })
+        }
+      }
+      return className
+    },
+  })
+
+  Object.assign(window, { type: reactive({}), ref: ref(0) })
 
   /**
    * This is the reactive data object that is provided to all schemas and

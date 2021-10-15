@@ -124,9 +124,10 @@ function findValue(sets: (false | Record<string, any>)[], path: string[]): any {
   for (const set of sets) {
     let found = undefined
     path.reduce((obj: any, segment: string, i: number) => {
-      const next = typeof obj[segment] === 'object' ? obj[segment] : {}
-      if (i === path.length - 1 && has(obj, segment)) {
-        found = obj[segment]
+      const value = obj[segment]
+      const next = typeof value === 'object' ? value : {}
+      if (i === path.length - 1 && (has(obj, segment) || value !== undefined)) {
+        found = value
       }
       return next
     }, set)

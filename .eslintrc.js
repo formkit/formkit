@@ -3,52 +3,50 @@ module.exports = {
   plugins: [
     '@typescript-eslint/eslint-plugin',
     'eslint-plugin-tsdoc',
-    'eslint-plugin-html'
+    'eslint-plugin-html',
   ],
-  extends: [
-    'plugin:@typescript-eslint/recommended'
-  ],
+  extends: ['plugin:@typescript-eslint/recommended'],
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
   },
   rules: {
     '@typescript-eslint/no-extra-semi': 0,
     '@typescript-eslint/no-explicit-any': 0,
-    '@typescript-eslint/no-unused-vars': ["error", { "varsIgnorePattern": "^_" }],
-    "tsdoc/syntax": "warn"
+    '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+    'tsdoc/syntax': 'warn',
   },
   overrides: [
     {
-      files: "*.mjs",
-      parser: "espree",
+      files: '*.mjs',
+      parser: 'espree',
       env: {
         node: true,
-        es6: true
+        es6: true,
       },
       parserOptions: {
         ecmaVersion: 2020,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       plugins: [],
-      extends: "eslint:recommended",
+      extends: 'eslint:recommended',
       rules: {
-        "tsdoc/syntax": 0
-      }
+        'tsdoc/syntax': 0,
+      },
     },
     {
-      files: "**/__tests__/**.ts",
+      files: '**/__tests__/**.ts',
       rules: {
         '@typescript-eslint/no-empty-function': 0,
-        '@typescript-eslint/no-non-null-assertion': 0
-      }
+        '@typescript-eslint/no-non-null-assertion': 0,
+      },
     },
     {
-      files: "*.vue",
+      files: '*.vue',
       extends: [
-        "plugin:vue/vue3-recommended",
-        "eslint:recommended",
-        "@vue/typescript/recommended"
-      ]
-    }
-  ]
+        'plugin:vue/vue3-recommended',
+        'eslint:recommended',
+        '@vue/typescript/recommended',
+      ],
+    },
+  ],
 }

@@ -9,6 +9,8 @@
         type="text"
         :validation="[['required'], ['matches', /^foo_\d+$/]]"
         validation-behavior="dirty"
+        label-class="foobar"
+        label="Foobar"
         :delay="0"
       />
       <!-- <FormKit
@@ -28,6 +30,14 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const foobar = ref('abc-1')
+let i = 2;
+setInterval(() => {
+  foobar.value = `abc-${i++}`
+}, 500)
+
 // const longrun = (node) => {
 //   return new Promise((resolve) => setTimeout(() => {
 //     if (node.value === 'lets get lunch') {

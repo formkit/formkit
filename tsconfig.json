@@ -20,6 +20,9 @@
       "@components": [
         "packages/vue/src/components/*"
       ]
-    }
-  }
+    },
+  },
+  "exclude": [
+    "*.vue"
+  ]
 }
