@@ -45,3 +45,8 @@ export {
   warn,
   error,
 } from './errors'
+
+/**
+ * Export classes.
+ */
+export * from './classes'

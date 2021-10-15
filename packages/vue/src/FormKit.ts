@@ -1,4 +1,4 @@
-import { FormKitNode } from '@formkit/core'
+import { FormKitNode, FormKitClasses } from '@formkit/core'
 import { FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/schema'
 import { h, defineComponent, InjectionKey, PropType } from 'vue'
 import { useInput } from './composables/useInput'
@@ -73,6 +73,12 @@ const FormKit = defineComponent({
     modelValue: {
       required: false,
     },
+    classes: {
+      type: Object as PropType<
+        Record<string, string | Record<string, boolean> | FormKitClasses>
+      >,
+      required: false
+    }
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */

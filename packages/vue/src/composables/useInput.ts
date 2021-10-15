@@ -6,9 +6,10 @@ import {
   FormKitProps,
   warn,
   createMessage,
+  FormKitClasses,
+  FormKitOptions,
 } from '@formkit/core'
-import { createObserver } from '@formkit/observer'
-import { nodeProps, except, camel, has } from '@formkit/utils'
+import { nodeProps, except, camel, extend } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
 import {
   reactive,
@@ -19,10 +20,10 @@ import {
   toRef,
   SetupContext,
   computed,
-  ref,
 } from 'vue'
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
+import useClasses from './useClasses'
 
 interface FormKitComponentProps {
   type?: string
@@ -31,6 +32,7 @@ interface FormKitComponentProps {
   modelValue?: any
   errors: string[]
   config: Record<string, any>
+  classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
 }
 
 /**
@@ -91,15 +93,16 @@ export function useInput(
   /**
    * Create the FormKitNode.
    */
-  const node = createNode({
-    ...config.nodeOptions,
-    type,
-    name: props.name || undefined,
-    value,
-    parent,
-    config: props.config,
-    props: initialProps,
-  }) as FormKitNode<any>
+  const node = createNode(
+    extend(config.nodeOptions || {}, {
+      type,
+      name: props.name || undefined,
+      value,
+      parent,
+      config: props.config,
+      props: initialProps,
+    }) as Partial<FormKitOptions>
+  ) as FormKitNode<any>
 
   /**
    * Start a validity counter on all blocking messages.
@@ -198,26 +201,6 @@ export function useInput(
     return availableMessages
   })
 
-  const cachedClasses = reactive({})
-  const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
-    get(...args) {
-      const [target, property] = args
-      let className = Reflect.get(...args)
-      if (typeof property === 'string') {
-        if (!has(target, property) && !property.startsWith('__v_')) {
-          const observedNode = createObserver(node)
-          observedNode.watch((node) => {
-            className = node.props[`${property}Class`]
-            target[property] = className
-          })
-        }
-      }
-      return className
-    },
-  })
-
-  Object.assign(window, { type: reactive({}), ref: ref(0) })
-
   /**
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
@@ -260,7 +243,7 @@ export function useInput(
     } as Record<string, any>,
     type: toRef(props, 'type'),
     value: node.value,
-    classes,
+    classes: useClasses(node, toRef(props, 'classes')),
   })
 
   /**

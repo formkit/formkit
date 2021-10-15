@@ -316,3 +316,29 @@ describe('configuration', () => {
     expect(wrapper.vm.$data.node3?.props.errorBehavior).toBe('live')
   })
 })
+
+describe('classes', () => {
+  it('renders default classes properly', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        label: 'input label',
+        help: 'input help text',
+        validation: 'required|length:10',
+        validationBehavior: 'live',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toBe(`<div class="formkit-outer">
+  <div class="formkit-wrapper"><label class="formkit-label">input label</label>
+    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest"></div>
+  </div>
+  <div class="formkit-help">input help text</div>
+  <ul class="formkit-messages">
+    <li class="formkit-message">Input label is required.</li>
+  </ul>
+</div>`)
+  })
+})

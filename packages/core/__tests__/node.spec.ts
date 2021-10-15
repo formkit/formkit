@@ -12,6 +12,7 @@ import {
   phoneMask,
   eventCounter,
 } from '../../../.jest/helpers'
+import { generateClassList } from '../src/classes'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
 import { has } from '@formkit/utils'
@@ -582,6 +583,33 @@ describe('input hook', () => {
     node.input('hello wor')
     await node.settled
     expect(node.value).toBe('hello wor!')
+  })
+})
+
+describe('classes hook', () => {
+  it('can change the value being assigned', async () => {
+    const themeMiddleware: FormKitMiddleware<{
+      property: string
+      classes: Record<string, boolean>
+    }> = jest.fn((obj, next) => {
+      obj.classes.foo = true
+      obj.classes.bar = false
+      return next(obj)
+    })
+    const themePlugin: FormKitPlugin = function (node) {
+      if (node.type === 'input') {
+        node.hook.classes(themeMiddleware)
+      }
+    }
+    const phone = createNode({ plugins: [themePlugin] })
+    expect(generateClassList(phone, 'label', { bar: true })).toBe('foo')
+    expect(themeMiddleware).toHaveBeenCalledTimes(1)
+    expect(
+      /(foo|baz) (foo|baz)/.test(
+        generateClassList(phone, 'label', { bar: true, baz: true })!
+      )
+    ).toBe(true)
+    expect(themeMiddleware).toHaveBeenCalledTimes(2)
   })
 })
 

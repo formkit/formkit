@@ -31,7 +31,7 @@ describe('text classification', () => {
       },
     })
     expect(wrapper.html()).toContain(
-      '<input type="text" name="food" id="foobar" placeholder="Favorite food?">'
+      '<input type="text" class="formkit-input" name="food" id="foobar" placeholder="Favorite food?">'
     )
   })
 })

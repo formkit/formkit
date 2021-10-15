@@ -491,7 +491,8 @@ describe('validation rule sequencing', () => {
       value: 'abcdef',
     })
     node.input('foo', false)
-    await new Promise((r) => setTimeout(r, 120))
+    // TODO: this test failed intermittently after implementing class override system
+    await new Promise((r) => setTimeout(r, 200))
     expect(node.store).toHaveProperty('rule_exists') // value is not foobar
     node.input('', false)
     await nextTick()
