@@ -7,14 +7,21 @@
     >
       <FormKit
         type="text"
-        validation="required|email"
+        :validation="[['required'], ['matches', /^foo_\d+$/]]"
+        validation-behavior="live"
         :delay="0"
       />
-      <FormKit
+      <!-- <FormKit
+        type="text"
+        :validation="[['required'], ['matches', /^foo_\d+$/]]"
+        validation-behavior="live"
+        :delay="0"
+      /> -->
+      <!-- <FormKit
         type="text"
         validation="required|length:5"
         :delay="0"
-      />
+      /> -->
       <button :disabled="!valid">isValid: {{ JSON.stringify(valid) }}</button>
     </FormKit>
   </div>

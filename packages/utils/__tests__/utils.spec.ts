@@ -9,6 +9,7 @@ import {
   parseArgs,
   except,
   camel,
+  clone,
 } from '../src/index'
 
 describe('eq', () => {
@@ -285,5 +286,44 @@ describe('camel', () => {
   })
   it('leaves spaces alone', () => {
     expect(camel('lets-do this thing')).toBe('letsDo this thing')
+  })
+})
+
+describe('it can clone an object', () => {
+  it('does not return the same object', () => {
+    const arr = ['foo']
+    expect(clone(arr)).not.toBe(arr)
+    expect(clone(arr)).toEqual(arr)
+  })
+
+  it('returns different nested array objects', () => {
+    const arr = ['foo']
+    const bar = [arr]
+    const postClone = clone(bar)
+    expect(postClone[0]).not.toBe(arr)
+    expect(postClone[0]).toEqual(arr)
+  })
+
+  it('return different nested objects', () => {
+    const x = {
+      a: 'b',
+    }
+    const z = {
+      g: 'y',
+      x,
+    }
+    expect(clone(z)).toEqual({
+      g: 'y',
+      x: {
+        a: 'b',
+      },
+    })
+    expect(clone(z)).not.toBe(z)
+    expect(clone(z).x).not.toBe(x)
+  })
+
+  it('skips cloning regex', () => {
+    const regex = /^a/
+    expect(clone({ regex }).regex).toBe(regex)
   })
 })

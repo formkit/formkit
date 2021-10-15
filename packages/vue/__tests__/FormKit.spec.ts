@@ -145,7 +145,7 @@ describe('validation', () => {
         template: `
           <FormKit
             label="foo"
-            validation="required"
+            :validation="[['required']]"
             validation-label="bar"
             validation-behavior="live"
           />

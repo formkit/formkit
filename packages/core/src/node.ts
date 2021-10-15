@@ -1303,7 +1303,7 @@ export function createError(node: FormKitNode<any>, errorCode: number): never {
  * @param config -
  */
 function createProps<T>(type: FormKitNodeType) {
-  const props = {
+  const props: Record<PropertyKey, any> = {
     delay: type === 'input' ? 20 : 0,
   }
   let node: FormKitNode<T>
@@ -1324,10 +1324,14 @@ function createProps<T>(type: FormKitNodeType) {
         prop: property,
         value: originalValue,
       })
-      const didSet = Reflect.set(target, prop, value, receiver)
-      node.emit('prop', { prop, value })
-      if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
-      return didSet
+      // Typescript compiler cannot handle a symbol index, even though js can:
+      if (!eq(props[prop as string], value, false)) {
+        const didSet = Reflect.set(target, prop, value, receiver)
+        node.emit('prop', { prop, value })
+        if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
+        return didSet
+      }
+      return true
     },
   })
 }

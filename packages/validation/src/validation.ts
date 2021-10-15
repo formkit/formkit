@@ -7,7 +7,7 @@ import {
   removeListeners,
   FormKitDependencies,
 } from '@formkit/observer'
-import { has, empty, token } from '@formkit/utils'
+import { has, empty, token, clone } from '@formkit/utils'
 
 /**
  * Special validation properties that affect the way validations are applied.
@@ -493,7 +493,9 @@ export function parseRules(
 ): FormKitValidation[] {
   if (!validation) return []
   const intents =
-    typeof validation === 'string' ? extractRules(validation) : validation
+    typeof validation === 'string'
+      ? extractRules(validation)
+      : clone(validation)
   return intents.reduce((validations, args) => {
     let rule = args.shift() as string | FormKitValidationRule
     const hints = {}

@@ -375,3 +375,26 @@ export function camel(str: string): string {
     g.toUpperCase()
   )
 }
+
+/**
+ * Perform a recursive clone on a given object. This only intended to be used
+ * for simple objects like arrays and pojos.
+ * @param obj - Object to clone
+ * @public
+ */
+export function clone<T extends Record<string, unknown> | unknown[] | null>(
+  obj: T
+): T {
+  if (obj === null || obj instanceof RegExp) return obj
+  if (Array.isArray(obj)) {
+    return obj.map((value) => {
+      if (typeof value === 'object') return clone(value as unknown[])
+      return value
+    }) as T
+  }
+  return Object.keys(obj).reduce((newObj, key) => {
+    newObj[key] =
+      typeof obj[key] === 'object' ? clone(obj[key] as unknown[]) : obj[key]
+    return newObj
+  }, {} as Record<string, unknown>) as T
+}
