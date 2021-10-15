@@ -187,8 +187,9 @@ export function isPojo(o: any): boolean {
  */
 export function extend(
   original: Record<string, any>,
-  additional: Record<string, any> | string
-): Record<string, any> | string {
+  additional: Record<string, any> | string | null
+): Record<string, any> | string | null {
+  if (additional === null) return null
   const merged: Record<string, any> = {}
   if (typeof additional === 'string') return additional
   for (const key in original) {
