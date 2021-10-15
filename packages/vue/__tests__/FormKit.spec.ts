@@ -216,6 +216,50 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 25))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
+
+  it('can show validation on blur', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+
+  it('can show validation immediately', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        validation: 'required',
+        validationBehavior: 'live',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+
+  it('can show validation when dirty', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        validation: 'required|length:10',
+        validationBehavior: 'dirty',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    wrapper.find('input').setValue('foo')
+    await new Promise((r) => setTimeout(r, 30))
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
 })
 
 describe('configuration', () => {

@@ -8,7 +8,7 @@
       <FormKit
         type="text"
         :validation="[['required'], ['matches', /^foo_\d+$/]]"
-        validation-behavior="live"
+        validation-behavior="dirty"
         :delay="0"
       />
       <!-- <FormKit

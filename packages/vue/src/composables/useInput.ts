@@ -186,6 +186,11 @@ export function useInput(
             availableMessages[key] = message
           }
           break
+        case 'dirty':
+          if (data.state.dirty) {
+            availableMessages[key] = message
+          }
+          break
       }
     }
     return availableMessages
