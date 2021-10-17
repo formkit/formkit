@@ -136,17 +136,6 @@ export function useInput(
   watchEffect(() => Object.assign(node.config, props.config))
 
   /**
-   * Watch and dynamically set node prop values so both core and vue states are
-   * reactive. First we do this with attributes.
-   */
-  watchEffect(() => {
-    const attrProps = nodeProps(context.attrs)
-    for (const propName in attrProps) {
-      node.props[camel(propName)] = attrProps[propName]
-    }
-  })
-
-  /**
    * The props object already has properties even if they start as "undefined"
    * so we can loop over them and individual watchEffect to prevent responding
    * inappropriately.
@@ -244,6 +233,18 @@ export function useInput(
     type: toRef(props, 'type'),
     value: node.value,
     classes: useClasses(node, toRef(props, 'classes')),
+  })
+
+  /**
+   * Watch and dynamically set node prop values so both core and vue states are
+   * reactive. First we do this with attributes.
+   */
+  watchEffect(() => {
+    const attrProps = nodeProps(context.attrs)
+    for (const propName in attrProps) {
+      const camelName = camel(propName)
+      node.props[camelName] = data.attrs[propName] = context.attrs[propName]
+    }
   })
 
   /**
