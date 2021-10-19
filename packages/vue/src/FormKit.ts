@@ -77,8 +77,8 @@ const FormKit = defineComponent({
       type: Object as PropType<
         Record<string, string | Record<string, boolean> | FormKitClasses>
       >,
-      required: false
-    }
+      required: false,
+    },
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -94,9 +94,10 @@ const FormKit = defineComponent({
       typeof libInput.schema === 'function'
         ? libInput.schema(props.schema)
         : libInput.schema
-    const [data, node] = useInput(libInput, props, context)
+    const node = useInput(libInput, props, context)
     context.emit('node', node)
-    return () => h(FormKitSchema, { schema, data }, { ...context.slots })
+    return () =>
+      h(FormKitSchema, { schema, data: node.context }, { ...context.slots })
   },
 })
 

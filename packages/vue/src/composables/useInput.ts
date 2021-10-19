@@ -2,28 +2,16 @@ import { parentSymbol } from '../FormKit'
 import {
   createNode,
   FormKitNode,
-  FormKitMessage,
   FormKitProps,
   warn,
-  createMessage,
   FormKitClasses,
   FormKitOptions,
 } from '@formkit/core'
-import { nodeProps, except, camel, extend } from '@formkit/utils'
+import { nodeProps, except, camel, extend, only } from '@formkit/utils'
 import { FormKitTypeDefinition } from '@formkit/inputs'
-import {
-  reactive,
-  inject,
-  provide,
-  watchEffect,
-  watch,
-  toRef,
-  SetupContext,
-  computed,
-} from 'vue'
+import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
 import { configSymbol } from '../plugin'
 import { minConfig } from '../plugin'
-import useClasses from './useClasses'
 
 interface FormKitComponentProps {
   type?: string
@@ -40,13 +28,30 @@ interface FormKitComponentProps {
  * TODO: Currently local, this should probably exported to a inputs or another
  * package.
  */
-const universalProps = [
+const pseudoProps = [
   'help',
   'label',
   'options',
   'errorBehavior',
   'validationBehavior',
 ]
+
+/**
+ * Given some props, map those props to individualized props internally.
+ * @param node - A formkit node
+ * @param props - Some props that may include a classes object
+ */
+function classesToNodeProps(
+  node: FormKitNode<any>,
+  props: Record<string, any>
+) {
+  if (props.classes) {
+    Object.keys(props.classes).forEach((key) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      node.props[`_${key}Class`] = props.classes![key]
+    })
+  }
+}
 
 /**
  * A composable for creating a new FormKit node.
@@ -59,7 +64,7 @@ export function useInput(
   input: FormKitTypeDefinition,
   props: FormKitComponentProps,
   context: SetupContext<any>
-): [Record<string, any>, FormKitNode<any>] {
+): FormKitNode<any> {
   const type = input.type
 
   /**
@@ -84,10 +89,27 @@ export function useInput(
     if (type === 'list') value = []
   }
 
-  const p = nodeProps(context.attrs, props)
-  const initialProps: Partial<FormKitProps> = {}
-  for (const propName in p) {
-    initialProps[camel(propName)] = p[propName]
+  const propNames = new Set(pseudoProps.concat(input.props || []))
+
+  /**
+   * Creates the node's initial props from the context, props, and definition
+   * @returns
+   */
+  function createInitialProps(): Record<string, any> {
+    const attrs = except(nodeProps(context.attrs), propNames)
+    const initialProps: Partial<FormKitProps> = {}
+    for (const attrName in attrs) {
+      initialProps[attrName] = attrs[attrName]
+    }
+    const propValues = only(nodeProps(context.attrs, props), propNames)
+    for (const propName in propValues) {
+      initialProps[camel(propName)] = propValues[propName]
+    }
+    const classesProps = { props: {} }
+    classesToNodeProps(classesProps as FormKitNode, props)
+    Object.assign(initialProps, classesProps.props)
+    initialProps.definition = input
+    return initialProps
   }
 
   /**
@@ -100,14 +122,39 @@ export function useInput(
       value,
       parent,
       config: props.config,
-      props: initialProps,
+      props: createInitialProps(),
     }) as Partial<FormKitOptions>
   ) as FormKitNode<any>
 
+  /* Splits Classes object into discrete props for each key */
+  watchEffect(() => classesToNodeProps(node, props))
+
   /**
-   * Start a validity counter on all blocking messages.
+   * The props object already has properties even if they start as "undefined"
+   * so we can loop over them and individual watchEffect to prevent responding
+   * inappropriately.
    */
-  node.ledger.count('blocking', (m) => m.blocking)
+  const passThrough = nodeProps(props)
+  for (const prop in passThrough) {
+    watchEffect(() => {
+      node.props[prop] = props[prop as keyof FormKitComponentProps]
+    })
+  }
+
+  /**
+   * Watch and dynamically set node prop values so both core and vue states are
+   * reactive. First we do this with attributes.
+   */
+  watchEffect(() => {
+    const attrProps = except(
+      context.attrs,
+      new Set(pseudoProps.concat(input.props || []))
+    )
+    for (const propName in attrProps) {
+      const camelName = camel(propName)
+      node.props[camelName] = context.attrs[propName]
+    }
+  })
 
   /**
    * Add any/all "prop" errors to the store.
@@ -136,173 +183,8 @@ export function useInput(
   watchEffect(() => Object.assign(node.config, props.config))
 
   /**
-   * The props object already has properties even if they start as "undefined"
-   * so we can loop over them and individual watchEffect to prevent responding
-   * inappropriately.
+   * Produce another parent object.
    */
-  const passThrough = nodeProps(props)
-  for (const prop in passThrough) {
-    watchEffect(() => {
-      node.props[prop] = props[prop as keyof FormKitComponentProps]
-    })
-  }
-
-  /**
-   * All messages with the visibility state set to true.
-   */
-  const visibleMessages = reactive<Record<string, FormKitMessage>>(
-    node.store.reduce((store, message) => {
-      if (message.visible) {
-        store[message.key] = message
-      }
-      return store
-    }, {} as Record<string, FormKitMessage>)
-  )
-
-  /**
-   * All messages that are currently on display to an end user. This changes
-   * based on the current message type behavior, like errorBehavior.
-   */
-  const messages = computed<Record<string, FormKitMessage>>(() => {
-    const availableMessages: Record<string, FormKitMessage> = {}
-    for (const key in visibleMessages) {
-      const message = visibleMessages[key]
-      let behavior = node.props[`${message.type}Behavior`]
-      if (!behavior) {
-        behavior = message.type === 'validation' ? 'blur' : 'live'
-      }
-      switch (behavior) {
-        case 'live':
-          availableMessages[key] = message
-          break
-        case 'blur':
-          if (data.state.blurred) {
-            availableMessages[key] = message
-          }
-          break
-        case 'dirty':
-          if (data.state.dirty) {
-            availableMessages[key] = message
-          }
-          break
-      }
-    }
-    return availableMessages
-  })
-
-  /**
-   * This is the reactive data object that is provided to all schemas and
-   * forms. It is a subset of data in the core node object.
-   */
-  let inputElement: null | HTMLInputElement = null
-  const data = reactive({
-    _value: node.value,
-    attrs: except(
-      context.attrs,
-      new Set(universalProps.concat(input.props || []))
-    ),
-    fns: {
-      length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
-      number: (value: any) => Number(value),
-      string: (value: any) => String(value),
-      json: (value: any) => JSON.stringify(value),
-    },
-    handlers: {
-      blur: () =>
-        node.store.set(
-          createMessage({ key: 'blurred', visible: false, value: true })
-        ),
-      touch: () => {
-        node.store.set(
-          createMessage({ key: 'dirty', visible: false, value: true })
-        )
-      },
-      DOMInput: (e: Event) => {
-        inputElement = e.target as HTMLInputElement
-        node.input((e.target as HTMLInputElement).value)
-      },
-    },
-    help: toRef(context.attrs, 'help'),
-    label: toRef(context.attrs, 'label'),
-    messages,
-    node,
-    options: toRef(context.attrs, 'options'),
-    state: {
-      valid: !node.ledger.value('blocking'),
-    } as Record<string, any>,
-    type: toRef(props, 'type'),
-    value: node.value,
-    classes: useClasses(node, toRef(props, 'classes')),
-  })
-
-  /**
-   * Watch and dynamically set node prop values so both core and vue states are
-   * reactive. First we do this with attributes.
-   */
-  watchEffect(() => {
-    const attrProps = nodeProps(context.attrs)
-    for (const propName in attrProps) {
-      const camelName = camel(propName)
-      node.props[camelName] = data.attrs[propName] = context.attrs[propName]
-    }
-  })
-
-  /**
-   * Watch for input events from core.
-   */
-  node.on('input', ({ payload }) => {
-    data._value = payload
-    if (inputElement) {
-      inputElement.value = data._value
-    }
-  })
-
-  /**
-   * Watch for input commits from core.
-   */
-  node.on('commit', ({ payload }) => {
-    switch (type) {
-      case 'group':
-        data.value = { ...payload }
-        break
-      case 'list':
-        data.value = [...payload]
-        break
-      default:
-        data.value = payload
-    }
-    // The input is dirty after a value has been input by a user
-    if (!data.state.dirty) data.handlers.touch()
-    // Emit the values after commit
-    context.emit('input', data.value)
-    context.emit('update:modelValue', data.value)
-  })
-
-  /**
-   * Update the local state in response to messages.
-   * @param message - A formkit message
-   */
-  const updateState = (message: FormKitMessage) => {
-    if (message.visible) visibleMessages[message.key] = message
-    if (message.type === 'state') data.state[message.key] = message.value
-  }
-
-  /**
-   * Listen to message events and modify the local message data values.
-   */
-  node.on('message-added', (e) => updateState(e.payload))
-  node.on('message-updated', (e) => updateState(e.payload))
-  node.on('message-removed', ({ payload: message }) => {
-    delete visibleMessages[message.key]
-    delete data.state[message.key]
-  })
-  node.on('settled:blocking', () => {
-    data.state.valid = true
-  })
-  node.on('unsettled:blocking', () => {
-    data.state.valid = false
-  })
-
   if (node.type !== 'input') {
     provide(parentSymbol, node)
   }
@@ -323,5 +205,5 @@ export function useInput(
     )
   }
 
-  return [data, node]
+  return node
 }

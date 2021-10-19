@@ -366,6 +366,25 @@ export function except(
 }
 
 /**
+ * Extracts a set of keys from a given object. Importantly, this will extract
+ * values even if they are not set on the original object.
+ * @param obj - An object to extract values from
+ * @param include - A set of keys to extract
+ * @returns
+ * @public
+ */
+export function only(
+  obj: Record<string, any>,
+  include: Set<string>
+): Record<string, any> {
+  const clean: Record<string, any> = {}
+  include.forEach((key) => {
+    clean[key] = obj[key]
+  })
+  return clean
+}
+
+/**
  * This converts kebab-case to camelCase. It ONLY converts from kebab for
  * efficiency stake.
  * @param str - String to convert.

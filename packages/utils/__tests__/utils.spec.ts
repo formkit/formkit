@@ -10,6 +10,7 @@ import {
   except,
   camel,
   clone,
+  only,
 } from '../src/index'
 
 describe('eq', () => {
@@ -325,5 +326,19 @@ describe('it can clone an object', () => {
   it('skips cloning regex', () => {
     const regex = /^a/
     expect(clone({ regex }).regex).toBe(regex)
+  })
+})
+
+describe('only', () => {
+  it('can remove values from an object', () => {
+    const foo = {
+      a: 1,
+      b: 5,
+      c: 3,
+    }
+    expect(only(foo, new Set(['a', 'd']))).toEqual({
+      a: 1,
+      d: undefined,
+    })
   })
 })

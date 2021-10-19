@@ -2,7 +2,6 @@
   <div class="container">
     <h2>FormKit Playground</h2>
     <FormKit
-      v-slot="{ state: { valid } }"
       type="group"
     >
       <FormKit
@@ -20,7 +19,7 @@
             :validation="[['required'], ['matches', /^foo_\d+$/]]"
             validation-behavior="dirty"
             :data-foo="foo"
-            label="Foobar"
+            label="Foo"
             :delay="0"
           />
           <FormKit
@@ -28,11 +27,13 @@
             name="bar"
             :validation="[['required'], ['matches', /^foo_\d+$/]]"
             validation-behavior="live"
+            label="Bar"
             :delay="0"
           />
           <FormKit
             type="text"
             name="baz"
+            label="Baz"
             validation="required|length:5"
             :delay="0"
           />
