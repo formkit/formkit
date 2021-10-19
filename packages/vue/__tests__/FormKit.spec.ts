@@ -356,7 +356,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.find('.formkit-outer').html()).toContain(
-      'test-class-string1 test-class-string2'
+      'class="formkit-outer test-class-string1 test-class-string2'
     )
   })
 
@@ -378,7 +378,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.find('.formkit-outer').html()).toContain(
-      'test-class-function1 test-class-function2'
+      'class="formkit-outer test-class-function1 test-class-function2'
     )
   })
 
@@ -402,7 +402,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.find('.formkit-outer').html()).toContain(
-      'test-class-object1 test-class-object2'
+      'class="formkit-outer test-class-object1 test-class-object2'
     )
   })
 
