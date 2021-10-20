@@ -24,6 +24,10 @@ const FormKit = defineComponent({
       type: String,
       required: false,
     },
+    delay: {
+      type: Number,
+      required: false,
+    },
     errors: {
       type: Array as PropType<string[]>,
       default: [],

@@ -2,7 +2,6 @@ import { parentSymbol } from '../FormKit'
 import {
   createNode,
   FormKitNode,
-  FormKitProps,
   warn,
   FormKitClasses,
   FormKitOptions,
@@ -32,8 +31,7 @@ const pseudoProps = [
   'help',
   'label',
   'options',
-  'errorBehavior',
-  'validationBehavior',
+  /^[a-z]+(?:-behavior|Behavior)$/,
 ]
 
 /**
@@ -89,19 +87,17 @@ export function useInput(
     if (type === 'list') value = []
   }
 
-  const propNames = new Set(pseudoProps.concat(input.props || []))
+  const propNames = pseudoProps.concat(input.props || [])
 
   /**
    * Creates the node's initial props from the context, props, and definition
    * @returns
    */
   function createInitialProps(): Record<string, any> {
+    const initialProps: Record<string, any> = nodeProps(props)
     const attrs = except(nodeProps(context.attrs), propNames)
-    const initialProps: Partial<FormKitProps> = {}
-    for (const attrName in attrs) {
-      initialProps[attrName] = attrs[attrName]
-    }
-    const propValues = only(nodeProps(context.attrs, props), propNames)
+    initialProps.attrs = attrs
+    const propValues = only(nodeProps(context.attrs), propNames)
     for (const propName in propValues) {
       initialProps[camel(propName)] = propValues[propName]
     }
@@ -142,18 +138,23 @@ export function useInput(
   }
 
   /**
-   * Watch and dynamically set node prop values so both core and vue states are
-   * reactive. First we do this with attributes.
+   * Watch "pseudoProp" attributes explicitly.
+   */
+  const pseudoPropsValues = only(nodeProps(context.attrs), propNames)
+  for (const prop in pseudoPropsValues) {
+    const camelName = camel(prop)
+    watchEffect(() => {
+      node.props[camelName] = context.attrs[prop]
+    })
+  }
+
+  /**
+   * Watch and dynamically set attribute values, those values that are not
+   * props and are not pseudoProps
    */
   watchEffect(() => {
-    const attrProps = except(
-      context.attrs,
-      new Set(pseudoProps.concat(input.props || []))
-    )
-    for (const propName in attrProps) {
-      const camelName = camel(propName)
-      node.props[camelName] = context.attrs[propName]
-    }
+    const attrs = except(nodeProps(context.attrs), propNames)
+    node.props.attrs = attrs
   })
 
   /**
@@ -188,6 +189,18 @@ export function useInput(
   if (node.type !== 'input') {
     provide(parentSymbol, node)
   }
+
+  /**
+   * Explicitly watch the input value, and emit changes (lazy)
+   */
+  watch(
+    () => node.context?.value,
+    () => {
+      // Emit the values after commit
+      context.emit('input', node.context?.value)
+      context.emit('update:modelValue', node.context?.value)
+    }
+  )
 
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended

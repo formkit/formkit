@@ -7,7 +7,7 @@ import {
   createMessage,
   generateClassList,
 } from '@formkit/core'
-import { has, except } from '@formkit/utils'
+import { has } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -113,10 +113,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
 
   const context: FormKitFrameworkContext = reactive({
     _value: node.value,
-    attrs: except(
-      context.attrs,
-      new Set(universalProps.concat(node.props.definition.props || []))
-    ),
+    attrs: node.props.attrs,
     fns: {
       length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
       number: (value: any) => Number(value),
@@ -147,7 +144,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
       blurred: false,
       dirty: false,
       valid: !node.ledger.value('blocking'),
-    } as Record<string, any>,
+    },
     type: node.props.type,
     value: node.value,
     classes,
@@ -156,7 +153,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   /**
    * We use a node observer to individually observe node props.
    */
-  const rootProps = ['help', 'label', 'options', 'type']
+  const rootProps = ['help', 'label', 'options', 'type', 'attrs']
   rootProps.forEach(() => {
     createObserver(node).watch(() =>
       Object.assign(context, { help: node.props.help })
@@ -177,7 +174,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    switch (type) {
+    switch (node.type) {
       case 'group':
         context.value = { ...payload }
         break
@@ -189,9 +186,6 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
     }
     // The input is dirty after a value has been input by a user
     if (!context.state.dirty) context.handlers.touch()
-    // Emit the values after commit
-    context.emit('input', context.value)
-    context.emit('update:modelValue', context.value)
   })
 
   /**
@@ -200,7 +194,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    */
   const updateState = (message: FormKitMessage) => {
     if (message.visible) visibleMessages[message.key] = message
-    if (message.type === 'state') context.state[message.key] = message.value
+    if (message.type === 'state') context.state[message.key] = !!message.value
   }
 
   /**

@@ -3,26 +3,37 @@
     <h2>FormKit Playground</h2>
     <FormKit
       type="group"
+      :config="{
+        validationBehavior: 'dirty',
+        errorBehavior: 'dirty'
+      }"
     >
-      <FormKit
+      <!--<FormKit
         name="items"
         type="list"
       >
         <FormKit
-          v-for="x in 10"
+          v-for="x in 1"
           :key="x"
           type="group"
-        >
-          <FormKit
-            type="text"
-            name="foo"
-            :validation="[['required'], ['matches', /^foo_\d+$/]]"
-            validation-behavior="dirty"
-            :data-foo="foo"
-            label="Foo"
-            :delay="0"
-          />
-          <FormKit
+        > -->
+      <FormKit
+        type="text"
+        name="foo"
+        :validation="[['required'], ['matches', /^foo_\d+$/]]"
+        validation-behavior="live"
+        :data-foo="foo"
+        label="Foo"
+        :delay="0"
+        :errors="['This is an error']"
+        :schema="{ label: { children: [
+          {
+            $el: 'pre',
+            children: ['errorBehavior: ', '$node.props.errorBehavior']
+          }
+        ] }}"
+      />
+          <!-- <FormKit
             type="text"
             name="bar"
             :validation="[['required'], ['matches', /^foo_\d+$/]]"
@@ -38,7 +49,7 @@
             :delay="0"
           />
         </FormKit>
-      </FormKit>
+      </FormKit> -->
     </FormKit>
   </div>
 </template>

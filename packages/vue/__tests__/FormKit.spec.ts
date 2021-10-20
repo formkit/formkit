@@ -167,8 +167,10 @@ describe('validation', () => {
       props: {
         label: 'foo',
         validation: 'required',
-        validationLabel: (node: FormKitNode<any>) => node.props.dataFoo,
         validationBehavior: 'live',
+        validationLabel: (node: FormKitNode<any>) => {
+          return node.props.attrs['data-foo']
+        },
         'data-foo': 'hi there',
       },
       global: {
@@ -208,7 +210,7 @@ describe('validation', () => {
         },
       }
     )
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('button').attributes()).toHaveProperty('disabled')
     const [email, name] = wrapper.findAll('input')
     email.setValue('info@formkit.com')

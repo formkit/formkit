@@ -11,7 +11,12 @@ import {
   FormKitEventListener,
 } from './events'
 import { error } from './errors'
-import { createStore, FormKitMessageProps, FormKitStore } from './store'
+import {
+  createStore,
+  FormKitMessageProps,
+  FormKitMessage,
+  FormKitStore,
+} from './store'
 import { createLedger, FormKitLedger } from './ledger'
 
 /**
@@ -336,7 +341,7 @@ export interface FormKitContext<ValueType = any> {
  */
 export interface FormKitFrameworkContext {
   _value: any
-  value: any
+  attrs: Record<string, any>
   classes: Record<string, string>
   handlers: {
     blur: () => void
@@ -345,7 +350,7 @@ export interface FormKitFrameworkContext {
   }
   help?: string
   label?: string
-  messages: Record<string, string>
+  messages: Record<string, FormKitMessage>
   options?: Array<Record<string, any> & { label: string; value: any }>
   state: Record<string, boolean> & {
     blurred: boolean
@@ -353,6 +358,7 @@ export interface FormKitFrameworkContext {
     valid: boolean
   }
   type: string
+  value: any
 }
 
 /**
