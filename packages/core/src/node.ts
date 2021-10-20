@@ -11,7 +11,12 @@ import {
   FormKitEventListener,
 } from './events'
 import { error } from './errors'
-import { createStore, FormKitMessageProps, FormKitStore } from './store'
+import {
+  createStore,
+  FormKitMessageProps,
+  FormKitMessage,
+  FormKitStore,
+} from './store'
 import { createLedger, FormKitLedger } from './ledger'
 
 /**
@@ -231,6 +236,11 @@ export type FormKitProps = {
     | ((ctx: { name: string; args: any[]; node: FormKitNode<any> }) => string)
     | string
   >
+  definition?: {
+    type: FormKitNodeType
+    schema: any
+    props?: string[]
+  }
   [index: string]: any
 } & FormKitConfig
 
@@ -268,6 +278,10 @@ export interface FormKitContext<ValueType = any> {
    * Configuration state for a given tree.
    */
   config: FormKitConfig
+  /**
+   * The context object of the current front end framework being used.
+   */
+  context?: FormKitFrameworkContext
   /**
    * Set of hooks
    */
@@ -317,6 +331,34 @@ export interface FormKitContext<ValueType = any> {
    * The actual value of the node.
    */
   value: ValueType
+}
+
+/**
+ * Context object to be created by and used by each respective UI framework. No
+ * values are created or output by FormKitCore, but this interface
+ * should be followed by each respective plugin.
+ * @public
+ */
+export interface FormKitFrameworkContext {
+  _value: any
+  attrs: Record<string, any>
+  classes: Record<string, string>
+  handlers: {
+    blur: () => void
+    touch: () => void
+    DOMInput: (e: Event) => void
+  }
+  help?: string
+  label?: string
+  messages: Record<string, FormKitMessage>
+  options?: Array<Record<string, any> & { label: string; value: any }>
+  state: Record<string, boolean> & {
+    blurred: boolean
+    dirty: boolean
+    valid: boolean
+  }
+  type: string
+  value: any
 }
 
 /**
@@ -549,7 +591,7 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isNode(node: any): node is FormKitNode {
-  return node && typeof node === 'object' && node.__FKNode__
+  return node && typeof node === 'object' && node.__FKNode__ === true
 }
 
 /**
@@ -657,9 +699,7 @@ export function resetCount(): void {
  * @param children -
  * @public
  */
-export function names(
-  children: FormKitNode[]
-): {
+export function names(children: FormKitNode[]): {
   [index: string]: FormKitNode
 } {
   return children.reduce(
@@ -702,9 +742,9 @@ function createValue<T extends FormKitOptions>(
       ? options.value
       : {}
   } else if (options.type === 'list') {
-    return (Array.isArray(options.value)
-      ? options.value
-      : []) as FormKitNodeValue<T>
+    return (
+      Array.isArray(options.value) ? options.value : []
+    ) as FormKitNodeValue<T>
   }
   return options.value === null ? '' : options.value
 }
@@ -779,9 +819,9 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ;((context._value as unknown) as FormKitGroupValue)[name as string] = value
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
   } else {
-    delete ((context._value as unknown) as FormKitGroupValue)[name as string]
+    delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
 }
 
@@ -1430,7 +1470,7 @@ export function createNode<T extends FormKitOptions>(
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
-  const node = (new Proxy(context, {
+  const node = new Proxy(context, {
     get(...args) {
       const [, property] = args
       if (property === '__FKNode__') return true
@@ -1444,6 +1484,6 @@ export function createNode<T extends FormKitOptions>(
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown) as FormKitNode<FormKitNodeValue<T>>
+  }) as unknown as FormKitNode<FormKitNodeValue<T>>
   return nodeInit<FormKitNodeValue<T>>(node, ops)
 }

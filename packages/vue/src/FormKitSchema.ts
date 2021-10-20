@@ -122,16 +122,19 @@ function getRef(
  */
 function findValue(sets: (false | Record<string, any>)[], path: string[]): any {
   for (const set of sets) {
-    let found = undefined
-    path.reduce((obj: any, segment: string, i: number) => {
+    let obj: any = set
+    for (const i in path) {
+      const segment = path[i]
       const value = obj[segment]
       const next = typeof value === 'object' ? value : {}
-      if (i === path.length - 1 && (has(obj, segment) || value !== undefined)) {
-        found = value
+      if (
+        Number(i) === path.length - 1 &&
+        (has(obj, segment) || value !== undefined)
+      ) {
+        return value
       }
-      return next
-    }, set)
-    if (found !== undefined) return found
+      obj = next
+    }
   }
   return undefined
 }
