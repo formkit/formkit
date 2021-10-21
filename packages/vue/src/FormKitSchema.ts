@@ -75,10 +75,13 @@ type Renderable = null | string | VirtualNode
 /**
  * Describes renderable children.
  */
-type RenderChildren = () =>
+type RenderChildren = (
+  data?: Record<string, any>
+) =>
   | Renderable
   | Renderable[]
   | (Renderable | Renderable[])[]
+  | Record<string, RenderChildren>
 
 /**
  * The format children elements can be in.
@@ -374,6 +377,7 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
+    scopes.unshift(Symbol())
     attrs = parseAttrs(data, scopes, node.props, node.bind)
   } else if (isConditional(node)) {
     // This is an if/then schema statement
@@ -430,6 +434,16 @@ function parseNode(
       children = () =>
         childCondition && childCondition() ? c && c() : a && a()
     }
+  }
+
+  if (isComponent(node) && children) {
+    const produceChildren = children
+    children = () => ({
+      default: (slotData?: Record<string, any>) => {
+        if (slotData) setValue(data, scopes, slotData)
+        return produceChildren()
+      },
+    })
   }
 
   // Compile the for loop down

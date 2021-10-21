@@ -1,4 +1,4 @@
-import { reactive, nextTick } from 'vue'
+import { reactive, nextTick, defineComponent, markRaw } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchema } from '../src/FormKitSchema'
 
@@ -686,5 +686,32 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.html()).toBe('<label><input type="checkbox"></label>')
+  })
+})
+
+describe('rendering components', () => {
+  it('can render component with props', () => {
+    const cmp = defineComponent({
+      props: {
+        foobar: String,
+      },
+      template: `<span>{{ foobar }}</span>`,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $cmp: 'MyCmp',
+            props: {
+              foobar: 'world',
+            },
+          },
+        ],
+        library: markRaw({
+          MyCmp: cmp,
+        }),
+      },
+    })
+    expect(wrapper.html()).toBe('<span>world</span>')
   })
 })
