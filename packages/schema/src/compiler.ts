@@ -71,6 +71,12 @@ export function compile(expr: string): FormKitConditionCompiler {
    * These tokens are replacements used in evaluating a given condition.
    */
   const tokens: FormKitTokens = {}
+
+  /**
+   * The value of the provide() callback. Used for late binding.
+   */
+  let requestToken: (token: string) => () => any
+
   /**
    * These are token requirements like "$name.value" that are need to fulfill
    * a given condition call.
@@ -198,6 +204,8 @@ export function compile(expr: string): FormKitConditionCompiler {
         depth++
       } else if (char === ')') {
         depth--
+      } else if (depth === 0 && char === ' ') {
+        continue
       }
       if (depth === 0 && getOp(operatorSymbols, char, p, expression)) {
         return [tail, p - 1]
@@ -259,6 +267,8 @@ export function compile(expr: string): FormKitConditionCompiler {
       } else if (char === '(') {
         if (depth === 0) {
           startP = p
+        } else {
+          parenthetical += char
         }
         depth++
       } else if (char === ')') {
@@ -310,6 +320,8 @@ export function compile(expr: string): FormKitConditionCompiler {
             operand += `(${parenthetical})${hasTail ? `.${tail}` : ''}`
           }
           parenthetical = ''
+        } else {
+          parenthetical += char
         }
       } else if (
         depth === 0 &&
@@ -405,7 +417,15 @@ export function compile(expr: string): FormKitConditionCompiler {
       // exposed tokens.
       const tailCall = tail
         ? compile(`$${tail}`).provide((token) => {
-            return () => getAt(userFuncReturn, token)
+            const isTail = token === tail || tail.startsWith(`${token}(`)
+            let getValue: () => unknown
+            return () => {
+              if (isTail) return getAt(userFuncReturn, token)
+              if (!getValue && typeof requestToken === 'function') {
+                getValue = requestToken(token)
+              }
+              return getValue ? getValue() : null
+            }
           })
         : false
       if (typeof fn === 'function') {
@@ -457,6 +477,7 @@ export function compile(expr: string): FormKitConditionCompiler {
   )
   return Object.assign(compiledCondition, {
     provide: (callback: (token: string) => () => any) => {
+      requestToken = callback
       requirements.forEach((requirement) => {
         tokens[requirement] = callback(requirement)
       })

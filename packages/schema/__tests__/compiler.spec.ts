@@ -284,4 +284,38 @@ describe('logic compiler', () => {
       })()
     ).toBe(16)
   })
+
+  it('can parse arithmetic inside a tail call', () => {
+    const data: Record<string, any> = {
+      fetch: () => ({ from: (location: string) => location }),
+    }
+    expect(
+      compile('$fetch().from(1 + 1)').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe(2)
+  })
+
+  it('can parse tokens inside a tail call', () => {
+    const data: Record<string, any> = {
+      fetch: () => ({ from: (location: string) => location }),
+    }
+    expect(
+      compile('$fetch().from(1 + 1)').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe(2)
+  })
+
+  it('can parse root tokens, call functions, and tail call inside a tail call', () => {
+    const data: Record<string, any> = {
+      go: () => ({ north: (location: string) => location }),
+      sing: () => ({ oh: 'canada' }),
+    }
+    expect(
+      compile('$go().north($sing().oh)').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe('canada')
+  })
 })
