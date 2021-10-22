@@ -1,78 +1,59 @@
 <template>
   <div class="container">
     <h2>FormKit Playground</h2>
-    <FormKit
-      type="group"
-      :config="{
-        validationBehavior: 'dirty',
-        errorBehavior: 'dirty'
-      }"
-    >
-      <!--<FormKit
-        name="items"
-        type="list"
-      >
-        <FormKit
-          v-for="x in 1"
-          :key="x"
-          type="group"
-        > -->
-      <FormKit
-        type="text"
-        name="foo"
-        :validation="[['required'], ['matches', /^foo_\d+$/]]"
-        validation-behavior="live"
-        :data-foo="foo"
-        label="Foo"
-        :delay="0"
-        :errors="['This is an error']"
-        :schema="{ label: { children: [
-          {
-            $el: 'pre',
-            children: ['errorBehavior: ', '$node.props.errorBehavior']
-          }
-        ] }}"
-      />
-          <!-- <FormKit
-            type="text"
-            name="bar"
-            :validation="[['required'], ['matches', /^foo_\d+$/]]"
-            validation-behavior="live"
-            label="Bar"
-            :delay="0"
-          />
-          <FormKit
-            type="text"
-            name="baz"
-            label="Baz"
-            validation="required|length:5"
-            :delay="0"
-          />
-        </FormKit>
-      </FormKit> -->
-    </FormKit>
+    <FormKitSchema
+      :schema="schema"
+      :library="library"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { markRaw, defineComponent, h } from 'vue'
+import { FormKitSchema } from '../../../packages/vue/src/FormKitSchema'
+import { FormKitSchemaNode } from '@formkit/schema'
 
-const foo = ref('foobar-1')
-let i = 1;
+const MyComponent = defineComponent({
+  name: 'MyComponent',
+  props: {
+    action: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      content: {
+        price: 13.99,
+        quantity: 1
+      }
+    }
+  },
+  render () {
+    return h('button', {
+      onClick: () => this.content.quantity++
+    }, [
+      this.$props.action,
+      this.content.quantity,
+      ' for ',
+      this.$slots.default ? this.$slots.default(this.content) : null
+    ])
+  }
+})
 
-setInterval(() => {
-  foo.value = `foobar-${++i}`
-}, 500)
+const library = markRaw({
+  MyComponent
+})
 
-// const longrun = (node) => {
-//   return new Promise((resolve) => setTimeout(() => {
-//     if (node.value === 'lets get lunch') {
-//       resolve(true)
-//     } else {
-//       resolve(false)
-//     }
-//   }, 1000))
-// }
+const schema: FormKitSchemaNode[] = [
+  {
+    $cmp: 'MyComponent',
+    props: {
+      action: 'Purchase '
+    },
+    children: '$price * $quantity'
+  }
+]
 </script>
 
 <style>

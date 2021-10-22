@@ -1,5 +1,6 @@
-import { reactive, nextTick } from 'vue'
+import { reactive, nextTick, defineComponent, markRaw } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
+import { FormKitSchemaNode } from '@formkit/schema'
 import { FormKitSchema } from '../src/FormKitSchema'
 
 describe('parsing dom elements', () => {
@@ -686,5 +687,79 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.html()).toBe('<label><input type="checkbox"></label>')
+  })
+})
+
+describe('rendering components', () => {
+  it('can render component with props', () => {
+    const cmp = defineComponent({
+      props: {
+        foobar: String,
+      },
+      template: `<span>{{ foobar }}</span>`,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $cmp: 'MyCmp',
+            props: {
+              foobar: 'world',
+            },
+          },
+        ],
+        library: markRaw({
+          MyCmp: cmp,
+        }),
+      },
+    })
+    expect(wrapper.html()).toBe('<span>world</span>')
+  })
+
+  it('can render children in the default slot with scoped data', async () => {
+    const MyComponent = defineComponent({
+      name: 'MyComponent',
+      props: {
+        action: {
+          type: String,
+        },
+      },
+      data() {
+        return {
+          content: {
+            price: 13.99,
+            quantity: 1,
+          },
+        }
+      },
+      template:
+        '<button @click="() => content.quantity++">{{ action }}{{ content.quantity }} for <slot v-bind="content"></slot></button>',
+    })
+
+    const library = markRaw({
+      MyComponent,
+    })
+
+    const schema: FormKitSchemaNode[] = [
+      {
+        $cmp: 'MyComponent',
+        props: {
+          action: 'Purchase ',
+        },
+        children: '$price * $quantity',
+      },
+    ]
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema,
+        library,
+      },
+    })
+
+    expect(wrapper.html()).toBe('<button>Purchase 1 for 13.99</button>')
+    wrapper.find('button').trigger('click')
+    await nextTick()
+    expect(wrapper.html()).toBe('<button>Purchase 2 for 27.98</button>')
   })
 })

@@ -75,10 +75,13 @@ type Renderable = null | string | VirtualNode
 /**
  * Describes renderable children.
  */
-type RenderChildren = () =>
+type RenderChildren = (
+  data?: Record<string, any>
+) =>
   | Renderable
   | Renderable[]
   | (Renderable | Renderable[])[]
+  | Record<string, RenderChildren>
 
 /**
  * The format children elements can be in.
@@ -374,6 +377,7 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
+    scopes.unshift(Symbol())
     attrs = parseAttrs(data, scopes, node.props, node.bind)
   } else if (isConditional(node)) {
     // This is an if/then schema statement
@@ -429,6 +433,26 @@ function parseNode(
       )
       children = () =>
         childCondition && childCondition() ? c && c() : a && a()
+    }
+  }
+
+  if (isComponent(node)) {
+    if (children) {
+      // Children of components need to be provided as an object of slots
+      // so we provide an object with the default slot provided as children.
+      // We also create a new scope for this default slot, and then on each
+      // render pass the scoped slot props to the scope.
+      const produceChildren = children
+      children = () => ({
+        default: (slotData?: Record<string, any>) => {
+          if (slotData) setValue(data, scopes, slotData)
+          return produceChildren()
+        },
+      })
+    } else {
+      // If we dont have any children, we still need to provide an object
+      // instead of an empty array (which raises a warning in vue)
+      children = () => ({})
     }
   }
 
