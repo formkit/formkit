@@ -762,4 +762,23 @@ describe('rendering components', () => {
     await nextTick()
     expect(wrapper.html()).toBe('<button>Purchase 2 for 27.98</button>')
   })
+
+  it('can react when a schema’s function tail changes', async () => {
+    const ctx = reactive<Record<string, number | undefined>>({
+      price: 100,
+    })
+    const data = reactive({
+      get: () => ctx,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: ['$: 13 + $get().price'],
+      },
+    })
+    expect(wrapper.html()).toBe('113')
+    ctx.price = 200
+    await nextTick()
+    expect(wrapper.html()).toBe('213')
+  })
 })

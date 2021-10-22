@@ -18,6 +18,7 @@ import {
   FormKitStore,
 } from './store'
 import { createLedger, FormKitLedger } from './ledger'
+import { deregister, register } from './registry'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -452,6 +453,11 @@ export type FormKitNode<T = void> = {
    */
   disturb: () => FormKitNode<T>
   /**
+   * Removes the node from the global registry, removes it from its parent, and
+   * emits the 'destroying' event.
+   */
+  destroy: () => void
+  /**
    * Perform given callback on each of the given node's children.
    */
   each: (callback: FormKitChildCallback) => void
@@ -617,6 +623,7 @@ function createTraps<T>(): FormKitTraps<T> {
       calm: trap<T>(calm),
       config: trap<T>(false),
       disturb: trap<T>(disturb),
+      destroy: trap<T>(destroy),
       hydrate: trap<T>(hydrate),
       index: trap<T>(getIndex, setIndex, false),
       input: trap<T>(input),
@@ -898,6 +905,19 @@ function calm<T>(
       node.parent?.calm({ name: node.name, value: context.value })
     if (context._resolve) context._resolve(context.value)
   }
+}
+
+/**
+ * This node is being removed and needs to be cleaned up.
+ * @param node - The node to shut down
+ * @param context - The context to clean up
+ */
+function destroy<T>(node: FormKitNode<T>) {
+  if (node.parent) {
+    node.parent.remove(node)
+  }
+  deregister(node)
+  node.emit('destroying', node)
 }
 
 /**
@@ -1451,6 +1471,8 @@ function nodeInit<T>(
   if (node.parent) node.parent.add(node)
   // Release the store buffer
   node.store.release()
+  // Register the node globally
+  register(node)
   return node.emit('created', node)
 }
 

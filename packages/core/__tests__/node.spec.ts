@@ -1098,4 +1098,19 @@ describe('value propagation in a node tree', () => {
       expect(node.t('hello')).toBe('ciao')
     })
   })
+
+  describe('destroyed', () => {
+    it('can destroy an element', () => {
+      const parent = createNameTree()
+      parent.at('jane')?.destroy()
+      expect(parent.value).toEqual({
+        billy: undefined,
+        stella: {
+          tommy: '555',
+          wendy: undefined,
+        },
+        wendy: undefined,
+      })
+    })
+  })
 })

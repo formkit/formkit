@@ -50,3 +50,8 @@ export {
  * Export classes.
  */
 export * from './classes'
+
+/**
+ * Export the global registry.
+ */
+export * from './registry'
