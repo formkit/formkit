@@ -1,6 +1,6 @@
 import { compile } from '../src/compiler'
 
-describe('boolean logic parser', () => {
+describe('logic compiler', () => {
   // AND operators only:
   it('parses truthy and comparison operators', () =>
     expect(compile('true && true')()).toBe(true))
@@ -248,5 +248,40 @@ describe('boolean logic parser', () => {
         return () => data[token]
       })()
     ).toBe(63)
+  })
+
+  it('can access properties of a returned object', () => {
+    const data: Record<string, any> = {
+      fetch: () => ({ value: 'abc' }),
+    }
+    expect(
+      compile('$fetch().value + def').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe('abcdef')
+  })
+
+  it('can access sub properties of a returned object', () => {
+    const data: Record<string, any> = {
+      get: (value: string) => ({ node: { value } }),
+    }
+    expect(
+      compile('$get(foo).node.value').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe('foo')
+  })
+
+  it('can call a function on a tail', () => {
+    const data: Record<string, any> = {
+      add: (a: number) => ({
+        to: (b: number) => Number(a) + Number(b),
+      }),
+    }
+    expect(
+      compile('2 * $add(5).to(3)').provide((token) => {
+        return () => data[token]
+      })()
+    ).toBe(16)
   })
 })

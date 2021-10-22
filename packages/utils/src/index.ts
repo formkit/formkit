@@ -429,3 +429,25 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     return newObj
   }, {} as Record<string, unknown>) as T
 }
+
+/**
+ * Get a specific value via dot notation.
+ * @param obj - An object to fetch data from
+ * @param addr - An "address" in dot notation
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function getAt(obj: any, addr: string): unknown {
+  if (!obj || typeof obj !== 'object') return null
+  const segments = addr.split('.')
+  let o = obj
+  for (const i in segments) {
+    const segment = segments[i]
+    if (has(o, segment)) {
+      o = o[segment]
+    }
+    if (+i === segments.length - 1) return o
+    if (!o || typeof o !== 'object') return null
+  }
+  return null
+}

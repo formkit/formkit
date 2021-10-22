@@ -11,6 +11,7 @@ import {
   camel,
   clone,
   only,
+  getAt,
 } from '../src/index'
 
 describe('eq', () => {
@@ -360,5 +361,24 @@ describe('only', () => {
       faa: 456,
       boz: 'biz',
     })
+  })
+})
+
+describe('getAt', () => {
+  it('can access a single level deep', () => {
+    expect(getAt({ a: 123 }, 'a')).toBe(123)
+  })
+
+  it('returns null when going too deep', () => {
+    expect(getAt({ a: 123 }, 'a.b')).toBe(null)
+  })
+
+  it('returns null when first argument is not an object', () => {
+    expect(getAt('foobar', 'a.b')).toBe(null)
+  })
+
+  it('can access array indexes', () => {
+    expect(getAt({ a: ['foo', 'bar'] }, 'a.0')).toBe('foo')
+    expect(getAt({ a: ['foo', 'bar'] }, 'a.1')).toBe('bar')
   })
 })

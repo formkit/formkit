@@ -16,7 +16,7 @@ import { FormKitSchemaNode } from '@formkit/schema'
 const MyComponent = defineComponent({
   name: 'MyComponent',
   props: {
-    greeting: {
+    action: {
       type: String,
       required: true
     }
@@ -24,13 +24,18 @@ const MyComponent = defineComponent({
   data () {
     return {
       content: {
-        location: 'world'
+        price: 13.99,
+        quantity: 1
       }
     }
   },
   render () {
-    return h('div', null, [
-      this.$props.greeting,
+    return h('button', {
+      onClick: () => this.content.quantity++
+    }, [
+      this.$props.action,
+      this.content.quantity,
+      ' for ',
       this.$slots.default ? this.$slots.default(this.content) : null
     ])
   }
@@ -44,9 +49,9 @@ const schema: FormKitSchemaNode[] = [
   {
     $cmp: 'MyComponent',
     props: {
-      greeting: 'Hello'
+      action: 'Purchase '
     },
-    children: '$location'
+    children: '$price * $quantity'
   }
 ]
 </script>

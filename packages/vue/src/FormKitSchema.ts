@@ -436,14 +436,24 @@ function parseNode(
     }
   }
 
-  if (isComponent(node) && children) {
-    const produceChildren = children
-    children = () => ({
-      default: (slotData?: Record<string, any>) => {
-        if (slotData) setValue(data, scopes, slotData)
-        return produceChildren()
-      },
-    })
+  if (isComponent(node)) {
+    if (children) {
+      // Children of components need to be provided as an object of slots
+      // so we provide an object with the default slot provided as children.
+      // We also create a new scope for this default slot, and then on each
+      // render pass the scoped slot props to the scope.
+      const produceChildren = children
+      children = () => ({
+        default: (slotData?: Record<string, any>) => {
+          if (slotData) setValue(data, scopes, slotData)
+          return produceChildren()
+        },
+      })
+    } else {
+      // If we dont have any children, we still need to provide an object
+      // instead of an empty array (which raises a warning in vue)
+      children = () => ({})
+    }
   }
 
   // Compile the for loop down
