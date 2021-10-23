@@ -3,15 +3,16 @@ import {
   PropType,
   RendererElement,
   RendererNode,
+  Slot,
   VNode,
   createTextVNode,
   defineComponent,
   h,
-  ref,
   reactive,
+  ref,
   resolveComponent,
   watchEffect,
-  Slot,
+  Ref,
 } from 'vue'
 import {
   FormKitSchemaAttributes,
@@ -26,7 +27,7 @@ import {
   FormKitAttributeValue,
 } from '@formkit/schema'
 import { has, isPojo } from '@formkit/utils'
-import { warn } from '@formkit/core'
+import { warn, get, watchRegistry, isNode } from '@formkit/core'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -103,18 +104,41 @@ function getRef(
   token: string
 ): { value: any } {
   const path = token.split('.')
-  const value = ref(null)
-  watchEffect(() => {
-    const sets = scopes
-      .map((scope) => data.__FK_SCP.get(scope) || false)
-      .filter((s) => s)
-    sets.push(data)
-    const foundValue = findValue(sets, path)
-    if (foundValue !== undefined) {
-      value.value = foundValue
-    }
-  })
+  const value = ref<unknown>(null)
+  const nodeRef = ref<unknown>(undefined)
+  if (token === 'get') {
+    value.value = getNode.bind(null, nodeRef)
+  } else {
+    watchEffect(() => {
+      const sets = scopes
+        .map((scope) => data.__FK_SCP.get(scope) || false)
+        .filter((s) => s)
+      sets.push(data)
+      const foundValue = findValue(sets, path)
+      if (foundValue !== undefined) {
+        value.value = foundValue
+      }
+    })
+  }
   return value
+}
+
+/**
+ * Get the node from the global registry
+ * @param id - A dot-syntax string where the node is located.
+ */
+function getNode(nodeRef: Ref<unknown>, id?: string) {
+  if (typeof id !== 'string') return warn(823)
+  if (nodeRef.value === undefined) {
+    nodeRef.value = null
+    const root = get(id)
+    if (root) nodeRef.value = root.context
+    // nodeRef.value = root.context
+    watchRegistry(id, ({ payload: node }) => {
+      nodeRef.value = isNode(node) ? node.context : node
+    })
+  }
+  return nodeRef.value
 }
 
 /**

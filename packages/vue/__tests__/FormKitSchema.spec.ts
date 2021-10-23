@@ -2,6 +2,8 @@ import { reactive, nextTick, defineComponent, markRaw } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode } from '@formkit/schema'
 import { FormKitSchema } from '../src/FormKitSchema'
+import { createNode, resetRegistry } from '@formkit/core'
+import vuePlugin from '../src/corePlugin'
 
 describe('parsing dom elements', () => {
   it('can render a single simple dom element', () => {
@@ -768,17 +770,56 @@ describe('rendering components', () => {
       price: 100,
     })
     const data = reactive({
-      get: () => ctx,
+      grab: () => ctx,
     })
     const wrapper = mount(FormKitSchema, {
       props: {
         data,
-        schema: ['$: 13 + $get().price'],
+        schema: ['$: 13 + $grab().price'],
       },
     })
     expect(wrapper.html()).toBe('113')
     ctx.price = 200
     await nextTick()
     expect(wrapper.html()).toBe('213')
+  })
+})
+
+describe('schema $get function', () => {
+  beforeEach(() => resetRegistry())
+
+  it('can fetch a global formkit node', async () => {
+    const node = createNode({
+      type: 'input',
+      plugins: [vuePlugin],
+      props: { id: 'boo' },
+      value: 'you found me!',
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$get(boo).value'],
+      },
+    })
+    expect(wrapper.html()).toBe('you found me!')
+    node.input('yes i did!', false)
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toBe('yes i did!')
+  })
+
+  it('can fetch a global formkit node after it is registered', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$get(bar).value'],
+      },
+    })
+    expect(wrapper.html()).toBe('null')
+    createNode({
+      type: 'input',
+      plugins: [vuePlugin],
+      props: { id: 'bar' },
+      value: 'you found me!',
+    })
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toBe('you found me!')
   })
 })

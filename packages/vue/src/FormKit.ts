@@ -24,6 +24,10 @@ const FormKit = defineComponent({
       type: String,
       required: false,
     },
+    id: {
+      type: String,
+      required: false,
+    },
     delay: {
       type: Number,
       required: false,

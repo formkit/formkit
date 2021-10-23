@@ -1,6 +1,10 @@
 <template>
   <div class="container">
     <h2>FormKit Playground</h2>
+    <!-- <FormKit
+      validation-behavior="live"
+      validation="^matches:/foo$/"
+    /> -->
     <FormKitSchema
       :schema="schema"
       :library="library"
@@ -47,11 +51,19 @@ const library = markRaw({
 
 const schema: FormKitSchemaNode[] = [
   {
-    $cmp: 'MyComponent',
+    $cmp: 'FormKit',
     props: {
-      action: 'Purchase '
-    },
-    children: '$price * $quantity'
+      label: 'Purchase price',
+      id: 'purchase',
+      value: '100'
+    }
+  },
+  {
+    $cmp: 'FormKit',
+    props: {
+      label: 'Reflection',
+      modelValue: '$get(purchase).value'
+    }
   }
 ]
 </script>

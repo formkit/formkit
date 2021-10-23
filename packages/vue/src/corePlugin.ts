@@ -136,6 +136,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
       },
     },
     help: node.props.help,
+    id: node.props.id as string,
     label: node.props.label,
     messages,
     node,

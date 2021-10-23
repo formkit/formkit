@@ -227,6 +227,7 @@ export interface FormKitConfig {
  */
 export type FormKitProps = {
   delay: number
+  id: string
   validationLabelStrategy?: (node?: FormKitNode<any>) => string
   validationRules?: Record<
     string,
@@ -350,6 +351,7 @@ export interface FormKitFrameworkContext {
     DOMInput: (e: Event) => void
   }
   help?: string
+  id: string
   label?: string
   messages: Record<string, FormKitMessage>
   options?: Array<Record<string, any> & { label: string; value: any }>
@@ -687,10 +689,14 @@ function createHooks<T>(): FormKitHooks<FormKitNodeValue<T>> {
 }
 
 /**
- * This is a simple integer counter of every create(), it is used to
- * deterministically name new nodes.
+ * This is a simple integer counter of every createName() where the name needs
+ * to be generated.
  */
-let nodeCount = 0
+let nameCount = 0
+/**
+ * This is a simple integer counter of every default id created.
+ */
+let idCount = 0
 
 /**
  * Reports the global number of node registrations, useful for deterministic
@@ -698,7 +704,8 @@ let nodeCount = 0
  * @public
  */
 export function resetCount(): void {
-  nodeCount = 0
+  nameCount = 0
+  idCount = 0
 }
 
 /**
@@ -728,7 +735,7 @@ function createName(
   type: FormKitNodeType
 ): string | symbol {
   if (options.parent?.type === 'list') return useIndex
-  return options.name || `${options.props?.type || type}_${++nodeCount}`
+  return options.name || `${options.props?.type || type}_${++nameCount}`
 }
 
 /**
@@ -1380,6 +1387,7 @@ export function createError(node: FormKitNode<any>, errorCode: number): never {
 function createProps<T>(type: FormKitNodeType) {
   const props: Record<PropertyKey, any> = {
     delay: type === 'input' ? 20 : 0,
+    id: `input_${idCount++}`,
   }
   let node: FormKitNode<T>
   return new Proxy(props, {
@@ -1471,8 +1479,8 @@ function nodeInit<T>(
   if (node.parent) node.parent.add(node)
   // Release the store buffer
   node.store.release()
-  // Register the node globally
-  register(node)
+  // Register the node globally if someone explicitly gave it an id
+  if (options.props?.id) register(node)
   return node.emit('created', node)
 }
 
