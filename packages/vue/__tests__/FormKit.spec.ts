@@ -352,12 +352,118 @@ describe('classes', () => {
     })
     expect(wrapper.html()).toBe(`<div class="formkit-outer">
   <div class="formkit-wrapper"><label class="formkit-label">input label</label>
-    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest"></div>
+    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" label="input label" help="input help text" validationbehavior="live"></div>
   </div>
   <div class="formkit-help">input help text</div>
   <ul class="formkit-messages">
     <li class="formkit-message">Input label is required.</li>
   </ul>
 </div>`)
+  })
+
+  it('can apply new classes from strings', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        classes: {
+          outer: 'test-class-string1',
+        },
+        outerClass: 'test-class-string2',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-outer').html()).toContain(
+      'class="formkit-outer test-class-string1 test-class-string2'
+    )
+  })
+
+  it('can apply new classes from functions', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        classes: {
+          outer: (node: any) => {
+            return node.name === 'classTest' ? 'test-class-function1' : ''
+          },
+        },
+        outerClass: (node: any) => {
+          return node.name === 'foobar' ? '' : 'test-class-function2'
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-outer').html()).toContain(
+      'class="formkit-outer test-class-function1 test-class-function2'
+    )
+  })
+
+  it('can apply new classes from class objects', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        classes: {
+          outer: {
+            'test-class-object1': true,
+            'ignore-me1': false,
+          },
+        },
+        outerClass: {
+          'ignore-me2': false,
+          'test-class-object2': true,
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-outer').html()).toContain(
+      'class="formkit-outer test-class-object1 test-class-object2'
+    )
+  })
+
+  it('allows a class list to be reset from each level of specificity', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('input').html()).toContain('class="formkit-input')
+    wrapper.setProps({
+      classes: {
+        input: '$reset input-class-from-classes-object',
+      },
+    })
+    await nextTick()
+    expect(wrapper.find('input').html()).toContain(
+      'class="input-class-from-classes-object'
+    )
+    expect(wrapper.find('input').html()).not.toContain('formkit-input')
+    wrapper.setProps({
+      inputClass: '$reset input-class-from-input-class-prop',
+    })
+    await nextTick()
+    expect(wrapper.find('input').html()).toContain(
+      'class="input-class-from-input-class-prop'
+    )
+    expect(wrapper.find('input').html()).not.toContain(
+      'input-class-from-classes-object'
+    )
+    wrapper.setProps({
+      classes: {
+        input: 'input-class-from-classes-object',
+      },
+      inputClass: 'input-class-from-input-class-prop',
+    })
+    await nextTick()
+    expect(wrapper.find('input').html()).toContain(
+      'class="formkit-input input-class-from-classes-object input-class-from-input-class-prop'
+    )
   })
 })
