@@ -1,15 +1,43 @@
 <template>
-  <div class="container">
-    <h2>FormKit Playground</h2>
-    <!-- <FormKit
-      validation-behavior="live"
-      validation="^matches:/foo$/"
-    /> -->
-    <FormKitSchema
-      :schema="schema"
-      :library="library"
-    />
-  </div>
+  <h2>FormKit Playground</h2>
+  <FormKit
+    v-slot="{ state: { valid } }"
+    type="group"
+  >
+    <FormKit
+      name="items"
+      type="list"
+    >
+      <FormKit
+        v-for="x in 1"
+        :key="x"
+        type="group"
+      >
+        <FormKit
+          type="text"
+          name="foo"
+          :validation="[['required'], ['matches', /^foo_\d+$/]]"
+          validation-behavior="dirty"
+          :data-foo="foo"
+          label="Foobar"
+          :delay="0"
+        />
+        <FormKit
+          type="text"
+          name="bar"
+          :validation="[['required'], ['matches', /^foo_\d+$/]]"
+          validation-behavior="live"
+          :delay="0"
+        />
+        <FormKit
+          type="text"
+          name="baz"
+          validation="required|length:5"
+          :delay="0"
+        />
+      </FormKit>
+    </FormKit>
+  </FormKit>
 </template>
 
 <script setup lang="ts">
