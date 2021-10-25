@@ -262,6 +262,23 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 30))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('can alter a validation message', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        value: 'formkit',
+        validation: 'length:10',
+        validationBehavior: 'live',
+        validationMessages: {
+          length: 'Too short',
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toContain('Too short')
+  })
 })
 
 describe('configuration', () => {

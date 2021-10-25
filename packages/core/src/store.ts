@@ -208,6 +208,9 @@ function removeMessage(
     delete messageStore[key]
     node.emit('message-removed', message)
   }
+  if (store.buffer === true) {
+    store._b = store._b.filter((m) => m.key !== key)
+  }
   return store
 }
 

@@ -212,7 +212,7 @@ function validate(
   if (validations.length) {
     node.store.set(validatingMessage)
     run(0, validations, node, state, false, () => {
-      node.store.remove('validating')
+      node.store.remove(validatingMessage.key)
     })
   }
 }
@@ -295,7 +295,14 @@ function run(
     // This rule is not being run because either:
     //  1. The field is empty and this rule should not run when empty
     //  2. A previous validation rule is failing and this one is not forced
-    // In this case we should call next validation messages.
+    // In this case we should call next validation.
+    if (empty(node.value) && validation.skipEmpty && state.isPassing) {
+      // This node has an empty value so its validation was skipped. So we
+      // need to queue it up, we do that by starting an observation and just
+      // touching the value attribute.
+      node.observe()
+      node.value
+    }
     next(false, null)
   }
 }
@@ -344,13 +351,9 @@ function createFailedMessage(
   validation: FormKitValidation,
   removeImmediately: boolean
 ): FormKitMessage {
-  let i18nArgs: FormKitValidationI18NArgs | undefined = createI18nArgs(
-    node,
-    validation
-  )
+  const i18nArgs: FormKitValidationI18NArgs = createI18nArgs(node, validation)
   const customMessage = createCustomMessage(node, validation, i18nArgs)
   // Here we short circuit the i18n system to force the output.
-  if (customMessage) i18nArgs = undefined
   const message = createMessage({
     blocking: validation.blocking,
     key: `rule_${validation.name}`,
@@ -366,6 +369,10 @@ function createFailedMessage(
        * as soon as the next commit happens.
        */
       removeImmediately,
+      /**
+       * Determines if this message should be passed to localization.
+       */
+      localize: !customMessage,
       /**
        * The arguments that will be passed to the validation rules
        */
