@@ -1,4 +1,10 @@
-import { has, isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
+import {
+  has,
+  isQuotedString,
+  rmEscapes,
+  parseArgs,
+  getAt,
+} from '@formkit/utils'
 import { warn } from '@formkit/core'
 
 /**
@@ -65,6 +71,12 @@ export function compile(expr: string): FormKitConditionCompiler {
    * These tokens are replacements used in evaluating a given condition.
    */
   const tokens: FormKitTokens = {}
+
+  /**
+   * The value of the provide() callback. Used for late binding.
+   */
+  let requestToken: (token: string) => () => any
+
   /**
    * These are token requirements like "$name.value" that are need to fulfill
    * a given condition call.
@@ -111,12 +123,16 @@ export function compile(expr: string): FormKitConditionCompiler {
   ]
 
   /**
+   * A full list of all operator symbols.
+   */
+  const operatorSymbols = operatorRegistry.reduce((s, g) => {
+    return s.concat(Object.keys(g))
+  }, [] as string[])
+
+  /**
    * An array of the first character of each operator.
    */
-  const operatorChars = operatorRegistry.reduce((o, r) => {
-    Object.keys(r).map((k) => o.add(k[0]))
-    return o
-  }, new Set())
+  const operatorChars = new Set(operatorSymbols.map((key) => key.charAt(0)))
 
   /**
    * Determines if the current character is the start of an operator symbol, if it
@@ -145,9 +161,10 @@ export function compile(expr: string): FormKitConditionCompiler {
   }
 
   /**
-   * Determines the step number of the right hand operator.
+   * Determines the step number of the right or left hand operator.
    * @param p - The position of the pointer
    * @param expression - The full string expression
+   * @param direction - 1 = right, 0 = left
    */
   function getStep(p: number, expression: string, direction = 1): number {
     let next = direction
@@ -165,6 +182,38 @@ export function compile(expr: string): FormKitConditionCompiler {
       const symbols = Object.keys(operators)
       return !!getOp(symbols, char, 0, next)
     })
+  }
+
+  /**
+   * Extracts a tail call. For example:
+   * ```
+   * $foo().bar(baz) + 7
+   * ```
+   * Would extract "bar(baz)" and return p of 15 (after the (baz)).
+   *
+   * @param p - The position of a closing parenthetical.
+   * @param expression - The full expression being parsed.
+   */
+  function getTail(pos: number, expression: string): [tail: string, p: number] {
+    let tail = ''
+    const length = expression.length
+    let depth = 0
+    for (let p = pos; p < length; p++) {
+      const char = expression.charAt(p)
+      if (char === '(') {
+        depth++
+      } else if (char === ')') {
+        depth--
+      } else if (depth === 0 && char === ' ') {
+        continue
+      }
+      if (depth === 0 && getOp(operatorSymbols, char, p, expression)) {
+        return [tail, p - 1]
+      } else {
+        tail += char
+      }
+    }
+    return [tail, expression.length - 1]
   }
 
   /**
@@ -218,6 +267,8 @@ export function compile(expr: string): FormKitConditionCompiler {
       } else if (char === '(') {
         if (depth === 0) {
           startP = p
+        } else {
+          parenthetical += char
         }
         depth++
       } else if (char === ')') {
@@ -244,25 +295,33 @@ export function compile(expr: string): FormKitConditionCompiler {
           // If the parenthetical has a preceding token like $fn(1 + 2) then we
           // need to subtract the existing operand length from the start
           // to determine if this is a left or right operation
-          const lStep = op ? step : getStep(startP, expression, 0)
-          const rStep = getStep(p, expression)
           const fn =
             typeof operand === 'string' && operand.startsWith('$')
               ? operand
               : undefined
+          const hasTail = fn && expression.charAt(p + 1) === '.'
+          // It's possible the function has a chained tail call:
+          let tail = ''
+          if (hasTail) {
+            ;[tail, p] = getTail(p + 2, expression)
+          }
+          const lStep = op ? step : getStep(startP, expression, 0)
+          const rStep = getStep(p, expression)
           if (lStep === -1 && rStep === -1) {
-            // This parenthetical was unnecessarily wrapped
-            operand = evaluate(parenthetical, -1, fn) as string
+            // This parenthetical was unnecessarily wrapped at the root
+            operand = evaluate(parenthetical, -1, fn, tail) as string
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
-            // has a left hand operator with a lower order of operation
-            op = op.bind(null, evaluate(parenthetical, -1, fn))
+            // has a left hand operator with a higher order of operation
+            op = op.bind(null, evaluate(parenthetical, -1, fn, tail))
           } else if (rStep > lStep && step === rStep) {
-            // should be applied to the right hand operator when it gets
-            operand = evaluate(parenthetical, -1, fn) as string
+            // should be applied to the right hand operator when it gets one
+            operand = evaluate(parenthetical, -1, fn, tail) as string
           } else {
-            operand += `(${parenthetical})`
+            operand += `(${parenthetical})${hasTail ? `.${tail}` : ''}`
           }
           parenthetical = ''
+        } else {
+          parenthetical += char
         }
       } else if (
         depth === 0 &&
@@ -332,6 +391,8 @@ export function compile(expr: string): FormKitConditionCompiler {
   /**
    * Given a string like '$name==bobby' evaluate it to true or false
    * @param operand - A left or right boolean operand — usually conditions
+   * @param step - The current order of operation
+   * @param fnToken - The token (string) representation of a function being called
    * @returns
    */
   function evaluate(
@@ -341,7 +402,8 @@ export function compile(expr: string): FormKitConditionCompiler {
       | boolean
       | ((...args: any[]) => boolean | number | string),
     step: number,
-    fnToken?: string
+    fnToken?: string,
+    tail?: string
   ):
     | boolean
     | string
@@ -349,6 +411,23 @@ export function compile(expr: string): FormKitConditionCompiler {
     | ((...args: any[]) => boolean | number | string | CallableFunction) {
     if (fnToken) {
       const fn = evaluate(fnToken, operatorRegistry.length)
+      let userFuncReturn: unknown
+      // Tail calls are accessors after a function $foo().value. We need to
+      // compile tail calls, and then provide the function result to the
+      // exposed tokens.
+      const tailCall = tail
+        ? compile(`$${tail}`).provide((token) => {
+            const isTail = token === tail || tail.startsWith(`${token}(`)
+            let getValue: () => unknown
+            return () => {
+              if (isTail) return getAt(userFuncReturn, token)
+              if (!getValue && typeof requestToken === 'function') {
+                getValue = requestToken(token)
+              }
+              return getValue ? getValue() : null
+            }
+          })
+        : false
       if (typeof fn === 'function') {
         const args = parseArgs(String(operand)).map((arg: string) =>
           evaluate(arg, -1)
@@ -359,9 +438,10 @@ export function compile(expr: string): FormKitConditionCompiler {
             warn(234)
             return userFunc
           }
-          return userFunc(
+          userFuncReturn = userFunc(
             ...args.map((arg) => (typeof arg === 'function' ? arg() : arg))
           )
+          return tailCall ? tailCall() : (userFuncReturn as string)
         }
       }
     } else if (typeof operand === 'string') {
@@ -397,6 +477,7 @@ export function compile(expr: string): FormKitConditionCompiler {
   )
   return Object.assign(compiledCondition, {
     provide: (callback: (token: string) => () => any) => {
+      requestToken = callback
       requirements.forEach((requirement) => {
         tokens[requirement] = callback(requirement)
       })

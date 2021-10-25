@@ -4,6 +4,7 @@ import {
   FormKitPlugin,
   FormKitNode,
   bfs,
+  resetCount,
 } from '../src/node'
 import {
   createNameTree,
@@ -354,10 +355,12 @@ describe('node', () => {
 
 describe('props system', () => {
   it('can set arbitrary initial prop values', () => {
+    resetCount()
     const node = createNode({ props: { party: 'town', pizza: 'yummy' } })
     expect(node.props.pizza).toBe('yummy')
     expect(node.props).toEqual({
       delay: 20,
+      id: 'input_0',
       party: 'town',
       pizza: 'yummy',
     })
@@ -1096,6 +1099,21 @@ describe('value propagation in a node tree', () => {
       })
       expect(node.t('justin')).toBe('justin')
       expect(node.t('hello')).toBe('ciao')
+    })
+  })
+
+  describe('destroyed', () => {
+    it('can destroy an element', () => {
+      const parent = createNameTree()
+      parent.at('jane')?.destroy()
+      expect(parent.value).toEqual({
+        billy: undefined,
+        stella: {
+          tommy: '555',
+          wendy: undefined,
+        },
+        wendy: undefined,
+      })
     })
   })
 })

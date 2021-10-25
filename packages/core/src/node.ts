@@ -11,8 +11,14 @@ import {
   FormKitEventListener,
 } from './events'
 import { error } from './errors'
-import { createStore, FormKitMessageProps, FormKitStore } from './store'
+import {
+  createStore,
+  FormKitMessageProps,
+  FormKitMessage,
+  FormKitStore,
+} from './store'
 import { createLedger, FormKitLedger } from './ledger'
+import { deregister, register } from './registry'
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
@@ -221,6 +227,7 @@ export interface FormKitConfig {
  */
 export type FormKitProps = {
   delay: number
+  id: string
   validationLabelStrategy?: (node?: FormKitNode<any>) => string
   validationRules?: Record<
     string,
@@ -231,6 +238,11 @@ export type FormKitProps = {
     | ((ctx: { name: string; args: any[]; node: FormKitNode<any> }) => string)
     | string
   >
+  definition?: {
+    type: FormKitNodeType
+    schema: any
+    props?: string[]
+  }
   [index: string]: any
 } & FormKitConfig
 
@@ -268,6 +280,10 @@ export interface FormKitContext<ValueType = any> {
    * Configuration state for a given tree.
    */
   config: FormKitConfig
+  /**
+   * The context object of the current front end framework being used.
+   */
+  context?: FormKitFrameworkContext
   /**
    * Set of hooks
    */
@@ -317,6 +333,35 @@ export interface FormKitContext<ValueType = any> {
    * The actual value of the node.
    */
   value: ValueType
+}
+
+/**
+ * Context object to be created by and used by each respective UI framework. No
+ * values are created or output by FormKitCore, but this interface
+ * should be followed by each respective plugin.
+ * @public
+ */
+export interface FormKitFrameworkContext {
+  _value: any
+  attrs: Record<string, any>
+  classes: Record<string, string>
+  handlers: {
+    blur: () => void
+    touch: () => void
+    DOMInput: (e: Event) => void
+  }
+  help?: string
+  id: string
+  label?: string
+  messages: Record<string, FormKitMessage>
+  options?: Array<Record<string, any> & { label: string; value: any }>
+  state: Record<string, boolean> & {
+    blurred: boolean
+    dirty: boolean
+    valid: boolean
+  }
+  type: string
+  value: any
 }
 
 /**
@@ -409,6 +454,11 @@ export type FormKitNode<T = void> = {
    * to the rest of the tree.
    */
   disturb: () => FormKitNode<T>
+  /**
+   * Removes the node from the global registry, removes it from its parent, and
+   * emits the 'destroying' event.
+   */
+  destroy: () => void
   /**
    * Perform given callback on each of the given node's children.
    */
@@ -549,7 +599,7 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isNode(node: any): node is FormKitNode {
-  return node && typeof node === 'object' && node.__FKNode__
+  return node && typeof node === 'object' && node.__FKNode__ === true
 }
 
 /**
@@ -575,6 +625,7 @@ function createTraps<T>(): FormKitTraps<T> {
       calm: trap<T>(calm),
       config: trap<T>(false),
       disturb: trap<T>(disturb),
+      destroy: trap<T>(destroy),
       hydrate: trap<T>(hydrate),
       index: trap<T>(getIndex, setIndex, false),
       input: trap<T>(input),
@@ -638,10 +689,14 @@ function createHooks<T>(): FormKitHooks<FormKitNodeValue<T>> {
 }
 
 /**
- * This is a simple integer counter of every create(), it is used to
- * deterministically name new nodes.
+ * This is a simple integer counter of every createName() where the name needs
+ * to be generated.
  */
-let nodeCount = 0
+let nameCount = 0
+/**
+ * This is a simple integer counter of every default id created.
+ */
+let idCount = 0
 
 /**
  * Reports the global number of node registrations, useful for deterministic
@@ -649,7 +704,8 @@ let nodeCount = 0
  * @public
  */
 export function resetCount(): void {
-  nodeCount = 0
+  nameCount = 0
+  idCount = 0
 }
 
 /**
@@ -657,9 +713,7 @@ export function resetCount(): void {
  * @param children -
  * @public
  */
-export function names(
-  children: FormKitNode[]
-): {
+export function names(children: FormKitNode[]): {
   [index: string]: FormKitNode
 } {
   return children.reduce(
@@ -681,7 +735,7 @@ function createName(
   type: FormKitNodeType
 ): string | symbol {
   if (options.parent?.type === 'list') return useIndex
-  return options.name || `${options.props?.type || type}_${++nodeCount}`
+  return options.name || `${options.props?.type || type}_${++nameCount}`
 }
 
 /**
@@ -702,9 +756,9 @@ function createValue<T extends FormKitOptions>(
       ? options.value
       : {}
   } else if (options.type === 'list') {
-    return (Array.isArray(options.value)
-      ? options.value
-      : []) as FormKitNodeValue<T>
+    return (
+      Array.isArray(options.value) ? options.value : []
+    ) as FormKitNodeValue<T>
   }
   return options.value === null ? '' : options.value
 }
@@ -779,9 +833,9 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ;((context._value as unknown) as FormKitGroupValue)[name as string] = value
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
   } else {
-    delete ((context._value as unknown) as FormKitGroupValue)[name as string]
+    delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
 }
 
@@ -858,6 +912,19 @@ function calm<T>(
       node.parent?.calm({ name: node.name, value: context.value })
     if (context._resolve) context._resolve(context.value)
   }
+}
+
+/**
+ * This node is being removed and needs to be cleaned up.
+ * @param node - The node to shut down
+ * @param context - The context to clean up
+ */
+function destroy<T>(node: FormKitNode<T>) {
+  if (node.parent) {
+    node.parent.remove(node)
+  }
+  deregister(node)
+  node.emit('destroying', node)
 }
 
 /**
@@ -1320,6 +1387,7 @@ export function createError(node: FormKitNode<any>, errorCode: number): never {
 function createProps<T>(type: FormKitNodeType) {
   const props: Record<PropertyKey, any> = {
     delay: type === 'input' ? 20 : 0,
+    id: `input_${idCount++}`,
   }
   let node: FormKitNode<T>
   return new Proxy(props, {
@@ -1411,6 +1479,8 @@ function nodeInit<T>(
   if (node.parent) node.parent.add(node)
   // Release the store buffer
   node.store.release()
+  // Register the node globally if someone explicitly gave it an id
+  if (options.props?.id) register(node)
   return node.emit('created', node)
 }
 
@@ -1430,7 +1500,7 @@ export function createNode<T extends FormKitOptions>(
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
-  const node = (new Proxy(context, {
+  const node = new Proxy(context, {
     get(...args) {
       const [, property] = args
       if (property === '__FKNode__') return true
@@ -1444,6 +1514,6 @@ export function createNode<T extends FormKitOptions>(
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown) as FormKitNode<FormKitNodeValue<T>>
+  }) as unknown as FormKitNode<FormKitNodeValue<T>>
   return nodeInit<FormKitNodeValue<T>>(node, ops)
 }

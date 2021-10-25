@@ -354,14 +354,44 @@ export function parseArgs(str: string): string[] {
  */
 export function except(
   obj: Record<string, any>,
-  toRemove?: Set<string>
+  toRemove: Array<string | RegExp>
 ): Record<string, any> {
   const clean: Record<string, any> = {}
+  const exps = toRemove.filter((n) => n instanceof RegExp) as RegExp[]
+  const keysToRemove = new Set(toRemove)
   for (const key in obj) {
-    if (!toRemove || !toRemove.has(key)) {
+    if (!keysToRemove.has(key) && !exps.some((exp) => exp.test(key))) {
       clean[key] = obj[key]
     }
   }
+  return clean
+}
+
+/**
+ * Extracts a set of keys from a given object. Importantly, this will extract
+ * values even if they are not set on the original object they will just have an
+ * undefined value.
+ * @param obj - An object to extract values from
+ * @param include - A set of keys to extract
+ * @returns
+ * @public
+ */
+export function only(
+  obj: Record<string, any>,
+  include: Array<string | RegExp>
+): Record<string, any> {
+  const clean: Record<string, any> = {}
+  const exps = include.filter((n) => n instanceof RegExp) as RegExp[]
+  include.forEach((key) => {
+    if (!(key instanceof RegExp)) {
+      clean[key] = obj[key]
+    }
+  })
+  Object.keys(obj).forEach((key) => {
+    if (exps.some((exp) => exp.test(key))) {
+      clean[key] = obj[key]
+    }
+  })
   return clean
 }
 
@@ -398,4 +428,26 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
       typeof obj[key] === 'object' ? clone(obj[key] as unknown[]) : obj[key]
     return newObj
   }, {} as Record<string, unknown>) as T
+}
+
+/**
+ * Get a specific value via dot notation.
+ * @param obj - An object to fetch data from
+ * @param addr - An "address" in dot notation
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function getAt(obj: any, addr: string): unknown {
+  if (!obj || typeof obj !== 'object') return null
+  const segments = addr.split('.')
+  let o = obj
+  for (const i in segments) {
+    const segment = segments[i]
+    if (has(o, segment)) {
+      o = o[segment]
+    }
+    if (+i === segments.length - 1) return o
+    if (!o || typeof o !== 'object') return null
+  }
+  return null
 }

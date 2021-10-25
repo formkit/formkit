@@ -567,4 +567,19 @@ describe('validation rule sequencing', () => {
     expect(node.store).toHaveProperty('rule_length')
     expect(node.store).not.toHaveProperty('rule_longrun')
   })
+
+  it('runs skipEmpty rules without preceding rules once the field has a value', async () => {
+    const node = createNode({
+      value: '',
+      plugins: [validationPlugin],
+      props: {
+        validation: 'contains:foo',
+        validationBehavior: 'live',
+      },
+    })
+    expect(node.store).not.toHaveProperty('rule_contains')
+    node.input('baba', false)
+    await new Promise((r) => setTimeout(r, 25))
+    expect(node.store).toHaveProperty('rule_contains')
+  })
 })

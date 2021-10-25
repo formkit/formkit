@@ -156,4 +156,35 @@ describe('removing store messages', () => {
     )
     expect(node.store.foo.value).toBe('house')
   })
+
+  it('can buffer messages', () => {
+    const listener = jest.fn()
+    const node = createNode()
+    node.on('message-added', listener)
+    node.store.buffer = true
+    node.store.set(createMessage({ key: 'foo' }))
+    node.store.set(createMessage({ key: 'abc' }))
+    expect(listener).toHaveBeenCalledTimes(0)
+    expect(node.store).not.toHaveProperty('foo')
+    expect(node.store).not.toHaveProperty('abc')
+    node.store.release()
+    expect(listener).toHaveBeenCalledTimes(2)
+    expect(node.store).toHaveProperty('foo')
+    expect(node.store).toHaveProperty('abc')
+  })
+
+  it('can remove a buffered message', () => {
+    const addedListener = jest.fn()
+    const removedListener = jest.fn()
+    const node = createNode()
+    node.on('message-added', addedListener)
+    node.on('message-removed', removedListener)
+    node.store.buffer = true
+    node.store.set(createMessage({ key: 'foo' }))
+    node.store.remove('foo')
+    node.store.release()
+    expect(addedListener).toHaveBeenCalledTimes(0)
+    expect(removedListener).toHaveBeenCalledTimes(0)
+    expect(node.store).not.toHaveProperty('foo')
+  })
 })

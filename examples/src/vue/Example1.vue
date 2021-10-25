@@ -41,24 +41,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { markRaw, defineComponent, h } from 'vue'
+import { FormKitSchema } from '../../../packages/vue/src/FormKitSchema'
+import { FormKitSchemaNode } from '@formkit/schema'
 
-const foo = ref('foobar-1')
-let i = 1;
+const MyComponent = defineComponent({
+  name: 'MyComponent',
+  props: {
+    action: {
+      type: String,
+      required: true
+    }
+  },
+  data () {
+    return {
+      content: {
+        price: 13.99,
+        quantity: 1
+      }
+    }
+  },
+  render () {
+    return h('button', {
+      onClick: () => this.content.quantity++
+    }, [
+      this.$props.action,
+      this.content.quantity,
+      ' for ',
+      this.$slots.default ? this.$slots.default(this.content) : null
+    ])
+  }
+})
 
-setInterval(() => {
-  foo.value = `foobar-${++i}`
-}, 500)
+const library = markRaw({
+  MyComponent
+})
 
-// const longrun = (node) => {
-//   return new Promise((resolve) => setTimeout(() => {
-//     if (node.value === 'lets get lunch') {
-//       resolve(true)
-//     } else {
-//       resolve(false)
-//     }
-//   }, 1000))
-// }
+const schema: FormKitSchemaNode[] = [
+  {
+    $cmp: 'FormKit',
+    props: {
+      label: 'Purchase price',
+      id: 'purchase',
+      value: '100'
+    }
+  },
+  {
+    $cmp: 'FormKit',
+    props: {
+      label: 'Reflection',
+      modelValue: '$get(purchase).value'
+    }
+  }
+]
 </script>
 
 <style>

@@ -3,15 +3,16 @@ import {
   PropType,
   RendererElement,
   RendererNode,
+  Slot,
   VNode,
   createTextVNode,
   defineComponent,
   h,
-  ref,
   reactive,
+  ref,
   resolveComponent,
   watchEffect,
-  Slot,
+  Ref,
 } from 'vue'
 import {
   FormKitSchemaAttributes,
@@ -26,7 +27,7 @@ import {
   FormKitAttributeValue,
 } from '@formkit/schema'
 import { has, isPojo } from '@formkit/utils'
-import { warn } from '@formkit/core'
+import { warn, get, watchRegistry, isNode } from '@formkit/core'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -75,10 +76,13 @@ type Renderable = null | string | VirtualNode
 /**
  * Describes renderable children.
  */
-type RenderChildren = () =>
+type RenderChildren = (
+  data?: Record<string, any>
+) =>
   | Renderable
   | Renderable[]
   | (Renderable | Renderable[])[]
+  | Record<string, RenderChildren>
 
 /**
  * The format children elements can be in.
@@ -100,18 +104,41 @@ function getRef(
   token: string
 ): { value: any } {
   const path = token.split('.')
-  const value = ref(null)
-  watchEffect(() => {
-    const sets = scopes
-      .map((scope) => data.__FK_SCP.get(scope) || false)
-      .filter((s) => s)
-    sets.push(data)
-    const foundValue = findValue(sets, path)
-    if (foundValue !== undefined) {
-      value.value = foundValue
-    }
-  })
+  const value = ref<unknown>(null)
+  const nodeRef = ref<unknown>(undefined)
+  if (token === 'get') {
+    value.value = getNode.bind(null, nodeRef)
+  } else {
+    watchEffect(() => {
+      const sets = scopes
+        .map((scope) => data.__FK_SCP.get(scope) || false)
+        .filter((s) => s)
+      sets.push(data)
+      const foundValue = findValue(sets, path)
+      if (foundValue !== undefined) {
+        value.value = foundValue
+      }
+    })
+  }
   return value
+}
+
+/**
+ * Get the node from the global registry
+ * @param id - A dot-syntax string where the node is located.
+ */
+function getNode(nodeRef: Ref<unknown>, id?: string) {
+  if (typeof id !== 'string') return warn(823)
+  if (nodeRef.value === undefined) {
+    nodeRef.value = null
+    const root = get(id)
+    if (root) nodeRef.value = root.context
+    // nodeRef.value = root.context
+    watchRegistry(id, ({ payload: node }) => {
+      nodeRef.value = isNode(node) ? node.context : node
+    })
+  }
+  return nodeRef.value
 }
 
 /**
@@ -122,16 +149,19 @@ function getRef(
  */
 function findValue(sets: (false | Record<string, any>)[], path: string[]): any {
   for (const set of sets) {
-    let found = undefined
-    path.reduce((obj: any, segment: string, i: number) => {
+    let obj: any = set
+    for (const i in path) {
+      const segment = path[i]
       const value = obj[segment]
       const next = typeof value === 'object' ? value : {}
-      if (i === path.length - 1 && (has(obj, segment) || value !== undefined)) {
-        found = value
+      if (
+        Number(i) === path.length - 1 &&
+        (has(obj, segment) || value !== undefined)
+      ) {
+        return value
       }
-      return next
-    }, set)
-    if (found !== undefined) return found
+      obj = next
+    }
   }
   return undefined
 }
@@ -371,6 +401,7 @@ function parseNode(
       // in this case it must be an actual component
       element = node.$cmp
     }
+    scopes.unshift(Symbol())
     attrs = parseAttrs(data, scopes, node.props, node.bind)
   } else if (isConditional(node)) {
     // This is an if/then schema statement
@@ -426,6 +457,26 @@ function parseNode(
       )
       children = () =>
         childCondition && childCondition() ? c && c() : a && a()
+    }
+  }
+
+  if (isComponent(node)) {
+    if (children) {
+      // Children of components need to be provided as an object of slots
+      // so we provide an object with the default slot provided as children.
+      // We also create a new scope for this default slot, and then on each
+      // render pass the scoped slot props to the scope.
+      const produceChildren = children
+      children = () => ({
+        default: (slotData?: Record<string, any>) => {
+          if (slotData) setValue(data, scopes, slotData)
+          return produceChildren()
+        },
+      })
+    } else {
+      // If we dont have any children, we still need to provide an object
+      // instead of an empty array (which raises a warning in vue)
+      children = () => ({})
     }
   }
 

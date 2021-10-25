@@ -15,6 +15,7 @@ const text: FormKitSchemaComposable = (schema = {}) => ({
         onInput: '$handlers.DOMInput',
         onBlur: '$handlers.blur',
         value: '$_value',
+        id: '$id',
       },
     },
     schema

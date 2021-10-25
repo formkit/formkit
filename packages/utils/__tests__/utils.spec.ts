@@ -10,6 +10,8 @@ import {
   except,
   camel,
   clone,
+  only,
+  getAt,
 } from '../src/index'
 
 describe('eq', () => {
@@ -269,11 +271,17 @@ describe('parseArgs', () => {
 
 describe('except', () => {
   it('can remove a simple string', () => {
-    expect(except({ a: 123, b: 456 }, new Set(['b']))).toEqual({ a: 123 })
+    expect(except({ a: 123, b: 456 }, ['b'])).toEqual({ a: 123 })
   })
 
   it('can remove nothing if the input is undefined', () => {
-    expect(except({ a: 123, b: 123 })).toEqual({ a: 123, b: 123 })
+    expect(except({ a: 123, b: 123 }, [])).toEqual({ a: 123, b: 123 })
+  })
+
+  it('can remove keys via regular expression', () => {
+    expect(
+      except({ baa: 123, boo: 456, foo: 789, barFoo: 542 }, ['foo', /^ba/])
+    ).toEqual({ boo: 456 })
   })
 })
 
@@ -325,5 +333,52 @@ describe('it can clone an object', () => {
   it('skips cloning regex', () => {
     const regex = /^a/
     expect(clone({ regex }).regex).toBe(regex)
+  })
+})
+
+describe('only', () => {
+  it('can remove values from an object', () => {
+    const foo = {
+      a: 1,
+      b: 5,
+      c: 3,
+    }
+    expect(only(foo, ['a', 'd'])).toEqual({
+      a: 1,
+      d: undefined,
+    })
+  })
+
+  it('preserves values that match a regex', () => {
+    const bar = {
+      foo: 123,
+      faa: 456,
+      bar: 'bar',
+      boz: 'biz',
+    }
+    expect(only(bar, ['faa', /^[bf]o/])).toEqual({
+      foo: 123,
+      faa: 456,
+      boz: 'biz',
+    })
+  })
+})
+
+describe('getAt', () => {
+  it('can access a single level deep', () => {
+    expect(getAt({ a: 123 }, 'a')).toBe(123)
+  })
+
+  it('returns null when going too deep', () => {
+    expect(getAt({ a: 123 }, 'a.b')).toBe(null)
+  })
+
+  it('returns null when first argument is not an object', () => {
+    expect(getAt('foobar', 'a.b')).toBe(null)
+  })
+
+  it('can access array indexes', () => {
+    expect(getAt({ a: ['foo', 'bar'] }, 'a.0')).toBe('foo')
+    expect(getAt({ a: ['foo', 'bar'] }, 'a.1')).toBe('bar')
   })
 })
