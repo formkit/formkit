@@ -89,7 +89,7 @@ export type FormKitValidationIntent = [string | FormKitValidationRule, ...any[]]
  * @public
  */
 export type FormKitValidationRule = {
-  (node: FormKitNode<any>, ...args: any[]): boolean | Promise<boolean>
+  (node: FormKitNode, ...args: any[]): boolean | Promise<boolean>
   ruleName?: string
 } & Partial<FormKitValidationHints>
 
@@ -135,7 +135,7 @@ interface FormKitValidationState {
  */
 type FormKitValidationI18NArgs = [
   {
-    node: FormKitNode<any>
+    node: FormKitNode
     name: string
     args: any[]
     message?: string
@@ -231,7 +231,7 @@ function validate(
 function run(
   current: number,
   validations: FormKitValidation[],
-  node: FormKitObservedNode<FormKitNode<any>>,
+  node: FormKitObservedNode<FormKitNode>,
   state: FormKitValidationState,
   removeImmediately: boolean,
   complete: () => void
@@ -313,7 +313,7 @@ function run(
  */
 function runRule(
   validation: FormKitValidation,
-  node: FormKitObservedNode<FormKitNode<any>>,
+  node: FormKitObservedNode<FormKitNode>,
   after: (result: boolean | Promise<boolean>) => void
 ) {
   if (validation.debounce) {
@@ -334,7 +334,7 @@ function runRule(
  * @param node - The node to operate on.
  * @param messages - A new stack of messages
  */
-function removeMessage(node: FormKitNode<any>, validation: FormKitValidation) {
+function removeMessage(node: FormKitNode, validation: FormKitValidation) {
   const key = `rule_${validation.name}`
   if (has(node.store, key)) {
     node.store.remove(key)
@@ -347,7 +347,7 @@ function removeMessage(node: FormKitNode<any>, validation: FormKitValidation) {
  * @param validation - The validation object
  */
 function createFailedMessage(
-  node: FormKitNode<any>,
+  node: FormKitNode,
   validation: FormKitValidation,
   removeImmediately: boolean
 ): FormKitMessage {
@@ -391,7 +391,7 @@ function createFailedMessage(
  * @param validation - The validation rule being processed.
  */
 function createCustomMessage(
-  node: FormKitNode<any>,
+  node: FormKitNode,
   validation: FormKitValidation,
   i18nArgs: FormKitValidationI18NArgs
 ): string | undefined {
@@ -412,7 +412,7 @@ function createCustomMessage(
  * @param validation - The validation that failed
  */
 function createI18nArgs(
-  node: FormKitNode<any>,
+  node: FormKitNode,
   validation: FormKitValidation
 ): FormKitValidationI18NArgs {
   // If a custom message has been found, short circuit the i18n system.
@@ -430,7 +430,7 @@ function createI18nArgs(
  * @param node - The node to display
  * @returns
  */
-function createMessageName(node: FormKitNode<any>): string {
+function createMessageName(node: FormKitNode): string {
   if (typeof node.props.validationLabel === 'function') {
     return node.props.validationLabel(node)
   }

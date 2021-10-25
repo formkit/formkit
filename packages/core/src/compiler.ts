@@ -5,7 +5,7 @@ import {
   parseArgs,
   getAt,
 } from '@formkit/utils'
-import { warn } from '@formkit/core'
+import { warn } from './errors'
 
 /**
  * Tokens are strings that map to functions.

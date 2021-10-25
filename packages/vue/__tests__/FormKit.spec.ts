@@ -82,7 +82,7 @@ describe('events', () => {
         template: '<FormKit @node="e => { node = e }" />',
         data() {
           return {
-            node: null as null | FormKitNode<any>,
+            node: null as null | FormKitNode,
           }
         },
       },
@@ -168,7 +168,7 @@ describe('validation', () => {
         label: 'foo',
         validation: 'required',
         validationBehavior: 'live',
-        validationLabel: (node: FormKitNode<any>) => {
+        validationLabel: (node: FormKitNode) => {
           return node.props.attrs['data-foo']
         },
         'data-foo': 'hi there',
@@ -287,9 +287,9 @@ describe('configuration', () => {
       {
         data() {
           return {
-            node1: null as null | FormKitNode<any>,
-            node2: null as null | FormKitNode<any>,
-            node3: null as null | FormKitNode<any>,
+            node1: null as null | FormKitNode,
+            node2: null as null | FormKitNode,
+            node3: null as null | FormKitNode,
           }
         },
         template: `

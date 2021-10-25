@@ -37,3 +37,8 @@ export { library }
  * Export individual input types.
  */
 export * from './types'
+
+/**
+ * Export the plugin.
+ */
+export { createPlugin } from './plugin'

@@ -53,7 +53,7 @@ export interface FormKitMessageStore {
  * @public
  */
 export type FormKitStore = FormKitMessageStore & {
-  _n: FormKitNode<any>
+  _n: FormKitNode
   _b: Array<FormKitMessage>
   buffer: boolean
 } & FormKitStoreTraps
@@ -83,7 +83,7 @@ export interface FormKitStoreTraps {
  */
 export function createMessage(
   conf: Partial<FormKitMessage>,
-  node?: FormKitNode<any>
+  node?: FormKitNode
 ): FormKitMessageProps {
   const m = {
     blocking: false,
@@ -119,7 +119,7 @@ const storeTraps: {
  */
 export function createStore(_buffer = false): FormKitStore {
   const messages: FormKitMessageStore = {}
-  let node: FormKitNode<any>
+  let node: FormKitNode
   let buffer = _buffer
   let _b = [] as Array<FormKitMessage>
   const store = new Proxy(messages, {

@@ -1,5 +1,5 @@
+import { FormKitProps } from './node'
 import { has } from '@formkit/utils'
-import { FormKitProps } from '@formkit/core'
 
 /**
  * The value being listed out. Can be an array, an object, or a number.
@@ -177,18 +177,6 @@ export function isComponent(
   node: string | Record<PropertyKey, any>
 ): node is FormKitSchemaComponent {
   return typeof node !== 'string' && has(node, '$cmp')
-}
-
-/**
- * Determines if t a node is a $formkit schema node.
- * @param node - A schema node to check
- * @returns
- * @public
- */
-export function isNode(
-  node: string | Record<PropertyKey, any>
-): node is FormKitSchemaFormKitNode {
-  return typeof node !== 'string' && has(node, '$node')
 }
 
 /**

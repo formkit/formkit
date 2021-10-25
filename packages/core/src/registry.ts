@@ -4,8 +4,8 @@ import { createEmitter, FormKitEventListener } from './events'
 /**
  * A global registry of nodes by their alias or name (if root).
  */
-const registry: Map<string, FormKitNode<unknown>> = new Map()
-const reflected: Map<FormKitNode<unknown>, string> = new Map()
+const registry: Map<string, FormKitNode> = new Map()
+const reflected: Map<FormKitNode, string> = new Map()
 
 /**
  * An event emitter for registered/set/unset nodes
@@ -24,7 +24,7 @@ const receipts: string[] = []
  * @param node - A node to register
  * @public
  */
-export function register(node: FormKitNode<any>): void {
+export function register(node: FormKitNode): void {
   if (node.props.id) {
     registry.set(node.props.id, node)
     reflected.set(node, node.props.id)
@@ -42,7 +42,7 @@ export function register(node: FormKitNode<any>): void {
  * @param node - A node to remove
  * @public
  */
-export function deregister(node: FormKitNode<any>): void {
+export function deregister(node: FormKitNode): void {
   if (reflected.has(node)) {
     const id = reflected.get(node)! // eslint-disable-line @typescript-eslint/no-non-null-assertion
     reflected.delete(node)
@@ -61,7 +61,7 @@ export function deregister(node: FormKitNode<any>): void {
  * @param node - Get a node by a given id
  * @public
  */
-export function get(id: string): FormKitNode<unknown> | false {
+export function get(id: string): FormKitNode | false {
   return registry.get(id) || false
 }
 

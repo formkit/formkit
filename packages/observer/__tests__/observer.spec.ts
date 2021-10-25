@@ -27,7 +27,7 @@ describe('observer', () => {
       createNode({ value: 120, config: { label: 'hi', altLabel: 'bye' } })
     )
     const validation: FormKitWatchable = jest.fn((node) => {
-      if (node.value > 123) {
+      if ((node.value as number) > 123) {
         return node.config.label
       }
       return node.config.altLabel

@@ -11,7 +11,7 @@ import {
  * tree of nodes and their values.
  * @public
  */
-export interface FormKitObservedNode<T> extends FormKitNode<T> {
+export interface FormKitObservedNode extends FormKitNode {
   deps: FormKitDependencies
   kill: () => void
   observe: () => void
@@ -24,7 +24,7 @@ export interface FormKitObservedNode<T> extends FormKitNode<T> {
  * The dependent nodes and the events that are required to watch for changes.
  * @internal
  */
-export type FormKitDependencies = Map<FormKitNode<any>, Set<string>> & {
+export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
   active?: boolean
 }
 
@@ -32,17 +32,14 @@ export type FormKitDependencies = Map<FormKitNode<any>, Set<string>> & {
  * A Map of nodes with the values being Maps of eventsName: receipt
  * @internal
  */
-type FormKitObserverReceipts = Map<
-  FormKitNode<any>,
-  { [index: string]: string }
->
+type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
 
 /**
  * A callback to watch for nodes.
  * @public
  */
 export interface FormKitWatchable {
-  (node: FormKitObservedNode<any>): any
+  (node: FormKitObservedNode): any
 }
 
 /**
@@ -51,10 +48,10 @@ export interface FormKitWatchable {
  * @returns
  * @public
  */
-export function createObserver<T extends FormKitNode<any>>(
-  node: T,
+export function createObserver(
+  node: FormKitNode,
   dependencies?: FormKitDependencies
-): FormKitObservedNode<T extends FormKitNode<infer U> ? U : any> {
+): FormKitObservedNode {
   // The dependencies touched during tracking
   const deps: FormKitDependencies =
     dependencies || Object.assign(new Map(), { active: false })
@@ -108,14 +105,14 @@ export function createObserver<T extends FormKitNode<any>>(
   const {
     proxy: observed,
     revoke,
-  }: { proxy: FormKitNode<any>; revoke: () => void } = Proxy.revocable(node, {
+  }: { proxy: FormKitNode; revoke: () => void } = Proxy.revocable(node, {
     get(...args) {
       switch (args[1]) {
         case 'deps':
           return deps
         case 'watch':
           return (block: FormKitWatchable) =>
-            watch(observed as FormKitObservedNode<any>, block)
+            watch(observed as FormKitObservedNode, block)
         case 'observe':
           return () => {
             const old = new Map(deps)
@@ -147,9 +144,7 @@ export function createObserver<T extends FormKitNode<any>>(
       return observe(value, args[1])
     },
   })
-  return (observed as unknown) as FormKitObservedNode<
-    T extends FormKitNode<infer U> ? U : any
-  >
+  return (observed as unknown) as FormKitObservedNode
 }
 
 /**
@@ -159,8 +154,8 @@ export function createObserver<T extends FormKitNode<any>>(
  * @param delta - The toAdd and toRemove dependency Maps
  * @public
  */
-export function applyListeners<T>(
-  node: FormKitObservedNode<T>,
+export function applyListeners(
+  node: FormKitObservedNode,
   [toAdd, toRemove]: [FormKitDependencies, FormKitDependencies],
   callback: FormKitEventListener
 ): void {
@@ -209,8 +204,8 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
  * @param block - The block of code to observe
  * @public
  */
-async function watch<T>(
-  node: FormKitObservedNode<T>,
+async function watch(
+  node: FormKitObservedNode,
   block: FormKitWatchable
 ): Promise<void> {
   const oldDeps = new Map(node.deps)

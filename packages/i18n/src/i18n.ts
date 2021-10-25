@@ -53,7 +53,7 @@ export interface FormKitLocaleRegistry {
 export function createI18nPlugin(
   registry: FormKitLocaleRegistry
 ): FormKitPlugin {
-  return function i18nPlugin(node: FormKitNode<any>) {
+  return function i18nPlugin(node: FormKitNode) {
     let localeKey = parseLocale(node.config.locale, registry)
     let locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
     /* If the locale changes — change the active locale */

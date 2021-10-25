@@ -57,24 +57,20 @@ const FormKit = defineComponent({
         Record<
           string,
           | string
-          | ((ctx: {
-              node: FormKitNode<any>
-              name: string
-              args: any[]
-            }) => string)
+          | ((ctx: { node: FormKitNode; name: string; args: any[] }) => string)
         >
       >,
       required: false,
     },
     validationRules: {
       type: Object as PropType<
-        Record<string, (node: FormKitNode<any>) => boolean | Promise<boolean>>
+        Record<string, (node: FormKitNode) => boolean | Promise<boolean>>
       >,
       required: false,
     },
     validationLabel: {
       type: [String, Function] as PropType<
-        string | ((node: FormKitNode<any>) => string)
+        string | ((node: FormKitNode) => string)
       >,
       required: false,
     },
@@ -92,7 +88,7 @@ const FormKit = defineComponent({
     /* eslint-disable @typescript-eslint/no-unused-vars */
     input: (_value: any) => true,
     'update:modelValue': (_value: any) => true,
-    node: (node: FormKitNode<any>) => !!node,
+    node: (node: FormKitNode) => !!node,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,

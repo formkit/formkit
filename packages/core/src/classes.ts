@@ -5,9 +5,7 @@ import { FormKitNode } from './node'
  * @public
  */
 export interface FormKitClasses {
-  (node: FormKitNode<any>, compositionKey: string):
-    | string
-    | Record<string, boolean>
+  (node: FormKitNode, compositionKey: string): string | Record<string, boolean>
 }
 
 /**
@@ -20,7 +18,7 @@ export interface FormKitClasses {
  */
 export function createClasses(
   propertyKey: string,
-  node: FormKitNode<any>,
+  node: FormKitNode,
   compositionClassList?: FormKitClasses | string | Record<string, boolean>
 ): Record<string, boolean> {
   if (!compositionClassList) return {}

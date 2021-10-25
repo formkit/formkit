@@ -18,7 +18,7 @@ export interface FormKitEvent {
   payload: any
   name: string
   bubble: boolean
-  origin: FormKitNode<any>
+  origin: FormKitNode
 }
 
 /**
@@ -37,7 +37,7 @@ export interface FormKitEventListenerWrapper {
  * @public
  */
 export interface FormKitEventEmitter {
-  (node: FormKitNode<any>, event: FormKitEvent): void
+  (node: FormKitNode, event: FormKitEvent): void
   on: (eventName: string, listener: FormKitEventListener) => string
   off: (receipt: string) => void
 }
@@ -51,7 +51,7 @@ export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
   const receipts = new Map<string, string[]>()
 
-  const emitter = (node: FormKitNode<any>, event: FormKitEvent) => {
+  const emitter = (node: FormKitNode, event: FormKitEvent) => {
     if (listeners.has(event.name)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       listeners.get(event.name)!.forEach((wrapper) => {
@@ -115,19 +115,19 @@ export function createEmitter(): FormKitEventEmitter {
 
 /**
  * Emit an event from this node.
- * @param node -
- * @param context -
- * @param name -
- * @param payload -
+ * @param node - The node that is emitting
+ * @param context - The context of that node
+ * @param name - The name of the event
+ * @param payload - The payload to emit
  * @returns FormKitNode
  */
-export function emit<T>(
-  node: FormKitNode<T>,
-  context: FormKitContext<T>,
+export function emit(
+  node: FormKitNode,
+  context: FormKitContext,
   name: string,
   payload?: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types,
   bubble = true
-): FormKitNode<T> {
+): FormKitNode {
   context._e(node, {
     payload,
     name,
@@ -143,11 +143,11 @@ export function emit<T>(
  * @param _context -
  * @param event -
  */
-export function bubble<T>(
-  node: FormKitNode<T>,
-  _context: FormKitContext<T>,
+export function bubble(
+  node: FormKitNode,
+  _context: FormKitContext,
   event: FormKitEvent
-): FormKitNode<T> {
+): FormKitNode {
   if (isNode(node.parent)) {
     node.parent._e(node.parent, event)
   }
@@ -164,9 +164,9 @@ export function bubble<T>(
  * @param listener -
  * @returns FormKitNode
  */
-export function on<T>(
-  _node: FormKitNode<T>,
-  context: FormKitContext<T>,
+export function on(
+  _node: FormKitNode,
+  context: FormKitContext,
   name: string,
   listener: FormKitEventListener
 ): string {
@@ -180,11 +180,11 @@ export function on<T>(
  * @param receipt - The receipt returned by .on()
  * @returns FormKitNode
  */
-export function off<T>(
-  node: FormKitNode<T>,
-  context: FormKitContext<T>,
+export function off(
+  node: FormKitNode,
+  context: FormKitContext,
   receipt: string
-): FormKitNode<T> {
+): FormKitNode {
   context._e.off(receipt)
   return node
 }

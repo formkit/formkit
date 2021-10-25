@@ -14,10 +14,10 @@ export interface FormKitLedger {
     condition?: FormKitCounterCondition,
     increment?: number
   ) => Promise<void>
-  init: (node: FormKitNode<any>) => void
-  merge: (child: FormKitNode<any>) => void
+  init: (node: FormKitNode) => void
+  merge: (child: FormKitNode) => void
   settled: (name: string) => Promise<void>
-  unmerge: (child: FormKitNode<any>) => void
+  unmerge: (child: FormKitNode) => void
   value: (name: string) => number
 }
 
@@ -39,7 +39,7 @@ export interface FormKitCounter {
   condition: FormKitCounterCondition
   count: number
   name: string
-  node: FormKitNode<any>
+  node: FormKitNode
   promise: Promise<void>
   resolve: () => void
 }
@@ -58,10 +58,10 @@ interface FormKitLedgerStore {
  */
 export function createLedger(): FormKitLedger {
   const ledger: FormKitLedgerStore = {}
-  let n: FormKitNode<any>
+  let n: FormKitNode
   return {
     count: (...args) => createCounter(n, ledger, ...args),
-    init(node: FormKitNode<any>) {
+    init(node: FormKitNode) {
       n = node
       node.on('message-added.deep', add(ledger, 1))
       node.on('message-removed.deep', add(ledger, -1))
@@ -88,7 +88,7 @@ export function createLedger(): FormKitLedger {
  * @returns
  */
 function createCounter(
-  node: FormKitNode<any>,
+  node: FormKitNode,
   ledger: FormKitLedgerStore,
   counterName: string,
   condition?: FormKitCounterCondition | string,
@@ -177,9 +177,9 @@ function add(ledger: FormKitLedgerStore, delta: number) {
  * @param child - The child (can be a subtree) that is being attached
  */
 function merge(
-  parent: FormKitNode<any> | null,
+  parent: FormKitNode | null,
   ledger: FormKitLedgerStore,
-  child: FormKitNode<any>,
+  child: FormKitNode,
   remove = false
 ) {
   for (const key in ledger) {

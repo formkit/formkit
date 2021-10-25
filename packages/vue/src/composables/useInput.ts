@@ -39,10 +39,7 @@ const pseudoProps = [
  * @param node - A formkit node
  * @param props - Some props that may include a classes object
  */
-function classesToNodeProps(
-  node: FormKitNode<any>,
-  props: Record<string, any>
-) {
+function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
   if (props.classes) {
     Object.keys(props.classes).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -62,7 +59,7 @@ export function useInput(
   input: FormKitTypeDefinition,
   props: FormKitComponentProps,
   context: SetupContext<any>
-): FormKitNode<any> {
+): FormKitNode {
   const type = input.type
 
   /**
@@ -120,7 +117,7 @@ export function useInput(
       config: props.config,
       props: createInitialProps(),
     }) as Partial<FormKitOptions>
-  ) as FormKitNode<any>
+  ) as FormKitNode
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))

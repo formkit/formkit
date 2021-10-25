@@ -47,6 +47,34 @@ export {
 } from './errors'
 
 /**
+ * Export all schema features.
+ */
+export {
+  FormKitAttributeValue,
+  FormKitExtendableSchemaRoot,
+  FormKitListStatement,
+  FormKitListValue,
+  FormKitSchemaAttributes,
+  FormKitSchemaAttributesCondition,
+  FormKitSchemaComponent,
+  FormKitSchemaComposable,
+  FormKitSchemaCondition,
+  FormKitSchemaContext,
+  FormKitSchemaDOMNode,
+  FormKitSchemaFormKitNode,
+  FormKitSchemaNode,
+  FormKitSchemaTextNode,
+  isComponent,
+  isConditional,
+  isDOM,
+} from './schema'
+
+/**
+ * Export the FormKit logic compiler.
+ */
+export { compile } from './compiler'
+
+/**
  * Export classes.
  */
 export * from './classes'

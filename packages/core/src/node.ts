@@ -19,14 +19,41 @@ import {
 } from './store'
 import { createLedger, FormKitLedger } from './ledger'
 import { deregister, register } from './registry'
+import {
+  FormKitExtendableSchemaRoot,
+  FormKitSchemaNode,
+  FormKitSchemaCondition,
+} from './schema'
+/**
+ * Definition of a library item — when registering a new library item, these
+ * are the required and available properties.
+ * @public
+ */
+export type FormKitTypeDefinition = {
+  type: FormKitNodeType
+  props?: string[]
+  schema:
+    | FormKitExtendableSchemaRoot
+    | FormKitSchemaNode[]
+    | FormKitSchemaCondition
+}
+
+/**
+ * A library of inputs, keyed by the name of the type.
+ * @public
+ */
+export interface FormKitLibrary {
+  [index: string]: FormKitTypeDefinition
+}
 
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
  * accepts a node argument.
  * @public
  */
-export interface FormKitPlugin<T = any> {
-  (node: FormKitNode<T>): false | any | void
+export interface FormKitPlugin {
+  (node: FormKitNode): false | any | void
+  library?: (node: FormKitNode) => void
 }
 
 /**
@@ -45,15 +72,15 @@ export type FormKitTextFragment = Partial<FormKitMessageProps> & {
  * The available hooks for middleware.
  * @public
  */
-export interface FormKitHooks<ValueType> {
+export interface FormKitHooks {
   classes: FormKitDispatcher<{
     property: string
     classes: Record<string, boolean>
   }>
-  commit: FormKitDispatcher<ValueType>
+  commit: FormKitDispatcher<any>
   error: FormKitDispatcher<string>
-  init: FormKitDispatcher<ValueType>
-  input: FormKitDispatcher<ValueType>
+  init: FormKitDispatcher<FormKitNode>
+  input: FormKitDispatcher<any>
   prop: FormKitDispatcher<{
     prop: string | symbol
     value: any
@@ -67,9 +94,9 @@ export interface FormKitHooks<ValueType> {
  * for either to throw an Exception.
  * @public
  */
-export interface FormKitTrap<T> {
-  get: TrapGetter<T>
-  set: TrapSetter<T>
+export interface FormKitTrap {
+  get: TrapGetter
+  set: TrapSetter
 }
 
 /**
@@ -77,26 +104,6 @@ export interface FormKitTrap<T> {
  * @public
  */
 export type FormKitAddress = Array<string | number>
-
-/**
- * Determines if the 'value' property of an object has been set.
- */
-type HasValue = { value: unknown }
-
-/**
- * Determines if the 'type' property of an object exists.
- */
-type HasType = { type: FormKitNodeType }
-
-/**
- * Extracts the node type
- */
-type ExtractType<T> = T extends HasType ? T['type'] : 'input'
-
-/**
- * Extracts the type of the value from the node
- */
-type ExtractValue<T> = T extends HasValue ? T['value'] : void
 
 /**
  * These are the type of nodes that can be created — these are different from
@@ -118,28 +125,6 @@ export interface FormKitGroupValue {
  * @public
  */
 export type FormKitListValue<T = any> = Array<T>
-
-/**
- * Given a FormKitNodeType determine what the proper value of the input is.
- * @public
- */
-export type ExtractValueType<T extends FormKitNodeType> = T extends 'group'
-  ? FormKitGroupValue
-  : T extends 'list'
-  ? FormKitListValue
-  : void
-
-/**
- * Type utility for determining the type of the value property.
- * @public
- */
-export type FormKitNodeValue<T> = ExtractValueType<ExtractType<T>> extends void
-  ? T extends HasValue // In this case we don’t have a `type` option, so infer from the value object
-    ? T['value']
-    : any
-  : ExtractValue<T> extends ExtractValueType<ExtractType<T>>
-  ? ExtractValue<T>
-  : ExtractValueType<ExtractType<T>>
 
 /**
  * Arbitrary data that has properties, could be a pojo, could be an array.
@@ -177,12 +162,8 @@ export interface FormKitListContext {
  * in the FormKitNode interface.
  * @public
  */
-export type TrapGetter<T> =
-  | ((
-      node: FormKitNode<T>,
-      context: FormKitContext<T>,
-      ...args: any[]
-    ) => unknown)
+export type TrapGetter =
+  | ((node: FormKitNode, context: FormKitContext, ...args: any[]) => unknown)
   | false
 
 /**
@@ -191,10 +172,10 @@ export type TrapGetter<T> =
  * properties or modifying the behavior of an assignment (ex. see setParent)
  * @public
  */
-export type TrapSetter<T> =
+export type TrapSetter =
   | ((
-      node: FormKitNode<T>,
-      context: FormKitContext<T>,
+      node: FormKitNode,
+      context: FormKitContext,
       property: string | number | symbol,
       value: any
     ) => boolean | never)
@@ -204,7 +185,7 @@ export type TrapSetter<T> =
  * The map signature for a node's traps Map.
  * @public
  */
-export type FormKitTraps<T> = Map<string | symbol, FormKitTrap<T>>
+export type FormKitTraps = Map<string | symbol, FormKitTrap>
 
 /**
  * General "app" like configuration options, these are automatically inherited
@@ -215,7 +196,7 @@ export interface FormKitConfig {
   delimiter: string
   rootClasses: (
     compositionKey: string,
-    node: FormKitNode<any>
+    node: FormKitNode
   ) => Record<string, boolean>
   [index: string]: any
 }
@@ -228,21 +209,16 @@ export interface FormKitConfig {
 export type FormKitProps = {
   delay: number
   id: string
-  validationLabelStrategy?: (node?: FormKitNode<any>) => string
+  validationLabelStrategy?: (node?: FormKitNode) => string
   validationRules?: Record<
     string,
-    (node: FormKitNode<any>) => boolean | Promise<boolean>
+    (node: FormKitNode) => boolean | Promise<boolean>
   >
   validationMessages?: Record<
     string,
-    | ((ctx: { name: string; args: any[]; node: FormKitNode<any> }) => string)
-    | string
+    ((ctx: { name: string; args: any[]; node: FormKitNode }) => string) | string
   >
-  definition?: {
-    type: FormKitNodeType
-    schema: any
-    props?: string[]
-  }
+  definition?: FormKitTypeDefinition
   [index: string]: any
 } & FormKitConfig
 
@@ -251,7 +227,7 @@ export type FormKitProps = {
  * proxy of this object.
  * @public
  */
-export interface FormKitContext<ValueType = any> {
+export interface FormKitContext {
   /**
    * A node’s internal disturbance counter.
    */
@@ -263,7 +239,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * A node’s internal disturbance counter promise.
    */
-  _resolve: ((value: ValueType) => void) | false
+  _resolve: ((value: unknown) => void) | false
   /**
    * A node’s internal input timeout.
    */
@@ -271,11 +247,11 @@ export interface FormKitContext<ValueType = any> {
   /**
    * A node’s internal pre-commit value.
    */
-  _value: ValueType
+  _value: unknown
   /**
    * An array of child nodes (groups and lists)
    */
-  children: Array<FormKitNode<any>>
+  children: Array<FormKitNode>
   /**
    * Configuration state for a given tree.
    */
@@ -287,7 +263,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * Set of hooks
    */
-  hook: FormKitHooks<ValueType>
+  hook: FormKitHooks
   /**
    * Boolean determines if the node is in a settled state or not.
    */
@@ -303,7 +279,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * The parent of a node.
    */
-  parent: FormKitNode<any> | null
+  parent: FormKitNode | null
   /**
    * A Set of plugins registered on this node that can be inherited by children.
    */
@@ -316,7 +292,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * A promise that resolves when an input is in a settled state.
    */
-  settled: Promise<ValueType>
+  settled: Promise<unknown>
   /**
    * The internal node store.
    */
@@ -324,7 +300,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * The traps available to a node.
    */
-  traps: FormKitTraps<ValueType>
+  traps: FormKitTraps
   /**
    * The type of node, should only be 'input', 'list', or 'group'.
    */
@@ -332,7 +308,7 @@ export interface FormKitContext<ValueType = any> {
   /**
    * The actual value of the node.
    */
-  value: ValueType
+  value: unknown
 }
 
 /**
@@ -372,7 +348,7 @@ export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
     config: Partial<FormKitConfig>
     props: Partial<FormKitProps>
-    children: FormKitNode<any>[] | Set<FormKitNode<any>>
+    children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[] | Set<FormKitPlugin>
   }
 >
@@ -400,7 +376,7 @@ export interface FormKitChildValue {
  * are instances of nodes.
  * @public
  */
-export type FormKitNode<T = void> = {
+export type FormKitNode = {
   /**
    * Boolean true indicating this object is a valid FormKitNode
    */
@@ -409,7 +385,7 @@ export type FormKitNode<T = void> = {
    * The value of the input. This should never be directly modified. Any
    * desired mutations should be made through node.input()
    */
-  readonly value: T extends void ? any : T
+  readonly value: unknown
   /**
    * The internal FormKitContext object — this is not a public API and should
    * never be used outside of the core package itself. It is only here for
@@ -419,7 +395,7 @@ export type FormKitNode<T = void> = {
   /**
    * Add a child to a node, the node must be a group or list.
    */
-  add: (node: FormKitNode<any>) => FormKitNode<T>
+  add: (node: FormKitNode) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name There are a few
@@ -428,7 +404,7 @@ export type FormKitNode<T = void> = {
    * $parent - Selects the parent node
    * $self — Selects the current node
    */
-  at: (address: FormKitAddress | string) => FormKitNode<any> | undefined
+  at: (address: FormKitAddress | string) => FormKitNode | undefined
   /**
    * The address of the current node, from the root of the tree.
    */
@@ -436,7 +412,7 @@ export type FormKitNode<T = void> = {
   /**
    * An internal function used to bubble an event from a child to a parent.
    */
-  bubble: (event: FormKitEvent) => FormKitNode<T>
+  bubble: (event: FormKitEvent) => FormKitNode
   /**
    * An internal mechanism for calming a disturbance — which is a mechanism
    * used to know the state of input settlement in the tree.
@@ -448,12 +424,17 @@ export type FormKitNode<T = void> = {
    */
   config: FormKitConfig
   /**
+   * Defines the current input's library type definition including node type,
+   * schema, and props.
+   */
+  define: (definition: FormKitTypeDefinition) => void
+  /**
    * Increments a disturbance. A disturbance is a record that the input or a
    * member of its subtree is no longer "settled". Disturbed nodes are ones
    * that have had their value modified, but have not yet committed that value
    * to the rest of the tree.
    */
-  disturb: () => FormKitNode<T>
+  disturb: () => FormKitNode
   /**
    * Removes the node from the global registry, removes it from its parent, and
    * emits the 'destroying' event.
@@ -466,19 +447,19 @@ export type FormKitNode<T = void> = {
   /**
    * Emit an event from the node.
    */
-  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode<T>
+  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
   /**
    * Within a given tree, find a node matching a given selector. Selectors
    * can be simple strings or a function.
    */
   find: (
     selector: string,
-    searcher?: keyof FormKitNode | FormKitSearchFunction<T>
+    searcher?: keyof FormKitNode | FormKitSearchFunction
   ) => FormKitNode | undefined
   /**
    * An internal mechanism to hydrate values down a node tree.
    */
-  hydrate: () => FormKitNode<T>
+  hydrate: () => FormKitNode
   /**
    * The index of a node compared to its siblings. This is only applicable in
    * cases where a node is a child of a list.
@@ -489,7 +470,7 @@ export type FormKitNode<T = void> = {
    * should use this function as it ensures the tree's state is always fully
    * tracked.
    */
-  input: (value: T, async?: boolean) => Promise<T>
+  input: (value: unknown, async?: boolean) => Promise<unknown>
   /**
    * The name of the input in the node tree. When a node is a child of a list
    * this automatically becomes its index.
@@ -509,16 +490,16 @@ export type FormKitNode<T = void> = {
    * event listeners by explicitly declaring the "receipt" property of the
    * listener function.
    */
-  off: (receipt: string) => FormKitNode<T>
+  off: (receipt: string) => FormKitNode
   /**
    * Remove a child from a node.
    */
-  remove: (node: FormKitNode<any>) => FormKitNode<T>
+  remove: (node: FormKitNode) => FormKitNode
   /**
    * Retrieves the root node of a tree. This is accomplished via tree-traversal
    * on-request, and as such should not be used in frequently called functions.
    */
-  root: FormKitNode<any>
+  root: FormKitNode
   /**
    * Sets the configuration of a node.
    */
@@ -527,7 +508,7 @@ export type FormKitNode<T = void> = {
    * A promise that resolves when a node and its entire subtree is settled.
    * In other words — all the inputs are done committing their values.
    */
-  settled: Promise<T>
+  settled: Promise<unknown>
   /**
    * A text or translation function that exposes a given string to the "text"
    * hook — all text shown to users should be passed through this function
@@ -540,10 +521,14 @@ export type FormKitNode<T = void> = {
   isSettled: boolean
   /**
    * Registers a new plugin on the node and its subtree.
+   * run = should the plugin be executed or not
+   * library = should the plugin's library function be executed (if there)
    */
   use: (
-    plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>
-  ) => FormKitNode<T>
+    plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>,
+    run?: boolean,
+    library?: boolean
+  ) => FormKitNode
   /**
    * Performs a function on the node and every node in the subtree. This is an
    * expensive operation so it should be done very rarely and only lifecycle
@@ -556,8 +541,8 @@ export type FormKitNode<T = void> = {
  * Breadth and Depth first searches can use a callback of this notation.
  * @public
  */
-export type FormKitSearchFunction<T> = (
-  node: FormKitNode<T>,
+export type FormKitSearchFunction = (
+  node: FormKitNode,
   searchTerm?: string | number
 ) => boolean
 
@@ -614,35 +599,36 @@ const invalidSetter = (): never => {
  * These are all the available "traps" for a given node. You can think of these
  * a little bit like methods, but they are really Proxy interceptors.
  */
-function createTraps<T>(): FormKitTraps<T> {
-  return new Map<string | symbol, FormKitTrap<T>>(
+function createTraps(): FormKitTraps {
+  return new Map<string | symbol, FormKitTrap>(
     Object.entries({
-      _c: trap<T>(getContext, invalidSetter, false),
-      add: trap<T>(addChild),
-      address: trap<T>(getAddress, invalidSetter, false),
-      at: trap<any>(getNode),
-      bubble: trap<T>(bubble),
-      calm: trap<T>(calm),
-      config: trap<T>(false),
-      disturb: trap<T>(disturb),
-      destroy: trap<T>(destroy),
-      hydrate: trap<T>(hydrate),
-      index: trap<T>(getIndex, setIndex, false),
-      input: trap<T>(input),
-      each: trap<T>(eachChild),
-      emit: trap<T>(emit),
-      find: trap<T>(find),
-      on: trap<T>(on),
-      off: trap<T>(off),
-      parent: trap<T>(false, setParent),
-      plugins: trap<T>(false),
-      remove: trap<T>(removeChild),
-      root: trap<T>(getRoot, invalidSetter, false),
-      setConfig: trap<T>(setConfig),
-      t: trap<T>(text),
-      use: trap<T>(use),
-      name: trap<T>(getName, false, false),
-      walk: trap<T>(walkTree),
+      _c: trap(getContext, invalidSetter, false),
+      add: trap(addChild),
+      address: trap(getAddress, invalidSetter, false),
+      at: trap(getNode),
+      bubble: trap(bubble),
+      calm: trap(calm),
+      config: trap(false),
+      define: trap(define),
+      disturb: trap(disturb),
+      destroy: trap(destroy),
+      hydrate: trap(hydrate),
+      index: trap(getIndex, setIndex, false),
+      input: trap(input),
+      each: trap(eachChild),
+      emit: trap(emit),
+      find: trap(find),
+      on: trap(on),
+      off: trap(off),
+      parent: trap(false, setParent),
+      plugins: trap(false),
+      remove: trap(removeChild),
+      root: trap(getRoot, invalidSetter, false),
+      setConfig: trap(setConfig),
+      t: trap(text),
+      use: trap(use),
+      name: trap(getName, false, false),
+      walk: trap(walkTree),
     })
   )
 }
@@ -654,11 +640,11 @@ function createTraps<T>(): FormKitTraps<T> {
  * @param curryGetter - Indicates if the getter should be curried or not
  * @returns
  */
-function trap<T>(
-  getter?: TrapGetter<T>,
-  setter?: TrapSetter<T>,
+function trap(
+  getter?: TrapGetter,
+  setter?: TrapSetter,
   curryGetter = true
-): FormKitTrap<T> {
+): FormKitTrap {
   return {
     get: getter
       ? (node, context) =>
@@ -673,16 +659,16 @@ function trap<T>(
 /**
  * Create all of the node's hook dispatchers.
  */
-function createHooks<T>(): FormKitHooks<FormKitNodeValue<T>> {
+function createHooks(): FormKitHooks {
   return {
     classes: createDispatcher<{
       property: string
       classes: Record<string, boolean>
     }>(),
-    commit: createDispatcher<FormKitNodeValue<T>>(),
+    commit: createDispatcher<unknown>(),
     error: createDispatcher<string>(),
-    init: createDispatcher<FormKitNodeValue<T>>(),
-    input: createDispatcher<FormKitNodeValue<T>>(),
+    init: createDispatcher<FormKitNode>(),
+    input: createDispatcher<unknown>(),
     prop: createDispatcher<{ prop: string | symbol; value: any }>(),
     text: createDispatcher<FormKitTextFragment>(),
   }
@@ -732,10 +718,10 @@ export function names(children: FormKitNode[]): {
  */
 function createName(
   options: FormKitOptions,
-  type: FormKitNodeType
+  node: FormKitNode
 ): string | symbol {
-  if (options.parent?.type === 'list') return useIndex
-  return options.name || `${options.props?.type || type}_${++nameCount}`
+  if (node.parent?.type === 'list') return useIndex
+  return options.name || `${node.props?.type}_${++nameCount}`
 }
 
 /**
@@ -743,11 +729,9 @@ function createName(
  * type of the input.
  * @param options -
  * @param type -
- * @returns FormKitNodeValue<T>
+ * @returns
  */
-function createValue<T extends FormKitOptions>(
-  options: T
-): FormKitNodeValue<T> {
+function createValue(options: FormKitOptions) {
   // TODO there is some question of what should happen in this method for the
   // initial values — do we use the input hook? is the state initially
   // settled? does hydration happen after the fact? etc etc...
@@ -756,9 +740,7 @@ function createValue<T extends FormKitOptions>(
       ? options.value
       : {}
   } else if (options.type === 'list') {
-    return (
-      Array.isArray(options.value) ? options.value : []
-    ) as FormKitNodeValue<T>
+    return Array.isArray(options.value) ? options.value : []
   }
   return options.value === null ? '' : options.value
 }
@@ -770,12 +752,12 @@ function createValue<T extends FormKitOptions>(
  * @param value -
  * @returns T
  */
-function input<T>(
-  node: FormKitNode<T>,
+function input(
+  node: FormKitNode,
   context: FormKitContext,
-  value: T,
+  value: unknown,
   async = true
-): Promise<T> {
+): Promise<unknown> {
   if (eq(context._value, value)) return context.settled
   context._value = node.hook.input.dispatch(value)
   node.emit('input', context._value)
@@ -796,8 +778,8 @@ function input<T>(
  * @param calm -
  * @param hydrate -
  */
-function commit<T>(
-  node: FormKitNode<T>,
+function commit(
+  node: FormKitNode,
   context: FormKitContext,
   calm = true,
   hydrate = true
@@ -825,9 +807,13 @@ function partial(
       value === valueRemoved
         ? []
         : value === valueMoved
-        ? context._value.splice(from, 1)
+        ? context._value.splice(from!, 1) // eslint-disable-line @typescript-eslint/no-non-null-assertion
         : [value]
-    context._value.splice(name, value === valueMoved ? 0 : 1, ...insert)
+    context._value.splice(
+      name as number,
+      value === valueMoved ? 0 : 1,
+      ...insert
+    )
     return
   }
   // In this case we know for sure we're dealing with a group, TS doesn't
@@ -844,12 +830,9 @@ function partial(
  * @param parent -
  * @param child -
  */
-function hydrate<T>(
-  node: FormKitNode<T>,
-  context: FormKitContext<T>
-): FormKitNode<T> {
+function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   context.children.forEach((child) => {
-    if (has(context._value, child.name)) {
+    if (has(context._value as FormKitGroupValue, child.name)) {
       if ((context._value as KeyedValue)[child.name] !== undefined) {
         // In this case, the parent has a value to give to the child, so we
         // perform a down-tree synchronous input which will cascade values down
@@ -875,10 +858,7 @@ function hydrate<T>(
  * @param node -
  * @param context -
  */
-function disturb<T>(
-  node: FormKitNode<T>,
-  context: FormKitContext<T>
-): FormKitNode<T> {
+function disturb(node: FormKitNode, context: FormKitContext): FormKitNode {
   if (context._d <= 0) {
     context.isSettled = false
     context.settled = new Promise((resolve) => {
@@ -895,9 +875,9 @@ function disturb<T>(
  * @param node -
  * @param context -
  */
-function calm<T>(
-  node: FormKitNode<T>,
-  context: FormKitContext<T>,
+function calm(
+  node: FormKitNode,
+  context: FormKitContext,
   value?: FormKitChildValue
 ) {
   if (value !== undefined && node.type !== 'input') {
@@ -919,7 +899,7 @@ function calm<T>(
  * @param node - The node to shut down
  * @param context - The context to clean up
  */
-function destroy<T>(node: FormKitNode<T>) {
+function destroy(node: FormKitNode) {
   if (node.parent) {
     node.parent.remove(node)
   }
@@ -928,15 +908,30 @@ function destroy<T>(node: FormKitNode<T>) {
 }
 
 /**
+ * Defines the current input type concretely.
+ * @param definition - The definition of the current input type.
+ */
+function define(
+  node: FormKitNode,
+  context: FormKitContext,
+  definition: FormKitTypeDefinition
+) {
+  if (context.props.definition?.type) createError(node, 3)
+  context.type = definition.type
+  context.props.definition = definition
+  node.emit('defined', node)
+}
+
+/**
  * (node.add) Adds a child to the node.
  * @param context -
  * @param node -
  * @param child -
  */
-function addChild<T>(
-  parent: FormKitNode<T>,
+function addChild(
+  parent: FormKitNode,
   parentContext: FormKitContext,
-  child: FormKitNode<any>
+  child: FormKitNode
 ) {
   if (parent.type === 'input') createError(parent, 1)
   if (child.parent && child.parent !== parent) {
@@ -977,11 +972,11 @@ function addChild<T>(
  * @param parent -
  * @returns boolean
  */
-function setParent<T>(
-  child: FormKitNode<T>,
+function setParent(
+  child: FormKitNode,
   context: FormKitContext,
   _property: string | number | symbol,
-  parent: FormKitNode<any>
+  parent: FormKitNode
 ): boolean {
   if (isNode(parent)) {
     if (child.parent && child.parent !== parent) {
@@ -1007,10 +1002,10 @@ function setParent<T>(
  * @param node -
  * @param child -
  */
-function removeChild<T>(
-  node: FormKitNode<T>,
+function removeChild(
+  node: FormKitNode,
   context: FormKitContext,
-  child: FormKitNode<any>
+  child: FormKitNode
 ) {
   const childIndex = context.children.indexOf(child)
   if (childIndex !== -1) {
@@ -1034,8 +1029,8 @@ function removeChild<T>(
  * @param _node -
  * @param callback -
  */
-function eachChild<T>(
-  _node: FormKitNode<T>,
+function eachChild(
+  _node: FormKitNode,
   context: FormKitContext,
   callback: FormKitChildCallback
 ) {
@@ -1048,8 +1043,8 @@ function eachChild<T>(
  * @param context -
  * @param callback -
  */
-function walkTree<T>(
-  _node: FormKitNode<T>,
+function walkTree(
+  _node: FormKitNode,
   context: FormKitContext,
   callback: FormKitChildCallback
 ) {
@@ -1066,8 +1061,8 @@ function walkTree<T>(
  * @param _property -
  * @param config -
  */
-function setConfig<T>(
-  node: FormKitNode<T>,
+function setConfig(
+  node: FormKitNode,
   context: FormKitContext,
   config: FormKitConfig
 ) {
@@ -1083,19 +1078,22 @@ function setConfig<T>(
  * @param plugin -
  * @public
  */
-export function use<T>(
-  node: FormKitNode<T>,
+export function use(
+  node: FormKitNode,
   context: FormKitContext,
-  plugin: FormKitPlugin<any> | FormKitPlugin<any>[] | Set<FormKitPlugin<any>>
-): FormKitNode<T> {
+  plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>,
+  run = true,
+  library = true
+): FormKitNode {
   if (Array.isArray(plugin) || plugin instanceof Set) {
-    plugin.forEach((p: FormKitPlugin<any>) => use(node, context, p))
+    plugin.forEach((p: FormKitPlugin) => use(node, context, p))
     return node
   }
   if (!context.plugins.has(plugin)) {
+    if (library && typeof plugin.library === 'function') plugin.library(node)
     // When plugins return false, they are never added as to the plugins Set
     // meaning they only ever have access to the single node they were added on.
-    if (plugin(node) !== false) {
+    if (run && plugin(node) !== false) {
       context.plugins.add(plugin)
       node.children.forEach((child) => child.use(plugin))
     }
@@ -1110,8 +1108,8 @@ export function use<T>(
  * @param _property -
  * @param setIndex -
  */
-function setIndex<T>(
-  node: FormKitNode<T>,
+function setIndex(
+  node: FormKitNode,
   _context: FormKitContext,
   _property: string | number | symbol,
   setIndex: number
@@ -1142,7 +1140,7 @@ function setIndex<T>(
  * Retrieves the index of a node from the parent’s children.
  * @param node -
  */
-function getIndex<T>(node: FormKitNode<T>) {
+function getIndex(node: FormKitNode) {
   return node.parent ? [...node.parent.children].indexOf(node) : -1
 }
 
@@ -1152,7 +1150,7 @@ function getIndex<T>(node: FormKitNode<T>) {
  * @param _node -
  * @param context -
  */
-function getContext<T>(_node: FormKitNode<T>, context: FormKitContext<T>) {
+function getContext(_node: FormKitNode, context: FormKitContext) {
   return context
 }
 
@@ -1161,7 +1159,7 @@ function getContext<T>(_node: FormKitNode<T>, context: FormKitContext<T>) {
  * @param node -
  * @param context -
  */
-function getName<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
+function getName(node: FormKitNode, context: FormKitContext) {
   if (node.parent?.type === 'list') return node.index
   return context.name !== useIndex ? context.name : node.index
 }
@@ -1171,8 +1169,8 @@ function getName<T>(node: FormKitNode<T>, context: FormKitContext<T>) {
  * @param node -
  * @param context -
  */
-function getAddress<T>(
-  node: FormKitNode<T>,
+function getAddress(
+  node: FormKitNode,
   context: FormKitContext
 ): FormKitAddress {
   return context.parent
@@ -1259,11 +1257,11 @@ function select(
  * @param searcher - Either a key to search on, or a function
  * @returns
  */
-function find<T>(
-  node: FormKitNode<T>,
+function find(
+  node: FormKitNode,
   _context: FormKitContext,
   searchTerm: string,
-  searcher: keyof FormKitNode | FormKitSearchFunction<T>
+  searcher: keyof FormKitNode | FormKitSearchFunction
 ): FormKitNode | undefined {
   return bfs(node, searchTerm, searcher)
 }
@@ -1276,14 +1274,14 @@ function find<T>(
  * @returns FormKitNode
  * @public
  */
-export function bfs<T>(
-  tree: FormKitNode<T>,
+export function bfs(
+  tree: FormKitNode,
   searchValue: string | number,
-  searchGoal: keyof FormKitNode<any> | FormKitSearchFunction<any> = 'name'
-): FormKitNode<any> | undefined {
-  const search: FormKitSearchFunction<any> =
+  searchGoal: keyof FormKitNode | FormKitSearchFunction = 'name'
+): FormKitNode | undefined {
+  const search: FormKitSearchFunction =
     typeof searchGoal === 'string'
-      ? (n: FormKitNode<any>) => n[searchGoal] == searchValue // non-strict comparison is intentional
+      ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
       : searchGoal
   const stack = [tree]
   while (stack.length) {
@@ -1297,7 +1295,7 @@ export function bfs<T>(
 /**
  * Get the root node of the tree.
  */
-function getRoot<T>(n: FormKitNode<T>) {
+function getRoot(n: FormKitNode) {
   let node = n
   while (node.parent) {
     node = node.parent
@@ -1315,7 +1313,7 @@ function createConfig(
   parent?: FormKitNode | null,
   configOptions?: Partial<FormKitConfig>
 ): FormKitConfig {
-  const nodes = new Set<FormKitNode<any>>()
+  const nodes = new Set<FormKitNode>()
   const target = !parent
     ? {
         delimiter: '.',
@@ -1358,9 +1356,9 @@ function createConfig(
  * @param key - A message key, or generic string of text
  * @returns
  */
-function text<T>(
-  node: FormKitNode<T>,
-  _context: FormKitContext<T>,
+function text(
+  node: FormKitNode,
+  _context: FormKitContext,
   key: string | FormKitTextFragment,
   type = 'ui'
 ): string {
@@ -1376,20 +1374,35 @@ function text<T>(
  * @param errorCode -
  * @public
  */
-export function createError(node: FormKitNode<any>, errorCode: number): never {
+export function createError(node: FormKitNode, errorCode: number): never {
   error(errorCode, node)
+}
+
+/**
+ * Middleware to assign default prop values as issued by core.
+ * @param node - The node being registered
+ * @param next - Calls the next middleware.
+ * @returns
+ */
+function defaultProps(
+  context: FormKitContext,
+  node: FormKitNode,
+  options: FormKitOptions
+): FormKitNode {
+  if (!has(node.props, 'id')) node.props.id = `input_${idCount++}`
+  if (!context.name) context.name = createName(options, node)
+  if (!has(node.props, 'delay'))
+    node.props.delay = node.type === 'input' ? 20 : 0
+  return node
 }
 
 /**
  * @param options -
  * @param config -
  */
-function createProps<T>(type: FormKitNodeType) {
-  const props: Record<PropertyKey, any> = {
-    delay: type === 'input' ? 20 : 0,
-    id: `input_${idCount++}`,
-  }
-  let node: FormKitNode<T>
+function createProps() {
+  const props: Record<PropertyKey, any> = {}
+  let node: FormKitNode
   return new Proxy(props, {
     get(...args) {
       const [_t, prop] = args
@@ -1424,10 +1437,7 @@ function createProps<T>(type: FormKitNodeType) {
  * @param options - An options object to override the defaults.
  * @returns FormKitContext
  */
-function createContext<T extends FormKitOptions>(
-  options: T
-): FormKitContext<FormKitNodeValue<T>> {
-  const type: FormKitNodeType = options.type || 'input'
+function createContext(options: FormKitOptions): Omit<FormKitContext, 'name'> {
   const value = createValue(options)
   const config = createConfig(options.parent, options.config)
   return {
@@ -1441,14 +1451,13 @@ function createContext<T extends FormKitOptions>(
     hook: createHooks(),
     isSettled: true,
     ledger: createLedger(),
-    name: createName(options, type),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
-    props: createProps(type),
+    props: createProps(),
     settled: Promise.resolve(value),
     store: createStore(true),
-    traps: createTraps<FormKitNodeValue<T>>(),
-    type,
+    traps: createTraps(),
+    type: options.type || 'input',
     value,
   }
 }
@@ -1458,29 +1467,36 @@ function createContext<T extends FormKitOptions>(
  * @param node - The node to initialize
  * @returns FormKitNode
  */
-function nodeInit<T>(
-  node: FormKitNode<T>,
-  options: FormKitOptions
-): FormKitNode<T> {
-  // Inputs are leafs, and cannot have children
-  if (node.type === 'input' && node.children.length) createError(node, 1)
+function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Set the internal node on the props, config, ledger and store
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
-  // If the options has plugins, we apply them
-  options.plugins?.forEach((plugin: FormKitPlugin) => node.use(plugin))
-  // Apply the input hook to the initial value, we don't need to disturb or
-  // calm this because the node has not yet been attached to the parent.
-  node._c._value = node._c.value = node.hook.init.dispatch(node._value)
+  // If the options has plugins, we apply them, first applying any libraries
+  options.plugins?.forEach((plugin: FormKitPlugin) =>
+    node.use(plugin, false, true)
+  )
+  // Then we apply each plugin's root code.
+  options.plugins?.forEach((plugin: FormKitPlugin) =>
+    node.use(plugin, true, false)
+  )
+  // After the plugins are registered, we dispatch the init hook
+  node = node.hook.init.dispatch(defaultProps(node._c, node, options))
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) node.parent.add(node)
+  // If the node type was not identified, throw an error.
+  if (!node.type) createError(node, 2)
+  // Inputs are leafs, and cannot have children
+  if (node.type === 'input' && node.children.length) createError(node, 1)
+  // Apply the input hook to the initial value.
+  node._c._value = node._c.value = node.hook.input.dispatch(node._value)
   // Release the store buffer
   node.store.release()
   // Register the node globally if someone explicitly gave it an id
   if (options.props?.id) register(node)
+  // Our node is finally ready, emit it to the world
   return node.emit('created', node)
 }
 
@@ -1492,11 +1508,9 @@ function nodeInit<T>(
  * @returns FormKitNode
  * @public
  */
-export function createNode<T extends FormKitOptions>(
-  options?: T
-): FormKitNode<FormKitNodeValue<T>> {
+export function createNode(options?: FormKitOptions): FormKitNode {
   const ops = options || {}
-  const context = createContext(ops)
+  const context = createContext(ops) as FormKitContext
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
@@ -1514,6 +1528,7 @@ export function createNode<T extends FormKitOptions>(
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown as FormKitNode<FormKitNodeValue<T>>
-  return nodeInit<FormKitNodeValue<T>>(node, ops)
+  }) as unknown as FormKitNode
+
+  return nodeInit(node, ops)
 }

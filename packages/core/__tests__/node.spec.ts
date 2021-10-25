@@ -542,9 +542,9 @@ describe('plugin system', () => {
 
 describe('init hook', () => {
   it('can modify a node on created', async () => {
-    const envPlugin: FormKitPlugin<any> = function (node) {
+    const envPlugin: FormKitPlugin = function (node) {
       node.on('created', (event) => {
-        const payload = event.payload as FormKitNode<any>
+        const payload = event.payload as FormKitNode
         if (payload.type === 'input') payload.input(123)
       })
     }
@@ -600,9 +600,7 @@ describe('classes hook', () => {
       return next(obj)
     })
     const themePlugin: FormKitPlugin = function (node) {
-      if (node.type === 'input') {
-        node.hook.classes(themeMiddleware)
-      }
+      node.hook.classes(themeMiddleware)
     }
     const phone = createNode({ plugins: [themePlugin] })
     expect(generateClassList(phone, 'label', { bar: true })).toBe('foo')
@@ -624,6 +622,7 @@ describe('commit hook', () => {
         node.hook.commit(commitMiddleware)
       }
     }
+    phonePlugin.library = (node) => node.define({ type: 'input', schema: [] })
     const phone = createNode({ plugins: [phonePlugin] })
     phone.input('23')
     phone.input('233')
@@ -935,7 +934,7 @@ describe('value propagation in a node tree', () => {
   it('passes initial values through the input middleware', () => {
     const maskPlugin: FormKitPlugin = jest.fn((n) => {
       n.hook.input(phoneMask)
-      n.hook.init(phoneMask)
+      // n.hook.init(phoneMask)
     })
     const node = createNode({
       value: '5552348899',
