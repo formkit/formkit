@@ -199,7 +199,7 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
  * @param rules - The rules
  */
 function validate(
-  node: FormKitObservedNode<any>,
+  node: FormKitObservedNode,
   validations: FormKitValidation[],
   state: FormKitValidationState
 ) {
@@ -231,7 +231,7 @@ function validate(
 function run(
   current: number,
   validations: FormKitValidation[],
-  node: FormKitObservedNode<FormKitNode>,
+  node: FormKitObservedNode,
   state: FormKitValidationState,
   removeImmediately: boolean,
   complete: () => void
@@ -313,7 +313,7 @@ function run(
  */
 function runRule(
   validation: FormKitValidation,
-  node: FormKitObservedNode<FormKitNode>,
+  node: FormKitObservedNode,
   after: (result: boolean | Promise<boolean>) => void
 ) {
   if (validation.debounce) {

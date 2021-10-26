@@ -1,4 +1,4 @@
-import { FormKitExtendableSchemaRoot } from '@formkit/schema'
+import { FormKitExtendableSchemaRoot } from '@formkit/core'
 import label from '../composables/label'
 import outer from '../composables/outer'
 import wrapper from '../composables/wrapper'

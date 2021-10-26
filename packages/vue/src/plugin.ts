@@ -1,5 +1,4 @@
-import { FormKitOptions } from '@formkit/core'
-import { FormKitLibrary } from '@formkit/inputs'
+import { FormKitOptions, FormKitNode, get } from '@formkit/core'
 import { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
 
@@ -13,21 +12,11 @@ declare module '@vue/runtime-core' {
 }
 
 /**
- * Configuration options for the FormKit Vue plugin.
- * @public
- */
-export interface FormKitVueConfig {
-  alias: string
-  library: FormKitLibrary
-  nodeOptions: FormKitOptions
-}
-
-/**
  * The global instance of the FormKit plugin.
  * @public
  */
 export interface FormKitVuePlugin {
-  library: FormKitLibrary
+  get: (id: string) => FormKitNode | false
 }
 
 /**
@@ -37,30 +26,19 @@ export interface FormKitVuePlugin {
  */
 function createPlugin(
   app: App<any>,
-  config: FormKitVueConfig
+  config: FormKitOptions & Record<string, any>
 ): FormKitVuePlugin {
-  app.component(config.alias, FormKit)
+  app.component(config.alias || 'FormKit', FormKit)
   return {
-    library: config.library,
+    get,
   }
-}
-
-/**
- * These are the absolute minimum configuration options
- * to boot up FormKit.
- * @public
- */
-export const minConfig: FormKitVueConfig = {
-  alias: 'FormKit',
-  library: {},
-  nodeOptions: {},
 }
 
 /**
  * The symbol key for accessing the formkit config.
  * @public
  */
-export const configSymbol: InjectionKey<FormKitVueConfig> = Symbol(
+export const configSymbol: InjectionKey<FormKitOptions> = Symbol(
   'FormKitConfig'
 )
 
@@ -69,11 +47,16 @@ export const configSymbol: InjectionKey<FormKitVueConfig> = Symbol(
  * @public
  */
 export const plugin: Plugin = {
-  install(app, options): void {
+  install(app, options: FormKitOptions): void {
     /**
      * Extend the default configuration options.
      */
-    const config = Object.assign({}, minConfig, options)
+    const config: FormKitOptions = Object.assign(
+      {
+        alias: 'FormKit',
+      },
+      options
+    )
 
     /**
      * Register the global $formkit plugin property.

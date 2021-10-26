@@ -267,7 +267,7 @@ describe('validation rule sequencing', () => {
     exists: ({ value }) => {
       return new Promise((resolve) =>
         setTimeout(() => {
-          resolve(['bar', 'foobar'].includes(value))
+          resolve(['bar', 'foobar'].includes(String(value)))
         }, 100)
       )
     },

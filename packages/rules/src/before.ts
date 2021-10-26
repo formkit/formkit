@@ -7,7 +7,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  */
 const before: FormKitValidationRule = function ({ value }, compare = false) {
   const timestamp = Date.parse(compare || new Date())
-  const fieldValue = Date.parse(value)
+  const fieldValue = Date.parse(String(value))
   return isNaN(fieldValue) ? false : fieldValue < timestamp
 }
 

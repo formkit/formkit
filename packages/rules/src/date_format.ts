@@ -11,9 +11,9 @@ const date_format: FormKitValidationRule = function date(
   format?: string
 ) {
   if (format && typeof format === 'string') {
-    return regexForFormat(format).test(value)
+    return regexForFormat(format).test(String(value))
   }
-  return !isNaN(Date.parse(value))
+  return !isNaN(Date.parse(String(value)))
 }
 
 export default date_format

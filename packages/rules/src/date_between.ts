@@ -12,7 +12,8 @@ const date_between: FormKitValidationRule = function date_between(
 ) {
   dateA = dateA instanceof Date ? dateA.getTime() : Date.parse(dateA)
   dateB = dateB instanceof Date ? dateB.getTime() : Date.parse(dateB)
-  const compareTo = value instanceof Date ? value.getTime() : Date.parse(value)
+  const compareTo =
+    value instanceof Date ? value.getTime() : Date.parse(String(value))
   if (dateA && !dateB) {
     dateB = dateA
     dateA = Date.now()

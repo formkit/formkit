@@ -6,7 +6,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @public
  */
 const accepted: FormKitValidationRule = function accepted({ value }) {
-  return ['yes', 'on', '1', 1, true, 'true'].includes(value)
+  return ['yes', 'on', '1', 1, true, 'true'].includes(value as string)
 }
 
 export default accepted

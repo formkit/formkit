@@ -1,4 +1,4 @@
-import { FormKitExtendableSchemaRoot } from '@formkit/schema'
+import { FormKitExtendableSchemaRoot } from '@formkit/core'
 import fragment from '../composables/fragment'
 
 const listSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {

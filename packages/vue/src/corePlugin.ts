@@ -155,9 +155,9 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    * We use a node observer to individually observe node props.
    */
   const rootProps = ['help', 'label', 'options', 'type', 'attrs']
-  rootProps.forEach(() => {
+  rootProps.forEach((prop) => {
     createObserver(node).watch(() =>
-      Object.assign(context, { help: node.props.help })
+      Object.assign(context, { [prop]: node.props[prop] })
     )
   })
 

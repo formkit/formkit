@@ -15,7 +15,7 @@ const alphanumeric: FormKitValidationRule = function (
     latin: /^[a-zA-Z0-9]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
-  return sets[selectedSet].test(value)
+  return sets[selectedSet].test(String(value))
 }
 
 export default alphanumeric

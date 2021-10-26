@@ -77,7 +77,7 @@ export function eq(valA: any, valB: any, deep = true): boolean {
  * @public
  */
 export function empty(
-  value: string | { [index: string]: any } | any[] | number | null | undefined
+  value: any // eslint-disable-line
 ): boolean {
   const type = typeof value
   if (type === 'number') return false

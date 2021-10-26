@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has } from '@formkit/utils'
+import { dedupe, eq, has, camel } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -716,12 +716,9 @@ export function names(children: FormKitNode[]): {
  * @param options -
  * @returns string
  */
-function createName(
-  options: FormKitOptions,
-  node: FormKitNode
-): string | symbol {
-  if (node.parent?.type === 'list') return useIndex
-  return options.name || `${node.props?.type}_${++nameCount}`
+function createName(options: FormKitOptions): string | symbol {
+  if (options.parent?.type === 'list') return useIndex
+  return options.name || `${options.props?.type || 'input'}_${++nameCount}`
 }
 
 /**
@@ -917,8 +914,26 @@ function define(
   definition: FormKitTypeDefinition
 ) {
   if (context.props.definition?.type) createError(node, 3)
+  // Assign the type
   context.type = definition.type
+  // Assign the definition
   context.props.definition = definition
+  // Assign the default value for the type if there is no default
+  if (context.value === undefined) {
+    context._value = context.value =
+      context.type === 'group' ? {} : context.type === 'list' ? [] : ''
+  }
+  // Its possible that input-defined "props" have ended up in the context attrs
+  // these should be moved back out of the attrs object.
+  if (definition.props && node.props.context?.attrs) {
+    for (const attr in node.props.context.attrs) {
+      const camelName = camel(attr)
+      if (definition.props.includes(camelName)) {
+        node.props[camelName] = node.props.context?.attrs[attr]
+        delete node.props.context?.attrs[attr]
+      }
+    }
+  }
   node.emit('defined', node)
 }
 
@@ -1384,13 +1399,8 @@ export function createError(node: FormKitNode, errorCode: number): never {
  * @param next - Calls the next middleware.
  * @returns
  */
-function defaultProps(
-  context: FormKitContext,
-  node: FormKitNode,
-  options: FormKitOptions
-): FormKitNode {
+function defaultProps(node: FormKitNode): FormKitNode {
   if (!has(node.props, 'id')) node.props.id = `input_${idCount++}`
-  if (!context.name) context.name = createName(options, node)
   if (!has(node.props, 'delay'))
     node.props.delay = node.type === 'input' ? 20 : 0
   return node
@@ -1437,7 +1447,7 @@ function createProps() {
  * @param options - An options object to override the defaults.
  * @returns FormKitContext
  */
-function createContext(options: FormKitOptions): Omit<FormKitContext, 'name'> {
+function createContext(options: FormKitOptions): FormKitContext {
   const value = createValue(options)
   const config = createConfig(options.parent, options.config)
   return {
@@ -1451,6 +1461,7 @@ function createContext(options: FormKitOptions): Omit<FormKitContext, 'name'> {
     hook: createHooks(),
     isSettled: true,
     ledger: createLedger(),
+    name: createName(options),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
     props: createProps(),
@@ -1481,7 +1492,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
     node.use(plugin, true, false)
   )
   // After the plugins are registered, we dispatch the init hook
-  node = node.hook.init.dispatch(defaultProps(node._c, node, options))
+  node = node.hook.init.dispatch(defaultProps(node))
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.

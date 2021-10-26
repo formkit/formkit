@@ -1,4 +1,4 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/schema'
+import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
 import { extend } from '@formkit/utils'
 
 const messages: FormKitSchemaComposable = (schema = {}, children = []) => ({

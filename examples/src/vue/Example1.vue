@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { markRaw, defineComponent, h } from 'vue'
 import { FormKitSchema } from '../../../packages/vue/src/FormKitSchema'
-import { FormKitSchemaNode } from '@formkit/schema'
+import { FormKitSchemaNode } from '@formkit/core'
 
 const MyComponent = defineComponent({
   name: 'MyComponent',

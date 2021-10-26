@@ -14,6 +14,7 @@ import {
   watchEffect,
   Ref,
 } from 'vue'
+import { has, isPojo } from '@formkit/utils'
 import {
   FormKitSchemaAttributes,
   FormKitSchemaNode,
@@ -25,9 +26,11 @@ import {
   FormKitSchemaCondition,
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
-} from '@formkit/schema'
-import { has, isPojo } from '@formkit/utils'
-import { warn, get, watchRegistry, isNode } from '@formkit/core'
+  warn,
+  get,
+  watchRegistry,
+  isNode,
+} from '@formkit/core'
 
 /**
  * A library of components available to the schema (in addition to globally

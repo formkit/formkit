@@ -7,7 +7,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  */
 const email: FormKitValidationRule = function email({ value }) {
   const isEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-  return isEmail.test(value)
+  return isEmail.test(String(value))
 }
 
 export default email

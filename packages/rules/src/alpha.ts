@@ -12,7 +12,7 @@ const alpha: FormKitValidationRule = function ({ value }, set = 'default') {
     latin: /^[a-zA-Z]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
-  return sets[selectedSet].test(value)
+  return sets[selectedSet].test(String(value))
 }
 
 export default alpha

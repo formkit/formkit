@@ -6,7 +6,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @public
  */
 const number: FormKitValidationRule = function number({ value }) {
-  return !isNaN(value)
+  return !isNaN(value as number)
 }
 
 export default number

@@ -1,5 +1,6 @@
 import { parentSymbol } from '../FormKit'
 import {
+  error,
   createNode,
   FormKitNode,
   warn,
@@ -7,10 +8,8 @@ import {
   FormKitOptions,
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
-import { FormKitTypeDefinition } from '@formkit/inputs'
 import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
 import { configSymbol } from '../plugin'
-import { minConfig } from '../plugin'
 
 interface FormKitComponentProps {
   type?: string
@@ -32,6 +31,7 @@ const pseudoProps = [
   'label',
   'options',
   /^[a-z]+(?:-behavior|Behavior)$/,
+  /^[a-z]+(?:-class|Class)$/,
 ]
 
 /**
@@ -56,17 +56,15 @@ function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
  * @public
  */
 export function useInput(
-  input: FormKitTypeDefinition,
   props: FormKitComponentProps,
-  context: SetupContext<any>
+  context: SetupContext<any>,
+  options: FormKitOptions = {}
 ): FormKitNode {
-  const type = input.type
-
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
    */
-  const config = inject(configSymbol, minConfig)
+  const config = Object.assign({}, inject(configSymbol) || {}, options)
 
   /**
    * The parent node.
@@ -76,15 +74,8 @@ export function useInput(
   /**
    * Define the initial component
    */
-  let value: any =
+  const value: any =
     props.modelValue !== undefined ? props.modelValue : context.attrs.value
-  if (value === undefined) {
-    if (type === 'input') value = ''
-    if (type === 'group') value = {}
-    if (type === 'list') value = []
-  }
-
-  const propNames = pseudoProps.concat(input.props || [])
 
   /**
    * Creates the node's initial props from the context, props, and definition
@@ -92,16 +83,15 @@ export function useInput(
    */
   function createInitialProps(): Record<string, any> {
     const initialProps: Record<string, any> = nodeProps(props)
-    const attrs = except(nodeProps(context.attrs), propNames)
+    const attrs = except(nodeProps(context.attrs), pseudoProps)
     initialProps.attrs = attrs
-    const propValues = only(nodeProps(context.attrs), propNames)
+    const propValues = only(nodeProps(context.attrs), pseudoProps)
     for (const propName in propValues) {
       initialProps[camel(propName)] = propValues[propName]
     }
     const classesProps = { props: {} }
     classesToNodeProps(classesProps as FormKitNode, props)
     Object.assign(initialProps, classesProps.props)
-    initialProps.definition = input
     return initialProps
   }
 
@@ -109,8 +99,7 @@ export function useInput(
    * Create the FormKitNode.
    */
   const node = createNode(
-    extend(config.nodeOptions || {}, {
-      type,
+    extend(config || {}, {
       name: props.name || undefined,
       value,
       parent,
@@ -118,6 +107,16 @@ export function useInput(
       props: createInitialProps(),
     }) as Partial<FormKitOptions>
   ) as FormKitNode
+
+  /**
+   * If no definition has been assigned at this point — we're out!
+   */
+  if (!node.props.definition) error(987)
+
+  /**
+   * These prop names must be assigned.
+   */
+  const propNames = pseudoProps.concat(node.props.definition.props || [])
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))

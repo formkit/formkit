@@ -2,6 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
+import { jest } from '@jest/globals'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -38,10 +39,13 @@ describe('text classification', () => {
   })
 
   it('throws an error when provided input type is not in library', () => {
-    const wrapper = () => {
-      return mount(FormKit, { props: { type: 'foobar' }, ...global })
-    }
-    expect(wrapper).toThrow(Error)
+    const consoleWarnMock = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {})
+    expect(() =>
+      mount(FormKit, { props: { type: 'foobar' }, ...global })
+    ).toThrow(Error)
+    consoleWarnMock.mockRestore()
   })
 
   it('renders color input when type is "color"', () => {

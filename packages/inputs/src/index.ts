@@ -1,37 +1,9 @@
-import { FormKitNodeType } from '@formkit/core'
-import {
-  FormKitExtendableSchemaRoot,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
-} from '@formkit/schema'
-import * as library from './types'
+import * as inputs from './types'
 
 /**
- * Definition of a library item — when registering a new library item, these
- * are the required and available properties.
- * @public
+ * Export the entire input library as a single object.
  */
-export type FormKitTypeDefinition = {
-  type: FormKitNodeType
-  props?: string[]
-  schema:
-    | FormKitExtendableSchemaRoot
-    | FormKitSchemaNode[]
-    | FormKitSchemaCondition
-}
-
-/**
- * The full library of available FormKit inputs.
- * @public
- */
-export interface FormKitLibrary {
-  [index: string]: FormKitTypeDefinition
-}
-
-/**
- * Export the entire library as a single object.
- */
-export { library }
+export { inputs }
 
 /**
  * Export individual input types.
@@ -41,4 +13,4 @@ export * from './types'
 /**
  * Export the plugin.
  */
-export { createPlugin } from './plugin'
+export { createLibraryPlugin } from './plugin'

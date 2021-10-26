@@ -352,7 +352,7 @@ describe('classes', () => {
     })
     expect(wrapper.html()).toBe(`<div class="formkit-outer">
   <div class="formkit-wrapper"><label class="formkit-label">input label</label>
-    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" label="input label" help="input help text" validationbehavior="live"></div>
+    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest"></div>
   </div>
   <div class="formkit-help">input help text</div>
   <ul class="formkit-messages">
@@ -429,6 +429,7 @@ describe('classes', () => {
     const wrapper = mount(FormKit, {
       props: {
         name: 'classTest',
+        inputClass: '',
       },
       global: {
         plugins: [[plugin, defaultConfig]],

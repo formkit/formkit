@@ -1,4 +1,4 @@
-import { FormKitTypeDefinition } from './index'
+import { FormKitTypeDefinition } from '@formkit/core'
 import textSchema from './classifications/text'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'

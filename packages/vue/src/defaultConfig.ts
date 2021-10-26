@@ -1,8 +1,8 @@
+import { FormKitOptions } from '@formkit/core'
 import * as rules from '@formkit/rules'
 import { createValidationPlugin } from '@formkit/validation'
 import { createI18nPlugin, en } from '@formkit/i18n'
-import { library } from '@formkit/inputs'
-import { FormKitVueConfig } from './plugin'
+import { createLibraryPlugin, inputs } from '@formkit/inputs'
 import vuePlugin from './corePlugin'
 
 /**
@@ -18,16 +18,18 @@ const validation = createValidationPlugin(rules)
 const i18n = createI18nPlugin({ en })
 
 /**
+ * Create the library of inputs that are generally available. This default
+ * config imports all "native" inputs by default, but
+ */
+const library = createLibraryPlugin(inputs)
+
+/**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
  * @public
  */
-const defaultConfig: FormKitVueConfig = {
-  alias: 'FormKit',
-  nodeOptions: {
-    plugins: [vuePlugin, i18n, validation],
-  },
-  library,
+const defaultConfig: FormKitOptions = {
+  plugins: [library, vuePlugin, i18n, validation],
 }
 
 export default defaultConfig
