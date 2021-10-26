@@ -39,4 +39,4 @@ export interface FooBar {
 /**
  * Export the reset count explicitly
  */
-export { resetCount } from '@formkit/core'
+export { resetCount, errorHandler } from '@formkit/core'

@@ -302,7 +302,7 @@ export function nodeProps(
   ...sets: Array<Record<string, any>>
 ): Record<string, any> {
   return sets.reduce((valid, props) => {
-    const { value, name, modelValue, config, ...validProps } = props // eslint-disable-line
+    const { value, name, modelValue, config, plugins, ...validProps } = props // eslint-disable-line
     return Object.assign(valid, validProps)
   }, {})
 }

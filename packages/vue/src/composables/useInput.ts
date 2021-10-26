@@ -6,6 +6,7 @@ import {
   warn,
   FormKitClasses,
   FormKitOptions,
+  FormKitPlugin,
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
 import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
@@ -19,6 +20,7 @@ interface FormKitComponentProps {
   errors: string[]
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
+  plugins: FormKitPlugin[]
 }
 
 /**
@@ -103,6 +105,7 @@ export function useInput(
       name: props.name || undefined,
       value,
       parent,
+      plugins: (config.plugins || []).concat(props.plugins),
       config: props.config,
       props: createInitialProps(),
     }) as Partial<FormKitOptions>
@@ -128,9 +131,12 @@ export function useInput(
    */
   const passThrough = nodeProps(props)
   for (const prop in passThrough) {
-    watchEffect(() => {
-      node.props[prop] = props[prop as keyof FormKitComponentProps]
-    })
+    watch(
+      () => props[prop as keyof FormKitComponentProps],
+      () => {
+        node.props[prop] = props[prop as keyof FormKitComponentProps]
+      }
+    )
   }
 
   /**
@@ -139,9 +145,12 @@ export function useInput(
   const pseudoPropsValues = only(nodeProps(context.attrs), propNames)
   for (const prop in pseudoPropsValues) {
     const camelName = camel(prop)
-    watchEffect(() => {
-      node.props[camelName] = context.attrs[prop]
-    })
+    watch(
+      () => context.attrs[prop],
+      () => {
+        node.props[camelName] = context.attrs[prop]
+      }
+    )
   }
 
   /**

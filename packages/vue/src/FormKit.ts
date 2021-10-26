@@ -1,6 +1,7 @@
 import {
   error,
   FormKitNode,
+  FormKitPlugin,
   FormKitClasses,
   FormKitSchemaNode,
   FormKitSchemaCondition,
@@ -48,6 +49,10 @@ const FormKit = defineComponent({
     name: {
       type: String,
       required: false,
+    },
+    plugins: {
+      type: Array as PropType<FormKitPlugin[]>,
+      default: [],
     },
     schema: {
       type: Object as PropType<

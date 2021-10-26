@@ -468,3 +468,22 @@ describe('classes', () => {
     )
   })
 })
+
+describe('plugins', () => {
+  it('can apply a new plugin as a prop', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        plugins: [
+          (node: FormKitNode) => {
+            node.props.help = 'This plugin added help text!'
+            return false
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toContain('This plugin added help text!')
+  })
+})

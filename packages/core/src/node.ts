@@ -349,7 +349,7 @@ export type FormKitOptions = Partial<
     config: Partial<FormKitConfig>
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
-    plugins: FormKitPlugin[] | Set<FormKitPlugin>
+    plugins: FormKitPlugin[]
   }
 >
 

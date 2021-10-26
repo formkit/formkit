@@ -3,20 +3,20 @@
     <h1>Examples1.vue</h1>
     <Example1 />
 
-    <h1>TextClassifications.vue</h1>
-    <TextClassifications />
+    <!-- <h1>TextClassifications.vue</h1>
+    <TextClassifications /> -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Example1 from './Example1.vue'
-import TextClassifications from './TextClassifications.vue'
+// import TextClassifications from './TextClassifications.vue'
 
 export default defineComponent({
   components: {
     Example1,
-    TextClassifications
+    // TextClassifications
   }
 })
 </script>
