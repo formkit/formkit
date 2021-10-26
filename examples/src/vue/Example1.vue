@@ -4,10 +4,17 @@
     v-slot="{ state: { valid } }"
     type="group"
   >
+    IS VALID: {{ valid }}
     <FormKit
       name="items"
       type="list"
+      :config="{
+        plugins: [customInput]
+      }"
     >
+      <FormKit
+        type="foobar"
+      />
       <FormKit
         v-for="x in 1"
         :key="x"
@@ -25,7 +32,6 @@
         <FormKit
           type="text"
           name="bar"
-          :validation="[['required'], ['matches', /^foo_\d+$/]]"
           validation-behavior="live"
           :delay="0"
         />
@@ -41,59 +47,24 @@
 </template>
 
 <script setup lang="ts">
-import { markRaw, defineComponent, h } from 'vue'
-import { FormKitSchema } from '../../../packages/vue/src/FormKitSchema'
-import { FormKitSchemaNode } from '@formkit/core'
+import { FormKitNode } from '@formkit/core'
+const customInput = function () {
+  //
+}
 
-const MyComponent = defineComponent({
-  name: 'MyComponent',
-  props: {
-    action: {
-      type: String,
-      required: true
-    }
-  },
-  data () {
-    return {
-      content: {
-        price: 13.99,
-        quantity: 1
-      }
-    }
-  },
-  render () {
-    return h('button', {
-      onClick: () => this.content.quantity++
-    }, [
-      this.$props.action,
-      this.content.quantity,
-      ' for ',
-      this.$slots.default ? this.$slots.default(this.content) : null
-    ])
+customInput.library = (node: FormKitNode) => {
+  console.log('got here!')
+  if (node.props.type === 'foobar') {
+    node.define({
+      type: 'input',
+      schema: [
+        {
+          $el: 'Hello world!'
+        }
+      ]
+    })
   }
-})
-
-const library = markRaw({
-  MyComponent
-})
-
-const schema: FormKitSchemaNode[] = [
-  {
-    $cmp: 'FormKit',
-    props: {
-      label: 'Purchase price',
-      id: 'purchase',
-      value: '100'
-    }
-  },
-  {
-    $cmp: 'FormKit',
-    props: {
-      label: 'Reflection',
-      modelValue: '$get(purchase).value'
-    }
-  }
-]
+}
 </script>
 
 <style>

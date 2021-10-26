@@ -1443,6 +1443,22 @@ function createProps() {
 }
 
 /**
+ * A cheap function that iterates over all plugins and stops once node.define
+ * is called.
+ * @param node - A formkit node
+ * @param plugins - An array of plugins
+ * @returns
+ */
+function findDefinition(node: FormKitNode, plugins: Set<FormKitPlugin>): void {
+  for (const plugin of plugins) {
+    if (node.props.definition) return
+    if (typeof plugin.library === 'function') {
+      plugin.library(node)
+    }
+  }
+}
+
+/**
  * Create a new context object for our a FormKit node, given default information
  * @param options - An options object to override the defaults.
  * @returns FormKitContext
@@ -1483,10 +1499,8 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
-  // If the options has plugins, we apply them, first applying any libraries
-  options.plugins?.forEach((plugin: FormKitPlugin) =>
-    node.use(plugin, false, true)
-  )
+  // If the options has plugins, we first apply any libraries
+  findDefinition(node, new Set(options.plugins))
   // Then we apply each plugin's root code.
   options.plugins?.forEach((plugin: FormKitPlugin) =>
     node.use(plugin, true, false)

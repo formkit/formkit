@@ -20,16 +20,14 @@ export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
  */
 const FormKit = defineComponent({
   props: {
-    type: {
-      type: String,
-      default: 'text',
+    config: {
+      type: Object as PropType<Record<string, any>>,
+      default: {},
     },
-    name: {
-      type: String,
-      required: false,
-    },
-    id: {
-      type: String,
+    classes: {
+      type: Object as PropType<
+        Record<string, string | Record<string, boolean> | FormKitClasses>
+      >,
       required: false,
     },
     delay: {
@@ -40,15 +38,26 @@ const FormKit = defineComponent({
       type: Array as PropType<string[]>,
       default: [],
     },
+    id: {
+      type: String,
+      required: false,
+    },
+    modelValue: {
+      required: false,
+    },
+    name: {
+      type: String,
+      required: false,
+    },
     schema: {
       type: Object as PropType<
         Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
       >,
       default: {},
     },
-    config: {
-      type: Object as PropType<Record<string, any>>,
-      default: {},
+    type: {
+      type: String,
+      default: 'text',
     },
     validation: {
       type: [String, Array] as PropType<
@@ -75,15 +84,6 @@ const FormKit = defineComponent({
     validationLabel: {
       type: [String, Function] as PropType<
         string | ((node: FormKitNode) => string)
-      >,
-      required: false,
-    },
-    modelValue: {
-      required: false,
-    },
-    classes: {
-      type: Object as PropType<
-        Record<string, string | Record<string, boolean> | FormKitClasses>
       >,
       required: false,
     },
