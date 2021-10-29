@@ -104,7 +104,18 @@ const FormKit = defineComponent({
   setup(props, context) {
     const node = useInput(props, context)
     if (!node.props.definition) error(990)
+    if (node.props.definition.component) {
+      return () =>
+        h(
+          node.props.definition?.component as any,
+          {
+            context: node.context,
+          },
+          { ...context.slots }
+        )
+    }
     const schemaDefinition = node.props.definition.schema
+    if (!schemaDefinition) error(991)
     const schema =
       typeof schemaDefinition === 'function'
         ? schemaDefinition(props.schema)

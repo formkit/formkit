@@ -1,10 +1,4 @@
-import {
-  has,
-  isQuotedString,
-  rmEscapes,
-  parseArgs,
-  getAt,
-} from '@formkit/utils'
+import { isQuotedString, rmEscapes, parseArgs, getAt } from '@formkit/utils'
 import { warn } from './errors'
 
 /**
@@ -16,20 +10,32 @@ interface FormKitTokens {
 }
 /**
  * The compiler output, a function that adds the required tokens.
- * @internal
+ * @public
  */
-interface FormKitConditionCompiler {
-  (): boolean | number | string
-  provide: (
-    callback: (token: string) => () => any
-  ) => () => boolean | number | string
+export interface FormKitCompilerOutput {
+  (tokens?: Record<string, any>): boolean | number | string
+  provide: FormKitCompilerProvider
 }
+
+/**
+ * A function that accepts a callback with a token as the only argument, and
+ * must return a function that provides the true value of the token.
+ * @public
+ */
+export type FormKitCompilerProvider = (
+  callback: (requirements: string[]) => Record<string, () => any>
+) => FormKitCompilerOutput
 
 /**
  * Logical operations are always a left/right fn
  * @internal
  */
-type LogicOperator = (l: any, r: any) => boolean | number | string
+type LogicOperator = (
+  l: any,
+  r: any,
+  t?: Record<string, any>,
+  tt?: any
+) => boolean | number | string
 
 /**
  * A set of logical operators used for parsing string logic.
@@ -66,16 +72,16 @@ type OperatorRegistry = LogicOperators[]
  * @returns
  * @public
  */
-export function compile(expr: string): FormKitConditionCompiler {
+export function compile(expr: string): FormKitCompilerOutput {
   /**
    * These tokens are replacements used in evaluating a given condition.
    */
-  const tokens: FormKitTokens = {}
+  // const tokens: FormKitTokens = {}
 
   /**
    * The value of the provide() callback. Used for late binding.
    */
-  let requestToken: (token: string) => () => any
+  let provideTokens: (requirements: string[]) => Record<string, () => any>
 
   /**
    * These are token requirements like "$name.value" that are need to fulfill
@@ -88,8 +94,8 @@ export function compile(expr: string): FormKitConditionCompiler {
    * @param operand - A left or right hand operand
    * @returns
    */
-  const x = function expand(operand: any): any {
-    return typeof operand === 'function' ? operand() : operand
+  const x = function expand(operand: any, tokens?: Record<string, any>): any {
+    return typeof operand === 'function' ? operand(tokens) : operand
   }
 
   /**
@@ -98,27 +104,27 @@ export function compile(expr: string): FormKitConditionCompiler {
    */
   const operatorRegistry: OperatorRegistry = [
     {
-      '&&': (l, r) => !!(x(l) && x(r)),
-      '||': (l, r) => !!(x(l) || x(r)),
+      '&&': (l, r, t) => !!(x(l, t) && x(r, t)),
+      '||': (l, r, t) => !!(x(l, t) || x(r, t)),
     },
     {
-      '===': (l, r) => !!(x(l) === x(r)),
-      '!==': (l, r) => !!(x(l) !== x(r)),
-      '==': (l, r) => !!(x(l) == x(r)),
-      '!=': (l, r) => !!(x(l) != x(r)),
-      '>=': (l, r) => !!(x(l) >= x(r)),
-      '<=': (l, r) => !!(x(l) <= x(r)),
-      '>': (l, r) => !!(x(l) > x(r)),
-      '<': (l, r) => !!(x(l) < x(r)),
+      '===': (l, r, t) => !!(x(l, t) === x(r, t)),
+      '!==': (l, r, t) => !!(x(l, t) !== x(r, t)),
+      '==': (l, r, t) => !!(x(l, t) == x(r, t)),
+      '!=': (l, r, t) => !!(x(l, t) != x(r, t)),
+      '>=': (l, r, t) => !!(x(l, t) >= x(r, t)),
+      '<=': (l, r, t) => !!(x(l, t) <= x(r, t)),
+      '>': (l, r, t) => !!(x(l, t) > x(r, t)),
+      '<': (l, r, t) => !!(x(l, t) < x(r, t)),
     },
     {
-      '+': (l, r) => x(l) + x(r),
-      '-': (l, r) => x(l) - x(r),
+      '+': (l, r, t) => x(l, t) + x(r, t),
+      '-': (l, r, t) => x(l, t) - x(r, t),
     },
     {
-      '*': (l, r) => x(l) * x(r),
-      '/': (l, r) => x(l) / x(r),
-      '%': (l, r) => x(l) % x(r),
+      '*': (l, r, t) => x(l, t) * x(r, t),
+      '/': (l, r, t) => x(l, t) / x(r, t),
+      '%': (l, r, t) => x(l, t) % x(r, t),
     },
   ]
 
@@ -312,7 +318,9 @@ export function compile(expr: string): FormKitConditionCompiler {
             operand = evaluate(parenthetical, -1, fn, tail) as string
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
             // has a left hand operator with a higher order of operation
-            op = op.bind(null, evaluate(parenthetical, -1, fn, tail))
+            left = op.bind(null, evaluate(parenthetical, -1, fn, tail))
+            op = null
+            operand = ''
           } else if (rStep > lStep && step === rStep) {
             // should be applied to the right hand operator when it gets one
             operand = evaluate(parenthetical, -1, fn, tail) as string
@@ -350,7 +358,7 @@ export function compile(expr: string): FormKitConditionCompiler {
             op = operators[operation].bind(null, evaluate(operand, step))
             operand = ''
           }
-        } else {
+        } else if (operand) {
           // Bind the right hand operand, and return the resulting expression as a new left hand operator
           left = op.bind(null, evaluate(operand, step)) as () =>
             | boolean
@@ -378,7 +386,9 @@ export function compile(expr: string): FormKitConditionCompiler {
       // If we don't have any op but we do have an operand so there is no boolean
       // logic to perform, but that operand still means something so we need to
       // evaluate it and return it as a function
-      op = (v: any): boolean => (typeof v === 'function' ? v() : v)
+      op = (v: any, t: Record<string, any>): boolean => {
+        return typeof v === 'function' ? v(t) : v
+      }
       op = op.bind(null, evaluate(operand, step))
     }
 
@@ -403,7 +413,7 @@ export function compile(expr: string): FormKitConditionCompiler {
       | ((...args: any[]) => boolean | number | string),
     step: number,
     fnToken?: string,
-    tail?: string
+    tail?: string //eslint-disable-line
   ):
     | boolean
     | string
@@ -412,35 +422,46 @@ export function compile(expr: string): FormKitConditionCompiler {
     if (fnToken) {
       const fn = evaluate(fnToken, operatorRegistry.length)
       let userFuncReturn: unknown
-      // Tail calls are accessors after a function $foo().value. We need to
-      // compile tail calls, and then provide the function result to the
+      // "Tail calls" are dot accessors after a function $foo().value. We need
+      // to compile tail calls, and then provide the function result to the
       // exposed tokens.
-      const tailCall = tail
-        ? compile(`$${tail}`).provide((token) => {
-            const isTail = token === tail || tail.startsWith(`${token}(`)
-            let getValue: () => unknown
-            return () => {
-              if (isTail) return getAt(userFuncReturn, token)
-              if (!getValue && typeof requestToken === 'function') {
-                getValue = requestToken(token)
-              }
-              return getValue ? getValue() : null
-            }
-          })
+      let tailCall: false | FormKitCompilerOutput = tail
+        ? compile(`$${tail}`)
         : false
       if (typeof fn === 'function') {
         const args = parseArgs(String(operand)).map((arg: string) =>
           evaluate(arg, -1)
         )
-        return () => {
-          const userFunc = fn()
+        return (tokens: Record<string, any>) => {
+          const userFunc = fn(tokens)
           if (typeof userFunc !== 'function') {
             warn(234)
             return userFunc
           }
           userFuncReturn = userFunc(
-            ...args.map((arg) => (typeof arg === 'function' ? arg() : arg))
+            ...args.map((arg) =>
+              typeof arg === 'function' ? arg(tokens) : arg
+            )
           )
+          if (tailCall) {
+            tailCall = tailCall.provide((subTokens) => {
+              const rootTokens = provideTokens(subTokens)
+              const t = subTokens.reduce(
+                (tokenSet: Record<string, any>, token: string) => {
+                  const isTail = token === tail || tail?.startsWith(`${token}(`)
+                  if (isTail) {
+                    const value = getAt(userFuncReturn, token)
+                    tokenSet[token] = () => value
+                  } else {
+                    tokenSet[token] = rootTokens[token]
+                  }
+                  return tokenSet
+                },
+                {} as Record<string, any>
+              )
+              return t
+            })
+          }
           return tailCall ? tailCall() : (userFuncReturn as string)
         }
       }
@@ -462,7 +483,9 @@ export function compile(expr: string): FormKitConditionCompiler {
         if (operand.startsWith('$')) {
           const cleaned = operand.substr(1)
           requirements.add(cleaned)
-          return () => (has(tokens, cleaned) ? tokens[cleaned]() : undefined)
+          return function getToken(tokens: FormKitTokens) {
+            return cleaned in tokens ? tokens[cleaned]() : undefined
+          }
         }
         // In this case we are dealing with an unquoted string, just treat it
         // as a plain string.
@@ -472,16 +495,28 @@ export function compile(expr: string): FormKitConditionCompiler {
     return operand
   }
 
-  const compiledCondition = parseLogicals(
-    expr.startsWith('$:') ? expr.substr(2) : expr
-  )
-  return Object.assign(compiledCondition, {
-    provide: (callback: (token: string) => () => any) => {
-      requestToken = callback
-      requirements.forEach((requirement) => {
-        tokens[requirement] = callback(requirement)
-      })
-      return compiledCondition
-    },
+  /**
+   * Compile the string.
+   */
+  const compiled = parseLogicals(expr.startsWith('$:') ? expr.substr(2) : expr)
+  /**
+   * Convert compiled requirements to an array.
+   */
+  const reqs = Array.from(requirements)
+  /**
+   * Provides token values via callback to compiled output.
+   * @param callback - A callback that needs to provide all token requirements
+   * @returns
+   */
+  function provide(
+    callback: (requirements: string[]) => Record<string, () => any>
+  ): FormKitCompilerOutput {
+    provideTokens = callback
+    return Object.assign(compiled.bind(null, callback(reqs)), {
+      provide,
+    })
+  }
+  return Object.assign(compiled, {
+    provide,
   })
 }

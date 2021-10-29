@@ -6,7 +6,7 @@ import { createNode, resetRegistry } from '@formkit/core'
 import vuePlugin from '../src/corePlugin'
 
 describe('parsing dom elements', () => {
-  it('can render a single simple dom element', () => {
+  it.only('can render a single simple dom element', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
         schema: [

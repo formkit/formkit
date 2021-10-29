@@ -27,7 +27,6 @@ export interface FormKitSchemaProps {
   children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
   key?: string
   if?: string
-  let?: Record<string, any>
   for?: FormKitListStatement
   bind?: string
 }
