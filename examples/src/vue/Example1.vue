@@ -16,6 +16,7 @@
 import { FormKitSchema } from '../../../packages/vue/src'
 import { reactive } from 'vue'
 
+
 const schema = [ // Capsule Schema Format
     {
       $el: 'label',

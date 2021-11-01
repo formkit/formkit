@@ -6,7 +6,7 @@ import { createNode, resetRegistry } from '@formkit/core'
 import vuePlugin from '../src/corePlugin'
 
 describe('parsing dom elements', () => {
-  it.only('can render a single simple dom element', () => {
+  it('can render a single simple dom element', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
         schema: [
@@ -330,91 +330,6 @@ describe('parsing dom elements', () => {
     data.size = 50
     await nextTick()
     expect(wrapper.html()).toBe('<button data-size="extra-large"></button>')
-  })
-
-  it('can access scoped variables', () => {
-    const wrapper = mount(FormKitSchema, {
-      props: {
-        schema: [
-          {
-            $el: 'div',
-            let: { foo: 'bar' },
-            children: '$foo',
-          },
-        ],
-      },
-    })
-    expect(wrapper.html()).toBe('<div>bar</div>')
-  })
-
-  it('shadows pre-existing variables within scope', () => {
-    const wrapper = mount(FormKitSchema, {
-      props: {
-        data: {
-          foo: 'car',
-        },
-        schema: [
-          {
-            $el: 'div',
-            let: { foo: 'bar' },
-            children: '$foo',
-          },
-        ],
-      },
-    })
-    expect(wrapper.html()).toBe('<div>bar</div>')
-  })
-
-  it('can use variables directly in compiled operations', () => {
-    const wrapper = mount(FormKitSchema, {
-      props: {
-        data: {
-          quantity: 2,
-        },
-        schema: [
-          {
-            $el: 'div',
-            let: {
-              quantity: 3,
-              price: 5,
-              taxes: 0.1,
-              fee: 2,
-            },
-            children: ['$', '$price * $quantity * (1 + $taxes) + $fee'],
-          },
-        ],
-      },
-    })
-    expect(wrapper.html()).toBe('<div>$18.5</div>')
-  })
-
-  it('can shadow scoped variables', () => {
-    const wrapper = mount(FormKitSchema, {
-      props: {
-        data: {
-          quantity: 2,
-        },
-        schema: [
-          {
-            $el: 'span',
-            let: {
-              total: 3,
-            },
-            children: [
-              '$total',
-              {
-                $el: 'span',
-                let: {
-                  total: 5,
-                },
-                children: '$total',
-              },
-            ],
-          },
-        ],
-      },
-    })
-    expect(wrapper.html()).toBe('<span>3<span>5</span></span>')
   })
 
   it('can render a list of items', () => {

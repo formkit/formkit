@@ -26,6 +26,10 @@ import {
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
   FormKitCompilerOutput,
+  get,
+  warn,
+  watchRegistry,
+  isNode,
 } from '@formkit/core'
 
 /**
@@ -65,7 +69,7 @@ type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
 /**
  * The types of values that can be rendered by Vue.
  */
-type Renderable = null | string | VirtualNode
+type Renderable = null | string | number | boolean | VirtualNode
 /**
  * Describes renderable children.
  */
@@ -97,35 +101,91 @@ type ProviderRegistry = ((
 ) => void)[]
 
 /**
+ * A registry of memoized schemas (in JSON) to their respective render function
+ * and provider registry.
+ */
+const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
+
+/**
+ * This symbol represents the current component instance during render. It is
+ * critical for linking the current instance to the data required for render.
+ */
+let instanceKey: symbol
+
+/**
+ * A registry of scoped data produced during runtime that is keyed by the
+ * instance symbol. For example data from: for-loop instances and slot data.
+ */
+const instanceScopes = new Map<symbol, Record<string, any>[]>()
+
+/**
  * Returns a reference as a placeholder to a specific location on an object.
  * @param data - A reactive data object
  * @param token - A dot-syntax string representing the object path
  * @returns
  */
-function getRef(data: Record<string, any>, token: string): Ref<unknown> {
+function getRef(token: string, data: Record<string, any>): Ref<unknown> {
   const value = ref<any>(null)
+  const nodeRef = ref<unknown>(undefined)
+  if (token === 'get') {
+    value.value = getNode.bind(null, nodeRef)
+    return value
+  }
   const path = token.split('.')
-  watchEffect(() => {
-    path.reduce(
-      (obj: Record<string, any> | undefined, segment: string, i, arr) => {
-        if (typeof obj !== 'object') {
-          value.value = undefined
-          return arr.splice(1) // Forces an exit
-        }
-        if (i === path.length - 1 && segment in obj) {
-          value.value = obj[segment]
-        }
-        return obj[segment]
-      },
-      data
-    )
-  })
+  watchEffect(() => (value.value = getValue([data], path)))
   return value
 }
 
-const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
+/**
+ * Returns a value inside a set of data objects.
+ * @param sets - An array of objects to search through
+ * @param path - A array of string paths easily produced by split()
+ * @returns
+ */
+function getValue(
+  set: (false | Record<string, any>)[] | Record<string, any>,
+  path: string[]
+): any {
+  if (Array.isArray(set)) {
+    for (const subset of set) {
+      const value = subset !== false && getValue(subset, path)
+      if (value !== undefined) return value
+    }
+  }
+  let foundValue: any = undefined
+  path.reduce(
+    (obj: Record<string, any> | undefined, segment: string, i, arr) => {
+      if (typeof obj !== 'object') {
+        foundValue = undefined
+        return arr.splice(1) // Forces an exit
+      }
+      if (i === path.length - 1 && segment in obj) {
+        foundValue = obj[segment]
+      }
+      return obj[segment]
+    },
+    set
+  )
+  return foundValue
+}
 
-let instanceKey: symbol
+/**
+ * Get the node from the global registry
+ * @param id - A dot-syntax string where the node is located.
+ */
+function getNode(nodeRef: Ref<unknown>, id?: string) {
+  if (typeof id !== 'string') return warn(823)
+  if (nodeRef.value === undefined) {
+    nodeRef.value = null
+    const root = get(id)
+    if (root) nodeRef.value = root.context
+    // nodeRef.value = root.context
+    watchRegistry(id, ({ payload: node }) => {
+      nodeRef.value = isNode(node) ? node.context : node
+    })
+  }
+  return nodeRef.value
+}
 
 /**
  *
@@ -170,49 +230,6 @@ function parseSchema(
   // }
 
   /**
-   * Get the node from the global registry
-   * @param id - A dot-syntax string where the node is located.
-   */
-  // function getNode(nodeRef: Ref<unknown>, id?: string) {
-  //   if (typeof id !== 'string') return warn(823)
-  //   if (nodeRef.value === undefined) {
-  //     nodeRef.value = null
-  //     const root = get(id)
-  //     if (root) nodeRef.value = root.context
-  //     // nodeRef.value = root.context
-  //     watchRegistry(id, ({ payload: node }) => {
-  //       nodeRef.value = isNode(node) ? node.context : node
-  //     })
-  //   }
-  //   return nodeRef.value
-  // }
-
-  /**
-   * Returns a value inside a set of data objects.
-   * @param sets - An array of objects to search through
-   * @param path - A array of string paths easily produced by split()
-   * @returns
-   */
-  // function findValue(sets: (false | Record<string, any>)[], path: string[]): any {
-  //   for (const set of sets) {
-  //     let obj: any = set
-  //     for (const i in path) {
-  //       const segment = path[i]
-  //       const value = obj[segment]
-  //       const next = typeof value === 'object' ? value : {}
-  //       if (
-  //         Number(i) === path.length - 1 &&
-  //         (has(obj, segment) || value !== undefined)
-  //       ) {
-  //         return value
-  //       }
-  //       obj = next
-  //     }
-  //   }
-  //   return undefined
-  // }
-
-  /**
    * Given an if/then/else schema node, pre-compile the node and return the
    * artifacts for the render function.
    * @param data - The schema context object
@@ -253,28 +270,6 @@ function parseSchema(
     }
     return () => (condition() ? a() : b())
   }
-
-  /**
-   * A global scope object used exclusively in render functions for iteration
-   * based scope data like key/value pairs.
-   */
-  const iterationScopes: Record<string, any>[] = []
-
-  /**
-   * Before returning a value in a render function, check to see if there are
-   * any local iteration values that should be used.
-   * @param value - A value to fallback to
-   * @param token - A token to lookup in a global iteration scope
-   * @returns
-   */
-  // function checkScope(value: any, token: string): any {
-  //   if (iterationScopes.length) {
-  //     const path = token.split('.')
-  //     const foundValue = findValue(iterationScopes, path)
-  //     return foundValue !== undefined ? foundValue : value
-  //   }
-  //   return value
-  // }
 
   /**
    * Parse attributes for dynamic content.
@@ -408,14 +403,11 @@ function parseSchema(
     if ('children' in node && node.children) {
       if (typeof node.children === 'string') {
         // We are dealing with a raw string value
-        // if (node.children.startsWith('$slots.')) {
-        //   const slot = node.children.substr(7)
-        //   if (has(data.slots, slot)) {
-        //     element = element === 'text' ? 'slot' : element
-        //     children = data.slots[slot]
-        //   }
-        // } else
-        if (node.children.startsWith('$') && node.children.length > 1) {
+        if (node.children.startsWith('$slots.')) {
+          // this is a lone text node, turn it into a slot
+          element = element === 'text' ? 'slot' : element
+          children = provider(compile(node.children))
+        } else if (node.children.startsWith('$') && node.children.length > 1) {
           const value = provider(compile(node.children))
           children = () => String(value())
         } else {
@@ -438,13 +430,15 @@ function parseSchema(
         // so we provide an object with the default slot provided as children.
         // We also create a new scope for this default slot, and then on each
         // render pass the scoped slot props to the scope.
-        // const produceChildren = children
-        // children = () => ({
-        //   default: (slotData?: Record<string, any>) => {
-        //     if (slotData) produceChildren
-        //     return produceChildren(slotData)
-        //   },
-        // })
+        const produceChildren = children
+        children = () => ({
+          default: (slotData?: Record<string, any>) => {
+            if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+            const c = produceChildren()
+            instanceScopes.get(instanceKey)?.shift()
+            return c
+          },
+        })
       } else {
         // If we dont have any children, we still need to provide an object
         // instead of an empty array (which raises a warning in vue)
@@ -501,10 +495,8 @@ function parseSchema(
         if (element === 'text' && children) {
           return createTextVNode(String(children()))
         }
-        // Handle slots
-        // if (element === 'slot' && children) {
-        //   return (children as Slot)(data)
-        // }
+        // Handle lone slots
+        if (element === 'slot' && children) return children()
         // Handle dom elements and components
         return h(element, attrs(), children ? (children() as Renderable[]) : [])
       }
@@ -524,13 +516,14 @@ function parseSchema(
           : _v
         const fragment = []
         if (typeof values !== 'object') return null
+        const instanceScope = instanceScopes.get(instanceKey) || []
         for (const key in values) {
-          iterationScopes.unshift({
+          instanceScope.unshift({
             [valueName]: values[key],
             ...(keyName !== null ? { [keyName]: key } : {}),
           })
           fragment.push(repeatedNode())
-          iterationScopes.shift()
+          instanceScope.shift()
         }
         return fragment
       }) as RenderNodes
@@ -570,11 +563,9 @@ function parseSchema(
    */
   function provider(compiled: FormKitCompilerOutput) {
     const compiledFns: Record<symbol, FormKitCompilerOutput> = {}
-
     providers.push((callback: SchemaProviderCallback, key: symbol) => {
       compiledFns[key] = compiled.provide(callback)
     })
-
     return () => compiledFns[instanceKey]()
   }
 
@@ -587,7 +578,6 @@ function parseSchema(
       ? memo[memoKey]
       : [createElements(library, schema), providers]
     memo[memoKey] = [render, compiledProviders]
-
     compiledProviders.forEach((instanceProvider) => {
       instanceProvider(providerCallback, key)
     })
@@ -596,6 +586,20 @@ function parseSchema(
       return render()
     }
   }
+}
+
+/**
+ * Checks the current runtime scope for data.
+ * @param token - The token to lookup in the current scope
+ * @param defaultValue - The default ref value to use if no scope is found.
+ */
+function useScope(token: string, defaultValue: any) {
+  const scopedData = instanceScopes.get(instanceKey) || []
+  let scopedValue: any = undefined
+  if (scopedData.length) {
+    scopedValue = getValue(scopedData, token.split('.'))
+  }
+  return scopedValue === undefined ? defaultValue : scopedValue
 }
 
 /**
@@ -611,8 +615,15 @@ function createRenderFn(
 ) {
   return instanceCreator((requirements) => {
     return requirements.reduce((tokens, token) => {
-      const value = getRef(data, token)
-      tokens[token] = () => value.value
+      if (token.startsWith('slots.')) {
+        const slot = token.substr(6)
+        if (data.slots && has(data.slots, slot)) {
+          tokens[token] = () => data.slots[slot](data)
+          return tokens
+        }
+      }
+      const value = getRef(token, data)
+      tokens[token] = () => useScope(token, value.value)
       return tokens
     }, {} as Record<string, any>)
   }, instanceKey)
@@ -644,6 +655,7 @@ export const FormKitSchema = defineComponent({
   },
   setup(props, context) {
     const instanceKey = Symbol(String(i++))
+    instanceScopes.set(instanceKey, [])
     let provider = parseSchema(props.library, props.schema)
     let render: RenderChildren
     let data: Record<string, any>
