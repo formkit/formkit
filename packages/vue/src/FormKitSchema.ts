@@ -132,7 +132,7 @@ function getRef(token: string, data: Record<string, any>): Ref<unknown> {
     return value
   }
   const path = token.split('.')
-  watchEffect(() => (value.value = getValue([data], path)))
+  watchEffect(() => (value.value = getValue(data, path)))
   return value
 }
 
@@ -151,6 +151,7 @@ function getValue(
       const value = subset !== false && getValue(subset, path)
       if (value !== undefined) return value
     }
+    return undefined
   }
   let foundValue: any = undefined
   path.reduce(
@@ -159,8 +160,9 @@ function getValue(
         foundValue = undefined
         return arr.splice(1) // Forces an exit
       }
-      if (i === path.length - 1 && segment in obj) {
-        foundValue = obj[segment]
+      const currentValue = obj[segment]
+      if (i === path.length - 1 && currentValue !== undefined) {
+        foundValue = currentValue
       }
       return obj[segment]
     },
@@ -434,7 +436,10 @@ function parseSchema(
         children = () => ({
           default: (slotData?: Record<string, any>) => {
             if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+            const instance = instanceKey
             const c = produceChildren()
+            // Ensure our instance key never changed during runtime
+            instanceKey = instance
             instanceScopes.get(instanceKey)?.shift()
             return c
           },
