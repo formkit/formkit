@@ -5,31 +5,25 @@
     :key="i"
   /> -->
   <FormKit
+    type="number"
+    label="Justin"
+    :style="{ color: 'red' }"
+    validation="required"
+    name="justin"
+  />
+  <FormKit
     validation-behavior="live"
     label="Justin"
+    validation="required|matches:foobar"
+    :validation-messages="{
+      matches: 'The value must be foobar'
+    }"
   />
 </template>
 
 <script setup lang="ts">
-import { FormKitSchema } from '../../../packages/vue/src'
+// import { FormKit } from '../../../packages/vue/src'
 
-const schema = [
-  {
-    $el: 'div',
-    attrs: {
-      style: '$colors',
-      class: '$foo.class'
-    },
-    children: '$slots.default'
-  }
-]
-
-const data = {
-  colors: { color: 'red' },
-  foo: {
-    class: 'bar-foo'
-  }
-}
 
 </script>
 
