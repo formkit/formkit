@@ -40,6 +40,7 @@ describe('date_between', () => {
         createNode({
           value: d,
         }),
+        new Date(d.getFullYear() - 1, d.getMonth(), d.getDate()),
         new Date(d.getFullYear() + 1, d.getMonth(), d.getDate())
       )
     ).toBe(true)

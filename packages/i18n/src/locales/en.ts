@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s } from '../formatters'
+import { sentence as s, list } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -103,8 +103,8 @@ export const validation: FormKitValidationMessages = {
   /**
    * Does not end with the specified value
    */
-  ends_with({ name }) {
-    return `${s(name)} must doesn’t end with a valid value.`
+  ends_with({ name, args }) {
+    return `${s(name)} doesn’t end with ${list(args)}.`
   },
 
   /**
