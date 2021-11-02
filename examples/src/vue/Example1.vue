@@ -1,57 +1,30 @@
 <template>
   <h2>FormKit Playground</h2>
   <!-- <FormKit
-    type="group"
-    :plugins="[myPlugin]"
-  >
-
-  </FormKit> -->
-  <FormKit />
-  <!-- <FormKit
-    v-slot="{ state: { valid } }"
-    type="group"
-  >
-    IS VALID: {{ valid }}
-    <FormKit
-      name="items"
-      type="list"
-      :plugins="[myInput]"
-    >
-      <FormKit
-        type="foobar"
-      />
-      <FormKit
-        v-for="x in 1"
-        :key="x"
-        type="group"
-      >
-        <FormKit
-          type="text"
-          name="foo"
-          :validation="[['required'], ['matches', /^foo_\d+$/]]"
-          validation-behavior="dirty"
-          :data-foo="foo"
-          label="Foobar"
-          :delay="0"
-        />
-        <FormKit
-          type="text"
-          name="bar"
-          validation-behavior="live"
-          :delay="0"
-        />
-        <FormKit
-          type="text"
-          name="baz"
-          validation="required|length:5"
-          :delay="0"
-        />
-      </FormKit>
-    </FormKit>
-  </FormKit> -->
+    v-for="i in 50"
+    :key="i"
+  /> -->
+  <FormKit
+    type="number"
+    label="Justin"
+    :style="{ color: 'red' }"
+    validation="required"
+    name="justin"
+  />
+  <FormKit
+    validation-behavior="live"
+    label="Justin"
+    validation="required|matches:foobar"
+    :validation-messages="{
+      matches: 'The value must be foobar'
+    }"
+  />
 </template>
 
 <script setup lang="ts">
+// import { FormKit } from '../../../packages/vue/src'
+
+
 </script>
 
 <style>

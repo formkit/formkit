@@ -101,21 +101,21 @@ describe('logic compiler', () => {
     expect(
       compile('$value > 100 && $value < 200 || $value === "fred"').provide(
         () => {
-          return () => 150
+          return { value: () => 150 }
         }
       )()
     ).toBe(true)
     expect(
       compile('$value > 100 && $value < 200 || $value === "fred"').provide(
         () => {
-          return () => 'fred'
+          return { value: () => 'fred' }
         }
       )()
     ).toBe(true)
     expect(
       compile('$value > 100 && $value < 200 || $value === "fred"').provide(
         () => {
-          return () => 'danny'
+          return { value: () => 'danny' }
         }
       )()
     ).toBe(false)
@@ -174,7 +174,7 @@ describe('logic compiler', () => {
   it('can do math and then concatenate strings', () => {
     let padding = 10
     const makePadding = compile('$padding / 5 + em').provide(() => {
-      return () => padding
+      return { padding: () => padding }
     })
     expect(makePadding()).toBe('2em')
     padding = 30
@@ -182,43 +182,92 @@ describe('logic compiler', () => {
   })
 
   // Token provider
+  it('can use different data on the same compiled function', () => {
+    const compiled = compile('$foo')
+    const bar = compiled.provide((requirements) => {
+      const tokens: Record<string, any> = {}
+      for (const token of requirements) {
+        tokens[token] = () => 'bar'
+      }
+      return tokens
+    })
+    const baz = compiled.provide((requirements) => {
+      const tokens: Record<string, any> = {}
+      for (const token of requirements) {
+        tokens[token] = () => 'baz'
+      }
+      return tokens
+    })
+    expect(bar()).toBe('bar')
+    expect(baz()).toBe('baz')
+    expect(bar()).toBe('bar')
+  })
+
+  it('can use variable tokens with operators', () => {
+    const compiled = compile('$a + $b + $c')
+    const numeric = compiled.provide(() => {
+      return { a: () => 12, b: () => 4, c: () => 2 } as Record<string, any>
+    })
+    const strings = compiled.provide(() => {
+      return { a: () => 'a', b: () => 'b', c: () => 'c' } as Record<string, any>
+    })
+    expect(numeric()).toBe(18)
+    expect(strings()).toBe('abc')
+  })
+
   it('can provide tokenized values to condition', () => {
-    const condition = compile('$name === "bob"')
-    const tokens: { [index: string]: any } = {
+    const compiled = compile('$name === "bob"')
+    const data: { [index: string]: any } = {
       name: 'bob',
     }
-    condition.provide((token) => () => tokens[token])
+    const condition = compiled.provide((requirements) => {
+      return requirements.reduce((tokens, token) => {
+        tokens[token] = () => data[token]
+        return tokens
+      }, {} as Record<string, any>)
+    })
     expect(condition()).toBe(true)
-    tokens.name = 'fred'
+    data.name = 'fred'
     expect(condition()).toBe(false)
   })
   it('can provide numeric type tokenized values', () => {
-    const condition = compile('$account > 2.99 && $price < $account')
-    const tokens: { [index: string]: any } = {
+    const compiled = compile('$account > 2.99 && $price < $account2')
+    const data: { [index: string]: any } = {
       account: 5.2,
+      account2: 5.2,
       price: 3.22,
     }
-    condition.provide((token) => () => tokens[token])
+    const condition = compiled.provide((reqs) => {
+      const values = reqs.reduce(
+        (tokens, token) => ({ ...tokens, ...{ [token]: () => data[token] } }),
+        {} as Record<string, any>
+      )
+      return values
+    })
     expect(condition()).toBe(true)
   })
   it('can use tokens to do math', () => {
     const condition = compile('$account + 1 > 2.99 + 5').provide(() => {
-      return () => 7
+      return { account: () => 7 }
     })
     expect(condition()).toBe(true)
   })
 
   it('ignores labeled expressions', () => {
-    const evaluate = compile('$: $value * 10').provide(() => () => 23)
+    const evaluate = compile('$: $value * 10').provide(() => ({
+      value: () => 23,
+    }))
     expect(evaluate()).toBe(230)
   })
 
   it('can execute functions', () => {
     const data: Record<string, any> = {
-      fn: (value: any) => value + 5,
+      fn: function testFn(value: any) {
+        return value + 5
+      },
     }
-    const evaluate = compile('3 + $fn(1 + 2) + 2').provide((token) => {
-      return () => data[token]
+    const evaluate = compile('3 + $fn(1 + 2) + 2').provide((tokens) => {
+      return { fn: () => data[tokens[0]] }
     })
     expect(evaluate()).toBe(13)
   })
@@ -228,13 +277,13 @@ describe('logic compiler', () => {
       addFive: (value: any) => value + 5,
     }
     expect(
-      compile('3 + $addFive(1 + 2) * 2').provide((token) => {
-        return () => data[token]
+      compile('3 + $addFive(1 + 2) * 2').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(19)
     expect(
-      compile('3 * $addFive(1 + 2) + 2').provide((token) => {
-        return () => data[token]
+      compile('3 * $addFive(1 + 2) + 2').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(26)
   })
@@ -244,8 +293,8 @@ describe('logic compiler', () => {
       multiply: (first: number, second: number) => first * second,
     }
     expect(
-      compile('$multiply(5 + 2, 6 + 3)').provide((token) => {
-        return () => data[token]
+      compile('$multiply(5 + 2, 6 + 3)').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(63)
   })
@@ -255,8 +304,8 @@ describe('logic compiler', () => {
       fetch: () => ({ value: 'abc' }),
     }
     expect(
-      compile('$fetch().value + def').provide((token) => {
-        return () => data[token]
+      compile('$fetch().value + def').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe('abcdef')
   })
@@ -266,8 +315,8 @@ describe('logic compiler', () => {
       get: (value: string) => ({ node: { value } }),
     }
     expect(
-      compile('$get(foo).node.value').provide((token) => {
-        return () => data[token]
+      compile('$get(foo).node.value').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe('foo')
   })
@@ -279,8 +328,8 @@ describe('logic compiler', () => {
       }),
     }
     expect(
-      compile('2 * $add(5).to(3)').provide((token) => {
-        return () => data[token]
+      compile('2 * $add(5).to(3)').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(16)
   })
@@ -290,8 +339,8 @@ describe('logic compiler', () => {
       fetch: () => ({ from: (location: string) => location }),
     }
     expect(
-      compile('$fetch().from(1 + 1)').provide((token) => {
-        return () => data[token]
+      compile('$fetch().from(1 + 1)').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(2)
   })
@@ -301,8 +350,8 @@ describe('logic compiler', () => {
       fetch: () => ({ from: (location: string) => location }),
     }
     expect(
-      compile('$fetch().from(1 + 1)').provide((token) => {
-        return () => data[token]
+      compile('$fetch().from(1 + 1)').provide(([token]) => {
+        return { [token]: () => data[token] }
       })()
     ).toBe(2)
   })
@@ -313,8 +362,12 @@ describe('logic compiler', () => {
       sing: () => ({ oh: 'canada' }),
     }
     expect(
-      compile('$go().north($sing().oh)').provide((token) => {
-        return () => data[token]
+      compile('$go().north($sing().oh)').provide((req) => {
+        return req.reduce(
+          (tokens, token) =>
+            Object.assign(tokens, { [token]: () => data[token] }),
+          {} as Record<string, any>
+        )
       })()
     ).toBe('canada')
   })

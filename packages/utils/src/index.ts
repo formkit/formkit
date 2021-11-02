@@ -48,9 +48,9 @@ export function has(
 
 /**
  * Compare two values for equality optionally at depth.
- * @param valA -
- * @param valB -
- * @param deep -
+ * @param valA - Any type of input
+ * @param valB - Any type of output
+ * @param deep - Indicate if we should recurse into the object
  * @returns boolean
  * @public
  */
@@ -62,7 +62,7 @@ export function eq(valA: any, valB: any, deep = true): boolean {
     if (valA instanceof Set) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
     for (const key in valA) {
-      if (!has(valB, key)) return false
+      if (!(key in valB)) return false
       if (valA[key] !== valB[key] && !deep) return false
       if (deep && !eq(valA[key], valB[key], true)) return false
     }

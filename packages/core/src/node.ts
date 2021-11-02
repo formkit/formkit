@@ -32,10 +32,11 @@ import {
 export type FormKitTypeDefinition = {
   type: FormKitNodeType
   props?: string[]
-  schema:
+  schema?:
     | FormKitExtendableSchemaRoot
     | FormKitSchemaNode[]
     | FormKitSchemaCondition
+  component?: unknown
 }
 
 /**
@@ -595,42 +596,42 @@ const invalidSetter = (): never => {
   throw new Error()
 }
 
+const traps = {
+  _c: trap(getContext, invalidSetter, false),
+  add: trap(addChild),
+  address: trap(getAddress, invalidSetter, false),
+  at: trap(getNode),
+  bubble: trap(bubble),
+  calm: trap(calm),
+  config: trap(false),
+  define: trap(define),
+  disturb: trap(disturb),
+  destroy: trap(destroy),
+  hydrate: trap(hydrate),
+  index: trap(getIndex, setIndex, false),
+  input: trap(input),
+  each: trap(eachChild),
+  emit: trap(emit),
+  find: trap(find),
+  on: trap(on),
+  off: trap(off),
+  parent: trap(false, setParent),
+  plugins: trap(false),
+  remove: trap(removeChild),
+  root: trap(getRoot, invalidSetter, false),
+  setConfig: trap(setConfig),
+  t: trap(text),
+  use: trap(use),
+  name: trap(getName, false, false),
+  walk: trap(walkTree),
+}
+
 /**
  * These are all the available "traps" for a given node. You can think of these
  * a little bit like methods, but they are really Proxy interceptors.
  */
 function createTraps(): FormKitTraps {
-  return new Map<string | symbol, FormKitTrap>(
-    Object.entries({
-      _c: trap(getContext, invalidSetter, false),
-      add: trap(addChild),
-      address: trap(getAddress, invalidSetter, false),
-      at: trap(getNode),
-      bubble: trap(bubble),
-      calm: trap(calm),
-      config: trap(false),
-      define: trap(define),
-      disturb: trap(disturb),
-      destroy: trap(destroy),
-      hydrate: trap(hydrate),
-      index: trap(getIndex, setIndex, false),
-      input: trap(input),
-      each: trap(eachChild),
-      emit: trap(emit),
-      find: trap(find),
-      on: trap(on),
-      off: trap(off),
-      parent: trap(false, setParent),
-      plugins: trap(false),
-      remove: trap(removeChild),
-      root: trap(getRoot, invalidSetter, false),
-      setConfig: trap(setConfig),
-      t: trap(text),
-      use: trap(use),
-      name: trap(getName, false, false),
-      walk: trap(walkTree),
-    })
-  )
+  return new Map<string | symbol, FormKitTrap>(Object.entries(traps))
 }
 
 /**
@@ -660,18 +661,27 @@ function trap(
  * Create all of the node's hook dispatchers.
  */
 function createHooks(): FormKitHooks {
-  return {
-    classes: createDispatcher<{
-      property: string
-      classes: Record<string, boolean>
-    }>(),
-    commit: createDispatcher<unknown>(),
-    error: createDispatcher<string>(),
-    init: createDispatcher<FormKitNode>(),
-    input: createDispatcher<unknown>(),
-    prop: createDispatcher<{ prop: string | symbol; value: any }>(),
-    text: createDispatcher<FormKitTextFragment>(),
-  }
+  const hooks: Map<string, FormKitDispatcher<unknown>> = new Map()
+  return new Proxy(hooks, {
+    get(_, property: string) {
+      if (!hooks.has(property)) {
+        hooks.set(property, createDispatcher())
+      }
+      return hooks.get(property)
+    },
+  }) as unknown as FormKitHooks
+  // return {
+  //   classes: createDispatcher<{
+  //     property: string
+  //     classes: Record<string, boolean>
+  //   }>(),
+  //   commit: createDispatcher<unknown>(),
+  //   error: createDispatcher<string>(),
+  //   init: createDispatcher<FormKitNode>(),
+  //   input: createDispatcher<unknown>(),
+  //   prop: createDispatcher<{ prop: string | symbol; value: any }>(),
+  //   text: createDispatcher<FormKitTextFragment>(),
+  // }
 }
 
 /**
@@ -1501,18 +1511,19 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   if (options.props) Object.assign(node.props, options.props)
   // If the options has plugins, we first apply any libraries
   findDefinition(node, new Set(options.plugins))
-  // Then we apply each plugin's root code.
-  options.plugins?.forEach((plugin: FormKitPlugin) =>
-    node.use(plugin, true, false)
-  )
-  // After the plugins are registered, we dispatch the init hook
-  node = node.hook.init.dispatch(defaultProps(node))
+  // Then we apply each plugin's root code, we do this with an explicit loop
+  // for that ity-bitty performance bump.
+  if (options.plugins) {
+    for (const plugin of options.plugins) {
+      use(node, node._c, plugin, true, false)
+    }
+  }
+  // Initialize the default props
+  defaultProps(node)
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) node.parent.add(node)
-  // If the node type was not identified, throw an error.
-  if (!node.type) createError(node, 2)
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
   // Apply the input hook to the initial value.

@@ -72,7 +72,11 @@ export {
 /**
  * Export the FormKit logic compiler.
  */
-export { compile } from './compiler'
+export {
+  compile,
+  FormKitCompilerOutput,
+  FormKitCompilerProvider,
+} from './compiler'
 
 /**
  * Export classes.

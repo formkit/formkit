@@ -74,8 +74,8 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
     get(...args) {
       const [target, property] = args
       let className = Reflect.get(...args)
-      if (typeof property === 'string') {
-        if (!has(target, property) && !property.startsWith('__v_')) {
+      if (!className && typeof property === 'string') {
+        if (!has(target, property) && !property.startsWith('__v')) {
           const observedNode = createObserver(node)
           observedNode.watch((node) => {
             const rootClasses =
