@@ -47,7 +47,10 @@ export const configSymbol: InjectionKey<FormKitOptions> = Symbol(
  * @public
  */
 export const plugin: Plugin = {
-  install(app, options: FormKitOptions): void {
+  install(
+    app,
+    options: FormKitOptions | ((...args: any[]) => FormKitOptions)
+  ): void {
     /**
      * Extend the default configuration options.
      */
@@ -55,7 +58,7 @@ export const plugin: Plugin = {
       {
         alias: 'FormKit',
       },
-      options
+      typeof options === 'function' ? options() : options
     )
 
     /**

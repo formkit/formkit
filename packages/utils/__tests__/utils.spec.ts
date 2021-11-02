@@ -141,6 +141,12 @@ describe('extend', () => {
       a: ['second'],
     }))
 
+  it('can concatenate array values', () => {
+    expect(extend({ a: ['first'] }, { a: ['second'] }, true)).toEqual({
+      a: ['first', 'second'],
+    })
+  })
+
   it('can change a property at depth', () => {
     expect(
       extend(

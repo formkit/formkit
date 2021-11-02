@@ -1,4 +1,5 @@
 import { FormKitOptions } from '@formkit/core'
+import { extend } from '@formkit/utils'
 import * as rules from '@formkit/rules'
 import { createValidationPlugin } from '@formkit/validation'
 import { createI18nPlugin, en } from '@formkit/i18n'
@@ -28,8 +29,13 @@ const library = createLibraryPlugin(inputs)
  * en i18n messages.
  * @public
  */
-const defaultConfig: FormKitOptions = {
-  plugins: [library, vuePlugin, i18n, validation],
-}
+const defaultConfig = (options: FormKitOptions = {}): FormKitOptions =>
+  extend(
+    {
+      plugins: [library, vuePlugin, i18n, validation],
+    },
+    options || {},
+    true
+  ) as FormKitOptions
 
 export default defaultConfig

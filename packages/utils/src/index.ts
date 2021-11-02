@@ -180,20 +180,29 @@ export function isPojo(o: any): boolean {
 
 /**
  * Recursively merge data from additional into original returning a new object.
- * Note: This function does not merge arrays, it replaces them.
  * @param original - An object to extend
  * @param additional - An object to modify the original object with.
+ * @param arrays - By default replaces arrays, but can also append to them.
  * @public
  */
 export function extend(
   original: Record<string, any>,
-  additional: Record<string, any> | string | null
+  additional: Record<string, any> | string | null,
+  extendArrays = false
 ): Record<string, any> | string | null {
   if (additional === null) return null
   const merged: Record<string, any> = {}
   if (typeof additional === 'string') return additional
   for (const key in original) {
     if (has(additional, key)) {
+      if (
+        extendArrays &&
+        Array.isArray(original[key]) &&
+        Array.isArray(additional[key])
+      ) {
+        merged[key] = original[key].concat(additional[key])
+        continue
+      }
       if (additional[key] === undefined) {
         continue
       }
