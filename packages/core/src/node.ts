@@ -24,6 +24,8 @@ import {
   FormKitSchemaNode,
   FormKitSchemaCondition,
 } from './schema'
+import { FormKitClasses } from './classes'
+
 /**
  * Definition of a library item — when registering a new library item, these
  * are the required and available properties.
@@ -351,6 +353,7 @@ export type FormKitOptions = Partial<
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[]
+    classes: Record<string, FormKitClasses | string | Record<string, boolean>>
   }
 >
 

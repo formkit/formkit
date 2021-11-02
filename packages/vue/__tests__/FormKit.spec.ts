@@ -467,6 +467,33 @@ describe('classes', () => {
       'class="formkit-input input-class-from-classes-object input-class-from-input-class-prop'
     )
   })
+
+  it('allows classes to be over-ridden with a default config', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        label: 'Howdy folks',
+        id: 'foo',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              config: {
+                classes: {
+                  label: 'foo-bar',
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toContain(
+      '<label for="foo" class="formkit-label foo-bar">Howdy folks</label>'
+    )
+  })
 })
 
 describe('plugins', () => {
