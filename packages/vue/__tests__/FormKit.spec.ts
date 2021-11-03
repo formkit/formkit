@@ -494,6 +494,27 @@ describe('classes', () => {
       '<label for="foo" class="formkit-label foo-bar">Howdy folks</label>'
     )
   })
+
+  it('allows classes to be replaced with rootClasses function', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              config: {
+                rootClasses: (key) => ({ [`foo-${key}`]: true }),
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toContain('class="foo-outer"')
+  })
 })
 
 describe('plugins', () => {

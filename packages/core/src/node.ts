@@ -197,6 +197,7 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
  */
 export interface FormKitConfig {
   delimiter: string
+  classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
   rootClasses: (
     compositionKey: string,
     node: FormKitNode
@@ -353,7 +354,6 @@ export type FormKitOptions = Partial<
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[]
-    classes: Record<string, FormKitClasses | string | Record<string, boolean>>
   }
 >
 
