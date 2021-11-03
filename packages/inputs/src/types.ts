@@ -95,7 +95,7 @@ export const week = textClassification
  * The hidden input.
  * @public
  */
-export const hidden = {
+export const hidden: FormKitTypeDefinition = {
   type: 'input',
   schema: hiddenSchema,
 }
