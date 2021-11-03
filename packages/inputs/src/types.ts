@@ -1,5 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import textSchema from './classifications/text'
+import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
@@ -35,12 +36,6 @@ export const datetimeLocal = textClassification
  * @public
  */
 export const email = textClassification
-
-/**
- * The hidden input.
- * @public
- */
-export const hidden = textClassification
 
 /**
  * The month input.
@@ -95,6 +90,15 @@ export const url = textClassification
  * @public
  */
 export const week = textClassification
+
+/**
+ * The hidden input.
+ * @public
+ */
+export const hidden = {
+  type: 'input',
+  schema: hiddenSchema,
+}
 
 /**
  * The group input type.
