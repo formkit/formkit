@@ -134,7 +134,9 @@ export function useInput(
     watch(
       () => props[prop as keyof FormKitComponentProps],
       () => {
-        node.props[prop] = props[prop as keyof FormKitComponentProps]
+        if (props[prop as keyof FormKitComponentProps] !== undefined) {
+          node.props[prop] = props[prop as keyof FormKitComponentProps]
+        }
       }
     )
   }

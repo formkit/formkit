@@ -154,7 +154,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   /**
    * We use a node observer to individually observe node props.
    */
-  const rootProps = ['help', 'label', 'options', 'type', 'attrs']
+  const rootProps = ['help', 'label', 'options', 'type', 'attrs', 'id']
   rootProps.forEach((prop) => {
     node.on(`prop:${prop}`, ({ payload }) => {
       context[prop as keyof FormKitFrameworkContext] = payload

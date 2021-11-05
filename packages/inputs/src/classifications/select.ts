@@ -18,7 +18,9 @@ const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),
       inner(extensions.inner, [
-        select(extensions.input, [options(extensions.options, '$label')]),
+        select(extensions.input, [
+          options(extensions.options, '$option.label'),
+        ]),
       ]),
     ]),
     help(extensions.help, '$help'),

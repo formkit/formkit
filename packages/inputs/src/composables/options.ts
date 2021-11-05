@@ -7,11 +7,11 @@ const options: FormKitSchemaComposable = (schema = {}, children = []) => ({
   else: extend(
     {
       $el: 'option',
-      if: '$fns.length($options)',
-      for: ['label', 'value', '$options'],
+      if: '$options.length',
+      for: ['option', '$options'],
       attrs: {
         class: '$classes.option',
-        value: '$value',
+        value: '$option.value',
       },
       children,
     },

@@ -48,6 +48,23 @@ describe('props', () => {
   })
 })
 
+describe('id', () => {
+  it('automatically generates a unique id', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'foo',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toEqual(
+      expect.stringMatching(/<input.*?id="input_\d+".*?>/)
+    )
+  })
+})
+
 describe('v-model', () => {
   it('updates local data when v-model changes', async () => {
     const wrapper = mount(
@@ -343,6 +360,7 @@ describe('classes', () => {
         name: 'classTest',
         label: 'input label',
         help: 'input help text',
+        id: 'foobar',
         validation: 'required|length:10',
         validationBehavior: 'live',
       },
@@ -351,8 +369,8 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html()).toBe(`<div class="formkit-outer">
-  <div class="formkit-wrapper"><label class="formkit-label">input label</label>
-    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest"></div>
+  <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
+    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" id="foobar"></div>
   </div>
   <div class="formkit-help">input help text</div>
   <ul class="formkit-messages">

@@ -5,19 +5,14 @@
     :key="i"
   /> -->
   <FormKit
-    type="number"
-    label="Justin"
-    :style="{ color: 'red' }"
-    validation="required"
-    name="justin"
-  />
-  <FormKit
-    validation-behavior="live"
-    label="Justin"
-    validation="required|matches:foobar"
-    :validation-messages="{
-      matches: 'The value must be foobar'
-    }"
+    type="select"
+    label="Select input"
+    placeholder="Select one"
+    :options="[
+      { value: '1', label: 'One' },
+      { value: '2', label: 'Two' },
+      { value: '3', label: 'Three' },
+    ]"
   />
 </template>
 

@@ -7,8 +7,8 @@ const select: FormKitSchemaComposable = (schema = {}, children = []) => ({
   else: extend(
     {
       $el: 'select',
+      bind: '$attrs',
       attrs: {
-        type: '$type',
         class: '$classes.input',
         name: '$node.name',
         onInput: '$input',
