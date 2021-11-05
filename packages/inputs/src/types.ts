@@ -4,7 +4,7 @@ import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
-
+import formatsOptions from './features/options'
 /**
  * Default classifications that are available.
  */
@@ -107,6 +107,8 @@ export const hidden: FormKitTypeDefinition = {
 export const select: FormKitTypeDefinition = {
   type: 'input',
   schema: selectSchema,
+  props: ['options'],
+  features: [formatsOptions],
 }
 
 /**

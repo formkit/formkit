@@ -61,8 +61,8 @@ export function deregister(node: FormKitNode): void {
  * @param node - Get a node by a given id
  * @public
  */
-export function get(id: string): FormKitNode | false {
-  return registry.get(id) || false
+export function get(id: string): FormKitNode | undefined {
+  return registry.get(id)
 }
 
 /**

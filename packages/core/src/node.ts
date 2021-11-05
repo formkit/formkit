@@ -39,6 +39,7 @@ export type FormKitTypeDefinition = {
     | FormKitSchemaNode[]
     | FormKitSchemaCondition
   component?: unknown
+  features?: Array<(node: FormKitNode) => void>
 }
 
 /**
@@ -322,6 +323,7 @@ export interface FormKitContext {
  * @public
  */
 export interface FormKitFrameworkContext {
+  [index: string]: unknown
   _value: any
   attrs: Record<string, any>
   classes: Record<string, string>
@@ -673,18 +675,6 @@ function createHooks(): FormKitHooks {
       return hooks.get(property)
     },
   }) as unknown as FormKitHooks
-  // return {
-  //   classes: createDispatcher<{
-  //     property: string
-  //     classes: Record<string, boolean>
-  //   }>(),
-  //   commit: createDispatcher<unknown>(),
-  //   error: createDispatcher<string>(),
-  //   init: createDispatcher<FormKitNode>(),
-  //   input: createDispatcher<unknown>(),
-  //   prop: createDispatcher<{ prop: string | symbol; value: any }>(),
-  //   text: createDispatcher<FormKitTextFragment>(),
-  // }
 }
 
 /**
@@ -936,18 +926,29 @@ function define(
     context._value = context.value =
       context.type === 'group' ? {} : context.type === 'list' ? [] : ''
   }
+
+  // Apply any input features before resetting the props.
+  if (definition.features) {
+    definition.features.forEach((feature) => feature(node))
+  }
+
   // Its possible that input-defined "props" have ended up in the context attrs
   // these should be moved back out of the attrs object.
-  if (definition.props && node.props.context?.attrs) {
-    for (const attr in node.props.context.attrs) {
-      const camelName = camel(attr)
-      if (definition.props.includes(camelName)) {
-        node.props[camelName] = node.props.context?.attrs[attr]
-        delete node.props.context?.attrs[attr]
+  if (definition.props) {
+    if (node.props.attrs) {
+      const attrs = { ...node.props.attrs }
+      for (const attr in attrs) {
+        const camelName = camel(attr)
+        if (definition.props.includes(camelName)) {
+          node.props[camelName] = attrs[attr]
+          delete attrs[attr]
+        }
       }
+      node.props.attrs = attrs
     }
   }
-  node.emit('defined', node)
+
+  node.emit('defined', definition)
 }
 
 /**

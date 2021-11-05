@@ -4,6 +4,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode } from '@formkit/core'
+import vuePlugin from '../src/corePlugin'
 
 // Object.assign(defaultConfig.nodeOptions, { validationBehavior: 'live' })
 
@@ -551,5 +552,36 @@ describe('plugins', () => {
       },
     })
     expect(wrapper.html()).toContain('This plugin added help text!')
+  })
+
+  it('produces a custom input using a plugin', () => {
+    const customInput = () => {}
+    customInput.library = function (node: FormKitNode) {
+      node.define({
+        type: 'input',
+        schema: [
+          { $el: 'input', attrs: { class: 'gbr', ['data-source']: '$bar' } },
+        ],
+        props: ['bar'],
+        features: [
+          (node) =>
+            node.hook.prop((prop, next) => {
+              if (prop.prop === 'bar') {
+                prop.value = 'hello world'
+              }
+              return next(prop)
+            }),
+        ],
+      })
+    }
+    const wrapper = mount(FormKit, {
+      attrs: {
+        bar: 'foobar',
+      },
+      global: {
+        plugins: [[plugin, { plugins: [vuePlugin, customInput] }]],
+      },
+    })
+    expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')
   })
 })

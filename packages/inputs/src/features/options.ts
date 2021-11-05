@@ -1,0 +1,52 @@
+import { FormKitNode } from '@formkit/core'
+
+/**
+ * Options should always be formated as an array of objects with label and value
+ * properties.
+ */
+export type FormKitOptionsList = Array<
+  {
+    label: string
+    value: string | number
+  } & { [index: string]: any }
+>
+
+/**
+ * Accepts an array of objects, array of strings, or object of key-value pairs.
+ * and returns an array of objects with value and label properties.
+ * @param options -
+ */
+function normalizeOptions(
+  options: string[] | FormKitOptionsList | { [value: string]: string }
+): FormKitOptionsList {
+  if (Array.isArray(options)) {
+    return options.map((option) => {
+      if (typeof option === 'string') {
+        return {
+          label: option,
+          value: option,
+        }
+      }
+      return option
+    })
+  }
+  return Object.keys(options).map((value) => {
+    return {
+      label: options[value],
+      value,
+    }
+  })
+}
+
+/**
+ * Converts the options prop to usable values.
+ * @param node - A formkit node.
+ */
+export default function (node: FormKitNode): void {
+  node.hook.prop((prop, next) => {
+    if (prop.prop === 'options') {
+      prop.value = normalizeOptions(prop.value)
+    }
+    return next(prop)
+  })
+}

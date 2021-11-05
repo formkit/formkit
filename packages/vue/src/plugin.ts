@@ -16,7 +16,7 @@ declare module '@vue/runtime-core' {
  * @public
  */
 export interface FormKitVuePlugin {
-  get: (id: string) => FormKitNode | false
+  get: (id: string) => FormKitNode | undefined
 }
 
 /**

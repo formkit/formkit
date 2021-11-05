@@ -6,6 +6,7 @@ import {
   createClasses,
   createMessage,
   generateClassList,
+  FormKitTypeDefinition,
 } from '@formkit/core'
 import { has } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
@@ -152,14 +153,38 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   })
 
   /**
+   * Observes node.props properties explicitly and updates them in the context
+   * object.
+   * @param observe - Props to observe and register as context data.
+   */
+  function observeProps(observe: string[]) {
+    observe.forEach((prop) => {
+      if (!has(context, prop) && has(node.props, prop)) {
+        context[prop] = node.props[prop]
+      }
+      node.on(`prop:${prop}`, ({ payload }) => {
+        context[prop as keyof FormKitFrameworkContext] = payload
+      })
+    })
+  }
+
+  /**
    * We use a node observer to individually observe node props.
    */
   const rootProps = ['help', 'label', 'options', 'type', 'attrs', 'id']
-  rootProps.forEach((prop) => {
-    node.on(`prop:${prop}`, ({ payload }) => {
-      context[prop as keyof FormKitFrameworkContext] = payload
-    })
-  })
+  observeProps(rootProps)
+
+  /**
+   * Once the input is defined, deal with it.
+   * @param definition - Type definition.
+   */
+  function definedAs(definition: FormKitTypeDefinition) {
+    if (definition.props) observeProps(definition.props)
+  }
+
+  node.props.definition
+    ? definedAs(node.props.definition)
+    : node.on('defined', ({ payload }) => definedAs(payload))
 
   /**
    * Watch for input events from core.

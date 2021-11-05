@@ -30,4 +30,29 @@ describe('select', () => {
   <!---->
 </div>`)
   })
+
+  it('renders a select list with an array of strings', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        name: 'select_foo',
+        id: 'select-foo',
+        options: ['foo', 'bar'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toEqual(`<div class="formkit-outer">
+  <div class="formkit-wrapper">
+    <!---->
+    <div class="formkit-inner"><select class="formkit-input" name="select_foo">
+        <option class="formkit-option">foo</option>
+        <option class="formkit-option">bar</option>
+      </select></div>
+  </div>
+  <!---->
+  <!---->
+</div>`)
+  })
 })
