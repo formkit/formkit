@@ -10,12 +10,12 @@ describe('registry', () => {
 
   it('does not register nodes by name', () => {
     createNode({ name: 'justin' })
-    expect(get('justin')).toBe(false)
+    expect(get('justin')).toBe(undefined)
   })
 
   it('automatically registers root nodes by id over name', () => {
     const node = createNode({ name: 'justin', props: { id: 'boo' } })
-    expect(get('justin')).toBe(false)
+    expect(get('justin')).toBe(undefined)
     expect(get('boo')).toBe(node)
   })
 
@@ -28,6 +28,6 @@ describe('registry', () => {
     const node = createNode({ props: { id: 'foobar' } })
     expect(get('foobar')).toBe(node)
     deregister(node)
-    expect(get('foobar')).toBe(false)
+    expect(get('foobar')).toBe(undefined)
   })
 })

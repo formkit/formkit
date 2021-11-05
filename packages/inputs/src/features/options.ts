@@ -49,4 +49,14 @@ export default function (node: FormKitNode): void {
     }
     return next(prop)
   })
+  node.hook.input((value, next) => {
+    if (
+      value === undefined &&
+      node.props?.options &&
+      !('multiple' in node.props?.attrs)
+    ) {
+      value = node.props.options[0].value
+    }
+    return next(value)
+  })
 }

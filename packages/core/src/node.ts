@@ -756,10 +756,12 @@ function input(
   node: FormKitNode,
   context: FormKitContext,
   value: unknown,
-  async = true
+  async = true,
+  eqBefore = true
 ): Promise<unknown> {
-  if (eq(context._value, value)) return context.settled
+  if (eqBefore && eq(context._value, value)) return context.settled
   context._value = node.hook.input.dispatch(value)
+  if (!eqBefore && eq(context._value, value)) return context.settled
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (async) {
@@ -924,7 +926,7 @@ function define(
   // Assign the default value for the type if there is no default
   if (context.value === undefined) {
     context._value = context.value =
-      context.type === 'group' ? {} : context.type === 'list' ? [] : ''
+      context.type === 'group' ? {} : context.type === 'list' ? [] : undefined
   }
 
   // Apply any input features before resetting the props.
@@ -1531,7 +1533,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) createError(node, 1)
   // Apply the input hook to the initial value.
-  node._c._value = node._c.value = node.hook.input.dispatch(node._value)
+  input(node, node._c, node._value, false, false)
   // Release the store buffer
   node.store.release()
   // Register the node globally if someone explicitly gave it an id

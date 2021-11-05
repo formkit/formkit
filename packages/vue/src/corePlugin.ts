@@ -8,7 +8,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { has } from '@formkit/utils'
+import { eq, has } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -150,6 +150,16 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
     type: node.props.type,
     value: node.value,
     classes,
+  })
+
+  /**
+   * Ensure the context object is properly configured after booting up.
+   */
+  node.on('created', () => {
+    if (!eq(context.value, node.value)) {
+      context._value = node.value
+      context.value = node.value
+    }
   })
 
   /**

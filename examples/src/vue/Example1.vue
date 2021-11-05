@@ -8,14 +8,31 @@
     type="select"
     label="Select input"
     placeholder="Select one"
-    :options="['foo', 'bar', 'baz']"
+    :options="options"
+  />
+
+  <FormKit
+    type="select"
+    label="Select input"
+    placeholder="Select one"
+    multiple
+    :options="options"
   />
 </template>
 
 <script setup lang="ts">
-// import { FormKit } from '../../../packages/vue/src'
+import { ref } from 'vue'
 
+// const foo = ref('bar')
+const options = ['foo', 'bar', 'baz']
 
+// let i = 0;
+// setInterval(() => {
+//   foo.value = options[i++]
+//   if (i >= options.length) {
+//     i = 0
+//   }
+// }, 100)
 </script>
 
 <style>
