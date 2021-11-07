@@ -8,6 +8,10 @@
 .formkit-inner {
   border: 1px solid var(--formkit-border-color);
   border-radius: var(--formkit-border-radius);
+
+  @nest [data-type="select"] & {
+    background-color: red;
+  }
 }
 
 .formkit-inner:focus-within {
@@ -15,7 +19,9 @@
 }
 
 .formkit-input {
+  appearance: none;
   background-color: var(--formkit-input-background-color, transparent);
+  border-radius: var(--formkit-border-radius);
   border: 0;
   box-sizing: border-box;
   color: var(--formkit-input-text-color);

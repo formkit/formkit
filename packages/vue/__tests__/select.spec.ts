@@ -19,7 +19,8 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toEqual(`<div class="formkit-outer">
+    expect(wrapper.html())
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner"><select class="formkit-input" name="select_1">
@@ -43,7 +44,8 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toEqual(`<div class="formkit-outer">
+    expect(wrapper.html())
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner"><select class="formkit-input" name="select_foo">
@@ -70,7 +72,8 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toEqual(`<div class="formkit-outer">
+    expect(wrapper.html())
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner"><select class="formkit-input" name="select_foo">

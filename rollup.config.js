@@ -2,6 +2,7 @@ import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
 import postcssNesting from 'postcss-nesting'
+import autoprefixer from 'autoprefixer'
 import atImport from 'postcss-import'
 // import typescript2 from 'rollup-plugin-typescript2'
 // import vue from 'rollup-plugin-vue'
@@ -78,7 +79,7 @@ function createPluginsConfig() {
     plugins.push(
       postcss({
         from: `${rootPath}/src/${theme}/${theme}.css`,
-        plugins: [atImport(), postcssNesting()],
+        plugins: [atImport(), postcssNesting(), autoprefixer()],
         extract: true,
       })
     )

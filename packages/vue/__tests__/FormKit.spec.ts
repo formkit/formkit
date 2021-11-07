@@ -369,7 +369,7 @@ describe('classes', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toBe(`<div class="formkit-outer">
+    expect(wrapper.html()).toBe(`<div class="formkit-outer" data-type="text">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
     <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" id="foobar"></div>
   </div>
