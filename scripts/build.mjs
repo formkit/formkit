@@ -21,7 +21,7 @@ import execa from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { getPackages, getBuildOrder, msg } from './utils.mjs'
+import { getPackages, getThemes, getBuildOrder, msg } from './utils.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -73,15 +73,21 @@ export async function buildPackage(p) {
   await cleanDist(p)
   msg.info('» bundling distributions')
   msg.loader.start()
-  await bundle(p, 'esm')
-  await bundle(p, 'cjs')
-  if (p === 'vue') {
-    await bundle(p, 'iife')
+  if (p === 'themes') {
+    const themes = getThemes()
+    await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
+  } else {
+    await bundle(p, 'esm')
+    await bundle(p, 'cjs')
+    if (p === 'vue') {
+      await bundle(p, 'iife')
+    }
   }
+
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
-  await declarations(p)
+  // await declarations(p)
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }
@@ -122,7 +128,7 @@ async function cleanDist(p) {
  * @param p package name
  * @param format the format to create (cjs, esm, umd, etc...)
  */
-async function bundle(p, format) {
+async function bundle(p, format, theme) {
   msg.loader.text = `Bundling ${p} as ${format}`
   await execa(rollup, [
     '-c',
@@ -130,6 +136,7 @@ async function bundle(p, format) {
     [
       { name: 'PKG', value: p },
       { name: 'FORMAT', value: format },
+      theme ? { name: 'THEME', value: theme } : {},
     ]
       .map(({ name, value }) => `${name}:${value}`)
       .join(','),

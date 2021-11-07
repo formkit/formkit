@@ -1,0 +1,39 @@
+@import "variables.css";
+
+.formkit-outer {
+  margin-bottom: 1.5em;
+  max-width: 25em;
+}
+
+.formkit-inner {
+  border: 1px solid var(--formkit-border-color);
+  border-radius: var(--formkit-border-radius);
+}
+
+.formkit-inner:focus-within {
+  border-color: var(--formkit-focus-border-color);
+}
+
+.formkit-input {
+  background-color: var(--formkit-input-background-color, transparent);
+  border: 0;
+  box-sizing: border-box;
+  color: var(--formkit-input-text-color);
+  display: block;
+  font-size: 1em;
+  margin: 0;
+  padding: var(--formkit-input-padding-y) var(--formkit-input-padding-x);
+  width: 100%;
+
+  &[multiple] {
+    padding: 0;
+
+    & option {
+      padding: var(--formkit-input-padding-y) var(--formkit-input-padding-x);
+    }
+  }
+}
+
+.formkit-input:focus {
+  outline: 0;
+}

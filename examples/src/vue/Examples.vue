@@ -39,8 +39,5 @@ h1:first-child {
   margin-top: 1em;
 }
 
-.formkit-outer {
-  margin-bottom: 2em;
-}
 </style>
 

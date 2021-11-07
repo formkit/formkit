@@ -1,0 +1,9 @@
+:root {
+  --formkit-border-color: rgba(0 0 0 / 25%);
+  --formkit-border-radius: 0.25em;
+  --formkit-input-text-color: rgba(0 0 0 / 95%);
+  --formkit-input-background-color: transparent;
+  --formkit-focus-border-color: blue;
+  --formkit-input-padding-x: 0.5em;
+  --formkit-input-padding-y: 0.5em;
+}

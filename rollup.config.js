@@ -1,5 +1,8 @@
 import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import postcss from 'rollup-plugin-postcss'
+import postcssNesting from 'postcss-nesting'
+import atImport from 'postcss-import'
 // import typescript2 from 'rollup-plugin-typescript2'
 // import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
@@ -11,6 +14,7 @@ const __dirname = dirname(__filename)
 const pkg = process.env.PKG
 const format = process.env.FORMAT
 const declarations = process.env.DECLARATIONS ? true : false
+const theme = process.env.THEME || false
 
 if (!pkg) throw Error('Please include a package to bundle')
 if (!format) throw Error('Please include a bundle format')
@@ -29,7 +33,7 @@ export default {
  * Create the expected path for the input file.
  */
 function createInputPath() {
-  return `${rootPath}/src/index.ts`
+  return `${rootPath}/src/${theme ? theme + '/' : ''}index.ts`
 }
 
 /**
@@ -38,13 +42,14 @@ function createInputPath() {
 function createOutputConfig() {
   if (!declarations) {
     const extras = {}
-    const fileName =
+    let fileName =
       format !== 'iife' ? `index.${format}.js` : `formkit-${pkg}.js`
     if (format === 'iife') {
       extras.globals = {
         vue: 'Vue',
       }
     }
+    if (theme) fileName = theme + '/' + fileName
     return {
       file: `${rootPath}/dist/${fileName}`,
       name:
@@ -68,6 +73,15 @@ function createPluginsConfig() {
   const plugins = []
   if (format === 'iife' && pkg === 'vue') {
     plugins.push(nodeResolve())
+  }
+  if (pkg === 'themes') {
+    plugins.push(
+      postcss({
+        from: `${rootPath}/src/${theme}/${theme}.css`,
+        plugins: [atImport(), postcssNesting()],
+        extract: true,
+      })
+    )
   }
   // This commented out code is used for compiling
   // .vue SFC files — current we dont have any:

@@ -1,9 +1,11 @@
 <template>
   <h2>FormKit Playground</h2>
-  <!-- <FormKit
-    v-for="i in 50"
-    :key="i"
-  /> -->
+  <FormKit
+    type="text"
+    label="Username"
+    help="Select a new username"
+    :errors="['This is an error']"
+  />
   <FormKit
     type="select"
     label="Select input"
@@ -21,9 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
-// const foo = ref('bar')
 const options = ['foo', 'bar', 'baz']
 
 // let i = 0;
