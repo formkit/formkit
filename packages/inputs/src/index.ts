@@ -14,3 +14,8 @@ export * from './types'
  * Export the plugin.
  */
 export { createLibraryPlugin } from './plugin'
+
+/**
+ * Options types.
+ */
+export { FormKitOptionsList } from './features/options'

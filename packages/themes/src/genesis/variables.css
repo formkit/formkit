@@ -2,8 +2,23 @@
   --formkit-border-color: rgba(0 0 0 / 25%);
   --formkit-border-radius: 0.25em;
   --formkit-input-text-color: rgba(0 0 0 / 95%);
+  --formkit-icon-color: rgba(0 0 0 / 95%);
   --formkit-input-background-color: transparent;
   --formkit-focus-border-color: blue;
   --formkit-input-padding-x: 0.5em;
   --formkit-input-padding-y: 0.5em;
+  --formkit-help-font-size: 0.8125em;
+  --formkit-help-color: rgba(0 0 0 / 80%);
+  --formkit-help-margin-x: 0;
+  --formkit-help-margin-y: 0.2em;
+  --formkit-error-color: #ea0000;
+  --formkit-message-font-size: 0.8125em;
+  --formkit-message-margin-y: 0.2em;
+  --formkit-message-margin-x: 0;
+  --formkit-messages-margin-x: 0;
+  --formkit-messages-margin-y: 0;
+  --formkit-label-font-size: 0.875em;
+  --formkit-label-font-weight: bold;
+  --formkit-label-margin-y: 0.25em;
+  --formkit-label-margin-x: 0;
 }

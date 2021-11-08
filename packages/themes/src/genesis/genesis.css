@@ -1,16 +1,35 @@
 @import "variables.css";
 
 .formkit-outer {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   margin-bottom: 1.5em;
   max-width: 25em;
+}
+
+.formkit-label {
+  display: block;
+  font-size: var(--formkit-label-font-size);
+  font-weight: var(--formkit-label-font-weight);
+  margin: var(--formkit-label-margin-y) var(--formkit-label-margin-x);
 }
 
 .formkit-inner {
   border: 1px solid var(--formkit-border-color);
   border-radius: var(--formkit-border-radius);
+  position: relative;
+  display: flex;
+  align-items: center;
 
-  @nest [data-type="select"] & {
-    background-color: red;
+  @nest [data-type="select"]:not([data-multiple]) &:after {
+    background-color: var(--formkit-icon-color);
+    content: "";
+    display: block;
+    height: 1em;
+    pointer-events: none;
+    position: absolute;
+    right: 0.5em;
+    width: 1em;
+    clip-path: path("M8,11.01C7.792,11.01 7.592,10.931 7.446,10.79L2.75,6.272C2.606,6.132 2.525,5.943 2.525,5.745C2.528,5.33 2.88,4.99 3.308,4.99C3.513,4.99 3.71,5.068 3.857,5.208L8,9.193L12.143,5.208C12.289,5.068 12.487,4.99 12.692,4.99C13.119,4.99 13.472,5.329 13.475,5.743C13.475,5.942 13.394,6.132 13.25,6.272L8.553,10.79C8.406,10.931 8.207,11.011 8,11.01Z");
   }
 }
 
@@ -21,8 +40,8 @@
 .formkit-input {
   appearance: none;
   background-color: var(--formkit-input-background-color, transparent);
-  border-radius: var(--formkit-border-radius);
   border: 0;
+  border-radius: var(--formkit-border-radius);
   box-sizing: border-box;
   color: var(--formkit-input-text-color);
   display: block;
@@ -38,8 +57,31 @@
       padding: var(--formkit-input-padding-y) var(--formkit-input-padding-x);
     }
   }
+
+  @nest select&{
+    padding-right: 1.875em;
+  }
 }
 
 .formkit-input:focus {
   outline: 0;
+}
+
+.formkit-help {
+  font-size: var(--formkit-help-font-size);
+  color: var(--formkit-help-color);
+  margin: var(--formkit-help-margin-y) var(--formkit-help-margin-x);
+}
+
+.formkit-messages {
+  margin: 0;
+  padding: 0;
+  margin: var(--formkit-messages-margin-y) var(--formkit-messages-margin-x);
+}
+
+.formkit-message {
+  list-style-type: none;
+  color: var(--formkit-error-color);
+  font-size: var(--formkit-message-font-size);
+  margin: var(--formkit-message-margin-y) var(--formkit-message-margin-x);
 }

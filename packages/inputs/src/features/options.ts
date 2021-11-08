@@ -3,6 +3,7 @@ import { FormKitNode } from '@formkit/core'
 /**
  * Options should always be formated as an array of objects with label and value
  * properties.
+ * @public
  */
 export type FormKitOptionsList = Array<
   {
