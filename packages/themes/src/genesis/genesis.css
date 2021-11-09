@@ -58,8 +58,16 @@
     }
   }
 
-  @nest select&{
+  @nest select& {
     padding-right: 1.875em;
+
+    &[data-placeholder]:not([multiple]) {
+      color: var(--formkit-placeholder-color);
+    }
+
+    & option {
+      font-size: var(--formkit-option-font-size);
+    }
   }
 }
 
@@ -74,7 +82,6 @@
 }
 
 .formkit-messages {
-  margin: 0;
   padding: 0;
   margin: var(--formkit-messages-margin-y) var(--formkit-messages-margin-x);
 }

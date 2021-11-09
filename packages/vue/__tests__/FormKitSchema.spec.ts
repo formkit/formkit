@@ -571,12 +571,12 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.html()).toBe(
-      '<input type="text" name="foobar" min="20" step="1">'
+      '<input name="foobar" min="20" step="1" type="text">'
     )
     data.details.type = 'jimbo'
     await nextTick()
     expect(wrapper.html()).toBe(
-      '<input type="text" name="foobar" min="20" step="1">'
+      '<input name="foobar" min="20" step="1" type="text">'
     )
   })
 

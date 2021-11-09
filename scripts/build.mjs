@@ -87,7 +87,7 @@ export async function buildPackage(p) {
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
-  await declarations(p)
+  if (p !== 'themes') await declarations(p)
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }

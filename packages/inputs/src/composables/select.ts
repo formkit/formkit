@@ -9,12 +9,24 @@ const select: FormKitSchemaComposable = (schema = {}, children = []) => ({
       $el: 'select',
       bind: '$attrs',
       attrs: {
+        'data-placeholder': {
+          if: '$placeholder',
+          then: {
+            if: '$value',
+            then: undefined,
+            else: 'true',
+          },
+        },
         class: '$classes.input',
         name: '$node.name',
-        onInput: '$input',
+        onInput: '$handlers.DOMInput',
         value: '$_value',
       },
-      children,
+      children: {
+        if: '$slots.default',
+        then: '$slots.default',
+        else: children,
+      },
     },
     schema
   ) as FormKitSchemaNode,

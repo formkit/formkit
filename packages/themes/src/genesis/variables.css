@@ -21,4 +21,6 @@
   --formkit-label-font-weight: bold;
   --formkit-label-margin-y: 0.25em;
   --formkit-label-margin-x: 0;
+  --formkit-option-font-size: 1em;
+  --formkit-placeholder-color: rgba(0 0 0 / 50%);
 }

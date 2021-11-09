@@ -33,6 +33,34 @@ describe('select', () => {
 </div>`)
   })
 
+  it('renders a select list with an array of objects containing attributes', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        name: 'select_d',
+        options: [
+          { label: 'FooBar', value: 'foo', attrs: { disabled: true } },
+          { label: 'BarFoo', value: 'bar' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html())
+      .toEqual(`<div class="formkit-outer" data-type="select">
+  <div class="formkit-wrapper">
+    <!---->
+    <div class="formkit-inner"><select class="formkit-input" name="select_d">
+        <option disabled="" class="formkit-option" value="foo">FooBar</option>
+        <option class="formkit-option" value="bar">BarFoo</option>
+      </select></div>
+  </div>
+  <!---->
+  <!---->
+</div>`)
+  })
+
   it('renders a select list with an array of strings', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -200,13 +228,11 @@ describe('select', () => {
     expect(wrapper.find('select').element.value).toBe('bing')
   })
 
-  it('displays a placeholder when available', () => {
+  it('displays a placeholder when used', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'select',
-        name: 'select_foo',
-        modelValue: 'bing',
-        id: 'select-model',
+        placeholder: 'Select one',
         options: {
           foo: 'Bar',
           jim: 'Jam',
@@ -218,11 +244,63 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    const node = get('select-model')!
-    expect(node.context?.value).toBe('bing')
-    expect(node.context?._value).toBe('bing')
-    expect(node.value).toBe('bing')
-    expect(node._value).toBe('bing')
-    expect(wrapper.find('select').element.value).toBe('bing')
+    expect(wrapper.find('select').element.innerHTML).toBe(
+      `<option hidden=\"\" disabled=\"\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
+    )
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
+  })
+
+  it('can render options using a slot', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'Bar',
+          }
+        },
+        template: `
+          <FormKit :delay="0" type="select" v-model="value">
+            <option>Foo</option>
+            <option>Bar</option>
+            <option>Baz</option>
+          </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const select = wrapper.find('select')
+    expect(select.element.value).toBe('Bar')
+    await select.setValue('Baz')
+    await select.trigger('input')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.vm.value).toBe('Baz')
+  })
+
+  it('can v-mmodel its data', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'bar',
+          }
+        },
+        template:
+          '<FormKit type="select" :delay="0" :options="[\'foo\', \'baz\', \'bar\']" v-model="value" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.vm.value).toBe('bar')
+    const select = wrapper.find('select')
+    await select.setValue('baz')
+    await select.trigger('input')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.vm.value).toBe('baz')
   })
 })

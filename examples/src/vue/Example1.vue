@@ -1,6 +1,7 @@
 <template>
   <h2>FormKit Playground</h2>
   <FormKit
+    v-model="value"
     type="text"
     label="Username"
     help="Select a new username"
@@ -12,19 +13,20 @@
     placeholder="Select one"
     :options="options"
   />
-
+  {{ value }}
   <FormKit
     type="select"
     label="Select input"
-    placeholder="Select one"
     multiple
     :options="options"
   />
 </template>
 
 <script setup lang="ts">
-const options = ['foo', 'bar', 'baz']
+import { ref } from 'vue'
 
+const options = ['foo', 'bar', 'baz']
+const value = ref('bar')
 // let i = 0;
 // setInterval(() => {
 //   foo.value = options[i++]

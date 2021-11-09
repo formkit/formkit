@@ -107,7 +107,7 @@ export const hidden: FormKitTypeDefinition = {
 export const select: FormKitTypeDefinition = {
   type: 'input',
   schema: selectSchema,
-  props: ['options'],
+  props: ['options', 'placeholder'],
   features: [formatsOptions],
 }
 

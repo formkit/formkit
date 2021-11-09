@@ -200,38 +200,6 @@ function parseSchema(
   schema: FormKitSchemaNode | FormKitSchemaNode[]
 ): SchemaProvider {
   /**
-   * Extracts a reference object from a set of (reactive) data.
-   * @param data - The formkit context object object for the given path
-   * @param token - A dot-notation path like: user.name
-   * @returns
-   * @internal
-   */
-  // function getRef(
-  //   data: FormKitSchemaContext,
-  //   scopes: ScopePath,
-  //   token: string
-  // ): { value: any } {
-  //   const path = token.split('.')
-  //   const value = ref<unknown>(null)
-  //   const nodeRef = ref<unknown>(undefined)
-  //   if (token === 'get') {
-  //     value.value = getNode.bind(null, nodeRef)
-  //   } else {
-  //     watchEffect(() => {
-  //       const sets = scopes
-  //         .map((scope) => data.__FK_SCP.get(scope) || false)
-  //         .filter((s) => s)
-  //       sets.push(data)
-  //       const foundValue = findValue(sets, path)
-  //       if (foundValue !== undefined) {
-  //         value.value = foundValue
-  //       }
-  //     })
-  //   }
-  //   return value
-  // }
-
-  /**
    * Given an if/then/else schema node, pre-compile the node and return the
    * artifacts for the render function.
    * @param data - The schema context object
@@ -285,17 +253,26 @@ function parseSchema(
     const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
     const boundAttrs = bindExp ? provider(compile(bindExp)) : () => ({})
     const staticAttrs: FormKitSchemaAttributes = {}
-    const instanceAttrs: Map<symbol, FormKitSchemaAttributes> = new Map()
-    const setters: Array<() => void> = [
-      () => {
-        const bound: any = boundAttrs()
-        const attrs: Record<string, any> = instanceAttrs.get(instanceKey) || {}
+    // const setters: Array<() => void> = [
+    //   () => {
+    //     const bound: any = boundAttrs()
+    //     const attrs: Record<string, any> = instanceAttrs.get(instanceKey) || {}
+    //     for (const attr in bound) {
+    //       if (!explicitAttrs.has(attr)) {
+    //         attrs[attr] = bound[attr]
+    //       }
+    //     }
+    //     instanceAttrs.set(instanceKey, attrs)
+    //   },
+    // ]
+    const setters: Array<(obj: Record<string, any>) => void> = [
+      (attrs) => {
+        const bound: Record<string, any> = boundAttrs()
         for (const attr in bound) {
           if (!explicitAttrs.has(attr)) {
             attrs[attr] = bound[attr]
           }
         }
-        instanceAttrs.set(instanceKey, attrs)
       },
     ]
     if (unparsedAttrs) {
@@ -308,62 +285,35 @@ function parseSchema(
         ) as () => FormKitSchemaAttributes
         return condition
       }
+      // Some attributes are explicitly bound, we need to parse those ones
+      // using the compiler and create a dynamic "setter".
       for (const attr in unparsedAttrs) {
-        // attrs[attr] = undefined
         const value = unparsedAttrs[attr]
+        let getValue: () => any
         if (
           typeof value === 'string' &&
           value.startsWith('$') &&
           value.length > 1
         ) {
-          // In this case we have a dynamic value, so we create a "setter"
-          // function that will manipulate the value of our attribute at runtime.
-          const dynamicValue = provider(compile(value))
-          setters.push(() =>
-            instanceAttrs.set(
-              instanceKey,
-              Object.assign(instanceAttrs.get(instanceKey) || {}, {
-                [attr]: dynamicValue(),
-              })
-            )
-          )
+          getValue = provider(compile(value))
         } else if (typeof value === 'object' && isConditional(value)) {
-          const condition = parseConditionAttr(value, null)
-          setters.push(() =>
-            instanceAttrs.set(
-              instanceKey,
-              Object.assign(instanceAttrs.get(instanceKey) || {}, {
-                [attr]: condition(),
-              })
-            )
-          )
+          getValue = parseConditionAttr(value, null)
         } else if (typeof value === 'object' && isPojo(value)) {
-          // In this case we need to recurse
-          const subAttrs = parseAttrs(value)
-          setters.push(() =>
-            instanceAttrs.set(
-              instanceKey,
-              Object.assign(instanceAttrs.get(instanceKey) || {}, {
-                [attr]: subAttrs(),
-              })
-            )
-          )
+          getValue = parseAttrs(value)
         } else {
           // In all other cases, the value is static
+          getValue = () => value
           staticAttrs[attr] = value
         }
-      }
-      return () => {
-        setters.forEach((setter) => setter())
-        // Unfortunately this spreading is necessary to trigger reactivity
-        const instanceAttributes = instanceAttrs.get(instanceKey) || {}
-        return { ...staticAttrs, ...instanceAttributes }
+        setters.push((attrs) => {
+          attrs[attr] = getValue()
+        })
       }
     }
     return () => {
-      setters.forEach((setter) => setter())
-      const instanceAttributes = instanceAttrs.get(instanceKey) || {}
-      return { ...staticAttrs, ...instanceAttributes }
+      const attrs = {}
+      setters.forEach((setter) => setter(attrs))
+      return attrs
     }
   }
 
