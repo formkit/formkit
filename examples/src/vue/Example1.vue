@@ -12,8 +12,13 @@
     label="Select input"
     placeholder="Select one"
     :options="options"
-  />
-  {{ value }}
+  >
+    <template #option="{ option }">
+      <option :value="option.value">
+        {{ option.label }} - Town
+      </option>
+    </template>
+  </FormKit>
   <FormKit
     type="select"
     label="Select input"
@@ -24,7 +29,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-
 const options = ['foo', 'bar', 'baz']
 const value = ref('bar')
 // let i = 0;

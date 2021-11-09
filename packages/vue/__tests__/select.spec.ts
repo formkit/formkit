@@ -250,7 +250,7 @@ describe('select', () => {
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
   })
 
-  it('can render options using a slot', async () => {
+  it('can render options using default slot', async () => {
     const wrapper = mount(
       {
         data() {
@@ -279,7 +279,27 @@ describe('select', () => {
     expect(wrapper.vm.value).toBe('Baz')
   })
 
-  it('can v-mmodel its data', async () => {
+  it('can render individual options using options slot', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit :delay="0" type="select" :options="{ v: 'venus', m: 'mars' }">
+            <template #option="{ option }">
+              <option :value="option.value">{{ option.label }}</option>
+            </template>
+          </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<option value="v">venus</option>')
+    expect(wrapper.html()).toContain('<option value="m">mars</option>')
+  })
+
+  it('can v-model its data', async () => {
     const wrapper = mount(
       {
         data() {

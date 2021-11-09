@@ -92,7 +92,8 @@ type SchemaProvider = (
 ) => RenderChildren
 
 type SchemaProviderCallback = (
-  requirements: string[]
+  requirements: string[],
+  hints?: Record<string, boolean>
 ) => Record<string, () => any>
 
 type ProviderRegistry = ((
@@ -210,7 +211,7 @@ function parseSchema(
     library: FormKitComponentLibrary,
     node: FormKitSchemaCondition
   ): [RenderContent[0], RenderContent[3], RenderContent[4]] {
-    const condition = provider(compile(node.if))
+    const condition = provider(compile(node.if), { if: true })
     const children = createElements(library, node.then)
     const alternate = node.else ? createElements(library, node.else) : null
     return [condition, children, alternate]
@@ -536,10 +537,13 @@ function parseSchema(
    * @param compiled - A compiled function
    * @returns
    */
-  function provider(compiled: FormKitCompilerOutput) {
+  function provider(
+    compiled: FormKitCompilerOutput,
+    hints: Record<string, boolean> = {}
+  ) {
     const compiledFns: Record<symbol, FormKitCompilerOutput> = {}
     providers.push((callback: SchemaProviderCallback, key: symbol) => {
-      compiledFns[key] = compiled.provide(callback)
+      compiledFns[key] = compiled.provide((r) => callback(r, hints))
     })
     return () => compiledFns[instanceKey]()
   }
@@ -553,8 +557,8 @@ function parseSchema(
       ? memo[memoKey]
       : [createElements(library, schema), providers]
     memo[memoKey] = [render, compiledProviders]
-    compiledProviders.forEach((instanceProvider) => {
-      instanceProvider(providerCallback, key)
+    compiledProviders.forEach((compiledProvider) => {
+      compiledProvider(providerCallback, key)
     })
     return () => {
       instanceKey = key
@@ -578,6 +582,25 @@ function useScope(token: string, defaultValue: any) {
 }
 
 /**
+ * Get the current scoped data and flatten it.
+ */
+function slotData(data: Record<string, any>, key: symbol) {
+  return new Proxy(data, {
+    get(...args) {
+      let data: any = undefined
+      const property = args[1]
+      if (typeof property === 'string') {
+        const prevKey = instanceKey
+        instanceKey = key
+        data = useScope(property, undefined)
+        instanceKey = prevKey
+      }
+      return data !== undefined ? data : Reflect.get(...args)
+    },
+  })
+}
+
+/**
  * Provides data to a parsed schema.
  * @param provider - The SchemaProvider (output of calling parseSchema)
  * @param data - Data to fetch values from
@@ -588,20 +611,29 @@ function createRenderFn(
   data: Record<string, any>,
   instanceKey: symbol
 ) {
-  return instanceCreator((requirements) => {
-    return requirements.reduce((tokens, token) => {
-      if (token.startsWith('slots.')) {
-        const slot = token.substr(6)
-        if (data.slots && has(data.slots, slot)) {
-          tokens[token] = () => data.slots[slot](data)
-          return tokens
+  return instanceCreator(
+    (requirements, hints: Record<string, boolean> = {}) => {
+      return requirements.reduce((tokens, token) => {
+        if (token.startsWith('slots.')) {
+          const slot = token.substr(6)
+          const hasSlot = data.slots && has(data.slots, slot)
+          if (hints.if) {
+            // If statement — dont render the slot, check if it exists
+            tokens[token] = () => hasSlot
+          } else if (data.slots && hasSlot) {
+            // Render the slot with current scope data
+            const scopedData = slotData(data, instanceKey)
+            tokens[token] = () => data.slots[slot](scopedData)
+            return tokens
+          }
         }
-      }
-      const value = getRef(token, data)
-      tokens[token] = () => useScope(token, value.value)
-      return tokens
-    }, {} as Record<string, any>)
-  }, instanceKey)
+        const value = getRef(token, data)
+        tokens[token] = () => useScope(token, value.value)
+        return tokens
+      }, {} as Record<string, any>)
+    },
+    instanceKey
+  )
 }
 
 let i = 0

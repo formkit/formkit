@@ -4,7 +4,7 @@ import outer from '../composables/outer'
 import wrapper from '../composables/wrapper'
 import inner from '../composables/inner'
 import select from '../composables/select'
-import options from '../composables/options'
+import option from '../composables/option'
 import help from '../composables/help'
 import messages from '../composables/messages'
 import message from '../composables/message'
@@ -18,9 +18,7 @@ const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),
       inner(extensions.inner, [
-        select(extensions.input, [
-          options(extensions.options, '$option.label'),
-        ]),
+        select(extensions.input, [option(extensions.option, '$option.label')]),
       ]),
     ]),
     help(extensions.help, '$help'),
