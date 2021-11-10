@@ -47,29 +47,8 @@ export default function (node: FormKitNode): void {
   node.hook.prop((prop, next) => {
     if (prop.prop === 'options') {
       const options = normalizeOptions(prop.value)
-      if (node.props.placeholder && !('multiple' in node.props?.attrs)) {
-        options.unshift({
-          label: node.props.placeholder,
-          value: '',
-          attrs: {
-            hidden: true,
-            disabled: true,
-          },
-        })
-      }
       prop.value = options
     }
     return next(prop)
-  })
-  node.hook.input((value, next) => {
-    if (
-      !node.props.placeholder &&
-      value === undefined &&
-      node.props?.options &&
-      !('multiple' in node.props?.attrs)
-    ) {
-      value = node.props.options[0].value
-    }
-    return next(value)
   })
 }

@@ -331,7 +331,8 @@ export interface FormKitFrameworkContext {
     blur: () => void
     touch: () => void
     DOMInput: (e: Event) => void
-  }
+  } & Record<string, (...args: any[]) => void>
+  fns: Record<string, (...args: any[]) => any>
   help?: string
   id: string
   label?: string

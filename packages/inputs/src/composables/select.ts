@@ -19,7 +19,7 @@ const select: FormKitSchemaComposable = (schema = {}, children = []) => ({
         },
         class: '$classes.input',
         name: '$node.name',
-        onInput: '$handlers.DOMInput',
+        onInput: '$handlers.selectInput',
         value: '$_value',
       },
       children: {

@@ -11,6 +11,13 @@
   font-size: var(--formkit-label-font-size);
   font-weight: var(--formkit-label-font-weight);
   margin: var(--formkit-label-margin-y) var(--formkit-label-margin-x);
+  align-items: center;
+
+  @nest [data-type="checkbox"] & {
+    font-size: inherit;
+    display: inline-flex;
+    user-select: none;
+  }
 }
 
 .formkit-inner {
@@ -30,6 +37,11 @@
     right: 0.5em;
     width: 1em;
     clip-path: path("M8,11.01C7.792,11.01 7.592,10.931 7.446,10.79L2.75,6.272C2.606,6.132 2.525,5.943 2.525,5.745C2.528,5.33 2.88,4.99 3.308,4.99C3.513,4.99 3.71,5.068 3.857,5.208L8,9.193L12.143,5.208C12.289,5.068 12.487,4.99 12.692,4.99C13.119,4.99 13.472,5.329 13.475,5.743C13.475,5.942 13.394,6.132 13.25,6.272L8.553,10.79C8.406,10.931 8.207,11.011 8,11.01Z");
+  }
+
+  @nest [data-type="checkbox"] & {
+    border: 0;
+    display: inline-block;
   }
 }
 
@@ -67,6 +79,48 @@
 
     & option {
       font-size: var(--formkit-option-font-size);
+    }
+  }
+
+  @nest input[type="checkbox"]& {
+    appearance: auto;
+    width: auto;
+    position: absolute;
+    left: -9999px;
+
+    & ~ .formkit-decorator {
+      display: block;
+      width: var(--formkit-checkbox-size);
+      height: var(--formkit-checkbox-size);
+      flex: 0 0 var(--formkit-checkbox-size);
+      border: var(--formkit-decorator-border-width) solid var(--formkit-decorator-border-color);
+      border-radius: var(--formkit-border-radius);
+      margin: var(--formkit-decorator-padding);
+      position: relative;
+
+      &::before {
+        background: transparent;
+        content: "";
+        display: block;
+        width: 55%;
+        height: 20%;
+        pointer-events: none;
+        border-bottom: 0.2em solid transparent;
+        border-left: 0.2em solid transparent;
+        transform: rotate(-45deg);
+        transform-origin: bottom left;
+        position: absolute;
+        bottom: 20%;
+        left: 40%;
+      }
+    }
+
+    &:checked ~ .formkit-decorator {
+      border-color: var(--formkit-decorator-checked-color);
+
+      &::before {
+        border-color: var(--formkit-decorator-checked-color);
+      }
     }
   }
 }

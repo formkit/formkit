@@ -4,7 +4,10 @@ import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
+import boxSchema from './classifications/box'
 import formatsOptions from './features/options'
+import selectFeatures from './features/select'
+import multiSelect from './features/multi'
 /**
  * Default classifications that are available.
  */
@@ -108,7 +111,18 @@ export const select: FormKitTypeDefinition = {
   type: 'input',
   schema: selectSchema,
   props: ['options', 'placeholder'],
-  features: [formatsOptions],
+  features: [formatsOptions, selectFeatures],
+}
+
+/**
+ * The checkbox input type.
+ * @public
+ */
+export const checkbox: FormKitTypeDefinition = {
+  type: 'input',
+  schema: boxSchema,
+  props: ['options'],
+  features: [formatsOptions, multiSelect],
 }
 
 /**
