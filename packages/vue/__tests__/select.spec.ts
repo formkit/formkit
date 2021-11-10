@@ -154,11 +154,13 @@ describe('select', () => {
       },
     })
     const node = get('select-multiple')!
-    expect(node.context?.value).toBe(undefined)
-    expect(node.context?._value).toBe(undefined)
-    expect(node.value).toBe(undefined)
-    expect(node._value).toBe(undefined)
-    expect(wrapper.find('select').element.value).toBe('')
+    expect(node.context?.value).toEqual([])
+    expect(node.context?._value).toEqual([])
+    expect(node.value).toEqual([])
+    expect(node._value).toEqual([])
+    expect(Array.from(wrapper.find('select').element.selectedOptions)).toEqual(
+      []
+    )
   })
 
   it('default selected value propagates to parent', () => {
@@ -322,5 +324,34 @@ describe('select', () => {
     await select.trigger('input')
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.vm.value).toBe('baz')
+  })
+
+  it('can select multiple values', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: ['bar', 'baz'],
+          }
+        },
+        template: `
+          <FormKit
+            :delay="0"
+            type="select"
+            multiple
+            v-model="value"
+            :options="['bar', 'foo', 'baz']"
+          />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const select = wrapper.find('select')
+    expect(
+      Array.from(select.element.selectedOptions).map((value) => value.value)
+    ).toEqual(['bar', 'baz'])
   })
 })

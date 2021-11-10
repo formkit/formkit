@@ -7,7 +7,7 @@ import selectSchema from './classifications/select'
 import boxSchema from './classifications/box'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
-import multiSelect from './features/multi'
+import multiSelect from './features/checkboxes'
 /**
  * Default classifications that are available.
  */

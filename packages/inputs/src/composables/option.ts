@@ -20,6 +20,7 @@ const option: FormKitSchemaComposable = (schema = {}, children = []) => ({
       attrs: {
         class: '$classes.option',
         value: '$option.value',
+        selected: '$fns.isSelected($option.value)',
       },
       children,
     },

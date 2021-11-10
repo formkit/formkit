@@ -1,8 +1,6 @@
 import { FormKitNode } from '@formkit/core'
 import { extend } from '@formkit/utils'
 
-let multiCount = 0
-
 /**
  * Event handler when an input is toggled.
  * @param node - The node being toggled
@@ -49,7 +47,9 @@ export default function (node: FormKitNode): void {
     if (prop.prop === 'options' && Array.isArray(prop.value)) {
       prop.value = prop.value.map((option) => {
         if (!option.attrs?.id) {
-          return extend(option, { attrs: { id: `option-${multiCount++}` } })
+          return extend(option, {
+            attrs: { id: `${node.name}-option-${option.value}` },
+          })
         }
         return option
       })

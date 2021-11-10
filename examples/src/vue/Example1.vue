@@ -1,13 +1,28 @@
 <template>
   <h2>FormKit Playground</h2>
   <FormKit
-    v-model="values"
+    v-model="value"
     label="Foo Bar!"
-    type="checkbox"
+    type="select"
+    data-from-input="outer"
+    help="Hello help text!"
+  >
+    <option>foo</option>
+    <option>bar</option>
+    <option>baz</option>
+    <option>bim</option>
+  </FormKit>
+  <pre>{{ value }}</pre>
+<!--
+  <FormKit
+    v-model="value"
+    label="Foo Bar!"
+    type="select"
+    multiple
     help="Hello help text!"
     :options="['foo', 'bar', 'baz', 'bim']"
   />
-  <pre>{{ values }}</pre>
+  <pre>{{ value }}</pre> -->
   <!--
   <FormKit
     type="checkbox"
@@ -41,7 +56,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-const values = ref(['bar', 'bim'])
+// const values = ref(['bar', 'bim'])
+const value = ref('bar')
 
 // function handler (e: Event) {
 //   const input = e.target as HTMLInputElement

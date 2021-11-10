@@ -135,13 +135,6 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
         inputElement = e.target as HTMLInputElement
         node.input((e.target as HTMLInputElement).value)
       },
-      selectInput: (e: Event) => {
-        const target = e.target as HTMLSelectElement
-        const value = target.hasAttribute('multiple')
-          ? Array.from(target.selectedOptions).map((o) => o.value)
-          : target.value
-        node.input(value)
-      },
     },
     help: node.props.help,
     id: node.props.id as string,
@@ -257,6 +250,8 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   })
 
   node.context = context
+  // The context is complete
+  node.emit('context', node, false)
 }
 
 export default corePlugin

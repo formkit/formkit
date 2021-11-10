@@ -160,7 +160,7 @@ export function useInput(
    */
   watchEffect(() => {
     const attrs = except(nodeProps(context.attrs), propNames)
-    node.props.attrs = attrs
+    node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 
   /**
