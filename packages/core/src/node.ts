@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has, camel } from '@formkit/utils'
+import { dedupe, eq, has, camel, kebab } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -1351,7 +1351,7 @@ function createConfig(
         delimiter: '.',
         delay: 0,
         locale: 'en',
-        rootClasses: (key: string) => ({ [`formkit-${key}`]: true }),
+        rootClasses: (key: string) => ({ [`formkit-${kebab(key)}`]: true }),
         ...configOptions,
       }
     : {}

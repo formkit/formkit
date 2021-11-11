@@ -12,6 +12,7 @@ import {
   clone,
   only,
   getAt,
+  kebab,
 } from '../src/index'
 
 describe('eq', () => {
@@ -386,5 +387,23 @@ describe('getAt', () => {
   it('can access array indexes', () => {
     expect(getAt({ a: ['foo', 'bar'] }, 'a.0')).toBe('foo')
     expect(getAt({ a: ['foo', 'bar'] }, 'a.1')).toBe('bar')
+  })
+})
+
+describe('kebab', () => {
+  it('can convert a simple camelCase', () => {
+    expect(kebab('camelCase')).toBe('camel-case')
+  })
+
+  it('can convert a multi-hump camelCase', () => {
+    expect(kebab('camelCaseThatIsGood')).toBe('camel-case-that-is-good')
+  })
+
+  it('does not modify studylycap first character', () => {
+    expect(kebab('CamelCase')).toBe('Camel-case')
+  })
+
+  it('it can have a trailing number', () => {
+    expect(kebab('camel99Case')).toBe('camel99-case')
   })
 })

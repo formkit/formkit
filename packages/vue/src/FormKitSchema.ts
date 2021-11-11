@@ -230,14 +230,24 @@ function parseSchema(
   ): () => FormKitAttributeValue | FormKitSchemaAttributes {
     const condition = provider(compile(attr.if))
     let b: () => FormKitAttributeValue = () => _default
-    const a =
-      attr.then && typeof attr.then === 'object'
-        ? parseAttrs(attr.then)
-        : () => attr.then
-    if (has(attr, 'else') && typeof attr.else === 'object') {
-      b = parseAttrs(attr.else)
-    } else if (has(attr, 'else')) {
-      b = () => attr.else
+    let a: () => FormKitAttributeValue = () => _default
+
+    if (typeof attr.then === 'object') {
+      a = parseAttrs(attr.then)
+    } else if (typeof attr.then === 'string' && attr.then?.startsWith('$')) {
+      a = provider(compile(attr.then))
+    } else {
+      a = () => attr.then
+    }
+
+    if (has(attr, 'else')) {
+      if (typeof attr.else === 'object') {
+        b = parseAttrs(attr.else)
+      } else if (typeof attr.else === 'string' && attr.else?.startsWith('$')) {
+        b = provider(compile(attr.else))
+      } else {
+        b = () => attr.else
+      }
     }
     return () => (condition() ? a() : b())
   }
@@ -254,18 +264,6 @@ function parseSchema(
     const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
     const boundAttrs = bindExp ? provider(compile(bindExp)) : () => ({})
     const staticAttrs: FormKitSchemaAttributes = {}
-    // const setters: Array<() => void> = [
-    //   () => {
-    //     const bound: any = boundAttrs()
-    //     const attrs: Record<string, any> = instanceAttrs.get(instanceKey) || {}
-    //     for (const attr in bound) {
-    //       if (!explicitAttrs.has(attr)) {
-    //         attrs[attr] = bound[attr]
-    //       }
-    //     }
-    //     instanceAttrs.set(instanceKey, attrs)
-    //   },
-    // ]
     const setters: Array<(obj: Record<string, any>) => void> = [
       (attrs) => {
         const bound: Record<string, any> = boundAttrs()

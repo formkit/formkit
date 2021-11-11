@@ -6,17 +6,61 @@
   max-width: 25em;
 }
 
+.formkit-wrapper {
+  @nest [data-type="checkbox"] label& {
+    font-size: inherit;
+    display: inline-flex;
+    vertical-align: bottom;
+    user-select: none;
+    align-items: center;
+    line-height: 100%;
+  }
+
+  @nest fieldset& {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+[data-type="checkbox"] {
+  & .formkit-options {
+    margin: var(--formkit-checkbox-options-margin);
+    padding: 0;
+  }
+
+  & .formkit-option {
+    list-style-type: none;
+    margin: var(--formkit-checkbox-option-margin);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & fieldset.formkit-wrapper {
+    margin-bottom: .5em;
+  }
+}
+
+.formkit-legend {
+  display: block;
+  font-size: var(--formkit-label-font-size);
+  font-weight: var(--formkit-label-font-weight);
+  margin: var(--formkit-legend-margin);
+  padding: 0;
+}
+
 .formkit-label {
   display: block;
   font-size: var(--formkit-label-font-size);
   font-weight: var(--formkit-label-font-weight);
-  margin: var(--formkit-label-margin-y) var(--formkit-label-margin-x);
+  margin: var(--formkit-label-margin);
   align-items: center;
 
   @nest [data-type="checkbox"] & {
-    font-size: inherit;
-    display: inline-flex;
-    user-select: none;
+    font-weight: normal;
+    margin: var(--formkit-checkbox-target-margin);
   }
 }
 
@@ -90,6 +134,7 @@
 
     & ~ .formkit-decorator {
       display: block;
+      box-sizing: content-box;
       width: var(--formkit-checkbox-size);
       height: var(--formkit-checkbox-size);
       flex: 0 0 var(--formkit-checkbox-size);
@@ -129,7 +174,8 @@
   outline: 0;
 }
 
-.formkit-help {
+.formkit-help,
+.formkit-option-help {
   font-size: var(--formkit-help-font-size);
   color: var(--formkit-help-color);
   margin: var(--formkit-help-margin-y) var(--formkit-help-margin-x);

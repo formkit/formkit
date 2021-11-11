@@ -1,13 +1,23 @@
 <template>
   <h2>FormKit Playground</h2>
+  <!-- <FormKit
+    type="checkbox"
+  /> -->
   <FormKit
-    v-model="value"
     label="Foo Bar!"
-    type="select"
+    type="checkbox"
     help="Hello help text!"
     placeholder="Select the best country"
+    validation="required"
     :options="options"
   />
+  <!-- <FormKit
+    label="Foo Bar!"
+    type="text"
+    help="Hello help text!"
+    placeholder="Select the best country"
+    validation="required"
+  /> -->
   <pre>value: {{ value }}</pre>
 <!--
   <FormKit
@@ -52,7 +62,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-const options = ['italy', 'france', 'greece']
+const options = [
+  {
+    label: 'Italy',
+    value: 'it',
+    // help: 'This is the best one'
+  },
+  {
+    label: 'France',
+    value: 'fr',
+    // help: 'This is smelliest one'
+  },
+  {
+    label: 'Germany',
+    value: 'de',
+    // help: 'This is the cleanest one'
+  },
+]
 const value = ref(undefined)
 // const values = ref(['bar', 'bim'])
 

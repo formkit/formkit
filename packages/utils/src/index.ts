@@ -417,6 +417,19 @@ export function camel(str: string): string {
 }
 
 /**
+ * This converts camel-case to kebab case. It ONLY converts from camel to kebab.
+ * @param str - Converts camel to kebab
+ * @returns
+ * @public
+ */
+export function kebab(str: string): string {
+  return str.replace(
+    /([a-z0-9])([A-Z])/g,
+    (_s: string, trail: string, cap: string) => trail + '-' + cap.toLowerCase()
+  )
+}
+
+/**
  * Perform a recursive clone on a given object. This only intended to be used
  * for simple objects like arrays and pojos.
  * @param obj - Object to clone

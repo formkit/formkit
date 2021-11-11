@@ -1,8 +1,8 @@
 import { FormKitExtendableSchemaRoot, FormKitSchemaNode } from '@formkit/core'
 import { extend } from '@formkit/utils'
-import label from '../composables/label'
+import label from '../composables/boxLabel'
 import outer from '../composables/outer'
-import wrapper from '../composables/wrapper'
+import wrapper from '../composables/boxWrapper'
 import inner from '../composables/inner'
 import box from '../composables/box'
 import help from '../composables/help'
@@ -11,6 +11,7 @@ import message from '../composables/message'
 import fieldset from '../composables/fieldset'
 import legend from '../composables/legend'
 import boxes from '../composables/boxes'
+import options from '../composables/boxOptions'
 import decorator from '../composables/decorator'
 
 /**
@@ -18,52 +19,59 @@ import decorator from '../composables/decorator'
  * @public
  */
 const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
-  const checkbox = label(extensions.label, [
-    inner(extensions.inner, [
-      box(extensions.input),
-      decorator(extensions.decorator),
-    ]),
-    '$label',
-  ])
-
-  const checkboxOption = label(
-    extend(
-      { attrs: { for: '$option.attrs.id' } },
-      extensions.label || {}
-    ) as FormKitSchemaNode,
-    [
+  const singleCheckbox = [
+    wrapper(extensions.wrapper, [
       inner(extensions.inner, [
-        box(
-          extend(
-            {
-              bind: '$option.attrs',
-              attrs: {
-                id: '$option.attrs.id',
-                onInput: '$handlers.toggleChecked',
-                checked: '$fns.isChecked($option.value)',
-                value: '$option.value',
-              },
-            },
-            extensions.input || {}
-          ) as FormKitSchemaNode
-        ),
+        box(extensions.input),
         decorator(extensions.decorator),
       ]),
-      '$option.label',
-    ]
-  )
+      label(extensions.label, '$label'),
+    ]),
+    help(extensions.help, '$help'),
+  ]
+
+  const multiCheckbox = fieldset(extensions.wrapper, [
+    legend(extensions.legend, '$label'),
+    help(extensions.help, '$help'),
+    options(extensions.options, [
+      boxes(extensions.option, [
+        wrapper(extensions.wrapper, [
+          inner(extensions.inner, [
+            box(
+              extend(
+                {
+                  bind: '$option.attrs',
+                  attrs: {
+                    id: '$option.attrs.id',
+                    onInput: '$handlers.toggleChecked',
+                    checked: '$fns.isChecked($option.value)',
+                    value: '$option.value',
+                  },
+                },
+                extensions.input || {}
+              ) as FormKitSchemaNode
+            ),
+            decorator(extensions.decorator),
+          ]),
+          label(extensions.label, '$option.label'),
+        ]),
+        help(
+          extensions.optionHelp,
+          '$option.help',
+          'optionHelp',
+          '$option.help'
+        ),
+      ]),
+    ]),
+  ])
 
   return [
     outer(extensions.outer, [
-      wrapper(extensions.wrapper, {
+      {
         if: '$options.length',
-        then: fieldset(extensions.fieldset, [
-          legend(extensions.legend, '$label'),
-          boxes(extensions.boxes, [checkboxOption]),
-        ]),
-        else: checkbox,
-      }),
-      help(extensions.help, '$help'),
+        then: multiCheckbox,
+        else: singleCheckbox,
+      },
       messages(extensions.messages, [
         message(extensions.message, '$message.value'),
       ]),

@@ -137,7 +137,8 @@ export type FormKitSchemaNode =
 export interface FormKitSchemaComposable {
   (
     extendWith?: Partial<FormKitSchemaNode>,
-    children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
+    children?: string | FormKitSchemaNode[] | FormKitSchemaCondition,
+    ...args: any[]
   ): FormKitSchemaNode
 }
 

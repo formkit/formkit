@@ -3,6 +3,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { get } from '@formkit/core'
+import { nextTick } from 'vue'
 // import { jest } from '@jest/globals'
 
 describe('select', () => {
@@ -365,5 +366,27 @@ describe('select', () => {
     expect(
       Array.from(select.element.selectedOptions).map((value) => value.value)
     ).toEqual(['foo', 'baz'])
+  })
+
+  it('shows error messages on blur', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        name: 'select_foo',
+        id: 'select-value',
+        validation: 'required',
+        options: {
+          foo: 'Bar',
+          jim: 'Jam',
+          baz: 'Bim',
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    wrapper.find('select').trigger('blur')
+    await nextTick()
+    expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
 })

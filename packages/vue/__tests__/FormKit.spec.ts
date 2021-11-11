@@ -373,7 +373,7 @@ describe('classes', () => {
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
     <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" id="foobar"></div>
   </div>
-  <div class="formkit-help">input help text</div>
+  <div id="help-foobar" class="formkit-help">input help text</div>
   <ul class="formkit-messages">
     <li class="formkit-message">Input label is required.</li>
   </ul>

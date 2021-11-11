@@ -1,16 +1,16 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
 import { extend } from '@formkit/utils'
 
-const boxes: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.option',
-  then: '$slots.option',
+const boxLabel: FormKitSchemaComposable = (schema = {}, children = []) => ({
+  if: '$slots.label',
+  then: '$slots.label',
   else: [
     extend(
       {
-        $el: 'li',
-        for: ['option', '$options'],
+        $el: 'span',
+        if: '$label',
         attrs: {
-          class: '$classes.option',
+          class: '$classes.label',
         },
         children,
       },
@@ -18,4 +18,4 @@ const boxes: FormKitSchemaComposable = (schema = {}, children = []) => ({
     ) as FormKitSchemaNode,
   ],
 })
-export default boxes
+export default boxLabel

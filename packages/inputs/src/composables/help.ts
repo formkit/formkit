@@ -1,16 +1,24 @@
 import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
 import { extend } from '@formkit/utils'
 
-const help: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.help',
-  then: '$slots.help',
+const help: FormKitSchemaComposable = (
+  schema = {},
+  children = [],
+  target = 'help',
+  cond = '$help'
+) => ({
+  if: `$slots.${target}`,
+  then: `$slots.${target}`,
   else: extend(
     {
       $el: 'div',
       attrs: {
-        class: '$classes.help',
+        id: `$: "help-" + ${
+          target == 'optionHelp' ? '$option.attrs.id' : '$id'
+        }`,
+        class: `$classes.${target}`,
       },
-      if: '$help',
+      if: cond,
       children,
     },
     schema

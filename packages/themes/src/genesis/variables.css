@@ -19,13 +19,16 @@
   --formkit-messages-margin-y: 0;
   --formkit-label-font-size: 0.875em;
   --formkit-label-font-weight: bold;
-  --formkit-label-margin-y: 0.25em;
-  --formkit-label-margin-x: 0;
+  --formkit-label-margin: 0 0 0.25em 0;
+  --formkit-legend-margin: 0;
   --formkit-option-font-size: 1em;
   --formkit-placeholder-color: rgba(0 0 0 / 50%);
   --formkit-decorator-border-width: 1px;
   --formkit-decorator-border-color: rgba(0 0 0 / 25%);
   --formkit-decorator-padding: 0 0.5em 0 0;
   --formkit-decorator-checked-color: green;
+  --formkit-checkbox-target-margin: 0;
   --formkit-checkbox-size: 1.125em;
+  --formkit-checkbox-option-margin: 0 0 0.5em 0;
+  --formkit-checkbox-options-margin: 0.5em 0 0 0;
 }

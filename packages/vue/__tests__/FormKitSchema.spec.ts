@@ -332,6 +332,31 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<button data-size="extra-large"></button>')
   })
 
+  it('can render an conditional attribute with compiled values', async () => {
+    const data = reactive({ status: 'warning' })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'div',
+            attrs: {
+              id: {
+                if: '$status === warning',
+                then: '$status',
+                else: 'no-warning',
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe('<div id="warning"></div>')
+    data.status = 'ok'
+    await nextTick()
+    expect(wrapper.html()).toBe('<div id="no-warning"></div>')
+  })
+
   it('can render a list of items', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
