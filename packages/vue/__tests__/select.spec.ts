@@ -353,5 +353,14 @@ describe('select', () => {
     expect(
       Array.from(select.element.selectedOptions).map((value) => value.value)
     ).toEqual(['bar', 'baz'])
+    wrapper.find('option').element.selected = false
+    select.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.vm.value).toEqual(['baz'])
+    wrapper.setData({ value: ['baz', 'foo'] })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(
+      Array.from(select.element.selectedOptions).map((value) => value.value)
+    ).toEqual(['foo', 'baz'])
   })
 })
