@@ -4,15 +4,11 @@
     v-model="value"
     label="Foo Bar!"
     type="select"
-    data-from-input="outer"
     help="Hello help text!"
-  >
-    <option>foo</option>
-    <option>bar</option>
-    <option>baz</option>
-    <option>bim</option>
-  </FormKit>
-  <pre>{{ value }}</pre>
+    placeholder="Select the best country"
+    :options="options"
+  />
+  <pre>value: {{ value }}</pre>
 <!--
   <FormKit
     v-model="value"
@@ -56,8 +52,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+const options = ['italy', 'france', 'greece']
+const value = ref(undefined)
 // const values = ref(['bar', 'bim'])
-const value = ref('bar')
 
 // function handler (e: Event) {
 //   const input = e.target as HTMLInputElement

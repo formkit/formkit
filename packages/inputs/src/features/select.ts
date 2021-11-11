@@ -9,7 +9,7 @@ import { FormKitNode } from '@formkit/core'
 function isSelected(node: FormKitNode, option: string) {
   return Array.isArray(node._value)
     ? node._value.includes(option)
-    : node._value === option
+    : (node.value === undefined && !option) || node._value == option
 }
 
 /**

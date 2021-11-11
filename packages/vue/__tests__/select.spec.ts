@@ -250,6 +250,9 @@ describe('select', () => {
       `<option hidden=\"\" disabled=\"\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
     )
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
+    expect(wrapper.find('select').element.selectedOptions[0]).toBe(
+      wrapper.find('option').element
+    )
   })
 
   it('can render options using default slot', async () => {
