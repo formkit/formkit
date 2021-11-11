@@ -1,5 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-import { extend, kebab } from '@formkit/utils'
+import { extend, kebab, has } from '@formkit/utils'
 
 /**
  * Event handler when an input is toggled.
@@ -9,12 +9,20 @@ import { extend, kebab } from '@formkit/utils'
 function toggleChecked(node: FormKitNode, e: Event) {
   const el = e.target
   if (el instanceof HTMLInputElement) {
-    if (!Array.isArray(node._value)) {
-      node.input([el.value])
-    } else if (!node._value.includes(el.value)) {
-      node.input([...node._value, el.value])
+    if (Array.isArray(node.props.options) && node.props.options.length) {
+      if (!Array.isArray(node._value)) {
+        node.input([el.value])
+      } else if (!node._value.includes(el.value)) {
+        node.input([...node._value, el.value])
+      } else {
+        node.input(node._value.filter((val) => val !== el.value))
+      }
     } else {
-      node.input(node._value.filter((val) => val !== el.value))
+      if (el.checked) {
+        node.input(node.props.onValue)
+      } else {
+        node.input(node.props.offValue)
+      }
     }
   }
 }
@@ -41,6 +49,9 @@ export default function (node: FormKitNode): void {
     if (node.context?.fns) {
       node.context.fns.isChecked = isChecked.bind(null, node)
     }
+    // Configure our default onValue and offValue
+    if (!has(node.props, 'onValue')) node.props.onValue = true
+    if (!has(node.props, 'offValue')) node.props.offValue = false
   })
 
   node.hook.prop((prop, next) => {

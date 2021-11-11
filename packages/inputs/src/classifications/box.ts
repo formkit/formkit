@@ -43,9 +43,8 @@ const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
                   bind: '$option.attrs',
                   attrs: {
                     id: '$option.attrs.id',
-                    onInput: '$handlers.toggleChecked',
-                    checked: '$fns.isChecked($option.value)',
                     value: '$option.value',
+                    checked: '$fns.isChecked($option.value)',
                   },
                 },
                 extensions.input || {}

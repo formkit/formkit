@@ -121,7 +121,7 @@ export const select: FormKitTypeDefinition = {
 export const checkbox: FormKitTypeDefinition = {
   type: 'input',
   schema: boxSchema,
-  props: ['options'],
+  props: ['options', 'onValue', 'offValue'],
   features: [formatsOptions, multiSelect],
 }
 

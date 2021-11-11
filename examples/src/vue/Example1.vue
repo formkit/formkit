@@ -1,11 +1,13 @@
 <template>
   <h2>FormKit Playground</h2>
-  <FormKit
+  <!-- <FormKit
+    v-model="value"
     type="checkbox"
     label="Foobar"
     help="help text"
-  />
+  /> -->
   <FormKit
+    v-model="values"
     label="Foo Bar!"
     type="checkbox"
     help="Hello help text!"
@@ -13,14 +15,7 @@
     validation="required"
     :options="options"
   />
-  <!-- <FormKit
-    label="Foo Bar!"
-    type="text"
-    help="Hello help text!"
-    placeholder="Select the best country"
-    validation="required"
-  /> -->
-  <pre>value: {{ value }}</pre>
+  <pre>values: {{ values }}</pre>
 <!--
   <FormKit
     v-model="value"
@@ -81,8 +76,8 @@ const options = [
     help: 'This is the cleanest one'
   },
 ]
-const value = ref(undefined)
-// const values = ref(['bar', 'bim'])
+// const value = ref(undefined)
+const values = ref(['fr', 'de'])
 
 // function handler (e: Event) {
 //   const input = e.target as HTMLInputElement

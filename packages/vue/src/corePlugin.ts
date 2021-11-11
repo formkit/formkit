@@ -8,7 +8,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has } from '@formkit/utils'
+import { eq, has, camel } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -169,6 +169,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    */
   function observeProps(observe: string[]) {
     observe.forEach((prop) => {
+      prop = camel(prop)
       if (!has(context, prop) && has(node.props, prop)) {
         context[prop] = node.props[prop]
       }

@@ -12,9 +12,9 @@ const box: FormKitSchemaComposable = (schema = {}) => ({
         type: '$type',
         class: '$classes.input',
         name: '$node.name',
-        onInput: '$handlers.DOMInput',
+        onInput: '$handlers.toggleChecked',
+        checked: '$_value === $onValue',
         onBlur: '$handlers.blur',
-        checked: '$_value',
         value: '$: true',
         id: '$id',
         'aria-describedby': {
