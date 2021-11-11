@@ -423,10 +423,14 @@ export function camel(str: string): string {
  * @public
  */
 export function kebab(str: string): string {
-  return str.replace(
-    /([a-z0-9])([A-Z])/g,
-    (_s: string, trail: string, cap: string) => trail + '-' + cap.toLowerCase()
-  )
+  return str
+    .replace(
+      /([a-z0-9])([A-Z])/g,
+      (_s: string, trail: string, cap: string) =>
+        trail + '-' + cap.toLowerCase()
+    )
+    .replace(' ', '-')
+    .toLowerCase()
 }
 
 /**

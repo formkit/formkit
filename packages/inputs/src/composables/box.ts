@@ -17,6 +17,19 @@ const box: FormKitSchemaComposable = (schema = {}) => ({
         checked: '$_value',
         value: '$: true',
         id: '$id',
+        'aria-describedby': {
+          if: '$options.length',
+          then: {
+            if: '$option.help',
+            then: '$: "help-" + $option.attrs.id',
+            else: undefined,
+          },
+          else: {
+            if: '$help',
+            then: '$: "help-" + $id',
+            else: undefined,
+          },
+        },
       },
     },
     schema

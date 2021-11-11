@@ -1,5 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { extend, kebab } from '@formkit/utils'
 
 /**
  * Event handler when an input is toggled.
@@ -48,7 +48,7 @@ export default function (node: FormKitNode): void {
       prop.value = prop.value.map((option) => {
         if (!option.attrs?.id) {
           return extend(option, {
-            attrs: { id: `${node.name}-option-${option.value}` },
+            attrs: { id: `${node.name}-option-${kebab(option.value)}` },
           })
         }
         return option

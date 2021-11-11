@@ -1,8 +1,10 @@
 <template>
   <h2>FormKit Playground</h2>
-  <!-- <FormKit
+  <FormKit
     type="checkbox"
-  /> -->
+    label="Foobar"
+    help="help text"
+  />
   <FormKit
     label="Foo Bar!"
     type="checkbox"
@@ -76,7 +78,7 @@ const options = [
   {
     label: 'Germany',
     value: 'de',
-    // help: 'This is the cleanest one'
+    help: 'This is the cleanest one'
   },
 ]
 const value = ref(undefined)

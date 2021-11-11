@@ -15,32 +15,6 @@
     align-items: center;
     line-height: 100%;
   }
-
-  @nest fieldset& {
-    border: 0;
-    padding: 0;
-    margin: 0;
-  }
-}
-
-[data-type="checkbox"] {
-  & .formkit-options {
-    margin: var(--formkit-checkbox-options-margin);
-    padding: 0;
-  }
-
-  & .formkit-option {
-    list-style-type: none;
-    margin: var(--formkit-checkbox-option-margin);
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  & fieldset.formkit-wrapper {
-    margin-bottom: .5em;
-  }
 }
 
 .formkit-legend {
@@ -48,7 +22,7 @@
   font-size: var(--formkit-label-font-size);
   font-weight: var(--formkit-label-font-weight);
   margin: var(--formkit-legend-margin);
-  padding: 0;
+  padding: var(--formkit-legend-padding);
 }
 
 .formkit-label {
@@ -65,7 +39,7 @@
 }
 
 .formkit-inner {
-  border: 1px solid var(--formkit-border-color);
+  border: var(--formkit-border);
   border-radius: var(--formkit-border-radius);
   position: relative;
   display: flex;
@@ -103,14 +77,14 @@
   display: block;
   font-size: 1em;
   margin: 0;
-  padding: var(--formkit-input-padding-y) var(--formkit-input-padding-x);
+  padding: var(--formkit-input-padding);
   width: 100%;
 
   &[multiple] {
     padding: 0;
 
     & option {
-      padding: var(--formkit-input-padding-y) var(--formkit-input-padding-x);
+      padding: var(--formkit-input-padding);
     }
   }
 
@@ -191,4 +165,33 @@
   color: var(--formkit-error-color);
   font-size: var(--formkit-message-font-size);
   margin: var(--formkit-message-margin-y) var(--formkit-message-margin-x);
+}
+
+[data-type="checkbox"] {
+  & .formkit-options {
+    margin: var(--formkit-checkbox-options-margin);
+    padding: 0;
+  }
+
+  & .formkit-option {
+    list-style-type: none;
+    margin: var(--formkit-checkbox-option-margin);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & fieldset.formkit-wrapper {
+    margin-bottom: 0.5em;
+    border: var(--formkit-border);
+    border-radius: var(--formkit-border-radius);
+    padding: var(--formkit-input-padding);
+
+    & .formkit-help {
+      margin-top: 0;
+      margin-left: 0;
+      margin-bottom: 1em;
+    }
+  }
 }

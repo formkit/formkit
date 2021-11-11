@@ -399,11 +399,15 @@ describe('kebab', () => {
     expect(kebab('camelCaseThatIsGood')).toBe('camel-case-that-is-good')
   })
 
-  it('does not modify studylycap first character', () => {
-    expect(kebab('CamelCase')).toBe('Camel-case')
+  it('forces all characters to lowercase ', () => {
+    expect(kebab('CamelCase')).toBe('camel-case')
   })
 
   it('it can have a trailing number', () => {
     expect(kebab('camel99Case')).toBe('camel99-case')
+  })
+
+  it('it can replace whitespace', () => {
+    expect(kebab('foo Bar')).toBe('foo-bar')
   })
 })

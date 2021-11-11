@@ -233,7 +233,7 @@ function parseSchema(
     let a: () => FormKitAttributeValue = () => _default
 
     if (typeof attr.then === 'object') {
-      a = parseAttrs(attr.then)
+      a = parseAttrs(attr.then, undefined)
     } else if (typeof attr.then === 'string' && attr.then?.startsWith('$')) {
       a = provider(compile(attr.then))
     } else {
@@ -259,7 +259,8 @@ function parseSchema(
    */
   function parseAttrs(
     unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition,
-    bindExp?: string
+    bindExp?: string,
+    _default = {}
   ): () => FormKitSchemaAttributes {
     const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
     const boundAttrs = bindExp ? provider(compile(bindExp)) : () => ({})
@@ -280,7 +281,7 @@ function parseSchema(
         // attributes.
         const condition = parseConditionAttr(
           unparsedAttrs,
-          {}
+          _default
         ) as () => FormKitSchemaAttributes
         return condition
       }
@@ -296,7 +297,7 @@ function parseSchema(
         ) {
           getValue = provider(compile(value))
         } else if (typeof value === 'object' && isConditional(value)) {
-          getValue = parseConditionAttr(value, null)
+          getValue = parseConditionAttr(value, undefined)
         } else if (typeof value === 'object' && isPojo(value)) {
           getValue = parseAttrs(value)
         } else {
