@@ -1,11 +1,12 @@
 <template>
   <h2>FormKit Playground</h2>
-  <!-- <FormKit
+  <FormKit
     v-model="value"
-    type="checkbox"
-    label="Foobar"
-    help="help text"
-  /> -->
+    type="range"
+    label="Color"
+    :delay="50"
+    help="Pick a color"
+  />
   <FormKit
     v-model="value"
     label="Foo Bar!"
@@ -26,35 +27,13 @@
     :options="['foo', 'bar', 'baz', 'bim']"
   />
   <pre>{{ value }}</pre> -->
-  <!--
+
   <FormKit
     type="checkbox"
     label="Username"
     help="Select a new username"
-    v-model="value"
     :errors="['This is an error']"
   />
-  <FormKit
-    type="select"
-    label="Select input"
-    placeholder="Select one"
-    :options="options"
-  >
-    <template #option="{ option }">
-      <option :value="option.value">
-        {{ option.label }} - Town
-      </option>
-    </template>
-  </FormKit>
-  <FormKit
-    v-model="value"
-    type="select"
-    label="Select input"
-    multiple
-    :options="options"
-  />
-  <pre>{{ values }}</pre>
-  <pre>{{ values2 }}</pre> -->
 </template>
 
 <script setup lang="ts">

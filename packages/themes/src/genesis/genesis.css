@@ -222,3 +222,59 @@
     }
   }
 }
+
+[data-type="color"] {
+  & .formkit-inner {
+    max-width: 5em;
+  }
+
+  & input[type="color"] {
+    /* These have to be unique to the prefix. No idea why: */
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border: 0;
+    }
+
+    &::-moz-color-swatch-wrapper {
+      padding: 0;
+      border: 0;
+    }
+
+    &::-webkit-color-swatch {
+      border-radius: var(--formkit-border-radius);
+      border: 0;
+    }
+
+    &::-moz-color-swatch {
+      border-radius: var(--formkit-border-radius);
+      border: 0;
+    }
+  }
+}
+
+[data-type="range"] {
+  & .formkit-inner {
+    border: 0;
+  }
+
+  & input {
+    padding-left: 0;
+    padding-right: 0;
+
+    &::-webkit-slider-runnable-track {
+      background-color: var(--formkit-border-color);
+      height: 4px;
+      border-radius: 4px;
+    }
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      position: relative;
+      transform: translateY(calc(-50% + 2px));
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      background-color: var(--formkit-range-thumb-color);
+    }
+  }
+}

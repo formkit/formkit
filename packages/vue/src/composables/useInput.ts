@@ -3,7 +3,6 @@ import {
   error,
   createNode,
   FormKitNode,
-  warn,
   FormKitClasses,
   FormKitOptions,
   FormKitPlugin,
@@ -213,10 +212,11 @@ export function useInput(
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (props.modelValue !== undefined) {
+    // Warning that v-model isnt the most performant for non-inputs:
+    // if (node.type !== 'input') warn(678)
     watch(
       () => props.modelValue,
       (value) => {
-        if (node.type !== 'input') warn(678)
         node.input(value, false)
       },
       {

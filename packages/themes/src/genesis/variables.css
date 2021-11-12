@@ -28,10 +28,11 @@
   --formkit-decorator-border-width: 1px;
   --formkit-decorator-border-color: rgba(0 0 0 / 25%);
   --formkit-decorator-padding: 0 0.5em 0 0;
-  --formkit-decorator-checked-color: seagreen;
+  --formkit-decorator-checked-color: #0275ff;
   --formkit-box-target-margin: 0;
   --formkit-box-size: 1.125em;
   --formkit-box-option-margin: 0 0 0.5em 0;
   --formkit-box-options-margin: 0;
   --formkit-radio-border-radius: 2em;
+  --formkit-range-thumb-color: #0275ff;
 }

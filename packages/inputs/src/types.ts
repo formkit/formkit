@@ -96,6 +96,12 @@ export const url = textClassification
 export const week = textClassification
 
 /**
+ * The range input.
+ * @public
+ */
+export const range = textClassification
+
+/**
  * The hidden input.
  * @public
  */
