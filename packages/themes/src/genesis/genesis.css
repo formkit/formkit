@@ -189,7 +189,7 @@
   margin: var(--formkit-message-margin-y) var(--formkit-message-margin-x);
 }
 
-  [data-type="box"],
+[data-type="checkbox"],
 [data-type="radio"] {
   & [data-disabled] {
     opacity: 30%;
