@@ -9,6 +9,11 @@ const wrapper: FormKitSchemaComposable = (schema = {}, children = []) => ({
       $el: 'label',
       attrs: {
         class: '$classes.wrapper',
+        'data-disabled': {
+          if: '$options.length',
+          then: undefined,
+          else: '$attrs.disabled',
+        },
       },
       children,
     },

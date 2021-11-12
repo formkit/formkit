@@ -94,6 +94,18 @@ describe('single checkbox', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.vm.value).toBe('foo')
   })
+
+  it('outputs a data-disabled on the wrapper', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        disabled: true,
+        value: false,
+      },
+      ...global,
+    })
+    expect(wrapper.find('.formkit-wrapper[data-disabled]').exists()).toBe(true)
+  })
 })
 
 describe('multiple checkboxes', () => {
@@ -115,17 +127,17 @@ describe('multiple checkboxes', () => {
     <div id="help-my-id" class="formkit-help">help-text</div>
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_6" id="checkbox_6-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">foo</span>
+          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">foo</span>
         </label>
         <!---->
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_6" id="checkbox_6-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">bar</span>
+          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">bar</span>
         </label>
         <!---->
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_6" id="checkbox_6-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">baz</span>
+          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">baz</span>
         </label>
         <!---->
       </li>
@@ -182,7 +194,13 @@ describe('multiple checkboxes', () => {
         type: 'checkbox',
         name: 'countries',
         options: [
-          { value: 'it', label: 'Italy', id: 'italy', help: 'Good food here' },
+          {
+            value: 'it',
+            label: 'Italy',
+            id: 'italy',
+            help: 'Good food here',
+            attrs: { disabled: true },
+          },
           {
             value: 'de',
             label: 'Germany',
@@ -194,8 +212,8 @@ describe('multiple checkboxes', () => {
       },
       ...global,
     })
-    expect(wrapper.find('label').html()).toBe(
-      '<label class="formkit-wrapper"><div class="formkit-inner"><input type="checkbox" class="formkit-input" name="countries" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span></div><!----></label>'
+    expect(wrapper.find('li').html()).toBe(
+      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><input disabled="" type="checkbox" class="formkit-input" name="countries" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
     )
   })
 })

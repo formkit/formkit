@@ -7,7 +7,8 @@ import selectSchema from './classifications/select'
 import boxSchema from './classifications/box'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
-import multiSelect from './features/checkboxes'
+import checkboxes from './features/checkboxes'
+import radios from './features/radios'
 /**
  * Default classifications that are available.
  */
@@ -122,7 +123,18 @@ export const checkbox: FormKitTypeDefinition = {
   type: 'input',
   schema: boxSchema,
   props: ['options', 'onValue', 'offValue'],
-  features: [formatsOptions, multiSelect],
+  features: [formatsOptions, checkboxes],
+}
+
+/**
+ * The radio input type.
+ * @public
+ */
+export const radio: FormKitTypeDefinition = {
+  type: 'input',
+  schema: boxSchema,
+  props: ['options'],
+  features: [formatsOptions, radios],
 }
 
 /**

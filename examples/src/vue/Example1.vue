@@ -7,15 +7,15 @@
     help="help text"
   /> -->
   <FormKit
-    v-model="values"
+    v-model="value"
     label="Foo Bar!"
-    type="checkbox"
+    type="radio"
     help="Hello help text!"
     placeholder="Select the best country"
     validation="required"
     :options="options"
   />
-  <pre>values: {{ values }}</pre>
+  <pre>values: {{ value }}</pre>
 <!--
   <FormKit
     v-model="value"
@@ -68,16 +68,17 @@ const options = [
   {
     label: 'France',
     value: 'fr',
+    attrs: { disabled: true },
     // help: 'This is smelliest one'
   },
   {
     label: 'Germany',
     value: 'de',
-    help: 'This is the cleanest one'
+    help: 'This is the cleanest one',
   },
 ]
-// const value = ref(undefined)
-const values = ref(['fr', 'de'])
+const value = ref(undefined)
+// const values = ref(['fr', 'de'])
 
 // function handler (e: Event) {
 //   const input = e.target as HTMLInputElement

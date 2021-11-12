@@ -1,0 +1,40 @@
+import { FormKitNode, warn } from '@formkit/core'
+
+/**
+ * Sets the value of a radio button when checked.
+ * @param node - FormKitNode
+ * @param value - Value
+ */
+function toggleChecked(node: FormKitNode, event: Event) {
+  if (event.target instanceof HTMLInputElement) {
+    node.input(event.target.value)
+  }
+}
+
+/**
+ * Checks if the value being checked is the current value.
+ * @param node - The node to check against.
+ * @param value - The value to check
+ * @returns
+ */
+function isChecked(node: FormKitNode, value: string) {
+  return node._value == value
+}
+
+/**
+ * Determines if a given radio input is being evaluated.
+ * @param node - The radio input group.
+ */
+export default function radios(node: FormKitNode): void {
+  node.on('created', () => {
+    if (!Array.isArray(node.props.options)) {
+      warn(832, node)
+    }
+    if (node.context?.handlers) {
+      node.context.handlers.toggleChecked = toggleChecked.bind(null, node)
+    }
+    if (node.context?.fns) {
+      node.context.fns.isChecked = isChecked.bind(null, node)
+    }
+  })
+}
