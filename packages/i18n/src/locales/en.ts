@@ -189,8 +189,8 @@ export const validation: FormKitValidationMessages = {
   /**
    * Does not start with specified value
    */
-  startsWith({ name }) {
-    return `${s(name)} doesn’t start with a valid value.`
+  starts_with({ name, args }) {
+    return `${s(name)} doesn’t start with ${list(args)}.`
   },
 
   /**
