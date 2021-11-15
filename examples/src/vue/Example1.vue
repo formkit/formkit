@@ -2,10 +2,22 @@
   <h2>FormKit Playground</h2>
   <FormKit
     v-model="value"
+    type="text"
+    label="Text Input"
+    help="write something"
+  />
+  <FormKit
+    v-model="value"
+    type="textarea"
+    label="Text Area"
+    help="write something longer"
+  />
+  <FormKit
+    v-model="value"
     type="range"
-    label="Color"
+    label="Range"
     :delay="50"
-    help="Pick a color"
+    help="Pick a value"
   />
   <FormKit
     v-model="value"
