@@ -279,18 +279,10 @@
   }
 }
 
-[data-type="textarea"] .formkit-inner {
-  width: 100%;
-  border: none;
-}
 [data-type="textarea"] textarea {
   min-width: 100%;
   min-height: 6em;
   line-height: 1.33;
   font-family: inherit;
-  border: var(--formkit-border);
-}
-[data-type="textarea"] .formkit-inner:focus-within textarea {
-  border-color: var(--formkit-focus-border-color);
 }
 
