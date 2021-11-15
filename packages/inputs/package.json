@@ -1,6 +1,7 @@
 {
   "private": true,
   "name": "@formkit/inputs",
+  "repository": "https://github.com/formkit/formkit",
   "version": "1.0.0-alpha.0",
   "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs.js",
