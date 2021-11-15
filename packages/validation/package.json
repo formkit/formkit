@@ -10,7 +10,8 @@
   "author": "Justin Schroeder <justin@wearebraid.com>",
   "license": "UNLICENSED",
   "publishConfig": {
-    "access": "restricted"
+    "access": "restricted",
+    "registry":"https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "jest"
