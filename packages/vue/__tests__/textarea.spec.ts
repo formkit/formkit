@@ -33,7 +33,29 @@ describe('textarea classification', () => {
       ...global,
     })
     expect(wrapper.html()).toContain(
-      '<textarea data-foo="bar" type="textarea" class="formkit-input" name="textarea" id="foobar"></textarea>'
+      '<textarea data-foo="bar" class="formkit-input" name="textarea" id="foobar"></textarea>'
     )
+  })
+
+  it('can v-model its data', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'bar',
+          }
+        },
+        template: '<FormKit type="textarea" :delay="0" v-model="value" />',
+      },
+      {
+        ...global
+      }
+    )
+    expect(wrapper.vm.value).toBe('bar')
+    const textarea = wrapper.find('textarea')
+    await textarea.setValue('baz')
+    await textarea.trigger('input')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.vm.value).toBe('baz')
   })
 })
