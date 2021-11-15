@@ -107,8 +107,8 @@ export const range = textClassification
  * The textarea input.
  * @public
  */
-export const textarea = {
-  type: 'textarea',
+export const textarea: FormKitTypeDefinition = {
+  type: 'input',
   schema: textareaSchema
 }
 
