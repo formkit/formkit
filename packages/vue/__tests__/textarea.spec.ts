@@ -17,7 +17,7 @@ describe('textarea classification', () => {
       },
       ...global,
     })
-    expect(wrapper.html()).toContain('<textarea type="textarea"')
+    expect(wrapper.html()).toContain('<textarea')
   })
 
   it('renders arbitrary attributes on the textarea element', () => {
