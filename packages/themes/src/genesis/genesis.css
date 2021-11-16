@@ -1,9 +1,13 @@
 @import "variables.css";
 
 .formkit-outer {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--formkit-fonts);
   margin-bottom: 1.5em;
   max-width: 25em;
+
+  & :is(input, select, option, textarea, button) {
+    font-family: var(--formkit-fonts);
+  }
 }
 
 .formkit-wrapper {
@@ -142,6 +146,10 @@
         border-color: var(--formkit-decorator-checked-color);
       }
     }
+
+    &:focus-visible ~ .formkit-decorator {
+      border-color: var(--formkit-focus-border-color);
+    }
   }
 
   @nest input[type="radio"]& {
@@ -158,6 +166,7 @@
         border-radius: 2em;
       }
     }
+
     &:checked ~ .formkit-decorator {
       &::before {
         background: var(--formkit-decorator-checked-color);
@@ -178,6 +187,7 @@
 }
 
 .formkit-messages {
+  font-family: var(--formkit-fonts);
   padding: 0;
   margin: var(--formkit-messages-margin-y) var(--formkit-messages-margin-x);
 }
@@ -275,6 +285,87 @@
       height: 1em;
       border-radius: 1em;
       background-color: var(--formkit-range-thumb-color);
+      border: 0;
     }
+
+    &::-moz-range-track {
+      background-color: var(--formkit-border-color);
+      height: 4px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+    }
+
+    &::-moz-range-thumb {
+      appearance: none;
+      position: relative;
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      background-color: var(--formkit-range-thumb-color);
+      border: 1px solid var(--formkit-range-thumb-color);
+    }
+
+    &:focus-visible {
+      &::-moz-range-thumb {
+        box-shadow: 0 0 0.5em var(--formkit-focus-border-color);
+      }
+
+      &::-webkit-slider-thumb {
+        box-shadow: 0 0 0.5em var(--formkit-focus-border-color);
+      }
+    }
+  }
+}
+
+[data-type="submit"] {
+  & .formkit-input {
+    background: var(--formkit-ui-color);
+    border: 1px solid transparent;
+    color: white;
+
+    &:hover {
+      filter: brightness(0.9);
+    }
+
+    &:active {
+      filter: brightness(1.1);
+    }
+
+    &[disabled] {
+      background: var(--formkit-border-color);
+    }
+  }
+}
+
+[data-type="button"] {
+  & .formkit-input {
+    border: 1px solid var(--formkit-border-color);
+  }
+}
+
+[data-type="button"],
+[data-type="submit"] {
+  & .formkit-wrapper {
+    max-width: 25em;
+  }
+
+  & .formkit-input {
+    appearance: none;
+    border-radius: var(--formkit-border-radius);
+    cursor: pointer;
+    display: inline-flex;
+    width: auto;
+    justify-content: center;
+    padding: 0.75em 2em;
+
+    &:focus {
+      border-color: var(--formkit-focus-border-color);
+    }
+  }
+}
+
+.formkit-form {
+  & > .formkit-messages {
+    margin: 1em 0;
   }
 }

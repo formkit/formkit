@@ -14,6 +14,7 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   remove: 'Remove',
+  incomplete: 'Sorry, not all fields are filled out correctly.',
 }
 
 /**
