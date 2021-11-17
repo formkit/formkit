@@ -10,6 +10,7 @@ const submit: FormKitSchemaComposable = (schema = {}) => ({
         $cmp: 'FormKit',
         props: {
           type: 'submit',
+          'data-loading': '$state.loading',
           label: {
             if: '$submitLabel',
             then: '$submitLabel',

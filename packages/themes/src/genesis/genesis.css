@@ -79,7 +79,7 @@
   box-sizing: border-box;
   color: var(--formkit-input-text-color);
   display: block;
-  font-size: 1em;
+  font-size: 0.875em;
   margin: 0;
   padding: var(--formkit-input-padding);
   width: 100%;
@@ -361,8 +361,34 @@
     width: auto;
     justify-content: center;
     padding: 0.75em 2em;
+    position: relative;
+    transition: background-color 0.25s;
 
-    &:focus {
+    &::before {
+      box-sizing: border-box;
+      content: "";
+      width: 0;
+      margin-right: 0;
+      height: 1.28571428em;
+      border: 0 solid transparent;
+      border-radius: 1.28571428em;
+      transition: width 0.25s, border 0.25s, margin-right 0.25s;
+    }
+
+    &[data-loading] {
+      background-color: var(--formkit-ui-thin);
+      pointer-events: none;
+
+      &::before {
+        animation: rotate 0.5s linear infinite;
+        width: 1.28571428em;
+        border: 0.1428571429em solid white;
+        border-right-color: transparent;
+        margin-right: 0.75em;
+      }
+    }
+
+    &:focus-visible {
       border-color: var(--formkit-focus-border-color);
     }
   }
@@ -371,5 +397,11 @@
 .formkit-form {
   & > .formkit-messages {
     margin: 1em 0;
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
   }
 }

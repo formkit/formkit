@@ -5,20 +5,33 @@
     @submit="submit"
   >
     <FormKit
+      type="email"
+      label="Email address"
+      placeholder="jon@foo.com"
+    />
+    <FormKit
+      type="select"
+      label="Favorite pie"
+      placeholder="Select a favorite"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+    />
+    <FormKit
       type="range"
-      label="Color"
+      label="Age"
       :delay="50"
       min="5"
       max="100"
-      help="Pick a color"
-      validation="required|min:70"
+      help="Pick an age"
     />
     <FormKit
       label="Countries"
       type="radio"
       help="Hello help text!"
       placeholder="Select the best country"
-      validation="required"
       :options="options"
     />
   </FormKit>
@@ -44,8 +57,8 @@ const options = [
     help: 'This is the cleanest one',
   },
 ]
-const submit = (data: Record<string, any>) => {
-  console.log(data)
+const submit = async (data: Record<string, any>) => {
+  await new Promise(r => setTimeout(r, 2000))
 }
 </script>
 

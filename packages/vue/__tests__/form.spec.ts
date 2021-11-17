@@ -94,4 +94,27 @@ describe('form submission', () => {
     expect(node?.context?.state?.submitted).toBe(true)
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
+
+  it('sets a loading state if handler is async', async () => {
+    const submitHandler = jest.fn(() => {
+      return new Promise((r) => setTimeout(r, 20))
+    })
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler,
+        },
+        template: `<FormKit type="form" id="form" @submit="submitHandler">
+        <FormKit name="email" />
+      </FormKit>`,
+      },
+      global
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    const node = get('form')
+    expect(node?.context?.state?.loading).toBe(true)
+    await new Promise((r) => setTimeout(r, 25))
+    expect(node?.context?.state?.loading).toBe(undefined)
+  })
 })

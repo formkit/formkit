@@ -10,13 +10,32 @@ async function handleSubmit(node: FormKitNode, e: Event) {
   await node.settled
   // Set the submitted state on all children
   node.each((n) => {
-    if (n.context) n.context.state.submitted = true
+    n.store.set(
+      createMessage({
+        key: 'submitted',
+        value: true,
+        visible: false,
+      })
+    )
   })
   if (!node.ledger.value('blocking')) {
     // No blocking messages
     if (typeof node.props.attrs?.onSubmit === 'function') {
       // call onSubmit
-      node.props.attrs.onSubmit(clone(node.value as Record<string, any>))
+      const retVal = node.props.attrs.onSubmit(
+        clone(node.value as Record<string, any>)
+      )
+      if (retVal instanceof Promise) {
+        node.store.set(
+          createMessage({
+            key: 'loading',
+            value: true,
+            visible: false,
+          })
+        )
+        await retVal
+        node.store.remove('loading')
+      }
     }
   } else {
     node.store.set(
