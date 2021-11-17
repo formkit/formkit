@@ -18,6 +18,11 @@ async function handleSubmit(node: FormKitNode, e: Event) {
       })
     )
   })
+
+  if (typeof node.props.attrs?.onSubmitRaw === 'function') {
+    node.props.attrs.onSubmitRaw(e)
+  }
+
   if (!node.ledger.value('blocking')) {
     // No blocking messages
     if (typeof node.props.attrs?.onSubmit === 'function') {
@@ -35,6 +40,10 @@ async function handleSubmit(node: FormKitNode, e: Event) {
         )
         await retVal
         node.store.remove('loading')
+      }
+    } else {
+      if (e.target instanceof HTMLFormElement) {
+        e.target.submit()
       }
     }
   } else {

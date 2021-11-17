@@ -95,6 +95,27 @@ describe('form submission', () => {
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
 
+  it('fires a submit-raw event even with validation errors', async () => {
+    const submitHandler = jest.fn()
+    const rawHandler = jest.fn()
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler,
+          rawHandler,
+        },
+        template: `<FormKit type="form" id="login" @submit-raw="rawHandler" @submit="submitHandler">
+        <FormKit validation="required|email" />
+      </FormKit>`,
+      },
+      global
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(submitHandler).not.toHaveBeenCalled()
+    expect(rawHandler).toHaveBeenCalledTimes(1)
+  })
+
   it('sets a loading state if handler is async', async () => {
     const submitHandler = jest.fn(() => {
       return new Promise((r) => setTimeout(r, 20))
