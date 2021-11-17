@@ -41,6 +41,11 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
     const availableMessages: Record<string, FormKitMessage> = {}
     for (const key in visibleMessages) {
       const message = visibleMessages[key]
+      // Once a form is "submitted" all inputs are live.
+      if (context.state.submitted) {
+        availableMessages[key] = message
+        continue
+      }
       let behavior = node.props[`${message.type}Behavior`]
       if (!behavior) {
         behavior = message.type === 'validation' ? 'blur' : 'live'
@@ -145,6 +150,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
     state: {
       blurred: false,
       dirty: false,
+      submitted: false,
       valid: !node.ledger.value('blocking'),
     },
     type: node.props.type,

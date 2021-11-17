@@ -5,6 +5,7 @@
   --formkit-border: 1px solid var(--formkit-border-color);
   --formkit-border-radius: 0.25em;
   --formkit-input-text-color: rgba(0 0 0 / 95%);
+  --formkit-minor-color: rgba(0 0 0 / 60%);
   --formkit-icon-color: rgba(0 0 0 / 95%);
   --formkit-input-background-color: transparent;
   --formkit-focus-border-color: blue;

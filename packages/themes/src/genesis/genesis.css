@@ -186,6 +186,10 @@
   margin: var(--formkit-help-margin-y) var(--formkit-help-margin-x);
 }
 
+.formkit-option-help {
+  color: var(--formkit-minor-color);
+}
+
 .formkit-messages {
   font-family: var(--formkit-fonts);
   padding: 0;
@@ -219,7 +223,7 @@
     }
   }
 
-  & fieldset.formkit-wrapper {
+  & fieldset.formkit-fieldset {
     margin-bottom: 0.5em;
     border: var(--formkit-border);
     border-radius: var(--formkit-border-radius);

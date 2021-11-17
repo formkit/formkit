@@ -1,4 +1,5 @@
 import { FormKitNode, warn } from '@formkit/core'
+import normalizeBoxes from './normalizeBoxes'
 
 /**
  * Sets the value of a radio button when checked.
@@ -37,4 +38,5 @@ export default function radios(node: FormKitNode): void {
       node.context.fns.isChecked = isChecked.bind(null, node)
     }
   })
+  node.hook.prop(normalizeBoxes(node))
 }

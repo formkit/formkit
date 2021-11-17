@@ -8,7 +8,12 @@ import { has, clone } from '@formkit/utils'
 async function handleSubmit(node: FormKitNode, e: Event) {
   e.preventDefault()
   await node.settled
+  // Set the submitted state on all children
+  node.each((n) => {
+    if (n.context) n.context.state.submitted = true
+  })
   if (!node.ledger.value('blocking')) {
+    // No blocking messages
     if (typeof node.props.attrs?.onSubmit === 'function') {
       // call onSubmit
       node.props.attrs.onSubmit(clone(node.value as Record<string, any>))
@@ -32,7 +37,6 @@ async function handleSubmit(node: FormKitNode, e: Event) {
         value: 'Form incomplete.',
       })
     )
-    node.on('settled:blocking', () => node.store.remove('incomplete'))
   }
 }
 
@@ -49,4 +53,5 @@ export default function (node: FormKitNode): void {
       node.props.actions = true
     }
   })
+  node.on('settled:blocking', () => node.store.remove('incomplete'))
 }
