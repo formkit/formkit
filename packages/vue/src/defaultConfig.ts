@@ -1,41 +1,56 @@
 import { FormKitOptions } from '@formkit/core'
 import { extend } from '@formkit/utils'
-import * as rules from '@formkit/rules'
-import { createValidationPlugin } from '@formkit/validation'
-import { createI18nPlugin, en } from '@formkit/i18n'
+import * as defaultRules from '@formkit/rules'
+import {
+  createValidationPlugin,
+  FormKitValidationRule,
+} from '@formkit/validation'
+import { createI18nPlugin, FormKitLocaleRegistry, en } from '@formkit/i18n'
 import { createLibraryPlugin, inputs } from '@formkit/inputs'
 import vuePlugin from './corePlugin'
 
-/**
- * The default configuration includes the validation plugin,
- * with all core-available validation rules.
- */
-const validation = createValidationPlugin(rules)
-
-/**
- * Includes the i18n plugin with only the english language
- * messages.
- */
-const i18n = createI18nPlugin({ en })
-
-/**
- * Create the library of inputs that are generally available. This default
- * config imports all "native" inputs by default, but
- */
-const library = createLibraryPlugin(inputs)
+interface PluginConfigs {
+  rules: Record<string, FormKitValidationRule>
+  locales: FormKitLocaleRegistry
+}
 
 /**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
  * @public
  */
-const defaultConfig = (options: FormKitOptions = {}): FormKitOptions =>
-  extend(
+const defaultConfig = (
+  options: FormKitOptions & Partial<PluginConfigs> = {}
+): FormKitOptions => {
+  const { rules = {}, locales = {}, ...nodeOptions } = options
+  /**
+   * The default configuration includes the validation plugin,
+   * with all core-available validation rules.
+   */
+  const validation = createValidationPlugin({
+    ...defaultRules,
+    ...(rules || {}),
+  })
+
+  /**
+   * Includes the i18n plugin with only the english language
+   * messages.
+   */
+  const i18n = createI18nPlugin({ en, ...(locales || {}) })
+
+  /**
+   * Create the library of inputs that are generally available. This default
+   * config imports all "native" inputs by default, but
+   */
+  const library = createLibraryPlugin(inputs)
+
+  return extend(
     {
       plugins: [library, vuePlugin, i18n, validation],
     },
-    options || {},
+    nodeOptions || {},
     true
   ) as FormKitOptions
+}
 
 export default defaultConfig
