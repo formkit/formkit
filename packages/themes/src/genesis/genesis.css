@@ -409,3 +409,11 @@
     transform: rotate(360deg);
   }
 }
+
+[data-type="textarea"] textarea {
+  min-width: 100%;
+  min-height: 6em;
+  line-height: 1.33;
+  font-family: inherit;
+}
+

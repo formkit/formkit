@@ -1,5 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import textSchema from './classifications/text'
+import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
@@ -12,6 +13,7 @@ import selectFeatures from './features/select'
 import checkboxes from './features/checkboxes'
 import radios from './features/radios'
 import formHandler from './features/form'
+
 /**
  * Default classifications that are available.
  */
@@ -103,6 +105,15 @@ export const week = textClassification
  * @public
  */
 export const range = textClassification
+
+/**
+ * The textarea input.
+ * @public
+ */
+export const textarea: FormKitTypeDefinition = {
+  type: 'input',
+  schema: textareaSchema
+}
 
 /**
  * Buttons are all this classification:
