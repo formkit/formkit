@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@formkit/core",
   "repository": "https://github.com/formkit/formkit",
   "version": "1.0.0-alpha.0",
