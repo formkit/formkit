@@ -1,54 +1,65 @@
 <template>
   <h2>FormKit Playground</h2>
   <FormKit
-    v-model="value"
-    type="text"
-    label="Text Input"
-    help="write something"
-  />
-  <FormKit
-    v-model="value"
-    type="textarea"
-    label="Text Area"
-    help="write something longer"
-  />
-  <FormKit
-    v-model="value"
-    type="range"
-    label="Range"
-    :delay="50"
-    help="Pick a value"
-  />
-  <FormKit
-    v-model="value"
-    label="Foo Bar!"
-    type="radio"
-    help="Hello help text!"
-    placeholder="Select the best country"
-    validation="required"
-    :options="options"
-  />
-  <pre>values: {{ value }}</pre>
-<!--
-  <FormKit
-    v-model="value"
-    label="Foo Bar!"
-    type="select"
-    multiple
-    help="Hello help text!"
-    :options="['foo', 'bar', 'baz', 'bim']"
-  />
-  <pre>{{ value }}</pre> -->
+    type="form"
+    @submit="submit"
+  >
+    <FormKit
+      type="email"
+      label="Email address"
+      placeholder="jon@foo.com"
+    />
+    <FormKit
+      type="select"
+      label="Favorite pie"
+      placeholder="Select a favorite"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+    />
+    <FormKit
+      type="range"
+      label="Age"
+      :delay="50"
+      min="5"
+      max="100"
+      help="Pick an age"
+    />
+    <FormKit
+      type="date"
+      label="Departure date"
+      help="Select a date next summer"
+      :validation="[
+        ['required'],
+        ['date_between', summerStart, summerEnd]
+      ]"
+      validation-behavior="live"
+    />
+    {{ summerStart }}
+    <FormKit
+      label="Countries"
+      type="radio"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="options"
+    />
+  </FormKit>
 
-  <FormKit
-    type="checkbox"
-    label="Username"
-    help="Select a new username"
-    :errors="['This is an error']"
-  />
+  <FormKit type="button">Hello world</FormKit>
 </template>
 
 <script setup lang="ts">
+
+const date = new Date()
+const month = date.getMonth() + 1
+const day = date.getDate()
+const year = date.getFullYear()
+const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
+const summerStart = new Date(`${year + addYear}-6-21`)
+const summerEnd = new Date(`${year + addYear}-9-22`)
+
 import { ref } from 'vue'
 const options = [
   {
@@ -68,19 +79,9 @@ const options = [
     help: 'This is the cleanest one',
   },
 ]
-const value = ref(undefined)
-// const values = ref(['fr', 'de'])
-
-// function handler (e: Event) {
-//   const input = e.target as HTMLInputElement
-//   const value = input.value
-//   const refValue = ['bim', 'bam', 'boom'].includes(value) ? values2 : values
-//   if (input.checked && !refValue.value.includes(value)) {
-//     refValue.value = value
-//   } else {
-//     // values.value = values.value.filter(v => v !== value)
-//   }
-// }
+const submit = async (data: Record<string, any>) => {
+  await new Promise(r => setTimeout(r, 2000))
+}
 </script>
 
 <style>

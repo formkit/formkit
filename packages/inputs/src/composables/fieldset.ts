@@ -2,14 +2,14 @@ import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
 import { extend } from '@formkit/utils'
 
 const fieldset: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.wrapper',
-  then: '$slots.wrapper',
+  if: '$slots.fieldset',
+  then: '$slots.fieldset',
   else: extend(
     {
       $el: 'fieldset',
       attrs: {
         id: '$id',
-        class: '$classes.wrapper',
+        class: '$classes.fieldset',
         'aria-describedby': {
           if: '$help',
           then: '$: "help-" + $id',

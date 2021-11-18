@@ -1,9 +1,13 @@
 @import "variables.css";
 
 .formkit-outer {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: var(--formkit-fonts);
   margin-bottom: 1.5em;
   max-width: 25em;
+
+  & :is(input, select, option, textarea, button) {
+    font-family: var(--formkit-fonts);
+  }
 }
 
 .formkit-wrapper {
@@ -75,7 +79,7 @@
   box-sizing: border-box;
   color: var(--formkit-input-text-color);
   display: block;
-  font-size: 1em;
+  font-size: 0.875em;
   margin: 0;
   padding: var(--formkit-input-padding);
   width: 100%;
@@ -142,6 +146,10 @@
         border-color: var(--formkit-decorator-checked-color);
       }
     }
+
+    &:focus-visible ~ .formkit-decorator {
+      border-color: var(--formkit-focus-border-color);
+    }
   }
 
   @nest input[type="radio"]& {
@@ -158,6 +166,7 @@
         border-radius: 2em;
       }
     }
+
     &:checked ~ .formkit-decorator {
       &::before {
         background: var(--formkit-decorator-checked-color);
@@ -177,7 +186,12 @@
   margin: var(--formkit-help-margin-y) var(--formkit-help-margin-x);
 }
 
+.formkit-option-help {
+  color: var(--formkit-minor-color);
+}
+
 .formkit-messages {
+  font-family: var(--formkit-fonts);
   padding: 0;
   margin: var(--formkit-messages-margin-y) var(--formkit-messages-margin-x);
 }
@@ -209,7 +223,7 @@
     }
   }
 
-  & fieldset.formkit-wrapper {
+  & fieldset.formkit-fieldset {
     margin-bottom: 0.5em;
     border: var(--formkit-border);
     border-radius: var(--formkit-border-radius);
@@ -275,7 +289,124 @@
       height: 1em;
       border-radius: 1em;
       background-color: var(--formkit-range-thumb-color);
+      border: 0;
     }
+
+    &::-moz-range-track {
+      background-color: var(--formkit-border-color);
+      height: 4px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+    }
+
+    &::-moz-range-thumb {
+      appearance: none;
+      position: relative;
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      background-color: var(--formkit-range-thumb-color);
+      border: 1px solid var(--formkit-range-thumb-color);
+    }
+
+    &:focus-visible {
+      &::-moz-range-thumb {
+        box-shadow: 0 0 0.5em var(--formkit-focus-border-color);
+      }
+
+      &::-webkit-slider-thumb {
+        box-shadow: 0 0 0.5em var(--formkit-focus-border-color);
+      }
+    }
+  }
+}
+
+[data-type="submit"] {
+  & .formkit-input {
+    background: var(--formkit-ui-color);
+    border: 1px solid transparent;
+    color: white;
+
+    &:hover {
+      filter: brightness(0.9);
+    }
+
+    &:active {
+      filter: brightness(1.1);
+    }
+
+    &[disabled] {
+      background: var(--formkit-border-color);
+    }
+  }
+}
+
+[data-type="button"] {
+  & .formkit-input {
+    border: 1px solid var(--formkit-border-color);
+
+    &:hover {
+      background-color: var(--formkit-button-hover);
+    }
+  }
+}
+
+[data-type="button"],
+[data-type="submit"] {
+  & .formkit-wrapper {
+    max-width: 25em;
+  }
+
+  & .formkit-input {
+    appearance: none;
+    border-radius: var(--formkit-border-radius);
+    cursor: pointer;
+    display: inline-flex;
+    width: auto;
+    justify-content: center;
+    padding: 0.75em 2em;
+    position: relative;
+    transition: background-color 0.25s;
+
+    &::before {
+      box-sizing: border-box;
+      content: "";
+      width: 0;
+      margin-right: 0;
+      height: 1.28571428em;
+      border: 0 solid transparent;
+      border-radius: 1.28571428em;
+      transition: width 0.25s, border 0.25s, margin-right 0.25s;
+    }
+
+    &[data-loading] {
+      background-color: var(--formkit-ui-thin);
+      pointer-events: none;
+
+      &::before {
+        animation: rotate 0.5s linear infinite;
+        width: 1.28571428em;
+        border: 0.1428571429em solid white;
+        border-right-color: transparent;
+        margin-right: 0.75em;
+      }
+    }
+
+    &:focus-visible {
+      border-color: var(--formkit-focus-border-color);
+    }
+  }
+}
+
+.formkit-form {
+  & > .formkit-messages {
+    margin: 1em 0;
+  }
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
   }
 }
 

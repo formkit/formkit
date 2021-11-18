@@ -1,5 +1,4 @@
 {
-  "private": true,
   "name": "@formkit/examples",
   "version": "1.0.0-alpha.0",
   "description": "FormKit examples",

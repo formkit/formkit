@@ -20,7 +20,7 @@ describe('radios', () => {
       ...global,
     })
     expect(wrapper.html()).toContain(
-      '<input type="radio" class="formkit-input" name="radio_1" value="Foo">'
+      '<input type="radio" class="formkit-input" name="radio_1" id="radio_1-option-foo" value="Foo">'
     )
   })
 

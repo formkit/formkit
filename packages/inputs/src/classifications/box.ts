@@ -30,7 +30,7 @@ const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
     help(extensions.help, '$help'),
   ]
 
-  const multiCheckbox = fieldset(extensions.wrapper, [
+  const multiCheckbox = fieldset(extensions.fieldset, [
     legend(extensions.legend, '$label'),
     help(extensions.help, '$help'),
     options(extensions.options, [

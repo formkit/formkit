@@ -1,12 +1,17 @@
 :root {
+  --formkit-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --formkit-ui-color: #0275ff;
+  --formkit-ui-thin: rgba(2 117 255 / 60%);
+  --formkit-button-hover: rgba(0 0 0 / 10%);
   --formkit-border-color: rgba(0 0 0 / 25%);
   --formkit-border: 1px solid var(--formkit-border-color);
   --formkit-border-radius: 0.25em;
   --formkit-input-text-color: rgba(0 0 0 / 95%);
+  --formkit-minor-color: rgba(0 0 0 / 60%);
   --formkit-icon-color: rgba(0 0 0 / 95%);
   --formkit-input-background-color: transparent;
   --formkit-focus-border-color: blue;
-  --formkit-input-padding: 0.5em;
+  --formkit-input-padding: 0.75em;
   --formkit-help-font-size: 0.8125em;
   --formkit-help-color: rgba(0 0 0 / 80%);
   --formkit-help-margin-x: 0;
@@ -28,11 +33,11 @@
   --formkit-decorator-border-width: 1px;
   --formkit-decorator-border-color: rgba(0 0 0 / 25%);
   --formkit-decorator-padding: 0 0.5em 0 0;
-  --formkit-decorator-checked-color: #0275ff;
+  --formkit-decorator-checked-color: var(--formkit-ui-color);
   --formkit-box-target-margin: 0;
   --formkit-box-size: 1.125em;
   --formkit-box-option-margin: 0 0 0.5em 0;
   --formkit-box-options-margin: 0;
   --formkit-radio-border-radius: 2em;
-  --formkit-range-thumb-color: #0275ff;
+  --formkit-range-thumb-color: var(--formkit-ui-color);
 }

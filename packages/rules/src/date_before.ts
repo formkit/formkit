@@ -5,10 +5,13 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const before: FormKitValidationRule = function ({ value }, compare = false) {
+const date_before: FormKitValidationRule = function (
+  { value },
+  compare = false
+) {
   const timestamp = Date.parse(compare || new Date())
   const fieldValue = Date.parse(String(value))
   return isNaN(fieldValue) ? false : fieldValue < timestamp
 }
 
-export default before
+export default date_before

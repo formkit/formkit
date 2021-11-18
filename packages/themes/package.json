@@ -1,6 +1,6 @@
 {
-  "private": true,
   "name": "@formkit/themes",
+  "repository": "https://github.com/formkit/formkit",
   "version": "1.0.0-alpha.0",
   "description": "FormKit base themes",
   "main": "dist/index.cjs.js",
@@ -9,7 +9,8 @@
   "author": "Justin Schroeder <justin@wearebraid.com>",
   "license": "UNLICENSED",
   "publishConfig": {
-    "access": "restricted"
+    "access": "restricted",
+    "registry":"https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "jest"

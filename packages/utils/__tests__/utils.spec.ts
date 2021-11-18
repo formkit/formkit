@@ -341,6 +341,11 @@ describe('it can clone an object', () => {
     const regex = /^a/
     expect(clone({ regex }).regex).toBe(regex)
   })
+
+  it('skips cloning dates', () => {
+    const date = new Date()
+    expect(clone({ date }).date).toBe(date)
+  })
 })
 
 describe('only', () => {

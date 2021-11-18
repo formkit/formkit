@@ -1,5 +1,6 @@
 import { FormKitNode } from '@formkit/core'
-import { extend, kebab, has } from '@formkit/utils'
+import { has } from '@formkit/utils'
+import normalizeBoxes from './normalizeBoxes'
 
 /**
  * Event handler when an input is toggled.
@@ -54,21 +55,5 @@ export default function (node: FormKitNode): void {
     if (!has(node.props, 'offValue')) node.props.offValue = false
   })
 
-  node.hook.prop((prop, next) => {
-    if (prop.prop === 'options' && Array.isArray(prop.value)) {
-      prop.value = prop.value.map((option) => {
-        if (!option.attrs?.id) {
-          return extend(option, {
-            attrs: { id: `${node.name}-option-${kebab(option.value)}` },
-          })
-        }
-        return option
-      })
-      if (node.value === undefined) {
-        // Force the value to an array
-        node.input([], false)
-      }
-    }
-    return next(prop)
-  })
+  node.hook.prop(normalizeBoxes(node))
 }

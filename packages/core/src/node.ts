@@ -341,6 +341,7 @@ export interface FormKitFrameworkContext {
   state: Record<string, boolean> & {
     blurred: boolean
     dirty: boolean
+    submitted: boolean
     valid: boolean
   }
   type: string

@@ -6,10 +6,13 @@ import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 import boxSchema from './classifications/box'
+import formSchema from './classifications/form'
+import buttonSchema from './classifications/button'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 import checkboxes from './features/checkboxes'
 import radios from './features/radios'
+import formHandler from './features/form'
 
 /**
  * Default classifications that are available.
@@ -113,6 +116,26 @@ export const textarea: FormKitTypeDefinition = {
 }
 
 /**
+ * Buttons are all this classification:
+ */
+const buttonClassification: FormKitTypeDefinition = {
+  type: 'input',
+  schema: buttonSchema,
+}
+
+/**
+ * The submit input.
+ * @public
+ */
+export const submit = buttonClassification
+
+/**
+ * The button classification.
+ * @public
+ */
+export const button = buttonClassification
+
+/**
  * The hidden input.
  * @public
  */
@@ -169,7 +192,9 @@ export const group: FormKitTypeDefinition = {
  */
 export const form: FormKitTypeDefinition = {
   type: 'group',
-  schema: groupSchema,
+  schema: formSchema,
+  props: ['actions', 'submit', 'submitLabel'],
+  features: [formHandler],
 }
 
 /**

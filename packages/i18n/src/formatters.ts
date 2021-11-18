@@ -25,3 +25,17 @@ export function list(items: string[], conjunction = 'or'): string {
     return oxford
   }, '')
 }
+
+/**
+ * Given a string or a date return a nice human-readable version.
+ * @param date - A string or a date.
+ */
+export function date(date: string | Date): string {
+  const dateTime = typeof date === 'string' ? new Date(Date.parse(date)) : date
+  if (!(dateTime instanceof Date)) {
+    return '(unknown)'
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+  } as any).format(dateTime)
+}
