@@ -1,5 +1,5 @@
 import { createNode } from '@formkit/core'
-import before from '../src/before'
+import before from '../src/date_before'
 
 describe('before rule', () => {
   const today = new Date()

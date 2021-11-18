@@ -35,6 +35,8 @@
       :options="options"
     />
   </FormKit>
+
+  <FormKit type="button">Hello world</FormKit>
 </template>
 
 <script setup lang="ts">

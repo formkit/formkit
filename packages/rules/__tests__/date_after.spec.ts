@@ -1,7 +1,7 @@
 import { createNode } from '@formkit/core'
-import after from '../src/after'
+import after from '../src/date_after'
 
-describe('after rule', () => {
+describe('date_after rule', () => {
   const today = new Date()
   const tomorrow = new Date()
   const yesterday = new Date()

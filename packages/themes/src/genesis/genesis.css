@@ -344,6 +344,10 @@
 [data-type="button"] {
   & .formkit-input {
     border: 1px solid var(--formkit-border-color);
+
+    &:hover {
+      background-color: var(--formkit-button-hover);
+    }
   }
 }
 

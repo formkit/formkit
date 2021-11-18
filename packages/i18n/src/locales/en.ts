@@ -32,7 +32,7 @@ export const validation: FormKitValidationMessages = {
   /**
    * The date is not after
    */
-  after({ name, args }) {
+  date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       return `${s(name)} must be after ${args[0]}.`
     }
@@ -56,7 +56,7 @@ export const validation: FormKitValidationMessages = {
   /**
    * The date is not before
    */
-  before({ name, args }) {
+  date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       return `${s(name)} must be before ${args[0]}.`
     }
