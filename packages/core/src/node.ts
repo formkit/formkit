@@ -338,7 +338,7 @@ export interface FormKitFrameworkContext {
   label?: string
   messages: Record<string, FormKitMessage>
   options?: Array<Record<string, any> & { label: string; value: any }>
-  state: Record<string, boolean> & {
+  state: Record<string, boolean | undefined> & {
     blurred: boolean
     dirty: boolean
     submitted: boolean
