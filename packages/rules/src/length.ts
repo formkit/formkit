@@ -15,8 +15,7 @@ const length: FormKitValidationRule = function length(
   if (typeof value === 'string' || Array.isArray(value)) {
     passMin = value.length >= min
     passMax = passMax || value.length <= max
-  }
-  if (value && typeof value === 'object') {
+  } else if (value && typeof value === 'object') {
     const length = Object.keys(value).length
     passMin = length >= min
     passMax = passMax || length <= max
