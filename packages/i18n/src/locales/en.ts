@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list } from '../formatters'
+import { sentence as s, list, date } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -34,7 +34,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
-      return `${s(name)} must be after ${args[0]}.`
+      return `${s(name)} must be after ${date(args[0])}.`
     }
     return `${s(name)} must be in the future.`
   },
@@ -58,7 +58,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
-      return `${s(name)} must be before ${args[0]}.`
+      return `${s(name)} must be before ${date(args[0])}.`
     }
     return `${s(name)} must be an earlier date.`
   },
@@ -93,7 +93,7 @@ export const validation: FormKitValidationMessages = {
    * Is not within expected date range
    */
   date_between({ name, args }) {
-    return `${s(name)} must be between ${args[0]} and ${args[1]}`
+    return `${s(name)} must be between ${date(args[0])} and ${date(args[1])}`
   },
 
   /**

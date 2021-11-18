@@ -442,7 +442,7 @@ export function kebab(str: string): string {
 export function clone<T extends Record<string, unknown> | unknown[] | null>(
   obj: T
 ): T {
-  if (obj === null || obj instanceof RegExp) return obj
+  if (obj === null || obj instanceof RegExp || obj instanceof Date) return obj
   if (Array.isArray(obj)) {
     return obj.map((value) => {
       if (typeof value === 'object') return clone(value as unknown[])

@@ -28,6 +28,17 @@
       help="Pick an age"
     />
     <FormKit
+      type="date"
+      label="Departure date"
+      help="Select a date next summer"
+      :validation="[
+        ['required'],
+        ['date_between', summerStart, summerEnd]
+      ]"
+      validation-behavior="live"
+    />
+    {{ summerStart }}
+    <FormKit
       label="Countries"
       type="radio"
       help="Hello help text!"
@@ -40,6 +51,15 @@
 </template>
 
 <script setup lang="ts">
+
+const date = new Date()
+const month = date.getMonth() + 1
+const day = date.getDate()
+const year = date.getFullYear()
+const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
+const summerStart = new Date(`${year + addYear}-6-21`)
+const summerEnd = new Date(`${year + addYear}-9-22`)
+
 import { ref } from 'vue'
 const options = [
   {
