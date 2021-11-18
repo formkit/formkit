@@ -168,7 +168,7 @@ function yarnPublishAffectedPackages () {
     const pkg = packages.shift()
     const version = prePublished[pkg].newVersion
     try {
-      execSync(`yarn publish --dry-run --new-version ${version} ${packagesDir}/${pkg}/package.json`)
+      execSync(`yarn publish --cwd ./packages/${pkg}/ --new-version ${version} --access restricted`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
