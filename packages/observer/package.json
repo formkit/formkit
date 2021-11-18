@@ -1,7 +1,7 @@
 {
   "name": "@formkit/observer",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Utility to wrap a FormKitNode in a dependency tracking observer proxy",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -10,15 +10,15 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "access": "restricted",
-    "registry":"https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "jest"
   },
   "type": "module",
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.0",
-    "@formkit/utils": "1.0.0-alpha.0"
+    "@formkit/core": "1.0.0-alpha.1",
+    "@formkit/utils": "1.0.0-alpha.1"
   },
   "devDependencies": {}
 }
