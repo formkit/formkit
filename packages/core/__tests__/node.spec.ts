@@ -38,6 +38,24 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
+  it('allows config to be overriden by child props', () => {
+    const child = createNode({
+      props: {
+        flavor: 'cherry',
+      },
+    })
+    createNode({
+      type: 'group',
+      config: {
+        size: 'large',
+        flavor: 'grape',
+      },
+      children: [child],
+    })
+    expect(child.props.size).toBe('large')
+    expect(child.props.flavor).toBe('cherry')
+  })
+
   it('emits config:{property} events when configuration options change', () => {
     const node = createNode({
       config: { locale: 'en' },
