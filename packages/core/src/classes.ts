@@ -51,13 +51,16 @@ export function generateClassList(
   property: string,
   ...args: Record<string, boolean>[]
 ): string | null {
-  const combinedClassList = args.reduce((finalClassList, currentClassList) => {
-    const { $reset, ...classList } = currentClassList
-    if ($reset) {
-      return classList
-    }
-    return Object.assign(finalClassList, classList)
-  }, {})
+  let combinedClassList:Record<string, boolean> = {}
+  if (args && args.length) {
+    combinedClassList = args.reduce((finalClassList, currentClassList) => {
+      const { $reset, ...classList } = currentClassList
+      if ($reset) {
+        return classList
+      }
+      return Object.assign(finalClassList, classList)
+    }, {})
+  }
 
   return (
     Object.keys(
