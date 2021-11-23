@@ -13,6 +13,7 @@ import {
   watchEffect,
   watch,
   Ref,
+  getCurrentInstance,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -60,7 +61,8 @@ type RenderContent = [
           | Record<string, any>,
         valueName: string,
         keyName: string | null
-      ]
+      ],
+  resolve: boolean
 ]
 /**
  * The actual signature of a VNode in Vue.
@@ -333,6 +335,7 @@ function parseSchema(
     let children: RenderContent[3] = null
     let alternate: RenderContent[4] = null
     let iterator: RenderContent[5] = null
+    let resolve = false
     const node: Exclude<FormKitSchemaNode, string> =
       typeof _node === 'string'
         ? {
@@ -349,9 +352,12 @@ function parseSchema(
     } else if (isComponent(node)) {
       // This is a Vue Component
       if (typeof node.$cmp === 'string') {
-        element = has(library, node.$cmp)
-          ? library[node.$cmp]
-          : resolveComponent(node.$cmp)
+        if (has(library, node.$cmp)) {
+          element = library[node.$cmp]
+        } else {
+          element = node.$cmp
+          resolve = true
+        }
       } else {
         // in this case it must be an actual component
         element = node.$cmp
@@ -434,7 +440,7 @@ function parseSchema(
         node.for.length === 3 ? String(node.for[1]) : null,
       ]
     }
-    return [condition, element, attrs, children, alternate, iterator]
+    return [condition, element, attrs, children, alternate, iterator, resolve]
   }
 
   /**
@@ -455,6 +461,7 @@ function parseSchema(
       children,
       alternate,
       iterator,
+      resolve,
     ] = parseNode(library, node)
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
@@ -472,8 +479,10 @@ function parseSchema(
         }
         // Handle lone slots
         if (element === 'slot' && children) return children()
+        // Handle resolving components
+        const el = resolve ? resolveComponent(element as string) : element
         // Handle dom elements and components
-        return h(element, attrs(), children ? (children() as Renderable[]) : [])
+        return h(el, attrs(), children ? (children() as Renderable[]) : [])
       }
 
       return typeof alternate === 'function' ? alternate() : alternate
@@ -660,7 +669,8 @@ export const FormKitSchema = defineComponent({
     },
   },
   setup(props, context) {
-    const instanceKey = Symbol(String(i++))
+    const instance = getCurrentInstance()
+    let instanceKey = Symbol(String(i++))
     instanceScopes.set(instanceKey, [])
     let provider = parseSchema(props.library, props.schema)
     let render: RenderChildren
@@ -668,10 +678,21 @@ export const FormKitSchema = defineComponent({
     // Re-parse the schema if it changes:
     watch(
       () => props.schema,
-      () => {
+      (newSchema, oldSchema) => {
+        console.log('HELLO WORLD')
+        instanceKey = Symbol(String(i++))
         provider = parseSchema(props.library, props.schema)
         render = createRenderFn(provider, data, instanceKey)
-      }
+        if (newSchema === oldSchema) {
+          // In this edge case, someone pushed/modified something in the schema
+          // and we've successfully re-parsed, but since the schema is not
+          // referenced in the render function it technically isnt a dependency
+          // and we need to force a re-render since we swapped out the render
+          // function completely.
+          ;((instance?.proxy?.$forceUpdate as unknown) as CallableFunction)()
+        }
+      },
+      { deep: true }
     )
 
     // Watch the data object explicitly
