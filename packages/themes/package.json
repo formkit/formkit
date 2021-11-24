@@ -1,7 +1,7 @@
 {
   "name": "@formkit/themes",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "FormKit base themes",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -10,7 +10,7 @@
   "license": "UNLICENSED",
   "publishConfig": {
     "access": "restricted",
-    "registry":"https://npm.pkg.github.com"
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "test": "jest"
