@@ -820,6 +820,26 @@ describe('rendering components', () => {
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)
   })
+
+  it('can access content from original data inside default slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          doodle: 'Poodle',
+        },
+        schema: [
+          {
+            $formkit: 'group',
+            children: ['$doodle'],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toBe('Poodle')
+  })
 })
 
 describe('schema $get function', () => {
