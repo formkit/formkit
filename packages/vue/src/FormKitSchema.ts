@@ -679,7 +679,6 @@ export const FormKitSchema = defineComponent({
     watch(
       () => props.schema,
       (newSchema, oldSchema) => {
-        console.log('HELLO WORLD')
         instanceKey = Symbol(String(i++))
         provider = parseSchema(props.library, props.schema)
         render = createRenderFn(provider, data, instanceKey)
