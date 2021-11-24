@@ -792,6 +792,34 @@ describe('rendering components', () => {
     await nextTick()
     expect(wrapper.findAll('.formkit-outer').length).toBe(2)
   })
+
+  it.only('can use shorthand for $formkit', () => {
+    const data = reactive({ value: 11 })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'select',
+            if: '$value > 10',
+            name: 'foobar',
+            options: {
+              hello: 'Hello',
+              world: 'World',
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html())
+      .toContain(`<select class=\"formkit-input\" name=\"foobar\">
+        <option class=\"formkit-option\" value=\"hello\">Hello</option>
+        <option class=\"formkit-option\" value=\"world\">World</option>
+      </select>`)
+  })
 })
 
 describe('schema $get function', () => {

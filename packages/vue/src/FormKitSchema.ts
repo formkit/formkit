@@ -31,6 +31,7 @@ import {
   warn,
   watchRegistry,
   isNode,
+  sugar,
 } from '@formkit/core'
 
 /**
@@ -336,14 +337,7 @@ function parseSchema(
     let alternate: RenderContent[4] = null
     let iterator: RenderContent[5] = null
     let resolve = false
-    const node: Exclude<FormKitSchemaNode, string> =
-      typeof _node === 'string'
-        ? {
-            $el: 'text',
-            children: _node,
-          }
-        : _node
-
+    const node = sugar(_node)
     if (isDOM(node)) {
       // This is an actual HTML DOM element
       element = node.$el

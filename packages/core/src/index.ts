@@ -61,12 +61,14 @@ export {
   FormKitSchemaCondition,
   FormKitSchemaContext,
   FormKitSchemaDOMNode,
-  FormKitSchemaFormKitNode,
+  FormKitSchemaFormKit,
   FormKitSchemaNode,
   FormKitSchemaTextNode,
   isComponent,
   isConditional,
   isDOM,
+  isSugar,
+  sugar,
 } from './schema'
 
 /**
