@@ -112,7 +112,7 @@ export const range = textClassification
  */
 export const textarea: FormKitTypeDefinition = {
   type: 'input',
-  schema: textareaSchema
+  schema: textareaSchema,
 }
 
 /**
