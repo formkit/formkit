@@ -793,7 +793,7 @@ describe('rendering components', () => {
     expect(wrapper.findAll('.formkit-outer').length).toBe(2)
   })
 
-  it.only('can use shorthand for $formkit', () => {
+  it('can use shorthand for $formkit', () => {
     const data = reactive({ value: 11 })
     const wrapper = mount(FormKitSchema, {
       props: {
