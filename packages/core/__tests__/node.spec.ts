@@ -81,6 +81,36 @@ describe('node', () => {
     expect(listenerB).toHaveBeenCalledTimes(1)
   })
 
+  it('can traverse into lists and groups', () => {
+    const group = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'team' }),
+        createNode({
+          type: 'list',
+          name: 'users',
+          children: [
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password' }),
+              ],
+            }),
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password', value: 'foobar' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    expect(group.at('users.1.password')?.value).toBe('foobar')
+  })
+
   it('does not allow nodes of type input to be created with children', () => {
     expect(() => {
       createNode({ children: [createNode()] })
