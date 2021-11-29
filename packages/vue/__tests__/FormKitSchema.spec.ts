@@ -842,6 +842,36 @@ describe('rendering components', () => {
   })
 })
 
+it('can access content from original data inside deeply nested slot', () => {
+  const wrapper = mount(FormKitSchema, {
+    props: {
+      data: {
+        doodle: 'Poodle',
+      },
+      schema: [
+        {
+          $formkit: 'group',
+          children: [
+            {
+              $formkit: 'list',
+              children: [
+                {
+                  $formkit: 'button',
+                  children: '$doodle',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    global: {
+      plugins: [[plugin, defaultConfig]],
+    },
+  })
+  expect(wrapper.html()).toContain('Poodle</button>')
+})
+
 describe('schema $get function', () => {
   beforeEach(() => resetRegistry())
 

@@ -74,13 +74,29 @@ type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
  */
 type Renderable = null | string | number | boolean | VirtualNode
 /**
+ * A list of renderable items.
+ */
+type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
+
+/**
+ * An object of slots
+ */
+type RenderableSlots = Record<string, RenderableSlot>
+
+/**
+ * A slot function that can be rendered.
+ */
+type RenderableSlot = (
+  data?: Record<string, any>,
+  key?: symbol
+) => RenderableList
+/**
  * Describes renderable children.
  */
-type RenderChildren = () =>
-  | Renderable
-  | Renderable[]
-  | (Renderable | Renderable[])[]
-  | Record<string, RenderChildren>
+interface RenderChildren {
+  (): RenderableList | RenderableSlots
+  slot?: boolean
+}
 
 /**
  * The format children elements can be in.
@@ -404,16 +420,23 @@ function parseSchema(
         // render pass the scoped slot props to the scope.
         const produceChildren = children
         children = () => ({
-          default: (slotData?: Record<string, any>) => {
+          default(
+            slotData?: Record<string, any>,
+            key?: symbol
+          ): RenderableList {
+            // We need to switch the current instance key back to the one that
+            // originally called this component's render function.
+            const currentKey = instanceKey
+            if (key) instanceKey = key
             if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-            const instance = instanceKey
             const c = produceChildren()
             // Ensure our instance key never changed during runtime
-            instanceKey = instance
             instanceScopes.get(instanceKey)?.shift()
-            return c
+            instanceKey = currentKey
+            return c as RenderableList
           },
         })
+        children.slot = true
       } else {
         // If we dont have any children, we still need to provide an object
         // instead of an empty array (which raises a warning in vue)
@@ -435,6 +458,23 @@ function parseSchema(
       ]
     }
     return [condition, element, attrs, children, alternate, iterator, resolve]
+  }
+
+  /**
+   * Given a particular function that produces children, ensure that the second
+   * argument of all these slots is the original instance key being used to
+   * render the slots.
+   * @param children - The children() function that will produce slots
+   */
+  function createSlots(children: RenderChildren): RenderableSlots | null {
+    const slots = children() as RenderableSlots
+    const currentKey = instanceKey
+    return Object.keys(slots).reduce((allSlots, slotName) => {
+      const slotFn = slots && slots[slotName]
+      allSlots[slotName] = (data?: Record<string, any>) =>
+        (slotFn && slotFn(data, currentKey)) || null
+      return allSlots
+    }, {} as RenderableSlots)
   }
 
   /**
@@ -475,8 +515,16 @@ function parseSchema(
         if (element === 'slot' && children) return children()
         // Handle resolving components
         const el = resolve ? resolveComponent(element as string) : element
+        // If we are rendering slots as children, ensure their instanceKey is properly added
+        const slots: RenderableSlots | null = children?.slot
+          ? createSlots(children)
+          : null
         // Handle dom elements and components
-        return h(el, attrs(), children ? (children() as Renderable[]) : [])
+        return h(
+          el,
+          attrs(),
+          (slots || (children ? children() : [])) as Renderable[]
+        )
       }
 
       return typeof alternate === 'function' ? alternate() : alternate
@@ -545,11 +593,18 @@ function parseSchema(
   ) {
     const compiledFns: Record<symbol, FormKitCompilerOutput> = {}
     providers.push((callback: SchemaProviderCallback, key: symbol) => {
-      compiledFns[key] = compiled.provide((r) => callback(r, hints))
+      compiledFns[key] = compiled.provide((tokens) => callback(tokens, hints))
     })
     return () => compiledFns[instanceKey]()
   }
 
+  /**
+   * Creates a new instance of a given schema — this either comes from a
+   * memoized copy of the parsed schema or a freshly parsed version. An symbol
+   * instance key, and dataProvider functions are passed in.
+   * @param providerCallback - A function that is called for each required provider
+   * @param key - a symbol representing the current instance
+   */
   return function createInstance(
     providerCallback: SchemaProviderCallback,
     key
