@@ -103,7 +103,7 @@ export function useInput(
     extend(config || {}, {
       name: props.name || undefined,
       value,
-      parent,
+      parent: initialProps.ignore ? null : parent,
       plugins: (config.plugins || []).concat(props.plugins),
       config: props.config,
       props: initialProps,

@@ -92,6 +92,10 @@ const FormKit = defineComponent({
       >,
       required: false,
     },
+    ignore: {
+      type: [String, Boolean],
+      default: false,
+    },
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */

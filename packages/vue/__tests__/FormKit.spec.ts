@@ -1,4 +1,4 @@
-import { nextTick } from 'vue'
+import { nextTick, h } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
@@ -46,6 +46,49 @@ describe('props', () => {
       },
     })
     expect(wrapper.findAll('li').length).toBe(1)
+  })
+
+  it('children emit a model update event on boot', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'group',
+      },
+      slots: {
+        default() {
+          return h(FormKit, {
+            name: 'child',
+            value: 'foobar',
+          })
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const eventWrapper = wrapper.emitted('update:modelValue')
+    expect(eventWrapper?.length).toBe(1)
+    expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
+  })
+
+  it('does not emit updatedModel if child has ignored prop', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'group',
+      },
+      slots: {
+        default() {
+          return h(FormKit, {
+            name: 'child',
+            value: 'foobar',
+            ignore: true,
+          })
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.emitted('update:modelValue')).toBe(undefined)
   })
 })
 

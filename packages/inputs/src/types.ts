@@ -193,7 +193,7 @@ export const group: FormKitTypeDefinition = {
 export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: formSchema,
-  props: ['actions', 'submit', 'submitLabel'],
+  props: ['actions', 'submit', 'submitLabel', 'submitAttrs'],
   features: [formHandler],
 }
 

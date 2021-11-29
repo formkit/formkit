@@ -8,7 +8,9 @@ const submit: FormKitSchemaComposable = (schema = {}) => ({
     extend(
       {
         $cmp: 'FormKit',
+        bind: '$submitAttrs',
         props: {
+          ignore: true,
           type: 'submit',
           'data-loading': '$state.loading',
           label: {
