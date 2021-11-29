@@ -11,6 +11,7 @@ const outer: FormKitSchemaComposable = (schema = {}, children = []) => ({
         class: '$classes.outer',
         'data-type': '$type',
         'data-multiple': '$attrs.multiple',
+        'data-disabled': '$attrs.disabled',
       },
       children,
     },

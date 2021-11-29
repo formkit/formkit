@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <!-- <h1>Examples1.vue</h1>
-    <Example1 /> -->
+    <h1>Examples1.vue</h1>
+    <Example1 />
     <h1>Examples2.vue</h1>
     <Example2 />
 

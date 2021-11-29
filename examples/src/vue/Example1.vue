@@ -8,6 +8,7 @@
       type="email"
       label="Email address"
       placeholder="jon@foo.com"
+      disabled
     />
     <FormKit
       type="select"
@@ -37,7 +38,6 @@
       ]"
       validation-behavior="live"
     />
-    {{ summerStart }}
     <FormKit
       label="Countries"
       type="radio"

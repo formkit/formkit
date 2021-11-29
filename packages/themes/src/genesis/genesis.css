@@ -351,6 +351,15 @@
   }
 }
 
+.formkit-outer[data-disabled] {
+  &:not([data-type="checkbox"]),
+  &:not([data-type="radio"]) {
+    & .formkit-inner {
+      background-color: var(--formkit-disabled-color);
+    }
+  }
+}
+
 [data-type="button"],
 [data-type="submit"] {
   & .formkit-wrapper {
