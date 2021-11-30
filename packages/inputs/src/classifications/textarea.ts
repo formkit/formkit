@@ -12,7 +12,7 @@ import message from '../composables/message'
  * The schema for textarea classifications.
  * @public
  */
- const textareaSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
+const textareaSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
   outer(extensions.outer, [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),

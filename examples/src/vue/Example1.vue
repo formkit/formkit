@@ -37,7 +37,6 @@
       ]"
       validation-behavior="live"
     />
-    {{ summerStart }}
     <FormKit
       label="Countries"
       type="radio"
@@ -47,10 +46,17 @@
     />
   </FormKit>
 
-  <FormKit type="button">Hello world</FormKit>
+  <FormKit
+    type="button"
+    @click.prevent="() => disabled = !disabled"
+  >
+    {{ disabled ? 'enable' : 'un disable' }}
+  </FormKit>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+const disabled = ref(true)
 
 const date = new Date()
 const month = date.getMonth() + 1
@@ -60,7 +66,6 @@ const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)
 
-import { ref } from 'vue'
 const options = [
   {
     label: 'Italy',

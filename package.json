@@ -46,6 +46,7 @@
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --detectOpenHandles",
     "build": "node scripts/cli.mjs --script build",
+    "build-test": "yarn build all && yarn test",
     "publish": "node scripts/cli.mjs --script publish",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",

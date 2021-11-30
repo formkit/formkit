@@ -10,6 +10,7 @@ const textarea: FormKitSchemaComposable = (schema = {}) => ({
       bind: '$attrs',
       attrs: {
         class: '$classes.input',
+        disabled: '$disabled',
         name: '$node.name',
         onInput: '$handlers.DOMInput',
         onBlur: '$handlers.blur',

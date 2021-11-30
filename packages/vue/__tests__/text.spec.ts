@@ -38,6 +38,18 @@ describe('text classification', () => {
     )
   })
 
+  it('can disable a text input', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        disabled: true,
+      },
+      ...global,
+    })
+    expect(wrapper.find('.formkit-outer[data-disabled]').exists()).toBe(true)
+    expect(wrapper.find('input[disabled]').exists()).toBe(true)
+  })
+
   it('throws an error when provided input type is not in library', () => {
     const consoleWarnMock = jest
       .spyOn(console, 'warn')

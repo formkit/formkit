@@ -3,7 +3,9 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
-import vuePlugin from '../src/corePlugin'
+import corePlugin from '../src/corePlugin'
+import { plugin } from '../src/plugin'
+import defaultConfig from '../src/defaultConfig'
 
 describe('parsing dom elements', () => {
   it('can render a single simple dom element', () => {
@@ -723,6 +725,151 @@ describe('rendering components', () => {
     await nextTick()
     expect(wrapper.html()).toBe('213')
   })
+
+  it('can re-parse a schema with components when new object', async () => {
+    const schema: FormKitSchemaNode[] = reactive([
+      {
+        $cmp: 'FormKit',
+        props: {
+          type: 'text',
+          label: 'Text input',
+        },
+      },
+    ])
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: schema,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.findAll('.formkit-outer').length).toBe(1)
+    wrapper.setProps({
+      schema: [
+        ...schema,
+        {
+          $cmp: 'FormKit',
+          props: {
+            type: 'checkbox',
+            label: 'Checkbox input',
+          },
+        },
+      ],
+    })
+    await nextTick()
+    expect(wrapper.findAll('.formkit-outer').length).toBe(2)
+  })
+
+  it('can re-parse a schema with components when deep update', async () => {
+    const schema: FormKitSchemaNode[] = reactive([
+      {
+        $cmp: 'FormKit',
+        props: {
+          type: 'text',
+          label: 'Text input',
+        },
+      },
+    ])
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: schema,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.findAll('.formkit-outer').length).toBe(1)
+    schema.push({
+      $cmp: 'FormKit',
+      props: {
+        type: 'checkbox',
+        label: 'Checkbox input',
+      },
+    })
+    await nextTick()
+    expect(wrapper.findAll('.formkit-outer').length).toBe(2)
+  })
+
+  it('can use shorthand for $formkit', () => {
+    const data = reactive({ value: 11 })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'select',
+            if: '$value > 10',
+            name: 'foobar',
+            options: {
+              hello: 'Hello',
+              world: 'World',
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html())
+      .toContain(`<select class=\"formkit-input\" name=\"foobar\">
+        <option class=\"formkit-option\" value=\"hello\">Hello</option>
+        <option class=\"formkit-option\" value=\"world\">World</option>
+      </select>`)
+  })
+
+  it('can access content from original data inside default slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          doodle: 'Poodle',
+        },
+        schema: [
+          {
+            $formkit: 'group',
+            children: ['$doodle'],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toBe('Poodle')
+  })
+})
+
+it('can access content from original data inside deeply nested slot', () => {
+  const wrapper = mount(FormKitSchema, {
+    props: {
+      data: {
+        doodle: 'Poodle',
+      },
+      schema: [
+        {
+          $formkit: 'group',
+          children: [
+            {
+              $formkit: 'list',
+              children: [
+                {
+                  $formkit: 'button',
+                  children: '$doodle',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    global: {
+      plugins: [[plugin, defaultConfig]],
+    },
+  })
+  expect(wrapper.html()).toContain('Poodle</button>')
 })
 
 describe('schema $get function', () => {
@@ -731,7 +878,7 @@ describe('schema $get function', () => {
   it('can fetch a global formkit node', async () => {
     const node = createNode({
       type: 'input',
-      plugins: [vuePlugin],
+      plugins: [corePlugin],
       props: { id: 'boo' },
       value: 'you found me!',
     })
@@ -755,7 +902,7 @@ describe('schema $get function', () => {
     expect(wrapper.html()).toBe('null')
     createNode({
       type: 'input',
-      plugins: [vuePlugin],
+      plugins: [corePlugin],
       props: { id: 'bar' },
       value: 'you found me!',
     })

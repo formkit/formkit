@@ -10,6 +10,7 @@ const text: FormKitSchemaComposable = (schema = {}) => ({
       bind: '$attrs',
       attrs: {
         type: '$type',
+        disabled: '$disabled',
         class: '$classes.input',
         name: '$node.name',
         onInput: '$handlers.DOMInput',

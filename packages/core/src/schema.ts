@@ -1,4 +1,3 @@
-import { FormKitProps } from './node'
 import { has } from '@formkit/utils'
 
 /**
@@ -30,18 +29,6 @@ export interface FormKitSchemaProps {
   for?: FormKitListStatement
   bind?: string
 }
-
-/**
- * Properties available when using a formkit input.
- * @public
- */
-export type FormKitSchemaFormKitNode = {
-  $node: string
-  name?: string
-  props: Partial<FormKitProps>
-  type: 'input' | 'list' | 'group'
-  value?: any
-} & FormKitSchemaProps
 
 /**
  * Properties available when using a DOM node.
@@ -97,8 +84,17 @@ export type FormKitSchemaAttributes =
  */
 export type FormKitSchemaComponent = {
   $cmp: string
-  props?: { [index: string]: any }
+  props?: Record<string, any>
 } & FormKitSchemaProps
+
+/**
+ * Syntactic sugar for a FormKitSchemaComponent node that uses formkit.
+ * @public
+ */
+export type FormKitSchemaFormKit = {
+  $formkit: string
+} & Record<string, any> &
+  FormKitSchemaProps
 
 /**
  * A schema node that determines _which_ content to render.
@@ -124,11 +120,11 @@ export interface FormKitSchemaContext {
  * @public
  */
 export type FormKitSchemaNode =
-  | FormKitSchemaFormKitNode
   | FormKitSchemaDOMNode
   | FormKitSchemaComponent
   | FormKitSchemaTextNode
   | FormKitSchemaCondition
+  | FormKitSchemaFormKit
 
 /**
  * Definition for a function that can extend a given schema node.
@@ -211,4 +207,54 @@ export function isConditional(
 ): node is FormKitSchemaNode | FormKitSchemaAttributesCondition {
   if (!node || typeof node === 'string') return false
   return has(node, 'if') && has(node, 'then')
+}
+
+/**
+ * Determines if the node is syntactic sugar or not.
+ * @param node - Node
+ * @returns
+ * @public
+ */
+export function isSugar(node: FormKitSchemaNode): node is FormKitSchemaFormKit {
+  return typeof node !== 'string' && '$formkit' in node
+}
+
+/**
+ * Converts syntactic sugar nodes to standard nodes.
+ * @param node - A node to covert
+ * @returns
+ * @public
+ */
+export function sugar<T extends FormKitSchemaNode>(
+  node: T
+): Exclude<FormKitSchemaNode, string | FormKitSchemaFormKit> {
+  if (typeof node === 'string') {
+    return {
+      $el: 'text',
+      children: node,
+    }
+  }
+  if (isSugar(node)) {
+    const {
+      $formkit: type,
+      for: iterator,
+      if: condition,
+      children,
+      key,
+      bind,
+      ...props
+    } = node as FormKitSchemaFormKit
+    return Object.assign(
+      {
+        $cmp: 'FormKit',
+        props: { ...props, type },
+      },
+      condition ? { if: condition } : {},
+      iterator ? { for: iterator } : {},
+      children ? { children } : {},
+      key ? { key } : {},
+      bind ? { bind } : {}
+    )
+  }
+  return node
 }

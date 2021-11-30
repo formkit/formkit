@@ -213,7 +213,7 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.find('li').html()).toBe(
-      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><input disabled="" type="checkbox" class="formkit-input" name="countries" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
+      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
     )
   })
 })

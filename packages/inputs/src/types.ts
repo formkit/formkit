@@ -12,6 +12,7 @@ import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 import checkboxes from './features/checkboxes'
 import radios from './features/radios'
+import disablesChildren from './features/disables'
 import formHandler from './features/form'
 
 /**
@@ -112,7 +113,7 @@ export const range = textClassification
  */
 export const textarea: FormKitTypeDefinition = {
   type: 'input',
-  schema: textareaSchema
+  schema: textareaSchema,
 }
 
 /**
@@ -184,6 +185,7 @@ export const radio: FormKitTypeDefinition = {
 export const group: FormKitTypeDefinition = {
   type: 'group',
   schema: groupSchema,
+  features: [disablesChildren],
 }
 
 /**
@@ -193,8 +195,8 @@ export const group: FormKitTypeDefinition = {
 export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: formSchema,
-  props: ['actions', 'submit', 'submitLabel'],
-  features: [formHandler],
+  props: ['actions', 'submit', 'submitLabel', 'submitAttrs'],
+  features: [formHandler, disablesChildren],
 }
 
 /**
@@ -204,4 +206,5 @@ export const form: FormKitTypeDefinition = {
 export const list: FormKitTypeDefinition = {
   type: 'list',
   schema: listSchema,
+  features: [disablesChildren],
 }

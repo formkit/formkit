@@ -62,7 +62,7 @@ export async function buildPackage(p) {
     msg.error(`The build was cancelled. 👋`)
     return
   }
-  if (p.includes('build all')) {
+  if (p.includes('build all') || p === 'all') {
     msg.info('» Building all packages...')
     buildAllPackages(packages)
     return

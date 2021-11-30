@@ -13,6 +13,7 @@ import {
   watchEffect,
   watch,
   Ref,
+  getCurrentInstance,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -30,6 +31,7 @@ import {
   warn,
   watchRegistry,
   isNode,
+  sugar,
 } from '@formkit/core'
 
 /**
@@ -60,7 +62,8 @@ type RenderContent = [
           | Record<string, any>,
         valueName: string,
         keyName: string | null
-      ]
+      ],
+  resolve: boolean
 ]
 /**
  * The actual signature of a VNode in Vue.
@@ -71,13 +74,29 @@ type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
  */
 type Renderable = null | string | number | boolean | VirtualNode
 /**
+ * A list of renderable items.
+ */
+type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
+
+/**
+ * An object of slots
+ */
+type RenderableSlots = Record<string, RenderableSlot>
+
+/**
+ * A slot function that can be rendered.
+ */
+type RenderableSlot = (
+  data?: Record<string, any>,
+  key?: symbol
+) => RenderableList
+/**
  * Describes renderable children.
  */
-type RenderChildren = () =>
-  | Renderable
-  | Renderable[]
-  | (Renderable | Renderable[])[]
-  | Record<string, RenderChildren>
+interface RenderChildren {
+  (): RenderableList | RenderableSlots
+  slot?: boolean
+}
 
 /**
  * The format children elements can be in.
@@ -333,14 +352,8 @@ function parseSchema(
     let children: RenderContent[3] = null
     let alternate: RenderContent[4] = null
     let iterator: RenderContent[5] = null
-    const node: Exclude<FormKitSchemaNode, string> =
-      typeof _node === 'string'
-        ? {
-            $el: 'text',
-            children: _node,
-          }
-        : _node
-
+    let resolve = false
+    const node = sugar(_node)
     if (isDOM(node)) {
       // This is an actual HTML DOM element
       element = node.$el
@@ -349,9 +362,12 @@ function parseSchema(
     } else if (isComponent(node)) {
       // This is a Vue Component
       if (typeof node.$cmp === 'string') {
-        element = has(library, node.$cmp)
-          ? library[node.$cmp]
-          : resolveComponent(node.$cmp)
+        if (has(library, node.$cmp)) {
+          element = library[node.$cmp]
+        } else {
+          element = node.$cmp
+          resolve = true
+        }
       } else {
         // in this case it must be an actual component
         element = node.$cmp
@@ -404,16 +420,23 @@ function parseSchema(
         // render pass the scoped slot props to the scope.
         const produceChildren = children
         children = () => ({
-          default: (slotData?: Record<string, any>) => {
+          default(
+            slotData?: Record<string, any>,
+            key?: symbol
+          ): RenderableList {
+            // We need to switch the current instance key back to the one that
+            // originally called this component's render function.
+            const currentKey = instanceKey
+            if (key) instanceKey = key
             if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-            const instance = instanceKey
             const c = produceChildren()
             // Ensure our instance key never changed during runtime
-            instanceKey = instance
             instanceScopes.get(instanceKey)?.shift()
-            return c
+            instanceKey = currentKey
+            return c as RenderableList
           },
         })
+        children.slot = true
       } else {
         // If we dont have any children, we still need to provide an object
         // instead of an empty array (which raises a warning in vue)
@@ -434,7 +457,24 @@ function parseSchema(
         node.for.length === 3 ? String(node.for[1]) : null,
       ]
     }
-    return [condition, element, attrs, children, alternate, iterator]
+    return [condition, element, attrs, children, alternate, iterator, resolve]
+  }
+
+  /**
+   * Given a particular function that produces children, ensure that the second
+   * argument of all these slots is the original instance key being used to
+   * render the slots.
+   * @param children - The children() function that will produce slots
+   */
+  function createSlots(children: RenderChildren): RenderableSlots | null {
+    const slots = children() as RenderableSlots
+    const currentKey = instanceKey
+    return Object.keys(slots).reduce((allSlots, slotName) => {
+      const slotFn = slots && slots[slotName]
+      allSlots[slotName] = (data?: Record<string, any>) =>
+        (slotFn && slotFn(data, currentKey)) || null
+      return allSlots
+    }, {} as RenderableSlots)
   }
 
   /**
@@ -455,6 +495,7 @@ function parseSchema(
       children,
       alternate,
       iterator,
+      resolve,
     ] = parseNode(library, node)
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
@@ -472,8 +513,18 @@ function parseSchema(
         }
         // Handle lone slots
         if (element === 'slot' && children) return children()
+        // Handle resolving components
+        const el = resolve ? resolveComponent(element as string) : element
+        // If we are rendering slots as children, ensure their instanceKey is properly added
+        const slots: RenderableSlots | null = children?.slot
+          ? createSlots(children)
+          : null
         // Handle dom elements and components
-        return h(element, attrs(), children ? (children() as Renderable[]) : [])
+        return h(
+          el,
+          attrs(),
+          (slots || (children ? children() : [])) as Renderable[]
+        )
       }
 
       return typeof alternate === 'function' ? alternate() : alternate
@@ -542,11 +593,18 @@ function parseSchema(
   ) {
     const compiledFns: Record<symbol, FormKitCompilerOutput> = {}
     providers.push((callback: SchemaProviderCallback, key: symbol) => {
-      compiledFns[key] = compiled.provide((r) => callback(r, hints))
+      compiledFns[key] = compiled.provide((tokens) => callback(tokens, hints))
     })
     return () => compiledFns[instanceKey]()
   }
 
+  /**
+   * Creates a new instance of a given schema — this either comes from a
+   * memoized copy of the parsed schema or a freshly parsed version. An symbol
+   * instance key, and dataProvider functions are passed in.
+   * @param providerCallback - A function that is called for each required provider
+   * @param key - a symbol representing the current instance
+   */
   return function createInstance(
     providerCallback: SchemaProviderCallback,
     key
@@ -660,7 +718,8 @@ export const FormKitSchema = defineComponent({
     },
   },
   setup(props, context) {
-    const instanceKey = Symbol(String(i++))
+    const instance = getCurrentInstance()
+    let instanceKey = Symbol(String(i++))
     instanceScopes.set(instanceKey, [])
     let provider = parseSchema(props.library, props.schema)
     let render: RenderChildren
@@ -668,10 +727,20 @@ export const FormKitSchema = defineComponent({
     // Re-parse the schema if it changes:
     watch(
       () => props.schema,
-      () => {
+      (newSchema, oldSchema) => {
+        instanceKey = Symbol(String(i++))
         provider = parseSchema(props.library, props.schema)
         render = createRenderFn(provider, data, instanceKey)
-      }
+        if (newSchema === oldSchema) {
+          // In this edge case, someone pushed/modified something in the schema
+          // and we've successfully re-parsed, but since the schema is not
+          // referenced in the render function it technically isnt a dependency
+          // and we need to force a re-render since we swapped out the render
+          // function completely.
+          ;((instance?.proxy?.$forceUpdate as unknown) as CallableFunction)()
+        }
+      },
+      { deep: true }
     )
 
     // Watch the data object explicitly

@@ -138,4 +138,87 @@ describe('form submission', () => {
     await new Promise((r) => setTimeout(r, 25))
     expect(node?.context?.state?.loading).toBe(undefined)
   })
+
+  it('does not register the submit button', () => {
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler: () => undefined,
+        },
+        template: `<FormKit type="form" id="submitButtonForm" @submit="submitHandler">
+        <FormKit validation="email" name="email" value="foo@bar.com" />
+        <FormKit validation="required" name="country" value="de" :options="{ us: 'usa', de: 'germany' }" />
+      </FormKit>`,
+      },
+      global
+    )
+    wrapper.find('form').trigger('submit')
+    const node = get('submitButtonForm')
+    expect(node?.value).toStrictEqual({ email: 'foo@bar.com', country: 'de' })
+  })
+
+  it('allows adding an attribute to submit button', () => {
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler: () => undefined,
+        },
+        template: `<FormKit
+          type="form"
+          id="submitButtonForm"
+          @submit="submitHandler"
+          :submit-attrs="{ 'data-foo': 'bar bar' }"
+        >
+          Content
+        </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('button[data-foo="bar bar"]').exists()).toBe(true)
+  })
+
+  it('can disable all inputs in a form', () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit
+          type="form"
+          disabled
+        >
+          <FormKit id="disabledEmail" type="email" />
+          <FormKit id="disabledSelect" type="select" />
+        </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+
+  it('can reactively disable and enable all inputs in a form', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="form"
+          :disabled="disabled"
+        >
+          <FormKit id="disabledEmail" type="email" />
+          <FormKit id="disabledSelect" type="select" />
+        </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(false)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(
+      false
+    )
+    wrapper.setData({ disabled: true })
+    await nextTick()
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
 })

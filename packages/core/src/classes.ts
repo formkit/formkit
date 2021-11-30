@@ -52,6 +52,7 @@ export function generateClassList(
   ...args: Record<string, boolean>[]
 ): string | null {
   const combinedClassList = args.reduce((finalClassList, currentClassList) => {
+    if (!currentClassList) return finalClassList
     const { $reset, ...classList } = currentClassList
     if ($reset) {
       return classList

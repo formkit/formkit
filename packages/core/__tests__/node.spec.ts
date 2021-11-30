@@ -38,6 +38,24 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
+  it('allows config to be overriden by child props', () => {
+    const child = createNode({
+      props: {
+        flavor: 'cherry',
+      },
+    })
+    createNode({
+      type: 'group',
+      config: {
+        size: 'large',
+        flavor: 'grape',
+      },
+      children: [child],
+    })
+    expect(child.props.size).toBe('large')
+    expect(child.props.flavor).toBe('cherry')
+  })
+
   it('emits config:{property} events when configuration options change', () => {
     const node = createNode({
       config: { locale: 'en' },
@@ -48,7 +66,7 @@ describe('node', () => {
     const listenerB = jest.fn()
     node.on('config:locale', listenerA)
     node.at('child')!.on('config:locale', listenerB)
-    node.at('child')!.config.locale = 'fr'
+    node.config.locale = 'fr'
     expect(listenerA).toHaveBeenCalledTimes(1)
     expect(listenerA).toHaveBeenLastCalledWith(
       expect.objectContaining({ payload: 'fr' })
@@ -63,6 +81,64 @@ describe('node', () => {
     expect(listenerB).toHaveBeenCalledTimes(1)
   })
 
+  it('can traverse into lists and groups', () => {
+    const group = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'team' }),
+        createNode({
+          type: 'list',
+          name: 'users',
+          children: [
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password' }),
+              ],
+            }),
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password', value: 'foobar' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    expect(group.at('users.1.password')?.value).toBe('foobar')
+  })
+
+  it('only traverses one layer deep when calling node.each', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode(),
+        createNode({ type: 'group', children: [createNode(), createNode()] }),
+      ],
+    })
+    const callback = jest.fn()
+    tree.each(callback)
+    expect(callback).toHaveBeenCalledTimes(3)
+  })
+
+  it('traverses any depth when calling node.walk', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode(),
+        createNode({ type: 'group', children: [createNode(), createNode()] }),
+      ],
+    })
+    const callback = jest.fn()
+    tree.walk(callback)
+    expect(callback).toHaveBeenCalledTimes(5)
+  })
+
   it('does not allow nodes of type input to be created with children', () => {
     expect(() => {
       createNode({ children: [createNode()] })
@@ -75,19 +151,6 @@ describe('node', () => {
     parent.add(email)
     parent.add(email)
     expect(parent.children.length).toBe(1)
-  })
-
-  it('allows configuration to flow up to parents', () => {
-    const email = createNode({ name: 'email' })
-    const node = createNode({
-      type: 'group',
-      config: {
-        delimiter: '#',
-      },
-      children: [email],
-    })
-    email.config.delimiter = '$'
-    expect(node.config.delimiter).toBe('$')
   })
 
   it('changes a child’s config when moving between trees', () => {
@@ -420,6 +483,17 @@ describe('props system', () => {
     child.hook.prop(({ prop }, next) => next({ prop, value: 800 }))
     child.props.delay = 200
     expect(child.props.delay).toBe(800)
+  })
+
+  it('emits a prop event when a config changes and there is no matching prop', () => {
+    const listener = jest.fn()
+    const node = createNode({
+      props: {},
+      config: { foo: 'bar' },
+    })
+    node.on('prop:foo', listener)
+    node.config.foo = 'baz'
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 
   it('emits a prop event when a prop changes', () => {

@@ -9,7 +9,7 @@ async function handleSubmit(node: FormKitNode, e: Event) {
   e.preventDefault()
   await node.settled
   // Set the submitted state on all children
-  node.each((n) => {
+  node.walk((n) => {
     n.store.set(
       createMessage({
         key: 'submitted',

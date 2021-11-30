@@ -104,8 +104,8 @@ export function compile(expr: string): FormKitCompilerOutput {
    */
   const operatorRegistry: OperatorRegistry = [
     {
-      '&&': (l, r, t) => !!(x(l, t) && x(r, t)),
-      '||': (l, r, t) => !!(x(l, t) || x(r, t)),
+      '&&': (l, r, t) => x(l, t) && x(r, t),
+      '||': (l, r, t) => x(l, t) || x(r, t),
     },
     {
       '===': (l, r, t) => !!(x(l, t) === x(r, t)),

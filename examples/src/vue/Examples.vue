@@ -2,6 +2,8 @@
   <div class="container">
     <h1>Examples1.vue</h1>
     <Example1 />
+    <h1>Examples2.vue</h1>
+    <Example2 />
 
     <!-- <h1>TextClassifications.vue</h1>
     <TextClassifications /> -->
@@ -11,11 +13,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import Example1 from './Example1.vue'
+import Example2 from './Example2.vue'
 // import TextClassifications from './TextClassifications.vue'
 
 export default defineComponent({
   components: {
     Example1,
+    Example2,
     // TextClassifications
   }
 })
