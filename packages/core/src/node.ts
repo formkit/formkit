@@ -511,7 +511,7 @@ export type FormKitNode = {
   /**
    * Sets the configuration of a node.
    */
-  setConfig: (config: FormKitConfig) => void
+  resetConfig: () => void
   /**
    * A promise that resolves when a node and its entire subtree is settled.
    * In other words — all the inputs are done committing their values.
@@ -626,7 +626,7 @@ const traps = {
   plugins: trap(false),
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
-  setConfig: trap(setConfig),
+  resetConfig: trap(resetConfig),
   t: trap(text),
   use: trap(use),
   name: trap(getName, false, false),
@@ -1016,7 +1016,7 @@ function setParent(
       child.parent.remove(child)
     }
     context.parent = parent
-    child.setConfig(parent.config)
+    child.resetConfig()
     !parent.children.includes(child)
       ? parent.add(child)
       : child.use(parent.plugins)
@@ -1094,14 +1094,10 @@ function walkTree(
  * @param _property -
  * @param config -
  */
-function setConfig(
-  node: FormKitNode,
-  context: FormKitContext,
-  config: FormKitConfig
-) {
-  context.config = config
-  config._n = node
-  node.walk((n) => n.setConfig(config))
+function resetConfig(node: FormKitNode, context: FormKitContext) {
+  const parent = node.parent || undefined
+  context.config = createConfig(parent, node.config._t)
+  node.walk((n) => n.resetConfig())
 }
 
 /**
@@ -1346,7 +1342,7 @@ function createConfig(
   parent?: FormKitNode | null,
   configOptions?: Partial<FormKitConfig>
 ): FormKitConfig {
-  const nodes = new Set<FormKitNode>()
+  let node: FormKitNode | undefined = undefined
   const target: Record<string, any> = !parent
     ? {
         delimiter: '.',
@@ -1358,6 +1354,7 @@ function createConfig(
     : {}
   return new Proxy(target, {
     get(...args) {
+      if (args[1] === '_t') return target
       const localValue = Reflect.get(...args)
       if (localValue !== undefined || !parent) {
         return localValue
@@ -1368,29 +1365,35 @@ function createConfig(
       const prop = args[1] as string
       const value = args[2]
       if (prop === '_n') {
-        nodes.add(value)
+        node = value as FormKitNode
         return true
       }
       if (prop === '_rmn') {
-        nodes.delete(value)
+        node = undefined
         return true
       }
       if (!eq(target[prop as string], value, false)) {
         const didSet = Reflect.set(...args)
-        if (nodes.size && typeof prop === 'string') {
-          nodes.forEach((n) => {
-            n.emit(`config:${prop}`, value, false)
-            if (!(prop in n.props)) {
-              n.emit('prop', { prop, value })
-              n.emit(`prop:${prop}`, value)
-            }
-          })
+        if (node) {
+          node.emit(`config:${prop}`, value, false)
+          configChange(node, prop, value)
+          node.walk((n) => configChange(n, prop, value))
         }
         return didSet
       }
       return true
     },
   }) as FormKitConfig
+}
+
+function configChange(node: FormKitNode, prop: string, value: any) {
+  if (!(prop in node.config._t)) {
+    node.emit(`config:${prop}`, value, false)
+  }
+  if (!(prop in node.props)) {
+    node.emit('prop', { prop, value })
+    node.emit(`prop:${prop}`, value)
+  }
 }
 
 /**

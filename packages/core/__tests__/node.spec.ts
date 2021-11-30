@@ -66,7 +66,7 @@ describe('node', () => {
     const listenerB = jest.fn()
     node.on('config:locale', listenerA)
     node.at('child')!.on('config:locale', listenerB)
-    node.at('child')!.config.locale = 'fr'
+    node.config.locale = 'fr'
     expect(listenerA).toHaveBeenCalledTimes(1)
     expect(listenerA).toHaveBeenLastCalledWith(
       expect.objectContaining({ payload: 'fr' })
@@ -151,19 +151,6 @@ describe('node', () => {
     parent.add(email)
     parent.add(email)
     expect(parent.children.length).toBe(1)
-  })
-
-  it('allows configuration to flow up to parents', () => {
-    const email = createNode({ name: 'email' })
-    const node = createNode({
-      type: 'group',
-      config: {
-        delimiter: '#',
-      },
-      children: [email],
-    })
-    email.config.delimiter = '$'
-    expect(node.config.delimiter).toBe('$')
   })
 
   it('changes a child’s config when moving between trees', () => {

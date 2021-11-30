@@ -5,7 +5,7 @@
   --formkit-button-hover: rgba(0 0 0 / 10%);
   --formkit-border-color: rgba(0 0 0 / 25%);
   --formkit-border: 1px solid var(--formkit-border-color);
-  --formkit-disabled-color: #f1f1f1;
+  --formkit-disabled-color: rgba(0 0 0 / 5%);
   --formkit-border-radius: 0.25em;
   --formkit-input-text-color: rgba(0 0 0 / 95%);
   --formkit-minor-color: rgba(0 0 0 / 60%);

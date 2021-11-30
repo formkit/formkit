@@ -2,7 +2,6 @@
   <h2>FormKit Playground</h2>
   <FormKit
     type="form"
-    :disabled="disabled"
     @submit="submit"
   >
     <FormKit

@@ -185,6 +185,7 @@ export const radio: FormKitTypeDefinition = {
 export const group: FormKitTypeDefinition = {
   type: 'group',
   schema: groupSchema,
+  features: [disablesChildren],
 }
 
 /**
@@ -205,4 +206,5 @@ export const form: FormKitTypeDefinition = {
 export const list: FormKitTypeDefinition = {
   type: 'list',
   schema: listSchema,
+  features: [disablesChildren],
 }

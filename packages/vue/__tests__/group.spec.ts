@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
+import { nextTick } from 'vue'
 // import { jest } from '@jest/globals'
 
 describe('group', () => {
@@ -74,5 +75,37 @@ describe('group', () => {
     expect(wrapper.vm.$data.street).toBe('foo rd.')
     // expect(consoleMock).toHaveBeenCalled()
     // consoleMock.mockRestore()
+  })
+
+  it('can reactively disable and enable all inputs in a group', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="group"
+          :disabled="disabled"
+        >
+          <FormKit id="disabledEmail" type="email" />
+          <FormKit id="disabledSelect" type="select" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(false)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(
+      false
+    )
+    wrapper.setData({ disabled: true })
+    await nextTick()
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
   })
 })

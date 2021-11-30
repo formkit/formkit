@@ -310,7 +310,11 @@
     }
 
     &[disabled]::-webkit-slider-thumb {
-      background-color: var(--formkit-disabled-color);
+      background-color: var(--formkit-border-color);
+    }
+
+    &[disabled]::-moz-slider-thumb {
+      background-color: var(--formkit-border-color);
     }
 
     &:focus-visible {

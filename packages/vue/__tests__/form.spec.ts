@@ -193,4 +193,32 @@ describe('form submission', () => {
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
   })
+
+  it('can reactively disable and enable all inputs in a form', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="form"
+          :disabled="disabled"
+        >
+          <FormKit id="disabledEmail" type="email" />
+          <FormKit id="disabledSelect" type="select" />
+        </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(false)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(
+      false
+    )
+    wrapper.setData({ disabled: true })
+    await nextTick()
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
 })
