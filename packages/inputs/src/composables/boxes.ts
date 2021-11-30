@@ -11,7 +11,7 @@ const boxes: FormKitSchemaComposable = (schema = {}, children = []) => ({
         for: ['option', '$options'],
         attrs: {
           class: '$classes.option',
-          'data-disabled': '$option.attrs.disabled',
+          'data-disabled': '$option.attrs.disabled || $disabled',
         },
         children,
       },

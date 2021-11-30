@@ -2,13 +2,13 @@
   <h2>FormKit Playground</h2>
   <FormKit
     type="form"
+    :disabled="disabled"
     @submit="submit"
   >
     <FormKit
       type="email"
       label="Email address"
       placeholder="jon@foo.com"
-      disabled
     />
     <FormKit
       type="select"
@@ -47,10 +47,18 @@
     />
   </FormKit>
 
-  <FormKit type="button">Hello world</FormKit>
+  <FormKit
+    type="button"
+    @click.prevent="() => disabled = !disabled"
+  >
+    {{ disabled ? 'enable' : 'un disable' }}
+  </FormKit>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+const disabled = ref(true)
+
 const date = new Date()
 const month = date.getMonth() + 1
 const day = date.getDate()

@@ -120,6 +120,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   const context: FormKitFrameworkContext = reactive({
     _value: node.value,
     attrs: node.props.attrs,
+    disabled: node.props.disabled,
     fns: {
       length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
       number: (value: any) => Number(value),
@@ -188,7 +189,15 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   /**
    * We use a node observer to individually observe node props.
    */
-  const rootProps = ['help', 'label', 'options', 'type', 'attrs', 'id']
+  const rootProps = [
+    'help',
+    'label',
+    'disabled',
+    'options',
+    'type',
+    'attrs',
+    'id',
+  ]
   observeProps(rootProps)
 
   /**

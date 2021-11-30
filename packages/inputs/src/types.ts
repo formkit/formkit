@@ -12,6 +12,7 @@ import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 import checkboxes from './features/checkboxes'
 import radios from './features/radios'
+import disablesChildren from './features/disables'
 import formHandler from './features/form'
 
 /**
@@ -194,7 +195,7 @@ export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: formSchema,
   props: ['actions', 'submit', 'submitLabel', 'submitAttrs'],
-  features: [formHandler],
+  features: [formHandler, disablesChildren],
 }
 
 /**

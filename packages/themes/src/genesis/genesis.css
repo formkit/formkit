@@ -309,6 +309,10 @@
       border: 1px solid var(--formkit-range-thumb-color);
     }
 
+    &[disabled]::-webkit-slider-thumb {
+      background-color: var(--formkit-disabled-color);
+    }
+
     &:focus-visible {
       &::-moz-range-thumb {
         box-shadow: 0 0 0.5em var(--formkit-focus-border-color);
@@ -352,8 +356,7 @@
 }
 
 .formkit-outer[data-disabled] {
-  &:not([data-type="checkbox"]),
-  &:not([data-type="radio"]) {
+  &:not([data-type="checkbox"]):not([data-type="radio"]):not([data-type="range"]) {
     & .formkit-inner {
       background-color: var(--formkit-disabled-color);
     }

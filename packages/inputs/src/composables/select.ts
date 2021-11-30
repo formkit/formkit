@@ -17,6 +17,7 @@ const select: FormKitSchemaComposable = (schema = {}, children = []) => ({
             else: 'true',
           },
         },
+        disabled: '$disabled',
         class: '$classes.input',
         name: '$node.name',
         onInput: '$handlers.selectInput',

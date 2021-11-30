@@ -176,4 +176,21 @@ describe('form submission', () => {
     )
     expect(wrapper.find('button[data-foo="bar bar"]').exists()).toBe(true)
   })
+
+  it('can disable all inputs in a form', () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit
+          type="form"
+          disabled
+        >
+          <FormKit id="disabledEmail" type="email" />
+          <FormKit id="disabledSelect" type="select" />
+        </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
 })

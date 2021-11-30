@@ -1347,7 +1347,7 @@ function createConfig(
   configOptions?: Partial<FormKitConfig>
 ): FormKitConfig {
   const nodes = new Set<FormKitNode>()
-  const target = !parent
+  const target: Record<string, any> = !parent
     ? {
         delimiter: '.',
         delay: 0,
@@ -1365,20 +1365,30 @@ function createConfig(
       return parent.config[args[1] as string]
     },
     set(...args) {
-      if (args[1] === '_n') {
-        nodes.add(args[2])
+      const prop = args[1] as string
+      const value = args[2]
+      if (prop === '_n') {
+        nodes.add(value)
         return true
       }
-      if (args[1] === '_rmn') {
-        nodes.delete(args[2])
+      if (prop === '_rmn') {
+        nodes.delete(value)
         return true
       }
-      const didSet = Reflect.set(...args)
-      if (nodes.size && typeof args[1] === 'string')
-        nodes.forEach((n) =>
-          n.emit(`config:${args[1] as string}`, args[2], false)
-        )
-      return didSet
+      if (!eq(target[prop as string], value, false)) {
+        const didSet = Reflect.set(...args)
+        if (nodes.size && typeof prop === 'string') {
+          nodes.forEach((n) => {
+            n.emit(`config:${prop}`, value, false)
+            if (!(prop in n.props)) {
+              n.emit('prop', { prop, value })
+              n.emit(`prop:${prop}`, value)
+            }
+          })
+        }
+        return didSet
+      }
+      return true
     },
   }) as FormKitConfig
 }

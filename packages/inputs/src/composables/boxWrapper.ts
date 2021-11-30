@@ -12,7 +12,7 @@ const wrapper: FormKitSchemaComposable = (schema = {}, children = []) => ({
         'data-disabled': {
           if: '$options.length',
           then: undefined,
-          else: '$attrs.disabled',
+          else: '$disabled',
         },
       },
       children,

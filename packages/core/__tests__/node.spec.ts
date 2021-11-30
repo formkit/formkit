@@ -111,6 +111,34 @@ describe('node', () => {
     expect(group.at('users.1.password')?.value).toBe('foobar')
   })
 
+  it('only traverses one layer deep when calling node.each', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode(),
+        createNode({ type: 'group', children: [createNode(), createNode()] }),
+      ],
+    })
+    const callback = jest.fn()
+    tree.each(callback)
+    expect(callback).toHaveBeenCalledTimes(3)
+  })
+
+  it('traverses any depth when calling node.walk', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode(),
+        createNode(),
+        createNode({ type: 'group', children: [createNode(), createNode()] }),
+      ],
+    })
+    const callback = jest.fn()
+    tree.walk(callback)
+    expect(callback).toHaveBeenCalledTimes(5)
+  })
+
   it('does not allow nodes of type input to be created with children', () => {
     expect(() => {
       createNode({ children: [createNode()] })
@@ -468,6 +496,17 @@ describe('props system', () => {
     child.hook.prop(({ prop }, next) => next({ prop, value: 800 }))
     child.props.delay = 200
     expect(child.props.delay).toBe(800)
+  })
+
+  it('emits a prop event when a config changes and there is no matching prop', () => {
+    const listener = jest.fn()
+    const node = createNode({
+      props: {},
+      config: { foo: 'bar' },
+    })
+    node.on('prop:foo', listener)
+    node.config.foo = 'baz'
+    expect(listener).toHaveBeenCalledTimes(1)
   })
 
   it('emits a prop event when a prop changes', () => {

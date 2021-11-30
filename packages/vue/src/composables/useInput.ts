@@ -30,6 +30,7 @@ interface FormKitComponentProps {
 const pseudoProps = [
   'help',
   'label',
+  'disabled',
   /^[a-z]+(?:-behavior|Behavior)$/,
   /^[a-z]+(?:-class|Class)$/,
 ]
