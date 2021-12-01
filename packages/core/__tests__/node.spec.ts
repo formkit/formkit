@@ -1032,6 +1032,16 @@ describe('value propagation in a node tree', () => {
     expect(form._d).toBe(0)
   })
 
+  it('can catch children being created with the deep modifier', () => {
+    const group = createNode({ type: 'group' })
+    let log = ''
+    group.on('created.deep', ({ payload: child }) => {
+      log = child.name
+    })
+    createNode({ parent: group, name: 'party-town-usa' })
+    expect(log).toBe('party-town-usa')
+  })
+
   it('retains parent values when children do not match', () => {
     const treeA = createNode({
       type: 'group',
