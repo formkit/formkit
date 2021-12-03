@@ -13,6 +13,9 @@ import { FormKitLocaleMessages } from '../i18n'
  * @public
  */
 export const ui: FormKitLocaleMessages = {
+  /**
+   * Shown when a button to remove items is visible.
+   */
   remove: 'Remove',
   incomplete: 'Sorry, not all fields are filled out correctly.',
   submit: 'Submit',
@@ -24,10 +27,13 @@ export const ui: FormKitLocaleMessages = {
  */
 export const validation: FormKitValidationMessages = {
   /**
-   * Valid accepted value
+   * Valid accepted value.
+   * @see {@link https://docs.formkit.com/essentials/validation#accepted}
    */
   accepted({ name }): string {
+    /* <i18n case="write a description"> */
     return `Please accept the ${name}.`
+    /* </i18n> */
   },
 
   /**
@@ -35,7 +41,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
+      /* <i18n case="write a description"> */
       return `${s(name)} must be after ${date(args[0])}.`
+      /* </i18n> */
     }
     return `${s(name)} must be in the future.`
   },
@@ -120,8 +128,8 @@ export const validation: FormKitValidationMessages = {
    * Does not match specified length
    */
   length({ name, args }) {
-    if (args[0].length === 1) {
-      return `${s(name)} must be at least ${args[0]} character.`
+    if (args[0] == 1 && !args[1]) {
+      return `${s(name)} must be at least one character.`
     }
     if (!args[0] && args[1]) {
       return `${s(name)} must be less than ${args[1]} characters.`
