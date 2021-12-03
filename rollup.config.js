@@ -50,7 +50,7 @@ function createOutputConfig() {
         vue: 'Vue',
       }
     }
-    if (theme) fileName = theme + '/' + fileName
+    if (theme) fileName = theme + '/theme.js'
     return {
       file: `${rootPath}/dist/${fileName}`,
       name:

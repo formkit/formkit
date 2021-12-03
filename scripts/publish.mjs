@@ -16,9 +16,9 @@
  * - Publish all changes to affected packages
  * - Commit version bumps to package.json files
  * - Show final summary
-*/
+ */
 
-import { exec, execSync } from "child_process"
+import { exec, execSync } from 'child_process'
 import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
@@ -37,7 +37,7 @@ import {
   drawDependencyTree,
   flattenDependencyTree,
   isAlphaNumericVersion,
-  msg
+  msg,
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
 
@@ -48,9 +48,11 @@ const prePublished = {}
 /**
  * Main entry point to the build process
  */
-async function publishPackages (force = false) {
+async function publishPackages(force = false) {
   if (!checkGitCleanWorkingDirectory()) {
-    msg.error(`⚠️   The current working directory is not clean. Please commit all changes before publishing.`)
+    msg.error(
+      `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
+    )
     // TODO: uncomment return to make required
     // return
   }
@@ -60,7 +62,7 @@ async function publishPackages (force = false) {
     // return
   }
 
-  allPackages.push(...await getPackages())
+  allPackages.push(...(await getPackages()))
   const shouldBuild = await buildAllPackagesConsent()
   if (!shouldBuild) {
     return msg.error('Publish aborted.')
@@ -69,11 +71,13 @@ async function publishPackages (force = false) {
   await buildAllPackages(allPackages)
   await getChangedDist()
 
-  if (!toBePublished.length && !force) return msg.error(`\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`)
+  if (!toBePublished.length && !force)
+    return msg.error(
+      `\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`
+    )
 
   msg.headline(`The following packages have changes when diffed with their last published version.
-Any dependent packages will also require publishing to include dependency changes:`
-  )
+Any dependent packages will also require publishing to include dependency changes:`)
   const dependencyTree = await getDependencyTree(toBePublished, true)
   drawDependencyTree(dependencyTree)
   msg.info(`\nPackages will be published in the following order:`)
@@ -84,7 +88,7 @@ Any dependent packages will also require publishing to include dependency change
     type: 'confirm',
     name: 'confirmBuild',
     message: `Continue`,
-    initial: true
+    initial: true,
   })
   if (!confirmBuild) {
     msg.error('Build aborted. 👋')
@@ -96,7 +100,9 @@ Any dependent packages will also require publishing to include dependency change
   }
 
   msg.headline(`All packages configured. Preparing publish...`)
-  msg.info(`The following changes will be commited and published.\nPlease review and confirm:\n`)
+  msg.info(
+    `The following changes will be commited and published.\nPlease review and confirm:\n`
+  )
   drawPublishPreviewGraph(prePublished)
 
   console.log('\n\n')
@@ -109,7 +115,7 @@ Any dependent packages will also require publishing to include dependency change
         return true
       }
       return 'Invalid response. to abort press ^c...'
-    }
+    },
   })
   if (!confirmPublish && !force) return msg.error('Publish aborted. 👋')
 
@@ -133,7 +139,7 @@ Any dependent packages will also require publishing to include dependency change
  * Loops through prePublish changes and writes new package.json files
  * for each affected package.
  */
-function writePackageJSONFiles () {
+function writePackageJSONFiles() {
   const packages = Object.keys(Object.assign({}, prePublished))
   let didWrite = true
   while (packages.length) {
@@ -141,10 +147,18 @@ function writePackageJSONFiles () {
     const packageJSON = getPackageJSON(pkg)
     packageJSON.version = prePublished[pkg].newVersion
     if (prePublished[pkg].newDependencies) {
-      packageJSON.dependencies = Object.assign({}, packageJSON.dependencies, prePublished[pkg].newDependencies)
+      packageJSON.dependencies = Object.assign(
+        {},
+        packageJSON.dependencies,
+        prePublished[pkg].newDependencies
+      )
     }
     if (prePublished[pkg].newDevDependencies) {
-      packageJSON.devDependencies = Object.assign({}, packageJSON.devDependencies, prePublished[pkg].newDevDependencies)
+      packageJSON.devDependencies = Object.assign(
+        {},
+        packageJSON.devDependencies,
+        prePublished[pkg].newDevDependencies
+      )
     }
     try {
       writePackageJSON(pkg, packageJSON)
@@ -161,14 +175,26 @@ function writePackageJSONFiles () {
 /**
  * Loops through prePublish object and publishes packages
  */
-function yarnPublishAffectedPackages () {
+function yarnPublishAffectedPackages() {
   const packages = Object.keys(Object.assign({}, prePublished))
   let didPublish = true
   while (packages.length) {
     const pkg = packages.shift()
     const version = prePublished[pkg].newVersion
     try {
-      execSync(`yarn publish --cwd ./packages/${pkg}/ --new-version ${version} --access restricted`)
+      if (pkg === 'themes') {
+        // For the themes package we want to only publish the dist directory itself.
+        execSync(
+          'cp ./packages/themes/package.json ./packages/themes/dist/package.json'
+        )
+        execSync(
+          `yarn publish --cwd ./packages/${pkg}/dist --new-version ${version} --access restricted`
+        )
+      } else {
+        execSync(
+          `yarn publish --cwd ./packages/${pkg}/ --new-version ${version} --access restricted`
+        )
+      }
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
@@ -180,7 +206,7 @@ function yarnPublishAffectedPackages () {
 /**
  * Prompts the user for a commit message and commits all changes
  */
-async function promptForGitCommit () {
+async function promptForGitCommit() {
   try {
     msg.info('» Staging and committing changed files')
     execSync(`git add .`)
@@ -203,9 +229,9 @@ async function promptForGitCommit () {
 }
 
 /**
-* Guided process for setting a new version on a package
-*/
-async function prePublishPackage (pkg, index) {
+ * Guided process for setting a new version on a package
+ */
+async function prePublishPackage(pkg, index) {
   const packageJSON = getPackageJSON(pkg)
   const commitNumber = 5
   const relevantCommits = getLatestPackageCommits(pkg, commitNumber)
@@ -217,9 +243,15 @@ async function prePublishPackage (pkg, index) {
     updatePublishedDependencies(pkg)
   }
 
-  msg.info(`Latest ${commitNumber} commits affecting files in /packages/${pkg} directory: `)
+  msg.info(
+    `Latest ${commitNumber} commits affecting files in /packages/${pkg} directory: `
+  )
   console.log(relevantCommits)
-  console.log(`The package ${chalk.cyan(pkg)} is currently on version ${chalk.cyan(packageJSON.version)}\n`)
+  console.log(
+    `The package ${chalk.cyan(pkg)} is currently on version ${chalk.cyan(
+      packageJSON.version
+    )}\n`
+  )
 
   await setNewPackageVersion(pkg)
 }
@@ -228,29 +260,53 @@ async function prePublishPackage (pkg, index) {
  * Checks if a package has dependency versions that need to be bumped
  * as part of the publish process
  */
-function updatePublishedDependencies (pkg) {
+function updatePublishedDependencies(pkg) {
   msg.info(`Checking if ${pkg} has dependencies in need of updating...`)
   const packageJSON = getPackageJSON(pkg)
-  const dependencies = packageJSON.dependencies ? getFKDependenciesFromObj(packageJSON.dependencies) : []
+  const dependencies = packageJSON.dependencies
+    ? getFKDependenciesFromObj(packageJSON.dependencies)
+    : []
 
   for (const dep of Object.keys(prePublished)) {
     if (checkDependsOn(pkg, dep)) {
-      console.log(chalk.cyan(`Package ${chalk.magenta(pkg)} has a dependency on ${chalk.magenta(dep)}
-Dependency ${chalk.magenta(dep)} will be updated from ${chalk.magenta(prePublished[dep].oldVersion)} to ${chalk.magenta(prePublished[dep].newVersion)}`))
-      const targetNewDepGroup = dependencies.includes(dep) ? 'newDependencies' : 'newDevDependencies'
-      const targetOldDepGroup = dependencies.includes(dep) ? 'oldDependencies' : 'oldDevDependencies'
+      console.log(
+        chalk.cyan(`Package ${chalk.magenta(
+          pkg
+        )} has a dependency on ${chalk.magenta(dep)}
+Dependency ${chalk.magenta(dep)} will be updated from ${chalk.magenta(
+          prePublished[dep].oldVersion
+        )} to ${chalk.magenta(prePublished[dep].newVersion)}`)
+      )
+      const targetNewDepGroup = dependencies.includes(dep)
+        ? 'newDependencies'
+        : 'newDevDependencies'
+      const targetOldDepGroup = dependencies.includes(dep)
+        ? 'oldDependencies'
+        : 'oldDevDependencies'
       const depName = `@formkit/${dep}`
       const newDepPayload = { [depName]: prePublished[dep].newVersion }
       const oldDepPayload = { [depName]: prePublished[dep].oldVersion }
       prePublished[pkg] = Object.assign({}, prePublished[pkg])
       // assign new dependencies
-      prePublished[pkg][targetNewDepGroup] = prePublished[pkg][targetNewDepGroup] ?
-        prePublished[pkg][targetNewDepGroup] = Object.assign({}, prePublished[pkg][targetNewDepGroup], newDepPayload) :
-        prePublished[pkg][targetNewDepGroup] = newDepPayload
+      prePublished[pkg][targetNewDepGroup] = prePublished[pkg][
+        targetNewDepGroup
+      ]
+        ? (prePublished[pkg][targetNewDepGroup] = Object.assign(
+            {},
+            prePublished[pkg][targetNewDepGroup],
+            newDepPayload
+          ))
+        : (prePublished[pkg][targetNewDepGroup] = newDepPayload)
       // store old dependencies
-      prePublished[pkg][targetOldDepGroup] = prePublished[pkg][targetOldDepGroup] ?
-        prePublished[pkg][targetOldDepGroup] = Object.assign({}, prePublished[pkg][targetOldDepGroup], oldDepPayload) :
-        prePublished[pkg][targetOldDepGroup] = oldDepPayload
+      prePublished[pkg][targetOldDepGroup] = prePublished[pkg][
+        targetOldDepGroup
+      ]
+        ? (prePublished[pkg][targetOldDepGroup] = Object.assign(
+            {},
+            prePublished[pkg][targetOldDepGroup],
+            oldDepPayload
+          ))
+        : (prePublished[pkg][targetOldDepGroup] = oldDepPayload)
     }
   }
   console.log('\n')
@@ -259,7 +315,7 @@ Dependency ${chalk.magenta(dep)} will be updated from ${chalk.magenta(prePublish
 /**
  * Guided process to set a new package version
  */
-async function setNewPackageVersion (pkg) {
+async function setNewPackageVersion(pkg) {
   const packageJSON = getPackageJSON(pkg)
   const isAlphaNumericVer = isAlphaNumericVersion(packageJSON.version)
   let versionBumpType = 'patch'
@@ -273,9 +329,9 @@ async function setNewPackageVersion (pkg) {
       choices: versionTypes.map((type) => {
         return {
           title: type,
-          value: type
+          value: type,
         }
-      })
+      }),
     })
     versionBumpType = bumpType
   } else {
@@ -286,12 +342,12 @@ async function setNewPackageVersion (pkg) {
     type: 'text',
     name: 'newPackageVersion',
     message: `What should the new version be?`,
-    initial: suggestVersionIncrement(packageJSON.version, versionBumpType)
+    initial: suggestVersionIncrement(packageJSON.version, versionBumpType),
   })
 
   prePublished[pkg] = Object.assign({}, prePublished[pkg], {
     oldVersion: packageJSON.version,
-    newVersion: newPackageVersion
+    newVersion: newPackageVersion,
   })
 }
 
@@ -326,12 +382,14 @@ function suggestVersionIncrement(version, updateType) {
 /**
  * Confirm with user that all packages are going to be built
  */
-async function buildAllPackagesConsent () {
+async function buildAllPackagesConsent() {
   const { shouldBuild } = await prompts({
     type: 'confirm',
     name: 'shouldBuild',
-    message: `Publishing will generate clean builds of ${chalk.red('ALL')} packages. Continue?`,
-    initial: true
+    message: `Publishing will generate clean builds of ${chalk.red(
+      'ALL'
+    )} packages. Continue?`,
+    initial: true,
   })
   return shouldBuild
 }
@@ -340,7 +398,7 @@ async function buildAllPackagesConsent () {
  * Checks each package to see if the dist directory is different
  * than the currently published NPM module
  */
-async function getChangedDist () {
+async function getChangedDist() {
   for (const p of allPackages) {
     // TODO: compare against NPM published data
     // for now just say that only core is unchanged.
@@ -355,7 +413,7 @@ async function getChangedDist () {
  * Given a list of packages, determine the correct order to publish them
  * so that upgraded dependencies become included within their dependents
  */
-async function getPublishOrder (packages) {
+async function getPublishOrder(packages) {
   const dependentsTree = await getDependencyTree(packages, true)
   return await flattenDependencyTree(dependentsTree)
 }
@@ -364,20 +422,35 @@ async function getPublishOrder (packages) {
  * Given a list of changed packages (prePublish) generate a tree view
  * that shows all applied changes
  */
-function drawPublishPreviewGraph (packages) {
+function drawPublishPreviewGraph(packages) {
   for (const [title, pkg] of Object.entries(packages)) {
-    console.log(`${title}: ` + chalk.red(pkg.oldVersion) + ' -> ' + chalk.green(pkg.newVersion))
+    console.log(
+      `${title}: ` +
+        chalk.red(pkg.oldVersion) +
+        ' -> ' +
+        chalk.green(pkg.newVersion)
+    )
 
     if (pkg.newDependencies) {
       console.log(chalk.dim(`  ∟ dependencies:`))
       for (const [depTitle, dep] of Object.entries(pkg.newDependencies)) {
-        console.log(chalk.dim(`    ∟ ${depTitle}: `) + chalk.red.dim(pkg.oldDependencies[depTitle]) + ' -> ' + chalk.green.dim(pkg.newDependencies[depTitle]))
+        console.log(
+          chalk.dim(`    ∟ ${depTitle}: `) +
+            chalk.red.dim(pkg.oldDependencies[depTitle]) +
+            ' -> ' +
+            chalk.green.dim(pkg.newDependencies[depTitle])
+        )
       }
     }
     if (pkg.newDevDependencies) {
       console.log(chalk.dim(`  ∟ devDependencies:`))
       for (const [depTitle, dep] of Object.entries(pkg.newDevDependencies)) {
-        console.log(chalk.dim(`    ∟ ${depTitle}: `) + chalk.red.dim(pkg.oldDevDependencies[depTitle]) + ' -> ' + chalk.green.dim(pkg.newDevDependencies[depTitle]))
+        console.log(
+          chalk.dim(`    ∟ ${depTitle}: `) +
+            chalk.red.dim(pkg.oldDevDependencies[depTitle]) +
+            ' -> ' +
+            chalk.green.dim(pkg.newDevDependencies[depTitle])
+        )
       }
     }
   }
@@ -387,22 +460,19 @@ function drawPublishPreviewGraph (packages) {
  * Set up the command line tool and options.
  */
 export default function () {
-  const cli = cac();
-  cli.option(
-    '--force',
-    'Bypass failure on error',
-    {
-      default: false
-    }
-  )
-  cli.command(
-    '[publish]',
-    'Walks through publishing changed packages with proper versioning',
-    { allowUnknownOptions: true }
-  )
-  .action((dir, options) => {
-    publishPackages(options.force)
-  });
-  cli.help();
-  cli.parse();
+  const cli = cac()
+  cli.option('--force', 'Bypass failure on error', {
+    default: false,
+  })
+  cli
+    .command(
+      '[publish]',
+      'Walks through publishing changed packages with proper versioning',
+      { allowUnknownOptions: true }
+    )
+    .action((dir, options) => {
+      publishPackages(options.force)
+    })
+  cli.help()
+  cli.parse()
 }
