@@ -76,9 +76,10 @@ export const validation: FormKitValidationMessages = {
    * The value is not between two numbers or lengths
    */
   between({ name, args }) {
-    return `${s(name)} must be between ${args[0] || 'n/a'} and ${
-      args[1] || 'n/a'
-    }.`
+    if (isNaN(args[0]) || isNaN(args[1])) {
+      return `This field was configured incorrectly and can’t be submitted.`
+    }
+    return `${s(name)} must be between ${args[0]} and ${args[1]}.`
   },
 
   /**
@@ -127,16 +128,19 @@ export const validation: FormKitValidationMessages = {
   /**
    * Does not match specified length
    */
-  length({ name, args }) {
-    if (args[0] == 1 && !args[1]) {
+  length({ name, args: [first = 0, second = Infinity] }) {
+    const min = first <= second ? first : second
+    const max = second >= first ? second : first
+    if (min == 1 && max === Infinity) {
       return `${s(name)} must be at least one character.`
     }
-    if (!args[0] && args[1]) {
-      return `${s(name)} must be less than ${args[1]} characters.`
+    if (min == 0 && max) {
+      return `${s(name)} must be less than or equal to ${max} characters.`
     }
-    return `${s(name)} must be between ${args[0] || '0'} and ${
-      args[1] || '0'
-    } characters.`
+    if (min && max === Infinity) {
+      return `${s(name)} must be greater than or equal to ${min} characters.`
+    }
+    return `${s(name)} must be between ${min} and ${max} characters.`
   },
 
   /**
@@ -160,9 +164,8 @@ export const validation: FormKitValidationMessages = {
    * The (field-level) value does not match specified mime type
    */
   mime({ name, args }) {
-    return `${s(name)} must be of the type: ${
-      args[0] || 'No file formats allowed.'
-    }`
+    if (!args[0]) return 'No file formats allowed.'
+    return `${s(name)} must be of the type: ${args[0]}`
   },
 
   /**
