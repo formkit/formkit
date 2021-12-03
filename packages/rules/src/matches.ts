@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value matches one or more regular expressions.
+ * Determine if the given input's value matches one or more values or regular expressions.
  * @param context - The FormKitValidationContext
  * @public
  */
