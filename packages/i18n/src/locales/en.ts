@@ -127,8 +127,8 @@ export const validation: FormKitValidationMessages = {
       return `${s(name)} is not a valid date, please use the format ${args[0]}`
       /* </i18n> */
     }
-    /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-    return `${s(name)} is not a valid date.`
+    /* <i18n case="Shown when no date argument was supplied to the rule."> */
+    return 'This field was configured incorrectly and can’t be submitted'
     /* </i18n> */
   },
 
