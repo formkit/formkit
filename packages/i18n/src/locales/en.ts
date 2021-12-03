@@ -27,53 +27,68 @@ export const ui: FormKitLocaleMessages = {
  */
 export const validation: FormKitValidationMessages = {
   /**
-   * Valid accepted value.
+   * The value is not an accepted value.
    * @see {@link https://docs.formkit.com/essentials/validation#accepted}
    */
   accepted({ name }): string {
-    /* <i18n case="write a description"> */
+    /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
     return `Please accept the ${name}.`
     /* </i18n> */
   },
 
   /**
    * The date is not after
+   * @see {@link https://docs.formkit.com/essentials/validation#date-after}
    */
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
-      /* <i18n case="write a description"> */
+      /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule"> */
       return `${s(name)} must be after ${date(args[0])}.`
       /* </i18n> */
     }
+    /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
     return `${s(name)} must be in the future.`
+    /* </i18n> */
   },
 
   /**
    * The value is not a letter.
+   * @see {@link https://docs.formkit.com/essentials/validation#alpha}
    */
   alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical characters"> */
     return `${s(name)} can only contain alphabetical characters.`
+    /* </i18n> */
   },
 
   /**
-   The value is not alphanumeric
+   * The value is not alphanumeric
+   * @see {@link https://docs.formkit.com/essentials/validation#alphanumeric}
    */
   alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters"> */
     return `${s(name)} can only contain letters and numbers.`
+    /* </i18n> */
   },
 
   /**
    * The date is not before
+   * @see {@link https://docs.formkit.com/essentials/validation#date-before}
    */
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
+      /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule"> */
       return `${s(name)} must be before ${date(args[0])}.`
+      /* </i18n> */
     }
-    return `${s(name)} must be an earlier date.`
+    /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
+    return `${s(name)} must be in the past.`
+    /* </i18n> */
   },
 
   /**
    * The value is not between two numbers or lengths
+   * @see {@link https://docs.formkit.com/essentials/validation#between}
    */
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
@@ -84,6 +99,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The confirmation field does not match
+   * @see {@link https://docs.formkit.com/essentials/validation#confirm}
    */
   confirm({ name }) {
     return `${s(name)} does not match.`
@@ -91,6 +107,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not a valid date
+   * @see {@link https://docs.formkit.com/essentials/validation#date-format}
    */
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -101,6 +118,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not within expected date range
+   * @see {@link https://docs.formkit.com/essentials/validation#date-between}
    */
   date_between({ name, args }) {
     return `${s(name)} must be between ${date(args[0])} and ${date(args[1])}`
@@ -108,11 +126,13 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not a valid email address
+   * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
   email: 'Please enter a valid email address.',
 
   /**
    * Does not end with the specified value
+   * @see {@link https://docs.formkit.com/essentials/validation#ends-with}
    */
   ends_with({ name, args }) {
     return `${s(name)} doesn’t end with ${list(args)}.`
@@ -120,6 +140,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not an allowed value
+   * @see {@link https://docs.formkit.com/essentials/validation#is}
    */
   is({ name }) {
     return `${s(name)} is not an allowed value.`
@@ -127,6 +148,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not match specified length
+   * @see {@link https://docs.formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
     const min = first <= second ? first : second
@@ -145,6 +167,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Value is not a match
+   * @see {@link https://docs.formkit.com/essentials/validation#matches}
    */
   matches({ name }) {
     return `${s(name)} is not an allowed value.`
@@ -152,6 +175,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Exceeds maximum allowed value
+   * @see {@link https://docs.formkit.com/essentials/validation#max}
    */
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -162,6 +186,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The (field-level) value does not match specified mime type
+   * @see {@link https://docs.formkit.com/essentials/validation#mime}
    */
   mime({ name, args }) {
     if (!args[0]) return 'No file formats allowed.'
@@ -170,6 +195,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not fulfill minimum allowed value
+   * @see {@link https://docs.formkit.com/essentials/validation#min}
    */
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -180,6 +206,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not an allowed value
+   * @see {@link https://docs.formkit.com/essentials/validation#not}
    */
   not({ name, node: { value } }) {
     return `“${value}” is not an allowed ${name}.`
@@ -187,6 +214,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    *  Is not a number
+   * @see {@link https://docs.formkit.com/essentials/validation#number}
    */
   number({ name }) {
     return `${s(name)} must be a number.`
@@ -194,6 +222,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Required field.
+   * @see {@link https://docs.formkit.com/essentials/validation#required}
    */
   required({ name }) {
     return `${s(name)} is required.`
@@ -201,6 +230,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not start with specified value
+   * @see {@link https://docs.formkit.com/essentials/validation#starts-with}
    */
   starts_with({ name, args }) {
     return `${s(name)} doesn’t start with ${list(args)}.`
@@ -208,6 +238,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not a url
+   * @see {@link https://docs.formkit.com/essentials/validation#url}
    */
   url() {
     return `Please include a valid url.`
