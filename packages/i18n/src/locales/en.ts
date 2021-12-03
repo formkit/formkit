@@ -212,7 +212,7 @@ export const validation: FormKitValidationMessages = {
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is longer than the max supplied to the rule."> */
-      return `You may only select ${args[0]} ${name}.`
+      return `Cannot have more than ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
@@ -242,7 +242,7 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `You need at least ${args[0]} ${name}.`
+      return `Cannot have less than ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
