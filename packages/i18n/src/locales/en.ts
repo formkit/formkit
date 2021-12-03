@@ -15,6 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
 export const ui: FormKitLocaleMessages = {
   remove: 'Remove',
   incomplete: 'Sorry, not all fields are filled out correctly.',
+  submit: 'Submit',
 }
 
 /**
@@ -119,7 +120,7 @@ export const validation: FormKitValidationMessages = {
    * Does not match specified length
    */
   length({ name, args }) {
-    if (args.length === 1) {
+    if (args[0].length === 1) {
       return `${s(name)} must be at least ${args[0]} character.`
     }
     if (!args[0] && args[1]) {
