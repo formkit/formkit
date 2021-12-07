@@ -389,4 +389,29 @@ describe('select', () => {
     await nextTick()
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
+
+  it('can set the value of an input after initial render via node', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        id: 'select-via-node',
+        validation: 'required',
+        delay: 0,
+        options: {
+          foo: 'Bar',
+          jim: 'Jam',
+          baz: 'Bim',
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('foo')
+    await new Promise((r) => setTimeout(r, 50))
+    const node = get('select-via-node')!
+    node.input('jim')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.find('select').element.value).toBe('jim')
+  })
 })

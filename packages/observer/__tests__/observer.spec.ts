@@ -1,4 +1,4 @@
-import { createNode } from '@formkit/core'
+import { createNode, createMessage } from '@formkit/core'
 import { createObserver, FormKitWatchable } from '../src'
 import { jest } from '@jest/globals'
 import {} from 'packages/core/src'
@@ -144,5 +144,23 @@ describe('observer', () => {
     expect(watcher).toHaveBeenCalledTimes(1)
     expect(success).toHaveBeenCalledTimes(0)
     expect(() => obs.value).toThrow(TypeError)
+  })
+
+  it('can observe a ledger count', () => {
+    const child = createNode({ name: 'username', value: 'foo' })
+    const node = createNode({
+      type: 'group',
+      children: [child],
+    })
+    node.ledger.count('blocking', (message) => message.blocking)
+    const watcher: FormKitWatchable = jest.fn((node) => {
+      return node.ledger.value('blocking')
+    })
+    const obs = createObserver(node)
+    obs.watch(watcher)
+    expect(watcher).toHaveBeenCalledTimes(1)
+    node.store.set(createMessage({ blocking: true }))
+    expect(watcher).toHaveBeenCalledTimes(2)
+    expect(watcher).toHaveReturnedWith(1)
   })
 })

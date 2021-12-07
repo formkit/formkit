@@ -22,6 +22,11 @@ export {
 } from './store'
 
 /**
+ * The FormKit ledger.
+ */
+export { FormKitLedger } from './ledger'
+
+/**
  * Export dispatcher typings.
  */
 export { FormKitDispatcher, FormKitMiddleware } from './dispatcher'

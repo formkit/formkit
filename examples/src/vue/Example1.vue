@@ -10,9 +10,9 @@
       placeholder="jon@foo.com"
     />
     <FormKit
+      id="fruit"
       type="select"
       label="Favorite pie"
-      placeholder="Select a favorite"
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
@@ -55,7 +55,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { get } from '@formkit/core'
 const disabled = ref(true)
 
 const date = new Date()
@@ -87,6 +88,13 @@ const options = [
 const submit = async (data: Record<string, any>) => {
   await new Promise(r => setTimeout(r, 2000))
 }
+
+onMounted(() => {
+  setTimeout(() => {
+  const node = get('fruit')
+  node?.input('pumpkin')
+  }, 200)
+})
 </script>
 
 <style>

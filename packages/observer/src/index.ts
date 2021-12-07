@@ -4,6 +4,7 @@ import {
   isNode,
   FormKitEventListener,
   FormKitProps,
+  FormKitLedger,
 } from '@formkit/core'
 
 /**
@@ -85,6 +86,24 @@ export function createObserver(
   }
 
   /**
+   * Observes the FormKit ledger "value".
+   * @param ledger - A formkit ledger counter.
+   */
+  const observeLedger = function (ledger: FormKitLedger) {
+    return new Proxy(ledger, {
+      get(...args) {
+        if (args[1] === 'value') {
+          return (key: string) => {
+            addDependency(`count:${key}`)
+            return ledger.value(key)
+          }
+        }
+        return Reflect.get(...args)
+      },
+    })
+  }
+
+  /**
    * Return values from our observer proxy first pass through this function
    * which gives us a chance to listen sub-dependencies and properties.
    */
@@ -93,9 +112,8 @@ export function createObserver(
       return createObserver(value, deps)
     }
     if (property === 'value') addDependency('commit')
-    if (property === 'props') {
-      return observeProps(value)
-    }
+    if (property === 'props') return observeProps(value)
+    if (property === 'ledger') return observeLedger(value)
     return value
   }
 
