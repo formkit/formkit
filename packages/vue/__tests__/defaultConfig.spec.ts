@@ -3,7 +3,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { FormKitValidationRule } from '@formkit/validation'
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 
 describe('defaultConfig', () => {
   it('allows rule augmentation', async () => {
@@ -18,7 +18,7 @@ describe('defaultConfig', () => {
         plugins: [[plugin, defaultConfig({ rules: { monday } })]],
       },
     })
-    const node = get('monday')!
+    const node = getNode('monday')!
     expect(node.store).toHaveProperty('rule_monday')
     node.input('monday', false)
     await new Promise((r) => setTimeout(r, 5))

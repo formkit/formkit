@@ -1,7 +1,7 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
@@ -90,7 +90,7 @@ describe('form submission', () => {
     )
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
-    const node = get('email')
+    const node = getNode('email')
     expect(node?.context?.state?.submitted).toBe(true)
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
@@ -133,7 +133,7 @@ describe('form submission', () => {
     )
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
-    const node = get('form')
+    const node = getNode('form')
     expect(node?.context?.state?.loading).toBe(true)
     await new Promise((r) => setTimeout(r, 25))
     expect(node?.context?.state?.loading).toBe(undefined)
@@ -153,7 +153,7 @@ describe('form submission', () => {
       global
     )
     wrapper.find('form').trigger('submit')
-    const node = get('submitButtonForm')
+    const node = getNode('submitButtonForm')
     expect(node?.value).toStrictEqual({ email: 'foo@bar.com', country: 'de' })
   })
 

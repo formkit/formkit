@@ -1,4 +1,4 @@
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { mount } from '@vue/test-utils'
@@ -24,7 +24,7 @@ describe('numeric lists', () => {
         },
       }
     )
-    expect(get('listA')!.value).toStrictEqual(['foo', 'bar', 'baz'])
+    expect(getNode('listA')!.value).toStrictEqual(['foo', 'bar', 'baz'])
   })
 
   it('can show a validation error without validation-label', () => {

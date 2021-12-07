@@ -27,7 +27,7 @@ import {
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
   FormKitCompilerOutput,
-  get,
+  getNode,
   warn,
   watchRegistry,
   isNode,
@@ -54,7 +54,7 @@ type RenderContent = [
   iterator:
     | null
     | [
-        getValues: () =>
+        getNodeValues: () =>
           | number
           | string
           | boolean
@@ -148,7 +148,7 @@ function getRef(token: string, data: Record<string, any>): Ref<unknown> {
   const value = ref<any>(null)
   const nodeRef = ref<unknown>(undefined)
   if (token === 'get') {
-    value.value = getNode.bind(null, nodeRef)
+    value.value = get.bind(null, nodeRef)
     return value
   }
   const path = token.split('.')
@@ -195,11 +195,11 @@ function getValue(
  * Get the node from the global registry
  * @param id - A dot-syntax string where the node is located.
  */
-function getNode(nodeRef: Ref<unknown>, id?: string) {
+function get(nodeRef: Ref<unknown>, id?: string) {
   if (typeof id !== 'string') return warn(823)
   if (nodeRef.value === undefined) {
     nodeRef.value = null
-    const root = get(id)
+    const root = getNode(id)
     if (root) nodeRef.value = root.context
     // nodeRef.value = root.context
     watchRegistry(id, ({ payload: node }) => {

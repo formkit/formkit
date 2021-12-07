@@ -1,4 +1,4 @@
-import { FormKitOptions, FormKitNode, get } from '@formkit/core'
+import { FormKitOptions, FormKitNode, getNode } from '@formkit/core'
 import { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
 
@@ -30,7 +30,7 @@ function createPlugin(
 ): FormKitVuePlugin {
   app.component(config.alias || 'FormKit', FormKit)
   return {
-    get,
+    get: getNode,
   }
 }
 

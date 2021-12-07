@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 const disabled = ref(true)
 
 const date = new Date()
@@ -91,7 +91,7 @@ const submit = async (data: Record<string, any>) => {
 
 onMounted(() => {
   setTimeout(() => {
-  const node = get('fruit')
+  const node = getNode('fruit')
   node?.input('pumpkin')
   }, 200)
 })
