@@ -438,7 +438,7 @@ function createMessageName(node: FormKitNode): string {
     node.props.validationLabel ||
     node.props.label ||
     node.props.name ||
-    node.name
+    String(node.name)
   )
 }
 

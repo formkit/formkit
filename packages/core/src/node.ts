@@ -1170,7 +1170,13 @@ function setIndex(
  * @param node -
  */
 function getIndex(node: FormKitNode) {
-  return node.parent ? [...node.parent.children].indexOf(node) : -1
+  if (node.parent) {
+    const index = [...node.parent.children].indexOf(node)
+    // If the index is currently -1 then the node isnt finished booting, so it
+    // must be the next node.
+    return index === -1 ? node.parent.children.length : index
+  }
+  return -1
 }
 
 /**

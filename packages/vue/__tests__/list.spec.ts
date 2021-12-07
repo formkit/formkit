@@ -47,6 +47,6 @@ describe('numeric lists', () => {
         },
       }
     )
-    expect(wrapper.html()).toContain('formkit-messages')
+    expect(wrapper.html()).toContain('>1 is required')
   })
 })
