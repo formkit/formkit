@@ -25,6 +25,7 @@ import {
   FormKitSchemaCondition,
 } from './schema'
 import { FormKitClasses } from './classes'
+import { FormKitRootConfig } from './config'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -355,6 +356,7 @@ export interface FormKitFrameworkContext {
 export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
     config: Partial<FormKitConfig>
+    rootConfig?: FormKitRootConfig
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[]
@@ -366,7 +368,7 @@ export type FormKitOptions = Partial<
  * @public
  */
 export interface FormKitChildCallback {
-  (child: FormKitNode): void
+  (child: FormKitNode): any
 }
 
 /**
@@ -542,7 +544,7 @@ export type FormKitNode = {
    * expensive operation so it should be done very rarely and only lifecycle
    * events that are relatively rare like boot up and shut down.
    */
-  walk: (callback: FormKitChildCallback) => void
+  walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
 /**
@@ -553,6 +555,15 @@ export type FormKitSearchFunction = (
   node: FormKitNode,
   searchTerm?: string | number
 ) => boolean
+
+/**
+ * Default configuration options.
+ */
+const defaultConfig: Partial<FormKitConfig> = {
+  delimiter: '.',
+  delay: 0,
+  rootClasses: (key: string) => ({ [`formkit-${kebab(key)}`]: true }),
+}
 
 /**
  * If a node’s name is set to useIndex, it replaces the node’s name with the
@@ -1079,11 +1090,13 @@ function eachChild(
 function walkTree(
   _node: FormKitNode,
   context: FormKitContext,
-  callback: FormKitChildCallback
+  callback: FormKitChildCallback,
+  stopIfFalse = false
 ) {
   context.children.forEach((child) => {
-    callback(child)
-    child.walk(callback)
+    if (callback(child) !== false || !stopIfFalse) {
+      child.walk(callback)
+    }
   })
 }
 
@@ -1096,7 +1109,7 @@ function walkTree(
  */
 function resetConfig(node: FormKitNode, context: FormKitContext) {
   const parent = node.parent || undefined
-  context.config = createConfig(parent, node.config._t)
+  context.config = createConfig(node.config._t, parent)
   node.walk((n) => n.resetConfig())
 }
 
@@ -1345,37 +1358,39 @@ function getRoot(n: FormKitNode) {
  * @returns FormKitConfig
  */
 function createConfig(
-  parent?: FormKitNode | null,
-  configOptions?: Partial<FormKitConfig>
+  target: Partial<FormKitConfig> = {},
+  parent?: FormKitNode | null
 ): FormKitConfig {
   let node: FormKitNode | undefined = undefined
-  const target: Record<string, any> = !parent
-    ? {
-        delimiter: '.',
-        delay: 0,
-        locale: 'en',
-        rootClasses: (key: string) => ({ [`formkit-${kebab(key)}`]: true }),
-        ...configOptions,
-      }
-    : {}
   return new Proxy(target, {
     get(...args) {
       if (args[1] === '_t') return target
       const localValue = Reflect.get(...args)
-      if (localValue !== undefined || !parent) {
-        return localValue
+      // Check our local values first
+      if (localValue !== undefined) return localValue
+      // Then check our parent values next
+      if (parent) {
+        const parentVal = parent.config[args[1] as string]
+        if (parentVal !== undefined) return parentVal
       }
-      return parent.config[args[1] as string]
+      if (target.rootConfig) {
+        const rootValue = target.rootConfig[args[1]]
+        if (rootValue !== undefined) return rootValue
+      }
+      // Finally check the default values
+      return defaultConfig[args[1] as string]
     },
     set(...args) {
       const prop = args[1] as string
       const value = args[2]
       if (prop === '_n') {
         node = value as FormKitNode
+        if (target.rootConfig) target.rootConfig._add(node)
         return true
       }
       if (prop === '_rmn') {
         node = undefined
+        if (target.rootConfig) target.rootConfig._rm(node)
         return true
       }
       if (!eq(target[prop as string], value, false)) {
@@ -1383,7 +1398,8 @@ function createConfig(
         if (node) {
           node.emit(`config:${prop}`, value, false)
           configChange(node, prop, value)
-          node.walk((n) => configChange(n, prop, value))
+          // Walk the node tree and notify of config/prop changes where relevant
+          node.walk((n) => configChange(n, prop, value), true)
         }
         return didSet
       }
@@ -1392,14 +1408,28 @@ function createConfig(
   }) as FormKitConfig
 }
 
-function configChange(node: FormKitNode, prop: string, value: any) {
-  if (!(prop in node.config._t)) {
-    node.emit(`config:${prop}`, value, false)
-  }
+/**
+ * Applies a given config change to the node.
+ * @param node - The node to check for config change
+ * @param prop - Checks if this property exists in the local config or props
+ * @param value - The value to set
+ */
+export function configChange(
+  node: FormKitNode,
+  prop: string,
+  value: unknown
+): boolean {
+  // When we return false, node.walk will not continue into that child.
+  let usingFallback = true
+  !(prop in node.config._t)
+    ? node.emit(`config:${prop}`, value, false)
+    : (usingFallback = false)
+
   if (!(prop in node.props)) {
     node.emit('prop', { prop, value })
     node.emit(`prop:${prop}`, value)
   }
+  return usingFallback
 }
 
 /**
@@ -1502,7 +1532,7 @@ function findDefinition(node: FormKitNode, plugins: Set<FormKitPlugin>): void {
  */
 function createContext(options: FormKitOptions): FormKitContext {
   const value = createValue(options)
-  const config = createConfig(options.parent, options.config)
+  const config = createConfig(options.config || {}, options.parent)
   return {
     _d: 0,
     _e: createEmitter(),
