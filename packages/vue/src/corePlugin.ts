@@ -70,6 +70,17 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   })
 
   /**
+   * UI Messages.
+   */
+  const ui = reactive(
+    node.store.reduce((messages, message) => {
+      if (message.type === 'ui' && message.visible)
+        messages[message.key] = message
+      return messages
+    }, {} as Record<string, FormKitMessage>)
+  )
+
+  /**
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
    */
@@ -155,6 +166,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
       valid: !node.ledger.value('blocking'),
     },
     type: node.props.type,
+    ui,
     value: node.value,
     classes,
   })
@@ -245,8 +257,10 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    * @param message - A formkit message
    */
   const updateState = (message: FormKitMessage) => {
-    if (message.visible) visibleMessages[message.key] = message
-    if (message.type === 'state') context.state[message.key] = !!message.value
+    if (message.type === 'ui' && message.visible) ui[message.key] = message
+    else if (message.visible) visibleMessages[message.key] = message
+    else if (message.type === 'state')
+      context.state[message.key] = !!message.value
   }
 
   /**
@@ -255,6 +269,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   node.on('message-added', (e) => updateState(e.payload))
   node.on('message-updated', (e) => updateState(e.payload))
   node.on('message-removed', ({ payload: message }) => {
+    delete ui[message.key]
     delete visibleMessages[message.key]
     delete context.state[message.key]
   })

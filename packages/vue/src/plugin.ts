@@ -56,6 +56,7 @@ export const optionsSymbol: InjectionKey<FormKitOptions> = Symbol(
 
 /**
  * The symbol key for accessing FormKit root configuration.
+ * @public
  */
 export const configSymbol: InjectionKey<FormKitConfig> = Symbol('FormKitConfig')
 

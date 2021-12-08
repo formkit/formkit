@@ -14,6 +14,7 @@ import checkboxes from './features/checkboxes'
 import radios from './features/radios'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
+import localize from './features/localize'
 
 /**
  * Default classifications that are available.
@@ -122,6 +123,7 @@ export const textarea: FormKitTypeDefinition = {
 const buttonClassification: FormKitTypeDefinition = {
   type: 'input',
   schema: buttonSchema,
+  features: [localize('submit')],
 }
 
 /**
