@@ -1,7 +1,33 @@
-import { FormKitConfig, FormKitNode, configChange } from './node'
+import { FormKitConfig, FormKitNode } from './node'
+
+/**
+ * Applies a given config change to the node.
+ * @param node - The node to check for config change
+ * @param prop - Checks if this property exists in the local config or props
+ * @param value - The value to set
+ * @internal
+ */
+export function configChange(
+  node: FormKitNode,
+  prop: string,
+  value: unknown
+): boolean {
+  // When we return false, node.walk will not continue into that child.
+  let usingFallback = true
+  !(prop in node.config._t)
+    ? node.emit(`config:${prop}`, value, false)
+    : (usingFallback = false)
+
+  if (!(prop in node.props)) {
+    node.emit('prop', { prop, value })
+    node.emit(`prop:${prop}`, value)
+  }
+  return usingFallback
+}
 
 /**
  * Global configuration options.
+ * @internal
  */
 export type FormKitRootConfig = Partial<FormKitConfig> & {
   _add: (node: FormKitNode) => void
@@ -14,6 +40,7 @@ export type FormKitRootConfig = Partial<FormKitConfig> & {
  * FormKitConfig's proxy and retain event "emitting".
  *
  * @param options - FormKit node options to be used globally.
+ * @public
  */
 export function createConfig(
   options: Partial<FormKitConfig> = {}

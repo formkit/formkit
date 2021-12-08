@@ -9,7 +9,7 @@ import {
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
 import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
-import { configSymbol } from '../plugin'
+import { optionsSymbol } from '../plugin'
 
 interface FormKitComponentProps {
   type?: string
@@ -65,7 +65,7 @@ export function useInput(
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
    */
-  const config = Object.assign({}, inject(configSymbol) || {}, options)
+  const config = Object.assign({}, inject(optionsSymbol) || {}, options)
 
   /**
    * The parent node.

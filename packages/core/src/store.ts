@@ -73,6 +73,7 @@ export interface FormKitStoreTraps {
     accumulator: T
   ) => T
   release: () => void
+  touch: () => void
 }
 
 /**
@@ -111,6 +112,7 @@ const storeTraps: {
   filter: filterMessages,
   reduce: reduceMessages,
   release: releaseBuffer,
+  touch: touchMessages,
 }
 
 /**
@@ -179,7 +181,7 @@ function setMessage(
       const previous = message.value
       message.value = node.t(message as FormKitTextFragment)
       if (message.value !== previous) {
-        message.meta.locale = node.config.locale
+        message.meta.locale = node.props.locale
       }
     }
     const e = `message-${has(messageStore, message.key) ? 'updated' : 'added'}`
@@ -187,6 +189,20 @@ function setMessage(
     node.emit(e, message)
   }
   return store
+}
+
+/**
+ * Run through each message in the store, and ensure it has been translated
+ * to the proper language. This most frequently happens after a locale change.
+ */
+function touchMessages(
+  messageStore: FormKitMessageStore,
+  store: FormKitStore
+): void {
+  for (const key in messageStore) {
+    const message = { ...messageStore[key] }
+    store.set(message)
+  }
 }
 
 /**

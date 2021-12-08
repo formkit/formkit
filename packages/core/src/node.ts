@@ -25,7 +25,7 @@ import {
   FormKitSchemaCondition,
 } from './schema'
 import { FormKitClasses } from './classes'
-import { FormKitRootConfig } from './config'
+import { FormKitRootConfig, configChange } from './config'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -204,6 +204,7 @@ export interface FormKitConfig {
     compositionKey: string,
     node: FormKitNode
   ) => Record<string, boolean>
+  rootConfig?: FormKitRootConfig
   [index: string]: any
 }
 
@@ -356,7 +357,6 @@ export interface FormKitFrameworkContext {
 export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
     config: Partial<FormKitConfig>
-    rootConfig?: FormKitRootConfig
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[]
@@ -562,6 +562,7 @@ export type FormKitSearchFunction = (
 const defaultConfig: Partial<FormKitConfig> = {
   delimiter: '.',
   delay: 0,
+  locale: 'en',
   rootClasses: (key: string) => ({ [`formkit-${kebab(key)}`]: true }),
 }
 
@@ -1373,7 +1374,7 @@ function createConfig(
         const parentVal = parent.config[args[1] as string]
         if (parentVal !== undefined) return parentVal
       }
-      if (target.rootConfig) {
+      if (target.rootConfig && typeof args[1] === 'string') {
         const rootValue = target.rootConfig[args[1]]
         if (rootValue !== undefined) return rootValue
       }
@@ -1389,8 +1390,8 @@ function createConfig(
         return true
       }
       if (prop === '_rmn') {
+        if (target.rootConfig) target.rootConfig._rm(node as FormKitNode)
         node = undefined
-        if (target.rootConfig) target.rootConfig._rm(node)
         return true
       }
       if (!eq(target[prop as string], value, false)) {
@@ -1406,30 +1407,6 @@ function createConfig(
       return true
     },
   }) as FormKitConfig
-}
-
-/**
- * Applies a given config change to the node.
- * @param node - The node to check for config change
- * @param prop - Checks if this property exists in the local config or props
- * @param value - The value to set
- */
-export function configChange(
-  node: FormKitNode,
-  prop: string,
-  value: unknown
-): boolean {
-  // When we return false, node.walk will not continue into that child.
-  let usingFallback = true
-  !(prop in node.config._t)
-    ? node.emit(`config:${prop}`, value, false)
-    : (usingFallback = false)
-
-  if (!(prop in node.props)) {
-    node.emit('prop', { prop, value })
-    node.emit(`prop:${prop}`, value)
-  }
-  return usingFallback
 }
 
 /**

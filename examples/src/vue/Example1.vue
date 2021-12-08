@@ -1,13 +1,17 @@
 <template>
   <h2>FormKit Playground</h2>
+  <button @click="changeLocale">
+    Change to {{ locale }}
+  </button>
   <FormKit
     type="form"
-    @submit="submit"
   >
     <FormKit
       type="email"
       label="Email address"
       placeholder="jon@foo.com"
+      validation="required|email"
+      validation-behavior="live"
     />
     <FormKit
       id="fruit"
@@ -42,7 +46,7 @@
       type="radio"
       help="Hello help text!"
       placeholder="Select the best country"
-      :options="options"
+      :options="countries"
     />
   </FormKit>
 
@@ -55,8 +59,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getNode } from '@formkit/core'
+import { ref, inject } from 'vue'
+import { FormKitConfig } from '../../../packages/core/src/index'
+import { configSymbol } from '../../../packages/vue/src/index'
 const disabled = ref(true)
 
 const date = new Date()
@@ -67,7 +72,19 @@ const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)
 
-const options = [
+let locale = ref('de')
+
+const config: FormKitConfig | undefined = inject(configSymbol)
+
+const changeLocale = () => {
+  if (config) {
+    config.locale = locale.value
+  }
+  if (locale.value === 'de') locale.value = 'en'
+  else locale.value = 'de'
+}
+
+const countries = [
   {
     label: 'Italy',
     value: 'it',
@@ -85,16 +102,7 @@ const options = [
     help: 'This is the cleanest one',
   },
 ]
-const submit = async (data: Record<string, any>) => {
-  await new Promise(r => setTimeout(r, 2000))
-}
 
-onMounted(() => {
-  setTimeout(() => {
-  const node = getNode('fruit')
-  node?.input('pumpkin')
-  }, 200)
-})
 </script>
 
 <style>

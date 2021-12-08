@@ -94,3 +94,8 @@ export * from './classes'
  * Export the global registry.
  */
 export * from './registry'
+
+/**
+ * The root configuration creator.
+ */
+export { createConfig } from './config'
