@@ -81,6 +81,7 @@ const changeLocale = () => {
     config.locale = locale.value
   }
   if (locale.value === 'de') locale.value = 'en'
+  else if (locale.value === 'en') locale.value = 'fr'
   else locale.value = 'de'
 }
 
