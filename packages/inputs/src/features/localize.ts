@@ -11,7 +11,6 @@ export default function localize(
   value?: string
 ): (node: FormKitNode) => void {
   return (node: FormKitNode): void => {
-    console.log('localize')
     node.store.set(
       createMessage({
         key,
