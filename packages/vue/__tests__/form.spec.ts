@@ -2,6 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { getNode } from '@formkit/core'
+import { de } from '@formkit/i18n'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
@@ -220,5 +221,40 @@ describe('form submission', () => {
     await nextTick()
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+
+  it('can swap languages', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form">
+        <FormKit type="email" validation-behavior="live" label="Email" validation="required" />
+      </FormKit>`,
+        methods: {
+          german() {
+            this.$formkit.setLocale('de')
+          },
+        },
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                locales: { de },
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(wrapper.find('button').text()).toBe('Submit')
+    expect(wrapper.find('.formkit-message').text()).toBe('Email is required.')
+    wrapper.vm.german()
+    await nextTick()
+    expect(wrapper.find('button').text()).toBe('Senden')
+    expect(wrapper.find('.formkit-message').text()).toBe(
+      'Email ist ein Pflichtfeld.'
+    )
   })
 })

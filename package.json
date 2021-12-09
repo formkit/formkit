@@ -50,7 +50,7 @@
     "publish": "node scripts/cli.mjs --script publish",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/cli.mjs --script=deploy"
   },
   "dependencies": {},
   "size-limit": [
