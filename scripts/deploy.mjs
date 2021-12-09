@@ -6,8 +6,21 @@ import os from 'os'
 import path from 'path'
 import execa from 'execa'
 import { mkdir } from 'fs'
+import prompts from 'prompts'
+
+async function askForVersion() {
+  const { version } = await prompts({
+    type: 'text',
+    name: 'version',
+    message: `What version are you deploying (1.0.0-alpha.x)?`,
+  })
+  return version
+}
 
 async function deploy(version) {
+  if (!version) {
+    version = await askForVersion()
+  }
   const dir = await mkdtemp(path.join(os.tmpdir(), 'formkit-'))
   glob('packages/*/dist/formkit-*.js', (err, matches) => {
     matches.forEach((file) => {
