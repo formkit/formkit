@@ -187,4 +187,60 @@ describe('removing store messages', () => {
     expect(removedListener).toHaveBeenCalledTimes(0)
     expect(node.store).not.toHaveProperty('foo')
   })
+
+  it('can apply messages to a node and clear with type', () => {
+    const node = createNode()
+    node.store.set(
+      createMessage({
+        type: 'bar',
+        key: 'd',
+      })
+    )
+    const messageA = createMessage({ type: 'foo', key: 'a' })
+    const messageB = createMessage({ type: 'foo', key: 'b' })
+    const messageC = createMessage({ type: 'foo', key: 'c' })
+    node.store.apply([messageA, messageB, messageC])
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'b', 'c'])
+    node.store.apply([messageA, messageC], 'foo')
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'c'])
+  })
+
+  it('can apply messages to a node and clear with function', () => {
+    const node = createNode()
+    node.store.set(
+      createMessage({
+        type: 'bar',
+        key: 'd',
+      })
+    )
+    const messageA = createMessage({ type: 'foo', key: 'a' })
+    const messageB = createMessage({ type: 'foo', key: 'b' })
+    const messageC = createMessage({ type: 'foo', key: 'c' })
+    node.store.apply([messageA, messageB, messageC])
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'b', 'c'])
+    node.store.apply([], (message) => message.key > 'b')
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'c'])
+  })
+
+  it('can apply messages to its children', () => {
+    const group = createNode({
+      type: 'group',
+      children: [createNode({ name: 'kris' }), createNode({ name: 'kringle' })],
+    })
+    group.store.apply(
+      {
+        kris: [createMessage({ type: 'foo', key: 'a' })],
+        kringle: [
+          createMessage({ type: 'foo', key: 'b' }),
+          createMessage({ type: 'bar', key: 'c' }),
+        ],
+      },
+      'foo'
+    )
+    expect(Object.keys(group.at('kris')!.store)).toEqual(['a'])
+    expect(Object.keys(group.at('kringle')!.store)).toEqual(['b', 'c'])
+    group.store.apply({ kris: [], kringle: [] }, 'foo')
+    expect(Object.keys(group.at('kris')!.store)).toEqual([])
+    expect(Object.keys(group.at('kringle')!.store)).toEqual(['c'])
+  })
 })

@@ -6,6 +6,7 @@ import {
   FormKitClasses,
   FormKitOptions,
   FormKitPlugin,
+  createMessage,
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
 import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
@@ -173,16 +174,15 @@ export function useInput(
       (message) => props.errors.includes(message.value as string),
       'error'
     )
-    props.errors.forEach((error) => {
-      node.store.set({
-        key: error,
-        type: 'error',
-        value: error,
-        visible: true,
-        blocking: false,
-        meta: {},
-      })
-    })
+    props.errors.forEach((error) =>
+      node.store.set(
+        createMessage({
+          key: error,
+          type: 'error',
+          value: error,
+        })
+      )
+    )
   })
 
   /**

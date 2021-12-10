@@ -22,6 +22,15 @@ export interface FormKitMessageProps {
 export type FormKitMessage = Readonly<FormKitMessageProps>
 
 /**
+ * A registry of input messages that should be applied to children of the node
+ * they are passed to — where the string key of the object is the address of
+ * the node to apply the messages on and the value is the message itself.
+ */
+export interface FormKitInputMessages {
+  [address: string]: FormKitMessage[]
+}
+
+/**
  * Messages have can have any arbitrary meta data attached to them.
  * @public
  */
@@ -62,6 +71,10 @@ export type FormKitStore = FormKitMessageStore & {
  * The available traps on the FormKit store.
  */
 export interface FormKitStoreTraps {
+  apply: (
+    messages: Array<FormKitMessage> | FormKitInputMessages,
+    clear?: string | ((message: FormKitMessage) => boolean)
+  ) => void
   set: (message: FormKitMessageProps) => FormKitStore
   remove: (key: string) => FormKitStore
   filter: (
@@ -107,6 +120,7 @@ export function createMessage(
 const storeTraps: {
   [k in keyof FormKitStoreTraps]: (...args: any[]) => unknown
 } = {
+  apply: applyMessages,
   set: setMessage,
   remove: removeMessage,
   filter: filterMessages,
@@ -274,6 +288,46 @@ function reduceMessages<T>(
     accumulator = reducer(accumulator, message)
   }
   return accumulator
+}
+
+/**
+ *
+ * @param messageStore - The store itself
+ * @param _store - Unused but curried — the store interface itself
+ * @param node - The node owner of this store
+ * @param messages - An array of FormKitMessages to apply to this input, or an object of messages to apply to children.
+ */
+export function applyMessages(
+  _messageStore: FormKitMessageStore,
+  store: FormKitStore,
+  node: FormKitNode,
+  messages: Array<FormKitMessage> | FormKitInputMessages,
+  clear?: string | ((message: FormKitMessage) => boolean)
+): void {
+  if (Array.isArray(messages)) {
+    // In this case we are applying messages to this node’s store.
+    const applied = new Set(
+      messages.map((message) => {
+        store.set(message)
+        return message.key
+      })
+    )
+    // Remove any messages that were not part of the initial apply:
+    if (typeof clear === 'string') {
+      store.filter(
+        (message) => message.type !== clear || applied.has(message.key)
+      )
+    } else if (typeof clear === 'function') {
+      store.filter((message) => applied.has(message.key) || clear(message))
+    }
+  } else {
+    for (const address in messages) {
+      const child = node.at(address)
+      if (child) {
+        child.store.apply(messages[address], clear)
+      }
+    }
+  }
 }
 
 /**
