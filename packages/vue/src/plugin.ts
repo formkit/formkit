@@ -50,7 +50,7 @@ function createPlugin(
  * The symbol key for accessing the FormKit node options.
  * @public
  */
-export const optionsSymbol: InjectionKey<FormKitOptions> = Symbol(
+export const optionsSymbol: InjectionKey<FormKitOptions> = Symbol.for(
   'FormKitOptions'
 )
 
@@ -58,7 +58,9 @@ export const optionsSymbol: InjectionKey<FormKitOptions> = Symbol(
  * The symbol key for accessing FormKit root configuration.
  * @public
  */
-export const configSymbol: InjectionKey<FormKitConfig> = Symbol('FormKitConfig')
+export const configSymbol: InjectionKey<FormKitConfig> = Symbol.for(
+  'FormKitConfig'
+)
 
 /**
  * Create the FormKit plugin.
