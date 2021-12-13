@@ -49,6 +49,7 @@ function createMessages(
  * @param formId - The id of a form
  * @param formErrors - The errors to set on the form or the form’s inputs
  * @param inputErrors - (optional) The errors to set on the form or the form’s inputs
+ * @public
  */
 export default function setErrors(
   id: string,
