@@ -31,6 +31,19 @@ export interface FormKitInputMessages {
 }
 
 /**
+ * Child messages that were not immediately applied due to the child not existing.
+ */
+type ChildMessageBuffer = Map<
+  string,
+  Array<[FormKitMessage[], MessageClearer | undefined]>
+>
+
+/**
+ * A string or function that allows clearing messages.
+ */
+type MessageClearer = string | ((message: FormKitMessage) => boolean)
+
+/**
  * Messages have can have any arbitrary meta data attached to them.
  * @public
  */
@@ -62,8 +75,15 @@ export interface FormKitMessageStore {
  * @public
  */
 export type FormKitStore = FormKitMessageStore & {
+  // owner node
   _n: FormKitNode
-  _b: Array<FormKitMessage>
+  // buffer array
+  _b: Array<[messages: FormKitMessage[], clear?: MessageClearer]>
+  // missed assignments map
+  _m: ChildMessageBuffer
+  // missed message listener store
+  _r?: string
+  // message buffer
   buffer: boolean
 } & FormKitStoreTraps
 
@@ -73,7 +93,7 @@ export type FormKitStore = FormKitMessageStore & {
 export interface FormKitStoreTraps {
   apply: (
     messages: Array<FormKitMessage> | FormKitInputMessages,
-    clear?: string | ((message: FormKitMessage) => boolean)
+    clear?: MessageClearer
   ) => void
   set: (message: FormKitMessageProps) => FormKitStore
   remove: (key: string) => FormKitStore
@@ -137,12 +157,16 @@ export function createStore(_buffer = false): FormKitStore {
   const messages: FormKitMessageStore = {}
   let node: FormKitNode
   let buffer = _buffer
-  let _b = [] as Array<FormKitMessage>
+  let _b = [] as Array<[messages: FormKitMessage[], clear?: MessageClearer]>
+  const _m = new Map()
+  let _r: string | undefined = undefined
   const store = new Proxy(messages, {
     get(...args) {
       const [_target, property] = args
       if (property === 'buffer') return buffer
       if (property === '_b') return _b
+      if (property === '_m') return _m
+      if (property === '_r') return _r
       if (has(storeTraps, property)) {
         return storeTraps[property as keyof FormKitStoreTraps].bind(
           null,
@@ -156,6 +180,7 @@ export function createStore(_buffer = false): FormKitStore {
     set(_t, prop, value) {
       if (prop === '_n') {
         node = value
+        if (_r === '__n') releaseMissed(node, store)
         return true
       } else if (prop === '_b') {
         _b = value
@@ -163,8 +188,11 @@ export function createStore(_buffer = false): FormKitStore {
       } else if (prop === 'buffer') {
         buffer = value
         return true
+      } else if (prop === '_r') {
+        _r = value
+        return true
       }
-      createError(node, 2)
+      createError(node, 288)
       return false
     },
   }) as FormKitStore
@@ -186,7 +214,7 @@ function setMessage(
   message: FormKitMessageProps
 ): FormKitStore {
   if (store.buffer) {
-    store._b.push(message)
+    store._b.push([[message]])
     return store
   }
   if (messageStore[message.key] !== message) {
@@ -239,7 +267,10 @@ function removeMessage(
     node.emit('message-removed', message)
   }
   if (store.buffer === true) {
-    store._b = store._b.filter((m) => m.key !== key)
+    store._b = store._b.filter((buffered) => {
+      buffered[0] = buffered[0].filter((m) => m.key !== key)
+      return buffered[1] || buffered[0].length
+    })
   }
   return store
 }
@@ -302,9 +333,13 @@ export function applyMessages(
   store: FormKitStore,
   node: FormKitNode,
   messages: Array<FormKitMessage> | FormKitInputMessages,
-  clear?: string | ((message: FormKitMessage) => boolean)
+  clear?: MessageClearer
 ): void {
   if (Array.isArray(messages)) {
+    if (store.buffer) {
+      store._b.push([messages, clear])
+      return
+    }
     // In this case we are applying messages to this node’s store.
     const applied = new Set(
       messages.map((message) => {
@@ -318,16 +353,67 @@ export function applyMessages(
         (message) => message.type !== clear || applied.has(message.key)
       )
     } else if (typeof clear === 'function') {
-      store.filter((message) => applied.has(message.key) || clear(message))
+      store.filter((message) => !clear(message) || applied.has(message.key))
     }
   } else {
     for (const address in messages) {
       const child = node.at(address)
       if (child) {
         child.store.apply(messages[address], clear)
+      } else {
+        missed(node, store, address, messages[address], clear)
       }
     }
   }
+}
+
+/**
+ *
+ * @param store - The store to apply this missed applications.
+ * @param address - The address that was missed (a node path that didn't yet exist)
+ * @param messages - The messages that should have been applied.
+ * @param clear - The clearing function (if any)
+ */
+function missed(
+  node: FormKitNode,
+  store: FormKitStore,
+  address: string,
+  messages: FormKitMessage[],
+  clear?: MessageClearer
+) {
+  const misses = store._m
+  if (!misses.has(address)) misses.set(address, [])
+  // The created receipt
+  if (!store._r) store._r = releaseMissed(node, store)
+  misses.get(address)?.push([messages, clear])
+}
+
+/**
+ * Releases messages that were applied to a child via parent, but the child did
+ * not exist. Once the child does exist, the created event for that child will
+ * bubble to this point, and any stored applications will be applied serially.
+ * @param store - The store object.
+ * @returns
+ */
+function releaseMissed(node: FormKitNode, store: FormKitStore): string {
+  return node.on(
+    'child.deep',
+    ({ payload: child }: { payload: FormKitNode }) => {
+      store._m.forEach((misses, address) => {
+        if (node.at(address) === child) {
+          misses.forEach(([messages, clear]) => {
+            child.store.apply(messages, clear)
+          })
+          store._m.delete(address)
+        }
+      })
+      // If all the stored misses were applied, remove the listener.
+      if (store._m.size === 0 && store._r) {
+        node.off(store._r)
+        store._r = undefined
+      }
+    }
+  )
 }
 
 /**
@@ -341,6 +427,6 @@ function releaseBuffer(
   store: FormKitStore
 ) {
   store.buffer = false
-  store._b.forEach((message) => store.set(message))
+  store._b.forEach(([messages, clear]) => store.apply(messages, clear))
   store._b = []
 }

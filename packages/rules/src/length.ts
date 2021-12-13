@@ -10,6 +10,8 @@ const length: FormKitValidationRule = function length(
   first = 0,
   second = Infinity
 ) {
+  first = parseInt(first)
+  second = isNaN(parseInt(second)) ? Infinity : parseInt(second)
   const min = first <= second ? first : second
   const max = second >= first ? second : first
   if (typeof value === 'string' || Array.isArray(value)) {

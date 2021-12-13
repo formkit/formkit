@@ -86,9 +86,9 @@ export function empty(
     return value === ''
   }
   if (type === 'object') {
-    if (value === null || Object.keys(value).length === 0) {
-      return true
-    }
+    if (value === null) return true
+    for (const _i in value) return false
+    return true
   }
   return false
 }

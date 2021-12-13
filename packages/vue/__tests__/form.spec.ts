@@ -3,9 +3,11 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { getNode } from '@formkit/core'
 import { de } from '@formkit/i18n'
+import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
+import setErrors from '../src/composables/setErrors'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -256,5 +258,99 @@ describe('form submission', () => {
     expect(wrapper.find('.formkit-message').text()).toBe(
       'Email ist ein Pflichtfeld.'
     )
+  })
+
+  it('can display form level errors with setErrors', async () => {
+    const error = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="form" @submit="handle">
+        <FormKit type="email" validation-behavior="live" label="Email" />
+      </FormKit>`,
+        methods: {
+          handle() {
+            this.$formkit.setErrors('form', [error])
+          },
+        },
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(error)
+  })
+
+  it('can display input level errors with setErrors', async () => {
+    let error1 = token()
+    const error2 = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="form" @submit="handle">
+        <FormKit type="email" name="email" />
+        <FormKit type="select" name="second" />
+      </FormKit>`,
+        methods: {
+          handle() {
+            this.$formkit.setErrors('form', { email: error1, second: [error2] })
+          },
+        },
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(error1)
+    expect(wrapper.html()).toContain(error2)
+
+    const firstError1 = error1
+    error1 = token()
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(error1)
+    expect(wrapper.html()).not.toContain(firstError1)
+  })
+
+  it('can set errors using the composition API', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="form" @submit="handle">
+        <FormKit type="email" name="email" />
+        <FormKit type="select" name="second" />
+      </FormKit>`,
+        setup() {
+          const handle = () => {
+            setErrors(
+              'form',
+              {
+                email: ['This is foobar'],
+                second: 'but this is not',
+              },
+              ['This is also fooooobar']
+            )
+          }
+          return {
+            handle,
+          }
+        },
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain('This is foobar')
+    expect(wrapper.html()).toContain('but this is not')
+    expect(wrapper.html()).toContain('This is also fooooobar')
   })
 })

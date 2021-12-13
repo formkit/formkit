@@ -20,6 +20,7 @@ describe('length rule', () => {
 
   it('passes when within both bounds when inverted', () => {
     expect(length(createNode({ value: 'abcdef' }), '6', '1')).toBe(true)
+    expect(length(createNode({ value: 'asklfnd' }), '5', '15')).toBe(true)
   })
 
   it('can allow an exact length', () => {

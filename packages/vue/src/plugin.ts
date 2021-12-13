@@ -7,6 +7,7 @@ import {
 } from '@formkit/core'
 import { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
+import setErrors from './composables/setErrors'
 
 /**
  * Augment Vue’s globalProperties.
@@ -24,6 +25,11 @@ declare module '@vue/runtime-core' {
 export interface FormKitVuePlugin {
   get: (id: string) => FormKitNode | undefined
   setLocale: (locale: string) => void
+  setErrors: (
+    formId: string,
+    errors: string[] | Record<string, string | string[]>,
+    inputErrors?: string[] | Record<string, string | string[]>
+  ) => void
 }
 
 /**
@@ -43,6 +49,7 @@ function createPlugin(
         options.config.rootConfig.locale = locale
       }
     },
+    setErrors,
   }
 }
 

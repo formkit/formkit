@@ -5,6 +5,12 @@
 export { useInput } from './composables/useInput'
 
 /**
+ * Export the setErrors function explicitly.
+ * @public
+ */
+export { default as setErrors } from './composables/setErrors'
+
+/**
  * The plugin and plugin types.
  * @public
  */

@@ -1006,6 +1006,7 @@ function addChild(
   // proper "placeholders" are made on the parent.
   commit(parent, parentContext, false)
   parent.ledger.merge(child)
+  parent.emit('child', child)
   return parent
 }
 

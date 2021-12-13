@@ -5,30 +5,43 @@
   </button>
   <FormKit
     type="form"
+    :input-errors="{
+      'find(20)': ['This is a bad one'],
+      fruit: 'Gross'
+    }"
   >
     <FormKit
-      type="email"
-      label="Email address"
-      placeholder="jon@foo.com"
-      validation="required|email"
-      validation-behavior="live"
-    />
-    <FormKit
-      id="fruit"
-      type="select"
-      label="Favorite pie"
-      :options="{
-        apple: 'Apple pie',
-        pumpkin: 'Pumpkin pie',
-        peach: 'Peach cobbler'
-      }"
-    />
+      type="group"
+      name="foo"
+    >
+      <FormKit
+        type="email"
+        name="email"
+        label="Email address"
+        placeholder="jon@foo.com"
+        validation="required|email"
+        validation-behavior="live"
+      />
+      <FormKit
+        id="fruit"
+        name="fruit"
+        type="select"
+        label="Favorite pie"
+        :options="{
+          apple: 'Apple pie',
+          pumpkin: 'Pumpkin pie',
+          peach: 'Peach cobbler'
+        }"
+      />
+    </FormKit>
     <FormKit
       type="range"
       label="Age"
       :delay="50"
       min="5"
+      name="age"
       max="100"
+      value="20"
       help="Pick an age"
     />
     <FormKit
