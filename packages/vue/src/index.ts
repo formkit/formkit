@@ -35,14 +35,6 @@ export { FormKitSchema } from './FormKitSchema'
 export { default as defaultConfig } from './defaultConfig'
 
 /**
- * Foodbar definition.
- * @public
- */
-export interface FooBar {
-  title: string
-}
-
-/**
  * Export the reset count explicitly
  */
 export { resetCount, errorHandler } from '@formkit/core'
