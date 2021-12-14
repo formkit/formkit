@@ -443,9 +443,9 @@ function createMessageName(node: FormKitNode): string {
 }
 
 /**
- * Describes hints
+ * Describes hints, must also be changed in the debounceExtractor.
  */
-const hintPattern = '(?:[\\^?()0-9]+)'
+const hintPattern = '(?:[\\*+?()0-9]+)'
 
 /**
  * A pattern to describe rule names. Rules names can only contain letters,
@@ -471,7 +471,7 @@ const hintExtractor = new RegExp(`^(${hintPattern})(${rulePattern})$`, 'i')
  * Given a hint string like ^(200)? or ^? or (200)?^ extract the hints to
  * matches.
  */
-const debounceExtractor = /([\^?]+)?(\(\d+\))([\^?]+)?/
+const debounceExtractor = /([\*+?]+)?(\(\d+\))([\*+?]+)?/
 
 /**
  * Determines if a given string is in the proper debounce format.
@@ -578,7 +578,8 @@ function parseHints(
     return [ruleName, { name: ruleName }]
   }
   const map: { [index: string]: Partial<FormKitValidationHints> } = {
-    '^': { force: true },
+    '*': { force: true },
+    '+': { skipEmpty: false },
     '?': { blocking: false },
   }
   const [, hints, rule] = matches
