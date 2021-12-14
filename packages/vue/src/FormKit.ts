@@ -39,6 +39,10 @@ const FormKit = defineComponent({
       type: Array as PropType<string[]>,
       default: [],
     },
+    inputErrors: {
+      type: Object as PropType<Record<string, string[]>>,
+      default: () => ({}),
+    },
     id: {
       type: String,
       required: false,

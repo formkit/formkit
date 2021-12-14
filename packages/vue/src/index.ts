@@ -5,6 +5,12 @@
 export { useInput } from './composables/useInput'
 
 /**
+ * Export the setErrors function explicitly.
+ * @public
+ */
+export { default as setErrors } from './composables/setErrors'
+
+/**
  * The plugin and plugin types.
  * @public
  */
@@ -27,14 +33,6 @@ export { FormKitSchema } from './FormKitSchema'
  * @public
  */
 export { default as defaultConfig } from './defaultConfig'
-
-/**
- * Foodbar definition.
- * @public
- */
-export interface FooBar {
-  title: string
-}
 
 /**
  * Export the reset count explicitly

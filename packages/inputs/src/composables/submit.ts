@@ -14,11 +14,7 @@ const submit: FormKitSchemaComposable = (schema = {}) => ({
           type: 'submit',
           'data-loading': '$state.loading',
           disabled: '$disabled',
-          label: {
-            if: '$submitLabel',
-            then: '$submitLabel',
-            else: 'Submit',
-          },
+          label: '$submitLabel',
         },
       },
       schema

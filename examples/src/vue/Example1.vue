@@ -1,30 +1,47 @@
 <template>
   <h2>FormKit Playground</h2>
+  <button @click="changeLocale">
+    Change to {{ locale }}
+  </button>
   <FormKit
     type="form"
-    @submit="submit"
+    :input-errors="{
+      'find(20)': ['This is a bad one'],
+      fruit: 'Gross'
+    }"
   >
     <FormKit
-      type="email"
-      label="Email address"
-      placeholder="jon@foo.com"
-    />
-    <FormKit
-      type="select"
-      label="Favorite pie"
-      placeholder="Select a favorite"
-      :options="{
-        apple: 'Apple pie',
-        pumpkin: 'Pumpkin pie',
-        peach: 'Peach cobbler'
-      }"
-    />
+      type="group"
+      name="foo"
+    >
+      <FormKit
+        type="email"
+        name="email"
+        label="Email address"
+        placeholder="jon@foo.com"
+        validation="required|email"
+        validation-behavior="live"
+      />
+      <FormKit
+        id="fruit"
+        name="fruit"
+        type="select"
+        label="Favorite pie"
+        :options="{
+          apple: 'Apple pie',
+          pumpkin: 'Pumpkin pie',
+          peach: 'Peach cobbler'
+        }"
+      />
+    </FormKit>
     <FormKit
       type="range"
       label="Age"
       :delay="50"
       min="5"
+      name="age"
       max="100"
+      value="20"
       help="Pick an age"
     />
     <FormKit
@@ -42,10 +59,9 @@
       type="radio"
       help="Hello help text!"
       placeholder="Select the best country"
-      :options="options"
+      :options="countries"
     />
   </FormKit>
-
   <FormKit
     type="button"
     @click.prevent="() => disabled = !disabled"
@@ -55,7 +71,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+import { FormKitConfig } from '../../../packages/core/src/index'
+import { configSymbol } from '../../../packages/vue/src/index'
 const disabled = ref(true)
 
 const date = new Date()
@@ -66,7 +84,20 @@ const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)
 
-const options = [
+let locale = ref('de')
+
+const config: FormKitConfig | undefined = inject(configSymbol)
+
+const changeLocale = () => {
+  if (config) {
+    config.locale = locale.value
+  }
+  if (locale.value === 'de') locale.value = 'en'
+  else if (locale.value === 'en') locale.value = 'fr'
+  else locale.value = 'de'
+}
+
+const countries = [
   {
     label: 'Italy',
     value: 'it',
@@ -84,9 +115,7 @@ const options = [
     help: 'This is the cleanest one',
   },
 ]
-const submit = async (data: Record<string, any>) => {
-  await new Promise(r => setTimeout(r, 2000))
-}
+
 </script>
 
 <style>

@@ -2,7 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 import { nextTick } from 'vue'
 // import { jest } from '@jest/globals'
 
@@ -130,7 +130,7 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    const node = get('select-defaults')!
+    const node = getNode('select-defaults')!
     expect(node.context?.value).toBe('foo')
     expect(node.context?._value).toBe('foo')
     expect(node.value).toBe('foo')
@@ -154,7 +154,7 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    const node = get('select-multiple')!
+    const node = getNode('select-multiple')!
     expect(node.context?.value).toEqual([])
     expect(node.context?._value).toEqual([])
     expect(node.value).toEqual([])
@@ -177,7 +177,7 @@ describe('select', () => {
         },
       }
     )
-    expect(get('group-item')?.value).toEqual({ flavor: 'biz' })
+    expect(getNode('group-item')?.value).toEqual({ flavor: 'biz' })
   })
 
   it('selects a different value when one is specified', () => {
@@ -197,7 +197,7 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    const node = get('select-value')!
+    const node = getNode('select-value')!
     expect(node.context?.value).toBe('jim')
     expect(node.context?._value).toBe('jim')
     expect(node.value).toBe('jim')
@@ -223,7 +223,7 @@ describe('select', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    const node = get('select-model')!
+    const node = getNode('select-model')!
     expect(node.context?.value).toBe('bing')
     expect(node.context?._value).toBe('bing')
     expect(node.value).toBe('bing')
@@ -388,5 +388,30 @@ describe('select', () => {
     wrapper.find('select').trigger('blur')
     await nextTick()
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
+  })
+
+  it('can set the value of an input after initial render via node', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        id: 'select-via-node',
+        validation: 'required',
+        delay: 0,
+        options: {
+          foo: 'Bar',
+          jim: 'Jam',
+          baz: 'Bim',
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('foo')
+    await new Promise((r) => setTimeout(r, 50))
+    const node = getNode('select-via-node')!
+    node.input('jim')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.find('select').element.value).toBe('jim')
   })
 })

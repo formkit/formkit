@@ -148,6 +148,7 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
     counter.node.emit(`settled:${counter.name}`, counter.count, false)
     counter.resolve()
   }
+  counter.node.emit(`count:${counter.name}`, counter.count, false)
   return counter
 }
 

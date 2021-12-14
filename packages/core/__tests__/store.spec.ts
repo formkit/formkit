@@ -187,4 +187,165 @@ describe('removing store messages', () => {
     expect(removedListener).toHaveBeenCalledTimes(0)
     expect(node.store).not.toHaveProperty('foo')
   })
+
+  it('can apply messages to a node and clear with type', () => {
+    const node = createNode()
+    node.store.set(
+      createMessage({
+        type: 'bar',
+        key: 'd',
+      })
+    )
+    const messageA = createMessage({ type: 'foo', key: 'a' })
+    const messageB = createMessage({ type: 'foo', key: 'b' })
+    const messageC = createMessage({ type: 'foo', key: 'c' })
+    node.store.apply([messageA, messageB, messageC])
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'b', 'c'])
+    node.store.apply([messageA, messageC], 'foo')
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'c'])
+  })
+
+  it('can apply messages to a node and clear with function', () => {
+    const node = createNode()
+    node.store.set(
+      createMessage({
+        type: 'bar',
+        key: 'd',
+      })
+    )
+    const messageA = createMessage({ type: 'foo', key: 'a' })
+    const messageB = createMessage({ type: 'foo', key: 'b' })
+    const messageC = createMessage({ type: 'foo', key: 'c' })
+    node.store.apply([messageA, messageB, messageC])
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'a', 'b', 'c'])
+    node.store.apply([], (message) => message.key <= 'b')
+    expect(Object.keys(node.store)).toStrictEqual(['d', 'c'])
+  })
+
+  it('can apply messages to its children', () => {
+    const group = createNode({
+      type: 'group',
+      children: [createNode({ name: 'kris' }), createNode({ name: 'kringle' })],
+    })
+    group.store.apply(
+      {
+        kris: [createMessage({ type: 'foo', key: 'a' })],
+        kringle: [
+          createMessage({ type: 'foo', key: 'b' }),
+          createMessage({ type: 'bar', key: 'c' }),
+        ],
+      },
+      'foo'
+    )
+    expect(Object.keys(group.at('kris')!.store)).toEqual(['a'])
+    expect(Object.keys(group.at('kringle')!.store)).toEqual(['b', 'c'])
+    group.store.apply({ kris: [], kringle: [] }, 'foo')
+    expect(Object.keys(group.at('kris')!.store)).toEqual([])
+    expect(Object.keys(group.at('kringle')!.store)).toEqual(['c'])
+  })
+
+  it('can apply messages to children when they are created', () => {
+    const group = createNode({
+      type: 'group',
+    })
+    group.store.apply({
+      foo: [
+        createMessage({
+          key: 'message',
+          value: 'late-registration',
+        }),
+      ],
+    })
+    const foo = createNode({
+      name: 'foo',
+      parent: group,
+    })
+    expect(foo.store).toHaveProperty('message')
+  })
+
+  it('can apply messages to children when they are added', () => {
+    const group = createNode({
+      type: 'group',
+    })
+    group.store.apply({
+      foo: [
+        createMessage({
+          key: 'message',
+          value: 'late-registration',
+        }),
+      ],
+    })
+    const foo = createNode({
+      name: 'foo',
+    })
+    group.add(foo)
+    expect(foo.store).toHaveProperty('message')
+  })
+
+  it('can apply messages to children when they are predefined on a parent', () => {
+    const group = createNode({
+      type: 'group',
+      plugins: [
+        function (node) {
+          node.store.apply({
+            foo: [
+              createMessage({
+                key: 'message',
+                value: 'late-registration',
+              }),
+            ],
+          })
+          return false
+        },
+      ],
+      children: [
+        createNode({
+          name: 'foo',
+        }),
+      ],
+    })
+    expect(group.at('foo')!.store).toHaveProperty('message')
+  })
+
+  it('can apply and clear messages for children that dont yet exist', () => {
+    const group = createNode({
+      type: 'group',
+    })
+    group.store.apply({
+      foo: [
+        createMessage({
+          type: 'x',
+          key: 'message',
+          value: 'late-registration',
+        }),
+      ],
+    })
+    group.store.apply({
+      foo: [
+        createMessage({
+          type: 'y',
+          key: 'message2',
+          value: 'late-registration',
+        }),
+      ],
+    })
+    group.store.apply(
+      {
+        foo: [
+          createMessage({
+            type: 'y',
+            key: 'message2',
+            value: 'later-registration',
+          }),
+        ],
+      },
+      'x'
+    )
+    const foo = createNode({
+      name: 'foo',
+      parent: group,
+    })
+    expect(foo.store).not.toHaveProperty('message')
+    expect(foo.store.message2.value).toBe('later-registration')
+  })
 })

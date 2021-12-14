@@ -7,20 +7,20 @@ import { FormKitValidationRule } from '@formkit/validation'
  */
 const length: FormKitValidationRule = function length(
   { value },
-  min = 5,
-  max = false
+  first = 0,
+  second = Infinity
 ) {
-  let passMin = false
-  let passMax = max ? false : true
+  first = parseInt(first)
+  second = isNaN(parseInt(second)) ? Infinity : parseInt(second)
+  const min = first <= second ? first : second
+  const max = second >= first ? second : first
   if (typeof value === 'string' || Array.isArray(value)) {
-    passMin = value.length >= min
-    passMax = passMax || value.length <= max
+    return value.length >= min && value.length <= max
   } else if (value && typeof value === 'object') {
     const length = Object.keys(value).length
-    passMin = length >= min
-    passMax = passMax || length <= max
+    return length >= min && length <= max
   }
-  return passMin && passMax
+  return false
 }
 
 export default length

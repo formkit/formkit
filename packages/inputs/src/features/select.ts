@@ -7,6 +7,8 @@ import { FormKitNode } from '@formkit/core'
  * @returns
  */
 function isSelected(node: FormKitNode, option: string) {
+  // Here we trick reactivity (if at play) to watch this function.
+  node.context && node.context.value
   return Array.isArray(node._value)
     ? node._value.includes(option)
     : (node.value === undefined && !option) || node._value == option

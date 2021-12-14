@@ -6,6 +6,7 @@ import {
   bfs,
   resetCount,
 } from '../src/node'
+import { createConfig } from '../src/config'
 import {
   createNameTree,
   createTicketTree,
@@ -79,6 +80,35 @@ describe('node', () => {
     node.config.locale = 'zh'
     expect(listenerA).toHaveBeenCalledTimes(2)
     expect(listenerB).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not emit config:{property} events when ancestors defines its own local value', () => {
+    const node = createNode({
+      // config: { locale: 'en' },
+      type: 'group',
+      children: [
+        createNode({
+          type: 'list',
+          name: 'list',
+          config: {
+            locale: 'fr',
+          },
+          children: [createNode()],
+        }),
+      ],
+    })
+    const listenerA = jest.fn()
+    const listenerB = jest.fn()
+    expect(node.at('list')?.props.locale).toBe('fr')
+    expect(node.at('list.0')!.props.locale).toBe('fr')
+    node.at('list')!.on('config:locale', listenerA)
+    node.at('list.0')!.on('config:locale', listenerB)
+    node.config.locale = 'zh'
+    expect(node.props.locale).toBe('zh')
+    expect(node.at('list')!.props.locale).toBe('fr')
+    expect(node.at('list.0')!.props.locale).toBe('fr')
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    expect(listenerB).toHaveBeenCalledTimes(0)
   })
 
   it('can traverse into lists and groups', () => {
@@ -170,6 +200,29 @@ describe('node', () => {
     })
     parentB.add(email)
     expect(email.config.delimiter).toBe('|')
+  })
+
+  it('can use rootConfig values, and listen to events', () => {
+    const rootConfig = createConfig({
+      foo: 'bar',
+    })
+    const group = createNode({
+      name: 'group',
+      type: 'group',
+      config: {
+        rootConfig,
+      },
+      children: [createNode({ name: 'child', config: { rootConfig } })],
+    })
+    const listener = jest.fn()
+    expect(group.config.foo).toBe('bar')
+    expect(group.at('child')?.props.foo).toBe('bar')
+    group.at('child')!.on('prop:foo', listener)
+    rootConfig.foo = 'baz'
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listener).toHaveBeenLastCalledWith(
+      expect.objectContaining({ payload: 'baz' })
+    )
   })
 
   it('always has an __FKNode__ trap property', () => {
@@ -1030,6 +1083,16 @@ describe('value propagation in a node tree', () => {
     form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
     expect(plugin.calls).toBe(2)
     expect(form._d).toBe(0)
+  })
+
+  it('can catch children being created with the deep modifier', () => {
+    const group = createNode({ type: 'group' })
+    let log = ''
+    group.on('created.deep', ({ payload: child }) => {
+      log = child.name
+    })
+    createNode({ parent: group, name: 'party-town-usa' })
+    expect(log).toBe('party-town-usa')
   })
 
   it('retains parent values when children do not match', () => {

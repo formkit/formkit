@@ -2,7 +2,7 @@ import { regexForFormat } from '@formkit/utils'
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value matches a specific date
+ * Determine if the given input's value matches a specified date format
  * @param context - The FormKitValidationContext
  * @public
  */

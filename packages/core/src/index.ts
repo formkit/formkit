@@ -22,6 +22,11 @@ export {
 } from './store'
 
 /**
+ * The FormKit ledger.
+ */
+export { FormKitLedger } from './ledger'
+
+/**
  * Export dispatcher typings.
  */
 export { FormKitDispatcher, FormKitMiddleware } from './dispatcher'
@@ -89,3 +94,8 @@ export * from './classes'
  * Export the global registry.
  */
 export * from './registry'
+
+/**
+ * The root configuration creator.
+ */
+export { createConfig } from './config'

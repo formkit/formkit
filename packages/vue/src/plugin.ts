@@ -1,6 +1,13 @@
-import { FormKitOptions, FormKitNode, get } from '@formkit/core'
+import {
+  FormKitOptions,
+  FormKitNode,
+  FormKitConfig,
+  getNode,
+  createConfig,
+} from '@formkit/core'
 import { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
+import setErrors from './composables/setErrors'
 
 /**
  * Augment Vue’s globalProperties.
@@ -17,6 +24,12 @@ declare module '@vue/runtime-core' {
  */
 export interface FormKitVuePlugin {
   get: (id: string) => FormKitNode | undefined
+  setLocale: (locale: string) => void
+  setErrors: (
+    formId: string,
+    errors: string[] | Record<string, string | string[]>,
+    inputErrors?: string[] | Record<string, string | string[]>
+  ) => void
 }
 
 /**
@@ -26,19 +39,33 @@ export interface FormKitVuePlugin {
  */
 function createPlugin(
   app: App<any>,
-  config: FormKitOptions & Record<string, any>
+  options: FormKitOptions & Record<string, any>
 ): FormKitVuePlugin {
-  app.component(config.alias || 'FormKit', FormKit)
+  app.component(options.alias || 'FormKit', FormKit)
   return {
-    get,
+    get: getNode,
+    setLocale: (locale: string) => {
+      if (options.config?.rootConfig) {
+        options.config.rootConfig.locale = locale
+      }
+    },
+    setErrors,
   }
 }
 
 /**
- * The symbol key for accessing the formkit config.
+ * The symbol key for accessing the FormKit node options.
  * @public
  */
-export const configSymbol: InjectionKey<FormKitOptions> = Symbol(
+export const optionsSymbol: InjectionKey<FormKitOptions> = Symbol.for(
+  'FormKitOptions'
+)
+
+/**
+ * The symbol key for accessing FormKit root configuration.
+ * @public
+ */
+export const configSymbol: InjectionKey<FormKitConfig> = Symbol.for(
   'FormKitConfig'
 )
 
@@ -49,25 +76,37 @@ export const configSymbol: InjectionKey<FormKitOptions> = Symbol(
 export const plugin: Plugin = {
   install(
     app,
-    options: FormKitOptions | ((...args: any[]) => FormKitOptions)
+    _options: FormKitOptions | ((...args: any[]) => FormKitOptions)
   ): void {
     /**
      * Extend the default configuration options.
      */
-    const config: FormKitOptions = Object.assign(
+    const options: FormKitOptions = Object.assign(
       {
         alias: 'FormKit',
       },
-      typeof options === 'function' ? options() : options
+      typeof _options === 'function' ? _options() : _options
     )
-
+    /**
+     * The root configuration options.
+     */
+    const rootConfig = createConfig(options.config || {})
+    /**
+     * We dont want to explicitly provide any "config" options, only a root
+     * config option — so here we override the existing config options.
+     */
+    options.config = { rootConfig }
     /**
      * Register the global $formkit plugin property.
      */
-    app.config.globalProperties.$formkit = createPlugin(app, config)
+    app.config.globalProperties.$formkit = createPlugin(app, options)
     /**
      * Provide the config to the application for injection.
      */
-    app.provide(configSymbol, config)
+    app.provide(optionsSymbol, options)
+    /**
+     * Provide the root config to the application.
+     */
+    app.provide(configSymbol, rootConfig as FormKitConfig)
   },
 }

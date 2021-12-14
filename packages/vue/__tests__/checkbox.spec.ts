@@ -3,7 +3,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import { get } from '@formkit/core'
+import { getNode } from '@formkit/core'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -156,7 +156,7 @@ describe('multiple checkboxes', () => {
       },
       ...global,
     })
-    const node = get('my-id')
+    const node = getNode('my-id')
     expect(node?.value).toEqual([])
   })
 

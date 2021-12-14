@@ -6,10 +6,12 @@ import {
   FormKitClasses,
   FormKitOptions,
   FormKitPlugin,
+  FormKitMessage,
+  createMessage,
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
 import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
-import { configSymbol } from '../plugin'
+import { optionsSymbol } from '../plugin'
 
 interface FormKitComponentProps {
   type?: string
@@ -17,6 +19,7 @@ interface FormKitComponentProps {
   validation?: any
   modelValue?: any
   errors: string[]
+  inputErrors: Record<string, string | string[]>
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
@@ -65,7 +68,7 @@ export function useInput(
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
    */
-  const config = Object.assign({}, inject(configSymbol) || {}, options)
+  const config = Object.assign({}, inject(optionsSymbol) || {}, options)
 
   /**
    * The parent node.
@@ -168,22 +171,49 @@ export function useInput(
    * Add any/all "prop" errors to the store.
    */
   watchEffect(() => {
-    // Remove any that are not in the set
-    node.store.filter(
-      (message) => props.errors.includes(message.value as string),
-      'error'
-    )
-    props.errors.forEach((error) => {
-      node.store.set({
+    const messages = props.errors.map((error) =>
+      createMessage({
         key: error,
         type: 'error',
         value: error,
-        visible: true,
-        blocking: false,
-        meta: {},
+        meta: { source: 'prop' },
       })
-    })
+    )
+    node.store.apply(
+      messages,
+      (message) => message.type === 'error' && message.meta.source === 'prop'
+    )
   })
+
+  /**
+   * Add input errors.
+   */
+  if (node.type !== 'input') {
+    const sourceKey = `${node.name}-prop`
+    watchEffect(() => {
+      const keys = Object.keys(props.inputErrors)
+      const messages = keys.reduce((messages, key) => {
+        let value = props.inputErrors[key]
+        if (typeof value === 'string') value = [value]
+        if (Array.isArray(value)) {
+          messages[key] = value.map((error) =>
+            createMessage({
+              key: error,
+              type: 'error',
+              value: error,
+              meta: { source: sourceKey },
+            })
+          )
+        }
+        return messages
+      }, {} as Record<string, FormKitMessage[]>)
+      node.store.apply(
+        messages,
+        (message) =>
+          message.type === 'error' && message.meta.source === sourceKey
+      )
+    })
+  }
 
   /**
    * Watch the config prop for any changes.

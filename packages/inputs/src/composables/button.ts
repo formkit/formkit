@@ -21,7 +21,7 @@ const button: FormKitSchemaComposable = (schema = {}) => ({
         else: {
           if: '$label',
           then: '$label',
-          else: 'Submit',
+          else: '$ui.submit.value',
         },
       },
     },
