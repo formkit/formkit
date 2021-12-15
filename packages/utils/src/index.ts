@@ -477,3 +477,18 @@ export function getAt(obj: any, addr: string): unknown {
   }
   return null
 }
+
+/**
+ * Determines if the value of a prop that is either present (true) or not
+ * present (false) should be. For example the prop disabled should disable
+ * by just existing, but what if it is set to the string "false" — then it
+ * should not be disabled.
+ * @param value - Value to be checked
+ * @returns
+ * @public
+ */
+export function undefine(value: unknown): true | undefined {
+  return value !== undefined && value !== 'false' && value !== false
+    ? true
+    : undefined
+}

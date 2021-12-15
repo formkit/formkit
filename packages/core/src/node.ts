@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has, camel, kebab } from '@formkit/utils'
+import { dedupe, eq, has, camel, kebab, undefine } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -1057,10 +1057,12 @@ function removeChild(
   if (childIndex !== -1) {
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
-    node.calm({
-      name: node.type === 'list' ? childIndex : child.name,
-      value: valueRemoved,
-    })
+    if (!undefine(child.props.preserve)) {
+      node.calm({
+        name: node.type === 'list' ? childIndex : child.name,
+        value: valueRemoved,
+      })
+    }
     child.parent = null
     // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
     child.config._rmn = child
