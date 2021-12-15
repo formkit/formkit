@@ -34,6 +34,24 @@ export default function (node: FormKitNode): void {
   // Set the initial value of a multi-input
   node.on('created', () => {
     const isMultiple = node.props.attrs?.multiple !== undefined
+    if (
+      !isMultiple &&
+      node.props.placeholder &&
+      Array.isArray(node.props.options)
+    ) {
+      // Add the placeholder when appropriate.
+      node.props.options = [
+        {
+          label: node.props.placeholder,
+          value: '',
+          attrs: {
+            hidden: true,
+            disabled: true,
+          },
+        },
+        ...node.props.options,
+      ]
+    }
     if (isMultiple) {
       if (node.value === undefined) {
         node.input([], false)
@@ -56,25 +74,6 @@ export default function (node: FormKitNode): void {
     if (node.context?.fns) {
       node.context.fns.isSelected = isSelected.bind(null, node)
     }
-  })
-
-  node.hook.prop((prop, next) => {
-    if (
-      prop.prop === 'options' &&
-      Array.isArray(prop.value) &&
-      node.props.placeholder &&
-      !('multiple' in node.props?.attrs)
-    ) {
-      prop.value.unshift({
-        label: node.props.placeholder,
-        value: '',
-        attrs: {
-          hidden: true,
-          disabled: true,
-        },
-      })
-    }
-    return next(prop)
   })
 
   node.hook.input((value, next) => {
