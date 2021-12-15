@@ -410,4 +410,31 @@ describe('form submission', () => {
       name: 'Jon',
     })
   })
+
+  it('can override config values for children', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            group: { foo: 'bar' },
+          }
+        },
+        template: `<FormKit type="group" v-model="group" :config="{ delay: 80 }">
+          <FormKit type="text" name="foo" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const val = token()
+    wrapper.find('input[type="text"]').setValue(val)
+    wrapper.find('input[type="text"]').trigger('input')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.vm.group).toStrictEqual({ foo: 'bar' })
+    await new Promise((r) => setTimeout(r, 35))
+    expect(wrapper.vm.group).toStrictEqual({ foo: val })
+  })
 })
