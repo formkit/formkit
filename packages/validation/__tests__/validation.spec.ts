@@ -76,7 +76,7 @@ describe('validation rule parsing', () => {
 
   it('can use the “force” validator hint', () => {
     const flavor = () => true
-    expect(parseRules('^flavor:apple|flavor', { flavor })).toEqual([
+    expect(parseRules('*flavor:apple|flavor', { flavor })).toEqual([
       {
         ...defaultValidation,
         rule: flavor,
@@ -89,6 +89,27 @@ describe('validation rule parsing', () => {
         rule: flavor,
         name: 'flavor',
         args: [],
+      },
+    ])
+  })
+
+  it('can use the “empty” validator hint', () => {
+    const pizza = () => true
+    expect(parseRules('+pizza:cheese|pizza', { pizza })).toEqual([
+      {
+        ...defaultValidation,
+        rule: pizza,
+        name: 'pizza',
+        args: ['cheese'],
+        force: false,
+        skipEmpty: false,
+      },
+      {
+        ...defaultValidation,
+        rule: pizza,
+        name: 'pizza',
+        args: [],
+        skipEmpty: true,
       },
     ])
   })
@@ -122,7 +143,7 @@ describe('validation rule parsing', () => {
   it('it uses inline hints to override function hints', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('^required', { required })).toEqual([
+    expect(parseRules('*required', { required })).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -146,14 +167,14 @@ describe('validation rule parsing', () => {
         blocking: false,
       },
     ]
-    expect(parseRules('^?required', { required })).toEqual(result)
-    expect(parseRules('?^required', { required })).toEqual(result)
+    expect(parseRules('*?required', { required })).toEqual(result)
+    expect(parseRules('?*required', { required })).toEqual(result)
   })
 
   it('can parse debounce hints in the middle', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('^(200)?required', { required })).toEqual([
+    expect(parseRules('*(200)?required', { required })).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -169,7 +190,7 @@ describe('validation rule parsing', () => {
   it('can parse debounce hints at the start', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('(5)^?required', { required })).toEqual([
+    expect(parseRules('(5)*?required', { required })).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -185,7 +206,7 @@ describe('validation rule parsing', () => {
   it('can parse debounce hints at the end', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('^?(999)required', { required })).toEqual([
+    expect(parseRules('*?(999)required', { required })).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -223,7 +244,7 @@ describe('validation rule parsing', () => {
     const required = () => true
     const party = () => true
     expect(
-      parseRules([['required'], ['^party', 'arg1', 'arg2']], {
+      parseRules([['required'], ['*party', 'arg1', 'arg2']], {
         required,
         party,
       })
@@ -252,7 +273,7 @@ describe('validation rule parsing', () => {
 
   it('parses hints in array syntax', () => {
     const matches = () => true
-    const parsed = parseRules([['^matches', /^S.*$/]], { matches })
+    const parsed = parseRules([['*matches', /^S.*$/]], { matches })
     expect(parsed[0].force).toBeTruthy()
   })
 })
@@ -309,7 +330,7 @@ describe('validation rule sequencing', () => {
     const node = createNode({
       plugins: [validationPlugin],
       props: {
-        validation: 'required|(200)length:5|^contains:bar',
+        validation: 'required|(200)length:5|*contains:bar',
       },
       value: '',
     })
@@ -329,7 +350,7 @@ describe('validation rule sequencing', () => {
     const node = createNode({
       plugins: [validationPlugin],
       props: {
-        validation: 'required|length:5|exists|^contains:bar',
+        validation: 'required|length:5|exists|*contains:bar',
       },
       value: 'abcdef',
     })
@@ -367,7 +388,7 @@ describe('validation rule sequencing', () => {
     const node = createNode({
       plugins: [validationPlugin],
       props: {
-        validation: 'required|length:5|exists|^contains:bar',
+        validation: 'required|length:5|exists|*contains:bar',
       },
       value: 'abcdef',
     })
@@ -503,7 +524,7 @@ describe('validation rule sequencing', () => {
     const node = createNode({
       plugins: [validationPlugin],
       props: {
-        validation: 'length:7|^contains:hij',
+        validation: 'length:7|*contains:hij',
       },
       value: 'abcdef',
     })

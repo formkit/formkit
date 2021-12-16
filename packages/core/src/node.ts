@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has, camel, kebab } from '@formkit/utils'
+import { dedupe, eq, has, camel, kebab, undefine } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -1057,10 +1057,12 @@ function removeChild(
   if (childIndex !== -1) {
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
-    node.calm({
-      name: node.type === 'list' ? childIndex : child.name,
-      value: valueRemoved,
-    })
+    if (!undefine(child.props.preserve)) {
+      node.calm({
+        name: node.type === 'list' ? childIndex : child.name,
+        value: valueRemoved,
+      })
+    }
     child.parent = null
     // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
     child.config._rmn = child
@@ -1366,21 +1368,24 @@ function createConfig(
   let node: FormKitNode | undefined = undefined
   return new Proxy(target, {
     get(...args) {
-      if (args[1] === '_t') return target
+      const prop = args[1]
+      if (prop === '_t') return target
       const localValue = Reflect.get(...args)
       // Check our local values first
       if (localValue !== undefined) return localValue
       // Then check our parent values next
       if (parent) {
-        const parentVal = parent.config[args[1] as string]
+        const parentVal = parent.config[prop as string]
         if (parentVal !== undefined) return parentVal
       }
-      if (target.rootConfig && typeof args[1] === 'string') {
-        const rootValue = target.rootConfig[args[1]]
+      if (target.rootConfig && typeof prop === 'string') {
+        const rootValue = target.rootConfig[prop]
         if (rootValue !== undefined) return rootValue
       }
+      // The default delay value should be 20
+      if (prop === 'delay' && node?.type === 'input') return 20
       // Finally check the default values
-      return defaultConfig[args[1] as string]
+      return defaultConfig[prop as string]
     },
     set(...args) {
       const prop = args[1] as string
@@ -1446,8 +1451,6 @@ export function createError(node: FormKitNode, errorCode: number): never {
  */
 function defaultProps(node: FormKitNode): FormKitNode {
   if (!has(node.props, 'id')) node.props.id = `input_${idCount++}`
-  if (!has(node.props, 'delay'))
-    node.props.delay = node.type === 'input' ? 20 : 0
   return node
 }
 

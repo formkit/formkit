@@ -4,6 +4,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode } from '@formkit/core'
+import { token } from '@formkit/utils'
 import vuePlugin from '../src/corePlugin'
 
 // Object.assign(defaultConfig.nodeOptions, { validationBehavior: 'live' })
@@ -276,7 +277,7 @@ describe('validation', () => {
     const [email, name] = wrapper.findAll('input')
     email.setValue('info@formkit.com')
     name.setValue('Rockefeller')
-    await new Promise((r) => setTimeout(r, 30))
+    await new Promise((r) => setTimeout(r, 40))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
 
@@ -598,6 +599,31 @@ describe('classes', () => {
         },
       })
     ).not.toThrow()
+  })
+
+  it('respects the delay prop', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            group: { foo: 'bar' },
+          }
+        },
+        template: `<FormKit type="group" v-model="group"><FormKit type="text" name="foo" :delay="80" /></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const val = token()
+    wrapper.find('input[type="text"]').setValue(val)
+    wrapper.find('input[type="text"]').trigger('input')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.vm.group).toStrictEqual({ foo: 'bar' })
+    await new Promise((r) => setTimeout(r, 35))
+    expect(wrapper.vm.group).toStrictEqual({ foo: val })
   })
 })
 

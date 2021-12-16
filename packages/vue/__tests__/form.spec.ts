@@ -353,4 +353,88 @@ describe('form submission', () => {
     expect(wrapper.html()).toContain('but this is not')
     expect(wrapper.html()).toContain('This is also fooooobar')
   })
+
+  it('removes values of inputs that are removed', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {},
+            useEmail: true,
+          }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
+        <FormKit type="text" name="name" value="Jon" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    expect(wrapper.vm.values).toStrictEqual({
+      email: 'jon@doe.com',
+      name: 'Jon',
+    })
+    wrapper.vm.useEmail = false
+    await nextTick()
+    expect(wrapper.vm.values).toStrictEqual({ name: 'Jon' })
+  })
+
+  it('keeps data with keep prop', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {},
+            useEmail: true,
+          }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="email" name="email" value="jon@doe.com" preserve v-if="useEmail" />
+        <FormKit type="text" name="name" value="Jon" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.vm.useEmail = false
+    await nextTick()
+    expect(wrapper.vm.values).toStrictEqual({
+      email: 'jon@doe.com',
+      name: 'Jon',
+    })
+  })
+
+  it('can override config values for children', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            group: { foo: 'bar' },
+          }
+        },
+        template: `<FormKit type="group" v-model="group" :config="{ delay: 80 }">
+          <FormKit type="text" name="foo" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const val = token()
+    wrapper.find('input[type="text"]').setValue(val)
+    wrapper.find('input[type="text"]').trigger('input')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.vm.group).toStrictEqual({ foo: 'bar' })
+    await new Promise((r) => setTimeout(r, 35))
+    expect(wrapper.vm.group).toStrictEqual({ foo: val })
+  })
 })

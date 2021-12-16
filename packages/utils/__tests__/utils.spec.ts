@@ -13,6 +13,8 @@ import {
   only,
   getAt,
   kebab,
+  undefine,
+  token,
 } from '../src/index'
 
 describe('eq', () => {
@@ -408,11 +410,32 @@ describe('kebab', () => {
     expect(kebab('CamelCase')).toBe('camel-case')
   })
 
-  it('it can have a trailing number', () => {
+  it('can have a trailing number', () => {
     expect(kebab('camel99Case')).toBe('camel99-case')
   })
 
-  it('it can replace whitespace', () => {
+  it('can replace whitespace', () => {
     expect(kebab('foo Bar')).toBe('foo-bar')
+  })
+})
+
+describe('undefine', () => {
+  it('undefines undefined', () => {
+    expect(undefine(undefined)).toBe(undefined)
+  })
+  it('undefines the string false', () => {
+    expect(undefine('false')).toBe(undefined)
+  })
+  it('undefines the boolean false', () => {
+    expect(undefine(false)).toBe(undefined)
+  })
+  it('defines an empty string', () => {
+    expect(undefine('')).toBe(true)
+  })
+  it('defines an truthy string', () => {
+    expect(undefine('true')).toBe(true)
+  })
+  it('defines an random string', () => {
+    expect(undefine(token())).toBe(true)
   })
 })

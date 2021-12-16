@@ -256,6 +256,28 @@ describe('select', () => {
     )
   })
 
+  it('order of the placeholder prop doesn’t matter', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        options: {
+          foo: 'Bar',
+        },
+        placeholder: 'Select one',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.innerHTML).toBe(
+      `<option hidden=\"\" disabled=\"\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option>`
+    )
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
+    expect(wrapper.find('select').element.selectedOptions[0]).toBe(
+      wrapper.find('option').element
+    )
+  })
+
   it('can render options using default slot', async () => {
     const wrapper = mount(
       {

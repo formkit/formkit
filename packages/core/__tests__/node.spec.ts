@@ -475,11 +475,11 @@ describe('props system', () => {
     const node = createNode({ props: { party: 'town', pizza: 'yummy' } })
     expect(node.props.pizza).toBe('yummy')
     expect(node.props).toEqual({
-      delay: 20,
       id: 'input_0',
       party: 'town',
       pizza: 'yummy',
     })
+    expect(node.props.delay).toBe(20)
   })
 
   it('configuration values flow to props', () => {
@@ -490,16 +490,6 @@ describe('props system', () => {
       children: [child],
     })
     expect(child.props.arbitrary).toBe('t')
-  })
-
-  it('default props override a configuration value', () => {
-    const child = createNode({ name: 'name' })
-    createNode({
-      config: { delay: 400 },
-      type: 'group',
-      children: [child],
-    })
-    expect(child.props.delay).toBe(20)
   })
 
   it('props can override default props', () => {

@@ -1,15 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-
-/**
- * Determines what the value of the config/prop "disabled" should be.
- * @param value - Value
- * @returns
- */
-function undefine(value: any) {
-  return value !== undefined && value !== 'false' && value !== false
-    ? true
-    : undefined
-}
+import { undefine } from '@formkit/utils'
 
 /**
  * Allows disabling children of this.

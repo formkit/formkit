@@ -10,7 +10,14 @@ import {
   createMessage,
 } from '@formkit/core'
 import { nodeProps, except, camel, extend, only } from '@formkit/utils'
-import { watchEffect, inject, provide, watch, SetupContext } from 'vue'
+import {
+  watchEffect,
+  inject,
+  provide,
+  watch,
+  SetupContext,
+  onUnmounted,
+} from 'vue'
 import { optionsSymbol } from '../plugin'
 
 interface FormKitComponentProps {
@@ -34,6 +41,7 @@ const pseudoProps = [
   'help',
   'label',
   'disabled',
+  'preserve',
   /^[a-z]+(?:-behavior|Behavior)$/,
   /^[a-z]+(?:-class|Class)$/,
 ]
@@ -255,6 +263,11 @@ export function useInput(
       }
     )
   }
+
+  /**
+   * When this input shuts down, we need to "delete" the node too.
+   */
+  onUnmounted(() => node.destroy())
 
   return node
 }
