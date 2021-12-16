@@ -5,6 +5,7 @@
   </button>
   <FormKit
     type="form"
+    v-model="data"
     :input-errors="{
       'find(20)': ['This is a bad one'],
       fruit: 'Gross'
@@ -21,6 +22,10 @@
         placeholder="jon@foo.com"
         validation="required|email"
         validation-behavior="live"
+      />
+      <FormKit
+        type="file"
+        label="Upload a headshot"
       />
       <FormKit
         id="fruit"
@@ -62,12 +67,7 @@
       :options="countries"
     />
   </FormKit>
-  <FormKit
-    type="button"
-    @click.prevent="() => disabled = !disabled"
-  >
-    {{ disabled ? 'enable' : 'un disable' }}
-  </FormKit>
+  <pre>{{ data }}</pre>
 </template>
 
 <script setup lang="ts">
@@ -75,6 +75,7 @@ import { ref, inject } from 'vue'
 import { FormKitConfig } from '../../../packages/core/src/index'
 import { configSymbol } from '../../../packages/vue/src/index'
 const disabled = ref(true)
+const data = ref({})
 
 const date = new Date()
 const month = date.getMonth() + 1
