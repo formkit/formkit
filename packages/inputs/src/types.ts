@@ -94,7 +94,7 @@ export const text = textClassification
  * The file input.
  * @public
  */
-// export const file = textClassification
+export const file = textClassification
 
 /**
  * The url input.
