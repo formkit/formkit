@@ -257,7 +257,8 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
    * @param message - A formkit message
    */
   const updateState = (message: FormKitMessage) => {
-    if (message.type === 'ui' && message.visible) ui[message.key] = message
+    if (message.type === 'ui' && message.visible && !message.meta.showAsMessage)
+      ui[message.key] = message
     else if (message.visible) visibleMessages[message.key] = message
     else if (message.type === 'state')
       context.state[message.key] = !!message.value

@@ -47,24 +47,21 @@ async function handleSubmit(node: FormKitNode, e: Event) {
       }
     }
   } else {
-    node.store.set(
-      createMessage({
-        blocking: false,
-        key: `incomplete`,
-        meta: {
-          /**
-           * Determines if this message should be passed to localization.
-           */
-          localize: true,
-          /**
-           * The arguments that will be passed to the validation rules
-           */
-          i18nArgs: [{ node }],
-        },
-        type: 'ui',
-        value: 'Form incomplete.',
-      })
-    )
+    if (node.props.incompleteMessage !== false) {
+      node.store.set(
+        createMessage({
+          blocking: false,
+          key: `incomplete`,
+          meta: {
+            localize: node.props.incompleteMessage === undefined,
+            i18nArgs: [{ node }],
+            showAsMessage: true,
+          },
+          type: 'ui',
+          value: node.props.incompleteMessage || 'Form incomplete.',
+        })
+      )
+    }
   }
 }
 
