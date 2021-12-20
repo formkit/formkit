@@ -1,0 +1,53 @@
+.formkit-outer {
+  font-family: var(--fk-font-family);
+  font-weight: var(--fk-font-weight);
+  font-size: var(--fk-font-size);
+
+  &[data-type="textarea"] textarea {
+    line-height: var(--fk-line-height-textarea);
+  }
+}
+
+.formkit-label {
+  font-family: var(--fk-font-family-label);
+  font-size: var(--fk-font-size-label);
+  font-weight: var(--fk-font-weight-label);
+
+  @nest
+  [data-type="checkbox"] &,
+  [data-type="radio"] &,
+  .formkit-option & {
+    font-weight: var(--fk-font-weight-option);
+    font-size: var(--fk-font-size-option);
+    margin-bottom: 0.1em;
+  }
+}
+
+.formkit-legend {
+  font-family: var(--fk-font-family-legend);
+  font-size: var(--fk-font-size-legend);
+  font-weight: var(--fk-font-weight-legend);
+}
+
+.formkit-input {
+  font-family: var(--fk-font-family-input);
+  font-size: var(--fk-font-size-input);
+  font-weight: var(--fk-font-weight-input);
+}
+
+.formkit-help,
+.formkit-option-help {
+  font-family: var(--fk-font-family-help);
+  font-size: var(--fk-font-size-help);
+  font-weight: var(--fk-font-weight-help);
+}
+
+.formkit-messages {
+  font-family: var(--fk-font-family-message);
+  font-family: var(--fk-font-family);
+}
+
+.formkit-message {
+  font-size: var(--fk-font-size-message);
+  font-weight: var(--fk-font-weight-message);
+}

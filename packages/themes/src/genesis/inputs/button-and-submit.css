@@ -1,0 +1,74 @@
+[data-type="button"],
+[data-type="submit"] {
+  & .formkit-input {
+    border-radius: var(--fk-border-radius);
+    cursor: pointer;
+    display: inline-flex;
+    width: auto;
+    justify-content: center;
+    padding: var(--fk-padding-button);
+    margin: var(--fk-margin-button);
+    position: relative;
+    transition: filter 0.25s;
+    border: 1px solid transparent;
+
+    &::before {
+      box-sizing: border-box;
+      content: "";
+      width: 0;
+      margin-right: 0;
+      height: 1.28571428em;
+      border: 0 solid transparent;
+      border-radius: 1.28571428em;
+      transition: width 0.25s, border 0.25s, margin-right 0.25s;
+    }
+
+    &[data-loading] {
+      filter: brightness(1.1);;
+      pointer-events: none;
+
+      &::before {
+        animation: rotate 0.5s linear infinite;
+        width: 1.28571428em;
+        border: 0.1428571429em solid white;
+        border-right-color: transparent;
+        margin-right: 0.75em;
+      }
+    }
+
+    &:focus-visible,
+    &:focus-within {
+      border-color: var(--fk-border-color-focus);
+    }
+  }
+
+  &[data-disabled] {
+    & .formkit-input {
+      background: var(--fk-color-border) !important;
+      color: var(--fk-color-button) !important;
+      cursor: not-allowed;
+    }
+  }
+}
+
+[data-type="submit"] {
+  & .formkit-input {
+    background: var(--fk-bg-submit);
+    color: var(--fk-color-submit);
+
+    &:hover {
+      background: var(--fk-bg-submit-hover);
+    }
+  }
+}
+
+[data-type="button"] {
+  & .formkit-input {
+    background: var(--fk-bg-button);
+    color: var(--fk-color-button);
+
+    &:hover {
+      background: var(--fk-bg-submit-hover);
+    }
+  }
+}

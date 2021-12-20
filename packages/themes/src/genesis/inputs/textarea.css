@@ -1,0 +1,6 @@
+[data-type="textarea"] {
+  & textarea {
+    min-width: 100%;
+    min-height: 6em;
+  }
+}

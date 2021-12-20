@@ -1,44 +1,256 @@
 :root {
-  --formkit-fonts: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --formkit-ui-color: #0275ff;
-  --formkit-ui-thin: rgba(2 117 255 / 60%);
-  --formkit-button-hover: rgba(0 0 0 / 10%);
-  --formkit-border-color: rgba(0 0 0 / 25%);
-  --formkit-border: 1px solid var(--formkit-border-color);
-  --formkit-disabled-color: rgba(0 0 0 / 5%);
-  --formkit-border-radius: 0.25em;
-  --formkit-input-text-color: rgba(0 0 0 / 95%);
-  --formkit-minor-color: rgba(0 0 0 / 60%);
-  --formkit-icon-color: rgba(0 0 0 / 95%);
-  --formkit-input-background-color: transparent;
-  --formkit-focus-border-color: blue;
-  --formkit-input-padding: 0.75em;
-  --formkit-help-font-size: 0.8125em;
-  --formkit-help-color: rgba(0 0 0 / 80%);
-  --formkit-help-margin-x: 0;
-  --formkit-help-margin-y: 0.2em;
-  --formkit-error-color: #ea0000;
-  --formkit-message-font-size: 0.8125em;
-  --formkit-message-margin-y: 0.2em;
-  --formkit-message-margin-x: 0;
-  --formkit-messages-margin-x: 0;
-  --formkit-messages-margin-y: 0;
-  --formkit-label-font-size: 0.875em;
-  --formkit-label-font-weight: bold;
-  --formkit-label-margin: 0 0 0.25em 0;
-  --formkit-legend-margin: 0;
-  --formkit-legend-padding: 0 0.25em;
-  --formkit-option-font-size: 1em;
-  --formkit-placeholder-color: rgba(0 0 0 / 50%);
-  --formkit-decorator-background: linear-gradient(0deg, rgb(0 0 0 / 7%), transparent);
-  --formkit-decorator-border-width: 1px;
-  --formkit-decorator-border-color: rgba(0 0 0 / 25%);
-  --formkit-decorator-padding: 0 0.5em 0 0;
-  --formkit-decorator-checked-color: var(--formkit-ui-color);
-  --formkit-box-target-margin: 0;
-  --formkit-box-size: 1.125em;
-  --formkit-box-option-margin: 0 0 0.5em 0;
-  --formkit-box-options-margin: 0;
-  --formkit-radio-border-radius: 2em;
-  --formkit-range-thumb-color: var(--formkit-ui-color);
+  /* typography */
+  --fk-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --fk-font-family-input: var(--fk-font-family);
+  --fk-font-family-label: var(--fk-font-family);
+  --fk-font-family-legend: var(--fk-font-family-label);
+  --fk-font-family-option: var(--fk-font-family);
+  --fk-font-family-help: var(--fk-font-family);
+  --fk-font-family-message: var(--fk-font-family);
+
+  --fk-font-weight: normal;
+  --fk-font-weight-input: var(--fk-font-weight);
+  --fk-font-weight-label: bold;
+  --fk-font-weight-legend: var(--fk-font-weight-label, bold);
+  --fk-font-weight-help: var(--fk-font-weight);
+  --fk-font-weight-option: var(--fk-font-weight);
+  --fk-font-weight-message: var(--fk-font-weight);
+
+  --fk-font-size: 1em;
+  --fk-font-size-input: var(--fk-font-size);
+  --fk-font-size-label: 0.875em;
+  --fk-font-size-help: 0.8125em;
+  --fk-font-size-option: 0.9em;
+  --fk-font-size-message: 0.8125em;
+
+  --fk-line-height: 1.3em;
+  --fk-line-height-label: var(--fk-line-height);
+  --fk-line-height-help: var(--fk-line-height);
+  --fk-line-height-option: var(--fk-line-height);
+  --fk-line-height-message: var(--fk-line-height);
+  --fk-line-height-textarea: var(--fk-line-height);
+
+  /* Structure */
+  --fk-max-width-input: 25em;
+  --fk-box-size: 1.25em;
+
+  /* Colors */
+  --fk-color-primary: #0275ff;
+  --fk-color-checked: var(--fk-color-primary);
+  --fk-color-input: #000;
+  --fk-color-border: #94929c;
+  --fk-color-border-focus: var(--fk-color-primary);
+  --fk-color-error: #ea0000;
+  --fk-color-placeholder:;
+  --fk-color-disabled: rgba(0 0 0 / 5%);
+  --fk-color-help: rgba(0 0 0 / 60%);
+  --fk-color-message:;
+  --fk-color-icon: rgba(0 0 0 / 80%);
+  --fk-color-button: #fff;
+  --fk-color-button-hover: #fff;
+  --fk-color-submit: var(--fk-color-button);
+  --fk-color-submit-hover: var(--fk-color-button-hover);
+  --fk-color-range-track: var(--fk-color-border);
+  --fk-color-range-thumb: var(--fk-color-primary);
+
+  --fk-bg-input: transparent;
+  --fk-bg-button: var(--fk-color-primary);
+  --fk-bg-button-hover: var(--fk-color-primary);
+  --fk-bg-submit: var(--fk-bg-button);
+  --fk-bg-submit-hover: var(--fk-bg-button-hover);
+
+  /* Borders */
+  --fk-border-width: 1px;
+  --fk-border-width-decorator: var(--fk-border-width);
+  --fk-border-width-focus: 2px;
+  --fk-border-width-decorator-focus: var(--fk-border-width-focus);
+  --fk-border-style: solid;
+  --fk-border: var(--fk-border-width) var(--fk-border-style) var(--fk-color-border);
+  --fk-border-focus: var(--fk-border-width-focus) var(--fk-border-style) var(--fk-color-border-focus);
+  --fk-border-decorator: var(--fk-border-width-decorator) var(--fk-border-style) var(--fk-color-border);
+  --fk-border-decorator-focus: var(--fk-border-width-decorator) var(--fk-border-style) var(--fk-color-border-focus);
+  --fk-border-box-shadow: 0 0 0 var(--fk-border-width) var(--fk-color-border);
+  --fk-border-box-shadow-focus: 0 0 0 var(--fk-border-width-focus) var(--fk-color-border-focus);
+  --fk-border-box-shadow-decorator: 0 0 0 var(--fk-border-width-decorator);
+  --fk-border-box-shadow-decorator-focus: 0 0 0 var(--fk-border-width-decorator-focus);
+  --fk-border-radius-tl:;
+  --fk-border-radius-tr:;
+  --fk-border-radius-bl:;
+  --fk-border-radius-br:;
+  --fk-border-radius: var(--fk-border-radius-tl, 0.25em) var(--fk-border-radius-tr, 0.25em) var(--fk-border-radius-br, 0.25em) var(--fk-border-radius-bl, 0.25em);
+  --fk-border-radius-full: 999em;
+
+  /* Padding */
+  --fk-padding-base: 0.25em;
+
+  --fk-padding-input-x: calc(var(--fk-padding-base) * 3);
+  --fk-padding-input-y: calc(var(--fk-padding-base) * 3);
+  --fk-padding-input-t: var(--fk-padding-input-y, 0);
+  --fk-padding-input-r: var(--fk-padding-input-x, 0);
+  --fk-padding-input-b: var(--fk-padding-input-y, 0);
+  --fk-padding-input-l: var(--fk-padding-input-x, 0);
+  --fk-padding-input: var(--fk-padding-input-t) var(--fk-padding-input-r) var(--fk-padding-input-b) var(--fk-padding-input-l);
+
+  --fk-padding-label-x:;
+  --fk-padding-label-y: var(--fk-padding-base);
+  --fk-padding-label-t: var(--fk-padding-label-y, 0);
+  --fk-padding-label-r: var(--fk-padding-label-x, 0);
+  --fk-padding-label-b: var(--fk-padding-label-y, 0);
+  --fk-padding-label-l: var(--fk-padding-label-x, 0);
+  --fk-padding-label: var(--fk-padding-label-t) var(--fk-padding-label-r) var(--fk-padding-label-b) var(--fk-padding-label-l);
+
+  --fk-padding-help-x:;
+  --fk-padding-help-y: var(--fk-padding-base);
+  --fk-padding-help-t: var(--fk-padding-help-y, 0);
+  --fk-padding-help-r: var(--fk-padding-help-x, 0);
+  --fk-padding-help-b: var(--fk-padding-help-y, 0);
+  --fk-padding-help-l: var(--fk-padding-help-x, 0);
+  --fk-padding-help: var(--fk-padding-help-t) var(--fk-padding-help-r) var(--fk-padding-help-b) var(--fk-padding-help-l);
+
+  --fk-padding-option-x:;
+  --fk-padding-option-y:;
+  --fk-padding-option-t: var(--fk-padding-option-y, 0);
+  --fk-padding-option-r: var(--fk-padding-option-x, 0);
+  --fk-padding-option-b: var(--fk-padding-option-y, 0);
+  --fk-padding-option-l: var(--fk-padding-option-x, 0);
+  --fk-padding-option: var(--fk-padding-option-t) var(--fk-padding-option-r) var(--fk-padding-option-b) var(--fk-padding-option-l);
+
+  --fk-padding-messages-x:;
+  --fk-padding-messages-y:;
+  --fk-padding-messages-t: var(--fk-padding-messages-y, var(--fk-padding-base));
+  --fk-padding-messages-r: var(--fk-padding-messages-x, 0);
+  --fk-padding-messages-b: var(--fk-padding-messages-y, 0);
+  --fk-padding-messages-l: var(--fk-padding-messages-x, 0);
+  --fk-padding-messages: var(--fk-padding-messages-t) var(--fk-padding-messages-r) var(--fk-padding-messages-b) var(--fk-padding-messages-l);
+
+  --fk-padding-message-x:;
+  --fk-padding-message-y: var(--fk-padding-base);
+  --fk-padding-message-t: var(--fk-padding-message-y, 0);
+  --fk-padding-message-r: var(--fk-padding-message-x, 0);
+  --fk-padding-message-b: var(--fk-padding-message-y, 0);
+  --fk-padding-message-l: var(--fk-padding-message-x, 0);
+  --fk-padding-message: var(--fk-padding-message-t) var(--fk-padding-message-r) var(--fk-padding-message-b) var(--fk-padding-message-l);
+
+  --fk-padding-legend-x: 0.25em;
+  --fk-padding-legend-y: 0.25em;
+  --fk-padding-legend-t: var(--fk-padding-legend-y);
+  --fk-padding-legend-r: var(--fk-padding-legend-x);
+  --fk-padding-legend-b: var(--fk-padding-legend-y);
+  --fk-padding-legend-l: var(--fk-padding-legend-x);
+  --fk-padding-legend: var(--fk-padding-legend-t) var(--fk-padding-legend-r) var(--fk-padding-legend-b) var(--fk-padding-legend-l);
+
+  --fk-padding-fieldset-x: var(--fk-padding-input-x);
+  --fk-padding-fieldset-y: var(--fk-padding-input-y);
+  --fk-padding-fieldset-t: var(--fk-padding-fieldset-y);
+  --fk-padding-fieldset-r: var(--fk-padding-fieldset-x);
+  --fk-padding-fieldset-b: var(--fk-padding-fieldset-y);
+  --fk-padding-fieldset-l: var(--fk-padding-fieldset-x);
+  --fk-padding-fieldset: var(--fk-padding-fieldset-t) var(--fk-padding-fieldset-r) var(--fk-padding-fieldset-b) var(--fk-padding-fieldset-l);
+
+  --fk-padding-decorator-x:;
+  --fk-padding-decorator-y: var(--fk-padding-base);
+  --fk-padding-decorator-t: var(--fk-padding-decorator-y, 1.25em);
+  --fk-padding-decorator-r: var(--fk-padding-decorator-x, 1.25em);
+  --fk-padding-decorator-b: var(--fk-padding-decorator-y, 1.25em);
+  --fk-padding-decorator-l: var(--fk-padding-decorator-x, 1.25em);
+  --fk-padding-decorator: var(--fk-padding-decorator-t) var(--fk-padding-decorator-r) var(--fk-padding-decorator-b) var(--fk-padding-decorator-l);
+
+  --fk-padding-button-x: calc(var(--fk-padding-base) * 8);
+  --fk-padding-button-y: calc(var(--fk-padding-base) * 3);
+  --fk-padding-button-t: var(--fk-padding-button-y);
+  --fk-padding-button-r: var(--fk-padding-button-x);
+  --fk-padding-button-b: var(--fk-padding-button-y);
+  --fk-padding-button-l: var(--fk-padding-button-x);
+  --fk-padding-button: var(--fk-padding-button-t) var(--fk-padding-button-r) var(--fk-padding-button-b) var(--fk-padding-button-l);
+
+  /* Margin */
+  --fk-margin-base: 0.5em;
+
+  --fk-margin-outer-x:;
+  --fk-margin-outer-y:;
+  --fk-margin-outer-t: var(--fk-margin-outer-y, 0);
+  --fk-margin-outer-r: var(--fk-margin-outer-x, 0);
+  --fk-margin-outer-b: var(--fk-margin-outer-y, calc(var(--fk-margin-base) * 2));
+  --fk-margin-outer-l: var(--fk-margin-outer-x, 0);
+  --fk-margin-outer: var(--fk-margin-outer-t) var(--fk-margin-outer-r) var(--fk-margin-outer-b) var(--fk-margin-outer-l);
+
+  --fk-margin-wrapper-x:;
+  --fk-margin-wrapper-y:;
+  --fk-margin-wrapper-t: var(--fk-margin-wrapper-y, 0);
+  --fk-margin-wrapper-r: var(--fk-margin-wrapper-x, 0);
+  --fk-margin-wrapper-b: var(--fk-margin-wrapper-y, 0);
+  --fk-margin-wrapper-l: var(--fk-margin-wrapper-x, 0);
+  --fk-margin-wrapper: var(--fk-margin-wrapper-t) var(--fk-margin-wrapper-r) var(--fk-margin-wrapper-b) var(--fk-margin-wrapper-l);
+
+  --fk-margin-input-x:;
+  --fk-margin-input-y:;
+  --fk-margin-input-t: var(--fk-margin-input-y, 0);
+  --fk-margin-input-r: var(--fk-margin-input-x, 0);
+  --fk-margin-input-b: var(--fk-margin-input-y, 0);
+  --fk-margin-input-l: var(--fk-margin-input-x, 0);
+  --fk-margin-input: var(--fk-margin-input-t) var(--fk-margin-input-r) var(--fk-margin-input-b) var(--fk-margin-input-l);
+
+  --fk-margin-label-x:;
+  --fk-margin-label-y:;
+  --fk-margin-label-t: var(--fk-margin-label-y, 0);
+  --fk-margin-label-r: var(--fk-margin-label-x, 0);
+  --fk-margin-label-b: var(--fk-margin-label-y, var(--fk-margin-base));
+  --fk-margin-label-l: var(--fk-margin-label-x, 0);
+  --fk-margin-label: var(--fk-margin-label-t) var(--fk-margin-label-r) var(--fk-margin-label-b) var(--fk-margin-label-l);
+
+  --fk-margin-help-x:;
+  --fk-margin-help-y: 0.25em;
+  --fk-margin-help-t: var(--fk-margin-help-y, 0);
+  --fk-margin-help-r: var(--fk-margin-help-x, 0);
+  --fk-margin-help-b: var(--fk-margin-help-y, 0);
+  --fk-margin-help-l: var(--fk-margin-help-x, 0);
+  --fk-margin-help: var(--fk-margin-help-t) var(--fk-margin-help-r) var(--fk-margin-help-b) var(--fk-margin-help-l);
+
+  --fk-margin-option-x:;
+  --fk-margin-option-y:;
+  --fk-margin-option-t: var(--fk-margin-option-y, 0);
+  --fk-margin-option-r: var(--fk-margin-option-x, 0);
+  --fk-margin-option-b: var(--fk-margin-option-y, 0.33em);
+  --fk-margin-option-l: var(--fk-margin-option-x, 0);
+  --fk-margin-option: var(--fk-margin-option-t) var(--fk-margin-option-r) var(--fk-margin-option-b) var(--fk-margin-option-l);
+
+  --fk-margin-message-x:;
+  --fk-margin-message-y:;
+  --fk-margin-message-t: var(--fk-margin-message-y, 0);
+  --fk-margin-message-r: var(--fk-margin-message-x, 0);
+  --fk-margin-message-b: var(--fk-margin-message-y, 0);
+  --fk-margin-message-l: var(--fk-margin-message-x, 0);
+  --fk-margin-message: var(--fk-margin-message-t) var(--fk-margin-message-r) var(--fk-margin-message-b) var(--fk-margin-message-l);
+
+  --fk-margin-legend-x: 0em;
+  --fk-margin-legend-y:;
+  --fk-margin-legend-t: var(--fk-margin-legend-y, 0);
+  --fk-margin-legend-r: var(--fk-margin-legend-x, 0);
+  --fk-margin-legend-b: var(--fk-margin-legend-y, 0);
+  --fk-margin-legend-l: var(--fk-margin-legend-x, 0);
+  --fk-margin-legend: var(--fk-margin-legend-t) var(--fk-margin-legend-r) var(--fk-margin-legend-b) var(--fk-margin-legend-l);
+
+  --fk-margin-fieldset-x:;
+  --fk-margin-fieldset-y:;
+  --fk-margin-fieldset-t: var(--fk-margin-fieldset-y, 0);
+  --fk-margin-fieldset-r: var(--fk-margin-fieldset-x, 0);
+  --fk-margin-fieldset-b: var(--fk-margin-fieldset-y, 0);
+  --fk-margin-fieldset-l: var(--fk-margin-fieldset-x, 0);
+  --fk-margin-fieldset: var(--fk-margin-fieldset-t) var(--fk-margin-fieldset-r) var(--fk-margin-fieldset-b) var(--fk-margin-fieldset-l);
+
+  --fk-margin-decorator-x:;
+  --fk-margin-decorator-y:;
+  --fk-margin-decorator-t: var(--fk-margin-decorator-y, 0);
+  --fk-margin-decorator-r: var(--fk-margin-decorator-x, 0.5em);
+  --fk-margin-decorator-b: var(--fk-margin-decorator-y, 0);
+  --fk-margin-decorator-l: var(--fk-margin-decorator-x, 0);
+  --fk-margin-decorator: var(--fk-margin-decorator-t) var(--fk-margin-decorator-r) var(--fk-margin-decorator-b) var(--fk-margin-decorator-l);
+
+  --fk-margin-button-x:;
+  --fk-margin-button-y:;
+  --fk-margin-button-t: var(--fk-margin-button-y, 0);
+  --fk-margin-button-r: var(--fk-margin-button-x, 0.5em);
+  --fk-margin-button-b: var(--fk-margin-button-y, 0);
+  --fk-margin-button-l: var(--fk-margin-button-x, 0);
+  --fk-margin-button: var(--fk-margin-button-t) var(--fk-margin-button-r) var(--fk-margin-button-b) var(--fk-margin-button-l);
 }

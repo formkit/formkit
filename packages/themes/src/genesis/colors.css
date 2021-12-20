@@ -1,0 +1,33 @@
+.formkit-inner {
+  &:focus-within {
+    border-color: var(--fk-color-border-focus);
+  }
+
+  /* select input chevron */
+  @nest
+  [data-type="select"]:not([data-multiple]) &:after {
+    background-color: var(--fk-color-icon);
+  }
+}
+
+.formkit-input {
+  background-color: var(--fk-bg-input);
+  color: var(--fk-color-input);
+
+  @nest
+  input[type="checkbox"]&,
+  input[type="radio"]& {
+    & ~ .formkit-decorator {
+      background: var(--fk-bg-input);
+    }
+  }
+}
+
+.formkit-help,
+.formkit-option-help {
+  color: var(--fk-color-help);
+}
+
+.formkit-message {
+  color: var(--fk-color-error);
+}

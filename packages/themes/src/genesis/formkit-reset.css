@@ -1,0 +1,25 @@
+.formkit-outer {
+  box-sizing: border-box;
+
+  & * {
+    box-sizing: border-box;
+
+    &::before,
+    &::after {
+      box-sizing: inherit;
+    }
+  }
+}
+
+.formkit-input {
+  appearance: none;
+  border: none;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.formkit-message {
+  list-style-type: none;
+}
