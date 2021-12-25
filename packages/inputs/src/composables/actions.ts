@@ -1,21 +1,10 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const actions: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.actions',
-  then: '$slots.actions',
-  else: [
-    extend(
-      {
-        $el: 'div',
-        if: '$actions',
-        attrs: {
-          class: '$classes.actions',
-        },
-        children,
-      },
-      schema
-    ) as FormKitSchemaNode,
-  ],
-})
+const actions = composable('actions', () => ({
+  $el: 'div',
+  if: '$actions',
+  attrs: {
+    class: '$classes.actions',
+  },
+}))
 export default actions

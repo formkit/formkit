@@ -11,7 +11,7 @@
       fruit: 'Gross'
     }"
   >
-    <FormKit
+    <!-- <FormKit
       type="group"
       name="foo"
     >
@@ -65,7 +65,7 @@
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
-    />
+    /> -->
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
