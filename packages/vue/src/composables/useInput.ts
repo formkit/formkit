@@ -8,8 +8,9 @@ import {
   FormKitPlugin,
   FormKitMessage,
   createMessage,
+  FormKitTypeDefinition,
 } from '@formkit/core'
-import { nodeProps, except, camel, extend, only } from '@formkit/utils'
+import { nodeProps, except, camel, extend, only, kebab } from '@formkit/utils'
 import {
   watchEffect,
   inject,
@@ -21,7 +22,7 @@ import {
 import { optionsSymbol } from '../plugin'
 
 interface FormKitComponentProps {
-  type?: string
+  type?: string | FormKitTypeDefinition
   name?: string
   validation?: any
   modelValue?: any
@@ -104,6 +105,10 @@ export function useInput(
     const classesProps = { props: {} }
     classesToNodeProps(classesProps as FormKitNode, props)
     Object.assign(initialProps, classesProps.props)
+    if (typeof initialProps.type !== 'string') {
+      initialProps.definition = initialProps.type
+      delete initialProps.type
+    }
     return initialProps
   }
 
@@ -130,7 +135,17 @@ export function useInput(
   /**
    * These prop names must be assigned.
    */
-  const propNames = pseudoProps.concat(node.props.definition.props || [])
+  const pseudoPropNames = pseudoProps
+    .concat(node.props.definition.props || [])
+    .reduce((names, prop) => {
+      if (typeof prop === 'string') {
+        names.push(camel(prop))
+        names.push(kebab(prop))
+      } else {
+        names.push(prop)
+      }
+      return names
+    }, [] as Array<string | RegExp>)
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))
@@ -155,7 +170,7 @@ export function useInput(
   /**
    * Watch "pseudoProp" attributes explicitly.
    */
-  const pseudoPropsValues = only(nodeProps(context.attrs), propNames)
+  const pseudoPropsValues = only(nodeProps(context.attrs), pseudoPropNames)
   for (const prop in pseudoPropsValues) {
     const camelName = camel(prop)
     watch(
@@ -171,7 +186,7 @@ export function useInput(
    * props and are not pseudoProps
    */
   watchEffect(() => {
-    const attrs = except(nodeProps(context.attrs), propNames)
+    const attrs = except(nodeProps(context.attrs), pseudoPropNames)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

@@ -21,7 +21,9 @@ interface PluginConfigs {
  * @public
  */
 const defaultConfig = (
-  options: FormKitOptions & Partial<PluginConfigs> = {}
+  options: FormKitOptions &
+    Partial<PluginConfigs> &
+    Record<string, unknown> = {}
 ): FormKitOptions => {
   const { rules = {}, locales = {}, inputs = {}, ...nodeOptions } = options
   /**

@@ -23,4 +23,4 @@ export { FormKitOptionsList } from './features/options'
 /**
  * Composable logic.
  */
-export { composable, createInput } from './compose'
+export { composable, useSchema, FormKitInputSchema } from './compose'

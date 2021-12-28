@@ -5,6 +5,7 @@ import {
   FormKitSchemaDOMNode,
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
+  FormKitSchemaCondition,
 } from '@formkit/core'
 import { clone, extend } from '@formkit/utils'
 import label from './composables/label'
@@ -14,7 +15,16 @@ import inner from './composables/inner'
 import help from './composables/help'
 import messages from './composables/messages'
 import message from './composables/message'
-import { FormKitSchemaCondition } from 'packages/core/src'
+
+/**
+ * Either a schema node, or a function that returns a schema node.
+ * @public
+ */
+export type FormKitInputSchema =
+  | ((
+      children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
+    ) => FormKitSchemaNode)
+  | FormKitSchemaNode
 
 /**
  * Type guard for schema objects.
@@ -61,11 +71,7 @@ export function extendSchema(
  */
 export function composable(
   key: string,
-  schema:
-    | ((
-        children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
-      ) => FormKitSchemaNode)
-    | FormKitSchemaNode
+  schema: FormKitInputSchema
 ): FormKitSchemaComposable {
   return (extendWith = {}, children = undefined) => {
     const root =
@@ -97,16 +103,12 @@ export function composable(
 }
 
 /**
- * Creates a new input with the base schema still attached.
+ * Creates an input schema with all of the wrapping base schema.
  * @param inputSchema - Content to store in the input composition key location.
  * @public
  */
-export function createInput(
-  inputSchema:
-    | ((
-        children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
-      ) => FormKitSchemaNode)
-    | FormKitSchemaNode
+export function useSchema(
+  inputSchema: FormKitInputSchema
 ): FormKitExtendableSchemaRoot {
   return (extensions = {}) => [
     outer(extensions.outer, [

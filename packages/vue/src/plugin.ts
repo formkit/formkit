@@ -16,6 +16,9 @@ declare module '@vue/runtime-core' {
   export interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
   }
+  export interface GlobalComponents {
+    FormKit: typeof FormKit
+  }
 }
 
 /**

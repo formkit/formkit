@@ -5,8 +5,15 @@ import {
   FormKitClasses,
   FormKitSchemaNode,
   FormKitSchemaCondition,
+  FormKitTypeDefinition,
 } from '@formkit/core'
-import { h, defineComponent, InjectionKey, PropType } from 'vue'
+import {
+  h,
+  defineComponent,
+  InjectionKey,
+  PropType,
+  ConcreteComponent,
+} from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 
@@ -65,7 +72,7 @@ const FormKit = defineComponent({
       default: {},
     },
     type: {
-      type: String,
+      type: [String, Object] as PropType<string | FormKitTypeDefinition>,
       default: 'text',
     },
     validation: {
@@ -129,8 +136,15 @@ const FormKit = defineComponent({
         ? schemaDefinition(props.schema)
         : schemaDefinition
     context.emit('node', node)
+    const library = node.props.definition.library as
+      | Record<string, ConcreteComponent>
+      | undefined
     return () =>
-      h(FormKitSchema, { schema, data: node.context }, { ...context.slots })
+      h(
+        FormKitSchema,
+        { schema, data: node.context, library },
+        { ...context.slots }
+      )
   },
 })
 
