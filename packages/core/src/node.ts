@@ -340,6 +340,7 @@ export interface FormKitFrameworkContext {
   id: string
   label?: string
   messages: Record<string, FormKitMessage>
+  node: FormKitNode
   options?: Array<Record<string, any> & { label: string; value: any }>
   state: Record<string, boolean | undefined> & {
     blurred: boolean

@@ -1,6 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import { FormKitInputSchema, useSchema } from '@formkit/inputs'
-import { Component } from 'vue'
+import { Component, markRaw } from 'vue'
 
 let totalCreated = 1
 
@@ -46,7 +46,7 @@ export function createInput(
         context: '$node.context',
       },
     })
-    definition.library = { [cmpName]: schemaOrComponent }
+    definition.library = { [cmpName]: markRaw(schemaOrComponent) }
   } else {
     schema = schemaOrComponent
   }
