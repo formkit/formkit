@@ -15,7 +15,9 @@
     appearance: auto;
     width: auto;
     position: absolute;
-    left: -9999px;
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
 
     & ~ .formkit-decorator {
       display: block;

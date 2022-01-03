@@ -2,6 +2,7 @@
   font-family: var(--fk-font-family);
   font-weight: var(--fk-font-weight);
   font-size: var(--fk-font-size);
+  line-height: var(--fk-line-height);
 
   &[data-type="textarea"] textarea {
     line-height: var(--fk-line-height-textarea);

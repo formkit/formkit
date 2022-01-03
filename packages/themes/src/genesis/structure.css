@@ -95,12 +95,6 @@
         border-radius: 2em;
       }
     }
-
-    &:checked ~ .formkit-decorator {
-      &::before {
-        background: var(--fk-color-checked);
-      }
-    }
   }
 }
 

@@ -1,6 +1,7 @@
 [data-type="textarea"] {
   & textarea {
-    min-width: 100%;
+    width: 100%;
     min-height: 6em;
+    flex-grow: 1;
   }
 }

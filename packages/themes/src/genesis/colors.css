@@ -21,6 +21,24 @@
       background: var(--fk-bg-input);
     }
   }
+
+  @nest
+  input[type="radio"]& {
+    &:checked ~ .formkit-decorator {
+      &::before {
+        background: var(--fk-color-checked);
+      }
+    }
+  }
+
+  @nest
+  input[type="checkbox"]& {
+    &:checked ~ .formkit-decorator {
+      &::before {
+        border-color: var(--fk-color-checked);
+      }
+    }
+  }
 }
 
 .formkit-help,

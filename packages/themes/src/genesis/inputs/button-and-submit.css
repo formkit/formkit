@@ -68,7 +68,7 @@
     color: var(--fk-color-button);
 
     &:hover {
-      background: var(--fk-bg-submit-hover);
+      background: var(--fk-bg-button-hover);
     }
   }
 }

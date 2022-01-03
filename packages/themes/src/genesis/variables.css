@@ -1,16 +1,16 @@
 :root {
   /* typography */
-  --fk-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --fk-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   --fk-font-family-input: var(--fk-font-family);
   --fk-font-family-label: var(--fk-font-family);
   --fk-font-family-legend: var(--fk-font-family-label);
-  --fk-font-family-option: var(--fk-font-family);
+  --fk-font-family-option: var(--fk-font-family-input);
   --fk-font-family-help: var(--fk-font-family);
   --fk-font-family-message: var(--fk-font-family);
 
-  --fk-font-weight: normal;
+  --fk-font-weight: 400;
   --fk-font-weight-input: var(--fk-font-weight);
-  --fk-font-weight-label: bold;
+  --fk-font-weight-label: 700;
   --fk-font-weight-legend: var(--fk-font-weight-label, bold);
   --fk-font-weight-help: var(--fk-font-weight);
   --fk-font-weight-option: var(--fk-font-weight);
@@ -55,9 +55,9 @@
 
   --fk-bg-input: transparent;
   --fk-bg-button: var(--fk-color-primary);
-  --fk-bg-button-hover: var(--fk-color-primary);
+  --fk-bg-button-hover: var(--fk-bg-button);
   --fk-bg-submit: var(--fk-bg-button);
-  --fk-bg-submit-hover: var(--fk-bg-button-hover);
+  --fk-bg-submit-hover: var(--fk-bg-submit);
 
   /* Borders */
   --fk-border-width: 1px;
