@@ -15,6 +15,7 @@ function isComponent(obj: any): obj is Component {
   return (
     (typeof obj === 'function' && obj.length === 2) ||
     (typeof obj === 'object' &&
+      !Array.isArray(obj) &&
       !('$el' in obj) &&
       !('$cmp' in obj) &&
       !('if' in obj))
@@ -53,6 +54,5 @@ export function createInput(
 
   // Use the default wrapping schema
   definition.schema = useSchema(schema || 'Schema undefined')
-
   return definition
 }

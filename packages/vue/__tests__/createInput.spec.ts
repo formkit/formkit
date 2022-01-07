@@ -86,6 +86,21 @@ describe('schema based inputs', () => {
     await nextTick()
     expect(wrapper.find('input').element.value).toBe('bizbaz')
   })
+
+  it('can create an input with a fragment as the schema', () => {
+    const foo = createInput([{ $el: 'header' }, { $el: 'footer' }])
+    const wrapper = mount(FormKit, {
+      props: {
+        type: foo,
+        name: 'custom',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('header').exists()).toBe(true)
+    expect(wrapper.find('footer').exists()).toBe(true)
+  })
 })
 
 describe('vue component inputs', () => {

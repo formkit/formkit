@@ -5,7 +5,7 @@ import {
   getNode,
   createConfig,
 } from '@formkit/core'
-import { App, Plugin, InjectionKey } from 'vue'
+import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
 import setErrors from './composables/setErrors'
 

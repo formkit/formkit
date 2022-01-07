@@ -164,7 +164,7 @@ async function sendFile(version, pkg, file) {
     }
   } catch (err) {
     console.error('Unable to read file', file)
-    return false
+    throw new Error(err)
   }
 }
 
@@ -177,16 +177,28 @@ async function sendFile(version, pkg, file) {
 async function prepForDistribution(file, version, min = true) {
   let src = file.replace(
     /from\s+['"]@formkit\/([a-z0-9]+)['"]/g,
-    `from 'https://cdn.formk.it/$1@${version}'`
+    `from '/$1@${version}'`
   )
-  src = src.replace(
-    /from\s+['"]vue['"]/g,
-    `from 'https://cdn.skypack.dev/vue@${vueVersion}'`
-  )
+  const vueImportRegex = /^import\s+(.*)\s+from\s+'vue';?/gm
+  const vueMatch = src.match(vueImportRegex)
+  if (vueMatch) {
+    src = src.replace(vueImportRegex, '')
+    const vueImportStatement = `const $1 = await import(\`./vue.js?src=\${(new URL(import.meta.url).searchParams.get('vue') || 'https://cdn.jsdelivr.net/npm/vue@next/%2Besm')}\`);`
+    src = src.replace(
+      /(^import\s+.*;)(?!\s(import|export))/gm,
+      '$1\n' + vueMatch[0]
+    )
+    src = src.replace(vueImportRegex, vueImportStatement)
+  }
   if (!min) return src
 
-  const result = await minify(src)
-  return result.code
+  try {
+    const result = await minify(src, { module: true })
+    return result.code
+  } catch (err) {
+    console.error(err)
+    throw err
+  }
 }
 
 /**

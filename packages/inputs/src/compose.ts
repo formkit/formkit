@@ -57,6 +57,8 @@ export function extendSchema(
     return isSchemaObject(extension) || typeof extension === 'string'
       ? extension
       : schema
+  } else if (Array.isArray(schema)) {
+    return isSchemaObject(extension) ? extension : schema
   }
   return extend(schema, extension) as FormKitSchemaNode
 }
@@ -94,10 +96,11 @@ export function composable(
         root.children = [children]
       }
     }
+    const extended = extendSchema(root, extendWith)
     return {
       if: `$slots.${key}`,
       then: `$slots.${key}`,
-      else: [extendSchema(root, extendWith)],
+      else: Array.isArray(extended) ? extended : [extended],
     }
   }
 }
@@ -110,18 +113,19 @@ export function composable(
 export function useSchema(
   inputSchema: FormKitInputSchema
 ): FormKitExtendableSchemaRoot {
-  return (extensions = {}) => [
-    outer(extensions.outer, [
-      wrapper(extensions.wrapper, [
-        label(extensions.label, '$label'),
-        inner(extensions.inner, [
-          composable('input', inputSchema)(extensions.input),
+  return (extensions = {}) => {
+    const input = composable('input', inputSchema)(extensions.input)
+    return [
+      outer(extensions.outer, [
+        wrapper(extensions.wrapper, [
+          label(extensions.label, '$label'),
+          inner(extensions.inner, Array.isArray(input) ? input : [input]),
+        ]),
+        help(extensions.help, '$help'),
+        messages(extensions.messages, [
+          message(extensions.message, '$message.value'),
         ]),
       ]),
-      help(extensions.help, '$help'),
-      messages(extensions.messages, [
-        message(extensions.message, '$message.value'),
-      ]),
-    ]),
-  ]
+    ]
+  }
 }
