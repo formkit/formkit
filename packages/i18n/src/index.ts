@@ -1,6 +1,7 @@
 import * as en from './locales/en'
 import * as de from './locales/de'
 import * as fr from './locales/fr'
+import * as ru from './locales/ru'
 
 /**
  * Export all of the plugin logic
@@ -15,6 +16,7 @@ export const locales = {
   en,
   de,
   fr,
+  ru,
 }
 
 /**
