@@ -33,7 +33,10 @@ describe('form structure', () => {
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">Submit</button></div>
+      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">
+          <!---->Submit
+          <!---->
+        </button></div>
       <!---->
     </div>
   </div>

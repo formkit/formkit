@@ -10,15 +10,6 @@ const button = composable('input', () => ({
     name: '$node.name',
     id: '$id',
   },
-  children: {
-    if: '$slots.default',
-    then: '$slots.default',
-    else: {
-      if: '$label',
-      then: '$label',
-      else: '$ui.submit.value',
-    },
-  },
 }))
 
 export default button

@@ -13,6 +13,8 @@ import legend from '../composables/legend'
 import boxes from '../composables/boxes'
 import options from '../composables/boxOptions'
 import decorator from '../composables/decorator'
+import prefix from '../composables/prefix'
+import suffix from '../composables/suffix'
 
 /**
  * The schema for text classifications.
@@ -22,8 +24,10 @@ const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
   const singleCheckbox = [
     wrapper(extensions.wrapper, [
       inner(extensions.inner, [
+        prefix(extensions.prefix),
         box(extensions.input),
         decorator(extensions.decorator),
+        suffix(extensions.suffix),
       ]),
       label(extensions.label, '$label'),
     ]),
@@ -37,6 +41,7 @@ const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
       boxes(extensions.option, [
         wrapper(extensions.wrapper, [
           inner(extensions.inner, [
+            prefix(extensions.prefix),
             box(
               extend(
                 {
@@ -51,6 +56,7 @@ const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
               ) as FormKitSchemaNode
             ),
             decorator(extensions.decorator),
+            suffix(extensions.suffix),
           ]),
           label(extensions.label, '$option.label'),
         ]),

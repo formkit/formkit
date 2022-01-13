@@ -127,17 +127,26 @@ describe('multiple checkboxes', () => {
     <div id="help-my-id" class="formkit-help">help-text</div>
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">foo</span>
+          <div class="formkit-inner">
+            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!---->
+          </div><span class="formkit-label">foo</span>
         </label>
         <!---->
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">bar</span>
+          <div class="formkit-inner">
+            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!---->
+          </div><span class="formkit-label">bar</span>
         </label>
         <!---->
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner"><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span></div><span class="formkit-label">baz</span>
+          <div class="formkit-inner">
+            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!---->
+          </div><span class="formkit-label">baz</span>
         </label>
         <!---->
       </li>
@@ -213,7 +222,7 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.find('li').html()).toBe(
-      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
+      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span><!----></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
     )
   })
 })

@@ -5,6 +5,8 @@ import help from '../composables/help'
 import button from '../composables/button'
 import messages from '../composables/messages'
 import message from '../composables/message'
+import prefix from '../composables/prefix'
+import suffix from '../composables/suffix'
 
 /**
  * The schema for text classifications.
@@ -15,7 +17,21 @@ const buttonSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
     messages(extensions.messages, [
       message(extensions.message, '$message.value'),
     ]),
-    wrapper(extensions.wrapper, [button(extensions.input)]),
+    wrapper(extensions.wrapper, [
+      button(extensions.input, [
+        prefix(extensions.prefix),
+        {
+          if: '$slots.default',
+          then: '$slots.default',
+          else: {
+            if: '$label',
+            then: '$label',
+            else: '$ui.submit.value',
+          },
+        },
+        suffix(extensions.suffix),
+      ]),
+    ]),
     help(extensions.help, '$help'),
   ]),
 ]
