@@ -21,7 +21,7 @@ const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
       inner(extensions.inner, [
         prefix(extensions.prefix),
         text(extensions.input),
-        suffix(extensions.prefix),
+        suffix(extensions.suffix),
       ]),
     ]),
     help(extensions.help, '$help'),
