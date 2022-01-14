@@ -14,6 +14,6 @@ import { ref } from 'vue'
 import { createInput } from '@formkit/vue'
 import CurrencyInput from './CurrencyInput.vue'
 
-const value = ref(true)
+const value = ref({ currency: '$', amount: '2.99' })
 const currencyInput = createInput(CurrencyInput, { props: ['currency'] })
 </script>
