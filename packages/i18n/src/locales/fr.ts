@@ -25,6 +25,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: 'Valider',
+  /**
+   * Shown when no files are selected.
+   */
+  noFiles: 'Aucun fichier choisi',
 }
 
 /**

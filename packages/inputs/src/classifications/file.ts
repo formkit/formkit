@@ -9,18 +9,25 @@ import prefix from '../composables/prefix'
 import suffix from '../composables/suffix'
 import messages from '../composables/messages'
 import message from '../composables/message'
+import fileList from '../composables/fileList'
+import fileItem from '../composables/fileItem'
+import noFiles from '../composables/noFiles'
 
 /**
  * The schema for text classifications.
  * @public
  */
-const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
+const fileSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
   outer(extensions.outer, [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),
       inner(extensions.inner, [
         prefix(extensions.prefix),
         file(extensions.input),
+        fileList(extensions.fileList, [
+          fileItem(extensions.file, '$file.name'),
+        ]),
+        noFiles(extensions.noFiles, '$ui.noFiles.value'),
         suffix(extensions.suffix),
       ]),
     ]),
@@ -31,4 +38,4 @@ const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
   ]),
 ]
 
-export default textSchema
+export default fileSchema
