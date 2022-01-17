@@ -11,6 +11,11 @@
           Custom input
         </router-link>
       </li>
+      <li>
+        <router-link to="/file-upload">
+          File upload
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>

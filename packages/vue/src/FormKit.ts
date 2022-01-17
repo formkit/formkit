@@ -6,6 +6,7 @@ import {
   FormKitSchemaNode,
   FormKitSchemaCondition,
   FormKitTypeDefinition,
+  FormKitGroupValue,
 } from '@formkit/core'
 import {
   h,
@@ -113,6 +114,7 @@ const FormKit = defineComponent({
     input: (_value: any) => true,
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
+    submit: (_data: FormKitGroupValue) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,

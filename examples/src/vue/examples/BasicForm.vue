@@ -3,6 +3,7 @@
   <FormKit
     v-model="data"
     type="form"
+    @submit="submitHandler"
   >
     <FormKit
       type="email"
@@ -55,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import { FormKitGroupValue } from '@formkit/core'
 import { ref } from 'vue'
 const data = ref({})
 
@@ -85,5 +87,8 @@ const countries = [
   },
 ]
 
+const submitHandler = function (data: FormKitGroupValue) {
+  console.log(data.email)
+}
 </script>
 

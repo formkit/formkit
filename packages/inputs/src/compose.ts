@@ -15,6 +15,8 @@ import inner from './composables/inner'
 import help from './composables/help'
 import messages from './composables/messages'
 import message from './composables/message'
+import prefix from './composables/prefix'
+import suffix from './composables/suffix'
 
 /**
  * Either a schema node, or a function that returns a schema node.
@@ -119,7 +121,11 @@ export function useSchema(
       outer(extensions.outer, [
         wrapper(extensions.wrapper, [
           label(extensions.label, '$label'),
-          inner(extensions.inner, Array.isArray(input) ? input : [input]),
+          inner(extensions.inner, [
+            prefix(extensions.prefix),
+            ...(Array.isArray(input) ? input : [input]),
+            suffix(extensions.prefix),
+          ]),
         ]),
         help(extensions.help, '$help'),
         messages(extensions.messages, [
