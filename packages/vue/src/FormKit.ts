@@ -115,6 +115,7 @@ const FormKit = defineComponent({
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
     submit: (_data: FormKitGroupValue) => true,
+    submitRaw: (_event: Event) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,

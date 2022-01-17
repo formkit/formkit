@@ -18,8 +18,10 @@ import {
   watch,
   SetupContext,
   onUnmounted,
+  getCurrentInstance,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
+import { FormKitGroupValue } from 'packages/core/src'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -31,6 +33,11 @@ interface FormKitComponentProps {
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
+}
+
+interface FormKitComponentListeners {
+  onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
+  onSubmitRaw?: (event?: Event) => unknown
 }
 
 /**
@@ -62,6 +69,30 @@ function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
 }
 
 /**
+ * Extracts known FormKit listeners.
+ * @param props - Extract known FormKit listeners.
+ * @returns
+ */
+function onlyListeners(
+  props: Record<string, unknown> | null | undefined
+): FormKitComponentListeners {
+  if (!props) return {}
+  const knownListeners = ['Submit', 'SubmitRaw'].reduce(
+    (listeners, listener) => {
+      const name = `on${listener}`
+      if (name in props) {
+        if (typeof props[name] === 'function') {
+          listeners[name] = props[name] as CallableFunction
+        }
+      }
+      return listeners
+    },
+    {} as Record<string, CallableFunction>
+  )
+  return knownListeners as FormKitComponentListeners
+}
+
+/**
  * A composable for creating a new FormKit node.
  * @param type - The type of node (input, group, list)
  * @param attrs - The FormKit "props" — which is really the attrs list.
@@ -85,6 +116,16 @@ export function useInput(
   const parent = inject(parentSymbol, null)
 
   /**
+   * The current instance.
+   */
+  const instance = getCurrentInstance()
+
+  /**
+   * Extracts the listeners.
+   */
+  const listeners = onlyListeners(instance?.vnode.props)
+
+  /**
    * Define the initial component
    */
   const value: any =
@@ -95,7 +136,10 @@ export function useInput(
    * @returns
    */
   function createInitialProps(): Record<string, any> {
-    const initialProps: Record<string, any> = nodeProps(props)
+    const initialProps: Record<string, any> = {
+      ...nodeProps(props),
+      ...listeners,
+    }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
     initialProps.attrs = attrs
     const propValues = only(nodeProps(context.attrs), pseudoProps)

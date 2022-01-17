@@ -87,8 +87,9 @@ const countries = [
   },
 ]
 
-const submitHandler = function (data: FormKitGroupValue) {
-  console.log(data.email)
+const submitHandler = async function (data: FormKitGroupValue) {
+  await new Promise(r => setTimeout(r, 500))
+  console.log(data)
 }
 </script>
 
