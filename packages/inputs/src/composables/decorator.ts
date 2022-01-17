@@ -1,19 +1,11 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const decorator: FormKitSchemaComposable = (schema = {}) => ({
-  if: '$slots.decorator',
-  then: '$slots.decorator',
-  else: extend(
-    {
-      $el: 'span',
-      attrs: {
-        class: '$classes.decorator',
-        'aria-hidden': 'true',
-      },
-    },
-    schema
-  ) as FormKitSchemaNode,
-})
+const decorator = composable('decorator', () => ({
+  $el: 'span',
+  attrs: {
+    class: '$classes.decorator',
+    'aria-hidden': 'true',
+  },
+}))
 
 export default decorator

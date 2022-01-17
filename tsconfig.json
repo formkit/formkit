@@ -21,6 +21,11 @@
         "packages/vue/src/components/*"
       ]
     },
+    "types": [
+      "node",
+      "vite/client",
+      "jest"
+    ]
   },
   "exclude": [
     "*.vue"

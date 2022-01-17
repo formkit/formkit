@@ -7,6 +7,8 @@ import textarea from '../composables/textarea'
 import help from '../composables/help'
 import messages from '../composables/messages'
 import message from '../composables/message'
+import prefix from '../composables/prefix'
+import suffix from '../composables/suffix'
 
 /**
  * The schema for textarea classifications.
@@ -16,7 +18,11 @@ const textareaSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
   outer(extensions.outer, [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),
-      inner(extensions.inner, [textarea(extensions.input)]),
+      inner(extensions.inner, [
+        prefix(extensions.prefix),
+        textarea(extensions.input),
+        suffix(extensions.suffix),
+      ]),
     ]),
     help(extensions.help, '$help'),
     messages(extensions.messages, [

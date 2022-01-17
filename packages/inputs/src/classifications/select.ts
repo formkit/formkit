@@ -8,6 +8,8 @@ import option from '../composables/option'
 import help from '../composables/help'
 import messages from '../composables/messages'
 import message from '../composables/message'
+import prefix from '../composables/prefix'
+import suffix from '../composables/suffix'
 
 /**
  * The schema for text classifications.
@@ -18,7 +20,9 @@ const textSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
     wrapper(extensions.wrapper, [
       label(extensions.label, '$label'),
       inner(extensions.inner, [
+        prefix(extensions.prefix),
         select(extensions.input, [option(extensions.option, '$option.label')]),
+        suffix(extensions.suffix),
       ]),
     ]),
     help(extensions.help, '$help'),

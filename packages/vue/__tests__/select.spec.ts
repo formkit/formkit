@@ -24,10 +24,13 @@ describe('select', () => {
       .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
-    <div class="formkit-inner"><select class="formkit-input" name="select_1">
+    <div class="formkit-inner">
+      <!----><select class="formkit-input" name="select_1">
         <option class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
-      </select></div>
+      </select>
+      <!---->
+    </div>
   </div>
   <!---->
   <!---->
@@ -52,10 +55,13 @@ describe('select', () => {
       .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
-    <div class="formkit-inner"><select class="formkit-input" name="select_d">
+    <div class="formkit-inner">
+      <!----><select class="formkit-input" name="select_d">
         <option disabled="" class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
-      </select></div>
+      </select>
+      <!---->
+    </div>
   </div>
   <!---->
   <!---->
@@ -77,10 +83,13 @@ describe('select', () => {
       .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
-    <div class="formkit-inner"><select class="formkit-input" name="select_foo">
-        <option class="formkit-option">foo</option>
-        <option class="formkit-option">bar</option>
-      </select></div>
+    <div class="formkit-inner">
+      <!----><select class="formkit-input" name="select_foo">
+        <option class="formkit-option" value="foo">foo</option>
+        <option class="formkit-option" value="bar">bar</option>
+      </select>
+      <!---->
+    </div>
   </div>
   <!---->
   <!---->
@@ -105,10 +114,13 @@ describe('select', () => {
       .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
-    <div class="formkit-inner"><select class="formkit-input" name="select_foo">
+    <div class="formkit-inner">
+      <!----><select class="formkit-input" name="select_foo">
         <option class="formkit-option" value="foo">Bar</option>
         <option class="formkit-option" value="baz">Bim</option>
-      </select></div>
+      </select>
+      <!---->
+    </div>
   </div>
   <!---->
   <!---->

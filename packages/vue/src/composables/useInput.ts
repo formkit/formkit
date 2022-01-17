@@ -8,8 +8,9 @@ import {
   FormKitPlugin,
   FormKitMessage,
   createMessage,
+  FormKitTypeDefinition,
 } from '@formkit/core'
-import { nodeProps, except, camel, extend, only } from '@formkit/utils'
+import { nodeProps, except, camel, extend, only, kebab } from '@formkit/utils'
 import {
   watchEffect,
   inject,
@@ -17,11 +18,13 @@ import {
   watch,
   SetupContext,
   onUnmounted,
+  getCurrentInstance,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
+import { FormKitGroupValue } from 'packages/core/src'
 
 interface FormKitComponentProps {
-  type?: string
+  type?: string | FormKitTypeDefinition
   name?: string
   validation?: any
   modelValue?: any
@@ -30,6 +33,11 @@ interface FormKitComponentProps {
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
+}
+
+interface FormKitComponentListeners {
+  onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
+  onSubmitRaw?: (event?: Event) => unknown
 }
 
 /**
@@ -61,6 +69,30 @@ function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
 }
 
 /**
+ * Extracts known FormKit listeners.
+ * @param props - Extract known FormKit listeners.
+ * @returns
+ */
+function onlyListeners(
+  props: Record<string, unknown> | null | undefined
+): FormKitComponentListeners {
+  if (!props) return {}
+  const knownListeners = ['Submit', 'SubmitRaw'].reduce(
+    (listeners, listener) => {
+      const name = `on${listener}`
+      if (name in props) {
+        if (typeof props[name] === 'function') {
+          listeners[name] = props[name] as CallableFunction
+        }
+      }
+      return listeners
+    },
+    {} as Record<string, CallableFunction>
+  )
+  return knownListeners as FormKitComponentListeners
+}
+
+/**
  * A composable for creating a new FormKit node.
  * @param type - The type of node (input, group, list)
  * @param attrs - The FormKit "props" — which is really the attrs list.
@@ -84,6 +116,16 @@ export function useInput(
   const parent = inject(parentSymbol, null)
 
   /**
+   * The current instance.
+   */
+  const instance = getCurrentInstance()
+
+  /**
+   * Extracts the listeners.
+   */
+  const listeners = onlyListeners(instance?.vnode.props)
+
+  /**
    * Define the initial component
    */
   const value: any =
@@ -94,7 +136,10 @@ export function useInput(
    * @returns
    */
   function createInitialProps(): Record<string, any> {
-    const initialProps: Record<string, any> = nodeProps(props)
+    const initialProps: Record<string, any> = {
+      ...nodeProps(props),
+      ...listeners,
+    }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
     initialProps.attrs = attrs
     const propValues = only(nodeProps(context.attrs), pseudoProps)
@@ -104,6 +149,10 @@ export function useInput(
     const classesProps = { props: {} }
     classesToNodeProps(classesProps as FormKitNode, props)
     Object.assign(initialProps, classesProps.props)
+    if (typeof initialProps.type !== 'string') {
+      initialProps.definition = initialProps.type
+      delete initialProps.type
+    }
     return initialProps
   }
 
@@ -130,7 +179,17 @@ export function useInput(
   /**
    * These prop names must be assigned.
    */
-  const propNames = pseudoProps.concat(node.props.definition.props || [])
+  const pseudoPropNames = pseudoProps
+    .concat(node.props.definition.props || [])
+    .reduce((names, prop) => {
+      if (typeof prop === 'string') {
+        names.push(camel(prop))
+        names.push(kebab(prop))
+      } else {
+        names.push(prop)
+      }
+      return names
+    }, [] as Array<string | RegExp>)
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))
@@ -155,7 +214,7 @@ export function useInput(
   /**
    * Watch "pseudoProp" attributes explicitly.
    */
-  const pseudoPropsValues = only(nodeProps(context.attrs), propNames)
+  const pseudoPropsValues = only(nodeProps(context.attrs), pseudoPropNames)
   for (const prop in pseudoPropsValues) {
     const camelName = camel(prop)
     watch(
@@ -171,7 +230,7 @@ export function useInput(
    * props and are not pseudoProps
    */
   watchEffect(() => {
-    const attrs = except(nodeProps(context.attrs), propNames)
+    const attrs = except(nodeProps(context.attrs), pseudoPropNames)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

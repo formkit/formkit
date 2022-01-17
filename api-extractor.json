@@ -45,7 +45,8 @@
    *
    * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
    */
-  "mainEntryPointFilePath": "packages/<unscopedPackageName>/dist/index.d.ts",
+  // "mainEntryPointFilePath": "packages/<unscopedPackageName>/dist/index.d.ts",
+  "mainEntryPointFilePath": "packages/<unscopedPackageName>/dist/packages/<unscopedPackageName>/src/index.d.ts",
 
   /**
    * A list of NPM package names whose exports should be treated as part of this package.

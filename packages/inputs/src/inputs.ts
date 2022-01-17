@@ -1,5 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import textSchema from './classifications/text'
+import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
@@ -15,6 +16,7 @@ import radios from './features/radios'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
 import localize from './features/localize'
+import files from './features/files'
 
 /**
  * Default classifications that are available.
@@ -197,7 +199,13 @@ export const group: FormKitTypeDefinition = {
 export const form: FormKitTypeDefinition = {
   type: 'group',
   schema: formSchema,
-  props: ['actions', 'submit', 'submitLabel', 'submitAttrs'],
+  props: [
+    'actions',
+    'submit',
+    'submitLabel',
+    'submitAttrs',
+    'incompleteMessage',
+  ],
   features: [formHandler, disablesChildren],
 }
 
@@ -209,4 +217,14 @@ export const list: FormKitTypeDefinition = {
   type: 'list',
   schema: listSchema,
   features: [disablesChildren],
+}
+
+/**
+ * The file input.
+ * @public
+ */
+export const file: FormKitTypeDefinition = {
+  type: 'input',
+  schema: fileSchema,
+  features: [files],
 }

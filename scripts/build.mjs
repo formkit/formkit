@@ -129,17 +129,18 @@ async function cleanDist(p) {
  * @param format the format to create (cjs, esm, umd, etc...)
  */
 async function bundle(p, format, theme) {
+  const args = [
+    { name: 'PKG', value: p },
+    { name: 'FORMAT', value: format },
+  ]
+  if (theme) {
+    args.push({ name: 'THEME', value: theme })
+  }
   msg.loader.text = `Bundling ${p} as ${format}`
   await execa(rollup, [
     '-c',
     '--environment',
-    [
-      { name: 'PKG', value: p },
-      { name: 'FORMAT', value: format },
-      theme ? { name: 'THEME', value: theme } : {},
-    ]
-      .map(({ name, value }) => `${name}:${value}`)
-      .join(','),
+    args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])
 }
 

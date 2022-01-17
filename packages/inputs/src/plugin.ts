@@ -7,7 +7,7 @@ import { FormKitLibrary, FormKitPlugin, FormKitNode } from '@formkit/core'
  * @returns
  * @public
  */
-export const createLibraryPlugin = function createLibraryPlugin(
+export function createLibraryPlugin(
   ...libraries: FormKitLibrary[]
 ): FormKitPlugin {
   /**

@@ -1,20 +1,11 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const message: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.message',
-  then: '$slots.message',
-  else: extend(
-    {
-      $el: 'li',
-      for: ['message', '$messages'],
-      attrs: {
-        class: '$classes.message',
-      },
-      children,
-    },
-    schema
-  ) as FormKitSchemaNode,
-})
+const message = composable('message', () => ({
+  $el: 'li',
+  for: ['message', '$messages'],
+  attrs: {
+    class: '$classes.message',
+  },
+}))
 
 export default message

@@ -1,22 +1,13 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const outer: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.outer',
-  then: '$slots.outer',
-  else: extend(
-    {
-      $el: 'div',
-      attrs: {
-        class: '$classes.outer',
-        'data-type': '$type',
-        'data-multiple': '$attrs.multiple',
-        'data-disabled': '$disabled',
-      },
-      children,
-    },
-    schema
-  ) as FormKitSchemaNode,
-})
+const outer = composable('outer', () => ({
+  $el: 'div',
+  attrs: {
+    class: '$classes.outer',
+    'data-type': '$type',
+    'data-multiple': '$attrs.multiple',
+    'data-disabled': '$disabled',
+  },
+}))
 
 export default outer

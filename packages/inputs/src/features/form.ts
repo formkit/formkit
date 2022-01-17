@@ -19,15 +19,32 @@ async function handleSubmit(node: FormKitNode, e: Event) {
     )
   })
 
-  if (typeof node.props.attrs?.onSubmitRaw === 'function') {
-    node.props.attrs.onSubmitRaw(e)
+  if (typeof node.props.onSubmitRaw === 'function') {
+    node.props.onSubmitRaw(e)
   }
 
-  if (!node.ledger.value('blocking')) {
+  if (node.ledger.value('blocking')) {
+    // There is still a blocking message in the store.
+    if (node.props.incompleteMessage !== false) {
+      node.store.set(
+        createMessage({
+          blocking: false,
+          key: `incomplete`,
+          meta: {
+            localize: node.props.incompleteMessage === undefined,
+            i18nArgs: [{ node }],
+            showAsMessage: true,
+          },
+          type: 'ui',
+          value: node.props.incompleteMessage || 'Form incomplete.',
+        })
+      )
+    }
+  } else {
     // No blocking messages
-    if (typeof node.props.attrs?.onSubmit === 'function') {
+    if (typeof node.props.onSubmit === 'function') {
       // call onSubmit
-      const retVal = node.props.attrs.onSubmit(
+      const retVal = node.props.onSubmit(
         clone(node.value as Record<string, any>)
       )
       if (retVal instanceof Promise) {
@@ -46,25 +63,6 @@ async function handleSubmit(node: FormKitNode, e: Event) {
         e.target.submit()
       }
     }
-  } else {
-    node.store.set(
-      createMessage({
-        blocking: false,
-        key: `incomplete`,
-        meta: {
-          /**
-           * Determines if this message should be passed to localization.
-           */
-          localize: true,
-          /**
-           * The arguments that will be passed to the validation rules
-           */
-          i18nArgs: [{ node }],
-        },
-        type: 'ui',
-        value: 'Form incomplete.',
-      })
-    )
   }
 }
 

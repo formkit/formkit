@@ -11,6 +11,11 @@ export { useInput } from './composables/useInput'
 export { default as setErrors } from './composables/setErrors'
 
 /**
+ * Shorthand for creating inputs with standard FormKit features.
+ */
+export { createInput } from './composables/createInput'
+
+/**
  * The plugin and plugin types.
  * @public
  */

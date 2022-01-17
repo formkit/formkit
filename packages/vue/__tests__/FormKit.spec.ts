@@ -415,7 +415,10 @@ describe('classes', () => {
     })
     expect(wrapper.html()).toBe(`<div class="formkit-outer" data-type="text">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
-    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" id="foobar"></div>
+    <div class="formkit-inner">
+      <!----><input type="text" class="formkit-input" name="classTest" id="foobar">
+      <!---->
+    </div>
   </div>
   <div id="help-foobar" class="formkit-help">input help text</div>
   <ul class="formkit-messages">
@@ -674,5 +677,73 @@ describe('plugins', () => {
       },
     })
     expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')
+  })
+})
+
+describe('prefix and suffix', () => {
+  it('supports prefix and suffix on text based inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'password',
+        name: 'table_stakes',
+        id: 'pass',
+        schema: { prefix: 'Hush', suffix: 'Show' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Hush<input type="password" class="formkit-input" name="table_stakes" id="pass">Show</div>'
+    )
+  })
+
+  it('supports prefix/suffix on box-type inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        name: 'terms',
+        id: 'terms',
+        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Prefix<input type="checkbox" class="formkit-input" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
+    )
+  })
+
+  it('supports prefix/suffix on button inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'button',
+        label: 'Button',
+        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('button').text()).toBe('PrefixButtonSuffix')
+  })
+
+  it('supports prefix/suffix on select inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        id: 'alpha',
+        name: 'alpha',
+        options: ['A', 'B'],
+        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Prefix<select class="formkit-input" name="alpha"><option class="formkit-option" value="A">A</option><option class="formkit-option" value="B">B</option></select>Suffix</div>'
+    )
   })
 })

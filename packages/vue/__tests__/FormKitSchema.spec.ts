@@ -869,7 +869,7 @@ it('can access content from original data inside deeply nested slot', () => {
       plugins: [[plugin, defaultConfig]],
     },
   })
-  expect(wrapper.html()).toContain('Poodle</button>')
+  expect(wrapper.find('button').text()).toBe('Poodle')
 })
 
 describe('schema $get function', () => {

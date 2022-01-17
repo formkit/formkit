@@ -1,19 +1,10 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const wrapper: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.wrapper',
-  then: '$slots.wrapper',
-  else: extend(
-    {
-      $el: 'div',
-      attrs: {
-        class: '$classes.wrapper',
-      },
-      children,
-    },
-    schema
-  ) as FormKitSchemaNode,
-})
+const wrapper = composable('wrapper', () => ({
+  $el: 'div',
+  attrs: {
+    class: '$classes.wrapper',
+  },
+}))
 
 export default wrapper

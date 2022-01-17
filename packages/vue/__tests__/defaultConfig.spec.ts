@@ -43,4 +43,28 @@ describe('defaultConfig', () => {
     const node = getNode('tuesday')!
     expect(node.value).toBe('foobar.')
   })
+
+  it('allows input augmentation', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'fooey',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              inputs: {
+                fooey: {
+                  type: 'input',
+                  schema: [{ $el: 'h1', children: 'Fooey world' }],
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toEqual('<h1>Fooey world</h1>')
+  })
 })

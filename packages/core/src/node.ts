@@ -40,6 +40,7 @@ export type FormKitTypeDefinition = {
     | FormKitSchemaNode[]
     | FormKitSchemaCondition
   component?: unknown
+  library?: Record<string, unknown>
   features?: Array<(node: FormKitNode) => void>
 }
 
@@ -339,6 +340,7 @@ export interface FormKitFrameworkContext {
   id: string
   label?: string
   messages: Record<string, FormKitMessage>
+  node: FormKitNode
   options?: Array<Record<string, any> & { label: string; value: any }>
   state: Record<string, boolean | undefined> & {
     blurred: boolean
@@ -932,7 +934,6 @@ function define(
   context: FormKitContext,
   definition: FormKitTypeDefinition
 ) {
-  if (context.props.definition?.type) createError(node, 3)
   // Assign the type
   context.type = definition.type
   // Assign the definition
@@ -1498,6 +1499,8 @@ function createProps() {
  * @returns
  */
 function findDefinition(node: FormKitNode, plugins: Set<FormKitPlugin>): void {
+  // If the definition is already there, force call to define.
+  if (node.props.definition) return node.define(node.props.definition)
   for (const plugin of plugins) {
     if (node.props.definition) return
     if (typeof plugin.library === 'function') {
