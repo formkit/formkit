@@ -5,3 +5,4 @@ coverage
 temp
 *.log
 .vscode
+/.aws/credentials
