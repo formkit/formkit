@@ -19,6 +19,7 @@
   --fk-font-size: 1em;
   --fk-font-size-input: var(--fk-font-size);
   --fk-font-size-label: 0.875em;
+  --fk-font-size-legend: 0.875em;
   --fk-font-size-help: 0.8125em;
   --fk-font-size-option: 0.9em;
   --fk-font-size-message: 0.8125em;
@@ -29,6 +30,7 @@
   --fk-line-height-option: var(--fk-line-height);
   --fk-line-height-message: var(--fk-line-height);
   --fk-line-height-textarea: var(--fk-line-height);
+  --fk-line-height-input: 1em;
 
   /* Structure */
   --fk-max-width-input: 25em;
@@ -41,10 +43,10 @@
   --fk-color-border: #94929c;
   --fk-color-border-focus: var(--fk-color-primary);
   --fk-color-error: #ea0000;
-  --fk-color-placeholder:;
+  /* --fk-color-placeholder:; */
   --fk-color-disabled: rgba(0 0 0 / 5%);
   --fk-color-help: rgba(0 0 0 / 60%);
-  --fk-color-message:;
+  /* --fk-color-message:; */
   --fk-color-icon: rgba(0 0 0 / 80%);
   --fk-color-button: #fff;
   --fk-color-button-hover: #fff;
@@ -54,6 +56,7 @@
   --fk-color-range-thumb: var(--fk-color-primary);
 
   --fk-bg-input: transparent;
+  --fk-bg-decorator: linear-gradient(0deg, rgb(0 0 0 / 7%), transparent);
   --fk-bg-button: var(--fk-color-primary);
   --fk-bg-button-hover: var(--fk-bg-button);
   --fk-bg-submit: var(--fk-bg-button);

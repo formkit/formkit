@@ -9,4 +9,5 @@
 @import "inputs/color.css";
 @import "inputs/range.css";
 @import "inputs/select.css";
+@import "inputs/file.css";
 @import "inputs/textarea.css";

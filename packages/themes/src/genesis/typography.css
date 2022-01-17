@@ -34,6 +34,7 @@
   font-family: var(--fk-font-family-input);
   font-size: var(--fk-font-size-input);
   font-weight: var(--fk-font-weight-input);
+  line-height: var(--fk-line-height-input);
 }
 
 .formkit-help,

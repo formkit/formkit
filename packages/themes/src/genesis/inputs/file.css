@@ -1,0 +1,47 @@
+[data-type="file"] {
+  & .formkit-no-files,
+  & .formkit-file-list {
+    padding: var(--fk-padding-input);
+    margin: 0;
+  }
+
+  & .formkit-no-files,
+  & .formkit-file-item {
+    display: flex;
+    align-items: center;
+    font-size: var(--fk-font-size-input);
+    line-height: var(--fk-line-height-input);
+
+    & + .formkit-file-item {
+      margin-top: var(--fk-padding-input-t);
+    }
+
+    &::before {
+      content: "";
+      display: block;
+      width: 14px;
+      height: 16px;
+      margin-right: var(--fk-padding-input-l);
+      background-color: var(--fk-color-icon);
+      clip-path: path("M11.9,4.6L8.2,1.4C7.8,1.2,7.4,1,7,1H2.8C1.8,1,1,1.8,1,2.8v10.4c0,1,0.8,1.8,1.9,1.8h7.9c1,0,1.8-0.8,1.9-1.8V6 C12.6,5.5,12.3,5,11.9,4.6z M8.8,6h2.7c0,0,0,0,0,0.1v7.2c0,0.4-0.3,0.8-0.8,0.8H2.9c-0.4,0-0.8-0.3-0.8-0.8V2.8 c0-0.4,0.3-0.8,0.8-0.8h4v2.1C6.9,5.1,7.7,6,8.8,6z M8.8,4.9C8.3,4.9,8,4.5,8,4.1V2.7l2.6,2.2L8.8,4.9z");
+      pointer-events: none;
+    }
+  }
+
+  & .formkit-input {
+    appearance: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0%;
+
+    &::file-selector-button {
+      appearance: none;
+      font-size: 0;
+      padding: 0;
+      border: 0;
+    }
+  }
+}

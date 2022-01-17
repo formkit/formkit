@@ -27,9 +27,17 @@ export default function (node: FormKitNode): void {
     node.context.files = []
 
     node.context.handlers.files = (e: Event) => {
+      console.log((e.target as HTMLInputElement).files)
+      const files: Array<{ name: string }> = []
       if (e.target instanceof HTMLInputElement && e.target.files) {
-        console.log(e.target.files)
+        for (let i = 0; i < e.target.files.length; i++) {
+          let file
+          if ((file = e.target.files.item(i))) {
+            files.push({ name: file.name })
+          }
+        }
       }
+      if (node.context) node.context.files = files
     }
   })
 }
