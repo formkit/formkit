@@ -227,4 +227,20 @@ export const file: FormKitTypeDefinition = {
   type: 'input',
   schema: fileSchema,
   features: [files],
+  props: ['files'],
 }
+
+/**
+ * A single file object in FormKit’s synthetic "FileList".
+ * @public
+ */
+export interface FormKitFile {
+  name: string
+  file?: File
+}
+
+/**
+ * A synthetic array-based "FileList".
+ * @public
+ */
+export type FormKitFileValue = FormKitFile[]

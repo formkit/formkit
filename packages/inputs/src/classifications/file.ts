@@ -12,6 +12,7 @@ import message from '../composables/message'
 import fileList from '../composables/fileList'
 import fileItem from '../composables/fileItem'
 import noFiles from '../composables/noFiles'
+import removeFiles from '../composables/removeFiles'
 
 /**
  * The schema for text classifications.
@@ -25,8 +26,21 @@ const fileSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
         prefix(extensions.prefix),
         file(extensions.input),
         fileList(extensions.fileList, [
-          fileItem(extensions.file, '$file.name'),
+          fileItem(extensions.file, [
+            {
+              $el: 'span',
+              children: '$file.name',
+            },
+            {
+              if: '$value.length == 1',
+              then: removeFiles(extensions.removeFiles, '$ui.remove.value'),
+            },
+          ]),
         ]),
+        {
+          if: '$value.length > 1',
+          then: removeFiles(extensions.removeFiles, '$ui.removeAll.value'),
+        },
         noFiles(extensions.noFiles, '$ui.noFiles.value'),
         suffix(extensions.suffix),
       ]),

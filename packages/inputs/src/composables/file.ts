@@ -11,7 +11,6 @@ const file = composable('input', () => ({
     name: '$node.name',
     onChange: '$handlers.files',
     onBlur: '$handlers.blur',
-    value: '$_value',
     id: '$id',
   },
 }))

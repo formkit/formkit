@@ -23,8 +23,65 @@
       height: 16px;
       margin-right: var(--fk-padding-input-l);
       background-color: var(--fk-color-icon);
-      clip-path: path("M11.9,4.6L8.2,1.4C7.8,1.2,7.4,1,7,1H2.8C1.8,1,1,1.8,1,2.8v10.4c0,1,0.8,1.8,1.9,1.8h7.9c1,0,1.8-0.8,1.9-1.8V6 C12.6,5.5,12.3,5,11.9,4.6z M8.8,6h2.7c0,0,0,0,0,0.1v7.2c0,0.4-0.3,0.8-0.8,0.8H2.9c-0.4,0-0.8-0.3-0.8-0.8V2.8 c0-0.4,0.3-0.8,0.8-0.8h4v2.1C6.9,5.1,7.7,6,8.8,6z M8.8,4.9C8.3,4.9,8,4.5,8,4.1V2.7l2.6,2.2L8.8,4.9z");
+      clip-path: path("M11.68,4.29,8.94,1.38a3.16,3.16,0,0,0-2-.88H2A1.5,1.5,0,0,0,.5,2V14A1.5,1.5,0,0,0,2,15.5h9A1.5,1.5,0,0,0,12.5,14V6.36A3.44,3.44,0,0,0,11.68,4.29ZM11,5a2.37,2.37,0,0,1,.38.65H8.12c-.2,0-.42-.26-.42-.64V1.73a1.81,1.81,0,0,1,.51.34ZM11,14.5H2a.5.5,0,0,1-.5-.5V2A.5.5,0,0,1,2,1.5H6.7V5A1.54,1.54,0,0,0,8.12,6.62H11.5V14A.5.5,0,0,1,11,14.5Z");
       pointer-events: none;
+    }
+  }
+
+  & .formkit-remove-files {
+    position: absolute;
+    font-size: var(--fk-font-size-remove);
+    color: var(--fk-color-primary);
+    bottom: calc(var(--fk-padding-input-b) + (1em - var(--fk-font-size-remove)));
+    left: calc(var(--fk-padding-input-l) + (1em - var(--fk-font-size-remove)));
+    display: block;
+    z-index: 5;
+
+    &:hover {
+      color: var(--fk-color-danger);
+    }
+  }
+
+  & .formkit-file-item .formkit-remove-files {
+    position: relative;
+    margin-left: auto;
+    margin-right: 0;
+    bottom: auto;
+    left: auto;
+    overflow: hidden;
+    text-indent: -999px;
+    width: 14px;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 14px;
+      height: 16px;
+      position: absolute;
+      right: 0;
+      top: 1px;
+      background-color: var(--fk-color-icon-minor);
+      clip-path: path("M8.41,8l3.3-3.29a1,1,0,1,0-1.42-1.42L7,6.59,3.71,3.29A1,1,0,0,0,2.29,4.71L5.59,8l-3.3,3.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L7,9.41l3.29,3.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z");
+    }
+
+    &:hover::after {
+      background-color: var(--fk-color-danger);
+    }
+  }
+
+  & .formkit-no-files {
+    color: var(--fk-color-placeholder);
+
+    &::before {
+      background-color: var(--fk-color-placeholder);
+    }
+  }
+
+  & .formkit-file-list {
+    width: 100%;
+
+    &[data-has-multiple] {
+      margin-bottom: calc(var(--fk-padding-input-b) + var(--fk-font-size-remove) * 1.3);
     }
   }
 
@@ -35,13 +92,19 @@
     left: 0;
     right: 0;
     bottom: 0;
-    opacity: 0%;
+    cursor: pointer;
+    z-index: 2;
+    color: transparent;
 
     &::file-selector-button {
       appearance: none;
       font-size: 0;
       padding: 0;
       border: 0;
+    }
+
+    &[data-file-hover] {
+      animation: glow 0.75s infinite alternate;
     }
   }
 }

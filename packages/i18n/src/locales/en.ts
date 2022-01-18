@@ -18,6 +18,10 @@ export const ui: FormKitLocaleMessages = {
    */
   remove: 'Remove',
   /**
+   * Shown when there are multiple items to remove at the same time.
+   */
+  removeAll: 'Remove all',
+  /**
    * Shown when all fields are not filled out correctly.
    */
   incomplete: 'Sorry, not all fields are filled out correctly.',
