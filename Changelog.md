@@ -15,7 +15,6 @@ process.
 - The `min` rule now only works on arrays and numbers. use `length`
 - The `max` rule now only works on arrays and numbers. use `length`
 - The `url` rule now uses the JavaScript native URL for parsing
-
 ## Validation rules TODO:
 
 - Add `date_between` rule

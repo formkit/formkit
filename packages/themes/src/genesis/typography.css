@@ -13,6 +13,7 @@
   font-family: var(--fk-font-family-label);
   font-size: var(--fk-font-size-label);
   font-weight: var(--fk-font-weight-label);
+  line-height: var(--fk-line-height-label);
 
   @nest
   [data-type="checkbox"] &,
@@ -42,11 +43,13 @@
   font-family: var(--fk-font-family-help);
   font-size: var(--fk-font-size-help);
   font-weight: var(--fk-font-weight-help);
+  line-height: var(--fk-line-height-help);
 }
 
 .formkit-messages {
   font-family: var(--fk-font-family-message);
   font-family: var(--fk-font-family);
+  line-height: var(--fk-line-height-messages);
 }
 
 .formkit-message {

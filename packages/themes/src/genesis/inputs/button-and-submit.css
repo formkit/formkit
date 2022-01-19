@@ -1,6 +1,7 @@
 [data-type="button"],
 [data-type="submit"] {
   & .formkit-input {
+    font-size: var(--fk-font-size-button);
     border-radius: var(--fk-border-radius);
     cursor: pointer;
     display: inline-flex;

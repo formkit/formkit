@@ -21,6 +21,7 @@
       display: block;
       width: 14px;
       height: 16px;
+      flex: 0 0 14px;
       margin-right: var(--fk-padding-input-l);
       background-color: var(--fk-color-icon);
       clip-path: path("M11.68,4.29,8.94,1.38a3.16,3.16,0,0,0-2-.88H2A1.5,1.5,0,0,0,.5,2V14A1.5,1.5,0,0,0,2,15.5h9A1.5,1.5,0,0,0,12.5,14V6.36A3.44,3.44,0,0,0,11.68,4.29ZM11,5a2.37,2.37,0,0,1,.38.65H8.12c-.2,0-.42-.26-.42-.64V1.73a1.81,1.81,0,0,1,.51.34ZM11,14.5H2a.5.5,0,0,1-.5-.5V2A.5.5,0,0,1,2,1.5H6.7V5A1.54,1.54,0,0,0,8.12,6.62H11.5V14A.5.5,0,0,1,11,14.5Z");
@@ -51,6 +52,7 @@
     overflow: hidden;
     text-indent: -999px;
     width: 14px;
+    flex: 0 0 14px;
 
     &::after {
       content: "";
@@ -81,7 +83,7 @@
     width: 100%;
 
     &[data-has-multiple] {
-      margin-bottom: calc(var(--fk-padding-input-b) + var(--fk-font-size-remove) * 1.3);
+      margin-bottom: calc(var(--fk-padding-input-b) + var(--fk-font-size-remove) * 1.1);
     }
   }
 

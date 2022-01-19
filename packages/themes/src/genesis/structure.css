@@ -70,6 +70,19 @@
     }
   }
 
+  @nest input[type="date"]& {
+    &::-webkit-calendar-picker-indicator {
+      padding-top: 0;
+      padding-bottom: 0;
+      font-size: 0.875em;
+    }
+
+    &::-webkit-datetime-edit {
+      line-height: 1;
+      overflow: visible;
+    }
+  }
+
   @nest select& {
     padding-right: calc(var(--fk-padding-base) * 7);
 
@@ -105,6 +118,10 @@
 .formkit-messages {
   padding: var(--fk-padding-messages);
   margin: var(--fk-margin-messages);
+}
+
+.formkit-help + .formkit-messages {
+  padding-top: 0;
 }
 
 .formkit-message {

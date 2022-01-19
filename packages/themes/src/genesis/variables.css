@@ -24,8 +24,9 @@
   --fk-font-size-remove: 0.8125em;
   --fk-font-size-option: 0.9em;
   --fk-font-size-message: 0.8125em;
+  --fk-font-size-button: 0.875em;
 
-  --fk-line-height: 1.3em;
+  --fk-line-height: 1.1;
   --fk-line-height-label: var(--fk-line-height);
   --fk-line-height-help: var(--fk-line-height);
   --fk-line-height-option: var(--fk-line-height);
@@ -98,10 +99,10 @@
   --fk-padding-input: var(--fk-padding-input-t) var(--fk-padding-input-r) var(--fk-padding-input-b) var(--fk-padding-input-l);
 
   --fk-padding-label-x: inherit;
-  --fk-padding-label-y: var(--fk-padding-base);
+  --fk-padding-label-y: inherit;
   --fk-padding-label-t: var(--fk-padding-label-y, 0);
   --fk-padding-label-r: var(--fk-padding-label-x, 0);
-  --fk-padding-label-b: var(--fk-padding-label-y, 0);
+  --fk-padding-label-b: var(--fk-padding-label-y, 0.5em);
   --fk-padding-label-l: var(--fk-padding-label-x, 0);
   --fk-padding-label: var(--fk-padding-label-t) var(--fk-padding-label-r) var(--fk-padding-label-b) var(--fk-padding-label-l);
 
@@ -197,7 +198,7 @@
   --fk-margin-input: var(--fk-margin-input-t) var(--fk-margin-input-r) var(--fk-margin-input-b) var(--fk-margin-input-l);
 
   --fk-margin-label-x: inherit;
-  --fk-margin-label-y: inherit;
+  --fk-margin-label-y: 0;
   --fk-margin-label-t: var(--fk-margin-label-y, 0);
   --fk-margin-label-r: var(--fk-margin-label-x, 0);
   --fk-margin-label-b: var(--fk-margin-label-y, var(--fk-margin-base));
@@ -205,10 +206,10 @@
   --fk-margin-label: var(--fk-margin-label-t) var(--fk-margin-label-r) var(--fk-margin-label-b) var(--fk-margin-label-l);
 
   --fk-margin-help-x: inherit;
-  --fk-margin-help-y: 0.25em;
+  --fk-margin-help-y: 0.3em;
   --fk-margin-help-t: var(--fk-margin-help-y, 0);
   --fk-margin-help-r: var(--fk-margin-help-x, 0);
-  --fk-margin-help-b: var(--fk-margin-help-y, 0);
+  --fk-margin-help-b: 0;
   --fk-margin-help-l: var(--fk-margin-help-x, 0);
   --fk-margin-help: var(--fk-margin-help-t) var(--fk-margin-help-r) var(--fk-margin-help-b) var(--fk-margin-help-l);
 
