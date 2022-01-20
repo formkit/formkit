@@ -33,6 +33,7 @@
       max="100"
       value="20"
       help="Pick an age"
+      validation="between:50,10"
     />
     <FormKit
       type="date"

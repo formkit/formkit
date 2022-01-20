@@ -25,4 +25,12 @@ describe('between rule', () => {
 
   it('passes when using lower border string inclusive value', () =>
     expect(between(createNode({ value: '5' }), '5', '5.5')).toBe(true))
+
+  it('can pass when numbers are inverted', () => {
+    expect(between(createNode({ value: '20' }), '50', '10')).toBe(true)
+  })
+
+  it('can fail when numbers are inverted', () => {
+    expect(between(createNode({ value: '5' }), '50', '10')).toBe(false)
+  })
 })

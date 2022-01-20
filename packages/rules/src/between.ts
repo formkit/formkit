@@ -12,7 +12,10 @@ const between: FormKitValidationRule = function between(
 ) {
   if (!isNaN(value as number) && !isNaN(from) && !isNaN(to)) {
     const val = 1 * (value as number)
-    return val >= 1 * from && val <= 1 * to
+    from = Number(from)
+    to = Number(to)
+    const [a, b] = from <= to ? [from, to] : [to, from]
+    return val >= 1 * a && val <= 1 * b
   }
   return false
 }

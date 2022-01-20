@@ -110,8 +110,12 @@ export const validation: FormKitValidationMessages = {
       return `This field was configured incorrectly and can’t be submitted.`
       /* </i18n> */
     }
+    const [a, b] =
+      Number(args[0]) >= Number(args[1])
+        ? [args[1], args[0]]
+        : [args[0], args[1]]
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} must be between ${args[0]} and ${args[1]}.`
+    return `${s(name)} must be between ${a} and ${b}.`
     /* </i18n> */
   },
 
