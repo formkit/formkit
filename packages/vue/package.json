@@ -1,7 +1,7 @@
 {
   "name": "@formkit/vue",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Build industry leading Vue forms 10x faster.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -17,13 +17,13 @@
   },
   "type": "module",
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.4",
-    "@formkit/i18n": "1.0.0-alpha.4",
-    "@formkit/inputs": "1.0.0-alpha.4",
-    "@formkit/observer": "1.0.0-alpha.4",
-    "@formkit/rules": "1.0.0-alpha.4",
-    "@formkit/utils": "1.0.0-alpha.4",
-    "@formkit/validation": "1.0.0-alpha.4"
+    "@formkit/core": "1.0.0-alpha.5",
+    "@formkit/i18n": "1.0.0-alpha.5",
+    "@formkit/inputs": "1.0.0-alpha.5",
+    "@formkit/observer": "1.0.0-alpha.5",
+    "@formkit/rules": "1.0.0-alpha.5",
+    "@formkit/utils": "1.0.0-alpha.5",
+    "@formkit/validation": "1.0.0-alpha.5"
   },
   "devDependencies": {
     "@vue/test-utils": "^2.0.0-rc.14"

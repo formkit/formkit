@@ -1,7 +1,7 @@
 {
   "name": "@formkit/i18n",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Internationalization layer for FormKit.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -17,9 +17,9 @@
   },
   "type": "module",
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.4",
-    "@formkit/utils": "1.0.0-alpha.4",
-    "@formkit/validation": "1.0.0-alpha.4"
+    "@formkit/core": "1.0.0-alpha.5",
+    "@formkit/utils": "1.0.0-alpha.5",
+    "@formkit/validation": "1.0.0-alpha.5"
   },
   "devDependencies": {}
 }
