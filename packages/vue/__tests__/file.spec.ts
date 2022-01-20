@@ -29,4 +29,27 @@ describe('file inputs', () => {
       '<li class="formkit-file-item"><span>test.pdf</span><a href="#" class="formkit-remove-files">Remove</a></li>'
     )
   })
+
+  it('can rehydrate a file from the form', () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="form" :value="{ file: [{ name: 'test.jpg' }] }">
+          <FormKit
+            type="file"
+            name="file"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(
+      '<li class="formkit-file-item"><span>test.jpg</span><a href="#" class="formkit-remove-files">Remove</a></li>'
+    )
+  })
 })

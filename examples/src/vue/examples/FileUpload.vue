@@ -11,10 +11,17 @@
       multiple
       :value="[{ name: 'foobar.jpg' }, { name: 'potato.png' }]"
     />
+
     <FormKit
       type="file"
       name="single_file"
       label="Single file"
+      help="You can only select one file"
+    />
+    <FormKit
+      type="file"
+      name="another_file"
+      label="Another file"
       help="You can only select one file"
     />
   </FormKit>
@@ -24,5 +31,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const values = ref({})
+const values = ref({
+  another_file: [ { name: 'pizza.jpg' } ]
+})
 </script>

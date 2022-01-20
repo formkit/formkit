@@ -11,6 +11,7 @@
     align-items: center;
     font-size: var(--fk-font-size-input);
     line-height: var(--fk-line-height-input);
+    position: relative;
 
     & + .formkit-file-item {
       margin-top: var(--fk-padding-input-t);
@@ -44,26 +45,25 @@
   }
 
   & .formkit-file-item .formkit-remove-files {
-    position: relative;
+    position: absolute;
     margin-left: auto;
     margin-right: 0;
     bottom: auto;
     left: auto;
-    overflow: hidden;
-    text-indent: -999px;
-    width: 14px;
-    flex: 0 0 14px;
+    text-indent: -9999px;
+    color: transparent;
+    right: 0;
+    font-size: 0;
+    line-height: 0;
 
     &::after {
       content: "";
       display: block;
-      width: 14px;
-      height: 16px;
-      position: absolute;
+      width: 30px;
+      height: 30px;
       right: 0;
-      top: 1px;
       background-color: var(--fk-color-icon-minor);
-      clip-path: path("M8.41,8l3.3-3.29a1,1,0,1,0-1.42-1.42L7,6.59,3.71,3.29A1,1,0,0,0,2.29,4.71L5.59,8l-3.3,3.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L7,9.41l3.29,3.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z");
+      clip-path: path("M16.41,16l3.3-3.29a1,1,0,0,0-1.42-1.42L15,14.59l-3.29-3.3a1,1,0,0,0-1.42,1.42L13.59,16l-3.3,3.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L15,17.41l3.29,3.3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Z");
     }
 
     &:hover::after {
