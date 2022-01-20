@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list, date } from '../formatters'
+import { sentence as s, list, date, order } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -110,8 +110,9 @@ export const validation: FormKitValidationMessages = {
       return `Ce champ a été configuré de manière incorrecte et ne peut pas être soumis.`
       /* </i18n> */
     }
+    const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} doit être comprise entre ${args[0]} et ${args[1]}.`
+    return `${s(name)} doit être comprise entre ${a} et ${b}.`
     /* </i18n> */
   },
 

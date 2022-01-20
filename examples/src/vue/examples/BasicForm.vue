@@ -10,7 +10,7 @@
       name="email"
       label="Email address"
       placeholder="jon@foo.com"
-      validation="required|email"
+      validation="required|email|length:10,40"
       validation-visibility="live"
     />
     <FormKit

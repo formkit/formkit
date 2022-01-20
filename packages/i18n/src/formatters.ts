@@ -39,3 +39,16 @@ export function date(date: string | Date): string {
     dateStyle: 'medium',
   } as any).format(dateTime)
 }
+
+/**
+ * Orders two variables smallest to largest.
+ * @param first - first argument
+ * @param second - Second argument
+ * @returns
+ */
+export function order(
+  first: string | number,
+  second: string | number
+): [smaller: number | string, larger: number | string] {
+  return Number(first) >= Number(second) ? [second, first] : [first, second]
+}
