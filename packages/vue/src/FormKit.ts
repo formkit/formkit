@@ -66,7 +66,7 @@ const FormKit = defineComponent({
       type: Array as PropType<FormKitPlugin[]>,
       default: [],
     },
-    schema: {
+    sectionsSchema: {
       type: Object as PropType<
         Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
       >,
@@ -136,7 +136,7 @@ const FormKit = defineComponent({
     if (!schemaDefinition) error(991)
     const schema =
       typeof schemaDefinition === 'function'
-        ? schemaDefinition(props.schema)
+        ? schemaDefinition(props.sectionsSchema)
         : schemaDefinition
     context.emit('node', node)
     const library = node.props.definition.library as

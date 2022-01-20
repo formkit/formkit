@@ -687,7 +687,7 @@ describe('prefix and suffix', () => {
         type: 'password',
         name: 'table_stakes',
         id: 'pass',
-        schema: { prefix: 'Hush', suffix: 'Show' },
+        sectionsSchema: { prefix: 'Hush', suffix: 'Show' },
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -704,7 +704,7 @@ describe('prefix and suffix', () => {
         type: 'checkbox',
         name: 'terms',
         id: 'terms',
-        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -720,7 +720,7 @@ describe('prefix and suffix', () => {
       props: {
         type: 'button',
         label: 'Button',
-        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -736,7 +736,7 @@ describe('prefix and suffix', () => {
         id: 'alpha',
         name: 'alpha',
         options: ['A', 'B'],
-        schema: { prefix: 'Prefix', suffix: 'Suffix' },
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
       },
       global: {
         plugins: [[plugin, defaultConfig]],
