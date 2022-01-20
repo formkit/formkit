@@ -96,6 +96,35 @@ describe('select', () => {
 </div>`)
   })
 
+  it('renders a select list with an array of numbers', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        name: 'select_foo',
+        options: [1, 2, 3],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html())
+      .toEqual(`<div class="formkit-outer" data-type="select">
+  <div class="formkit-wrapper">
+    <!---->
+    <div class="formkit-inner">
+      <!----><select class="formkit-input" name="select_foo">
+        <option class="formkit-option" value="1">1</option>
+        <option class="formkit-option" value="2">2</option>
+        <option class="formkit-option" value="3">3</option>
+      </select>
+      <!---->
+    </div>
+  </div>
+  <!---->
+  <!---->
+</div>`)
+  })
+
   it('renders a select list with key/value pairs', () => {
     const wrapper = mount(FormKit, {
       props: {

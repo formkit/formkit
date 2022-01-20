@@ -22,7 +22,7 @@ function normalizeOptions(
 ): FormKitOptionsList {
   if (Array.isArray(options)) {
     return options.map((option) => {
-      if (typeof option === 'string') {
+      if (typeof option === 'string' || typeof option === 'number') {
         return {
           label: option,
           value: option,
