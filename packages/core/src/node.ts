@@ -202,7 +202,7 @@ export interface FormKitConfig {
   delimiter: string
   classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
   rootClasses: (
-    compositionKey: string,
+    sectionKey: string,
     node: FormKitNode
   ) => Record<string, boolean>
   rootConfig?: FormKitRootConfig

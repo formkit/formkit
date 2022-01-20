@@ -66,9 +66,9 @@ export function extendSchema(
 }
 
 /**
- * Creates a new composition key.
+ * Creates a new section key.
  *
- * @param key - A new composition key name.
+ * @param key - A new section key name.
  * @param schema - The default schema in this composable slot.
  * @returns
  * @public
@@ -109,7 +109,7 @@ export function composable(
 
 /**
  * Creates an input schema with all of the wrapping base schema.
- * @param inputSchema - Content to store in the input composition key location.
+ * @param inputSchema - Content to store in the input section key location.
  * @public
  */
 export function useSchema(

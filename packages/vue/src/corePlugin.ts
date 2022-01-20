@@ -107,7 +107,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
               node,
               node.props[`_${property}Class`]
             )
-            const compositionPropClasses = createClasses(
+            const sectionPropClasses = createClasses(
               property,
               node,
               node.props[`${property}Class`]
@@ -118,7 +118,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
               rootClasses,
               globalConfigClasses,
               classesPropClasses,
-              compositionPropClasses
+              sectionPropClasses
             )
             target[property] = className
           })
