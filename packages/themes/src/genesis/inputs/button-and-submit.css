@@ -12,6 +12,7 @@
     position: relative;
     transition: filter 0.25s;
     border: 1px solid transparent;
+    line-height: var(--fk-line-height-button);
 
     &::before {
       box-sizing: border-box;

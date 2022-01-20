@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "esnext",
+    "target": "es2019",
     "lib": ["dom"],
     "allowJs": false,
     "strict": true,

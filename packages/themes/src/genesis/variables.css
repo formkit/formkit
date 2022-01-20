@@ -33,6 +33,7 @@
   --fk-line-height-message: var(--fk-line-height);
   --fk-line-height-textarea: var(--fk-line-height);
   --fk-line-height-input: 1.125em; /* Important to ensure equal height inputs. */
+  --fk-line-height-button: 1.3;
 
   /* Structure */
   --fk-max-width-input: 25em;
