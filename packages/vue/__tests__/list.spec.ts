@@ -36,7 +36,7 @@ describe('numeric lists', () => {
           id="listA"
         >
           <FormKit name="first" />
-          <FormKit name="second" validation="required" validation-behavior="live" />
+          <FormKit name="second" validation="required" validation-visibility="live" />
           <FormKit name="third" />
         </FormKit>
       `,

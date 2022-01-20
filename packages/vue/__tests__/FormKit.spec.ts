@@ -7,7 +7,7 @@ import { FormKitNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import vuePlugin from '../src/corePlugin'
 
-// Object.assign(defaultConfig.nodeOptions, { validationBehavior: 'live' })
+// Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
   it('can display prop-defined errors', async () => {
@@ -163,7 +163,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required|length:5',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -185,7 +185,7 @@ describe('validation', () => {
             :validation-messages="{
               abc: ({ name }) => name + ' should be abc'
             }"
-            validation-behavior="live"
+            validation-visibility="live"
             value="foo"
           />
         `,
@@ -209,7 +209,7 @@ describe('validation', () => {
             label="foo"
             :validation="[['required']]"
             validation-label="bar"
-            validation-behavior="live"
+            validation-visibility="live"
           />
         `,
       },
@@ -229,7 +229,7 @@ describe('validation', () => {
       props: {
         label: 'foo',
         validation: 'required',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
         validationLabel: (node: FormKitNode) => {
           return node.props.attrs['data-foo']
         },
@@ -300,7 +300,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -313,7 +313,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required|length:10',
-        validationBehavior: 'dirty',
+        validationVisibility: 'dirty',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -330,7 +330,7 @@ describe('validation', () => {
       props: {
         value: 'formkit',
         validation: 'length:10',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
         validationMessages: {
           length: 'Too short',
         },
@@ -358,7 +358,7 @@ describe('configuration', () => {
         <FormKit
           type="group"
           :config="{
-            errorBehavior: 'foobar',
+            errorVisibility: 'foobar',
             flavor: 'apple'
           }"
         >
@@ -369,12 +369,12 @@ describe('configuration', () => {
           <FormKit
             type="group"
             :config="{
-              errorBehavior: 'live'
+              errorVisibility: 'live'
             }"
           >
             <FormKit
               type="text"
-              error-behavior="barfoo"
+              error-visibility="barfoo"
               @node="(e) => { node2 = e }"
             />
             <FormKit
@@ -392,9 +392,9 @@ describe('configuration', () => {
       }
     )
     await nextTick()
-    expect(wrapper.vm.$data.node1?.props.errorBehavior).toBe('foobar')
-    expect(wrapper.vm.$data.node2?.props.errorBehavior).toBe('barfoo')
-    expect(wrapper.vm.$data.node3?.props.errorBehavior).toBe('live')
+    expect(wrapper.vm.$data.node1?.props.errorVisibility).toBe('foobar')
+    expect(wrapper.vm.$data.node2?.props.errorVisibility).toBe('barfoo')
+    expect(wrapper.vm.$data.node3?.props.errorVisibility).toBe('live')
   })
 })
 
@@ -407,7 +407,7 @@ describe('classes', () => {
         help: 'input help text',
         id: 'foobar',
         validation: 'required|length:10',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],

@@ -595,7 +595,7 @@ describe('validation rule sequencing', () => {
       plugins: [validationPlugin],
       props: {
         validation: 'contains:foo',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
     })
     expect(node.store).not.toHaveProperty('rule_contains')

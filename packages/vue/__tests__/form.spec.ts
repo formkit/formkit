@@ -232,7 +232,7 @@ describe('form submission', () => {
     const wrapper = mount(
       {
         template: `<FormKit type="form">
-        <FormKit type="email" validation-behavior="live" label="Email" validation="required" />
+        <FormKit type="email" validation-visibility="live" label="Email" validation="required" />
       </FormKit>`,
         methods: {
           german() {
@@ -268,7 +268,7 @@ describe('form submission', () => {
     const wrapper = mount(
       {
         template: `<FormKit type="form" id="form" @submit="handle">
-        <FormKit type="email" validation-behavior="live" label="Email" />
+        <FormKit type="email" validation-visibility="live" label="Email" />
       </FormKit>`,
         methods: {
           handle() {

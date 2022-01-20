@@ -35,7 +35,7 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
 
   /**
    * All messages that are currently on display to an end user. This changes
-   * based on the current message type behavior, like errorBehavior.
+   * based on the current message type visibility, like errorVisibility.
    */
   const messages = computed<Record<string, FormKitMessage>>(() => {
     const availableMessages: Record<string, FormKitMessage> = {}
@@ -46,11 +46,11 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
         availableMessages[key] = message
         continue
       }
-      let behavior = node.props[`${message.type}Behavior`]
-      if (!behavior) {
-        behavior = message.type === 'validation' ? 'blur' : 'live'
+      let visibility = node.props[`${message.type}Visibility`]
+      if (!visibility) {
+        visibility = message.type === 'validation' ? 'blur' : 'live'
       }
-      switch (behavior) {
+      switch (visibility) {
         case 'live':
           availableMessages[key] = message
           break

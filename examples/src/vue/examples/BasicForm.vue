@@ -11,7 +11,7 @@
       label="Email address"
       placeholder="jon@foo.com"
       validation="required|email"
-      validation-behavior="live"
+      validation-visibility="live"
     />
     <FormKit
       id="fruit"
@@ -42,7 +42,7 @@
         ['required'],
         ['date_between', summerStart, summerEnd]
       ]"
-      validation-behavior="live"
+      validation-visibility="live"
     />
     <FormKit
       label="Countries"
