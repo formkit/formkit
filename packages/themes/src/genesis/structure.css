@@ -1,0 +1,130 @@
+.formkit-outer {
+  margin: var(--fk-margin-outer);
+}
+
+.formkit-wrapper,
+.formkit-fieldset {
+  max-width: var(--fk-max-width-input);
+}
+
+.formkit-label {
+  display: block;
+  margin: var(--fk-margin-label);
+  padding: var(--fk-padding-label);
+}
+
+.formkit-fieldset {
+  margin: var(--fk-margin-fieldset);
+  padding: var(--fk-padding-fieldset);
+  border-radius: var(--fk-border-radius);
+  border: var(--fk-border);
+
+  &:focus-within {
+    border: var(--fk-border-focus);
+  }
+
+  & > .formkit-help {
+    margin-top: calc(var(--fk-padding-fieldset-t) * -0.5);
+    margin-bottom: calc(var(--fk-padding-fieldset-t) * 1.5);
+  }
+}
+
+.formkit-legend {
+  display: block;
+  margin: var(--fk-margin-legend);
+  padding: var(--fk-padding-legend);
+}
+
+.formkit-inner {
+  position: relative;
+  box-shadow: var(--fk-border-box-shadow);
+  border-radius: var(--fk-border-radius);
+  display: flex;
+  align-items: center;
+
+  &:focus-within {
+    box-shadow: var(--fk-border-box-shadow-focus);
+  }
+
+  /* border removal for checkbox and radio inputs */
+  @nest
+  [data-type="checkbox"] &,
+  [data-type="radio"] & {
+    border: none;
+    box-shadow: none;
+    display: inline-block;
+  }
+}
+
+.formkit-input {
+  display: block;
+  width: 100%;
+  border-radius: var(--fk-border-radius);
+  padding: var(--fk-padding-input);
+
+  &[multiple] {
+    padding: 0;
+
+    & option {
+      padding: var(--fk-padding-input);
+    }
+  }
+
+  @nest input[type="date"]& {
+    &::-webkit-calendar-picker-indicator {
+      padding-top: 0;
+      padding-bottom: 0;
+      font-size: 0.875em;
+    }
+
+    &::-webkit-datetime-edit {
+      line-height: 1;
+      overflow: visible;
+    }
+  }
+
+  @nest select& {
+    padding-right: calc(var(--fk-padding-base) * 7);
+
+    &[data-placeholder]:not([multiple]) {
+      color: var(--fk-placeholder-color);
+    }
+    & option {
+      font-size: var(--fk-option-font-size);
+    }
+  }
+
+  @nest input[type="radio"]& {
+    & ~ .formkit-decorator {
+      border-radius: var(--fk-border-radius-full);
+
+      &::before {
+        width: 50%;
+        height: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 0;
+        border-radius: 2em;
+      }
+    }
+  }
+}
+
+.formkit-help {
+  margin: var(--fk-margin-help);
+}
+
+.formkit-messages {
+  padding: var(--fk-padding-messages);
+  margin: var(--fk-margin-messages);
+}
+
+.formkit-help + .formkit-messages {
+  padding-top: 0;
+}
+
+.formkit-message {
+  padding: var(--fk-padding-message);
+  margin: var(--fk-margin-message);
+}

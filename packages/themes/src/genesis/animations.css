@@ -1,0 +1,15 @@
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0 0.1em var(--fk-color-primary);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0.4em var(--fk-color-primary);
+  }
+}

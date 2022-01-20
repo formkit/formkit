@@ -840,36 +840,95 @@ describe('rendering components', () => {
     })
     expect(wrapper.html()).toBe('Poodle')
   })
-})
 
-it('can access content from original data inside deeply nested slot', () => {
-  const wrapper = mount(FormKitSchema, {
-    props: {
-      data: {
-        doodle: 'Poodle',
-      },
-      schema: [
-        {
-          $formkit: 'group',
-          children: [
-            {
-              $formkit: 'list',
-              children: [
-                {
-                  $formkit: 'button',
-                  children: '$doodle',
-                },
-              ],
-            },
-          ],
+  it('can access content from original data inside deeply nested slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          doodle: 'Poodle',
         },
-      ],
-    },
-    global: {
-      plugins: [[plugin, defaultConfig]],
-    },
+        schema: [
+          {
+            $formkit: 'group',
+            children: [
+              {
+                $formkit: 'list',
+                children: [
+                  {
+                    $formkit: 'button',
+                    children: '$doodle',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('button').text()).toBe('Poodle')
   })
-  expect(wrapper.html()).toContain('Poodle</button>')
+
+  it('parses props containing schema by default', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'text',
+            label: 'foobar',
+            help: 'text',
+            id: 'foobar',
+            sectionsSchema: {
+              help: {
+                $el: 'h1',
+                children: '$label',
+              },
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    // We expect the h1 to be empty here because '$label' does not exist in the
+    // parent scope — but it does exist in the child scope. This indicates the
+    // value $label was pared by the parent instead of the child.
+    expect(wrapper.html()).toContain(
+      '<h1 id="help-foobar" class="formkit-help"></h1>'
+    )
+  })
+
+  it('does not parses props containing __raw__ prefix', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'text',
+            label: 'foobar',
+            help: 'text',
+            id: 'foobar',
+            __raw__sectionsSchema: {
+              help: {
+                $el: 'h1',
+                children: '$label',
+              },
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    // We expect the h1 to contain the value of the label defined in the child,
+    // this would indicate that sectionsSchema was parsed by the child.
+    expect(wrapper.html()).toContain(
+      '<h1 id="help-foobar" class="formkit-help">foobar</h1>'
+    )
+  })
 })
 
 describe('schema $get function', () => {

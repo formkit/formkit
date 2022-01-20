@@ -1,19 +1,10 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const legend: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.legend',
-  then: '$slots.legend',
-  else: extend(
-    {
-      $el: 'legend',
-      attrs: {
-        class: '$classes.legend',
-      },
-      children,
-    },
-    schema
-  ) as FormKitSchemaNode,
-})
+const legend = composable('legend', () => ({
+  $el: 'legend',
+  attrs: {
+    class: '$classes.legend',
+  },
+}))
 
 export default legend

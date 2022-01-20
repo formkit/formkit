@@ -5,37 +5,37 @@ import { FormKitNode } from './node'
  * @public
  */
 export interface FormKitClasses {
-  (node: FormKitNode, compositionKey: string): string | Record<string, boolean>
+  (node: FormKitNode, sectionKey: string): string | Record<string, boolean>
 }
 
 /**
  * Function that produces a standardized object representation of CSS classes
- * @param propertyKey - composition key
+ * @param propertyKey - section key
  * @param node - FormKit node
- * @param compositionClassList - Things to turn into classes
+ * @param sectionClassList - Things to turn into classes
  * @returns
  * @public
  */
 export function createClasses(
   propertyKey: string,
   node: FormKitNode,
-  compositionClassList?: FormKitClasses | string | Record<string, boolean>
+  sectionClassList?: FormKitClasses | string | Record<string, boolean>
 ): Record<string, boolean> {
-  if (!compositionClassList) return {}
-  if (typeof compositionClassList === 'string') {
-    const classKeys = compositionClassList.split(' ')
+  if (!sectionClassList) return {}
+  if (typeof sectionClassList === 'string') {
+    const classKeys = sectionClassList.split(' ')
     return classKeys.reduce(
       (obj, key) => Object.assign(obj, { [key]: true }),
       {}
     )
-  } else if (typeof compositionClassList === 'function') {
+  } else if (typeof sectionClassList === 'function') {
     return createClasses(
       propertyKey,
       node,
-      compositionClassList(node, propertyKey)
+      sectionClassList(node, propertyKey)
     )
   }
-  return compositionClassList
+  return sectionClassList
 }
 
 /**

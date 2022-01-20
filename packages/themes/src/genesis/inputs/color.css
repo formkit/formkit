@@ -1,0 +1,31 @@
+[data-type="color"] {
+  & .formkit-inner {
+    max-width: 5em;
+  }
+
+  & input[type="color"] {
+    border: none;
+    padding: 0;
+
+    /* These have to be unique to the prefix. No idea why: */
+    &::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border: none;
+    }
+
+    &::-moz-color-swatch-wrapper {
+      padding: 0;
+      border: none;
+    }
+
+    &::-webkit-color-swatch {
+      border-radius: var(--fk-border-radius);
+      border: none;
+    }
+
+    &::-moz-color-swatch {
+      border-radius: var(--fk-border-radius);
+      border: none;
+    }
+  }
+}

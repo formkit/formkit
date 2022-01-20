@@ -5,8 +5,16 @@ import {
   FormKitClasses,
   FormKitSchemaNode,
   FormKitSchemaCondition,
+  FormKitTypeDefinition,
+  FormKitGroupValue,
 } from '@formkit/core'
-import { h, defineComponent, InjectionKey, PropType } from 'vue'
+import {
+  h,
+  defineComponent,
+  InjectionKey,
+  PropType,
+  ConcreteComponent,
+} from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 
@@ -58,14 +66,14 @@ const FormKit = defineComponent({
       type: Array as PropType<FormKitPlugin[]>,
       default: [],
     },
-    schema: {
+    sectionsSchema: {
       type: Object as PropType<
         Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
       >,
       default: {},
     },
     type: {
-      type: String,
+      type: [String, Object] as PropType<string | FormKitTypeDefinition>,
       default: 'text',
     },
     validation: {
@@ -106,6 +114,8 @@ const FormKit = defineComponent({
     input: (_value: any) => true,
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
+    submit: (_data: FormKitGroupValue) => true,
+    submitRaw: (_event: Event) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,
@@ -126,11 +136,18 @@ const FormKit = defineComponent({
     if (!schemaDefinition) error(991)
     const schema =
       typeof schemaDefinition === 'function'
-        ? schemaDefinition(props.schema)
+        ? schemaDefinition(props.sectionsSchema)
         : schemaDefinition
     context.emit('node', node)
+    const library = node.props.definition.library as
+      | Record<string, ConcreteComponent>
+      | undefined
     return () =>
-      h(FormKitSchema, { schema, data: node.context }, { ...context.slots })
+      h(
+        FormKitSchema,
+        { schema, data: node.context, library },
+        { ...context.slots }
+      )
   },
 })
 

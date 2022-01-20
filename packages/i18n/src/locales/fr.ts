@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list, date } from '../formatters'
+import { sentence as s, list, date, order } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -18,6 +18,10 @@ export const ui: FormKitLocaleMessages = {
    */
   remove: 'Supprimer',
   /**
+   * Shown when there are multiple items to remove at the same time.
+   */
+  removeAll: 'Enlever tout',
+  /**
    * Shown when all fields are not filled out correctly.
    */
   incomplete: 'Désolé, tous les champs ne sont pas remplit correctement.',
@@ -25,6 +29,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: 'Valider',
+  /**
+   * Shown when no files are selected.
+   */
+  noFiles: 'Aucun fichier choisi',
 }
 
 /**
@@ -102,8 +110,9 @@ export const validation: FormKitValidationMessages = {
       return `Ce champ a été configuré de manière incorrecte et ne peut pas être soumis.`
       /* </i18n> */
     }
+    const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} doit être comprise entre ${args[0]} et ${args[1]}.`
+    return `${s(name)} doit être comprise entre ${a} et ${b}.`
     /* </i18n> */
   },
 
@@ -177,8 +186,8 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://docs.formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = first <= second ? first : second
-    const max = second >= first ? second : first
+    const min = Number(first) <= Number(second) ? first : second
+    const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} doit comporter au moins un caractère.`

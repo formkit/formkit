@@ -2,7 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { getNode } from '@formkit/core'
-import { de } from '@formkit/i18n'
+import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
@@ -33,7 +33,10 @@ describe('form structure', () => {
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">Submit</button></div>
+      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">
+          <!---->Submit
+          <!---->
+        </button></div>
       <!---->
     </div>
   </div>
@@ -229,7 +232,7 @@ describe('form submission', () => {
     const wrapper = mount(
       {
         template: `<FormKit type="form">
-        <FormKit type="email" validation-behavior="live" label="Email" validation="required" />
+        <FormKit type="email" validation-visibility="live" label="Email" validation="required" />
       </FormKit>`,
         methods: {
           german() {
@@ -265,7 +268,7 @@ describe('form submission', () => {
     const wrapper = mount(
       {
         template: `<FormKit type="form" id="form" @submit="handle">
-        <FormKit type="email" validation-behavior="live" label="Email" />
+        <FormKit type="email" validation-visibility="live" label="Email" />
       </FormKit>`,
         methods: {
           handle() {
@@ -419,7 +422,7 @@ describe('form submission', () => {
             group: { foo: 'bar' },
           }
         },
-        template: `<FormKit type="group" v-model="group" :config="{ delay: 80 }">
+        template: `<FormKit type="form" v-model="group" :config="{ delay: 80 }">
           <FormKit type="text" name="foo" />
         </FormKit>`,
       },
@@ -436,5 +439,64 @@ describe('form submission', () => {
     expect(wrapper.vm.group).toStrictEqual({ foo: 'bar' })
     await new Promise((r) => setTimeout(r, 35))
     expect(wrapper.vm.group).toStrictEqual({ foo: val })
+  })
+
+  it('can show an incomplete message', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            group: { foo: 'bar' },
+          }
+        },
+        template: `<FormKit type="form">
+          <FormKit type="text" name="foo" validation="required" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain(en.ui.incomplete)
+  })
+
+  it('can disable the incomplete message', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" :incomplete-message="false">
+          <FormKit type="text" name="foo" validation="required" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).not.toContain(en.ui.incomplete)
+  })
+
+  it('allows a custom incomplete message', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" incomplete-message="Do better on your form please.">
+          <FormKit type="text" name="foo" validation="required" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain('Do better on your form please.')
   })
 })

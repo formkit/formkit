@@ -139,6 +139,11 @@ let instanceKey: symbol
 const instanceScopes = new Map<symbol, Record<string, any>[]>()
 
 /**
+ * Indicates the a section of the schema is raw.
+ */
+const raw = '__raw__'
+
+/**
  * Returns a reference as a placeholder to a specific location on an object.
  * @param data - A reactive data object
  * @param token - A dot-syntax string representing the object path
@@ -306,10 +311,14 @@ function parseSchema(
       }
       // Some attributes are explicitly bound, we need to parse those ones
       // using the compiler and create a dynamic "setter".
-      for (const attr in unparsedAttrs) {
+      for (let attr in unparsedAttrs) {
         const value = unparsedAttrs[attr]
         let getValue: () => any
-        if (
+
+        if (attr.startsWith(raw)) {
+          attr = attr.substring(7)
+          getValue = () => value
+        } else if (
           typeof value === 'string' &&
           value.startsWith('$') &&
           value.length > 1

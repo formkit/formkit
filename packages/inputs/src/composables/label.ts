@@ -1,22 +1,11 @@
-import { FormKitSchemaNode, FormKitSchemaComposable } from '@formkit/core'
-import { extend } from '@formkit/utils'
+import { composable } from '../compose'
 
-const label: FormKitSchemaComposable = (schema = {}, children = []) => ({
-  if: '$slots.label',
-  then: '$slots.label',
-  else: [
-    extend(
-      {
-        $el: 'label',
-        if: '$label',
-        attrs: {
-          for: '$id',
-          class: '$classes.label',
-        },
-        children,
-      },
-      schema
-    ) as FormKitSchemaNode,
-  ],
-})
+const label = composable('label', () => ({
+  $el: 'label',
+  if: '$label',
+  attrs: {
+    for: '$id',
+    class: '$classes.label',
+  },
+}))
 export default label

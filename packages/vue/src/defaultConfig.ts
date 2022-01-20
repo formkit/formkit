@@ -1,4 +1,4 @@
-import { FormKitOptions } from '@formkit/core'
+import { FormKitOptions, FormKitLibrary } from '@formkit/core'
 import { extend } from '@formkit/utils'
 import * as defaultRules from '@formkit/rules'
 import {
@@ -6,12 +6,13 @@ import {
   FormKitValidationRule,
 } from '@formkit/validation'
 import { createI18nPlugin, FormKitLocaleRegistry, en } from '@formkit/i18n'
-import { createLibraryPlugin, inputs } from '@formkit/inputs'
+import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
 import vuePlugin from './corePlugin'
 
 interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
   locales: FormKitLocaleRegistry
+  inputs: FormKitLibrary
 }
 
 /**
@@ -20,9 +21,11 @@ interface PluginConfigs {
  * @public
  */
 const defaultConfig = (
-  options: FormKitOptions & Partial<PluginConfigs> = {}
+  options: FormKitOptions &
+    Partial<PluginConfigs> &
+    Record<string, unknown> = {}
 ): FormKitOptions => {
-  const { rules = {}, locales = {}, ...nodeOptions } = options
+  const { rules = {}, locales = {}, inputs = {}, ...nodeOptions } = options
   /**
    * The default configuration includes the validation plugin,
    * with all core-available validation rules.
@@ -42,7 +45,7 @@ const defaultConfig = (
    * Create the library of inputs that are generally available. This default
    * config imports all "native" inputs by default, but
    */
-  const library = createLibraryPlugin(inputs)
+  const library = createLibraryPlugin(defaultInputs, inputs)
 
   return extend(
     {

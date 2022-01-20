@@ -7,7 +7,7 @@ import { FormKitNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import vuePlugin from '../src/corePlugin'
 
-// Object.assign(defaultConfig.nodeOptions, { validationBehavior: 'live' })
+// Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
   it('can display prop-defined errors', async () => {
@@ -163,7 +163,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required|length:5',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -185,7 +185,7 @@ describe('validation', () => {
             :validation-messages="{
               abc: ({ name }) => name + ' should be abc'
             }"
-            validation-behavior="live"
+            validation-visibility="live"
             value="foo"
           />
         `,
@@ -209,7 +209,7 @@ describe('validation', () => {
             label="foo"
             :validation="[['required']]"
             validation-label="bar"
-            validation-behavior="live"
+            validation-visibility="live"
           />
         `,
       },
@@ -229,7 +229,7 @@ describe('validation', () => {
       props: {
         label: 'foo',
         validation: 'required',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
         validationLabel: (node: FormKitNode) => {
           return node.props.attrs['data-foo']
         },
@@ -300,7 +300,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -313,7 +313,7 @@ describe('validation', () => {
     const wrapper = mount(FormKit, {
       props: {
         validation: 'required|length:10',
-        validationBehavior: 'dirty',
+        validationVisibility: 'dirty',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -330,7 +330,7 @@ describe('validation', () => {
       props: {
         value: 'formkit',
         validation: 'length:10',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
         validationMessages: {
           length: 'Too short',
         },
@@ -358,7 +358,7 @@ describe('configuration', () => {
         <FormKit
           type="group"
           :config="{
-            errorBehavior: 'foobar',
+            errorVisibility: 'foobar',
             flavor: 'apple'
           }"
         >
@@ -369,12 +369,12 @@ describe('configuration', () => {
           <FormKit
             type="group"
             :config="{
-              errorBehavior: 'live'
+              errorVisibility: 'live'
             }"
           >
             <FormKit
               type="text"
-              error-behavior="barfoo"
+              error-visibility="barfoo"
               @node="(e) => { node2 = e }"
             />
             <FormKit
@@ -392,9 +392,9 @@ describe('configuration', () => {
       }
     )
     await nextTick()
-    expect(wrapper.vm.$data.node1?.props.errorBehavior).toBe('foobar')
-    expect(wrapper.vm.$data.node2?.props.errorBehavior).toBe('barfoo')
-    expect(wrapper.vm.$data.node3?.props.errorBehavior).toBe('live')
+    expect(wrapper.vm.$data.node1?.props.errorVisibility).toBe('foobar')
+    expect(wrapper.vm.$data.node2?.props.errorVisibility).toBe('barfoo')
+    expect(wrapper.vm.$data.node3?.props.errorVisibility).toBe('live')
   })
 })
 
@@ -407,7 +407,7 @@ describe('classes', () => {
         help: 'input help text',
         id: 'foobar',
         validation: 'required|length:10',
-        validationBehavior: 'live',
+        validationVisibility: 'live',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -415,7 +415,10 @@ describe('classes', () => {
     })
     expect(wrapper.html()).toBe(`<div class="formkit-outer" data-type="text">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
-    <div class="formkit-inner"><input type="text" class="formkit-input" name="classTest" id="foobar"></div>
+    <div class="formkit-inner">
+      <!----><input type="text" class="formkit-input" name="classTest" id="foobar">
+      <!---->
+    </div>
   </div>
   <div id="help-foobar" class="formkit-help">input help text</div>
   <ul class="formkit-messages">
@@ -674,5 +677,73 @@ describe('plugins', () => {
       },
     })
     expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')
+  })
+})
+
+describe('prefix and suffix', () => {
+  it('supports prefix and suffix on text based inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'password',
+        name: 'table_stakes',
+        id: 'pass',
+        sectionsSchema: { prefix: 'Hush', suffix: 'Show' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Hush<input type="password" class="formkit-input" name="table_stakes" id="pass">Show</div>'
+    )
+  })
+
+  it('supports prefix/suffix on box-type inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        name: 'terms',
+        id: 'terms',
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Prefix<input type="checkbox" class="formkit-input" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
+    )
+  })
+
+  it('supports prefix/suffix on button inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'button',
+        label: 'Button',
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('button').text()).toBe('PrefixButtonSuffix')
+  })
+
+  it('supports prefix/suffix on select inputs', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        id: 'alpha',
+        name: 'alpha',
+        options: ['A', 'B'],
+        sectionsSchema: { prefix: 'Prefix', suffix: 'Suffix' },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-inner').html()).toBe(
+      '<div class="formkit-inner">Prefix<select class="formkit-input" name="alpha"><option class="formkit-option" value="A">A</option><option class="formkit-option" value="B">B</option></select>Suffix</div>'
+    )
   })
 })

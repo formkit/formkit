@@ -5,7 +5,7 @@ import {
   getNode,
   createConfig,
 } from '@formkit/core'
-import { App, Plugin, InjectionKey } from 'vue'
+import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
 import setErrors from './composables/setErrors'
 
@@ -15,6 +15,9 @@ import setErrors from './composables/setErrors'
 declare module '@vue/runtime-core' {
   export interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
+  }
+  export interface GlobalComponents {
+    FormKit: typeof FormKit
   }
 }
 

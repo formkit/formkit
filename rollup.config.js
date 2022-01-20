@@ -106,13 +106,15 @@ function createPluginsConfig() {
 function createTypeScriptConfig() {
   const base = {
     tsconfig: 'tsconfig.json',
+    rootDir: `./`,
     outDir: `${rootPath}/dist`,
-    include: [`./packages/${pkg}/src/*.ts`, `./packages/${pkg}/src/*/*.ts`],
+    include: [`./packages/${pkg}/src/**/*`],
     noEmitOnError: true,
   }
   if (!declarations) {
     return base
   }
+  // delete base.rootDir
   return Object.assign(base, {
     declaration: true,
     emitDeclarationOnly: true,

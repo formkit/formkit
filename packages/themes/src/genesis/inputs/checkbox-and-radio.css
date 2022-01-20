@@ -1,0 +1,89 @@
+[data-type="checkbox"],
+[data-type="radio"] {
+  & [data-disabled] {
+    opacity: 30%;
+  }
+
+  & .formkit-label {
+    user-select: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  & .formkit-wrapper {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  & .formkit-input {
+    appearance: auto;
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+
+    & ~ .formkit-decorator {
+      background: var(--fk-bg-decorator);
+      display: block;
+      box-sizing: content-box;
+      width: var(--fk-box-size);
+      height: var(--fk-box-size);
+      flex: 0 0 var(--fk-box-size);
+      border: none;
+      box-shadow: var(--fk-border-box-shadow);
+      border-radius: var(--fk-border-radius);
+      margin: var(--fk-margin-decorator);
+      position: relative;
+
+      &::before {
+        background: transparent;
+        content: "";
+        display: block;
+        width: 55%;
+        height: 20%;
+        pointer-events: none;
+        border-bottom: 0.2em solid transparent;
+        border-left: 0.2em solid transparent;
+        transform: rotate(-45deg);
+        transform-origin: bottom left;
+        position: absolute;
+        bottom: 20%;
+        left: 40%;
+      }
+    }
+
+    &:checked ~ .formkit-decorator {
+      box-shadow: var(--fk-border-box-shadow-decorator-checked);
+
+      &::before {
+        border-color: var(--fk-color-border-focus);
+      }
+    }
+    &:focus ~ .formkit-decorator {
+      box-shadow: var(--fk-border-box-shadow-decorator-focus);
+    }
+    &:focus-visible ~ .formkit-decorator {
+      box-shadow: var(--fk-border-box-shadow-decorator-focus-visible);
+    }
+
+  }
+
+  & .formkit-options {
+    margin: var(--fk-checkbox-options-margin);
+    padding: 0;
+  }
+
+  & .formkit-option {
+    list-style-type: none;
+    margin: var(--fk-margin-option);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  & fieldset.formkit-fieldset {
+    border: var(--fk-border);
+    border-radius: var(--fk-border-radius);
+  }
+}

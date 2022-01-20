@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "esnext",
+    "target": "es2019",
     "lib": ["dom"],
     "allowJs": false,
     "strict": true,
@@ -21,6 +21,11 @@
         "packages/vue/src/components/*"
       ]
     },
+    "types": [
+      "node",
+      "vite/client",
+      "jest"
+    ]
   },
   "exclude": [
     "*.vue"
