@@ -53,16 +53,19 @@
     }
 
     &:checked ~ .formkit-decorator {
-      box-shadow: var(--fk-border-box-shadow-focus);
+      box-shadow: var(--fk-border-box-shadow-decorator-checked);
 
       &::before {
         border-color: var(--fk-color-border-focus);
       }
     }
-    &:focus-visible ~ .formkit-decorator,
     &:focus ~ .formkit-decorator {
-      box-shadow: var(--fk-border-box-shadow-focus);
+      box-shadow: var(--fk-border-box-shadow-decorator-focus);
     }
+    &:focus-visible ~ .formkit-decorator {
+      box-shadow: var(--fk-border-box-shadow-decorator-focus-visible);
+    }
+
   }
 
   & .formkit-options {
