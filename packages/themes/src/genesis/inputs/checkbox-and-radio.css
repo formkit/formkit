@@ -16,11 +16,13 @@
   }
 
   & .formkit-input {
-    appearance: auto;
+    appearance: none;
     position: absolute;
     width: 0;
     height: 0;
     overflow: hidden;
+    opacity: 0;
+    left: -999em;
 
     & ~ .formkit-decorator {
       background: var(--fk-bg-decorator);
