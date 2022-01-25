@@ -3,6 +3,7 @@ import prompts from 'prompts'
 
 import build from './build.mjs'
 import publish from './publish.mjs'
+import publishLocal from './publishLocal.mjs'
 import deploy from './deploy.mjs'
 
 async function runCLI(s) {
@@ -16,6 +17,9 @@ async function runCLI(s) {
       break
     case 'deploy':
       script = deploy
+      break
+    case 'publish-local':
+      script = publishLocal
       break
     default:
       script = ''
@@ -34,6 +38,10 @@ async function runCLI(s) {
         {
           title: 'Publish',
           value: publish,
+        },
+        {
+          title: 'Publish local',
+          value: deploy,
         },
         {
           title: 'Deploy',
