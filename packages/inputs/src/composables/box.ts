@@ -6,7 +6,7 @@ const box = composable('input', () => ({
   attrs: {
     type: '$type',
     class: '$classes.input',
-    name: '$node.name',
+    name: '$node.props.altName || $node.name',
     disabled: '$option.attrs.disabled || $disabled',
     onInput: '$handlers.toggleChecked',
     checked: '$_value === $onValue',
