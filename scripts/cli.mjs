@@ -18,7 +18,7 @@ async function runCLI(s) {
     case 'deploy':
       script = deploy
       break
-    case 'publish-local':
+    case 'local':
       script = publishLocal
       break
     default:
@@ -40,8 +40,8 @@ async function runCLI(s) {
           value: publish,
         },
         {
-          title: 'Publish local',
-          value: deploy,
+          title: 'Local',
+          value: publishLocal,
         },
         {
           title: 'Deploy',

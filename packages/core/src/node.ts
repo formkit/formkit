@@ -906,6 +906,7 @@ function calm(
   if (context._d > 0) context._d--
   if (context._d === 0) {
     context.isSettled = true
+    node.emit('settled', context.value, false)
     if (node.parent)
       node.parent?.calm({ name: node.name, value: context.value })
     if (context._resolve) context._resolve(context.value)
@@ -1550,8 +1551,14 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
-  // If the options has plugins, we first apply any libraries
-  findDefinition(node, new Set(options.plugins))
+  // Attempt to find a definition from the pre-existing plugins.
+  findDefinition(
+    node,
+    new Set([
+      ...(options.plugins || []),
+      ...(node.parent ? node.parent.plugins : []),
+    ])
+  )
   // Then we apply each plugin's root code, we do this with an explicit loop
   // for that ity-bitty performance bump.
   if (options.plugins) {

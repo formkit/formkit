@@ -51,7 +51,7 @@
     "build": "node scripts/cli.mjs --script build",
     "build-test": "yarn build all && yarn test",
     "publish": "node scripts/cli.mjs --script publish",
-    "publish-local": "node scripts/cli.mjs --script publishLocal",
+    "local": "node scripts/cli.mjs --script local",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",
     "deploy": "node scripts/cli.mjs --script=deploy"

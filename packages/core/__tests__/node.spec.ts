@@ -25,6 +25,60 @@ describe('node', () => {
     expect(node.type).toBe('input')
   })
 
+  it('emits a singe commit event for type input', () => {
+    const commitEvent = jest.fn()
+    const countEmits = function (node: FormKitNode) {
+      node.on('commit', commitEvent)
+    }
+    const node = createNode({ value: '', plugins: [countEmits] })
+    expect(commitEvent).toHaveBeenCalledTimes(0)
+    node.input(['a', 'b'], false)
+    expect(commitEvent).toHaveBeenCalledTimes(1)
+  })
+
+  it('emits a singe commit event for type list', () => {
+    const commitEvent = jest.fn()
+    const lib = function libraryPlugin() {}
+    lib.library = (node: FormKitNode) => {
+      if (node.props.type === 'list') {
+        node.define({ type: 'list' })
+      } else if (node.props.type === 'group') {
+        node.define({ type: 'group' })
+      } else {
+        node.define({ type: 'input' })
+      }
+    }
+    const node = createNode({
+      props: { type: 'list' },
+      plugins: [lib],
+    })
+    node.on('commit', commitEvent)
+    const parentA = createNode({ props: { type: 'group' }, parent: node })
+    const parentB = createNode({ props: { type: 'group' }, parent: node })
+    const parentC = createNode({ props: { type: 'group' }, parent: node })
+    createNode({
+      name: 'a',
+      props: { type: 'text' },
+      parent: parentA,
+      value: undefined,
+    })
+    createNode({
+      name: 'b',
+      props: { type: 'text' },
+      parent: parentB,
+      value: undefined,
+    })
+    createNode({
+      name: 'c',
+      props: { type: 'text' },
+      parent: parentC,
+      value: undefined,
+    })
+    expect(commitEvent).toHaveBeenCalledTimes(3)
+    node.input([{}, {}, {}], false)
+    expect(commitEvent).toHaveBeenCalledTimes(7)
+  })
+
   it('allows configuration to flow to children', () => {
     const email = createNode({ name: 'email' })
     const node = createNode({
