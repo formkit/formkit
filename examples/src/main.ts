@@ -10,6 +10,7 @@ import CustomInput from './vue/examples/custom-input/CustomInput.vue'
 import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
+import TSXExample from './vue/examples/TSXExample.tsx'
 
 const myInput = createInput(CurrencyInput)
 
@@ -45,6 +46,10 @@ const router = createRouter({
     {
       path: '/group',
       component: GroupInput,
+    },
+    {
+      path: '/tsx',
+      component: TSXExample,
     },
   ],
 })

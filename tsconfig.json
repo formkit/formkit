@@ -9,6 +9,7 @@
     "declaration": false,
     "baseUrl": ".",
     "outDir": "dist",
+    "jsx": "preserve",
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
