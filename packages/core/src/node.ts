@@ -273,6 +273,10 @@ export interface FormKitContext {
    */
   hook: FormKitHooks
   /**
+   * Begins as false, set to true when the node is finished being created.
+   */
+  isCreated: boolean
+  /**
    * Boolean determines if the node is in a settled state or not.
    */
   isSettled: boolean
@@ -1527,6 +1531,7 @@ function createContext(options: FormKitOptions): FormKitContext {
     children: dedupe(options.children || []),
     config,
     hook: createHooks(),
+    isCreated: false,
     isSettled: true,
     ledger: createLedger(),
     name: createName(options),
@@ -1581,6 +1586,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Register the node globally if someone explicitly gave it an id
   if (options.props?.id) register(node)
   // Our node is finally ready, emit it to the world
+  node.isCreated = true
   return node.emit('created', node)
 }
 

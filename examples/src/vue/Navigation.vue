@@ -16,6 +16,11 @@
           File upload
         </router-link>
       </li>
+      <li>
+        <router-link to="/group">
+          Group input
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>

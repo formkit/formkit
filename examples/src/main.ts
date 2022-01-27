@@ -9,6 +9,7 @@ import BasicForm from './vue/examples/BasicForm.vue'
 import CustomInput from './vue/examples/custom-input/CustomInput.vue'
 import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
+import GroupInput from './vue/examples/Group.vue'
 
 const myInput = createInput(CurrencyInput)
 
@@ -40,6 +41,10 @@ const router = createRouter({
     {
       path: '/file-upload',
       component: FileUpload,
+    },
+    {
+      path: '/group',
+      component: GroupInput,
     },
   ],
 })

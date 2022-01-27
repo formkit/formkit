@@ -225,4 +225,29 @@ describe('multiple checkboxes', () => {
       '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span><!----></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
     )
   })
+
+  it('can set the default value from a v-modeled form', () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {
+              letters: ['A', 'C'],
+            },
+          }
+        },
+        template: `
+      <FormKit type="form" v-model="values">
+        <FormKit type="checkbox" :options="['A', 'B', 'C']" name="letters" />
+      </FormKit>`,
+      },
+      {
+        ...global,
+      }
+    )
+    const checkboxes = wrapper.findAll('input')
+    const values = checkboxes.map((box) => box.element.checked)
+    expect(values).toEqual([true, false, true])
+    expect(wrapper.vm.values).toEqual({ letters: ['A', 'C'] })
+  })
 })
