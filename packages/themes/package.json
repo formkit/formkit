@@ -1,7 +1,7 @@
 {
   "name": "@formkit/themes",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-beta.1",
   "description": "FormKit base themes",
   "main": "index.cjs.js",
   "module": "index.esm.js",

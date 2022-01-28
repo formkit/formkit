@@ -1,7 +1,7 @@
 {
   "name": "@formkit/validation",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0-beta.1",
   "description": "Validation plugin for FormKit",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -17,8 +17,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.5",
-    "@formkit/observer": "1.0.0-alpha.5"
+    "@formkit/core": "1.0.0-beta.1",
+    "@formkit/observer": "1.0.0-beta.1"
   },
   "devDependencies": {}
 }
