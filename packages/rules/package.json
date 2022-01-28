@@ -1,7 +1,7 @@
 {
   "name": "@formkit/rules",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Validation rules for FormKit",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -18,8 +18,8 @@
   "type": "module",
   "devDependencies": {},
   "dependencies": {
-    "@formkit/core": "1.0.0-alpha.4",
-    "@formkit/utils": "1.0.0-alpha.4",
-    "@formkit/validation": "1.0.0-alpha.4"
+    "@formkit/core": "1.0.0-alpha.5",
+    "@formkit/utils": "1.0.0-alpha.5",
+    "@formkit/validation": "1.0.0-alpha.5"
   }
 }

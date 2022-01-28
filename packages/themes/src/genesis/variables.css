@@ -48,7 +48,7 @@
   --fk-color-danger: #ea0000;
   --fk-color-error: var(--fk-color-danger);
   --fk-color-placeholder: #767676;
-  --fk-color-disabled: rgba(0 0 0 / 5%);
+  --fk-color-disabled: rgba(0 0 0 / 10%);
   --fk-color-help: rgba(0 0 0 / 60%);
   /* --fk-color-message: inherit; */
   --fk-color-icon: rgba(0 0 0 / 80%);
@@ -61,6 +61,7 @@
   --fk-color-range-thumb: var(--fk-color-primary);
 
   --fk-bg-input: transparent;
+  --fk-bg-disabled: rgba(0 0 0 / 5%);
   --fk-bg-decorator: linear-gradient(0deg, rgb(0 0 0 / 7%), transparent);
   --fk-bg-button: var(--fk-color-primary);
   --fk-bg-button-hover: var(--fk-bg-button);

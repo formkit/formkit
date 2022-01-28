@@ -8,6 +8,10 @@
     padding-left: 0;
     padding-right: 0;
 
+    &[disabled] {
+      background: transparent;
+    }
+
     &::-webkit-slider-runnable-track {
       background-color: var(--fk-color-border);
       height: 4px;
@@ -43,11 +47,11 @@
     }
 
     &[disabled]::-webkit-slider-thumb {
-      background-color: var(--fk-border-color);
+      background-color: var(--fk-color-border);
     }
 
     &[disabled]::-moz-slider-thumb {
-      background-color: var(--fk-border-color);
+      background-color: var(--fk-color-border);
     }
 
     &:focus-visible {

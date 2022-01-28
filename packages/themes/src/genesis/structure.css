@@ -62,6 +62,10 @@
   border-radius: var(--fk-border-radius);
   padding: var(--fk-padding-input);
 
+  &[disabled] {
+    background-color: var(--fk-bg-disabled);
+  }
+
   &[multiple] {
     padding: 0;
 
@@ -127,4 +131,8 @@
 .formkit-message {
   padding: var(--fk-padding-message);
   margin: var(--fk-margin-message);
+}
+
+.formkit-messages + .formkit-actions {
+  margin-top: var(--fk-margin-outer-b);
 }

@@ -16,6 +16,16 @@
           File upload
         </router-link>
       </li>
+      <li>
+        <router-link to="/group">
+          Group input
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/tsx">
+          TSX Example
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>

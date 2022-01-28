@@ -1,8 +1,8 @@
 import { composable } from '../compose'
 
-const boxLabel = composable('label', () => ({
+const boxLabel = composable('label', (children) => ({
   $el: 'span',
-  if: '$label',
+  if: typeof children === 'string' ? children : '$: true',
   attrs: {
     class: '$classes.label',
   },

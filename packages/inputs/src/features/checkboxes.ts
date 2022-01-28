@@ -39,7 +39,7 @@ function isChecked(node: FormKitNode, value: any) {
 }
 
 /**
- * Adds multi-select functionality (like with checkboxes)
+ * Adds checkbox selection support
  * @param node - Node the feature is added to
  */
 export default function (node: FormKitNode): void {

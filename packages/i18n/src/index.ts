@@ -1,7 +1,9 @@
-import * as en from './locales/en'
 import * as de from './locales/de'
+import * as en from './locales/en'
 import * as fr from './locales/fr'
+import * as he from './locales/he'
 import * as ru from './locales/ru'
+import * as zh from './locales/zh'
 
 /**
  * Export all of the plugin logic
@@ -13,13 +15,15 @@ export * from './i18n'
  * @public
  */
 export const locales = {
-  en,
   de,
+  en,
   fr,
+  he,
   ru,
+  zh,
 }
 
 /**
  * Export each locale individually for people who want to cherry pick.
  */
-export { en, de, fr }
+export { de, en, fr, he, ru, zh }

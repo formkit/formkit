@@ -14,9 +14,16 @@ export default function (
         }
         return option
       })
-      if (node.props.type === 'checkbox' && node.value === undefined) {
-        // Force the value to an array
-        node.input([], false)
+      if (node.props.type === 'checkbox' && !Array.isArray(node.value)) {
+        if (node.isCreated) {
+          node.input([], false)
+        } else {
+          node.on('created', () => {
+            if (!Array.isArray(node.value)) {
+              node.input([], false)
+            }
+          })
+        }
       }
     }
     return next(prop)

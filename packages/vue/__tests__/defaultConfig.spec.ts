@@ -4,6 +4,7 @@ import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { FormKitValidationRule } from '@formkit/validation'
 import { getNode, FormKitPlugin } from '@formkit/core'
+import { token } from '@formkit/utils'
 import { jest } from '@jest/globals'
 
 describe('defaultConfig', () => {
@@ -66,5 +67,36 @@ describe('defaultConfig', () => {
       },
     })
     expect(wrapper.html()).toEqual('<h1>Fooey world</h1>')
+  })
+
+  it('allows single message overrides', () => {
+    const t = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        name: t,
+        type: 'text',
+        validation: 'required',
+        validationVisibility: 'live',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              messages: {
+                en: {
+                  validation: {
+                    required({ name }) {
+                      return `${name} incomplete`
+                    },
+                  },
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.find('.formkit-message').text()).toBe(`${t} incomplete`)
   })
 })

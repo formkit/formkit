@@ -273,6 +273,10 @@ export interface FormKitContext {
    */
   hook: FormKitHooks
   /**
+   * Begins as false, set to true when the node is finished being created.
+   */
+  isCreated: boolean
+  /**
    * Boolean determines if the node is in a settled state or not.
    */
   isSettled: boolean
@@ -906,6 +910,7 @@ function calm(
   if (context._d > 0) context._d--
   if (context._d === 0) {
     context.isSettled = true
+    node.emit('settled', context.value, false)
     if (node.parent)
       node.parent?.calm({ name: node.name, value: context.value })
     if (context._resolve) context._resolve(context.value)
@@ -1526,6 +1531,7 @@ function createContext(options: FormKitOptions): FormKitContext {
     children: dedupe(options.children || []),
     config,
     hook: createHooks(),
+    isCreated: false,
     isSettled: true,
     ledger: createLedger(),
     name: createName(options),
@@ -1550,8 +1556,14 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   if (options.props) Object.assign(node.props, options.props)
-  // If the options has plugins, we first apply any libraries
-  findDefinition(node, new Set(options.plugins))
+  // Attempt to find a definition from the pre-existing plugins.
+  findDefinition(
+    node,
+    new Set([
+      ...(options.plugins || []),
+      ...(node.parent ? node.parent.plugins : []),
+    ])
+  )
   // Then we apply each plugin's root code, we do this with an explicit loop
   // for that ity-bitty performance bump.
   if (options.plugins) {
@@ -1574,6 +1586,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Register the node globally if someone explicitly gave it an id
   if (options.props?.id) register(node)
   // Our node is finally ready, emit it to the world
+  node.isCreated = true
   return node.emit('created', node)
 }
 

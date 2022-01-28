@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
-import corePlugin from '../src/corePlugin'
+import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 

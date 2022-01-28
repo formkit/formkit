@@ -1,6 +1,7 @@
 <template>
   <h1>Basic Form</h1>
   <FormKit
+    id="form"
     v-model="data"
     type="form"
     @submit="submitHandler"
@@ -57,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { FormKitGroupValue } from '@formkit/core'
+import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 const data = ref({})
 
@@ -88,9 +89,9 @@ const countries = [
   },
 ]
 
-const submitHandler = async function (data: FormKitGroupValue) {
-  await new Promise(r => setTimeout(r, 500))
-  console.log(data)
+const submitHandler = async function () {
+  await new Promise(r => setTimeout(r, 2000))
+  setErrors('form', ['This isn’t setup to actually do anything.'])
 }
 </script>
 
