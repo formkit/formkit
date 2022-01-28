@@ -18,7 +18,9 @@ type FormKitSyntheticProps = {
     type: PropType<string | undefined>
   }
   options: {
-    type: PropType<string[] | number[] | FormKitOptionsList>
+    type: PropType<
+      string[] | number[] | FormKitOptionsList | Record<string | number, string>
+    >
   }
 }
 

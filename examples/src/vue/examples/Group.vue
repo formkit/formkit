@@ -11,7 +11,6 @@
     />
     <FormKit
       type="checkbox"
-      label="Favorite fruit"
       name="fruit"
       :options="[
         'Apple',

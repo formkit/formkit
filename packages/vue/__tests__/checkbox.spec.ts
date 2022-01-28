@@ -222,7 +222,7 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.find('li').html()).toBe(
-      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span><!----></div><!----></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
+      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span><!----></div><span class="formkit-label">Italy</span></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
     )
   })
 
@@ -249,5 +249,18 @@ describe('multiple checkboxes', () => {
     const values = checkboxes.map((box) => box.element.checked)
     expect(values).toEqual([true, false, true])
     expect(wrapper.vm.values).toEqual({ letters: ['A', 'C'] })
+  })
+
+  it('can have no label and still render its checkbox labels', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        options: ['A', 'B', 'C'],
+      },
+      ...global,
+    })
+    expect(wrapper.find('legend').exists()).toBeFalsy()
+    expect(wrapper.findAll('label').length).toBe(3)
+    expect(wrapper.html()).toContain('<span class="formkit-label">A</span>')
   })
 })
