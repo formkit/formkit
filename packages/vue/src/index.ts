@@ -40,6 +40,13 @@ export { FormKitSchema } from './FormKitSchema'
 export { default as defaultConfig } from './defaultConfig'
 
 /**
+ * The vue specific FormKit core plugin. This is generally required for all
+ * vue based FormKit configurations.
+ * @public
+ */
+export { default as bindings } from './bindings'
+
+/**
  * Export the reset count explicitly
  */
 export { resetCount, errorHandler } from '@formkit/core'

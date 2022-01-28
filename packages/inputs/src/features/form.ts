@@ -48,6 +48,10 @@ async function handleSubmit(node: FormKitNode, e: Event) {
         clone(node.value as Record<string, any>)
       )
       if (retVal instanceof Promise) {
+        const autoDisable =
+          node.props.disabled === undefined &&
+          node.props.submitBehavior !== 'live'
+        if (autoDisable) node.props.disabled = true
         node.store.set(
           createMessage({
             key: 'loading',
@@ -56,6 +60,7 @@ async function handleSubmit(node: FormKitNode, e: Event) {
           })
         )
         await retVal
+        if (autoDisable) node.props.disabled = false
         node.store.remove('loading')
       }
     } else {

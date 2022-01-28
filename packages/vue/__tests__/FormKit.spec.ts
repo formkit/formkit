@@ -5,7 +5,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import vuePlugin from '../src/corePlugin'
+import vuePlugin from '../src/bindings'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 

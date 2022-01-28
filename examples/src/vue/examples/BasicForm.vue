@@ -58,7 +58,6 @@
 </template>
 
 <script setup lang="ts">
-import { FormKitGroupValue } from '@formkit/core'
 import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 const data = ref({})

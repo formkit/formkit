@@ -499,4 +499,54 @@ describe('form submission', () => {
     await new Promise((r) => setTimeout(r, 22))
     expect(wrapper.html()).toContain('Do better on your form please.')
   })
+
+  it('disables the form while in the loading state', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          doSave() {
+            return new Promise((r) => setTimeout(r, 50))
+          },
+        },
+        template: `<FormKit type="form" @submit="doSave">
+        <FormKit type="text" name="foo" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const button = wrapper.find('button')
+    wrapper.find('form').element.submit()
+    await new Promise((r) => setTimeout(r, 5))
+    expect(button.element.hasAttribute('data-loading')).toBe(true)
+    expect(button.element.disabled).toBe(true)
+  })
+
+  it('the form remains enabled if submit-behavior is live', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          doSave() {
+            return new Promise((r) => setTimeout(r, 50))
+          },
+        },
+        template: `<FormKit type="form" @submit="doSave" submit-behavior="live">
+        <FormKit type="text" name="foo" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const button = wrapper.find('button')
+    wrapper.find('form').element.submit()
+    await new Promise((r) => setTimeout(r, 5))
+    expect(button.element.hasAttribute('data-loading')).toBe(true)
+    expect(button.element.disabled).toBe(false)
+  })
 })

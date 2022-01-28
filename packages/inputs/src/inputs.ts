@@ -204,6 +204,7 @@ export const form: FormKitTypeDefinition = {
     'submit',
     'submitLabel',
     'submitAttrs',
+    'submitBehavior',
     'incompleteMessage',
   ],
   features: [formHandler, disablesChildren],

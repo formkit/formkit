@@ -15,7 +15,7 @@ import { createObserver } from '@formkit/observer'
  * A plugin that creates Vue-specific context object on each given node.
  * @param node - FormKitNode to create the context on.
  */
-const corePlugin: FormKitPlugin = function corePlugin(node) {
+const vueBindings: FormKitPlugin = function vueBindings(node) {
   /**
    * Start a validity counter on all blocking messages.
    */
@@ -286,4 +286,4 @@ const corePlugin: FormKitPlugin = function corePlugin(node) {
   node.emit('context', node, false)
 }
 
-export default corePlugin
+export default vueBindings

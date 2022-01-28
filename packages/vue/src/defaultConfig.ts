@@ -12,7 +12,7 @@ import {
   en,
 } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
-import vuePlugin from './corePlugin'
+import bindings from './bindings'
 
 interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
@@ -63,7 +63,7 @@ const defaultConfig = (
 
   return extend(
     {
-      plugins: [library, vuePlugin, i18n, validation],
+      plugins: [library, bindings, i18n, validation],
     },
     nodeOptions || {},
     true
