@@ -29,6 +29,9 @@ type FormKitSyntheticProps = {
   method: {
     type: PropType<string>
   }
+  ignore: {
+    type: PropType<string | boolean | undefined>
+  }
   enctype: {
     type: PropType<string>
   }
@@ -142,10 +145,6 @@ const nativeProps = {
       string | ((node: FormKitNode) => string)
     >,
     required: false,
-  },
-  ignore: {
-    type: [String, Boolean],
-    default: false,
   },
 }
 

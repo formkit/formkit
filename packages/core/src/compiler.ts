@@ -416,6 +416,7 @@ export function compile(expr: string): FormKitCompilerOutput {
     tail?: string //eslint-disable-line
   ):
     | boolean
+    | undefined
     | string
     | number
     | ((...args: any[]) => boolean | number | string | CallableFunction) {
@@ -469,6 +470,7 @@ export function compile(expr: string): FormKitCompilerOutput {
       // the word true or false will never contain further operations
       if (operand === 'true') return true
       if (operand === 'false') return false
+      if (operand === 'undefined') return undefined
 
       // Truly quotes strings cannot contain an operation, return the string
       if (isQuotedString(operand))

@@ -549,4 +549,46 @@ describe('form submission', () => {
     expect(button.element.hasAttribute('data-loading')).toBe(true)
     expect(button.element.disabled).toBe(false)
   })
+
+  it('ignores buttons by default', () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {},
+          }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="button" name="foo" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.vm.values).toStrictEqual({})
+  })
+
+  it('can unignore buttons', () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {},
+          }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="button" name="foo" :ignore="false" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.vm.values).toStrictEqual({ foo: undefined })
+  })
 })

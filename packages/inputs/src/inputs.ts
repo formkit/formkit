@@ -17,6 +17,7 @@ import disablesChildren from './features/disables'
 import formHandler from './features/form'
 import localize from './features/localize'
 import files from './features/files'
+import ignore from './features/ignore'
 
 /**
  * Default classifications that are available.
@@ -125,7 +126,7 @@ export const textarea: FormKitTypeDefinition = {
 const buttonClassification: FormKitTypeDefinition = {
   type: 'input',
   schema: buttonSchema,
-  features: [localize('submit')],
+  features: [localize('submit'), ignore],
 }
 
 /**

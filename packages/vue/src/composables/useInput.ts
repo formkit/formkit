@@ -48,6 +48,7 @@ interface FormKitComponentListeners {
 const pseudoProps = [
   'help',
   'label',
+  'ignore',
   'disabled',
   'preserve',
   /^[a-z]+(?:-visibility|Visibility)$/,
