@@ -5,7 +5,12 @@ import {
   createValidationPlugin,
   FormKitValidationRule,
 } from '@formkit/validation'
-import { createI18nPlugin, FormKitLocaleRegistry, en } from '@formkit/i18n'
+import {
+  createI18nPlugin,
+  FormKitLocale,
+  FormKitLocaleRegistry,
+  en,
+} from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
 import vuePlugin from './corePlugin'
 
@@ -13,6 +18,7 @@ interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
   locales: FormKitLocaleRegistry
   inputs: FormKitLibrary
+  messages: Record<string, Partial<FormKitLocale>>
 }
 
 /**
@@ -25,7 +31,13 @@ const defaultConfig = (
     Partial<PluginConfigs> &
     Record<string, unknown> = {}
 ): FormKitOptions => {
-  const { rules = {}, locales = {}, inputs = {}, ...nodeOptions } = options
+  const {
+    rules = {},
+    locales = {},
+    inputs = {},
+    messages = {},
+    ...nodeOptions
+  } = options
   /**
    * The default configuration includes the validation plugin,
    * with all core-available validation rules.
@@ -39,7 +51,9 @@ const defaultConfig = (
    * Includes the i18n plugin with only the english language
    * messages.
    */
-  const i18n = createI18nPlugin({ en, ...(locales || {}) })
+  const i18n = createI18nPlugin(
+    extend({ en, ...(locales || {}) }, messages) as FormKitLocaleRegistry
+  )
 
   /**
    * Create the library of inputs that are generally available. This default
