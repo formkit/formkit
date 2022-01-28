@@ -14,13 +14,53 @@ import { PropType } from 'vue'
  * should be treated as props to the outside world.
  */
 type FormKitSyntheticProps = {
+  accept: {
+    type: PropType<string | undefined>
+  }
+  actions: {
+    type: PropType<boolean | undefined>
+  }
+  action: {
+    type: PropType<string>
+  }
   label: {
     type: PropType<string | undefined>
   }
+  method: {
+    type: PropType<string>
+  }
+  enctype: {
+    type: PropType<string>
+  }
   options: {
     type: PropType<
-      string[] | number[] | FormKitOptionsList | Record<string | number, string>
+      | string[]
+      | number[]
+      | FormKitOptionsList
+      | Record<string | number, string>
+      | undefined
     >
+  }
+  help: {
+    type: PropType<string | undefined>
+  }
+  min: {
+    type: PropType<string | number | undefined>
+  }
+  max: {
+    type: PropType<string | number | undefined>
+  }
+  step: {
+    type: PropType<string | number | undefined>
+  }
+  multiple: {
+    type: PropType<string | boolean | undefined>
+  }
+  disabled: {
+    type: PropType<string | boolean | undefined>
+  }
+  preserve: {
+    type: PropType<string | boolean | undefined>
   }
 }
 

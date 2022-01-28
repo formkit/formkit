@@ -2,12 +2,25 @@ import { defineComponent } from "vue";
 import { FormKit } from '@formkit/vue'
 
 
-// declare module '@formkit/vue' {
-//   type FormKit = typeof FormKit
-// }
-
 export default defineComponent({
   setup () {
-    return () => <FormKit min="10" />
+    return () =>
+    <FormKit
+      label="123"
+      config={{}}
+      delay={200}
+      errors={['This is an error']}
+      help="Let me help you"
+      id="special"
+      ignore={true}
+      name="bond"
+      preserve={true}
+      sections-schema={{ label: { $el: 'h1' }}}
+      type="text"
+      validation={[['required']]}
+      multiple
+      min={10}
+      max={15}
+    />
   }
 })
