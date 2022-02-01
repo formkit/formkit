@@ -821,6 +821,34 @@ describe('rendering components', () => {
       </select>`)
   })
 
+  it('does not let $get to bogard a select list placeholder', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $cmp: 'FormKit',
+            props: {
+              type: 'select',
+              id: 'drink',
+              label: 'Drink',
+              placeholder: 'Pick your drink',
+              options: { coffee: 'Coffee', espresso: 'Espresso', tea: 'Tea' },
+              validation: 'required',
+            },
+          },
+          '$get(drink).value',
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    await nextTick()
+    expect(wrapper.html()).toContain(
+      '<option hidden="" disabled="" data-is-placeholder="true" class="formkit-option" value="">Pick your drink</option>'
+    )
+  })
+
   it('can access content from original data inside default slot', () => {
     const wrapper = mount(FormKitSchema, {
       props: {

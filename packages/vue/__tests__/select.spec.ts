@@ -289,7 +289,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').element.innerHTML).toBe(
-      `<option hidden=\"\" disabled=\"\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
+      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
     )
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
     expect(wrapper.find('select').element.selectedOptions[0]).toBe(
@@ -311,7 +311,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').element.innerHTML).toBe(
-      `<option hidden=\"\" disabled=\"\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option>`
+      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option>`
     )
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
     expect(wrapper.find('select').element.selectedOptions[0]).toBe(
