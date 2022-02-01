@@ -91,7 +91,7 @@
     padding-right: calc(var(--fk-padding-base) * 7);
 
     &[data-placeholder]:not([multiple]) {
-      color: var(--fk-placeholder-color);
+      color: var(--fk-color-placeholder);
     }
     & option {
       font-size: var(--fk-option-font-size);
