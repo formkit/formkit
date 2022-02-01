@@ -486,10 +486,10 @@ export function getAt(obj: any, addr: string): unknown {
 
 /**
  * Determines if the value of a prop that is either present (true) or not
- * present (false) should be. For example the prop disabled should disable
+ * present (false). For example the prop disabled should disable
  * by just existing, but what if it is set to the string "false" — then it
  * should not be disabled.
- * @param value - Value to be checked
+ * @param value - value to be checked
  * @returns
  * @public
  */

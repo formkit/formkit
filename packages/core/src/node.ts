@@ -687,14 +687,14 @@ function trap(
  */
 function createHooks(): FormKitHooks {
   const hooks: Map<string, FormKitDispatcher<unknown>> = new Map()
-  return new Proxy(hooks, {
+  return (new Proxy(hooks, {
     get(_, property: string) {
       if (!hooks.has(property)) {
         hooks.set(property, createDispatcher())
       }
       return hooks.get(property)
     },
-  }) as unknown as FormKitHooks
+  }) as unknown) as FormKitHooks
 }
 
 /**
@@ -722,7 +722,9 @@ export function resetCount(): void {
  * @param children -
  * @public
  */
-export function names(children: FormKitNode[]): {
+export function names(
+  children: FormKitNode[]
+): {
   [index: string]: FormKitNode
 } {
   return children.reduce(
@@ -841,9 +843,9 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
+    ;((context._value as unknown) as FormKitGroupValue)[name as string] = value
   } else {
-    delete (context._value as unknown as FormKitGroupValue)[name as string]
+    delete ((context._value as unknown) as FormKitGroupValue)[name as string]
   }
 }
 
@@ -1063,7 +1065,15 @@ function removeChild(
   if (childIndex !== -1) {
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
-    if (!undefine(child.props.preserve)) {
+    // If an ancestor uses the preserve prop, then we are expected to not remove
+    // our values on this node either, see #53
+    let preserve = undefine(child.props.preserve)
+    let parent = child.parent
+    while (preserve === undefined && parent) {
+      preserve = undefine(parent.props.preserve)
+      parent = parent.parent
+    }
+    if (!preserve) {
       node.calm({
         name: node.type === 'list' ? childIndex : child.name,
         value: valueRemoved,
@@ -1604,7 +1614,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
-  const node = new Proxy(context, {
+  const node = (new Proxy(context, {
     get(...args) {
       const [, property] = args
       if (property === '__FKNode__') return true
@@ -1618,7 +1628,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown as FormKitNode
+  }) as unknown) as FormKitNode
 
   return nodeInit(node, ops)
 }

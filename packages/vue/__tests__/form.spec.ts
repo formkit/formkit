@@ -509,6 +509,34 @@ describe('form submission', () => {
     })
   })
 
+  it('keeps checks ancestors for preserve prop', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: {},
+            useEmail: true,
+          }
+        },
+        template: `<FormKit type="form" v-model="values" preserve>
+        <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
+        <FormKit type="text" name="name" value="Jon" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.vm.useEmail = false
+    await nextTick()
+    expect(wrapper.vm.values).toStrictEqual({
+      email: 'jon@doe.com',
+      name: 'Jon',
+    })
+  })
+
   it('can override config values for children', async () => {
     const wrapper = mount(
       {
