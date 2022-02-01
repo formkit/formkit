@@ -8,6 +8,7 @@ import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
 import setErrors from '../src/composables/setErrors'
+import { ref, reactive } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -41,6 +42,100 @@ describe('form structure', () => {
     </div>
   </div>
 </form>`)
+  })
+})
+
+describe('value propagation', () => {
+  it('can set the state of checkboxes from a v-model on the form', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            options: ['a', 'b', 'c'],
+            values: {
+              boxes: [] as string[],
+            },
+          }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="checkbox" name="boxes" :options="options" />
+      </FormKit>`,
+      },
+      {
+        ...global,
+      }
+    )
+    const inputs = wrapper.findAll('input[type="checkbox"]')
+    expect(inputs.length).toBe(3)
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, false, false])
+    wrapper.vm.values.boxes = ['a', 'b', 'c']
+    await new Promise((r) => setTimeout(r, 50))
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([true, true, true])
+    expect(wrapper.vm.values.boxes).toStrictEqual(['a', 'b', 'c'])
+  })
+
+  it('can set the state of checkboxes from a v-model using vue ref object', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const options = ['a', 'b', 'c']
+          const values = ref({ boxes: [] as string[] })
+          const changeValues = () => {
+            values.value.boxes = ['a', 'c']
+          }
+          return { options, values, changeValues }
+        },
+        template: `<FormKit type="form" v-model="values">
+        <FormKit type="checkbox" name="boxes" :options="options" />
+        <button type="button" @click="changeValues">Change</button>
+      </FormKit>`,
+      },
+      {
+        ...global,
+      }
+    )
+    const inputs = wrapper.findAll('input[type="checkbox"]')
+    expect(inputs.length).toBe(3)
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, false, false])
+    wrapper.find('button[type="button"').trigger('click')
+    await nextTick()
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([true, false, true])
+  })
+
+  it('can set the state of checkboxes from a v-model using vue reactive object', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const options = ['a', 'b', 'c']
+          const values = reactive<{ form: Record<string, any> }>({ form: {} })
+          const changeValues = () => {
+            values.form.foo = 'bar bar'
+          }
+          return { options, values, changeValues }
+        },
+        template: `<FormKit type="form" v-model="values.form">
+        <FormKit type="text" name="foo" />
+        <button type="button" @click="changeValues">Change</button>
+      </FormKit>`,
+      },
+      {
+        ...global,
+      }
+    )
+    const inputs = wrapper.findAll('input[type="text"]')
+    expect(inputs.length).toBe(1)
+    expect(wrapper.find('input').element.value).toEqual('')
+    wrapper.find('button[type="button"').trigger('click')
+    await nextTick()
+    expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
   })
 })
 
