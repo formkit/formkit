@@ -1,5 +1,5 @@
 import { isQuotedString, rmEscapes, parseArgs, getAt } from '@formkit/utils'
-import { warn } from './errors'
+import { warn, error } from './errors'
 
 /**
  * Tokens are strings that map to functions.
@@ -335,18 +335,15 @@ export function compile(expr: string): FormKitCompilerOutput {
         depth === 0 &&
         (operation = getOp(symbols, char, p, expression))
       ) {
-        if (p === 0)
-          throw new Error(
-            `Schema conditional expression cannot start with operator (${operation})`
-          )
+        if (p === 0) {
+          error(103, [operation, expression])
+        }
 
         // We identified the operator by looking ahead in the string, so we need
         // our position to move past the operator
         p += operation.length - 1
         if (p === expression.length - 1) {
-          throw new Error(
-            `Schema conditional expression cannot end with operator (${operation})`
-          )
+          error(104, [operation, expression])
         }
         if (!op) {
           // Bind the left hand operand
@@ -393,7 +390,7 @@ export function compile(expr: string): FormKitCompilerOutput {
     }
 
     if (!op && !operand) {
-      throw new Error('Schema conditional syntax error')
+      error(105, expression)
     }
     return op as () => boolean | number | string
   }
@@ -436,7 +433,7 @@ export function compile(expr: string): FormKitCompilerOutput {
         return (tokens: Record<string, any>) => {
           const userFunc = fn(tokens)
           if (typeof userFunc !== 'function') {
-            warn(234)
+            warn(150, fnToken)
             return userFunc
           }
           userFuncReturn = userFunc(

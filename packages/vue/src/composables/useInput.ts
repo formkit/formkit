@@ -175,7 +175,7 @@ export function useInput(
   /**
    * If no definition has been assigned at this point — we're out!
    */
-  if (!node.props.definition) error(987)
+  if (!node.props.definition) error(600, node)
 
   /**
    * These prop names must be assigned.
@@ -312,7 +312,7 @@ export function useInput(
    */
   if (props.modelValue !== undefined) {
     // Warning that v-model isnt the most performant for non-inputs:
-    // if (node.type !== 'input') warn(678)
+    // if (node.type !== 'input') warn()
     watch(
       () => props.modelValue,
       (value) => {

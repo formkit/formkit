@@ -27,7 +27,7 @@ const FormKit = defineComponent({
   inheritAttrs: false,
   setup(props, context) {
     const node = useInput(props, context)
-    if (!node.props.definition) error(990)
+    if (!node.props.definition) error(600, node)
     if (node.props.definition.component) {
       return () =>
         h(
@@ -39,7 +39,7 @@ const FormKit = defineComponent({
         )
     }
     const schemaDefinition = node.props.definition.schema
-    if (!schemaDefinition) error(991)
+    if (!schemaDefinition) error(601, node)
     const schema =
       typeof schemaDefinition === 'function'
         ? schemaDefinition(props.sectionsSchema)

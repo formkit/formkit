@@ -29,7 +29,7 @@ function isChecked(node: FormKitNode, value: string) {
 export default function radios(node: FormKitNode): void {
   node.on('created', () => {
     if (!Array.isArray(node.props.options)) {
-      warn(832, node)
+      warn(350, node)
     }
     if (node.context?.handlers) {
       node.context.handlers.toggleChecked = toggleChecked.bind(null, node)

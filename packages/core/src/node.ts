@@ -616,9 +616,12 @@ export function isNode(node: any): node is FormKitNode {
 /**
  * The setter you are trying to access is invalid.
  */
-const invalidSetter = (): never => {
-  // TODO add log event and error
-  throw new Error()
+const invalidSetter = (
+  node: FormKitNode,
+  _context: FormKitContext,
+  property: PropertyKey
+): never => {
+  error(102, [node, property])
 }
 
 const traps = {
@@ -678,7 +681,7 @@ function trap(
             ? (...args: any[]) => getter(node, context, ...args)
             : getter(node, context)
       : false,
-    set: setter !== undefined ? setter : invalidSetter,
+    set: setter !== undefined ? setter : invalidSetter.bind(null),
   }
 }
 
@@ -986,7 +989,7 @@ function addChild(
   parentContext: FormKitContext,
   child: FormKitNode
 ) {
-  if (parent.type === 'input') createError(parent, 1)
+  if (parent.type === 'input') error(100, parent)
   if (child.parent && child.parent !== parent) {
     child.parent.remove(child)
   }
@@ -1450,16 +1453,6 @@ function text(
 }
 
 /**
- * Create a new FormKit error.
- * @param node -
- * @param errorCode -
- * @public
- */
-export function createError(node: FormKitNode, errorCode: number): never {
-  error(errorCode, node)
-}
-
-/**
  * Middleware to assign default prop values as issued by core.
  * @param node - The node being registered
  * @param next - Calls the next middleware.
@@ -1588,7 +1581,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // If the node has a parent, ensure it's properly nested bi-directionally.
   if (node.parent) node.parent.add(node)
   // Inputs are leafs, and cannot have children
-  if (node.type === 'input' && node.children.length) createError(node, 1)
+  if (node.type === 'input' && node.children.length) error(100, node)
   // Apply the input hook to the initial value.
   input(node, node._c, node._value, false, false)
   // Release the store buffer

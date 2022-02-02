@@ -201,12 +201,11 @@ function getValue(
  * @param id - A dot-syntax string where the node is located.
  */
 function get(nodeRef: Ref<unknown>, id?: string) {
-  if (typeof id !== 'string') return warn(823)
+  if (typeof id !== 'string') return warn(650)
   if (nodeRef.value === undefined) {
     nodeRef.value = null
     const root = getNode(id)
     if (root) nodeRef.value = root.context
-    // nodeRef.value = root.context
     watchRegistry(id, ({ payload: node }) => {
       nodeRef.value = isNode(node) ? node.context : node
     })

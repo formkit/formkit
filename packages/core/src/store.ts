@@ -1,4 +1,5 @@
-import { FormKitNode, createError, FormKitTextFragment } from './node'
+import { FormKitNode, FormKitTextFragment } from './node'
+import { error } from './errors'
 import { has, token } from '@formkit/utils'
 
 /**
@@ -192,7 +193,7 @@ export function createStore(_buffer = false): FormKitStore {
         _r = value
         return true
       }
-      createError(node, 288)
+      error(101, node)
       return false
     },
   }) as FormKitStore

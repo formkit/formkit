@@ -31,7 +31,8 @@ export const warningHandler = createDispatcher<FormKitHandlerPayload>()
 warningHandler((warning, next) => {
   if (!warning.message) warning.message = String(`W${warning.code}`)
   const result = next(warning)
-  if (console && typeof console.warn === 'function') console.warn(result)
+  if (console && typeof console.warn === 'function')
+    console.warn(result.message)
   return result
 })
 

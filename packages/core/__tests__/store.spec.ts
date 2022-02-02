@@ -27,7 +27,7 @@ describe('setting store messages', () => {
     node.store.set(createMessage({ key: 'abc' }))
     expect(() => {
       node.store.party = createMessage({})
-    }).toThrow('E2')
+    }).toThrow('E101')
   })
 
   it('allows overwriting store messages', () => {
