@@ -1,6 +1,7 @@
 {
   "name": "@formkit/nuxt",
   "repository": "https://github.com/formkit/formkit",
+  "description": "The official Nuxt module for FormKit.",
   "version": "1.0.0-beta.2",
   "license": "MIT",
   "type": "module",
