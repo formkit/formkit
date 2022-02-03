@@ -2,4 +2,4 @@
 
 # @formkit/core
 
-The official FormKit core library. This package is irresponsible for most of FormKit’s internal functionality. You can read documentation specifically on how it works at [formkit.com](https://www.formkit.com/advanced/core).
+The official FormKit core library. This package is responsible for most of FormKit’s internal functionality. You can read documentation specifically on how it works at [formkit.com](https://www.formkit.com/advanced/core).
