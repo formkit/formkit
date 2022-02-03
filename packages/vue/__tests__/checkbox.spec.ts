@@ -182,7 +182,8 @@ describe('multiple checkboxes', () => {
       },
       { ...global }
     )
-    const inputs = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('fieldset').findAll('input')
     expect(inputs[0].element.checked).toBe(true)
     expect(inputs[1].element.checked).toBe(false)
     expect(inputs[2].element.checked).toBe(true)
@@ -222,7 +223,14 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.find('li').html()).toBe(
-      '<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><div class="formkit-inner"><!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span><!----></div><span class="formkit-label">Italy</span></label><div id="help-countries-option-it" class="formkit-option-help">Good food here</div></li>'
+      `<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper">
+    <div class="formkit-inner">
+      <!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span>
+      <!---->
+    </div><span class="formkit-label">Italy</span>
+  </label>
+  <div id="help-countries-option-it" class="formkit-option-help">Good food here</div>
+</li>`
     )
   })
 
@@ -245,7 +253,8 @@ describe('multiple checkboxes', () => {
         ...global,
       }
     )
-    const checkboxes = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const checkboxes = wrapper.get('form').findAll('input')
     const values = checkboxes.map((box) => box.element.checked)
     expect(values).toEqual([true, false, true])
     expect(wrapper.vm.values).toEqual({ letters: ['A', 'C'] })
@@ -260,7 +269,8 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.find('legend').exists()).toBeFalsy()
-    expect(wrapper.findAll('label').length).toBe(3)
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    expect(wrapper.get('fieldset').findAll('label').length).toBe(3)
     expect(wrapper.html()).toContain('<span class="formkit-label">A</span>')
   })
 })

@@ -101,7 +101,7 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<h1>c</h1>')
     data.a = { b: 'g' }
     await nextTick()
-    expect(wrapper.html()).toBe('<!---->')
+    expect(wrapper.html()).toBe('')
     data.a.b = 'c'
     await nextTick()
     expect(wrapper.html()).toBe('<h1>c</h1>')
@@ -407,10 +407,14 @@ describe('parsing dom elements', () => {
         ],
       },
     })
-    expect(wrapper.html()).toBe('<span>a</span><span>b</span><span>c</span>')
+    expect(wrapper.html()).toBe(`<span>a</span>
+<span>b</span>
+<span>c</span>`)
     data.alphabet[1] = 'd'
     await nextTick()
-    expect(wrapper.html()).toBe('<span>a</span><span>d</span><span>c</span>')
+    expect(wrapper.html()).toBe(`<span>a</span>
+<span>d</span>
+<span>c</span>`)
   })
 
   it('can access nested iteration data', async () => {
@@ -429,12 +433,13 @@ describe('parsing dom elements', () => {
         ],
       },
     })
-    expect(wrapper.html()).toBe('<span>bob</span><span>ted</span>')
+    expect(wrapper.html()).toBe(`<span>bob</span>
+<span>ted</span>`)
     data.accounts.unshift({ user: { name: 'fred' } })
     await nextTick()
-    expect(wrapper.html()).toBe(
-      '<span>fred</span><span>bob</span><span>ted</span>'
-    )
+    expect(wrapper.html()).toBe(`<span>fred</span>
+<span>bob</span>
+<span>ted</span>`)
   })
 
   it('can shadow nested loop scoped variables', async () => {

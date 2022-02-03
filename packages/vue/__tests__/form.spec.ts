@@ -65,7 +65,9 @@ describe('value propagation', () => {
         ...global,
       }
     )
-    const inputs = wrapper.findAll('input[type="checkbox"]')
+    await nextTick()
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('form').findAll('input')
     expect(inputs.length).toBe(3)
     expect(
       inputs.map((input) => (input.element as HTMLInputElement).checked)
@@ -98,7 +100,8 @@ describe('value propagation', () => {
         ...global,
       }
     )
-    const inputs = wrapper.findAll('input[type="checkbox"]')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('form').findAll('input[type="checkbox"]')
     expect(inputs.length).toBe(3)
     expect(
       inputs.map((input) => (input.element as HTMLInputElement).checked)
@@ -130,7 +133,8 @@ describe('value propagation', () => {
         ...global,
       }
     )
-    const inputs = wrapper.findAll('input[type="text"]')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('form').findAll('input[type="text"]')
     expect(inputs.length).toBe(1)
     expect(wrapper.find('input').element.value).toEqual('')
     wrapper.find('button[type="button"').trigger('click')
@@ -354,7 +358,7 @@ describe('form submission', () => {
     await nextTick()
     expect(wrapper.find('button').text()).toBe('Senden')
     expect(wrapper.find('.formkit-message').text()).toBe(
-      'Email ist ein Pflichtfeld.'
+      'Email ist erforderlich.'
     )
   })
 

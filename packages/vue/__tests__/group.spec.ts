@@ -9,11 +9,13 @@ describe('group', () => {
     const wrapper = mount(
       {
         template: `
-        <FormKit type="group" :value="{foo: 'abc', baz: 'hello'}">
-          <FormKit name="foo" />
-          <FormKit name="bar" />
-          <FormKit name="baz" />
-        </FormKit>`,
+        <div>
+          <FormKit type="group" :value="{foo: 'abc', baz: 'hello'}">
+            <FormKit name="foo" />
+            <FormKit name="bar" />
+            <FormKit name="baz" />
+          </FormKit>
+        </div>`,
       },
       {
         global: {
@@ -21,7 +23,8 @@ describe('group', () => {
         },
       }
     )
-    const inputs = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('div').findAll('input')
     expect(inputs[0].element.value).toBe('abc')
     expect(inputs[1].element.value).toBe('')
     expect(inputs[2].element.value).toBe('hello')
@@ -43,6 +46,7 @@ describe('group', () => {
           }
         },
         template: `
+      <div>
       <FormKit type="group" v-model="formData">
         <FormKit name="name" />
         <FormKit type="group" name="address">
@@ -50,6 +54,7 @@ describe('group', () => {
           <FormKit name="city" />
         </FormKit>
       </FormKit>
+      </div>
       `,
       },
       {
@@ -59,7 +64,8 @@ describe('group', () => {
       }
     )
     // const consoleMock = jest.spyOn(console, 'warn').mockImplementation(() => {})
-    const inputs = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const inputs = wrapper.get('div').findAll('input')
     expect(inputs[0].element.value).toBe('bob')
     expect(inputs[1].element.value).toBe('jane rd.')
     expect(inputs[2].element.value).toBe('crypto city')

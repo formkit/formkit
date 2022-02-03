@@ -43,7 +43,8 @@ describe('radios', () => {
         ...global,
       }
     )
-    const radios = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const radios = wrapper.get('fieldset').findAll('input')
     expect(radios[0].element.checked).toBe(false)
     expect(radios[1].element.checked).toBe(true)
     expect(radios[2].element.checked).toBe(false)

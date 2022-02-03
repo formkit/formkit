@@ -46,7 +46,8 @@ describe('props', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.findAll('li').length).toBe(1)
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
   it('children emit a model update event on boot', () => {
@@ -248,22 +249,24 @@ describe('validation', () => {
     const wrapper = mount(
       {
         template: `
-        <FormKit
-          type="group"
-          v-slot="{ state: { valid }}"
-        >
+        <div>
           <FormKit
-            type="text"
-            validation="required|email"
-            :delay="0"
-          />
-          <FormKit
-            type="text"
-            validation="required|length:5"
-            :delay="0"
-          />
-          <button :disabled="!valid">{{ valid }}</button>
-        </FormKit>
+            type="group"
+            v-slot="{ state: { valid }}"
+          >
+            <FormKit
+              type="text"
+              validation="required|email"
+              :delay="0"
+            />
+            <FormKit
+              type="text"
+              validation="required|length:5"
+              :delay="0"
+            />
+            <button :disabled="!valid">{{ valid }}</button>
+          </FormKit>
+        </div>
       `,
       },
       {
@@ -274,7 +277,8 @@ describe('validation', () => {
     )
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('button').attributes()).toHaveProperty('disabled')
-    const [email, name] = wrapper.findAll('input')
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    const [email, name] = wrapper.get('div').findAll('input')
     email.setValue('info@formkit.com')
     name.setValue('Rockefeller')
     await new Promise((r) => setTimeout(r, 40))
@@ -743,7 +747,10 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Prefix<select class="formkit-input" name="alpha"><option class="formkit-option" value="A">A</option><option class="formkit-option" value="B">B</option></select>Suffix</div>'
+      `<div class="formkit-inner">Prefix<select class="formkit-input" name="alpha">
+    <option class="formkit-option" value="A">A</option>
+    <option class="formkit-option" value="B">B</option>
+  </select>Suffix</div>`
     )
   })
 })
