@@ -791,7 +791,12 @@ function input(
   if (context.isSettled) node.disturb()
   if (async) {
     if (context._tmo) clearTimeout(context._tmo)
-    context._tmo = setTimeout(commit, node.props.delay, node, context)
+    context._tmo = (setTimeout(
+      commit,
+      node.props.delay,
+      node,
+      context
+    ) as unknown) as number
   } else {
     commit(node, context)
   }

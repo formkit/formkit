@@ -248,7 +248,13 @@ function run(
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
-      state.rerun = setTimeout(validate, 0, node, validations, state)
+      state.rerun = (setTimeout(
+        validate,
+        0,
+        node,
+        validations,
+        state
+      ) as unknown) as number
     })
     validation.deps = newDeps
 
