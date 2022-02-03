@@ -37,7 +37,7 @@ export { FormKitSchema } from './FormKitSchema'
  * The default configuration.
  * @public
  */
-export { default as defaultConfig } from './defaultConfig'
+export { default as defaultConfig, DefaultConfigOptions } from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all

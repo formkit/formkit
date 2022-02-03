@@ -99,4 +99,36 @@ describe('defaultConfig', () => {
     })
     expect(wrapper.find('.formkit-message').text()).toBe(`${t} incomplete`)
   })
+
+  it('allows the locale to be defined in the root of the defaultConfig options', () => {
+    const t = token()
+    const required = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        name: t,
+        type: 'text',
+        validation: 'required',
+        validationVisibility: 'live',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              locales: {
+                xx: {
+                  ui: {},
+                  validation: {
+                    required,
+                  },
+                },
+              },
+              locale: 'xx',
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toContain(required)
+  })
 })

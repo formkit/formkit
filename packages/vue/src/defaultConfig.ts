@@ -23,20 +23,25 @@ interface PluginConfigs {
 }
 
 /**
+ * The allowed options for defaultConfig.
+ * @public
+ */
+export type DefaultConfigOptions = FormKitOptions &
+  Partial<PluginConfigs> &
+  Record<string, unknown>
+
+/**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
  * @public
  */
-const defaultConfig = (
-  options: FormKitOptions &
-    Partial<PluginConfigs> &
-    Record<string, unknown> = {}
-): FormKitOptions => {
+const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
   const {
     rules = {},
     locales = {},
     inputs = {},
     messages = {},
+    locale = undefined,
     ...nodeOptions
   } = options
   /**
@@ -65,6 +70,7 @@ const defaultConfig = (
   return extend(
     {
       plugins: [library, bindings, i18n, validation],
+      ...(!locale ? {} : { config: { locale } }),
     },
     nodeOptions || {},
     true
