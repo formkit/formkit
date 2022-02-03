@@ -1594,7 +1594,7 @@
     error-stack-parser "^2.0.0"
     string-width "^4.2.3"
 
-"@nuxt/kit-edge@latest", "@nuxt/kit@npm:@nuxt/kit-edge@3.0.0-27398533.8edd481", "@nuxt/kit@npm:@nuxt/kit-edge@latest":
+"@nuxt/kit-edge@^3.0.0-27398533.8edd481", "@nuxt/kit-edge@latest", "@nuxt/kit@npm:@nuxt/kit-edge@3.0.0-27398533.8edd481", "@nuxt/kit@npm:@nuxt/kit-edge@latest":
   version "3.0.0-27398533.8edd481"
   resolved "https://registry.yarnpkg.com/@nuxt/kit-edge/-/kit-edge-3.0.0-27398533.8edd481.tgz#988cd8671f4ae9c513ebff41b00c671b78c0d574"
   integrity sha512-t4CXeic7/ZGgwLvMLCu2lxKRgHg9Lj+8YhEju2nAe1sh/yM0iOZpje8VDubW3CTJp1/gAmBokj1U2VNEsbmcKg==
