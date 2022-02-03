@@ -16,10 +16,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
-  },
   "scripts": {
     "prepack": "nuxt-module-build",
     "dev": "nuxi dev playground",

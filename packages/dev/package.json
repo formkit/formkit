@@ -10,10 +10,6 @@
     "Justin Schroeder <justin@formkit.com>"
   ],
   "license": "MIT",
-  "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
-  },
   "scripts": {
     "test": "jest"
   },
