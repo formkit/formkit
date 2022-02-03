@@ -6,8 +6,10 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "author": "Justin Schroeder <justin@wearebraid.com>",
-  "license": "UNLICENSED",
+  "contributors": [
+    "Justin Schroeder <justin@formkit.com>"
+  ],
+  "license": "MIT",
   "publishConfig": {
     "access": "restricted",
     "registry": "https://npm.pkg.github.com"

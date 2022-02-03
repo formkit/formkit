@@ -10,6 +10,7 @@ let registered = false
 
 /**
  * Catalog of the error message codes in FormKit.
+ * @public
  */
 const errors: Record<
   string | number,
@@ -47,6 +48,7 @@ const errors: Record<
 
 /**
  * Catalog of the warning message codes in FormKit.
+ * @public
  */
 const warnings: Record<
   string | number,

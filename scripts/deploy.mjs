@@ -176,8 +176,8 @@ async function sendFile(version, pkg, file) {
  */
 async function prepForDistribution(file, version, min = true) {
   let src = file.replace(
-    /from\s+['"]@formkit\/([a-z0-9]+)['"]/g,
-    `from '/$1@${version}'`
+    /(from|import)\s+['"]@formkit\/([a-z0-9]+)['"]/g,
+    `$1 '/$2@${version}'`
   )
   const vueImportRegex = /^import\s+(.*)\s+from\s+'vue';?/gm
   const vueMatch = src.match(vueImportRegex)

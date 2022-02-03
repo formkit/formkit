@@ -13,6 +13,7 @@ import {
 } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
 import bindings from './bindings'
+import '@formkit/dev'
 
 interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
