@@ -150,14 +150,17 @@ async function bundle(p, format, theme) {
 async function buildNuxtModule() {
   msg.loader.text = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
-    exec('cd ./packages/nuxt && yarn prepack && cd ../../', (err, stdout) => {
-      if (err) {
-        reject(stdout)
-      } else {
-        console.log(stdout)
-        resolve()
+    exec(
+      'cd ./packages/nuxt && yarn prepack && cd ../../',
+      (err, stdout, stderr) => {
+        if (err) {
+          reject(stderr)
+        } else {
+          console.log(stdout)
+          resolve()
+        }
       }
-    })
+    )
   })
 }
 
