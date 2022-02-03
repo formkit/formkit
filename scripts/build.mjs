@@ -22,6 +22,7 @@ import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
 import { getPackages, getThemes, getBuildOrder, msg } from './utils.mjs'
+import { exec } from 'child_process'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -76,6 +77,8 @@ export async function buildPackage(p) {
   if (p === 'themes') {
     const themes = getThemes()
     await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
+  } else if (p === 'nuxt') {
+    await buildNuxtModule()
   } else {
     await bundle(p, 'esm')
     await bundle(p, 'cjs')
@@ -87,7 +90,7 @@ export async function buildPackage(p) {
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
-  if (p !== 'themes') await declarations(p)
+  if (p !== 'themes' && p !== 'nuxt') await declarations(p)
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }
@@ -142,6 +145,20 @@ async function bundle(p, format, theme) {
     '--environment',
     args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])
+}
+
+async function buildNuxtModule() {
+  msg.loader.text = `Bundling Nuxt module`
+  return new Promise((resolve, reject) => {
+    exec('cd ./packages/nuxt && yarn prepack && cd ../../', (err, stdout) => {
+      if (err) {
+        reject(stdout)
+      } else {
+        console.log(stdout)
+        resolve()
+      }
+    })
+  })
 }
 
 /**
