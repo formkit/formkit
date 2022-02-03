@@ -2,5 +2,5 @@
 
 # @formkit/inputs
 
-The official FormKit inputs plugin. This package contains the source code for all native HTML input types. Read the [inputs documentation](https://www.formkit.com/essentials/validation) for usage instructions.
+The official FormKit inputs plugin. This package contains the source code for all native HTML input types. Read the [inputs documentation](https://formkit.com/essentials/inputs) for usage instructions.
 
