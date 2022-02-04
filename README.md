@@ -1,5 +1,4 @@
-![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo.png#gh-light-mode-only)
-![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo-white.png#gh-dark-mode-only)
+![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo.png#gh-light-mode-only)![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo-white.png#gh-dark-mode-only)
 
 <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
 
