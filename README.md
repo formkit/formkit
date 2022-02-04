@@ -1,19 +1,16 @@
-<p align="center"><a href="https://www.formkit.com" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png" alt="FormKit Logo"></a></p>
+![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo.png#gh-light-mode-only)
+![FormKit Logo](https://cdn.formk.it/brand-assets/formkit-logo-white.png#gh-dark-mode-only)
 
-<p align="center">
-  <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
-</p>
+<a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
 
-<p align="center">
-  <a href="https://formkit.com">Documentation website</a>
-</p>
+<a href="https://formkit.com">Documentation website</a>
 
 # FormKit (Beta)
 <h2>Industry-leading form development. 10x faster. For <img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3.</h2>
 
 FormKit is a form authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
 
-<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/brand-assets/fk-read-docs.png" /></a></p>
+<a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/brand-assets/fk-read-docs.png" /></a>
 
 <table style="width: 100%;">
 	<tr>
