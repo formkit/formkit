@@ -1,4 +1,4 @@
-<p align="center"><a href="https://www.formkit.com" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png#gh-light-mode-only" alt="FormKit Logo"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo-white.png#gh-dark-mode-only" alt="FormKit Logo"></a></p>
+<p align="center"><a href="https://www.formkit.com" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png" alt="FormKit Logo"></a></p>
 
 <p align="center">
   <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
