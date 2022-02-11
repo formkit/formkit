@@ -94,7 +94,7 @@
       color: var(--fk-color-placeholder);
     }
     & option {
-      font-size: var(--fk-option-font-size);
+      font-size: var(--fk-font-size-option);
     }
   }
 
