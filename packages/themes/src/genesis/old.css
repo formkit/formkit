@@ -13,17 +13,17 @@
     }
 
     &[disabled] {
-      background: var(--fk-border-color);
+      background: var(--fk-color-border);
     }
   }
 }
 
 [data-type="button"] {
   & .formkit-input {
-    border: 1px solid var(--fk-border-color);
+    border: 1px solid var(--fk-color-border);
 
     &:hover {
-      background-color: var(--fk-button-hover);
+      background-color: var(--fk-color-button-hover);
     }
   }
 }
@@ -31,7 +31,7 @@
 .formkit-outer[data-disabled] {
   &:not([data-type="checkbox"]):not([data-type="radio"]):not([data-type="range"]) {
     & .formkit-inner {
-      background-color: var(--fk-disabled-color);
+      background-color: var(--fk-color-disabled);
     }
   }
 }
@@ -78,7 +78,7 @@
     }
 
     &:focus-visible {
-      border-color: var(--fk-focus-border-color);
+      border-color: var(--fk-color-border-focus);
     }
   }
 }
@@ -101,4 +101,3 @@
   line-height: 1.33;
   font-family: inherit;
 }
-
