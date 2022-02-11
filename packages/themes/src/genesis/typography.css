@@ -49,7 +49,7 @@
 .formkit-messages {
   font-family: var(--fk-font-family-message);
   font-family: var(--fk-font-family);
-  line-height: var(--fk-line-height-messages);
+  line-height: var(--fk-line-height-message);
 }
 
 .formkit-message {
