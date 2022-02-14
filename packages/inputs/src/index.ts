@@ -16,6 +16,11 @@ export * from './inputs'
 export { createLibraryPlugin } from './plugin'
 
 /**
+ * Export the localize.
+ */
+export { default as localize } from './features/localize'
+
+/**
  * Options types.
  */
 export { FormKitOptionsList } from './features/options'
