@@ -18,6 +18,7 @@ import formHandler from './features/form'
 import localize from './features/localize'
 import files from './features/files'
 import ignore from './features/ignore'
+import initialValue from './features/initialValue'
 
 /**
  * Default classifications that are available.
@@ -118,6 +119,7 @@ export const range = textClassification
 export const textarea: FormKitTypeDefinition = {
   type: 'input',
   schema: textareaSchema,
+  features: [initialValue],
 }
 
 /**

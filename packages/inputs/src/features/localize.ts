@@ -1,10 +1,13 @@
 import { FormKitNode, createMessage } from '@formkit/core'
 
 /**
- * Creates a localization message (type: ui).
+ * Creates a new feature that generates a localization message of type ui
+ * for use on a given component.
+ *
  * @param key - The key of the message
  * @param value - The value of the message
  * @returns
+ * @public
  */
 export default function localize(
   key: string,
