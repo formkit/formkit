@@ -2,6 +2,7 @@ import * as de from './locales/de'
 import * as en from './locales/en'
 import * as fr from './locales/fr'
 import * as he from './locales/he'
+import * as tr from './locales/tr'
 import * as hr from './locales/hr'
 import * as nl from './locales/nl'
 import * as pt from './locales/pt'
@@ -26,13 +27,14 @@ export const locales = {
   nl,
   pt,
   ru,
+  tr,
   zh,
 }
 
 /**
  * Export each locale individually for people who want to cherry pick.
  */
-export { de, en, fr, he, hr, nl, pt, ru, zh }
+export { de, en, fr, he, hr, nl, pt, ru, tr, zh }
 
 /**
  * Export all formatter functions.
