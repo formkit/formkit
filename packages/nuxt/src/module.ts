@@ -1,7 +1,6 @@
-import { resolve } from 'path'
+import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
-import { defineNuxtModule, addPluginTemplate } from '@nuxt/kit'
-import fs from 'fs'
+import { defineNuxtModule, addPluginTemplate, createResolver } from '@nuxt/kit'
 
 export interface ModuleOptions {
   defaultConfig: boolean
@@ -12,39 +11,45 @@ export default defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'FormKit',
     configKey: 'formkit',
+    compatibility: {
+      nuxt: '^3.0.0',
+    },
   },
   defaults: {
     defaultConfig: true,
     configFile: undefined,
   },
-  setup(options, nuxt) {
+  async setup(options, nuxt) {
+    const resolver = createResolver(import.meta.url)
+
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir)
-    const rootPath = nuxt.options.srcDir + '/'
-    let configPath: undefined | string
-    if (options.configFile) {
-      configPath = rootPath + options.configFile
-      if (!fs.existsSync(configPath)) {
-        throw new Error(
-          `FormKit configuration was not located at ${configPath}`
-        )
+
+    const configPath = await resolver.resolvePath(
+      options.configFile || 'formkit.config',
+      {
+        cwd: nuxt.options.rootDir,
+        extensions: ['.ts', '.mjs', '.js'],
       }
-      options.configFile = configPath
-    } else {
-      const extensions = ['.ts', '.mjs', '.js']
-      for (const ext of extensions) {
-        configPath = rootPath + 'formkit.config' + ext
-        if (fs.existsSync(configPath)) {
-          options.configFile = configPath
-          break
-        }
-      }
+    )
+    const configFileExists = existsSync(configPath)
+    let config = 'defaultConfig'
+    let importStatement = ''
+    if (!configFileExists && options.configFile) {
+      throw new Error(`FormKit configuration was not located at ${configPath}`)
+    } else if (configFileExists) {
+      importStatement = `import config from '${configPath}'`
+      config = options.defaultConfig ? 'defaultConfig(config)' : 'config'
+    } else if (!configFileExists && !options.defaultConfig) {
+      throw new Error(
+        'FormKit defaultConfig was set to false, but not FormKit config file could be found.'
+      )
     }
 
     addPluginTemplate({
-      src: resolve(runtimeDir, 'plugin.mjs'),
+      src: await resolver.resolve('runtime/plugin.mjs'),
       filename: 'formkitPlugin.mjs',
-      options,
+      options: { importStatement, config },
     })
   },
 })

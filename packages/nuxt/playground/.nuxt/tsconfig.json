@@ -73,13 +73,13 @@
         ".nuxt/*"
       ],
       "#config": [
-        "../@nuxt/nitro"
+        "@nuxt/nitro"
       ],
       "#storage": [
-        "../@nuxt/nitro"
+        "@nuxt/nitro"
       ],
       "#assets": [
-        "../@nuxt/nitro"
+        "@nuxt/nitro"
       ]
     }
   },

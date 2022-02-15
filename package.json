@@ -8,8 +8,7 @@
     "@aws-sdk/client-cloudfront": "^3.45.0",
     "@aws-sdk/client-s3": "^3.45.0",
     "@microsoft/api-extractor": "^7.18.4",
-    "@nuxt/kit": "^0.8.1-edge",
-    "@nuxt/kit-edge": "^3.0.0-27398533.8edd481",
+    "@nuxt/kit": "npm:@nuxt/kit-edge@latest",
     "@nuxt/module-builder": "^0.1.7",
     "@nuxtjs/eslint-config-typescript": "^8.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
@@ -33,7 +32,7 @@
     "fs-extra": "^10.0.0",
     "glob": "^7.2.0",
     "jest": "^27.0.3",
-    "nuxt3": "^3.0.0-27396610.ed4f4f5",
+    "nuxt3": "^3.0.0-27415326.3c563fa",
     "ora": "^5.4.1",
     "postcss": "^8.3.11",
     "postcss-import": "^14.0.2",
@@ -61,7 +60,9 @@
     "local": "node scripts/cli.mjs --script local",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",
-    "deploy": "node scripts/cli.mjs --script=deploy"
+    "deploy": "node scripts/cli.mjs --script=deploy",
+    "nuxt-pack": "nuxt-module-build packages/nuxt",
+    "nuxt-dev": "nuxi dev packages/nuxt/playground"
   },
   "dependencies": {},
   "size-limit": [
