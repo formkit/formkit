@@ -24,7 +24,11 @@ export {
 /**
  * The FormKit ledger.
  */
-export { FormKitLedger } from './ledger'
+export {
+  FormKitLedger,
+  FormKitCounterCondition,
+  FormKitCounter
+} from './ledger'
 
 /**
  * Export dispatcher typings.
@@ -68,6 +72,7 @@ export {
   FormKitSchemaDOMNode,
   FormKitSchemaFormKit,
   FormKitSchemaNode,
+  FormKitSchemaProps,
   FormKitSchemaTextNode,
   isComponent,
   isConditional,
