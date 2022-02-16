@@ -1,10 +1,29 @@
 {
   "name": "@formkit/core",
-  "repository": "https://github.com/formkit/formkit",
   "version": "1.0.0-beta.2",
+  "type": "module",
   "description": "The framework agnostic core of FormKit",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./dist/*"
+  },
+  "keywords": [
+    "vue",
+    "forms",
+    "inputs",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formkit/formkit.git",
+    "directory": "packages/core"
+  },
   "types": "dist/index.d.ts",
   "contributors": [
     "Justin Schroeder <justin@formkit.com>"
@@ -13,7 +32,6 @@
   "scripts": {
     "test": "jest"
   },
-  "type": "module",
   "dependencies": {
     "@formkit/utils": "1.0.0-beta.2"
   },
