@@ -22,19 +22,24 @@ describe('form structure', () => {
       props: {
         type: 'form',
         name: 'test_form',
+        id: 'foo',
+        submitAttrs: {
+          id: 'button',
+        },
       },
       slots: {
         default: () => h('h1', 'in the form'),
       },
       ...global,
     })
-    expect(wrapper.html()).toEqual(`<form class="formkit-form" name="test_form">
+    expect(wrapper.html())
+      .toEqual(`<form id="foo" class="formkit-form" name="test_form">
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">
+      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="button">
           <!---->Submit
           <!---->
         </button></div>
@@ -42,6 +47,18 @@ describe('form structure', () => {
     </div>
   </div>
 </form>`)
+  })
+
+  it('outputs the id of the form', () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'form',
+        id,
+      },
+      ...global,
+    })
+    expect(wrapper.find('form').attributes('id')).toBe(id)
   })
 })
 
