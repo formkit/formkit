@@ -81,7 +81,7 @@
   --fk-border-focus: var(--fk-border-width-focus) var(--fk-border-style) var(--fk-color-border-focus);
   --fk-border-decorator: var(--fk-border-width-decorator) var(--fk-border-style) var(--fk-color-border);
   --fk-border-decorator-focus: var(--fk-border-width-focus) var(--fk-border-style) var(--fk-color-border-focus);
-  --fk-border-decorator-focus-visible: var(--fk-border-width-focus-visible) var(--fk-border-style) var(--fk-color-border-focus);
+  --fk-border-decorator-focus-visible: var(--fk-border-width-decorator-focus-visible) var(--fk-border-style) var(--fk-color-border-focus);
   --fk-border-decorator-checked: var(--fk-border-width-checked) var(--fk-border-style) var(--fk-color-border-focus);
   --fk-border-box-shadow: 0 0 0 var(--fk-border-width) var(--fk-color-border);
   --fk-border-box-shadow-focus: 0 0 0 var(--fk-border-width-focus) var(--fk-color-border-focus);
