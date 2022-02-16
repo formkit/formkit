@@ -18,10 +18,7 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build",
-    "dev": "nuxi dev playground",
-    "dev:build": "nuxi build playground",
-    "build": "nuxi build playground && nuxt-module-build",
-    "prepare": "nuxt-module-build --stub && nuxi prepare playground"
+    "dev": "nuxi dev playground"
   },
   "dependencies": {
     "@formkit/vue": "1.0.0-beta.2",
