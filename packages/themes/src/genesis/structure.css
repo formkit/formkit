@@ -92,7 +92,16 @@
 
     &[data-placeholder]:not([multiple]) {
       color: var(--fk-color-placeholder);
+
+      & option {
+        color: var(--fk-color-input);
+
+        &[data-is-placeholder] {
+          color: var(--fk-color-placeholder);
+        }
+      }
     }
+
     & option {
       font-size: var(--fk-font-size-option);
     }

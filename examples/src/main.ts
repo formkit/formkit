@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
 import { de, fr } from '@formkit/i18n'
-import '@formkit/themes/dist/genesis/theme.css'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import '@formkit/themes/genesis'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
@@ -31,6 +31,10 @@ app.use(plugin, config)
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    {
+      path: '/',
+      component: BasicForm,
+    },
     {
       path: '/basic-form',
       component: BasicForm,

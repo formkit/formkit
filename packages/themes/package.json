@@ -12,6 +12,7 @@
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./genesis": "./dist/genesis/theme.css",
     "./*": "./dist/*"
   },
   "keywords": [

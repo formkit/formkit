@@ -19,6 +19,7 @@
       name="fruit"
       type="select"
       label="Favorite pie"
+      placeholder="Select some pie"
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
