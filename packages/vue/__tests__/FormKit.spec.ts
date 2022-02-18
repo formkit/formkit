@@ -476,6 +476,66 @@ describe('validation', () => {
     await nextTick()
     expect(node?.context?.state.rules).toBe(false)
   })
+
+  it('is complete when the input has validation rules that are passing', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        validation: 'required|length:10',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'its not the end yet'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.complete).toBe(true)
+  })
+
+  it('is complete when it has no validation rules is not dirty', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'yes'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.complete).toBe(true)
+  })
+
+  it('is not complete when the input has explicit error messages', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        validation: 'required',
+        errors: ['This is an error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'yes'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.complete).toBe(false)
+  })
 })
 
 describe('configuration', () => {

@@ -394,6 +394,23 @@ export interface FormKitFrameworkContext {
      */
     blurred: boolean
     /**
+     * True when these conditions are met:
+     *
+     * Either:
+     * - The input has validation rules
+     * - The validation rules are all passing
+     * - There are no errors on the input
+     * Or:
+     * - The input has no validation rules
+     * - The input has no errors
+     * - The input is dirty
+     *
+     * This is not intended to be used on forms/groups/lists but instead on
+     * individual inputs. Imagine placing a green checkbox next to each input
+     * when the user filled it out correctly — thats what these are for.
+     */
+    complete: boolean
+    /**
      * If the input has had a value typed into it or a change made to it.
      */
     dirty: boolean

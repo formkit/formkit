@@ -21,11 +21,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Start a validity counter on all blocking messages.
    */
   node.ledger.count('blocking', (m) => m.blocking)
-
+  const isValid = ref<boolean>(!node.ledger.value('blocking'))
   /**
    * Start an error message counter.
    */
   node.ledger.count('errors', (m) => m.type === 'error')
+  const hasErrors = ref<boolean>(!!node.ledger.value('errors'))
 
   /**
    * All messages with the visibility state set to true.
@@ -65,6 +66,15 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       default:
         return false
     }
+  })
+
+  /**
+   * Determines if the input should be considered "complete".
+   */
+  const isComplete = computed<boolean>(() => {
+    return hasValidation.value
+      ? isValid.value && !hasErrors.value
+      : context.state.dirty
   })
 
   /**
@@ -205,10 +215,11 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     options: node.props.options,
     state: {
       blurred: false,
+      complete: isComplete,
       dirty: false,
       submitted: false,
-      valid: !node.ledger.value('blocking'),
-      errors: !!node.ledger.value('errors'),
+      valid: isValid,
+      errors: hasErrors,
       rules: hasValidation,
       validationVisible,
     },
@@ -322,16 +333,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     delete context.state[message.key]
   })
   node.on('settled:blocking', () => {
-    context.state.valid = true
+    isValid.value = true
   })
   node.on('unsettled:blocking', () => {
-    context.state.valid = false
+    isValid.value = false
   })
   node.on('settled:errors', () => {
-    context.state.errors = false
+    hasErrors.value = false
   })
   node.on('unsettled:errors', () => {
-    context.state.errors = true
+    hasErrors.value = true
   })
 
   node.context = context
