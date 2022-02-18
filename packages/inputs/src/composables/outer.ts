@@ -7,6 +7,7 @@ const outer = composable('outer', () => ({
     'data-type': '$type',
     'data-multiple': '$attrs.multiple',
     'data-disabled': '$disabled || undefined',
+    'data-complete': '$state.complete || undefined',
   },
 }))
 

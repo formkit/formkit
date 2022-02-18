@@ -945,3 +945,76 @@ describe('prefix and suffix', () => {
     )
   })
 })
+
+describe('state attributes', () => {
+  it('does not initialize with the complete attribute', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    wrapper.find('input').element.value = '123'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      'true'
+    )
+  })
+
+  it('does not initialize with the complete attribute', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    wrapper.find('input').element.value = '123'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      'true'
+    )
+  })
+
+  it('adds the data-complete attribute when it passes validation', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input')
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    input.element.value = '123'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    input.element.value = '123456'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      'true'
+    )
+  })
+})

@@ -1688,8 +1688,9 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Register the node globally if someone explicitly gave it an id
   if (options.props?.id) register(node)
   // Our node is finally ready, emit it to the world
+  node.emit('created', node)
   node.isCreated = true
-  return node.emit('created', node)
+  return node
 }
 
 /**

@@ -307,7 +307,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         context.value = payload
     }
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty) context.handlers.touch()
+    if (!context.state.dirty && node.isCreated) context.handlers.touch()
   })
 
   /**
