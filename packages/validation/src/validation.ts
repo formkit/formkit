@@ -175,19 +175,13 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
         removeListeners(observedNode.receipts)
         // Remove all existing messages before re-validating
         node.store.filter(() => false, 'validation')
-        validate(
-          observedNode,
-          parseRules(event.payload.value, availableRules),
-          state
-        )
+        node.props.parsedRules = parseRules(event.payload.value, availableRules)
+        validate(observedNode, node.props.parsedRules, state)
       }
     })
     // Validate the field when this plugin is initialized
-    validate(
-      observedNode,
-      parseRules(node.props.validation, availableRules),
-      state
-    )
+    node.props.parsedRules = parseRules(node.props.validation, availableRules)
+    validate(observedNode, node.props.parsedRules, state)
   }
 }
 
@@ -248,13 +242,13 @@ function run(
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
-      state.rerun = (setTimeout(
+      state.rerun = setTimeout(
         validate,
         0,
         node,
         validations,
         state
-      ) as unknown) as number
+      ) as unknown as number
     })
     validation.deps = newDeps
 
@@ -323,10 +317,10 @@ function runRule(
   after: (result: boolean | Promise<boolean>) => void
 ) {
   if (validation.debounce) {
-    validation.timer = (setTimeout(() => {
+    validation.timer = setTimeout(() => {
       node.observe()
       after(validation.rule(node, ...validation.args))
-    }, validation.debounce) as unknown) as number
+    }, validation.debounce) as unknown as number
   } else {
     node.observe()
     after(validation.rule(node, ...validation.args))
