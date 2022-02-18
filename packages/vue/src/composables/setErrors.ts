@@ -47,19 +47,19 @@ function createMessages(
 /**
  * Sets errors on a form, group, or input.
  * @param formId - The id of a form
- * @param formErrors - The errors to set on the form or the form’s inputs
- * @param inputErrors - (optional) The errors to set on the form or the form’s inputs
+ * @param localErrors - The errors to set on the form or the form’s inputs
+ * @param childErrors - (optional) The errors to set on the form or the form’s inputs
  * @public
  */
 export default function setErrors(
   id: string,
-  formErrors: string[] | Record<string, string | string[]>,
-  inputErrors?: string[] | Record<string, string | string[]>
+  localErrors: string[] | Record<string, string | string[]>,
+  childErrors?: string[] | Record<string, string | string[]>
 ): void {
   const node = getNode(id)
   if (node) {
     const sourceKey = `${node.name}-set`
-    createMessages(node, formErrors, inputErrors).forEach((errors) => {
+    createMessages(node, localErrors, childErrors).forEach((errors) => {
       node.store.apply(errors, (message) => message.meta.source === sourceKey)
     })
   } else {

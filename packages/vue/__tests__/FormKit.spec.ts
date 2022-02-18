@@ -5,6 +5,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode } from '@formkit/core'
 import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
@@ -35,6 +36,28 @@ describe('props', () => {
     expect(wrapper.html()).toContain(
       '<li class="formkit-message">This is another</li>'
     )
+  })
+
+  it('it counts the errors on an input', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        errors: ['This is an error', 'This is another'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.ledger.value('errors')).toBe(2)
+    expect(node?.context?.state.errors).toBe(true)
+    wrapper.setProps({
+      errors: [],
+    })
+    await nextTick()
+    expect(node?.ledger.value('errors')).toBe(0)
+    expect(node?.context?.state.errors).toBe(false)
   })
 
   it('can only display a single error of the same value', async () => {
@@ -283,6 +306,96 @@ describe('validation', () => {
     name.setValue('Rockefeller')
     await new Promise((r) => setTimeout(r, 40))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
+  })
+
+  it('knows the state of validation visibility when set to blur', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to live', () => {
+    const id = token()
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        validation: 'required',
+        validationVisibility: 'live',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to dirty', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        delay: 0,
+        validation: 'required',
+        validationVisibility: 'dirty',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').element.value = 'foobar'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to submit', async () => {
+    const id = token()
+    const formId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${formId}" @submit="() => {}">
+          <FormKit
+            id="${id}"
+            validation="required"
+            validation-visibility="submit"
+            :delay="0"
+          />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').element.value = 'foobar'
+    wrapper.find('input').trigger('input')
+    wrapper.find('input').trigger('blur')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('form').trigger('submit')
+    await nextTick()
+    expect(node?.context?.state.validationVisible).toBe(true)
   })
 
   it('can show validation on blur', async () => {

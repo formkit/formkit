@@ -331,28 +331,102 @@ export interface FormKitContext {
  */
 export interface FormKitFrameworkContext {
   [index: string]: unknown
+  /**
+   * The current "live" value of the input. Not debounced.
+   */
   _value: any
+  /**
+   * An object of attributes that (generally) should be applied to the root
+   * <input> element.
+   */
   attrs: Record<string, any>
+  /**
+   * Classes to apply on the various sections.
+   */
   classes: Record<string, string>
+  /**
+   * Event handlers.
+   */
   handlers: {
     blur: () => void
     touch: () => void
     DOMInput: (e: Event) => void
   } & Record<string, (...args: any[]) => void>
+  /**
+   * Utility functions, generally for use in the input’s schema.
+   */
   fns: Record<string, (...args: any[]) => any>
+  /**
+   * The help text of the input.
+   */
   help?: string
+  /**
+   * The unique id of the input. Should also be applied as the id attribute.
+   * This is generally required for accessibility reasons.
+   */
   id: string
+  /**
+   * The label of the input.
+   */
   label?: string
+  /**
+   * A list of messages to be displayed on the input. Often these are validation
+   * messages and error messages, but other `visible` core node messages do also
+   * apply here. This object is only populated when the validation should be
+   * actually displayed.
+   */
   messages: Record<string, FormKitMessage>
+  /**
+   * The core node of this input.
+   */
   node: FormKitNode
+  /**
+   * If this input type accepts options (like select lists and checkboxes) then
+   * this will be populated with a properly structured list of options.
+   */
   options?: Array<Record<string, any> & { label: string; value: any }>
+  /**
+   * A collection of state trackers/details about the input.
+   */
   state: Record<string, boolean | undefined> & {
+    /**
+     * If the input has been blurred.
+     */
     blurred: boolean
+    /**
+     * If the input has had a value typed into it or a change made to it.
+     */
     dirty: boolean
+    /**
+     * If the form has been submitted.
+     */
     submitted: boolean
+    /**
+     * If the input (or group/form/list) is passing all validation rules. In
+     * the case of groups, forms, and lists this includes the validation state
+     * of all its children.
+     */
     valid: boolean
+    /**
+     * If the input has explicit errors placed on it, or in the case of a group,
+     * list, or form, this is true if any children have errors on them.
+     */
+    errors: boolean
+    /**
+     * If the validation-visibility has been satisfied and any validation
+     * messages should be displayed.
+     */
+    validationVisible: boolean
   }
+  /**
+   * The type of input "text" or "select" (retrieved from node.props.type). This
+   * is not the core node type (input, group, or list).
+   */
   type: string
+  /**
+   * The current committed value of the input. This is the value that should be
+   * used for most use cases.
+   */
   value: any
 }
 
@@ -690,14 +764,14 @@ function trap(
  */
 function createHooks(): FormKitHooks {
   const hooks: Map<string, FormKitDispatcher<unknown>> = new Map()
-  return (new Proxy(hooks, {
+  return new Proxy(hooks, {
     get(_, property: string) {
       if (!hooks.has(property)) {
         hooks.set(property, createDispatcher())
       }
       return hooks.get(property)
     },
-  }) as unknown) as FormKitHooks
+  }) as unknown as FormKitHooks
 }
 
 /**
@@ -725,9 +799,7 @@ export function resetCount(): void {
  * @param children -
  * @public
  */
-export function names(
-  children: FormKitNode[]
-): {
+export function names(children: FormKitNode[]): {
   [index: string]: FormKitNode
 } {
   return children.reduce(
@@ -791,12 +863,12 @@ function input(
   if (context.isSettled) node.disturb()
   if (async) {
     if (context._tmo) clearTimeout(context._tmo)
-    context._tmo = (setTimeout(
+    context._tmo = setTimeout(
       commit,
       node.props.delay,
       node,
       context
-    ) as unknown) as number
+    ) as unknown as number
   } else {
     commit(node, context)
   }
@@ -851,9 +923,9 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ;((context._value as unknown) as FormKitGroupValue)[name as string] = value
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
   } else {
-    delete ((context._value as unknown) as FormKitGroupValue)[name as string]
+    delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
 }
 
@@ -1612,7 +1684,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
-  const node = (new Proxy(context, {
+  const node = new Proxy(context, {
     get(...args) {
       const [, property] = args
       if (property === '__FKNode__') return true
@@ -1626,7 +1698,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown) as FormKitNode
+  }) as unknown as FormKitNode
 
   return nodeInit(node, ops)
 }
