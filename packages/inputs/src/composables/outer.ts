@@ -8,6 +8,8 @@ const outer = composable('outer', () => ({
     'data-multiple': '$attrs.multiple',
     'data-disabled': '$disabled || undefined',
     'data-complete': '$state.complete || undefined',
+    'data-invalid':
+      '$state.valid === false && $state.validationVisible || undefined',
   },
 }))
 

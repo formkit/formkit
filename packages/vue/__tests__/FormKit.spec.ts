@@ -608,7 +608,8 @@ describe('classes', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toBe(`<div class="formkit-outer" data-type="text">
+    expect(wrapper.html())
+      .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
     <div class="formkit-inner">
       <!----><input type="text" class="formkit-input" name="classTest" id="foobar">
@@ -1016,5 +1017,28 @@ describe('state attributes', () => {
     expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
       'true'
     )
+  })
+
+  it('adds data-invalid when validation is failing and visible', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input')
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-invalid')).toBe(undefined)
+    input.trigger('blur')
+    await nextTick()
+    expect(outer.attributes('data-invalid')).toBe('true')
+    input.element.value = '123456'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 15))
+    expect(outer.attributes('data-invalid')).toBe(undefined)
   })
 })
