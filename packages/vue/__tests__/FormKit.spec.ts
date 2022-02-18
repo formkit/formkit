@@ -969,27 +969,6 @@ describe('state attributes', () => {
     )
   })
 
-  it('does not initialize with the complete attribute', async () => {
-    const wrapper = mount(FormKit, {
-      props: {
-        type: 'text',
-        delay: 0,
-      },
-      global: {
-        plugins: [[plugin, defaultConfig]],
-      },
-    })
-    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
-      undefined
-    )
-    wrapper.find('input').element.value = '123'
-    wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
-    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
-      'true'
-    )
-  })
-
   it('adds the data-complete attribute when it passes validation', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -1017,6 +996,12 @@ describe('state attributes', () => {
     expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
       'true'
     )
+    input.element.value = '126'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
   })
 
   it('adds data-invalid when validation is failing and visible', async () => {
@@ -1040,5 +1025,24 @@ describe('state attributes', () => {
     input.trigger('input')
     await new Promise((r) => setTimeout(r, 15))
     expect(outer.attributes('data-invalid')).toBe(undefined)
+  })
+
+  it('adds data-errors when the input has errors directly applied via prop', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+        errors: ['This is an error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-errors')).toBe('true')
+    wrapper.setProps({ errors: [] })
+    await nextTick()
+    expect(outer.attributes('data-errors')).toBe(undefined)
   })
 })
