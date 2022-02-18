@@ -42,7 +42,7 @@ const FormKit = defineComponent({
     if (!schemaDefinition) error(601, node)
     const schema =
       typeof schemaDefinition === 'function'
-        ? schemaDefinition(props.sectionsSchema)
+        ? schemaDefinition({ ...props.sectionsSchema })
         : schemaDefinition
     context.emit('node', node)
     const library = node.props.definition.library as
