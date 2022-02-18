@@ -398,6 +398,16 @@ export interface FormKitFrameworkContext {
      */
     dirty: boolean
     /**
+     * If the input has explicit errors placed on it, or in the case of a group,
+     * list, or form, this is true if any children have errors on them.
+     */
+    errors: boolean
+    /**
+     * True when the input has validation rules. Has nothing to do with the
+     * state of those validation rules.
+     */
+    rules: boolean
+    /**
      * If the form has been submitted.
      */
     submitted: boolean
@@ -407,11 +417,6 @@ export interface FormKitFrameworkContext {
      * of all its children.
      */
     valid: boolean
-    /**
-     * If the input has explicit errors placed on it, or in the case of a group,
-     * list, or form, this is true if any children have errors on them.
-     */
-    errors: boolean
     /**
      * If the validation-visibility has been satisfied and any validation
      * messages should be displayed.

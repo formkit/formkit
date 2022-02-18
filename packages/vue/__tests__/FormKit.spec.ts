@@ -458,6 +458,24 @@ describe('validation', () => {
     })
     expect(wrapper.html()).toContain('Too short')
   })
+
+  it('changes state.rules when the validation prop changes', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        validation: 'required|length:10',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.rules).toBe(true)
+    wrapper.setProps({ validation: '' })
+    await nextTick()
+    expect(node?.context?.state.rules).toBe(false)
+  })
 })
 
 describe('configuration', () => {

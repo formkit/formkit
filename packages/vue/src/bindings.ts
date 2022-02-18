@@ -68,6 +68,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * If the input has validation rules or not.
+   */
+  const hasValidation = ref<boolean>(
+    Array.isArray(node.props.parsedRules) && node.props.parsedRules.length > 0
+  )
+  node.on('prop:parsedRules', ({ payload: rules }) => {
+    hasValidation.value = Array.isArray(rules) && rules.length > 0
+  })
+
+  /**
    * All messages that are currently on display to an end user. This changes
    * based on the current message type visibility, like errorVisibility.
    */
@@ -199,6 +209,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       submitted: false,
       valid: !node.ledger.value('blocking'),
       errors: !!node.ledger.value('errors'),
+      rules: hasValidation,
       validationVisible,
     },
     type: node.props.type,
