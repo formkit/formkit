@@ -30,6 +30,34 @@ describe('group', () => {
     expect(inputs[2].element.value).toBe('hello')
   })
 
+  it('does not allow mutations to the initial value object. Issue #72', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            initial: { foo: 'abc', baz: 'hello' },
+          }
+        },
+        template: `
+        <div>
+          <FormKit type="group" :value="initial">
+            <FormKit name="foo" :delay="0" />
+            <FormKit name="bar" />
+            <FormKit name="baz" />
+          </FormKit>
+        </div>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('input').setValue('def')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.vm.initial).toStrictEqual({ foo: 'abc', baz: 'hello' })
+  })
+
   it('can use v-model to change input values', async () => {
     const wrapper = mount(
       {

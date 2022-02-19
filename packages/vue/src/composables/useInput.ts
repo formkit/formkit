@@ -10,7 +10,15 @@ import {
   createMessage,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { nodeProps, except, camel, extend, only, kebab } from '@formkit/utils'
+import {
+  nodeProps,
+  except,
+  camel,
+  extend,
+  only,
+  kebab,
+  cloneAny,
+} from '@formkit/utils'
 import {
   watchEffect,
   inject,
@@ -130,7 +138,9 @@ export function useInput(
    * Define the initial component
    */
   const value: any =
-    props.modelValue !== undefined ? props.modelValue : context.attrs.value
+    props.modelValue !== undefined
+      ? props.modelValue
+      : cloneAny(context.attrs.value)
 
   /**
    * Creates the node's initial props from the context, props, and definition
