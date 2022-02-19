@@ -959,14 +959,21 @@ describe('state attributes', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
+    const input = wrapper.find('input')
     expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
       undefined
     )
-    wrapper.find('input').element.value = '123'
-    wrapper.find('input').trigger('input')
+    input.element.value = '123'
+    input.trigger('input')
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
       'true'
+    )
+    input.element.value = ''
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
     )
   })
 

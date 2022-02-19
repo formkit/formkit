@@ -8,7 +8,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel } from '@formkit/utils'
+import { eq, has, camel, empty } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -74,7 +74,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const isComplete = computed<boolean>(() => {
     return hasValidation.value
       ? isValid.value && !hasErrors.value
-      : context.state.dirty
+      : context.state.dirty && !empty(context.value)
   })
 
   /**

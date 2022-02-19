@@ -403,7 +403,7 @@ export interface FormKitFrameworkContext {
      * Or:
      * - The input has no validation rules
      * - The input has no errors
-     * - The input is dirty
+     * - The input is dirty and has a value
      *
      * This is not intended to be used on forms/groups/lists but instead on
      * individual inputs. Imagine placing a green checkbox next to each input
