@@ -7,6 +7,7 @@ import { FormKitNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
+import setErrors from '../src/composables/setErrors'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -1042,6 +1043,35 @@ describe('state attributes', () => {
     const outer = wrapper.find('.formkit-outer')
     expect(outer.attributes('data-errors')).toBe('true')
     wrapper.setProps({ errors: [] })
+    await nextTick()
+    expect(outer.attributes('data-errors')).toBe(undefined)
+  })
+
+  it('adds data-errors when the input has errors applied via form', async () => {
+    const formId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${formId}">
+        <FormKit
+          type="text"
+          name="foo"
+          :delay="0"
+        />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    setErrors(formId, [], {
+      foo: ['this is an error'],
+    })
+    await nextTick()
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-errors')).toBe('true')
+    setErrors(formId, [], { foo: [] })
     await nextTick()
     expect(outer.attributes('data-errors')).toBe(undefined)
   })
