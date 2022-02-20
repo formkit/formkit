@@ -1,0 +1,39 @@
+name: Bug Report
+description: Use this to report a bug.
+labels: ["🐛 bug-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for takign the time to report the bug you found! However, before filing this issue, please ensure you have taken these steps first:
+          👉 I've searched open and closed issues for this bug.
+          👉 I can reliably reproduce this issue.
+          👉 I've reproduced the issue in the [playground](https://formkit.com/playground) or a repository.
+
+        🛑 Do not file bug reports to ask how to use a feature of FormKit.
+          👉 Ask questions on [stack overflow](https://stackoverflow.com/questions/ask?tags=formkit,vue.js).
+          👉 Ask question on [FormKit’s Discord](https://discord.gg/NZ6nchBDGx).
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Please provide a link to a FormKit Playground or repo that reproduces the bug.
+      placeholder: Reproduction
+    validations:
+      required: true
+- type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: Describe the bug and what behavior you expect if the bug is fixed.
+      placeholder: Bug description
+    validations:
+      required: true
+  - type: textarea
+    id: 'bug-env'
+    value: |
+      • OS: [e.g. iOS]
+      • Browser [e.g. chrome, safari]
+      • Version [e.g. 22]
+    validations:
+      required: true
