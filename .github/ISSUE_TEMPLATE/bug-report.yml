@@ -14,7 +14,7 @@ body:
           👉 Ask questions on [stack overflow](https://stackoverflow.com/questions/ask?tags=formkit,vue.js).
           👉 Ask question on [FormKit’s Discord](https://discord.gg/NZ6nchBDGx).
   - type: textarea
-    id: reproduction
+    id: bug-reproduction
     attributes:
       label: Reproduction
       description: Please provide a link to a FormKit Playground or repo that reproduces the bug.
@@ -22,15 +22,15 @@ body:
     validations:
       required: true
   - type: textarea
-      id: bug-description
-      attributes:
-        label: Describe the bug
-        description: Describe the bug and what behavior you expect if the bug is fixed.
-        placeholder: Bug description
-      validations:
-        required: true
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: Describe the bug and what behavior you expect if the bug is fixed.
+      placeholder: Bug description
+    validations:
+      required: true
   - type: textarea
-    id: 'bug-env'
+    id: bug-env
     value: |
       • OS: [e.g. iOS]
       • Browser [e.g. chrome, safari]
