@@ -1,0 +1,27 @@
+name: Feature request
+description: Use this to request new features.
+labels: ["🪄 enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for takign the time to improve FormKit! We love hearing how FormKit can be improved. Before filing your feature request:
+
+          👉 I've read the docs.
+          👉 I think this feature will be useful to other developers too.
+          👉 I've searched open and closed issues for this similar requests.
+
+        🛑 Do not file feature requests to ask how to use FormKit.
+
+          👉 Ask questions on [stack overflow](https://stackoverflow.com/questions/ask?tags=formkit,vue.js).
+          👉 Ask question on [FormKit’s Discord](https://discord.gg/NZ6nchBDGx).
+
+  - type: textarea
+    id: enhancement-description
+    attributes:
+      label: Describe the feature
+      description: Describe your requested feature. If possible, please provide a code example of how your feature would written/used.
+      placeholder: It would be great if...
+    validations:
+      required: true
+
