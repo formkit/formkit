@@ -21,14 +21,14 @@ body:
       placeholder: Reproduction
     validations:
       required: true
-- type: textarea
-    id: bug-description
-    attributes:
-      label: Describe the bug
-      description: Describe the bug and what behavior you expect if the bug is fixed.
-      placeholder: Bug description
-    validations:
-      required: true
+  - type: textarea
+      id: bug-description
+      attributes:
+        label: Describe the bug
+        description: Describe the bug and what behavior you expect if the bug is fixed.
+        placeholder: Bug description
+      validations:
+        required: true
   - type: textarea
     id: 'bug-env'
     value: |
