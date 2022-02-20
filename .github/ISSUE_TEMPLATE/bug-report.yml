@@ -6,19 +6,22 @@ body:
     attributes:
       value: |
         Thanks for takign the time to report the bug you found! However, before filing this issue, please ensure you have taken these steps first:
+
           👉 I've searched open and closed issues for this bug.
           👉 I can reliably reproduce this issue.
           👉 I've reproduced the issue in the [playground](https://formkit.com/playground) or a repository.
 
         🛑 Do not file bug reports to ask how to use a feature of FormKit.
+
           👉 Ask questions on [stack overflow](https://stackoverflow.com/questions/ask?tags=formkit,vue.js).
           👉 Ask question on [FormKit’s Discord](https://discord.gg/NZ6nchBDGx).
-  - type: textarea
+
+  - type: input
     id: bug-reproduction
     attributes:
       label: Reproduction
       description: Please provide a link to a FormKit Playground or repo that reproduces the bug.
-      placeholder: Reproduction
+      placeholder: http://formkit.link/...
     validations:
       required: true
   - type: textarea
