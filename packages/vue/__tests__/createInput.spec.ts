@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { token } from '@formkit/utils'
+import { FormKitNode } from '@formkit/core'
 import { createInput } from '../src/composables/createInput'
 import CustomCompositionInput from './mocks/CustomCompositionInput'
 import CustomOptionsInput from './mocks/CustomOptionsInput'
@@ -7,6 +8,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { nextTick } from 'vue'
+import { jest } from '@jest/globals'
 
 describe('schema based inputs', () => {
   it('automatically has labels and help text', () => {
@@ -164,5 +166,34 @@ describe('vue component inputs', () => {
     wrapper.find('input').trigger('input')
     await new Promise((r) => setTimeout(r, 22))
     expect(wrapper.vm.box).toBe(false)
+  })
+})
+
+describe('custom input behaviors', () => {
+  it('does not emit prop:{property} events for input props', async () => {
+    const pseudoPropEvent = jest.fn()
+    const nativePropEvent = jest.fn()
+    const input = createInput('test input', {
+      props: ['bizBaz'],
+      features: [
+        (node: FormKitNode) => {
+          node.on('prop:bizBaz', pseudoPropEvent)
+          node.on('prop:delay', nativePropEvent)
+        },
+      ],
+    })
+    mount(FormKit, {
+      props: {
+        type: input,
+        bizBaz: 'hello',
+        delay: 10,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    await nextTick()
+    expect(nativePropEvent).toHaveBeenCalledTimes(0)
+    expect(pseudoPropEvent).toHaveBeenCalledTimes(0)
   })
 })

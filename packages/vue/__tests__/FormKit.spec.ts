@@ -494,7 +494,7 @@ describe('validation', () => {
     expect(node?.context?.state.complete).toBe(false)
     wrapper.find('input').element.value = 'its not the end yet'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.complete).toBe(true)
   })
 

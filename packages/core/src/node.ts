@@ -1063,6 +1063,8 @@ function define(
   if (definition.props) {
     if (node.props.attrs) {
       const attrs = { ...node.props.attrs }
+      // Temporarily disable prop emits
+      node.props._emit = false
       for (const attr in attrs) {
         const camelName = camel(attr)
         if (definition.props.includes(camelName)) {
@@ -1070,6 +1072,8 @@ function define(
           delete attrs[attr]
         }
       }
+      // Re-enable prop emits
+      node.props._emit = true
       node.props.attrs = attrs
     }
   }
@@ -1569,6 +1573,7 @@ function defaultProps(node: FormKitNode): FormKitNode {
 function createProps() {
   const props: Record<PropertyKey, any> = {}
   let node: FormKitNode
+  let isEmitting = true
   return new Proxy(props, {
     get(...args) {
       const [_t, prop] = args
@@ -1582,6 +1587,10 @@ function createProps() {
         node = originalValue
         return true
       }
+      if (property === '_emit') {
+        isEmitting = originalValue
+        return true
+      }
       const { prop, value } = node.hook.prop.dispatch({
         prop: property,
         value: originalValue,
@@ -1589,8 +1598,10 @@ function createProps() {
       // Typescript compiler cannot handle a symbol index, even though js can:
       if (!eq(props[prop as string], value, false)) {
         const didSet = Reflect.set(target, prop, value, receiver)
-        node.emit('prop', { prop, value })
-        if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
+        if (isEmitting) {
+          node.emit('prop', { prop, value })
+          if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
+        }
         return didSet
       }
       return true
@@ -1657,7 +1668,9 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Set the internal node on the props, config, ledger and store
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
+  node.props._emit = false
   if (options.props) Object.assign(node.props, options.props)
+  node.props._emit = true
   // Attempt to find a definition from the pre-existing plugins.
   findDefinition(
     node,
