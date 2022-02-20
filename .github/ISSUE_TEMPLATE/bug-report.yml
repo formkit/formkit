@@ -31,9 +31,11 @@ body:
       required: true
   - type: textarea
     id: bug-env
-    value: |
-      • OS: [e.g. iOS]
-      • Browser [e.g. chrome, safari]
-      • Version [e.g. 22]
+    attributes:
+      label: Environment
+      value: |
+        • OS: [e.g. iOS]
+        • Browser [e.g. chrome, safari]
+        • Version [e.g. 22]
     validations:
       required: true
