@@ -5,8 +5,8 @@ import { has, clone } from '@formkit/utils'
  * Handle the submit event.
  * @param e - The event
  */
-async function handleSubmit(node: FormKitNode, e: Event) {
-  e.preventDefault()
+async function handleSubmit(node: FormKitNode, submitEvent: Event) {
+  submitEvent.preventDefault()
   await node.settled
   // Set the submitted state on all children
   node.walk((n) => {
@@ -20,7 +20,7 @@ async function handleSubmit(node: FormKitNode, e: Event) {
   })
 
   if (typeof node.props.onSubmitRaw === 'function') {
-    node.props.onSubmitRaw(e)
+    node.props.onSubmitRaw(submitEvent)
   }
 
   if (node.ledger.value('blocking')) {
@@ -64,8 +64,8 @@ async function handleSubmit(node: FormKitNode, e: Event) {
         node.store.remove('loading')
       }
     } else {
-      if (e.target instanceof HTMLFormElement) {
-        e.target.submit()
+      if (submitEvent.target instanceof HTMLFormElement) {
+        submitEvent.target.submit()
       }
     }
   }

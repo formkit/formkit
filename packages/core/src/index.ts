@@ -27,7 +27,7 @@ export {
 export {
   FormKitLedger,
   FormKitCounterCondition,
-  FormKitCounter
+  FormKitCounter,
 } from './ledger'
 
 /**
@@ -104,3 +104,8 @@ export * from './registry'
  * The root configuration creator.
  */
 export { createConfig } from './config'
+
+/**
+ * Sets error store messages on inputs.
+ */
+export { setErrors } from './setErrors'

@@ -1,13 +1,12 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { getNode } from '@formkit/core'
+import { getNode, setErrors } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
-import setErrors from '../src/composables/setErrors'
 import { ref, reactive } from 'vue'
 
 const global: Record<string, Record<string, any>> = {

@@ -1,10 +1,7 @@
-import {
-  getNode,
-  createMessage,
-  FormKitMessage,
-  FormKitNode,
-  warn,
-} from '@formkit/core'
+import { FormKitNode } from './node'
+import { FormKitMessage, createMessage } from './store'
+import { getNode } from './registry'
+import { warn } from './errors'
 
 /**
  * Creates an array of message arrays from strings.
@@ -51,7 +48,7 @@ function createMessages(
  * @param childErrors - (optional) The errors to set on the form or the form’s inputs
  * @public
  */
-export default function setErrors(
+export function setErrors(
   id: string,
   localErrors: string[] | Record<string, string | string[]>,
   childErrors?: string[] | Record<string, string | string[]>

@@ -3,11 +3,10 @@ import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode } from '@formkit/core'
+import { FormKitNode, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
-import setErrors from '../src/composables/setErrors'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
