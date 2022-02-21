@@ -5,6 +5,7 @@ import {
   getNode,
   createConfig,
   setErrors,
+  submitForm,
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
@@ -33,6 +34,7 @@ export interface FormKitVuePlugin {
     errors: string[] | Record<string, string | string[]>,
     inputErrors?: string[] | Record<string, string | string[]>
   ) => void
+  submit: (formId: string) => void
 }
 
 /**
@@ -53,6 +55,7 @@ function createPlugin(
       }
     },
     setErrors,
+    submit: submitForm,
   }
 }
 

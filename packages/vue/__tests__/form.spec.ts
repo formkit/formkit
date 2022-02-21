@@ -735,3 +735,110 @@ describe('form submission', () => {
     expect(wrapper.vm.values).toStrictEqual({ foo: undefined })
   })
 })
+
+describe('programmatic submission', () => {
+  it('can be submitted programmatically', async () => {
+    const id = 'programmatic-form-test'
+    const submit = jest.fn()
+    const submitRaw = jest.fn()
+    const warning = jest.fn(() => {})
+    const mock = jest.spyOn(console, 'warn').mockImplementation(warning)
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="form"
+          id="${id}"
+          @submit-raw="submitRawHandler"
+          @submit="submitHandler"
+        >
+          <FormKit name="foo" type="number" :delay="0" validation="required" />
+          <FormKit name="bar" type="select" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
+        </FormKit>
+      `,
+        methods: {
+          submit() {
+            this.$formkit.submit(id)
+          },
+          submitHandler(data: any) {
+            submit(data)
+          },
+          submitRawHandler() {
+            submitRaw()
+          },
+        },
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.vm.submit()
+    mock.mockRestore()
+    await nextTick()
+    expect(warning).toHaveBeenCalledTimes(0)
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    const form = getNode(id)
+    form!.at('foo')!.input(123)
+    await new Promise((r) => setTimeout(r, 10))
+    form!.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(2)
+    expect(submit).toHaveBeenCalledWith({
+      foo: 123,
+      bar: 'xyz',
+    })
+  })
+
+  it('can be submitted by child node', async () => {
+    const id = 'childInput'
+    const submit = jest.fn()
+    const submitRaw = jest.fn()
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="form"
+          @submit-raw="submitRawHandler"
+          @submit="submitHandler"
+        >
+          <FormKit type="list">
+            <FormKit type="group">
+              <FormKit id="${id}" name="foo" type="number" :delay="0" validation="required" />
+            </FormKit>
+          </FormKit>
+        </FormKit>
+      `,
+        methods: {
+          submit() {
+            getNode(id)?.submit()
+          },
+          submitHandler(data: any) {
+            submit(data)
+          },
+          submitRawHandler() {
+            submitRaw()
+          },
+        },
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.vm.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledTimes(0)
+    getNode(id)!.input(123)
+    await new Promise((r) => setTimeout(r, 15))
+    wrapper.vm.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(2)
+    expect(submit).toHaveBeenCalledTimes(1)
+  })
+})

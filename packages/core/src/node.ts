@@ -26,6 +26,7 @@ import {
 } from './schema'
 import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
+import { submitForm } from './submitForm'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -622,6 +623,10 @@ export type FormKitNode = {
    */
   settled: Promise<unknown>
   /**
+   * Triggers a submit event on the nearest form.
+   */
+  submit: () => void
+  /**
    * A text or translation function that exposes a given string to the "text"
    * hook — all text shown to users should be passed through this function
    * before being displayed — especially for core and plugin authors.
@@ -744,6 +749,7 @@ const traps = {
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
   resetConfig: trap(resetConfig),
+  submit: trap(submit),
   t: trap(text),
   use: trap(use),
   name: trap(getName, false, false),
@@ -863,7 +869,6 @@ function createValue(options: FormKitOptions) {
   }
   return options.value === null ? '' : options.value
 }
-
 /**
  * Sets the internal value of the node.
  * @param node -
@@ -1553,6 +1558,23 @@ function text(
   const value = node.hook.text.dispatch(fragment)
   node.emit('text', value, false)
   return value.value
+}
+
+/**
+ * Submits the nearest ancestor that is a FormKit "form". It determines which
+ * node is a form by locating an ancestor where node.props.isForm = true.
+ * @param node - The node to initiate the submit
+ */
+function submit(node: FormKitNode): void {
+  const name = node.name
+  do {
+    if (node.props.isForm === true) break
+    if (!node.parent) error(106, name)
+    node = node.parent
+  } while (node)
+  if (node.props.id) {
+    submitForm(node.props.id)
+  }
 }
 
 /**

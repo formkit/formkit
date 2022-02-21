@@ -76,6 +76,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
  * @param node - A formkit node.
  */
 export default function (node: FormKitNode): void {
+  node.props.isForm = true
   node.on('created', () => {
     if (node.context?.handlers) {
       node.context.handlers.submit = handleSubmit.bind(null, node)
