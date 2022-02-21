@@ -1,7 +1,7 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { getNode, setErrors } from '@formkit/core'
+import { getNode, setErrors, FormKitNode } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
@@ -733,6 +733,25 @@ describe('form submission', () => {
       }
     )
     expect(wrapper.vm.values).toStrictEqual({ foo: undefined })
+  })
+
+  it('can set errors on the form using the node passed in the submit handler', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler(_data: any, node: FormKitNode) {
+            node.setErrors(['Woops your phone battery is low'])
+          },
+        },
+        template: `<FormKit type="form" @submit="submitHandler">
+        <FormKit type="text" name="name" />
+      </FormKit>`,
+      },
+      global
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.html()).toContain('Woops your phone battery is low')
   })
 })
 
