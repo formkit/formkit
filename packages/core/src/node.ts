@@ -27,6 +27,7 @@ import {
 import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
 import { submitForm } from './submitForm'
+import { createMessages, ErrorMessages } from './store'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -618,6 +619,10 @@ export type FormKitNode = {
    */
   resetConfig: () => void
   /**
+   * Sets errors on the input, and optionally, and child inputs.
+   */
+  setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
+  /**
    * A promise that resolves when a node and its entire subtree is settled.
    * In other words — all the inputs are done committing their values.
    */
@@ -749,6 +754,7 @@ const traps = {
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
   resetConfig: trap(resetConfig),
+  setErrors: trap(errors),
   submit: trap(submit),
   t: trap(text),
   use: trap(use),
@@ -1575,6 +1581,25 @@ function submit(node: FormKitNode): void {
   if (node.props.id) {
     submitForm(node.props.id)
   }
+}
+
+/**
+ * Sets errors on the node and optionally its children.
+ * @param node - The node to set errors on
+ * @param _context - Not used
+ * @param localErrors - An array of errors to set on this node
+ * @param childErrors - An object of name to errors to set on children.
+ */
+function errors(
+  node: FormKitNode,
+  _context: FormKitContext,
+  localErrors: ErrorMessages,
+  childErrors?: ErrorMessages
+) {
+  const sourceKey = `${node.name}-set`
+  createMessages(node, localErrors, childErrors).forEach((errors) => {
+    node.store.apply(errors, (message) => message.meta.source === sourceKey)
+  })
 }
 
 /**
