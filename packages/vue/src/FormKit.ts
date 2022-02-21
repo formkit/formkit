@@ -48,6 +48,10 @@ const FormKit = defineComponent({
     const library = node.props.definition.library as
       | Record<string, ConcreteComponent>
       | undefined
+
+    // Expose the FormKitNode to template refs.
+    context.expose({ node })
+
     return () =>
       h(
         FormKitSchema,

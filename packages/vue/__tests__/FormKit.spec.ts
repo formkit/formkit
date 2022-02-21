@@ -1082,3 +1082,21 @@ describe('state attributes', () => {
     expect(outer.attributes('data-errors')).toBe(undefined)
   })
 })
+
+describe('exposures', () => {
+  it('exposes the core FormKitNode', () => {
+    const wrapper = mount(
+      {
+        template: '<FormKit type="select" ref="select" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = (wrapper.vm.$refs.select as any).node as FormKitNode
+    expect(node.props.type).toBe('select')
+    expect(node.__FKNode__).toBe(true)
+  })
+})
