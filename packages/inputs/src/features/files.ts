@@ -83,6 +83,11 @@ export default function (node: FormKitNode): void {
         node.input(files)
       }
       if (node.context) node.context.files = files
+      // Call the original listener if there is one.
+
+      if (typeof node.props.attrs?.onChange === 'function') {
+        node.props.attrs?.onChange(e)
+      }
     }
   })
 }

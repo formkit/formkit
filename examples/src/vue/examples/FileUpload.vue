@@ -17,6 +17,7 @@
       name="single_file"
       label="Single file"
       help="You can only select one file"
+      @change="changed"
     />
     <FormKit
       type="file"
@@ -34,4 +35,8 @@ import { ref } from 'vue'
 const values = ref({
   another_file: [ { name: 'pizza.jpg' } ]
 })
+
+function changed () {
+  alert('@change event fired')
+}
 </script>

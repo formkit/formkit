@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
 import { de, fr } from '@formkit/i18n'
-import '@formkit/themes/dist/genesis/theme.css'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import '@formkit/themes/genesis'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
@@ -11,6 +11,7 @@ import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
+import ModifySchema from './vue/examples/ModifySchema.vue'
 
 const myInput = createInput(CurrencyInput)
 
@@ -32,6 +33,10 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
+      path: '/',
+      component: BasicForm,
+    },
+    {
       path: '/basic-form',
       component: BasicForm,
     },
@@ -50,6 +55,10 @@ const router = createRouter({
     {
       path: '/tsx',
       component: TSXExample,
+    },
+    {
+      path: '/plugin-schema',
+      component: ModifySchema,
     },
   ],
 })

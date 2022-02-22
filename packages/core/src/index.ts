@@ -24,7 +24,11 @@ export {
 /**
  * The FormKit ledger.
  */
-export { FormKitLedger } from './ledger'
+export {
+  FormKitLedger,
+  FormKitCounterCondition,
+  FormKitCounter,
+} from './ledger'
 
 /**
  * Export dispatcher typings.
@@ -68,6 +72,7 @@ export {
   FormKitSchemaDOMNode,
   FormKitSchemaFormKit,
   FormKitSchemaNode,
+  FormKitSchemaProps,
   FormKitSchemaTextNode,
   isComponent,
   isConditional,
@@ -99,3 +104,13 @@ export * from './registry'
  * The root configuration creator.
  */
 export { createConfig } from './config'
+
+/**
+ * Sets error store messages on inputs.
+ */
+export { setErrors } from './setErrors'
+
+/**
+ * Programmatically submits a form by the id.
+ */
+export { submitForm } from './submitForm'

@@ -12,6 +12,7 @@ const textarea = composable('input', () => ({
     value: '$_value',
     id: '$id',
   },
+  children: '$initialValue',
 }))
 
 export default textarea

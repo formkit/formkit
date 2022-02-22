@@ -3,8 +3,9 @@ import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode } from '@formkit/core'
+import { FormKitNode, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
@@ -35,6 +36,28 @@ describe('props', () => {
     expect(wrapper.html()).toContain(
       '<li class="formkit-message">This is another</li>'
     )
+  })
+
+  it('it counts the errors on an input', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        errors: ['This is an error', 'This is another'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.ledger.value('errors')).toBe(2)
+    expect(node?.context?.state.errors).toBe(true)
+    wrapper.setProps({
+      errors: [],
+    })
+    await nextTick()
+    expect(node?.ledger.value('errors')).toBe(0)
+    expect(node?.context?.state.errors).toBe(false)
   })
 
   it('can only display a single error of the same value', async () => {
@@ -285,6 +308,96 @@ describe('validation', () => {
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
 
+  it('knows the state of validation visibility when set to blur', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to live', () => {
+    const id = token()
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        validation: 'required',
+        validationVisibility: 'live',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to dirty', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        delay: 0,
+        validation: 'required',
+        validationVisibility: 'dirty',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').element.value = 'foobar'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('knows the state of validation visibility when set to submit', async () => {
+    const id = token()
+    const formId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${formId}" @submit="() => {}">
+          <FormKit
+            id="${id}"
+            validation="required"
+            validation-visibility="submit"
+            :delay="0"
+          />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('input').element.value = 'foobar'
+    wrapper.find('input').trigger('input')
+    wrapper.find('input').trigger('blur')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.validationVisible).toBe(false)
+    wrapper.find('form').trigger('submit')
+    await nextTick()
+    expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
   it('can show validation on blur', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -344,6 +457,84 @@ describe('validation', () => {
       },
     })
     expect(wrapper.html()).toContain('Too short')
+  })
+
+  it('changes state.rules when the validation prop changes', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        validation: 'required|length:10',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.rules).toBe(true)
+    wrapper.setProps({ validation: '' })
+    await nextTick()
+    expect(node?.context?.state.rules).toBe(false)
+  })
+
+  it('is complete when the input has validation rules that are passing', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        validation: 'required|length:10',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'its not the end yet'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(node?.context?.state.complete).toBe(true)
+  })
+
+  it('is complete when it has no validation rules is not dirty', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'yes'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.complete).toBe(true)
+  })
+
+  it('is not complete when the input has explicit error messages', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        validation: 'required',
+        errors: ['This is an error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    expect(node?.context?.state.complete).toBe(false)
+    wrapper.find('input').element.value = 'yes'
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node?.context?.state.complete).toBe(false)
   })
 })
 
@@ -417,7 +608,8 @@ describe('classes', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toBe(`<div class="formkit-outer" data-type="text">
+    expect(wrapper.html())
+      .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
     <div class="formkit-inner">
       <!----><input type="text" class="formkit-input" name="classTest" id="foobar">
@@ -752,5 +944,159 @@ describe('prefix and suffix', () => {
     <option class="formkit-option" value="B">B</option>
   </select>Suffix</div>`
     )
+  })
+})
+
+describe('state attributes', () => {
+  it('does not initialize with the complete attribute', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input')
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    input.element.value = '123'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      'true'
+    )
+    input.element.value = ''
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+  })
+
+  it('adds the data-complete attribute when it passes validation', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input')
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    input.element.value = '123'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+    input.element.value = '123456'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      'true'
+    )
+    input.element.value = '126'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-complete')).toBe(
+      undefined
+    )
+  })
+
+  it('adds data-invalid when validation is failing and visible', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input')
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-invalid')).toBe(undefined)
+    input.trigger('blur')
+    await nextTick()
+    expect(outer.attributes('data-invalid')).toBe('true')
+    input.element.value = '123456'
+    input.trigger('input')
+    await new Promise((r) => setTimeout(r, 15))
+    expect(outer.attributes('data-invalid')).toBe(undefined)
+  })
+
+  it('adds data-errors when the input has errors directly applied via prop', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        validation: 'required|length:5',
+        errors: ['This is an error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-errors')).toBe('true')
+    wrapper.setProps({ errors: [] })
+    await nextTick()
+    expect(outer.attributes('data-errors')).toBe(undefined)
+  })
+
+  it('adds data-errors when the input has errors applied via form', async () => {
+    const formId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${formId}">
+        <FormKit
+          type="text"
+          name="foo"
+          :delay="0"
+        />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    setErrors(formId, [], {
+      foo: ['this is an error'],
+    })
+    await nextTick()
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-errors')).toBe('true')
+    setErrors(formId, [], { foo: [] })
+    await nextTick()
+    expect(outer.attributes('data-errors')).toBe(undefined)
+  })
+})
+
+describe('exposures', () => {
+  it('exposes the core FormKitNode', () => {
+    const wrapper = mount(
+      {
+        template: '<FormKit type="select" ref="select" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = (wrapper.vm.$refs.select as any).node as FormKitNode
+    expect(node.props.type).toBe('select')
+    expect(node.__FKNode__).toBe(true)
   })
 })

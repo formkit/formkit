@@ -44,7 +44,9 @@ function createOutputConfig() {
   if (!declarations) {
     const extras = {}
     let fileName =
-      format !== 'iife' ? `index.${format}.js` : `formkit-${pkg}.js`
+      format !== 'iife'
+        ? `index.${format === 'esm' ? 'mjs' : format}`
+        : `formkit-${pkg}.js`
     if (format === 'iife') {
       extras.globals = {
         vue: 'Vue',

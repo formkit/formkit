@@ -33,6 +33,7 @@ const errors: Record<
   104: ({ data: [operator, expression] }) =>
     `Schema expressions cannot end with an operator (${operator} in "${expression}")`,
   105: ({ data: expression }) => `Invalid schema expression: ${expression}`,
+  106: ({ data: name }) => `Cannot submit because (${name}) is not in a form.`,
   /**
    * FormKit vue errors:
    */
@@ -59,6 +60,7 @@ const warnings: Record<
    */
   150: ({ data: fn }: { data: string }) =>
     `Schema function "${fn}()" is not a valid function.`,
+  151: ({ data: id }: { data: string }) => `No form element with id: ${id}`,
   /**
    * Input specific warnings:
    */

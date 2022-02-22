@@ -27,8 +27,9 @@ const cloudfront = new CloudFrontClient(awsConfig)
 const distributionId = 'E1VORKQ727K1W8'
 
 // The current version of Vue
-const vueVersion = JSON.parse(readFileSync('./node_modules/vue/package.json'))
-  .version
+const vueVersion = JSON.parse(
+  readFileSync('./node_modules/vue/package.json')
+).version
 
 async function askForVersion() {
   const { version } = await prompts({
@@ -71,7 +72,7 @@ async function deployESM(version) {
     matches.forEach((file) => {
       if (
         !lstatSync(file).isDirectory() &&
-        (file.endsWith('esm.js') || file.endsWith('.css'))
+        (file.endsWith('index.mjs') || file.endsWith('.css'))
       ) {
         uploads.push(sendFile(version, pkg, file))
       }

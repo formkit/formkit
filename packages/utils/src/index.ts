@@ -463,6 +463,18 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
 }
 
 /**
+ * Clones anything. If the item is scalar, no worries, it passes it back. if it
+ * is an object, it performs a (fast/loose) clone operation.
+ * @param obj - The object to clone
+ * @public
+ */
+export function cloneAny<T>(obj: T): T {
+  return typeof obj === 'object'
+    ? (clone(obj as Record<string, unknown>) as T)
+    : obj
+}
+
+/**
  * Get a specific value via dot notation.
  * @param obj - An object to fetch data from
  * @param addr - An "address" in dot notation

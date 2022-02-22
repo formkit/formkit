@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -8,7 +8,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel } from '@formkit/utils'
+import { eq, has, camel, empty } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -21,11 +21,17 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Start a validity counter on all blocking messages.
    */
   node.ledger.count('blocking', (m) => m.blocking)
+  const isValid = ref<boolean>(!node.ledger.value('blocking'))
+  /**
+   * Start an error message counter.
+   */
+  node.ledger.count('errors', (m) => m.type === 'error')
+  const hasErrors = ref<boolean>(!!node.ledger.value('errors'))
 
   /**
    * All messages with the visibility state set to true.
    */
-  const visibleMessages = reactive<Record<string, FormKitMessage>>(
+  const availableMessages = reactive<Record<string, FormKitMessage>>(
     node.store.reduce((store, message) => {
       if (message.visible) {
         store[message.key] = message
@@ -35,39 +41,86 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   )
 
   /**
+   * A flag that determines when validation messages should be displayed.
+   */
+  const validationVisibility = ref<string>(
+    node.props.validationVisibility || 'blur'
+  )
+  node.on('props:validationVisibility', ({ payload }) => {
+    validationVisibility.value = payload
+  })
+
+  /**
+   * The current visibility state of validation messages.
+   */
+  const validationVisible = computed<boolean>(() => {
+    switch (validationVisibility.value) {
+      case 'live':
+        return true
+      case 'blur':
+        return context.state.blurred
+      case 'dirty':
+        return context.state.dirty
+      case 'submit':
+        return context.state.submitted
+      default:
+        return false
+    }
+  })
+
+  /**
+   * Determines if the input should be considered "complete".
+   */
+  const isComplete = computed<boolean>(() => {
+    return hasValidation.value
+      ? isValid.value && !hasErrors.value
+      : context.state.dirty && !empty(context.value)
+  })
+
+  /**
+   * If the input has validation rules or not.
+   */
+  const hasValidation = ref<boolean>(
+    Array.isArray(node.props.parsedRules) && node.props.parsedRules.length > 0
+  )
+  node.on('prop:parsedRules', ({ payload: rules }) => {
+    hasValidation.value = Array.isArray(rules) && rules.length > 0
+  })
+
+  /**
    * All messages that are currently on display to an end user. This changes
    * based on the current message type visibility, like errorVisibility.
    */
   const messages = computed<Record<string, FormKitMessage>>(() => {
-    const availableMessages: Record<string, FormKitMessage> = {}
-    for (const key in visibleMessages) {
-      const message = visibleMessages[key]
+    const visibleMessages: Record<string, FormKitMessage> = {}
+    for (const key in availableMessages) {
+      const message = availableMessages[key]
       // Once a form is "submitted" all inputs are live.
       if (context.state.submitted) {
-        availableMessages[key] = message
+        visibleMessages[key] = message
         continue
       }
-      let visibility = node.props[`${message.type}Visibility`]
-      if (!visibility) {
-        visibility = message.type === 'validation' ? 'blur' : 'live'
-      }
+      const visibility =
+        message.type === 'validation'
+          ? validationVisibility.value
+          : node.props[`${message.type}Visibility`] || 'live'
       switch (visibility) {
         case 'live':
-          availableMessages[key] = message
+          visibleMessages[key] = message
           break
         case 'blur':
           if (context.state.blurred) {
-            availableMessages[key] = message
+            visibleMessages[key] = message
           }
           break
         case 'dirty':
           if (context.state.dirty) {
-            availableMessages[key] = message
+            visibleMessages[key] = message
           }
           break
       }
     }
-    return availableMessages
+    return visibleMessages
   })
 
   /**
@@ -162,9 +215,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     options: node.props.options,
     state: {
       blurred: false,
+      complete: isComplete,
       dirty: false,
       submitted: false,
-      valid: !node.ledger.value('blocking'),
+      valid: isValid,
+      errors: hasErrors,
+      rules: hasValidation,
+      validationVisible,
     },
     type: node.props.type,
     ui,
@@ -250,7 +307,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         context.value = payload
     }
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty) context.handlers.touch()
+    if (!context.state.dirty && node.isCreated) context.handlers.touch()
   })
 
   /**
@@ -260,7 +317,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const updateState = (message: FormKitMessage) => {
     if (message.type === 'ui' && message.visible && !message.meta.showAsMessage)
       ui[message.key] = message
-    else if (message.visible) visibleMessages[message.key] = message
+    else if (message.visible) availableMessages[message.key] = message
     else if (message.type === 'state')
       context.state[message.key] = !!message.value
   }
@@ -272,14 +329,20 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   node.on('message-updated', (e) => updateState(e.payload))
   node.on('message-removed', ({ payload: message }) => {
     delete ui[message.key]
-    delete visibleMessages[message.key]
+    delete availableMessages[message.key]
     delete context.state[message.key]
   })
   node.on('settled:blocking', () => {
-    context.state.valid = true
+    isValid.value = true
   })
   node.on('unsettled:blocking', () => {
-    context.state.valid = false
+    isValid.value = false
+  })
+  node.on('settled:errors', () => {
+    hasErrors.value = false
+  })
+  node.on('unsettled:errors', () => {
+    hasErrors.value = true
   })
 
   node.context = context

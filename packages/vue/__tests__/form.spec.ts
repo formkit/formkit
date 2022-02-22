@@ -1,13 +1,12 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { getNode } from '@formkit/core'
+import { getNode, setErrors, FormKitNode } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
-import setErrors from '../src/composables/setErrors'
 import { ref, reactive } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
@@ -22,19 +21,24 @@ describe('form structure', () => {
       props: {
         type: 'form',
         name: 'test_form',
+        id: 'foo',
+        submitAttrs: {
+          id: 'button',
+        },
       },
       slots: {
         default: () => h('h1', 'in the form'),
       },
       ...global,
     })
-    expect(wrapper.html()).toEqual(`<form class="formkit-form" name="test_form">
+    expect(wrapper.html())
+      .toEqual(`<form id="foo" class="formkit-form" name="test_form">
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="input_1">
+      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="button">
           <!---->Submit
           <!---->
         </button></div>
@@ -42,6 +46,18 @@ describe('form structure', () => {
     </div>
   </div>
 </form>`)
+  })
+
+  it('outputs the id of the form', () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'form',
+        id,
+      },
+      ...global,
+    })
+    expect(wrapper.find('form').attributes('id')).toBe(id)
   })
 })
 
@@ -717,5 +733,131 @@ describe('form submission', () => {
       }
     )
     expect(wrapper.vm.values).toStrictEqual({ foo: undefined })
+  })
+
+  it('can set errors on the form using the node passed in the submit handler', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler(_data: any, node: FormKitNode) {
+            node.setErrors('Woops your phone battery is low')
+          },
+        },
+        template: `<FormKit type="form" @submit="submitHandler">
+        <FormKit type="text" name="name" />
+      </FormKit>`,
+      },
+      global
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.html()).toContain('Woops your phone battery is low')
+  })
+})
+
+describe('programmatic submission', () => {
+  it('can be submitted programmatically', async () => {
+    const id = 'programmatic-form-test'
+    const submit = jest.fn()
+    const submitRaw = jest.fn()
+    const warning = jest.fn(() => {})
+    const mock = jest.spyOn(console, 'warn').mockImplementation(warning)
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="form"
+          id="${id}"
+          @submit-raw="submitRawHandler"
+          @submit="submitHandler"
+        >
+          <FormKit name="foo" type="number" :delay="0" validation="required" />
+          <FormKit name="bar" type="select" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
+        </FormKit>
+      `,
+        methods: {
+          submit() {
+            this.$formkit.submit(id)
+          },
+          submitHandler(data: any) {
+            submit(data)
+          },
+          submitRawHandler() {
+            submitRaw()
+          },
+        },
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.vm.submit()
+    mock.mockRestore()
+    await nextTick()
+    expect(warning).toHaveBeenCalledTimes(0)
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    const form = getNode(id)
+    form!.at('foo')!.input(123)
+    await new Promise((r) => setTimeout(r, 10))
+    form!.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(2)
+    expect(submit).toHaveBeenCalledWith({
+      foo: 123,
+      bar: 'xyz',
+    })
+  })
+
+  it('can be submitted by child node', async () => {
+    const id = 'childInput'
+    const submit = jest.fn()
+    const submitRaw = jest.fn()
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="form"
+          @submit-raw="submitRawHandler"
+          @submit="submitHandler"
+        >
+          <FormKit type="list">
+            <FormKit type="group">
+              <FormKit id="${id}" name="foo" type="number" :delay="0" validation="required" />
+            </FormKit>
+          </FormKit>
+        </FormKit>
+      `,
+        methods: {
+          submit() {
+            getNode(id)?.submit()
+          },
+          submitHandler(data: any) {
+            submit(data)
+          },
+          submitRawHandler() {
+            submitRaw()
+          },
+        },
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.vm.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledTimes(0)
+    getNode(id)!.input(123)
+    await new Promise((r) => setTimeout(r, 15))
+    wrapper.vm.submit()
+    await nextTick()
+    expect(submitRaw).toHaveBeenCalledTimes(2)
+    expect(submit).toHaveBeenCalledTimes(1)
   })
 })

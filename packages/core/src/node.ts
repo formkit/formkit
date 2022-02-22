@@ -26,6 +26,8 @@ import {
 } from './schema'
 import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
+import { submitForm } from './submitForm'
+import { createMessages, ErrorMessages } from './store'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -331,28 +333,124 @@ export interface FormKitContext {
  */
 export interface FormKitFrameworkContext {
   [index: string]: unknown
+  /**
+   * The current "live" value of the input. Not debounced.
+   */
   _value: any
+  /**
+   * An object of attributes that (generally) should be applied to the root
+   * <input> element.
+   */
   attrs: Record<string, any>
+  /**
+   * Classes to apply on the various sections.
+   */
   classes: Record<string, string>
+  /**
+   * Event handlers.
+   */
   handlers: {
     blur: () => void
     touch: () => void
     DOMInput: (e: Event) => void
   } & Record<string, (...args: any[]) => void>
+  /**
+   * Utility functions, generally for use in the input’s schema.
+   */
   fns: Record<string, (...args: any[]) => any>
+  /**
+   * The help text of the input.
+   */
   help?: string
+  /**
+   * The unique id of the input. Should also be applied as the id attribute.
+   * This is generally required for accessibility reasons.
+   */
   id: string
+  /**
+   * The label of the input.
+   */
   label?: string
+  /**
+   * A list of messages to be displayed on the input. Often these are validation
+   * messages and error messages, but other `visible` core node messages do also
+   * apply here. This object is only populated when the validation should be
+   * actually displayed.
+   */
   messages: Record<string, FormKitMessage>
+  /**
+   * The core node of this input.
+   */
   node: FormKitNode
+  /**
+   * If this input type accepts options (like select lists and checkboxes) then
+   * this will be populated with a properly structured list of options.
+   */
   options?: Array<Record<string, any> & { label: string; value: any }>
+  /**
+   * A collection of state trackers/details about the input.
+   */
   state: Record<string, boolean | undefined> & {
+    /**
+     * If the input has been blurred.
+     */
     blurred: boolean
+    /**
+     * True when these conditions are met:
+     *
+     * Either:
+     * - The input has validation rules
+     * - The validation rules are all passing
+     * - There are no errors on the input
+     * Or:
+     * - The input has no validation rules
+     * - The input has no errors
+     * - The input is dirty and has a value
+     *
+     * This is not intended to be used on forms/groups/lists but instead on
+     * individual inputs. Imagine placing a green checkbox next to each input
+     * when the user filled it out correctly — thats what these are for.
+     */
+    complete: boolean
+    /**
+     * If the input has had a value typed into it or a change made to it.
+     */
     dirty: boolean
+    /**
+     * If the input has explicit errors placed on it, or in the case of a group,
+     * list, or form, this is true if any children have errors on them.
+     */
+    errors: boolean
+    /**
+     * True when the input has validation rules. Has nothing to do with the
+     * state of those validation rules.
+     */
+    rules: boolean
+    /**
+     * If the form has been submitted.
+     */
     submitted: boolean
+    /**
+     * If the input (or group/form/list) is passing all validation rules. In
+     * the case of groups, forms, and lists this includes the validation state
+     * of all its children.
+     */
     valid: boolean
+    /**
+     * If the validation-visibility has been satisfied and any validation
+     * messages should be displayed.
+     */
+    validationVisible: boolean
   }
+  /**
+   * The type of input "text" or "select" (retrieved from node.props.type). This
+   * is not the core node type (input, group, or list).
+   */
   type: string
+  /**
+   * The current committed value of the input. This is the value that should be
+   * used for most use cases.
+   */
   value: any
 }
 
@@ -521,10 +619,18 @@ export type FormKitNode = {
    */
   resetConfig: () => void
   /**
+   * Sets errors on the input, and optionally, and child inputs.
+   */
+  setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
+  /**
    * A promise that resolves when a node and its entire subtree is settled.
    * In other words — all the inputs are done committing their values.
    */
   settled: Promise<unknown>
+  /**
+   * Triggers a submit event on the nearest form.
+   */
+  submit: () => void
   /**
    * A text or translation function that exposes a given string to the "text"
    * hook — all text shown to users should be passed through this function
@@ -648,6 +754,8 @@ const traps = {
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
   resetConfig: trap(resetConfig),
+  setErrors: trap(errors),
+  submit: trap(submit),
   t: trap(text),
   use: trap(use),
   name: trap(getName, false, false),
@@ -690,14 +798,14 @@ function trap(
  */
 function createHooks(): FormKitHooks {
   const hooks: Map<string, FormKitDispatcher<unknown>> = new Map()
-  return (new Proxy(hooks, {
+  return new Proxy(hooks, {
     get(_, property: string) {
       if (!hooks.has(property)) {
         hooks.set(property, createDispatcher())
       }
       return hooks.get(property)
     },
-  }) as unknown) as FormKitHooks
+  }) as unknown as FormKitHooks
 }
 
 /**
@@ -725,9 +833,7 @@ export function resetCount(): void {
  * @param children -
  * @public
  */
-export function names(
-  children: FormKitNode[]
-): {
+export function names(children: FormKitNode[]): {
   [index: string]: FormKitNode
 } {
   return children.reduce(
@@ -769,7 +875,6 @@ function createValue(options: FormKitOptions) {
   }
   return options.value === null ? '' : options.value
 }
-
 /**
  * Sets the internal value of the node.
  * @param node -
@@ -791,12 +896,12 @@ function input(
   if (context.isSettled) node.disturb()
   if (async) {
     if (context._tmo) clearTimeout(context._tmo)
-    context._tmo = (setTimeout(
+    context._tmo = setTimeout(
       commit,
       node.props.delay,
       node,
       context
-    ) as unknown) as number
+    ) as unknown as number
   } else {
     commit(node, context)
   }
@@ -851,9 +956,9 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ;((context._value as unknown) as FormKitGroupValue)[name as string] = value
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
   } else {
-    delete ((context._value as unknown) as FormKitGroupValue)[name as string]
+    delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
 }
 
@@ -969,6 +1074,8 @@ function define(
   if (definition.props) {
     if (node.props.attrs) {
       const attrs = { ...node.props.attrs }
+      // Temporarily disable prop emits
+      node.props._emit = false
       for (const attr in attrs) {
         const camelName = camel(attr)
         if (definition.props.includes(camelName)) {
@@ -976,6 +1083,8 @@ function define(
           delete attrs[attr]
         }
       }
+      // Re-enable prop emits
+      node.props._emit = true
       node.props.attrs = attrs
     }
   }
@@ -1458,6 +1567,42 @@ function text(
 }
 
 /**
+ * Submits the nearest ancestor that is a FormKit "form". It determines which
+ * node is a form by locating an ancestor where node.props.isForm = true.
+ * @param node - The node to initiate the submit
+ */
+function submit(node: FormKitNode): void {
+  const name = node.name
+  do {
+    if (node.props.isForm === true) break
+    if (!node.parent) error(106, name)
+    node = node.parent
+  } while (node)
+  if (node.props.id) {
+    submitForm(node.props.id)
+  }
+}
+
+/**
+ * Sets errors on the node and optionally its children.
+ * @param node - The node to set errors on
+ * @param _context - Not used
+ * @param localErrors - An array of errors to set on this node
+ * @param childErrors - An object of name to errors to set on children.
+ */
+function errors(
+  node: FormKitNode,
+  _context: FormKitContext,
+  localErrors: ErrorMessages,
+  childErrors?: ErrorMessages
+) {
+  const sourceKey = `${node.name}-set`
+  createMessages(node, localErrors, childErrors).forEach((errors) => {
+    node.store.apply(errors, (message) => message.meta.source === sourceKey)
+  })
+}
+
+/**
  * Middleware to assign default prop values as issued by core.
  * @param node - The node being registered
  * @param next - Calls the next middleware.
@@ -1475,6 +1620,7 @@ function defaultProps(node: FormKitNode): FormKitNode {
 function createProps() {
   const props: Record<PropertyKey, any> = {}
   let node: FormKitNode
+  let isEmitting = true
   return new Proxy(props, {
     get(...args) {
       const [_t, prop] = args
@@ -1488,6 +1634,10 @@ function createProps() {
         node = originalValue
         return true
       }
+      if (property === '_emit') {
+        isEmitting = originalValue
+        return true
+      }
       const { prop, value } = node.hook.prop.dispatch({
         prop: property,
         value: originalValue,
@@ -1495,8 +1645,10 @@ function createProps() {
       // Typescript compiler cannot handle a symbol index, even though js can:
       if (!eq(props[prop as string], value, false)) {
         const didSet = Reflect.set(target, prop, value, receiver)
-        node.emit('prop', { prop, value })
-        if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
+        if (isEmitting) {
+          node.emit('prop', { prop, value })
+          if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
+        }
         return didSet
       }
       return true
@@ -1563,7 +1715,9 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Set the internal node on the props, config, ledger and store
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
+  node.props._emit = false
   if (options.props) Object.assign(node.props, options.props)
+  node.props._emit = true
   // Attempt to find a definition from the pre-existing plugins.
   findDefinition(
     node,
@@ -1594,8 +1748,9 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Register the node globally if someone explicitly gave it an id
   if (options.props?.id) register(node)
   // Our node is finally ready, emit it to the world
+  node.emit('created', node)
   node.isCreated = true
-  return node.emit('created', node)
+  return node
 }
 
 /**
@@ -1612,7 +1767,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
   // Note: The typing for the proxy object cannot be fully modeled, thus we are
   // force-typing to a FormKitNode. See:
   // https://github.com/microsoft/TypeScript/issues/28067
-  const node = (new Proxy(context, {
+  const node = new Proxy(context, {
     get(...args) {
       const [, property] = args
       if (property === '__FKNode__') return true
@@ -1626,7 +1781,7 @@ export function createNode(options?: FormKitOptions): FormKitNode {
       if (trap && trap.set) return trap.set(node, context, property, value)
       return Reflect.set(...args)
     },
-  }) as unknown) as FormKitNode
+  }) as unknown as FormKitNode
 
   return nodeInit(node, ops)
 }

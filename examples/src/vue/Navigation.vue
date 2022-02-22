@@ -26,6 +26,11 @@
           TSX Example
         </router-link>
       </li>
+      <li>
+        <router-link to="/plugin-schema">
+          Modify schema with plugin
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
