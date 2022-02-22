@@ -740,7 +740,7 @@ describe('form submission', () => {
       {
         methods: {
           submitHandler(_data: any, node: FormKitNode) {
-            node.setErrors(['Woops your phone battery is low'])
+            node.setErrors('Woops your phone battery is low')
           },
         },
         template: `<FormKit type="form" @submit="submitHandler">
