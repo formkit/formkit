@@ -372,7 +372,10 @@ export function applyMessages(
  * Error messages.
  * @internal
  */
-export type ErrorMessages = string[] | Record<string, string | string[]>
+export type ErrorMessages =
+  | string
+  | string[]
+  | Record<string, string | string[]>
 
 /**
  * Creates an array of message arrays from strings.
@@ -384,17 +387,18 @@ export function createMessages(
   node: FormKitNode,
   ...errors: Array<ErrorMessages | undefined>
 ): Array<FormKitMessage[] | Record<string, FormKitMessage[]>> {
+  const sourceKey = `${node.name}-set`
+  const make = (error: string) =>
+    createMessage({
+      key: error,
+      type: 'error',
+      value: error,
+      meta: { source: sourceKey },
+    })
   return errors
     .filter((m) => !!m)
     .map((errorSet): FormKitMessage[] | Record<string, FormKitMessage[]> => {
-      const sourceKey = `${node.name}-set`
-      const make = (error: string) =>
-        createMessage({
-          key: error,
-          type: 'error',
-          value: error,
-          meta: { source: sourceKey },
-        })
+      if (typeof errorSet === 'string') errorSet = [errorSet]
       if (Array.isArray(errorSet)) {
         return errorSet.map((error) => make(error))
       } else {
