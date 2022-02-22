@@ -1,6 +1,6 @@
 {
   "name": "@formkit/themes",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.4",
   "type": "module",
   "description": "FormKit base themes",
   "main": "index.cjs.js",

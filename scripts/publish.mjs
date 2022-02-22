@@ -187,13 +187,9 @@ function yarnPublishAffectedPackages() {
         execSync(
           'cp ./packages/themes/package.json ./packages/themes/dist/package.json'
         )
-        execSync(
-          `yarn publish --cwd ./packages/${pkg}/dist --new-version ${version} --access restricted`
-        )
+        execSync(`npm publish ./packages/${pkg}/dist`)
       } else {
-        execSync(
-          `yarn publish --cwd ./packages/${pkg}/ --new-version ${version} --access restricted`
-        )
+        execSync(`npm publish ./packages/${pkg}/`)
       }
     } catch (e) {
       didPublish = false
