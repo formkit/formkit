@@ -19,7 +19,7 @@
 
 FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
 
-<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/brand-assets/fk-read-docs.png" /></a></p>
+<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
 
 # Sponsors
 
