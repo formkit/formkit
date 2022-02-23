@@ -16,16 +16,20 @@
 # FormKit (Beta)
 <h2>Industry-leading form development. 10x faster. For <img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3.</h2>
 
-FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
+faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
+handling, and validation rules. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
 
 <p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
 
 ## Sponsors
 
-FormKit, a form-authoring framework that provides input/form scaffolding, validation, submission, error handling, and more for _native HTML inputs_, is (and will always be) an MIT-licensed open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can make it the best it can be.
+FormKit — which supports its whole feature set for _native HTML inputs_ (like `select`, `checkbox`, and `textarea`) — is and will always be an MIT-licensed
+open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
+and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
 
-### Platinum Sponsors
+<!-- ### Platinum Sponsors
 Become the first Platinum Sponsor!
 
 <p style="margin-bottom: 1em;">
@@ -57,12 +61,11 @@ Become the first Platinum Sponsor!
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  
 </p>
 
 ### Backers
 
-<p>Your name here, your name here, your name here, your name here, your name here, your name here. </p>
+<p>Your name here, your name here, your name here, your name here, your name here, your name here. </p> -->
 
 <table style="width: 100%;">
 	<tr>
