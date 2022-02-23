@@ -5,6 +5,8 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
+  <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>
+  <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
 </p>
 
 <p align="center">
@@ -14,14 +16,66 @@
 # FormKit (Beta)
 <h2>Industry-leading form development. 10x faster. For <img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3.</h2>
 
-FormKit is a form authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
+faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
+handling, and validation rules. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
 
-<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/brand-assets/fk-read-docs.png" /></a></p>
+<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
+
+## Sponsors
+
+FormKit — which supports its whole feature set for _native HTML inputs_ (like `select`, `checkbox`, and `textarea`) — is and will always be an MIT-licensed
+open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
+and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
+
+<p>
+  <a href="https://github.com/sponsors/formkit">
+    <img src="./.github/your-logo-here.svg" width="290" height="150" alt="Sponsor formkit to add your logo here">
+  </a>
+</p>
+
+<!-- ### Platinum Sponsors
+Become the first Platinum Sponsor!
+
+<p style="margin-bottom: 1em;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
+</p>
+
+
+### Gold Sponsors
+
+<p style="margin-bottom: 1em;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
+</p>
+
+
+### Silver Sponsors
+
+<p style="margin-bottom: 1em;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+</P>
+
+
+### Bronze Sponsors
+
+<p style="margin-bottom: 1em;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+</p>
+
+### Backers
+
+<p>Your name here, your name here, your name here, your name here, your name here, your name here. </p> -->
 
 <table style="width: 100%;">
 	<tr>
 		<th colspan="2">
-			<h3>Key features</h3>
+			<h2>Key features</h3>
 		</th>
 	<tr>
 	<tr>

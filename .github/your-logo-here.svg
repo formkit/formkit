@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 290 150" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="Artboard1" transform="matrix(0.998549,0,0,0.995965,-138.529,-166.924)">
+        <rect x="138.73" y="167.601" width="290.421" height="150.608" style="fill:none;"/>
+        <clipPath id="_clip1">
+            <rect x="138.73" y="167.601" width="290.421" height="150.608"/>
+        </clipPath>
+        <g clip-path="url(#_clip1)">
+            <rect x="138.73" y="167.601" width="290.421" height="150.608" style="fill:rgb(235,235,235);"/>
+            <g transform="matrix(1.00145,0,0,1.00405,-3.71833,-7.01373)">
+                <text x="198.291px" y="238.383px" style="font-family:'Silka-Regular', 'Silka';font-size:24px;fill:rgb(101,101,101);">Y<tspan x="211.299px " y="238.383px ">o</tspan>ur L<tspan x="269.715px " y="238.383px ">o</tspan>go Her<tspan x="364.227px " y="238.383px ">e</tspan></text>
+            </g>
+            <g transform="matrix(0.274285,0,0,0.274996,284.883,264.433)">
+                <g transform="matrix(1,0,0,1,-50,-50)">
+                    <g transform="matrix(1,0,0,1,0,-952.362)">
+                        <path d="M19.212,975.819C12.259,983.095 12.266,994.804 19.212,1002.09L49.981,1034.36C60.249,1023.62 70.517,1012.87 80.785,1002.12C87.738,994.848 87.738,983.133 80.785,975.857C73.833,968.58 62.638,968.58 55.685,975.857L50.017,981.789L44.312,975.819C37.359,968.543 26.165,968.543 19.212,975.819Z" style="fill:rgb(101,101,101);fill-rule:nonzero;"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
