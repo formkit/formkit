@@ -7,7 +7,6 @@
   <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
   <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>
   <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
-  <a href=""><img src="https://img.shields.io/bundlephobia/minzip/@formkit/vue?compression=gzip&label=gzip"></a>
 </p>
 
 <p align="center">
@@ -26,79 +25,54 @@ FormKit is a form-authoring framework for Vue developers that makes building hig
 FormKit, a form-authoring framework that provides input/form scaffolding, validation, submission, error handling, and more for _native HTML inputs_, is (and will always be) an MIT-licensed open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can make it the best it can be.
 
 
-<table align="center" style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
-  <tbody>
-    <tr>
-      <th style="padding: 0;" colspan="2">
-        <h2 style="margin: 0; padding: 3px;">Platinum Sponsors</h2>
-        <p style="margin: 0; padding: 3px;">Become the first Platinum Sponsor!</p>
-      </th>
-    <tr>
-    <tr>
-      <td style="vertical-align: top;">
-        <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="300">
-      </td>
-      <td style="vertical-align: top;">
-        <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="300">
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div style="text-align: center;">
+  <h2>Platinum Sponsors</h2>
+  <p>Become the first Platinum Sponsor!</p>
 
-<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
-	<tr>
-		<th style="padding: 0;" colspan="3">
-			<h2 style="margin: 0; padding: 3px;">Gold Sponsors</h2>
-      <p style="margin: 0; padding: 3px;">Become the first Gold Sponsor!</p>
-		</th>
-	<tr>
-	<tr>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
-		</td>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
-		</td>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
-		</td>
-  </tr>
-</table>
-
-<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
-	<tr>
-		<th style="padding: 0;" colspan="4">
-			<h2 style="margin: 0; padding: 3px;">Silver Sponsors</h2>
-      <p style="margin: 0; padding: 3px;">Become the first Silver Sponsor!</p>
-		</th>
-	<tr>
-	<tr>
-    <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
-		</td>
-    <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
-		</td>
-    <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
-		</td>
-    <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
-		</td>
-  </tr>
-</table>
+  <div>
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="330" style="max-width: 330px; width: 45%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="330" style="max-width: 330px; width: 45%; display: inline-block; vertical-align: middle;">
+  </div>
+</div>
 
 
-<h2>Bronze Sponsors</h2>
+<div style="margin-bottom: 1em; text-align: center;">
+  <h2>Gold Sponsors</h2>
+  <p>Become the first Gold Sponsor!</p>
 
-<p>
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-</p>
+  <div>
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="max-width: 230px; width: 32%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="max-width: 230px; width: 32%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="max-width: 230px; width: 32%; display: inline-block; vertical-align: middle;">
+  </div>
+</div>
+
+
+<div style="margin-bottom: 1em; text-align: center;">
+  <h2>Silver Sponsors</h2>
+  <p>Become the first Silver Sponsor!</p>
+
+  <div style="margin-bottom: 1em;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="max-width: 175px; width: 24%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="max-width: 175px; width: 24%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="max-width: 175px; width: 24%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="max-width: 175px; width: 24%; display: inline-block; vertical-align: middle;">
+  </div>
+</div>
+
+
+<div style="margin-bottom: 1em; text-align: center;">
+  <h2>Bronze Sponsors</h2>
+
+  <p style="margin-bottom: 1em;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+    <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="max-width: 100px; width: 16%; display: inline-block; vertical-align: middle;">
+  </p>
+</div>
 
 <h2>Backers</h2>
 
