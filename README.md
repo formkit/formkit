@@ -20,13 +20,13 @@ FormKit is a form-authoring framework for Vue developers that makes building hig
 
 <p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
 
-# Sponsors
+## Sponsors
 
 FormKit, a form-authoring framework that provides input/form scaffolding, validation, submission, error handling, and more for _native HTML inputs_, is (and will always be) an MIT-licensed open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can make it the best it can be.
 
 
-<h2>Platinum Sponsors</h2>
-<p>Become the first Platinum Sponsor!</p>
+### Platinum Sponsors
+Become the first Platinum Sponsor!
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
@@ -34,7 +34,7 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 </p>
 
 
-<h2>Gold Sponsors</h2>
+### Gold Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
@@ -43,7 +43,7 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 </p>
 
 
-<h2>Silver Sponsors</h2>
+### Silver Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
@@ -53,7 +53,7 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 </P>
 
 
-<h2>Bronze Sponsors</h2>
+### Bronze Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
@@ -64,7 +64,7 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
 </p>
 
-<h2>Backers</h2>
+### Backers
 
 <p>Patricia Estrada, Samuel Ward, Allan Gay, Jon Curry </p>
 
