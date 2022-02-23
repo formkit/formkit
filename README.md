@@ -28,9 +28,11 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
-<a href="https://github.com/sponsors/formkit">
-  <img src="./.github/your-logo-here.svg" width="290" height="150" alt="Sponsor formkit to add your logo here">
-</a>
+<p>
+  <a href="https://github.com/sponsors/formkit">
+    <img src="./.github/your-logo-here.svg" width="290" height="150" alt="Sponsor formkit to add your logo here">
+  </a>
+</p>
 
 <!-- ### Platinum Sponsors
 Become the first Platinum Sponsor!
