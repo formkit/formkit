@@ -5,6 +5,9 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
+  <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>
+  <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
+  <a href=""><img src="https://img.shields.io/bundlephobia/minzip/@formkit/vue?compression=gzip&label=gzip"></a>
 </p>
 
 <p align="center">
@@ -14,14 +17,95 @@
 # FormKit (Beta)
 <h2>Industry-leading form development. 10x faster. For <img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3.</h2>
 
-FormKit is a form authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, validation rules, and error handling. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
 
 <p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/brand-assets/fk-read-docs.png" /></a></p>
+
+# Sponsors
+
+FormKit, a form-authoring framework that provides input/form scaffolding, validation, submission, error handling, and more for _native HTML inputs_, is (and will always be) an MIT-licensed open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can make it the best it can be.
+
+
+<table align="center" style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
+	<tr>
+		<th colspan="2">
+			<h2>Platinum Sponsors</h2>
+      <p>Become the first Platinum Sponsor!</p>
+		</th>
+	<tr>
+	<tr>
+    <td style="vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="300">
+		</td>
+    <td style="vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="300">
+		</td>
+  </tr>
+</table>
+
+<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
+	<tr>
+		<th colspan="2">
+			<h2>Gold Sponsors</h2>
+      <p>Become the first Gold Sponsor!</p>
+		</th>
+	<tr>
+	<tr>
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
+		</td>
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
+		</td>
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
+		</td>
+  </tr>
+</table>
+
+<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
+	<tr>
+		<th colspan="2">
+			<h2>Silver Sponsors</h2>
+      <p>Become the first Silver Sponsor!</p>
+		</th>
+	<tr>
+	<tr>
+    <td style="width: 20%; vertical-align: middle;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+		</td>
+    <td style="width: 20%; vertical-align: middle;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+		</td>
+    <td style="width: 20%; vertical-align: middle;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+		</td>
+    <td style="width: 20%; vertical-align: middle;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+		</td>
+  </tr>
+</table>
+
+
+<h2>Bronze Sponsors</h2>
+
+<p>
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+</p>
+
+<h2>Backers</h2>
+
+<p>Patricia Estrada, Samuel Ward, Allan Gay, Jon Curry </p>
 
 <table style="width: 100%;">
 	<tr>
 		<th colspan="2">
-			<h3>Key features</h3>
+			<h2>Key features</h3>
 		</th>
 	<tr>
 	<tr>
