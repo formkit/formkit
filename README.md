@@ -30,7 +30,6 @@ Become the first Platinum Sponsor!
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
 </p>
 
 
@@ -39,14 +38,12 @@ Become the first Platinum Sponsor!
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
 </p>
 
 
 ### Silver Sponsors
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
@@ -60,13 +57,12 @@ Become the first Platinum Sponsor!
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  
 </p>
 
 ### Backers
 
-<p>Patricia Estrada, Samuel Ward, Allan Gay, Jon Curry </p>
+<p>Your name here, your name here, your name here, your name here, your name here, your name here. </p>
 
 <table style="width: 100%;">
 	<tr>
