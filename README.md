@@ -27,61 +27,63 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 
 
 <table align="center" style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
+  <tbody>
+    <tr>
+      <th style="padding: 0;" colspan="2">
+        <h2 style="margin: 0; padding: 3px;">Platinum Sponsors</h2>
+        <p style="margin: 0; padding: 3px;">Become the first Platinum Sponsor!</p>
+      </th>
+    <tr>
+    <tr>
+      <td style="vertical-align: top;">
+        <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="300">
+      </td>
+      <td style="vertical-align: top;">
+        <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="300">
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
 	<tr>
-		<th colspan="2">
-			<h2>Platinum Sponsors</h2>
-      <p>Become the first Platinum Sponsor!</p>
+		<th style="padding: 0;" colspan="3">
+			<h2 style="margin: 0; padding: 3px;">Gold Sponsors</h2>
+      <p style="margin: 0; padding: 3px;">Become the first Gold Sponsor!</p>
 		</th>
 	<tr>
 	<tr>
-    <td style="vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="300">
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
 		</td>
-    <td style="vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="300">
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
+		</td>
+    <td style="width: 33%; vertical-align: top;">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="225">
 		</td>
   </tr>
 </table>
 
 <table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
 	<tr>
-		<th colspan="2">
-			<h2>Gold Sponsors</h2>
-      <p>Become the first Gold Sponsor!</p>
-		</th>
-	<tr>
-	<tr>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
-		</td>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
-		</td>
-    <td style="width: 33%; vertical-align: top;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="225">
-		</td>
-  </tr>
-</table>
-
-<table style="width: 100%; margin-bottom: 0; margin-top: 1em; text-align: center;">
-	<tr>
-		<th colspan="2">
-			<h2>Silver Sponsors</h2>
-      <p>Become the first Silver Sponsor!</p>
+		<th style="padding: 0;" colspan="4">
+			<h2 style="margin: 0; padding: 3px;">Silver Sponsors</h2>
+      <p style="margin: 0; padding: 3px;">Become the first Silver Sponsor!</p>
 		</th>
 	<tr>
 	<tr>
     <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
 		</td>
     <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
 		</td>
     <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
 		</td>
     <td style="width: 20%; vertical-align: middle;">
-			<img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="175">
+			<img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="175">
 		</td>
   </tr>
 </table>
@@ -90,12 +92,12 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 <h2>Bronze Sponsors</h2>
 
 <p>
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-2.svg" width="100" style="max-width: 100px; width: 19%; display: inline-block; vertical-align: middle;">
 </p>
 
 <h2>Backers</h2>
