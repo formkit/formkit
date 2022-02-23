@@ -9,7 +9,7 @@ const outer = composable('outer', () => ({
     'data-disabled': '$disabled || undefined',
     'data-complete': '$state.complete || undefined',
     'data-invalid':
-      '$state.valid === false && $state.validationVisible || undefined',
+      '$state.valid === false && ($state.validationVisible || $state.submitted) || undefined',
     'data-errors': '$state.errors || undefined',
   },
 }))
