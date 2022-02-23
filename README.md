@@ -29,41 +29,39 @@ FormKit, a form-authoring framework that provides input/form scaffolding, valida
 <p>Become the first Platinum Sponsor!</p>
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="330" style="width: 33%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="330" style="width: 33%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
 </p>
 
 
 <h2>Gold Sponsors</h2>
-<p>Become the first Gold Sponsor!</p>
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="width: 25%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="width: 25%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="230" style="width: 25%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
 </p>
 
 
 <h2>Silver Sponsors</h2>
-<p>Become the first Silver Sponsor!</p>
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="width: 18%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="width: 18%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="width: 18%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="175" style="width: 18%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
 </P>
 
 
 <h2>Bronze Sponsors</h2>
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" width="100" style="width: 14%; display: inline-block; vertical-align: middle;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
 </p>
 
 <h2>Backers</h2>
