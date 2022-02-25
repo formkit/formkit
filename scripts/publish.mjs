@@ -243,7 +243,7 @@ function publishAffectedPackages() {
     // const version = prePublished[pkg].newVersion
     const tagStatement = tag ? `--tag=${tag} ` : ''
     try {
-      console.log(`npm publish --dry-run ${tagStatement}./packages/${pkg}/`)
+      execSync(`npm publish --dry-run ${tagStatement}./packages/${pkg}/`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
