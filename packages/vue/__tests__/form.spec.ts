@@ -237,6 +237,29 @@ describe('form submission', () => {
     expect(rawHandler).toHaveBeenCalledTimes(1)
   })
 
+  it('clears blocking messages if an input is removed', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            showEmail: true,
+          }
+        },
+        template: `<FormKit type="form" #default="{ state }">
+        <FormKit v-if="showEmail" validation="required|email" />
+        <FormKit type="checkbox" />
+        <pre>{{ state.valid }}</pre>
+      </FormKit>`,
+      },
+      global
+    )
+    await nextTick()
+    expect(wrapper.find('pre').text()).toBe('false')
+    wrapper.vm.showEmail = false
+    await nextTick()
+    expect(wrapper.find('pre').text()).toBe('true')
+  })
+
   it('sets a loading state if handler is async', async () => {
     const submitHandler = jest.fn(() => {
       return new Promise((r) => setTimeout(r, 20))

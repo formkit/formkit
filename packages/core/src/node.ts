@@ -1038,12 +1038,14 @@ function calm(
  * @param context - The context to clean up
  */
 function destroy(node: FormKitNode) {
-  node.emit('destroy', node)
+  node.emit('destroying', node)
+  // flush all messages out
+  node.store.filter(() => false)
   if (node.parent) {
     node.parent.remove(node)
   }
   deregister(node)
-  node.emit('destroying', node)
+  node.emit('destroyed', node)
 }
 
 /**
