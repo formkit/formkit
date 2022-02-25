@@ -1038,6 +1038,7 @@ function calm(
  * @param context - The context to clean up
  */
 function destroy(node: FormKitNode) {
+  node.emit('destroy', node)
   if (node.parent) {
     node.parent.remove(node)
   }
