@@ -167,7 +167,7 @@ Any dependent packages will also require publishing to include dependency change
     if (!didCommit && !force) return msg.error('Publish aborted. 👋')
   }
   msg.headline(' 🎉   All changes published and committed!')
-  drawPublishPreviewGraph(prePublished)
+  // drawPublishPreviewGraph(prePublished)
   console.log('\n\n')
 }
 
@@ -243,7 +243,7 @@ function publishAffectedPackages() {
     // const version = prePublished[pkg].newVersion
     const tagStatement = tag ? `--tag=${tag} ` : ''
     try {
-      execSync(`npm publish --dry-run ${tagStatement}./packages/${pkg}/`)
+      execSync(`npm publish ${tagStatement}./packages/${pkg}/`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
