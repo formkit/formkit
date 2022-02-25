@@ -71,12 +71,12 @@ async function publishPackages(force = false) {
     }
   }
 
-  // if (!checkGitCleanWorkingDirectory()) {
-  //   msg.error(
-  //     `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
-  //   )
-  //   return
-  // }
+  if (!checkGitCleanWorkingDirectory()) {
+    msg.error(
+      `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
+    )
+    return
+  }
 
   allPackages.push(...(await getPackages()))
   const shouldBuild = await buildAllPackagesConsent()
@@ -229,23 +229,7 @@ function writePackageJSONFiles() {
  * Restore the package.json files to the original version.
  */
 function restoredPackageJSONFiles() {
-  for (const name in prePublished) {
-    const pkg = prePublished[name]
-    const packageJSON = getPackageJSON(name)
-    packageJSON.version = pkg.oldVersion
-    packageJSON.dependencies = pkg.oldDependencies
-    try {
-      writePackageJSON(name, packageJSON)
-      msg.info(
-        `♻️ /packages/${chalk.magenta(
-          name
-        )}/package.json restored to original version`
-      )
-    } catch (e) {
-      console.log(e)
-      msg.error(`There was a problem restoring the package.json for ${name}`)
-    }
-  }
+  execSync('git reset HEAD --hard')
 }
 
 /**
@@ -257,9 +241,9 @@ function publishAffectedPackages() {
   while (packages.length) {
     const pkg = packages.shift()
     // const version = prePublished[pkg].newVersion
+    const tagStatement = tag ? `--tag=${tag} ` : ''
     try {
-      console.log(`npm publish ./packages/${pkg}/ --dry-run`)
-      // execSync(`npm publish ./packages/${pkg}/ --dry-run`)
+      console.log(`npm publish --dry-run ${tagStatement}./packages/${pkg}/`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
