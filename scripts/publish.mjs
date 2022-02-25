@@ -18,15 +18,13 @@
  * - Show final summary
  */
 
-import { exec, execSync } from 'child_process'
+import { execSync } from 'child_process'
 import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
 import {
-  packagesDir,
   checkDependsOn,
   getPackages,
-  getPackageFromFS,
   getPackageJSON,
   writePackageJSON,
   checkGitCleanWorkingDirectory,
@@ -38,40 +36,63 @@ import {
   flattenDependencyTree,
   isAlphaNumericVersion,
   msg,
+  getCurrentHash,
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
 
 const allPackages = []
 let toBePublished = []
 const prePublished = {}
+let tag = false
 
 /**
  * Main entry point to the build process
  */
 async function publishPackages(force = false) {
-  if (!checkGitCleanWorkingDirectory()) {
-    msg.error(
-      `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
-    )
-    // TODO: uncomment return to make required
-    // return
+  if (!/npm-cli\.js$/.test(process.env.npm_execpath)) {
+    msg.error(`⚠️ You must run this command with npm instead of yarn.`)
+    msg.info('Please try again with:\n\n» npm run publish\n\n')
+    return
   }
+
   if (!checkGitIsMasterBranch()) {
-    msg.error(`⚠️   Publishing should only occur from the master branch`)
-    // TODO: uncomment return to make required
-    // return
+    tag = 'next'
+    const { confirmBuild } = await prompts({
+      type: 'confirm',
+      name: 'confirmBuild',
+      message: `⚠️  Not on master brach! Publishing under the @next tag. Proceed?`,
+      initial: true,
+    })
+    if (confirmBuild) {
+      msg.info('Setting tag to @next')
+    } else {
+      msg.error('✋ Will not publish')
+      return
+    }
   }
+
+  // if (!checkGitCleanWorkingDirectory()) {
+  //   msg.error(
+  //     `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
+  //   )
+  //   return
+  // }
 
   allPackages.push(...(await getPackages()))
   const shouldBuild = await buildAllPackagesConsent()
+
   if (!shouldBuild) {
     return msg.error('Publish aborted.')
   }
-  msg.info('🌎 Building all packages.')
-  await buildAllPackages(allPackages)
+  if (shouldBuild === 'all') {
+    msg.info('🌎 Building all packages.')
+    await buildAllPackages(allPackages)
+  } else {
+    msg.info('💨 Skipping build step.')
+  }
   await getChangedDist()
 
-  if (!toBePublished.length && !force)
+  if (!toBePublished.length && !force && !tag)
     return msg.error(
       `\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`
     )
@@ -84,24 +105,34 @@ Any dependent packages will also require publishing to include dependency change
   toBePublished = await getPublishOrder(toBePublished)
   console.log(toBePublished, '\n')
 
-  const { confirmBuild } = await prompts({
-    type: 'confirm',
-    name: 'confirmBuild',
-    message: `Continue`,
-    initial: true,
-  })
-  if (!confirmBuild) {
-    msg.error('Build aborted. 👋')
-    return
+  if (!tag) {
+    const { confirmBuild } = await prompts({
+      type: 'confirm',
+      name: 'confirmBuild',
+      message: `Continue`,
+      initial: true,
+    })
+    if (!confirmBuild) {
+      msg.error('Build aborted. 👋')
+      return
+    }
+  }
+
+  let forceVersion = false
+  if (tag) {
+    forceVersion = await promptForTaggedVersion()
+    msg.info(
+      `All packages will publish at version ${forceVersion} on the tag @${tag}`
+    )
   }
 
   for (const [i, pkg] of toBePublished.entries()) {
-    await prePublishPackage(pkg, i)
+    await prePublishPackage(pkg, i, forceVersion)
   }
 
   msg.headline(`All packages configured. Preparing publish...`)
   msg.info(
-    `The following changes will be commited and published.\nPlease review and confirm:\n`
+    `The following changes will be committed and published.\nPlease review and confirm:\n`
   )
   drawPublishPreviewGraph(prePublished)
 
@@ -124,15 +155,37 @@ Any dependent packages will also require publishing to include dependency change
   if (!didWrite && !force) return msg.error('Publish aborted. 👋')
   console.log('\n\n')
 
-  const didPublish = yarnPublishAffectedPackages()
+  const didPublish = publishAffectedPackages()
+  if (tag || (!didPublish && !force)) {
+    await restoredPackageJSONFiles()
+  }
   if (!didPublish && !force) return msg.error('Publish aborted. 👋')
 
   // signing off
-  const didCommit = await promptForGitCommit()
-  if (!didCommit && !force) return msg.error('Publish aborted. 👋')
+  if (!tag) {
+    const didCommit = await promptForGitCommit()
+    if (!didCommit && !force) return msg.error('Publish aborted. 👋')
+  }
   msg.headline(' 🎉   All changes published and committed!')
   drawPublishPreviewGraph(prePublished)
   console.log('\n\n')
+}
+
+async function promptForTaggedVersion() {
+  msg.info('Tagged versions should include the commit hash!')
+  const hash = getCurrentHash()
+  const packageJSON = getPackageJSON('core')
+  const guessVersion = suggestVersionIncrement(
+    packageJSON.version,
+    'alphaNumeric'
+  )
+  const { version } = await prompts({
+    type: 'text',
+    name: 'version',
+    message: `Including the suffix (hash: ${hash}), please enter the full version name.`,
+    initial: `${guessVersion}-${hash}`,
+  })
+  return version
 }
 
 /**
@@ -173,24 +226,40 @@ function writePackageJSONFiles() {
 }
 
 /**
+ * Restore the package.json files to the original version.
+ */
+function restoredPackageJSONFiles() {
+  for (const name in prePublished) {
+    const pkg = prePublished[name]
+    const packageJSON = getPackageJSON(name)
+    packageJSON.version = pkg.oldVersion
+    packageJSON.dependencies = pkg.oldDependencies
+    try {
+      writePackageJSON(name, packageJSON)
+      msg.info(
+        `♻️ /packages/${chalk.magenta(
+          name
+        )}/package.json restored to original version`
+      )
+    } catch (e) {
+      console.log(e)
+      msg.error(`There was a problem restoring the package.json for ${name}`)
+    }
+  }
+}
+
+/**
  * Loops through prePublish object and publishes packages
  */
-function yarnPublishAffectedPackages() {
+function publishAffectedPackages() {
   const packages = Object.keys(Object.assign({}, prePublished))
   let didPublish = true
   while (packages.length) {
     const pkg = packages.shift()
-    const version = prePublished[pkg].newVersion
+    // const version = prePublished[pkg].newVersion
     try {
-      if (pkg === 'themes') {
-        // For the themes package we want to only publish the dist directory itself.
-        execSync(
-          'cp ./packages/themes/package.json ./packages/themes/dist/package.json'
-        )
-        execSync(`npm publish ./packages/${pkg}/dist`)
-      } else {
-        execSync(`npm publish ./packages/${pkg}/`)
-      }
+      console.log(`npm publish ./packages/${pkg}/ --dry-run`)
+      // execSync(`npm publish ./packages/${pkg}/ --dry-run`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
@@ -227,7 +296,7 @@ async function promptForGitCommit() {
 /**
  * Guided process for setting a new version on a package
  */
-async function prePublishPackage(pkg, index) {
+async function prePublishPackage(pkg, index, forceVersion = false) {
   const packageJSON = getPackageJSON(pkg)
   const commitNumber = 5
   const relevantCommits = getLatestPackageCommits(pkg, commitNumber)
@@ -249,7 +318,7 @@ async function prePublishPackage(pkg, index) {
     )}\n`
   )
 
-  await setNewPackageVersion(pkg)
+  await setNewPackageVersion(pkg, forceVersion)
 }
 
 /**
@@ -311,35 +380,42 @@ Dependency ${chalk.magenta(dep)} will be updated from ${chalk.magenta(
 /**
  * Guided process to set a new package version
  */
-async function setNewPackageVersion(pkg) {
+async function setNewPackageVersion(pkg, forceVersion = false) {
   const packageJSON = getPackageJSON(pkg)
   const isAlphaNumericVer = isAlphaNumericVersion(packageJSON.version)
   let versionBumpType = 'patch'
   const versionTypes = ['patch', 'minor', 'major']
+  let newPackageVersion = false
 
-  if (!isAlphaNumericVer) {
-    const { bumpType } = await prompts({
-      type: 'select',
-      name: 'bumpType',
-      message: `What type of version update is this publish?`,
-      choices: versionTypes.map((type) => {
-        return {
-          title: type,
-          value: type,
-        }
-      }),
+  // If the version is forced, skip this step
+  if (!forceVersion) {
+    if (!isAlphaNumericVer) {
+      const { bumpType } = await prompts({
+        type: 'select',
+        name: 'bumpType',
+        message: `What type of version update is this publish?`,
+        choices: versionTypes.map((type) => {
+          return {
+            title: type,
+            value: type,
+          }
+        }),
+      })
+      versionBumpType = bumpType
+    } else {
+      versionBumpType = 'alphaNumeric'
+    }
+
+    const result = await prompts({
+      type: 'text',
+      name: 'newPackageVersion',
+      message: `What should the new version be?`,
+      initial: suggestVersionIncrement(packageJSON.version, versionBumpType),
     })
-    versionBumpType = bumpType
+    newPackageVersion = result.newPackageVersion
   } else {
-    versionBumpType = 'alphaNumeric'
+    newPackageVersion = forceVersion
   }
-
-  const { newPackageVersion } = await prompts({
-    type: 'text',
-    name: 'newPackageVersion',
-    message: `What should the new version be?`,
-    initial: suggestVersionIncrement(packageJSON.version, versionBumpType),
-  })
 
   prePublished[pkg] = Object.assign({}, prePublished[pkg], {
     oldVersion: packageJSON.version,
@@ -379,15 +455,39 @@ function suggestVersionIncrement(version, updateType) {
  * Confirm with user that all packages are going to be built
  */
 async function buildAllPackagesConsent() {
-  const { shouldBuild } = await prompts({
-    type: 'confirm',
-    name: 'shouldBuild',
-    message: `Publishing will generate clean builds of ${chalk.red(
-      'ALL'
-    )} packages. Continue?`,
-    initial: true,
-  })
-  return shouldBuild
+  if (tag) {
+    const { value } = await prompts({
+      type: 'select',
+      name: 'value',
+      message: 'Select build type',
+      choices: [
+        {
+          title: 'All',
+          description: 'Build all packages before publishing',
+          value: 'all',
+        },
+        {
+          title: 'Skip',
+          description: 'Skip building packages and publish what is in dist',
+          value: 'skip',
+        },
+        { title: 'Abort', value: 'false' },
+      ],
+      initial: 1,
+    })
+    if (value === 'false') return false
+    return value
+  } else {
+    const { shouldBuild } = await prompts({
+      type: 'confirm',
+      name: 'shouldBuild',
+      message: `Publishing will generate clean builds of ${chalk.red(
+        'ALL'
+      )} packages. Continue?`,
+      initial: true,
+    })
+    return shouldBuild ? 'all' : false
+  }
 }
 
 /**
