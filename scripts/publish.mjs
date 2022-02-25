@@ -55,6 +55,13 @@ async function publishPackages(force = false) {
     return
   }
 
+  if (!checkGitCleanWorkingDirectory()) {
+    msg.error(
+      `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
+    )
+    return
+  }
+
   if (!checkGitIsMasterBranch()) {
     tag = 'next'
     const { confirmBuild } = await prompts({
@@ -69,13 +76,6 @@ async function publishPackages(force = false) {
       msg.error('✋ Will not publish')
       return
     }
-  }
-
-  if (!checkGitCleanWorkingDirectory()) {
-    msg.error(
-      `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
-    )
-    return
   }
 
   allPackages.push(...(await getPackages()))
