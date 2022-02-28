@@ -826,7 +826,7 @@ describe('programmatic submission', () => {
     form!.at('foo')!.input(123)
     await new Promise((r) => setTimeout(r, 10))
     form!.submit()
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 20))
     expect(submitRaw).toHaveBeenCalledTimes(2)
     expect(submit).toHaveBeenCalledWith({
       foo: 123,

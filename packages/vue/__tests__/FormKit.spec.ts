@@ -414,17 +414,22 @@ describe('validation', () => {
   })
 
   it('does not show validation errors till after the input has settled', async () => {
+    const id = token()
     const wrapper = mount(FormKit, {
       props: {
+        id,
         validation: 'required|length:5',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
       },
     })
+    const node = getNode(id)
     wrapper.find('input').setValue('abc')
+    wrapper.find('input').trigger('input')
     wrapper.find('input').trigger('blur')
-    await nextTick()
+    expect(node?.context!.state.settled).toBe(false)
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('.formkit-messages').exists()).toBe(false)
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)

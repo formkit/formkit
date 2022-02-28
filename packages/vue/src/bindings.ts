@@ -1,4 +1,4 @@
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, watch } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -51,10 +51,18 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * Keep track of if this input has ever shown validation errors.
+   */
+  const hasShownErrors = ref(validationVisibility.value === 'live')
+
+  /**
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
     if (context.state.submitted) return true
+    if (!hasShownErrors.value && !context.state.settled) {
+      return false
+    }
     switch (validationVisibility.value) {
       case 'live':
         return true
@@ -62,8 +70,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         return context.state.blurred
       case 'dirty':
         return context.state.dirty
-      case 'submit':
-        return context.state.submitted
       default:
         return false
     }
@@ -96,30 +102,33 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     const visibleMessages: Record<string, FormKitMessage> = {}
     for (const key in availableMessages) {
       const message = availableMessages[key]
-      // Once a form is "submitted" all inputs are live.
-      if (context.state.submitted) {
+      if (message.type !== 'validation' || validationVisible.value) {
         visibleMessages[key] = message
-        continue
       }
-      const visibility =
-        message.type === 'validation'
-          ? validationVisibility.value
-          : node.props[`${message.type}Visibility`] || 'live'
-      switch (visibility) {
-        case 'live':
-          visibleMessages[key] = message
-          break
-        case 'blur':
-          if (context.state.blurred) {
-            visibleMessages[key] = message
-          }
-          break
-        case 'dirty':
-          if (context.state.dirty) {
-            visibleMessages[key] = message
-          }
-          break
-      }
+      // // Once a form is "submitted" all inputs are live.
+      // if (context.state.submitted) {
+      //   visibleMessages[key] = message
+      //   continue
+      // }
+      // const visibility =
+      //   message.type === 'validation'
+      //     ? validationVisibility.value
+      //     : node.props[`${message.type}Visibility`] || 'live'
+      // switch (visibility) {
+      //   case 'live':
+      //     visibleMessages[key] = message
+      //     break
+      //   case 'blur':
+      //     if (context.state.blurred) {
+      //       visibleMessages[key] = message
+      //     }
+      //     break
+      //   case 'dirty':
+      //     if (context.state.dirty) {
+      //       visibleMessages[key] = message
+      //     }
+      //     break
+      // }
     }
     return visibleMessages
   })
@@ -361,7 +370,17 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     hasErrors.value = true
   })
 
+  /**
+   * Watch the validation visible prop and set the hasShownErrors state.
+   */
+  watch(validationVisible, (value) => {
+    if (value) {
+      hasShownErrors.value = true
+    }
+  })
+
   node.context = context
+
   // The context is complete
   node.emit('context', node, false)
 }

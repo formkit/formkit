@@ -1003,6 +1003,7 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
 function disturb(node: FormKitNode, context: FormKitContext): FormKitNode {
   if (context._d <= 0) {
     context.isSettled = false
+    node.emit('settled', false, false)
     context.settled = new Promise((resolve) => {
       context._resolve = resolve
     })
@@ -1030,7 +1031,7 @@ function calm(
   if (context._d > 0) context._d--
   if (context._d === 0) {
     context.isSettled = true
-    node.emit('settled', context.value, false)
+    node.emit('settled', true, false)
     if (node.parent)
       node.parent?.calm({ name: node.name, value: context.value })
     if (context._resolve) context._resolve(context.value)
