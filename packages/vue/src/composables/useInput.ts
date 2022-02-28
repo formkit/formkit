@@ -165,6 +165,7 @@ export function useInput(
       initialProps.definition = initialProps.type
       delete initialProps.type
     }
+    if (value !== undefined) initialProps.initial = value
     return initialProps
   }
 

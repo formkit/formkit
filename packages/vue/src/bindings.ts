@@ -105,30 +105,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       if (message.type !== 'validation' || validationVisible.value) {
         visibleMessages[key] = message
       }
-      // // Once a form is "submitted" all inputs are live.
-      // if (context.state.submitted) {
-      //   visibleMessages[key] = message
-      //   continue
-      // }
-      // const visibility =
-      //   message.type === 'validation'
-      //     ? validationVisibility.value
-      //     : node.props[`${message.type}Visibility`] || 'live'
-      // switch (visibility) {
-      //   case 'live':
-      //     visibleMessages[key] = message
-      //     break
-      //   case 'blur':
-      //     if (context.state.blurred) {
-      //       visibleMessages[key] = message
-      //     }
-      //     break
-      //   case 'dirty':
-      //     if (context.state.dirty) {
-      //       visibleMessages[key] = message
-      //     }
-      //     break
-      // }
     }
     return visibleMessages
   })

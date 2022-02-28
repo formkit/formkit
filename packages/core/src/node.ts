@@ -28,6 +28,7 @@ import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
 import { submitForm } from './submitForm'
 import { createMessages, ErrorMessages } from './store'
+import { init } from 'packages/utils/src'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -126,6 +127,7 @@ export type FormKitNodeType = 'input' | 'list' | 'group'
  */
 export interface FormKitGroupValue {
   [index: string]: unknown
+  __init?: boolean
 }
 
 /**
@@ -868,15 +870,14 @@ function createName(options: FormKitOptions): string | symbol {
  * @returns
  */
 function createValue(options: FormKitOptions) {
-  // TODO there is some question of what should happen in this method for the
-  // initial values — do we use the input hook? is the state initially
-  // settled? does hydration happen after the fact? etc etc...
   if (options.type === 'group') {
-    return typeof options.value === 'object' && !Array.isArray(options.value)
+    options.value &&
+    typeof options.value === 'object' &&
+    !Array.isArray(options.value)
       ? options.value
-      : {}
+      : init({})
   } else if (options.type === 'list') {
-    return Array.isArray(options.value) ? options.value : []
+    return Array.isArray(options.value) ? options.value : init([])
   }
   return options.value === null ? '' : options.value
 }
@@ -980,6 +981,27 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
         // perform a down-tree synchronous input which will cascade values down
         // and then ultimately back up.
         child.input((context._value as KeyedValue)[child.name], false)
+      } else if (
+        (context._value as KeyedValue).__init &&
+        (context._value as KeyedValue)[child.name] === undefined
+      ) {
+        // In this case the parent does not have a value for the child input,
+        // but is indicating the value should either be set to undefined or
+        // set the the initial value of the input. This is used in resets and
+        // empty v-models
+        if (child.props.initial) child.input(child.props.initial, false)
+        else if (child.type === 'group') child.input(init({}), false)
+        else if (child.type === 'list') child.input(init([]), false)
+        else child.input(undefined, false)
+      } else if (
+        !(context._value as KeyedValue).isInitial &&
+        (context._value as KeyedValue)[child.name] === undefined
+      ) {
+        // In this case, someone has explicitly set the value to an empty object
+        // so we do not define the __init property:
+        if (child.type === 'group') child.input({}, false)
+        else if (child.type === 'list') child.input([], false)
+        else child.input(undefined, false)
       }
     } else {
       // In this case, the parent’s values have no knowledge of the child
@@ -1070,7 +1092,11 @@ function define(
   // Assign the default value for the type if there is no default
   if (context.value === undefined) {
     context._value = context.value =
-      context.type === 'group' ? {} : context.type === 'list' ? [] : undefined
+      context.type === 'group'
+        ? init({})
+        : context.type === 'list'
+        ? init([])
+        : undefined
   }
 
   // Apply any input features before resetting the props.
