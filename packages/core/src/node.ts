@@ -1,5 +1,5 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has, camel, kebab, undefine } from '@formkit/utils'
+import { dedupe, eq, has, camel, kebab, undefine, init } from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -28,7 +28,6 @@ import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
 import { submitForm } from './submitForm'
 import { createMessages, ErrorMessages } from './store'
-import { init } from 'packages/utils/src'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -871,9 +870,9 @@ function createName(options: FormKitOptions): string | symbol {
  */
 function createValue(options: FormKitOptions) {
   if (options.type === 'group') {
-    options.value &&
-    typeof options.value === 'object' &&
-    !Array.isArray(options.value)
+    return options.value &&
+      typeof options.value === 'object' &&
+      !Array.isArray(options.value)
       ? options.value
       : init({})
   } else if (options.type === 'list') {
@@ -989,12 +988,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
         // but is indicating the value should either be set to undefined or
         // set the the initial value of the input. This is used in resets and
         // empty v-models
-        if (child.props.initial) child.input(child.props.initial, false)
+        if ('initial' in child.props) child.input(child.props.initial, false)
         else if (child.type === 'group') child.input(init({}), false)
         else if (child.type === 'list') child.input(init([]), false)
-        else child.input(undefined, false)
       } else if (
-        !(context._value as KeyedValue).isInitial &&
+        !(context._value as KeyedValue).__init &&
         (context._value as KeyedValue)[child.name] === undefined
       ) {
         // In this case, someone has explicitly set the value to an empty object
