@@ -219,6 +219,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       complete: isComplete,
       dirty: false,
       submitted: false,
+      settled: node.isSettled,
       valid: isValid,
       errors: hasErrors,
       rules: hasValidation,
@@ -238,6 +239,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       context._value = node.value
       context.value = node.value
     }
+  })
+
+  /**
+   * Sets the settled state.
+   */
+  node.on('settled', ({ payload: isSettled }) => {
+    context.state.settled = isSettled
   })
 
   /**
@@ -315,12 +323,19 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Update the local state in response to messages.
    * @param message - A formkit message
    */
-  const updateState = (message: FormKitMessage) => {
-    if (message.type === 'ui' && message.visible && !message.meta.showAsMessage)
+  const updateState = async (message: FormKitMessage) => {
+    if (
+      message.type === 'ui' &&
+      message.visible &&
+      !message.meta.showAsMessage
+    ) {
       ui[message.key] = message
-    else if (message.visible) availableMessages[message.key] = message
-    else if (message.type === 'state')
+    } else if (message.visible) {
+      availableMessages[message.key] = message
+    } else if (message.type === 'state') {
+      // await node.settled
       context.state[message.key] = !!message.value
+    }
   }
 
   /**

@@ -427,6 +427,11 @@ export interface FormKitFrameworkContext {
      */
     rules: boolean
     /**
+     * True when the input has completed its internal debounce cycle and the
+     * value was committed to the form.
+     */
+    settled: boolean
+    /**
      * If the form has been submitted.
      */
     submitted: boolean
