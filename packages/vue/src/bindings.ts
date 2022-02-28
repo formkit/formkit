@@ -54,6 +54,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
+    if (context.state.submitted) return true
     switch (validationVisibility.value) {
       case 'live':
         return true
