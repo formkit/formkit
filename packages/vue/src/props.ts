@@ -104,6 +104,10 @@ const nativeProps = {
     type: String,
     required: false,
   },
+  parent: {
+    type: Object as PropType<FormKitNode>,
+    required: false,
+  },
   plugins: {
     type: Array as PropType<FormKitPlugin[]>,
     default: [],

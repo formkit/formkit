@@ -5,7 +5,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { getNode } from '@formkit/core'
+import { getNode, createNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
@@ -1120,5 +1120,27 @@ describe('exposures', () => {
     const node = (wrapper.vm.$refs.select as any).node as FormKitNode
     expect(node.props.type).toBe('select')
     expect(node.__FKNode__).toBe(true)
+  })
+
+  it('allows artificial parent injection', () => {
+    const node = createNode({
+      type: 'group',
+      name: 'foobar',
+      value: { job: 'engineer' },
+    })
+    const wrapper = mount(
+      {
+        setup() {
+          return { parent: node }
+        },
+        template: '<FormKit name="job" :parent="parent" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input').element.value).toBe('engineer')
   })
 })
