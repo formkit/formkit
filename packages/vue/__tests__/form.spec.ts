@@ -524,7 +524,7 @@ describe('form submission', () => {
     expect(wrapper.vm.values).toStrictEqual({ name: 'Jon' })
   })
 
-  it('keeps data with keep prop', async () => {
+  it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       {
         data() {

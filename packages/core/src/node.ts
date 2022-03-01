@@ -973,41 +973,29 @@ function partial(
  * @param child -
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
+  const _value = context._value as KeyedValue
   context.children.forEach((child) => {
-    if (has(context._value as FormKitGroupValue, child.name)) {
-      if ((context._value as KeyedValue)[child.name] !== undefined) {
-        // In this case, the parent has a value to give to the child, so we
-        // perform a down-tree synchronous input which will cascade values down
-        // and then ultimately back up.
-        child.input((context._value as KeyedValue)[child.name], false)
-      } else if (
-        (context._value as KeyedValue).__init &&
-        (context._value as KeyedValue)[child.name] === undefined
-      ) {
-        // In this case the parent does not have a value for the child input,
-        // but is indicating the value should either be set to undefined or
-        // set the the initial value of the input. This is used in resets and
-        // empty v-models
-        if ('initial' in child.props) child.input(child.props.initial, false)
-        else if (child.type === 'group') child.input(init({}), false)
-        else if (child.type === 'list') child.input(init([]), false)
-      } else if (
-        !(context._value as KeyedValue).__init &&
-        (context._value as KeyedValue)[child.name] === undefined
-      ) {
+    if (typeof _value !== 'object') return
+    // if (has(context._value as FormKitGroupValue, child.name)) {
+    if (child.name in _value) {
+      // In this case, the parent has a value to give to the child, so we
+      // perform a down-tree synchronous input which will cascade values down
+      // and then ultimately back up.
+      child.input(_value[child.name], false)
+    } else {
+      if (node.type !== 'list' || typeof child.name === 'number') {
+        // In this case, the parent’s values have no knowledge of the child
+        // value — this typically occurs on the commit at the end of addChild()
+        // we need to create a value reservation for this node’s name. This is
+        // especially important when dealing with lists where index matters.
+        partial(context, { name: child.name, value: child.value })
+      }
+      if (!_value.__init) {
         // In this case, someone has explicitly set the value to an empty object
-        // so we do not define the __init property:
+        // with node.input({}) so we do not define the __init property:
         if (child.type === 'group') child.input({}, false)
         else if (child.type === 'list') child.input([], false)
         else child.input(undefined, false)
-      }
-    } else {
-      // In this case, the parent’s values have no knowledge of the child
-      // value — this typically occurs on the commit at the end of addChild()
-      // we need to create a value reservation for this node’s name. This is
-      // especially important when dealing with lists where index matters.
-      if (node.type !== 'list' || typeof child.name === 'number') {
-        partial(context, { name: child.name, value: child.value })
       }
     }
   })
@@ -1087,6 +1075,13 @@ function define(
   context.type = definition.type
   // Assign the definition
   context.props.definition = definition
+  // Ensure the type is seeded with the `__init` value.
+  if (context.type !== 'input' && context.value !== undefined) {
+    context._value = context.value =
+      context.value && typeof context.value === 'object'
+        ? init(context.value)
+        : undefined
+  }
   // Assign the default value for the type if there is no default
   if (context.value === undefined) {
     context._value = context.value =

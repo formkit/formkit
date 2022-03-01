@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { nextTick } from 'vue'
+import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 // import { jest } from '@jest/globals'
 
 describe('group', () => {
@@ -141,5 +143,57 @@ describe('group', () => {
     await nextTick()
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+})
+
+describe('clearing values', () => {
+  it('can remove values from a group by setting it to an empty object', async () => {
+    const emailToken = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            data: {} as Record<string, any>,
+          }
+        },
+        template: `
+        <FormKit type="group" v-model="data">
+          <FormKit name="name" />
+          <FormKit name="email" id="${emailToken}" value="example@example.com" />
+          <FormKit type="group" name="address">
+            <FormKit name="street" />
+            <FormKit type="checkbox" name="type" :value="['residential']" :options="['residential', 'commercial']" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    const node = getNode(emailToken)
+    expect(node!.value).toEqual('example@example.com')
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: 'example@example.com',
+      address: {
+        street: undefined,
+        type: ['residential'],
+      },
+    })
+    // Now we v-model the data to an empty object:
+    wrapper.vm.data = {}
+    await nextTick()
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: undefined,
+      address: {
+        street: undefined,
+        type: [],
+      },
+    })
   })
 })
