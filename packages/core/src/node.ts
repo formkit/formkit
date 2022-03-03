@@ -1,5 +1,14 @@
 import createDispatcher, { FormKitDispatcher } from './dispatcher'
-import { dedupe, eq, has, camel, kebab, undefine, init } from '@formkit/utils'
+import {
+  dedupe,
+  eq,
+  has,
+  camel,
+  kebab,
+  undefine,
+  init,
+  cloneAny,
+} from '@formkit/utils'
 import {
   createEmitter,
   FormKitEvent,
@@ -28,6 +37,7 @@ import { FormKitClasses } from './classes'
 import { FormKitRootConfig, configChange } from './config'
 import { submitForm } from './submitForm'
 import { createMessages, ErrorMessages } from './store'
+import { reset } from './reset'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -625,6 +635,10 @@ export type FormKitNode = {
    */
   resetConfig: () => void
   /**
+   * Reset a node’s value back to its original value.
+   */
+  reset: () => FormKitNode
+  /**
    * Sets errors on the input, and optionally, and child inputs.
    */
   setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
@@ -759,6 +773,7 @@ const traps = {
   plugins: trap(false),
   remove: trap(removeChild),
   root: trap(getRoot, invalidSetter, false),
+  reset: trap(resetValue),
   resetConfig: trap(resetConfig),
   setErrors: trap(errors),
   submit: trap(submit),
@@ -867,16 +882,19 @@ function createName(options: FormKitOptions): string | symbol {
  * @param options -
  * @param type -
  * @returns
+ * @internal
  */
-function createValue(options: FormKitOptions) {
+export function createValue(options: FormKitOptions): unknown {
   if (options.type === 'group') {
-    return options.value &&
-      typeof options.value === 'object' &&
-      !Array.isArray(options.value)
-      ? options.value
-      : init({})
+    return init(
+      options.value &&
+        typeof options.value === 'object' &&
+        !Array.isArray(options.value)
+        ? options.value
+        : {}
+    )
   } else if (options.type === 'list') {
-    return Array.isArray(options.value) ? options.value : init([])
+    return init(Array.isArray(options.value) ? options.value : [])
   }
   return options.value === null ? '' : options.value
 }
@@ -895,7 +913,7 @@ function input(
   eqBefore = true
 ): Promise<unknown> {
   if (eqBefore && eq(context._value, value)) return context.settled
-  context._value = node.hook.input.dispatch(value)
+  context._value = validateInput(node, node.hook.input.dispatch(value))
   if (!eqBefore && eq(context._value, value)) return context.settled
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
@@ -911,6 +929,26 @@ function input(
     commit(node, context)
   }
   return context.settled
+}
+
+/**
+ * Validate that the current input is allowed.
+ * @param type - The type of node (input, list, group)
+ * @param value - The value that is being set
+ */
+function validateInput<T>(node: FormKitNode, value: T): T {
+  switch (node.type) {
+    // Inputs are allowed to have any type
+    case 'input':
+      break
+    case 'group':
+      if (!value || typeof value !== 'object') error(107, [node, value])
+      break
+    case 'list':
+      if (!Array.isArray(value)) error(108, [node, value])
+      break
+  }
+  return value
 }
 
 /**
@@ -981,7 +1019,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
       // and then ultimately back up.
-      child.input(_value[child.name], false)
+      const childValue =
+        child.type !== 'input' || typeof _value[child.name] === 'object'
+          ? init(_value[child.name])
+          : _value[child.name]
+      child.input(childValue, false)
     } else {
       if (node.type !== 'list' || typeof child.name === 'number') {
         // In this case, the parent’s values have no knowledge of the child
@@ -1076,22 +1118,10 @@ function define(
   // Assign the definition
   context.props.definition = definition
   // Ensure the type is seeded with the `__init` value.
-  if (context.type !== 'input' && context.value !== undefined) {
-    context._value = context.value =
-      context.value && typeof context.value === 'object'
-        ? init(context.value)
-        : undefined
-  }
-  // Assign the default value for the type if there is no default
-  if (context.value === undefined) {
-    context._value = context.value =
-      context.type === 'group'
-        ? init({})
-        : context.type === 'list'
-        ? init([])
-        : undefined
-  }
-
+  context.value = context._value = createValue({
+    type: node.type,
+    value: context.value,
+  })
   // Apply any input features before resetting the props.
   if (definition.features) {
     definition.features.forEach((feature) => feature(node))
@@ -1111,6 +1141,9 @@ function define(
           delete attrs[attr]
         }
       }
+      const initial = cloneAny(context._value)
+      node.props.initial =
+        node.type !== 'input' ? init(initial as KeyedValue) : initial
       // Re-enable prop emits
       node.props._emit = true
       node.props.attrs = attrs
@@ -1612,6 +1645,20 @@ function submit(node: FormKitNode): void {
 }
 
 /**
+ * Reset to the original value.
+ * @param node - The node to reset
+ * @param _context - The context
+ * @param value - The value to reset to
+ */
+function resetValue(
+  node: FormKitNode,
+  _context: FormKitContext,
+  value?: unknown
+) {
+  return reset(node, value)
+}
+
+/**
  * Sets errors on the node and optionally its children.
  * @param node - The node to set errors on
  * @param _context - Not used
@@ -1645,8 +1692,10 @@ function defaultProps(node: FormKitNode): FormKitNode {
  * @param options -
  * @param config -
  */
-function createProps() {
-  const props: Record<PropertyKey, any> = {}
+function createProps(initial: unknown) {
+  const props: Record<PropertyKey, any> = {
+    initial: typeof initial === 'object' ? cloneAny(initial) : initial,
+  }
   let node: FormKitNode
   let isEmitting = true
   return new Proxy(props, {
@@ -1725,7 +1774,7 @@ function createContext(options: FormKitOptions): FormKitContext {
     name: createName(options),
     parent: options.parent || null,
     plugins: new Set<FormKitPlugin>(),
-    props: createProps(),
+    props: createProps(value),
     settled: Promise.resolve(value),
     store: createStore(true),
     traps: createTraps(),
