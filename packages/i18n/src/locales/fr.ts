@@ -24,7 +24,7 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Désolé, tous les champs ne sont pas remplit correctement.',
+  incomplete: 'Désolé, tous les champs ne sont pas remplis correctement.',
   /**
    * Shown in a button inside a form to submit the form.
    */
@@ -57,7 +57,7 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `${s(name)} doit être après ${date(args[0])}.`
+      return `${s(name)} doit être postérieure au ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
@@ -92,7 +92,7 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `${s(name)} doit être avant ${date(args[0])}.`
+      return `${s(name)} doit être antérieure au ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
