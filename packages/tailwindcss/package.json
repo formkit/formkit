@@ -3,17 +3,35 @@
   "repository": "https://github.com/formkit/formkit",
   "version": "1.0.0-beta.4",
   "description": "A FormKit plugin for Tailwind that supplies custom variants based on input state",
+  "keywords": [
+    "forms",
+    "inputs",
+    "styling",
+    "css",
+    "tailwind",
+    "tailwindcss"
+  ],
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./dist/*"
+  },
   "contributors": [
-    "Andrew Boyd <andrew@formkit.com>"
+    "Andrew Boyd <andrew@formkit.com>",
+    "Gustavo Fenilli <gustavofenilli@gmail.com>"
   ],
   "license": "MIT",
   "type": "module",
-  "devDependencies": {
-    "@types/tailwindcss": "^3.0.9",
-    "tailwindcss": "^3.0.23"
+  "peerDependencies": {
+    "@types/tailwindcss": "^3.0.0",
+    "tailwindcss": "^3.0.0"
   },
+  "devDependencies": {},
   "dependencies": {}
 }
