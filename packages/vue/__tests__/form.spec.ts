@@ -1,7 +1,7 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { getNode, setErrors, FormKitNode } from '@formkit/core'
+import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
@@ -882,5 +882,70 @@ describe('programmatic submission', () => {
     await nextTick()
     expect(submitRaw).toHaveBeenCalledTimes(2)
     expect(submit).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('resetting', () => {
+  it('can be reset to a specific value', async () => {
+    const submitHandler = jest.fn()
+    const formId = token()
+    const form = mount(
+      {
+        data() {
+          return {
+            values: {
+              address: { street: 'Downing St.' },
+            },
+          }
+        },
+        methods: {
+          handler() {
+            submitHandler()
+          },
+        },
+        template: `
+        <FormKit type="form" v-model="values" @submit="handler" id="${formId}">
+          <FormKit name="email" value="test@example.com" />
+          <FormKit type="group" name="address">
+            <FormKit name="street" />
+            <FormKit type="radio" name="zip" :options="['2001', '2002']" validation="required" help="hi" :sections-schema="{ help: { children: '$fns.json($state)' } }" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(form.vm.values).toStrictEqual({
+      email: 'test@example.com',
+      address: {
+        street: 'Downing St.',
+        zip: undefined,
+      },
+    })
+    form.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(form.find('.formkit-message').exists()).toBe(true)
+    setErrors(formId, [], {
+      'address.zip': ['This is an error'],
+    })
+    await new Promise((r) => setTimeout(r, 200))
+    console.log([...Object.keys(getNode(formId)!.at('address.zip')!.store)])
+    reset(formId, {})
+    console.log([...Object.keys(getNode(formId)!.at('address.zip')!.store)])
+    console.log(form.find('.formkit-help').html())
+    await new Promise((r) => setTimeout(r, 20))
+    expect(form.vm.values).toStrictEqual({
+      email: undefined,
+      address: {
+        street: undefined,
+        zip: undefined,
+      },
+    })
+    expect(form.find('.formkit-message').exists()).toBe(false)
   })
 })
