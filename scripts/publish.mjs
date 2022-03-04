@@ -166,6 +166,9 @@ Any dependent packages will also require publishing to include dependency change
     const didCommit = await promptForGitCommit()
     if (!didCommit && !force) return msg.error('Publish aborted. 👋')
   }
+  if (tag) {
+    msg.headline(`♻️ Clearing JSDelivr @${tag} tag`)
+  }
   msg.headline(' 🎉   All changes published and committed!')
   // drawPublishPreviewGraph(prePublished)
   console.log('\n\n')

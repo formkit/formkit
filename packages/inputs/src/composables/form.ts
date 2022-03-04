@@ -8,6 +8,7 @@ const form = composable('form', () => ({
     class: '$classes.form',
     name: '$node.name',
     onSubmit: '$handlers.submit',
+    'data-loading': '$state.loading || undefined',
   },
 }))
 
