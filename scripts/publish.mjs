@@ -39,6 +39,7 @@ import {
   getCurrentHash,
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
+import axios from 'axios'
 
 const allPackages = []
 let toBePublished = []
@@ -168,6 +169,20 @@ Any dependent packages will also require publishing to include dependency change
   }
   if (tag) {
     msg.headline(`♻️ Clearing JSDelivr @${tag} tag`)
+    axios.post('http://purge.jsdelivr.net/', {
+      path: [
+        '/npm/@formkit/core@next',
+        '/npm/@formkit/dev@next',
+        '/npm/@formkit/i18n@next',
+        '/npm/@formkit/inputs@next',
+        '/npm/@formkit/observer@next',
+        '/npm/@formkit/rules@next',
+        '/npm/@formkit/themes@next',
+        '/npm/@formkit/utils@next',
+        '/npm/@formkit/validation@next',
+        '/npm/@formkit/vue@next',
+      ],
+    })
   }
   msg.headline(' 🎉   All changes published and committed!')
   // drawPublishPreviewGraph(prePublished)
