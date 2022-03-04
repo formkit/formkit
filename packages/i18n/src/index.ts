@@ -1,3 +1,4 @@
+import * as da from './locales/da'
 import * as de from './locales/de'
 import * as en from './locales/en'
 import * as es from './locales/es'
@@ -26,6 +27,7 @@ export * from './i18n'
  * @public
  */
 export const locales = {
+  da,
   de,
   en,
   es,
