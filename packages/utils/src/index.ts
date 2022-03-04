@@ -446,7 +446,7 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     obj === null ||
     obj instanceof RegExp ||
     obj instanceof Date ||
-    obj instanceof File
+    (typeof File === 'function' && obj instanceof File)
   )
     return obj
   if (Array.isArray(obj)) {
