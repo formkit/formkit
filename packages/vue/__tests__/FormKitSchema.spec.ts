@@ -1002,3 +1002,60 @@ describe('schema $get function', () => {
     expect(wrapper.html()).toBe('you found me!')
   })
 })
+
+describe('$reset', () => {
+  it('compiles $reset when used as a child', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          reset: 'foobar',
+        },
+        schema: ['$reset'],
+      },
+    })
+    expect(wrapper.html()).toBe('foobar')
+  })
+
+  it('compiles $reset when used as a prop', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          reset: 'foobar',
+        },
+        schema: [
+          {
+            $formkit: 'text',
+            help: 'bam',
+            sectionsSchema: {
+              help: { children: '$reset' },
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('.formkit-help').text()).toBe('foobar')
+  })
+
+  it('ignores $reset when used in a FormKit class prop', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          reset: 'foobar',
+        },
+        schema: [
+          {
+            $formkit: 'text',
+            inputClass: '$reset my-class',
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('input').attributes('class')).toBe('my-class')
+  })
+})

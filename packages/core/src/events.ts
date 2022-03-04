@@ -40,6 +40,8 @@ export interface FormKitEventEmitter {
   (node: FormKitNode, event: FormKitEvent): void
   on: (eventName: string, listener: FormKitEventListener) => string
   off: (receipt: string) => void
+  pause: (node?: FormKitNode) => void
+  play: (node?: FormKitNode) => void
 }
 
 /**
@@ -50,8 +52,13 @@ export interface FormKitEventEmitter {
 export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
   const receipts = new Map<string, string[]>()
+  let buffer: undefined | Map<string, [FormKitNode, FormKitEvent]> = undefined
 
   const emitter = (node: FormKitNode, event: FormKitEvent) => {
+    if (buffer) {
+      buffer.set(event.name, [node, event])
+      return
+    }
     if (listeners.has(event.name)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       listeners.get(event.name)!.forEach((wrapper) => {
@@ -107,6 +114,43 @@ export function createEmitter(): FormKitEventEmitter {
         }
       })
       receipts.delete(receipt)
+    }
+  }
+
+  /**
+   * Pause emitting values. Any events emitted while paused will not be emitted
+   * but rather "stored" — and whichever events are emitted last will be output.
+   * For example:
+   * pause()
+   * emit('foo', 1)
+   * emit('foo', 2)
+   * emit('bar', 3)
+   * emit('bar', 4)
+   * play()
+   * // would result in
+   * emit('foo', 2)
+   * emit('bar', 4)
+   * Optionally pauses all children as well.
+   * @param node - A node to pause all children on.
+   */
+  emitter.pause = (node?: FormKitNode) => {
+    if (!buffer) buffer = new Map()
+    if (node) {
+      node.walk((child) => child._e.pause())
+    }
+  }
+
+  /**
+   * Release the current event buffer.
+   * @param node - A node to unpause all children on.
+   */
+  emitter.play = (node?: FormKitNode) => {
+    if (!buffer) return
+    const events = buffer
+    buffer = undefined
+    events.forEach(([node, event]) => emitter(node, event))
+    if (node) {
+      node.walk((child) => child._e.play())
     }
   }
 

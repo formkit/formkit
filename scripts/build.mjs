@@ -24,6 +24,25 @@ import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
 import { getPackages, getThemes, getBuildOrder, msg } from './utils.mjs'
 import { exec } from 'child_process'
 
+const augmentations = {
+  vue: `
+/**
+ * Augment Vue’s globalProperties.
+ * @public
+ */
+declare module '@vue/runtime-core' {
+  export interface ComponentCustomProperties {
+    $formkit: FormKitVuePlugin
+  }
+  export interface GlobalComponents {
+    FormKit: typeof FormKit
+    FormKitSchema: typeof FormKitSchema
+  }
+}
+
+export { }`,
+}
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const rootDir = resolve(__dirname, '../')
@@ -214,10 +233,21 @@ async function apiExtractor(p) {
       })
     )
     await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
-    fs.rename(
+    await fs.rename(
       resolve(distRoot, 'index.all.d.ts'),
       resolve(distRoot, 'index.d.ts')
     )
+    if (p in augmentations) {
+      msg.loader.text = `Augmenting modules in ${p} type declaration.`
+      const declarations = await fs.readFile(
+        resolve(distRoot, 'index.d.ts'),
+        'utf8'
+      )
+      await fs.writeFile(
+        resolve(distRoot, 'index.d.ts'),
+        declarations.replace('export { }', augmentations[p])
+      )
+    }
   } else {
     msg.error('Api extractor failed.')
     process.exitCode = 1

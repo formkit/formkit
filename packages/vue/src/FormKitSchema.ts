@@ -144,6 +144,11 @@ const instanceScopes = new Map<symbol, Record<string, any>[]>()
 const raw = '__raw__'
 
 /**
+ * Is a class prop.
+ */
+const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
+
+/**
  * Returns a reference as a placeholder to a specific location on an object.
  * @param data - A reactive data object
  * @param token - A dot-syntax string representing the object path
@@ -313,19 +318,26 @@ function parseSchema(
       for (let attr in unparsedAttrs) {
         const value = unparsedAttrs[attr]
         let getValue: () => any
+        const isStr = typeof value === 'string'
 
         if (attr.startsWith(raw)) {
+          // attributes prefixed with __raw__ should not be parsed
           attr = attr.substring(7)
           getValue = () => value
         } else if (
-          typeof value === 'string' &&
+          isStr &&
           value.startsWith('$') &&
-          value.length > 1
+          value.length > 1 &&
+          !(value.startsWith('$reset') && isClassProp.test(attr))
         ) {
+          // Most attribute values starting with $ should be compiled
+          // -class attributes starting with `$reset` should not be compiled
           getValue = provider(compile(value))
         } else if (typeof value === 'object' && isConditional(value)) {
+          // Conditional attrs require further processing
           getValue = parseConditionAttr(value, undefined)
         } else if (typeof value === 'object' && isPojo(value)) {
+          // Sub-parse pojos
           getValue = parseAttrs(value)
         } else {
           // In all other cases, the value is static
@@ -496,15 +508,8 @@ function parseSchema(
     node: FormKitSchemaNode
   ): RenderNodes {
     // Parses the schema node into pertinent parts
-    const [
-      condition,
-      element,
-      attrs,
-      children,
-      alternate,
-      iterator,
-      resolve,
-    ] = parseNode(library, node)
+    const [condition, element, attrs, children, alternate, iterator, resolve] =
+      parseNode(library, node)
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
     // manner possible.
@@ -745,7 +750,7 @@ export const FormKitSchema = defineComponent({
           // referenced in the render function it technically isnt a dependency
           // and we need to force a re-render since we swapped out the render
           // function completely.
-          ;((instance?.proxy?.$forceUpdate as unknown) as CallableFunction)()
+          ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
         }
       },
       { deep: true }

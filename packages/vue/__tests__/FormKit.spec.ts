@@ -5,7 +5,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { getNode } from '@formkit/core'
+import { getNode, createNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
@@ -410,6 +410,28 @@ describe('validation', () => {
     expect(wrapper.find('.formkit-messages').exists()).toBe(false)
     wrapper.find('input').trigger('blur')
     await nextTick()
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+
+  it('does not show validation errors till after the input has settled', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        validation: 'required|length:5',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    wrapper.find('input').setValue('abc')
+    wrapper.find('input').trigger('input')
+    wrapper.find('input').trigger('blur')
+    expect(node?.context!.state.settled).toBe(false)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
 
@@ -1098,5 +1120,27 @@ describe('exposures', () => {
     const node = (wrapper.vm.$refs.select as any).node as FormKitNode
     expect(node.props.type).toBe('select')
     expect(node.__FKNode__).toBe(true)
+  })
+
+  it('allows artificial parent injection', () => {
+    const node = createNode({
+      type: 'group',
+      name: 'foobar',
+      value: { job: 'engineer' },
+    })
+    const wrapper = mount(
+      {
+        setup() {
+          return { parent: node }
+        },
+        template: '<FormKit name="job" :parent="parent" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input').element.value).toBe('engineer')
   })
 })

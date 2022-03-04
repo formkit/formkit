@@ -36,6 +36,7 @@ interface FormKitComponentProps {
   name?: string
   validation?: any
   modelValue?: any
+  parent?: FormKitNode
   errors: string[]
   inputErrors: Record<string, string | string[]>
   config: Record<string, any>
@@ -122,7 +123,7 @@ export function useInput(
   /**
    * The parent node.
    */
-  const parent = inject(parentSymbol, null)
+  const parent = props.parent || inject(parentSymbol, null)
 
   /**
    * The current instance.

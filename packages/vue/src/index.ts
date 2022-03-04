@@ -43,4 +43,10 @@ export { default as bindings } from './bindings'
 /**
  * Export the reset count explicitly
  */
-export { resetCount, errorHandler, setErrors, submitForm } from '@formkit/core'
+export {
+  resetCount,
+  errorHandler,
+  setErrors,
+  submitForm,
+  reset,
+} from '@formkit/core'

@@ -285,6 +285,18 @@ export function checkGitCleanWorkingDirectory() {
 export function checkGitIsMasterBranch() {
   const branch = execSync(`git rev-parse --abbrev-ref HEAD`, {
     encoding: 'utf-8',
-  })
+  }).toString()
   return branch === 'master'
+}
+
+/**
+ * Returns the current git commit hash, with n suffix characters.
+ */
+export function getCurrentHash(suffix = 7) {
+  const hash = execSync(`git rev-parse HEAD`, {
+    encoding: 'utf-8',
+  })
+    .toString()
+    .trim()
+  return hash.substr(hash.length - suffix)
 }
