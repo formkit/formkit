@@ -48,6 +48,7 @@ export const locales = {
 /**
  * Export each locale individually for people who want to cherry pick.
  */
+
 export { de, en, es, fa, fi, fr, he, hr, id, it, ko, nl, pl, pt, ru, tr, zh }
 
 /**

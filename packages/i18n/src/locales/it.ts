@@ -20,11 +20,11 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Rimuovi tutto',
+  removeAll: 'Rimuovi tutti',
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Non tutti i campi sono stati compilati correttamente.',
+  incomplete: 'Ci dispiace, non tutti i campi sono compilati correttamente.',
   /**
    * Shown in a button inside a form to submit the form.
    */
@@ -32,7 +32,7 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when no files are selected.
    */
-  noFiles: 'Nessun file scelto',
+  noFiles: 'Nessun file selezionato',
 }
 
 /**
@@ -107,8 +107,7 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `Questo campo è stato configurato in modo errato e non può essere inviato.
-`
+      return `Questo campo è stato configurato male e non può essere inviato.`
       /* </i18n> */
     }
     const [a, b] = order(args[0], args[1])
@@ -134,13 +133,11 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} non è una data valida, utilizzare il formato ${
-        args[0]
-      }`
+      return `${s(name)} non è una data valida, per favore usa il formato ${args[0]}`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'Questo campo è stato configurato in modo errato e non può essere inviato'
+    return 'Questo campo è stato configurato in modo errato e non può essere inviato.'
     /* </i18n> */
   },
 
@@ -158,7 +155,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'Si prega di inserire un indirizzo email valido.',
+  email: 'Per favore inserire un indirizzo email valido.',
 
   /**
    * Does not end with the specified value
@@ -166,7 +163,7 @@ export const validation: FormKitValidationMessages = {
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
-    return `${s(name)} non finisce con ${list(args)}.`
+    return `${s(name)} non termina con ${list(args)}.`
     /* </i18n> */
   },
 
@@ -189,17 +186,17 @@ export const validation: FormKitValidationMessages = {
     const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `${s(name)} deve essere almeno un carattere.`
+      return `${s(name)} deve contenere almeno un carattere.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} deve essere al massimo di ${max} caratteri.`
+      return `${s(name)} deve essere minore o uguale a ${max} caratteri.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} deve essere al minimo di ${min} caratteri.`
+      return `${s(name)} deve essere maggiore o uguale a ${min} caratteri.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
@@ -239,11 +236,11 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'Nessun formato di file consentito.'
+      return 'Formato file non consentito.'
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `${s(name)} deve essere del tipo: ${args[0]}`
+    return `${s(name)} deve essere di tipo: ${args[0]}`
     /* </i18n> */
   },
 
@@ -254,8 +251,7 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `
-Non può avere meno di ${args[0]} ${name}.`
+      return `Non può avere meno di ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
@@ -289,7 +285,7 @@ Non può avere meno di ${args[0]} ${name}.`
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
-    return `${s(name)} deve essere valorizzato.`
+    return `${s(name)} è richiesto.`
     /* </i18n> */
   },
 
@@ -309,7 +305,7 @@ Non può avere meno di ${args[0]} ${name}.`
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Si prega di includere un URL valido.`
+    return `Per favore utilizare un url valido.`
     /* </i18n> */
   },
 }
