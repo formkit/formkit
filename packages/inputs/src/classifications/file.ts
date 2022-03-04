@@ -28,7 +28,7 @@ const fileSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
         file(extensions.input),
         fileList(extensions.fileList, [
           fileItem(extensions.file, [
-            fileName(extensions.fileName),
+            fileName(extensions.fileName, '$file.name'),
             {
               if: '$value.length == 1',
               then: removeFiles(extensions.removeFiles, '$ui.remove.value'),

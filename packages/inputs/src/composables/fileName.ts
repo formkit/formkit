@@ -5,7 +5,6 @@ const fileName = composable('fileName', () => ({
   attrs: {
     class: '$classes.fileName',
   },
-  children: '$file.name',
 }))
 
 export default fileName
