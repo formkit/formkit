@@ -16,23 +16,23 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when a button to remove items is visible.
    */
-  remove: 'Rimuovi',
+  remove: '삭제',
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Rimuovi tutti',
+  removeAll: '전체 삭제',
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Ci dispiace, non tutti i campi sono compilati correttamente.',
+  incomplete: '필요한 모든 값이 채워지지 않았습니다.',
   /**
    * Shown in a button inside a form to submit the form.
    */
-  submit: 'Invia',
+  submit: '저장',
   /**
    * Shown when no files are selected.
    */
-  noFiles: 'Nessun file selezionato',
+  noFiles: '선택된 파일이 없습니다',
 }
 
 /**
@@ -46,7 +46,7 @@ export const validation: FormKitValidationMessages = {
    */
   accepted({ name }): string {
     /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
-    return `Si prega di accettare ${name}.`
+    return `${name}는 수용해야 합니다.`
     /* </i18n> */
   },
 
@@ -57,11 +57,11 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `la data ${s(name)} deve essere successiva ${date(args[0])}.`
+      return `${s(name)} 는 ${date(args[0])} 이후여야 합니다.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
-    return `la data ${s(name)} deve essere nel futuro.`
+    return `${s(name)} 는 미래여야 합니다.`
     /* </i18n> */
   },
 
@@ -71,7 +71,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `${s(name)} può contenere solo caratteri alfanumerici.`
+    return `${s(name)}는 알파벳 문자만 포함할 수 있습니다.`
     /* </i18n> */
   },
 
@@ -81,7 +81,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `${s(name)} può contenere solo lettere e numeri.`
+    return `${s(name)}는 문자와 숫자만 포함할 수 있습니다.`
     /* </i18n> */
   },
 
@@ -92,11 +92,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `la data ${s(name)} deve essere antecedente ${date(args[0])}.`
+      return `${s(name)}는 ${date(args[0])} 이전이어야 합니다. `
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `${s(name)} deve essere nel passato.`
+    return `${s(name)}는 과거여야 합니다.`
     /* </i18n> */
   },
 
@@ -107,12 +107,12 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `Questo campo è stato configurato male e non può essere inviato.`
+      return `숫자 사이에 값이 위치해야 합니다.`
       /* </i18n> */
     }
     const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} deve essere tra ${a} e ${b}.`
+    return `${s(name)}는 ${a} 와 ${b} 사이의 값이어야 합니다.`
     /* </i18n> */
   },
 
@@ -122,7 +122,7 @@ export const validation: FormKitValidationMessages = {
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
-    return `${s(name)} non corrisponde.`
+    return `${s(name)}는 값이 일치 하지 않습니다. `
     /* </i18n> */
   },
 
@@ -133,11 +133,13 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} non è una data valida, per favore usa il formato ${args[0]}`
+      return `${s(name)}는 유효한 형식이 아닙니다, ${
+        args[0]
+      }와 같은 형식으로 입력하세요.`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'Questo campo è stato configurato in modo errato e non può essere inviato.'
+    return 'This field was configured incorrectly and can’t be submitted'
     /* </i18n> */
   },
 
@@ -147,7 +149,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} deve essere tra ${date(args[0])} e ${date(args[1])}`
+    return `${s(name)}는 ${date(args[0])} 와 ${date(
+      args[1]
+    )} 사이에 위치해야 합니다.`
     /* </i18n> */
   },
 
@@ -155,7 +159,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'Per favore inserire un indirizzo email valido.',
+  email: '유효한 email주소를 입력하세요',
 
   /**
    * Does not end with the specified value
@@ -163,7 +167,7 @@ export const validation: FormKitValidationMessages = {
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
-    return `${s(name)} non termina con ${list(args)}.`
+    return `${s(name)}는 ${list(args)}로 끝날수 없습니다.`
     /* </i18n> */
   },
 
@@ -173,7 +177,7 @@ export const validation: FormKitValidationMessages = {
    */
   is({ name }) {
     /* <i18n case="Shown when the user-provided value is not one of the values supplied to the rule."> */
-    return `${s(name)} non è un valore consentito.`
+    return `${s(name)}는 수용할수 없는 값입니다.`
     /* </i18n> */
   },
 
@@ -186,21 +190,21 @@ export const validation: FormKitValidationMessages = {
     const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `${s(name)} deve contenere almeno un carattere.`
+      return `${s(name)}는 한자 이상 이어야 합니다.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} deve essere minore o uguale a ${max} caratteri.`
+      return `${s(name)}의 자릿수는 ${max}보다 작거나 같아야 합니다.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} deve essere maggiore o uguale a ${min} caratteri.`
+      return `${s(name)}의 자릿수는 ${min}보다 크거나 같아야 합니다.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${s(name)} deve essere tra ${min} e ${max} caratteri.`
+    return `${s(name)}의 자릿수는 ${min} ~ ${max} 사이 입니다.`
     /* </i18n> */
   },
 
@@ -210,7 +214,7 @@ export const validation: FormKitValidationMessages = {
    */
   matches({ name }) {
     /* <i18n case="Shown when the user-provided value does not match any of the values or RegExp patterns supplied to the rule. "> */
-    return `${s(name)} non è un valore consentito.`
+    return `${s(name)}는 허용되지 않는 값입니다.`
     /* </i18n> */
   },
 
@@ -221,11 +225,11 @@ export const validation: FormKitValidationMessages = {
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is longer than the max supplied to the rule."> */
-      return `Non può avere più di ${args[0]} ${name}.`
+      return `${name}은 ${args[0]}이상 가질수 없습니다.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} deve essere minore o uguale a ${args[0]}.`
+    return `${s(name)}는  ${args[0]}보다 작거나 같아야 합니다.`
     /* </i18n> */
   },
 
@@ -236,11 +240,11 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'Formato file non consentito.'
+      return '허용되지 않는 파일 형식 입니다.'
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `${s(name)} deve essere di tipo: ${args[0]}`
+    return `${s(name)}는 ${args[0]}형식이어야 합니다.`
     /* </i18n> */
   },
 
@@ -251,11 +255,11 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `Non può avere meno di ${args[0]} ${name}.`
+      return `${name}는 갯수가 ${args[0]}보다 작을수 없습니다.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `${s(name)} deve essere almeno ${args[0]}.`
+    return `${s(name)}는 최소 ${args[0]}개 이상이어야 합니다.`
     /* </i18n> */
   },
 
@@ -265,7 +269,7 @@ export const validation: FormKitValidationMessages = {
    */
   not({ name, node: { value } }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
-    return `"${value}" non è un ${name} consentito.`
+    return `${name}에서 “${value}”값은 허용되지 않습니다.`
     /* </i18n> */
   },
 
@@ -275,7 +279,7 @@ export const validation: FormKitValidationMessages = {
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
-    return `${s(name)} deve essere un numero.`
+    return `${s(name)}는 숫자만 입력 가능 합니다.`
     /* </i18n> */
   },
 
@@ -285,7 +289,7 @@ export const validation: FormKitValidationMessages = {
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
-    return `${s(name)} è richiesto.`
+    return `${s(name)}는 필수 입니다.`
     /* </i18n> */
   },
 
@@ -295,7 +299,7 @@ export const validation: FormKitValidationMessages = {
    */
   starts_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not start with the substring supplied to the rule."> */
-    return `${s(name)} non inizia con ${list(args)}.`
+    return `${s(name)}는 ${list(args)}로 시작할수 없습니다.`
     /* </i18n> */
   },
 
@@ -305,7 +309,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Per favore utilizare un url valido.`
+    return `유효한 URL을 입력하세요`
     /* </i18n> */
   },
 }

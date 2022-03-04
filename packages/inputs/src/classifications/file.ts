@@ -11,6 +11,7 @@ import messages from '../composables/messages'
 import message from '../composables/message'
 import fileList from '../composables/fileList'
 import fileItem from '../composables/fileItem'
+import fileName from '../composables/fileName'
 import noFiles from '../composables/noFiles'
 import removeFiles from '../composables/removeFiles'
 
@@ -27,10 +28,7 @@ const fileSchema: FormKitExtendableSchemaRoot = (extensions = {}) => [
         file(extensions.input),
         fileList(extensions.fileList, [
           fileItem(extensions.file, [
-            {
-              $el: 'span',
-              children: '$file.name',
-            },
+            fileName(extensions.fileName, '$file.name'),
             {
               if: '$value.length == 1',
               then: removeFiles(extensions.removeFiles, '$ui.remove.value'),

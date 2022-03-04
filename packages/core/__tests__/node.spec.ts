@@ -1297,3 +1297,24 @@ describe('value propagation in a node tree', () => {
     })
   })
 })
+
+describe('resetting', () => {
+  it('can reset a simple text value', async () => {
+    const node = createNode({ value: 'foobar' })
+    await node.input('biz bar')
+    expect(node.value).toBe('biz bar')
+    node.reset()
+    expect(node.value).toBe('foobar')
+  })
+
+  it('can reset a group value', async () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'alpha', value: 'abc' })],
+    })
+    await node.at('alpha')?.input('foobar')
+    expect(node.value).toStrictEqual({ alpha: 'foobar' })
+    node.reset()
+    expect(node.value).toEqual({ alpha: 'abc' })
+  })
+})

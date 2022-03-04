@@ -2,6 +2,8 @@ import { mount } from '@vue/test-utils'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { nextTick } from 'vue'
+import { token } from '@formkit/utils'
+import { getNode, reset } from '@formkit/core'
 // import { jest } from '@jest/globals'
 
 describe('group', () => {
@@ -141,5 +143,128 @@ describe('group', () => {
     await nextTick()
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+})
+
+describe('clearing values', () => {
+  it('can remove values from a group by setting it to an empty object', async () => {
+    const emailToken = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            data: {} as Record<string, any>,
+          }
+        },
+        template: `
+        <FormKit type="group" v-model="data">
+          <FormKit name="name" />
+          <FormKit name="email" id="${emailToken}" value="example@example.com" />
+          <FormKit type="group" name="address">
+            <FormKit name="street" />
+            <FormKit type="checkbox" name="type" :value="['residential']" :options="['residential', 'commercial']" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    const node = getNode(emailToken)
+    expect(node!.value).toEqual('example@example.com')
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: 'example@example.com',
+      address: {
+        street: undefined,
+        type: ['residential'],
+      },
+    })
+    // Now we v-model the data to an empty object:
+    wrapper.vm.data = {}
+    await nextTick()
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: undefined,
+      address: {
+        street: undefined,
+        type: [],
+      },
+    })
+  })
+
+  it('can reset values to their original state', async () => {
+    const formToken = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            data: {
+              address: {
+                street: 'Kiev St.',
+              },
+            } as Record<string, any>,
+          }
+        },
+        template: `
+        <div>
+          <FormKit type="group" id="${formToken}" v-model="data">
+            <FormKit name="name" />
+            <FormKit name="email" value="example@example.com" />
+            <FormKit type="group" name="address">
+              <FormKit name="street" />
+              <FormKit type="checkbox" name="type" :value="['residential']" :options="['residential', 'commercial']" />
+            </FormKit>
+          </FormKit>
+        </div>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: 'example@example.com',
+      address: {
+        street: 'Kiev St.',
+        type: ['residential'],
+      },
+    })
+    wrapper.vm.data = {
+      name: 'Volodymyr Zelenskyy',
+      email: 'volo@ukraine.ua',
+      address: {
+        street: 'Verkhovna Rada',
+        type: ['commercial'],
+      },
+    }
+    await nextTick()
+    const [name, email, street, residential, commercial] = wrapper
+      .get('div')
+      .findAll('input')
+    expect(name.element.value).toBe('Volodymyr Zelenskyy')
+    expect(email.element.value).toBe('volo@ukraine.ua')
+    expect(street.element.value).toBe('Verkhovna Rada')
+    expect(commercial.element.checked).toBe(true)
+    expect(residential.element.checked).toBe(false)
+    // Now we v-model the data to an empty object:
+    await nextTick()
+    reset(formToken)
+    await nextTick()
+    expect(wrapper.vm.data).toStrictEqual({
+      name: undefined,
+      email: 'example@example.com',
+      address: {
+        street: 'Kiev St.',
+        type: ['residential'],
+      },
+    })
   })
 })
