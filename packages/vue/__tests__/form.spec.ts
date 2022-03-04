@@ -934,10 +934,7 @@ describe('resetting', () => {
       'address.zip': ['This is an error'],
     })
     await new Promise((r) => setTimeout(r, 200))
-    console.log([...Object.keys(getNode(formId)!.at('address.zip')!.store)])
     reset(formId, {})
-    console.log([...Object.keys(getNode(formId)!.at('address.zip')!.store)])
-    console.log(form.find('.formkit-help').html())
     await new Promise((r) => setTimeout(r, 20))
     expect(form.vm.values).toStrictEqual({
       email: undefined,
