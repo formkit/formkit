@@ -168,21 +168,22 @@ Any dependent packages will also require publishing to include dependency change
     if (!didCommit && !force) return msg.error('Publish aborted. 👋')
   }
   if (tag) {
-    msg.headline(`♻️ Clearing JSDelivr @${tag} tag`)
-    axios.post('http://purge.jsdelivr.net/', {
+    msg.info(`♻️ Clearing JSDelivr @${tag} tag`)
+    const res = await axios.post('http://purge.jsdelivr.net/', {
       path: [
-        '/npm/@formkit/core@next',
-        '/npm/@formkit/dev@next',
-        '/npm/@formkit/i18n@next',
-        '/npm/@formkit/inputs@next',
-        '/npm/@formkit/observer@next',
-        '/npm/@formkit/rules@next',
-        '/npm/@formkit/themes@next',
-        '/npm/@formkit/utils@next',
-        '/npm/@formkit/validation@next',
-        '/npm/@formkit/vue@next',
+        '/npm/@formkit/core@next/dist/index.mjs',
+        '/npm/@formkit/dev@next/dist/index.mjs',
+        '/npm/@formkit/i18n@next/dist/index.mjs',
+        '/npm/@formkit/inputs@next/dist/index.mjs',
+        '/npm/@formkit/observer@next/dist/index.mjs',
+        '/npm/@formkit/rules@next/dist/index.mjs',
+        '/npm/@formkit/themes@next/dist/genesis/theme.css',
+        '/npm/@formkit/utils@next/dist/index.mjs',
+        '/npm/@formkit/validation@next/dist/index.mjs',
+        '/npm/@formkit/vue@next/dist/index.mjs',
       ],
     })
+    console.log(res.data)
   }
   msg.headline(' 🎉   All changes published and committed!')
   // drawPublishPreviewGraph(prePublished)
