@@ -480,6 +480,8 @@ export type FormKitOptions = Partial<
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
     plugins: FormKitPlugin[]
+    alias: string
+    schemaAlias: string
   }
 >
 
