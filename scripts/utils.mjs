@@ -286,7 +286,7 @@ export function checkGitIsMasterBranch() {
   const branch = execSync(`git rev-parse --abbrev-ref HEAD`, {
     encoding: 'utf-8',
   }).toString()
-  return branch === 'master'
+  return branch.trim() === 'master'
 }
 
 /**

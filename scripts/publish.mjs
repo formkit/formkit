@@ -62,7 +62,6 @@ async function publishPackages(force = false) {
     )
     return
   }
-
   if (!checkGitIsMasterBranch()) {
     tag = 'next'
     const { confirmBuild } = await prompts({
