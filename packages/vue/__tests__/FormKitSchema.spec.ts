@@ -526,6 +526,30 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<button>click me to buy</button>')
   })
 
+  it.only('can render the loop data inside the default slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          items: ['a', 'b', 'c'],
+        },
+        schema: [
+          {
+            $cmp: 'FormKit',
+            for: ['item', 'index', '$items'],
+            props: {
+              type: 'group',
+            },
+            children: '$index + ": " + $item',
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('1: a2: b3: c')
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,

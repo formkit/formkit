@@ -489,6 +489,7 @@ function parseSchema(
   function createSlots(children: RenderChildren): RenderableSlots | null {
     const slots = children() as RenderableSlots
     const currentKey = instanceKey
+    console.log('createSlots')
     return Object.keys(slots).reduce((allSlots, slotName) => {
       const slotFn = slots && slots[slotName]
       allSlots[slotName] = (data?: Record<string, any>) =>
@@ -561,7 +562,9 @@ function parseSchema(
             [valueName]: values[key],
             ...(keyName !== null ? { [keyName]: key } : {}),
           })
+          console.log('<--rendering child-->')
           fragment.push(repeatedNode())
+          console.log('</--rendering child-->')
           instanceScope.shift()
         }
         return fragment
@@ -685,7 +688,7 @@ function createRenderFn(
     (requirements, hints: Record<string, boolean> = {}) => {
       return requirements.reduce((tokens, token) => {
         if (token.startsWith('slots.')) {
-          const slot = token.substr(6)
+          const slot = token.substring(6)
           const hasSlot = data.slots && has(data.slots, slot)
           if (hints.if) {
             // If statement — dont render the slot, check if it exists
