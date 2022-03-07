@@ -15,6 +15,7 @@ import {
   kebab,
   undefine,
   token,
+  slugify,
 } from '../src/index'
 
 describe('eq', () => {
@@ -438,4 +439,13 @@ describe('undefine', () => {
   it('defines an random string', () => {
     expect(undefine(token())).toBe(true)
   })
+})
+
+describe('slugify', () => {
+  it('removes caps', () => expect(slugify('FooBar')).toBe('foobar'))
+  it('removes spaces', () => expect(slugify('this That')).toBe('this-that'))
+  it('removes symbols', () =>
+    expect(slugify('This!-is*&%#@^up!')).toBe('this-is-up'))
+  it('converts non-standard unicode', () =>
+    expect(slugify('Amélie')).toBe('amelie'))
 })

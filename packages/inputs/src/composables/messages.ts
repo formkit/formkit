@@ -5,6 +5,7 @@ const messages = composable('messages', () => ({
   if: '$fns.length($messages)',
   attrs: {
     class: '$classes.messages',
+    'aria-live': '$type === "form" && "assertive" || "polite"',
   },
 }))
 

@@ -639,7 +639,7 @@ describe('classes', () => {
     </div>
   </div>
   <div id="help-foobar" class="formkit-help">input help text</div>
-  <ul class="formkit-messages">
+  <ul class="formkit-messages" aria-live="polite">
     <li class="formkit-message">Input label is required.</li>
   </ul>
 </div>`)

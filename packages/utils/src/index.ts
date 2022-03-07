@@ -524,3 +524,17 @@ export function init<T extends object>(obj: T): T & { __init: true } {
     value: true,
   }) as T & { __init: true }
 }
+
+/**
+ * Turn any string into a URL/DOM safe string.
+ * @public
+ */
+export function slugify(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ' ')
+    .trim()
+    .replace(/\s+/g, '-')
+}

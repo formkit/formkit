@@ -18,6 +18,7 @@ import {
   only,
   kebab,
   cloneAny,
+  slugify,
 } from '@formkit/utils'
 import {
   watchEffect,
@@ -252,7 +253,7 @@ export function useInput(
   watchEffect(() => {
     const messages = props.errors.map((error) =>
       createMessage({
-        key: error,
+        key: slugify(error),
         type: 'error',
         value: error,
         meta: { source: 'prop' },
