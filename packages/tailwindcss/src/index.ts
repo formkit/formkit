@@ -6,7 +6,6 @@ import plugin from 'tailwindcss/plugin'
  * @public
  */
 const formKitVariants = plugin(({ addVariant }) => {
-  console.log('plugin is running')
   addVariant('formkit-disabled', ['&[data-disabled]', '[data-disabled] &', '[data-disabled]&'])
   addVariant('formkit-invalid', ['&[data-invalid]', '[data-invalid] &', '[data-invalid]&'])
   addVariant('formkit-errors', ['&[data-errors]', '[data-errors] &', '[data-errors]&'])
@@ -15,6 +14,8 @@ const formKitVariants = plugin(({ addVariant }) => {
   addVariant('formkit-submitted', ['&[data-submitted]', '[data-submitted] &', '[data-submitted]&'])
   addVariant('formkit-multiple', ['&[data-multiple]', '[data-multiple] &', '[data-multiple]&'])
   addVariant('formkit-action', ['.formkit-actions &', '.formkit-actions&'])
+  addVariant('formkit-message-validation', ['[data-message-type="validation"] &', '[data-message-type="validation"]&'])
+  addVariant('formkit-message-error', ['[data-message-type="error"] &', '[data-message-type="error"]&'])
 })
 
 /**
