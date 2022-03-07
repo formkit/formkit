@@ -10,6 +10,7 @@ import {
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
+import FormKitSchema from './FormKitSchema'
 
 /**
  * The global instance of the FormKit plugin.
@@ -36,7 +37,9 @@ function createPlugin(
   app: App<any>,
   options: FormKitOptions & Record<string, any>
 ): FormKitVuePlugin {
-  app.component(options.alias || 'FormKit', FormKit)
+  app
+    .component(options.alias || 'FormKit', FormKit)
+    .component(options.schemaAlias || 'FormKitSchema', FormKitSchema)
   return {
     get: getNode,
     setLocale: (locale: string) => {
@@ -79,6 +82,7 @@ export const plugin: Plugin = {
     const options: FormKitOptions = Object.assign(
       {
         alias: 'FormKit',
+        schemaAlias: 'FormKitSchema',
       },
       typeof _options === 'function' ? _options() : _options
     )

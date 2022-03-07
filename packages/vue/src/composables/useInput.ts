@@ -61,7 +61,7 @@ const pseudoProps = [
   'disabled',
   'preserve',
   /^[a-z]+(?:-visibility|Visibility)$/,
-  /^[a-z]+(?:-class|Class)$/,
+  /^[a-zA-Z-]+(?:-class|Class)$/,
 ]
 
 /**

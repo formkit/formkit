@@ -6,7 +6,6 @@ const submit = composable('submit', () => ({
   props: {
     ignore: true,
     type: 'submit',
-    'data-loading': '$state.loading',
     disabled: '$disabled',
     label: '$submitLabel',
   },

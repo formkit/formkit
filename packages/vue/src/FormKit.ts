@@ -13,7 +13,7 @@ export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
  * The root FormKit component.
  * @public
  */
-const FormKit = defineComponent({
+export const FormKit = defineComponent({
   props,
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
