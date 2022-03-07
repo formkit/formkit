@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const FormKitTailwind = require('@formkit/tailwindcss');
-console.log(FormKitTailwind)
 
 module.exports = {
   content: ['./packages/tailwindcss/playground/src/**/*.{html,js,vue}'],
