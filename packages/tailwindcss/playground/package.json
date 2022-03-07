@@ -1,0 +1,16 @@
+{
+  "name": "formkit-tailwind-playground",
+  "version": "1.0.0",
+  "description": "A playground for testing @formkit/tailwindcss",
+  "scripts": {
+    "dev": "vite",
+    "tailwind": "npx tailwindcss -i ./src/index.css -o ./dist/index.css --watch"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/tailwindcss": "^3.0.9",
+    "tailwindcss": "^3.0.23",
+    "vite": "^2.8.6"
+  },
+  "dependencies": {}
+}
