@@ -1,7 +1,7 @@
 const textClassification = {
   label: 'block mb-1 font-bold text-sm formkit-invalid:text-red-500',
   inner: 'max-w-md border border-gray-400 rounded-lg mb-1 overflow-hidden focus-within:border-blue-500 formkit-submitted:formkit-invalid:border-red-500',
-  input: 'w-full h-10 px-3 border-none text-base text-gray-700 placeholder-gray-400',
+  input: 'w-full h-10 px-3 border-none text-base text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0 formkit-multiple:h-48',
 }
 const boxClassification = {
   fieldset: 'max-w-md border border-gray-400 rounded-md px-2 pb-1',
@@ -18,9 +18,9 @@ const buttonClassification = {
 
 export default {
   global: {
-    outer: 'mb-5 formkit-disabled:opacity-30',
+    outer: 'w-60 mb-5 formkit-disabled:opacity-30',
     help: 'text-xs text-gray-500',
-    messages: 'list-none p-0 mt-1 mb-0',
+    messages: 'list-none p-0 mt-1 mb-3',
     message: 'text-red-500 mb-1 text-xs'
   },
   button: buttonClassification,
