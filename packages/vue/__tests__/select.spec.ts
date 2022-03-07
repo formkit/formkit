@@ -15,6 +15,7 @@ describe('select', () => {
           { label: 'FooBar', value: 'foo' },
           { label: 'BarFoo', value: 'bar' },
         ],
+        help: 'I am help text',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -25,14 +26,14 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select class="formkit-input" name="select_1">
+      <!----><select id="input_0" class="formkit-input" name="select_1" aria-describedby="help-input_0">
         <option class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
     </div>
   </div>
-  <!---->
+  <div id="help-input_0" class="formkit-help">I am help text</div>
   <!---->
 </div>`)
   })
@@ -42,6 +43,7 @@ describe('select', () => {
       props: {
         type: 'select',
         name: 'select_d',
+        help: 'This is help text',
         options: [
           { label: 'FooBar', value: 'foo', attrs: { disabled: true } },
           { label: 'BarFoo', value: 'bar' },
@@ -56,14 +58,14 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select class="formkit-input" name="select_d">
+      <!----><select id="input_1" class="formkit-input" name="select_d" aria-describedby="help-input_1">
         <option disabled="" class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
     </div>
   </div>
-  <!---->
+  <div id="help-input_1" class="formkit-help">This is help text</div>
   <!---->
 </div>`)
   })
@@ -84,7 +86,7 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select class="formkit-input" name="select_foo">
+      <!----><select id="input_2" class="formkit-input" name="select_foo">
         <option class="formkit-option" value="foo">foo</option>
         <option class="formkit-option" value="bar">bar</option>
       </select>
@@ -112,7 +114,7 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select class="formkit-input" name="select_foo">
+      <!----><select id="input_3" class="formkit-input" name="select_foo">
         <option class="formkit-option" value="1">1</option>
         <option class="formkit-option" value="2">2</option>
         <option class="formkit-option" value="3">3</option>
@@ -130,6 +132,7 @@ describe('select', () => {
       props: {
         type: 'select',
         name: 'select_foo',
+        id: 'select_foo',
         options: {
           foo: 'Bar',
           baz: 'Bim',
@@ -144,7 +147,7 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select class="formkit-input" name="select_foo">
+      <!----><select id="select_foo" class="formkit-input" name="select_foo">
         <option class="formkit-option" value="foo">Bar</option>
         <option class="formkit-option" value="baz">Bim</option>
       </select>

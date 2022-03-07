@@ -11,6 +11,7 @@ const outer = composable('outer', () => ({
     'data-invalid':
       '$state.valid === false && $state.validationVisible || undefined',
     'data-errors': '$state.errors || undefined',
+    'data-submitted': '$state.submitted || undefined',
   },
 }))
 

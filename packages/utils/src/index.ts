@@ -446,7 +446,7 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     obj === null ||
     obj instanceof RegExp ||
     obj instanceof Date ||
-    obj instanceof File
+    (typeof File === 'function' && obj instanceof File)
   )
     return obj
   if (Array.isArray(obj)) {
@@ -509,4 +509,32 @@ export function undefine(value: unknown): true | undefined {
   return value !== undefined && value !== 'false' && value !== false
     ? true
     : undefined
+}
+
+/**
+ * Defines an object as an initial value.
+ * @param obj - Object
+ * @returns
+ * @public
+ */
+/* eslint-disable-next-line @typescript-eslint/ban-types */
+export function init<T extends object>(obj: T): T & { __init: true } {
+  return Object.defineProperty(obj, '__init', {
+    enumerable: false,
+    value: true,
+  }) as T & { __init: true }
+}
+
+/**
+ * Turn any string into a URL/DOM safe string.
+ * @public
+ */
+export function slugify(str: string): string {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ' ')
+    .trim()
+    .replace(/\s+/g, '-')
 }

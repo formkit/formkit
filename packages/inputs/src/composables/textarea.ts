@@ -11,6 +11,7 @@ const textarea = composable('input', () => ({
     onBlur: '$handlers.blur',
     value: '$_value',
     id: '$id',
+    'aria-describedby': '$describedBy',
   },
   children: '$initialValue',
 }))

@@ -12,6 +12,7 @@ const text = composable('input', () => ({
     onBlur: '$handlers.blur',
     value: '$_value',
     id: '$id',
+    'aria-describedby': '$describedBy',
   },
 }))
 

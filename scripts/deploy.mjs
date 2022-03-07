@@ -180,17 +180,17 @@ async function prepForDistribution(file, version, min = true) {
     /(from|import)\s+['"]@formkit\/([a-z0-9]+)['"]/g,
     `$1 '/$2@${version}'`
   )
-  const vueImportRegex = /^import\s+(.*)\s+from\s+'vue';?/gm
-  const vueMatch = src.match(vueImportRegex)
-  if (vueMatch) {
-    src = src.replace(vueImportRegex, '')
-    const vueImportStatement = `const $1 = await import(\`./vue.js?src=\${(new URL(import.meta.url).searchParams.get('vue') || 'https://cdn.jsdelivr.net/npm/vue@next/%2Besm')}\`);`
-    src = src.replace(
-      /(^import\s+.*;)(?!\s(import|export))/gm,
-      '$1\n' + vueMatch[0]
-    )
-    src = src.replace(vueImportRegex, vueImportStatement)
-  }
+  // const vueImportRegex = /^import\s+(.*)\s+from\s+'vue';?/gm
+  // const vueMatch = src.match(vueImportRegex)
+  // if (vueMatch) {
+  //   src = src.replace(vueImportRegex, '')
+  //   const vueImportStatement = `const $1 = await import(\`./vue.js?src=\${(new URL(import.meta.url).searchParams.get('vue') || 'https://cdn.jsdelivr.net/npm/vue@next/%2Besm')}\`);`
+  //   src = src.replace(
+  //     /(^import\s+.*;)(?!\s(import|export))/gm,
+  //     '$1\n' + vueMatch[0]
+  //   )
+  //   src = src.replace(vueImportRegex, vueImportStatement)
+  // }
   if (!min) return src
 
   try {

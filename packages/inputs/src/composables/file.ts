@@ -12,6 +12,7 @@ const file = composable('input', () => ({
     onChange: '$handlers.files',
     onBlur: '$handlers.blur',
     id: '$id',
+    'aria-describedby': '$describedBy',
   },
 }))
 

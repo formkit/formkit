@@ -18,6 +18,7 @@ import {
   only,
   kebab,
   cloneAny,
+  slugify,
 } from '@formkit/utils'
 import {
   watchEffect,
@@ -36,6 +37,7 @@ interface FormKitComponentProps {
   name?: string
   validation?: any
   modelValue?: any
+  parent?: FormKitNode
   errors: string[]
   inputErrors: Record<string, string | string[]>
   config: Record<string, any>
@@ -60,7 +62,7 @@ const pseudoProps = [
   'disabled',
   'preserve',
   /^[a-z]+(?:-visibility|Visibility)$/,
-  /^[a-z]+(?:-class|Class)$/,
+  /^[a-zA-Z-]+(?:-class|Class)$/,
 ]
 
 /**
@@ -122,7 +124,7 @@ export function useInput(
   /**
    * The parent node.
    */
-  const parent = inject(parentSymbol, null)
+  const parent = props.parent || inject(parentSymbol, null)
 
   /**
    * The current instance.
@@ -251,7 +253,7 @@ export function useInput(
   watchEffect(() => {
     const messages = props.errors.map((error) =>
       createMessage({
-        key: error,
+        key: slugify(error),
         type: 'error',
         value: error,
         meta: { source: 'prop' },

@@ -6,21 +6,11 @@ import {
   createConfig,
   setErrors,
   submitForm,
+  reset,
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
-
-/**
- * Augment Vue’s globalProperties.
- */
-declare module '@vue/runtime-core' {
-  export interface ComponentCustomProperties {
-    $formkit: FormKitVuePlugin
-  }
-  export interface GlobalComponents {
-    FormKit: typeof FormKit
-  }
-}
+import FormKitSchema from './FormKitSchema'
 
 /**
  * The global instance of the FormKit plugin.
@@ -35,6 +25,7 @@ export interface FormKitVuePlugin {
     inputErrors?: string[] | Record<string, string | string[]>
   ) => void
   submit: (formId: string) => void
+  reset: (formId: string, resetTo?: unknown) => void
 }
 
 /**
@@ -46,7 +37,9 @@ function createPlugin(
   app: App<any>,
   options: FormKitOptions & Record<string, any>
 ): FormKitVuePlugin {
-  app.component(options.alias || 'FormKit', FormKit)
+  app
+    .component(options.alias || 'FormKit', FormKit)
+    .component(options.schemaAlias || 'FormKitSchema', FormKitSchema)
   return {
     get: getNode,
     setLocale: (locale: string) => {
@@ -56,6 +49,7 @@ function createPlugin(
     },
     setErrors,
     submit: submitForm,
+    reset,
   }
 }
 
@@ -88,6 +82,7 @@ export const plugin: Plugin = {
     const options: FormKitOptions = Object.assign(
       {
         alias: 'FormKit',
+        schemaAlias: 'FormKitSchema',
       },
       typeof _options === 'function' ? _options() : _options
     )

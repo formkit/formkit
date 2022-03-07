@@ -1,6 +1,6 @@
 import { FormKitNode, FormKitTextFragment } from './node'
 import { error } from './errors'
-import { has, token } from '@formkit/utils'
+import { has, token, slugify } from '@formkit/utils'
 
 /**
  * The structure of an core FormKitMessage. These messages are used to store
@@ -390,7 +390,7 @@ export function createMessages(
   const sourceKey = `${node.name}-set`
   const make = (error: string) =>
     createMessage({
-      key: error,
+      key: slugify(error),
       type: 'error',
       value: error,
       meta: { source: sourceKey },

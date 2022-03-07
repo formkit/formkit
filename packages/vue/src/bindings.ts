@@ -1,4 +1,4 @@
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed, ref, watch } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -51,9 +51,18 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * Keep track of if this input has ever shown validation errors.
+   */
+  const hasShownErrors = ref(validationVisibility.value === 'live')
+
+  /**
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
+    if (context.state.submitted) return true
+    if (!hasShownErrors.value && !context.state.settled) {
+      return false
+    }
     switch (validationVisibility.value) {
       case 'live':
         return true
@@ -61,8 +70,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         return context.state.blurred
       case 'dirty':
         return context.state.dirty
-      case 'submit':
-        return context.state.submitted
       default:
         return false
     }
@@ -95,29 +102,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     const visibleMessages: Record<string, FormKitMessage> = {}
     for (const key in availableMessages) {
       const message = availableMessages[key]
-      // Once a form is "submitted" all inputs are live.
-      if (context.state.submitted) {
+      if (message.type !== 'validation' || validationVisible.value) {
         visibleMessages[key] = message
-        continue
-      }
-      const visibility =
-        message.type === 'validation'
-          ? validationVisibility.value
-          : node.props[`${message.type}Visibility`] || 'live'
-      switch (visibility) {
-        case 'live':
-          visibleMessages[key] = message
-          break
-        case 'blur':
-          if (context.state.blurred) {
-            visibleMessages[key] = message
-          }
-          break
-        case 'dirty':
-          if (context.state.dirty) {
-            visibleMessages[key] = message
-          }
-          break
       }
     }
     return visibleMessages
@@ -182,10 +168,22 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
   })
 
+  const describedBy = computed<string | undefined>(() => {
+    const describers = []
+    if (context.help) {
+      describers.push(`help-${node.props.id}`)
+    }
+    for (const key in messages.value) {
+      describers.push(`${node.props.id}-${key}`)
+    }
+    return describers.length ? describers.join(' ') : undefined
+  })
+
   const context: FormKitFrameworkContext = reactive({
     _value: node.value,
     attrs: node.props.attrs,
     disabled: node.props.disabled,
+    describedBy,
     fns: {
       length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
       number: (value: any) => Number(value),
@@ -218,6 +216,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       complete: isComplete,
       dirty: false,
       submitted: false,
+      settled: node.isSettled,
       valid: isValid,
       errors: hasErrors,
       rules: hasValidation,
@@ -237,6 +236,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       context._value = node.value
       context.value = node.value
     }
+  })
+
+  /**
+   * Sets the settled state.
+   */
+  node.on('settled', ({ payload: isSettled }) => {
+    context.state.settled = isSettled
   })
 
   /**
@@ -314,12 +320,19 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Update the local state in response to messages.
    * @param message - A formkit message
    */
-  const updateState = (message: FormKitMessage) => {
-    if (message.type === 'ui' && message.visible && !message.meta.showAsMessage)
+  const updateState = async (message: FormKitMessage) => {
+    if (
+      message.type === 'ui' &&
+      message.visible &&
+      !message.meta.showAsMessage
+    ) {
       ui[message.key] = message
-    else if (message.visible) availableMessages[message.key] = message
-    else if (message.type === 'state')
+    } else if (message.visible) {
+      availableMessages[message.key] = message
+    } else if (message.type === 'state') {
+      // await node.settled
       context.state[message.key] = !!message.value
+    }
   }
 
   /**
@@ -345,7 +358,17 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     hasErrors.value = true
   })
 
+  /**
+   * Watch the validation visible prop and set the hasShownErrors state.
+   */
+  watch(validationVisible, (value) => {
+    if (value) {
+      hasShownErrors.value = true
+    }
+  })
+
   node.context = context
+
   // The context is complete
   node.emit('context', node, false)
 }

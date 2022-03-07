@@ -114,3 +114,8 @@ export { setErrors } from './setErrors'
  * Programmatically submits a form by the id.
  */
 export { submitForm } from './submitForm'
+
+/**
+ * Programmatically reset an input.
+ */
+export { reset } from './reset'
