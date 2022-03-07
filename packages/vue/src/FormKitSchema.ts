@@ -766,3 +766,5 @@ export const FormKitSchema = defineComponent({
     return () => render()
   },
 })
+
+export default FormKitSchema
