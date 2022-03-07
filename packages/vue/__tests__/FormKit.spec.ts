@@ -12,8 +12,10 @@ import vuePlugin from '../src/bindings'
 
 describe('props', () => {
   it('can display prop-defined errors', async () => {
+    const id = token()
     const wrapper = mount(FormKit, {
       props: {
+        id,
         errors: ['This is an error', 'This is another'],
       },
       global: {
@@ -21,10 +23,10 @@ describe('props', () => {
       },
     })
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">This is an error</li>'
+      `<li class="formkit-message" id="${id}-this-is-an-error" data-message-type="error">This is an error</li>`
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">This is another</li>'
+      `<li class="formkit-message" id="${id}-this-is-another" data-message-type="error">This is another</li>`
     )
     wrapper.setProps({
       errors: ['This is another'],
@@ -34,7 +36,7 @@ describe('props', () => {
       '<li class="formkit-message">This is an error</li>'
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">This is another</li>'
+      `<li class="formkit-message" id="${id}-this-is-another" data-message-type="error">This is another</li>`
     )
   })
 
@@ -193,14 +195,16 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.html()).toContain('<li class="formkit-message">')
+    expect(wrapper.find('li.formkit-message').exists()).toBe(true)
   })
 
   it('can use arbitrarily created validation rules and messages', () => {
+    const id = token()
     const wrapper = mount(
       {
         template: `
           <FormKit
+            id="${id}"
             label="ABC"
             validation="abc"
             :validation-rules="{
@@ -221,15 +225,17 @@ describe('validation', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">ABC should be abc</li>'
+      `<li class="formkit-message" id="${id}-rule_abc" data-message-type="validation">ABC should be abc</li>`
     )
   })
 
   it('can override the validation label', () => {
+    const id = token()
     const wrapper = mount(
       {
         template: `
           <FormKit
+            id="${id}"
             label="foo"
             :validation="[['required']]"
             validation-label="bar"
@@ -244,13 +250,15 @@ describe('validation', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">Bar is required.</li>'
+      `<li class="formkit-message" id="${id}-rule_required" data-message-type="validation">Bar is required.</li>`
     )
   })
 
   it('can override the validation label strategy', async () => {
+    const id = token()
     const wrapper = mount(FormKit, {
       props: {
+        id,
         label: 'foo',
         validation: 'required',
         validationVisibility: 'live',
@@ -264,7 +272,7 @@ describe('validation', () => {
       },
     })
     expect(wrapper.html()).toContain(
-      '<li class="formkit-message">Hi there is required.</li>'
+      `<li class="formkit-message" id="${id}-rule_required" data-message-type="validation">Hi there is required.</li>`
     )
   })
 
@@ -460,7 +468,7 @@ describe('validation', () => {
     })
     expect(wrapper.find('.formkit-messages').exists()).toBe(false)
     wrapper.find('input').setValue('foo')
-    await new Promise((r) => setTimeout(r, 30))
+    await new Promise((r) => setTimeout(r, 35))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
 
@@ -634,13 +642,13 @@ describe('classes', () => {
       .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
   <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
     <div class="formkit-inner">
-      <!----><input type="text" class="formkit-input" name="classTest" id="foobar">
+      <!----><input type="text" class="formkit-input" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
       <!---->
     </div>
   </div>
   <div id="help-foobar" class="formkit-help">input help text</div>
   <ul class="formkit-messages" aria-live="polite">
-    <li class="formkit-message">Input label is required.</li>
+    <li class="formkit-message" id="foobar-rule_required" data-message-type="validation">Input label is required.</li>
   </ul>
 </div>`)
   })
@@ -961,7 +969,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      `<div class="formkit-inner">Prefix<select class="formkit-input" name="alpha">
+      `<div class="formkit-inner">Prefix<select id="alpha" class="formkit-input" name="alpha">
     <option class="formkit-option" value="A">A</option>
     <option class="formkit-option" value="B">B</option>
   </select>Suffix</div>`

@@ -806,6 +806,7 @@ describe('rendering components', () => {
         schema: [
           {
             $formkit: 'select',
+            id: 'where_waldo',
             if: '$value > 10',
             name: 'foobar',
             options: {
@@ -820,7 +821,7 @@ describe('rendering components', () => {
       },
     })
     expect(wrapper.html())
-      .toContain(`<select class=\"formkit-input\" name=\"foobar\">
+      .toContain(`<select id="where_waldo" class=\"formkit-input\" name=\"foobar\">
         <option class=\"formkit-option\" value=\"hello\">Hello</option>
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)

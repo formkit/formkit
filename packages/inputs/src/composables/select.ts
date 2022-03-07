@@ -4,6 +4,7 @@ const select = composable('input', (children) => ({
   $el: 'select',
   bind: '$attrs',
   attrs: {
+    id: '$id',
     'data-placeholder': {
       if: '$placeholder',
       then: {
@@ -17,6 +18,7 @@ const select = composable('input', (children) => ({
     name: '$node.name',
     onInput: '$handlers.selectInput',
     onBlur: '$handlers.blur',
+    'aria-describedby': '$describedBy',
   },
   children: {
     if: '$slots.default',

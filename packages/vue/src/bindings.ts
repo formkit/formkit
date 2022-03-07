@@ -168,10 +168,22 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
   })
 
+  const describedBy = computed<string | undefined>(() => {
+    const describers = []
+    if (context.help) {
+      describers.push(`help-${node.props.id}`)
+    }
+    for (const key in messages.value) {
+      describers.push(`${node.props.id}-${key}`)
+    }
+    return describers.length ? describers.join(' ') : undefined
+  })
+
   const context: FormKitFrameworkContext = reactive({
     _value: node.value,
     attrs: node.props.attrs,
     disabled: node.props.disabled,
+    describedBy,
     fns: {
       length: (obj: Record<PropertyKey, any>) => Object.keys(obj).length,
       number: (value: any) => Number(value),

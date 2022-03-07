@@ -7,7 +7,7 @@ const message = composable('message', () => ({
     key: '$message.key',
     class: '$classes.message',
     id: `$id + '-' + $message.key`,
-    'data-type': '$message.type',
+    'data-message-type': '$message.type',
   },
 }))
 
