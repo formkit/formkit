@@ -489,11 +489,12 @@ function parseSchema(
   function createSlots(children: RenderChildren): RenderableSlots | null {
     const slots = children() as RenderableSlots
     const currentKey = instanceKey
-    console.log('createSlots')
     return Object.keys(slots).reduce((allSlots, slotName) => {
       const slotFn = slots && slots[slotName]
-      allSlots[slotName] = (data?: Record<string, any>) =>
-        (slotFn && slotFn(data, currentKey)) || null
+      allSlots[slotName] = (data?: Record<string, any>) => {
+        console.log('slotFn running')
+        return (slotFn && slotFn(data, currentKey)) || null
+      }
       return allSlots
     }, {} as RenderableSlots)
   }
