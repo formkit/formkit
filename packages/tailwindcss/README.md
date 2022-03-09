@@ -7,7 +7,7 @@ This package contains tooling to assist with building a comprehensive Tailwind t
 ## Installation
 
 ```bash
-npm install @formkit/tailwind.css
+npm install @formkit/tailwindcss
 ```
 
 ```js
