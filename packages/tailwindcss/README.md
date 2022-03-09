@@ -23,7 +23,6 @@ module.exports {
 
 ```js
 // app.js (or your main entry file)
-// app.js
 import { createApp } from 'vue'
 import App from './App.vue'
 import { plugin, defaultConfig } from '@formkit/vue'
