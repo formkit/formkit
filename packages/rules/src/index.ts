@@ -1,6 +1,7 @@
 export { default as accepted } from './accepted'
 export { default as date_after } from './date_after'
 export { default as alpha } from './alpha'
+export { default as alpha_spaces } from './alpha_spaces'
 export { default as alphanumeric } from './alphanumeric'
 export { default as date_before } from './date_before'
 export { default as between } from './between'
