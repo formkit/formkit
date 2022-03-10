@@ -1,5 +1,5 @@
 import { FormKitNode, FormKitClasses } from '@formkit/core'
-import plugin from 'tailwindcss/plugin'
+import plugin from 'tailwindcss/plugin.js'
 
 /**
  * The FormKit plugin for Tailwind
@@ -40,6 +40,7 @@ type ClassFunction = (
  * A function to generate FormKit class functions from a javascript object
  * @param classes - An object of input types with nested objects of sectionKeys and class lists
  * @returns FormKitClassFunctions
+ * @public
  */
 export function generateClasses (
   classes:Record<string, Record<string, string>>
