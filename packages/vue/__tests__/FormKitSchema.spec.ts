@@ -600,6 +600,38 @@ describe('parsing dom elements', () => {
     )
   })
 
+  it('can render iteration data inside the slot of a conditional component', async () => {
+    const colors = ref(['red', 'green', 'blue'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          colors,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['color', '$colors'],
+            children: {
+              if: '$color === "red"',
+              then: 'RED!',
+              else: {
+                $cmp: 'FormKit',
+                props: {
+                  type: 'group',
+                },
+                children: '$color + "|"',
+              },
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('RED!green|blue|')
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,

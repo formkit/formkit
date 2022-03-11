@@ -427,8 +427,10 @@ function parseSchema(
       } else {
         // This is a conditional if/else clause
         const [childCondition, c, a] = parseCondition(library, node.children)
-        children = () =>
-          childCondition && childCondition() ? c && c() : a && a()
+        children = (iterationData?: Record<string, unknown>) =>
+          childCondition && childCondition()
+            ? c && c(iterationData)
+            : a && a(iterationData)
       }
     }
 

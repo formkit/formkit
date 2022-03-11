@@ -189,7 +189,9 @@ Any dependent packages will also require publishing to include dependency change
       ],
     },
   })
-  console.log(res.data)
+  if (res.data.id) {
+    msg.info(`Purge status: https://purge.jsdelivr.net/status/${res.data.id}`)
+  }
   msg.headline(' 🎉   All changes published and committed!')
   // drawPublishPreviewGraph(prePublished)
   console.log('\n\n')
