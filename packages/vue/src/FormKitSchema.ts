@@ -454,7 +454,7 @@ function parseSchema(
               if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
               if (iterationData)
                 instanceScopes.get(instanceKey)?.unshift(iterationData)
-              const c = produceChildren()
+              const c = produceChildren(iterationData)
               // Ensure our instance key never changed during runtime
               if (slotData) instanceScopes.get(instanceKey)?.shift()
               if (iterationData) instanceScopes.get(instanceKey)?.shift()
@@ -529,7 +529,9 @@ function parseSchema(
     ) => {
       if (condition && element === null && children) {
         // Handle conditional if/then statements
-        return condition() ? children(iterationData) : alternate && alternate()
+        return condition()
+          ? children(iterationData)
+          : alternate && alternate(iterationData)
       }
 
       if (element && (!condition || condition())) {
@@ -553,7 +555,9 @@ function parseSchema(
         )
       }
 
-      return typeof alternate === 'function' ? alternate() : alternate
+      return typeof alternate === 'function'
+        ? alternate(iterationData)
+        : alternate
     }) as RenderNodes
 
     if (iterator) {

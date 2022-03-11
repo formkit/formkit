@@ -632,6 +632,51 @@ describe('parsing dom elements', () => {
     expect(wrapper.text()).toBe('RED!green|blue|')
   })
 
+  it('can render iteration data in an element that is in the slot of a conditional component', async () => {
+    const letters = ref(['a', 'b', 'c'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          letters,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['letter', 'index', '$letters'],
+            attrs: {
+              class: 'repeated',
+            },
+            children: [
+              {
+                if: '$letter !== "b"',
+                then: {
+                  $el: 'h2',
+                  children: 'Not B',
+                },
+                else: {
+                  $cmp: 'FormKit',
+                  props: {
+                    type: 'group',
+                  },
+                  children: [
+                    {
+                      $el: 'h1',
+                      children: '$letter',
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('Not BbNot B')
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,
