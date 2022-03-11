@@ -1,4 +1,4 @@
-import { reactive, nextTick, defineComponent, markRaw } from 'vue'
+import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
@@ -548,6 +548,56 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.text()).toBe('0: a1: b2: c')
+  })
+
+  it('can render the loop data inside the default slot when nested in an $el', async () => {
+    const colors = ref(['red', 'green', 'blue'])
+    const items = ref(['a', 'b', 'c'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          colors,
+          items,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['color', '$colors'],
+            children: [
+              {
+                $el: 'span',
+                for: ['item', 'index', '$items'],
+                children: [
+                  {
+                    $cmp: 'FormKit',
+                    props: {
+                      type: 'group',
+                    },
+                    children: '$color + ": " + $index + " : " + $item + "|"',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe(
+      'red: 0 : a|red: 1 : b|red: 2 : c|green: 0 : a|green: 1 : b|green: 2 : c|blue: 0 : a|blue: 1 : b|blue: 2 : c|'
+    )
+    colors.value.shift()
+    await nextTick()
+    expect(wrapper.text()).toBe(
+      'green: 0 : a|green: 1 : b|green: 2 : c|blue: 0 : a|blue: 1 : b|blue: 2 : c|'
+    )
+    items.value.push('d')
+    await nextTick()
+    expect(wrapper.text()).toBe(
+      'green: 0 : a|green: 1 : b|green: 2 : c|green: 3 : d|blue: 0 : a|blue: 1 : b|blue: 2 : c|blue: 3 : d|'
+    )
   })
 
   it('can render functional data reactively', async () => {

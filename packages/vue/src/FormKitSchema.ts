@@ -568,10 +568,26 @@ function parseSchema(
         if (typeof values !== 'object') return null
         const instanceScope = instanceScopes.get(instanceKey) || []
         for (const key in values) {
-          const iterationData: Record<string, unknown> = {
-            [valueName]: values[key],
-            ...(keyName !== null ? { [keyName]: key } : {}),
-          }
+          const iterationData: Record<string, unknown> = Object.defineProperty(
+            {
+              ...instanceScope.reduce(
+                (
+                  previousIterationData: Record<string, undefined>,
+                  scopedData: Record<string, undefined>
+                ) => {
+                  if (previousIterationData.__idata) {
+                    return { ...previousIterationData, ...scopedData }
+                  }
+                  return scopedData
+                },
+                {} as Record<string, undefined>
+              ),
+              [valueName]: values[key],
+              ...(keyName !== null ? { [keyName]: key } : {}),
+            },
+            '__idata',
+            { enumerable: false, value: true }
+          )
           instanceScope.unshift(iterationData)
           fragment.push(repeatedNode.bind(null, iterationData)())
           instanceScope.shift()
@@ -595,11 +611,12 @@ function parseSchema(
   ): RenderChildren {
     if (Array.isArray(schema)) {
       const els = schema.map(createElement.bind(null, library))
-      return () => els.map((element) => element())
+      return (iterationData?: Record<string, unknown>) =>
+        els.map((element) => element(iterationData))
     }
     // Single node to render
     const element = createElement(library, schema)
-    return () => element()
+    return (iterationData?: Record<string, unknown>) => element(iterationData)
   }
 
   /**
