@@ -118,4 +118,40 @@ describe('numeric lists', () => {
       { title: undefined, author: undefined },
     ])
   })
+
+  // it.only('can remove an item by inputting a smaller array', async () => {
+  //   const wrapper = mount(
+  //     {
+  //       data() {
+  //         return {
+  //           values: [{}, {}, {}],
+  //         }
+  //       },
+  //       template: `
+  //       <div>
+  //         <FormKit type="list" :delay="0" v-model="values" #default="{ value }">
+  //           <template v-for="item in value">
+  //             <FormKit
+  //               v-if="item !== undefined"
+  //               type="group"
+  //             >
+  //               <FormKit name="biz" />
+  //             </FormKit>
+  //           </template>
+  //         </FormKit>
+  //       </div>
+  //     `,
+  //     },
+  //     {
+  //       global: {
+  //         plugins: [[plugin, defaultConfig]],
+  //       },
+  //     }
+  //   )
+  //   expect(wrapper.get('div').findAll('input').length).toBe(3)
+  //   wrapper.vm.values = [{}, {}]
+  //   await new Promise((r) => setTimeout(r, 30))
+  //   console.log('values: ', wrapper.vm.values)
+  //   expect(wrapper.get('div').findAll('input').length).toBe(2)
+  // })
 })

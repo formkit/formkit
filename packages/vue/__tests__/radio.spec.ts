@@ -3,6 +3,8 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { jest } from '@jest/globals'
+import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -75,5 +77,41 @@ describe('radios', () => {
     })
     consoleWarnMock.mockRestore()
     expect(warning).toHaveBeenCalledTimes(1)
+  })
+
+  it('changes the selected radios when value is set on node', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'B',
+          }
+        },
+        template: `<FormKit id="${id}" :delay="0" v-model="value" type="radio" :options="[
+          'A',
+          'B',
+          'C'
+        ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const inputs = wrapper.get('div').findAll('input[type="radio"]')
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, true, false])
+    const node = getNode(id)
+    node?.input('C')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, false, true])
+    node?.input('A')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(
+      inputs.map((input) => (input.element as HTMLInputElement).checked)
+    ).toStrictEqual([true, false, false])
   })
 })
