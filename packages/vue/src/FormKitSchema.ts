@@ -94,7 +94,7 @@ type RenderableSlot = (
  * Describes renderable children.
  */
 interface RenderChildren {
-  (): RenderableList | RenderableSlots
+  (iterationData?: Record<string, unknown>): RenderableList | RenderableSlots
   slot?: boolean
 }
 
@@ -102,7 +102,7 @@ interface RenderChildren {
  * The format children elements can be in.
  */
 interface RenderNodes {
-  (): Renderable | Renderable[]
+  (iterationData?: Record<string, unknown>): Renderable | Renderable[]
 }
 
 type SchemaProvider = (
@@ -439,23 +439,28 @@ function parseSchema(
         // We also create a new scope for this default slot, and then on each
         // render pass the scoped slot props to the scope.
         const produceChildren = children
-        children = () => ({
-          default(
-            slotData?: Record<string, any>,
-            key?: symbol
-          ): RenderableList {
-            // We need to switch the current instance key back to the one that
-            // originally called this component's render function.
-            const currentKey = instanceKey
-            if (key) instanceKey = key
-            if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-            const c = produceChildren()
-            // Ensure our instance key never changed during runtime
-            instanceScopes.get(instanceKey)?.shift()
-            instanceKey = currentKey
-            return c as RenderableList
-          },
-        })
+        children = (iterationData?: Record<string, unknown>) => {
+          return {
+            default(
+              slotData?: Record<string, any>,
+              key?: symbol
+            ): RenderableList {
+              // We need to switch the current instance key back to the one that
+              // originally called this component's render function.
+              const currentKey = instanceKey
+              if (key) instanceKey = key
+              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+              if (iterationData)
+                instanceScopes.get(instanceKey)?.unshift(iterationData)
+              const c = produceChildren()
+              // Ensure our instance key never changed during runtime
+              if (slotData) instanceScopes.get(instanceKey)?.shift()
+              if (iterationData) instanceScopes.get(instanceKey)?.shift()
+              instanceKey = currentKey
+              return c as RenderableList
+            },
+          }
+        }
         children.slot = true
       } else {
         // If we dont have any children, we still need to provide an object
@@ -486,13 +491,15 @@ function parseSchema(
    * render the slots.
    * @param children - The children() function that will produce slots
    */
-  function createSlots(children: RenderChildren): RenderableSlots | null {
-    const slots = children() as RenderableSlots
+  function createSlots(
+    children: RenderChildren,
+    iterationData?: Record<string, unknown>
+  ): RenderableSlots | null {
+    const slots = children(iterationData) as RenderableSlots
     const currentKey = instanceKey
     return Object.keys(slots).reduce((allSlots, slotName) => {
       const slotFn = slots && slots[slotName]
       allSlots[slotName] = (data?: Record<string, any>) => {
-        console.log('slotFn running')
         return (slotFn && slotFn(data, currentKey)) || null
       }
       return allSlots
@@ -515,10 +522,12 @@ function parseSchema(
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
     // manner possible.
-    let createNodes: RenderNodes = (() => {
+    let createNodes: RenderNodes = ((
+      iterationData?: Record<string, unknown>
+    ) => {
       if (condition && element === null && children) {
         // Handle conditional if/then statements
-        return condition() ? children() : alternate && alternate()
+        return condition() ? children(iterationData) : alternate && alternate()
       }
 
       if (element && (!condition || condition())) {
@@ -527,18 +536,18 @@ function parseSchema(
           return createTextVNode(String(children()))
         }
         // Handle lone slots
-        if (element === 'slot' && children) return children()
+        if (element === 'slot' && children) return children(iterationData)
         // Handle resolving components
         const el = resolve ? resolveComponent(element as string) : element
         // If we are rendering slots as children, ensure their instanceKey is properly added
         const slots: RenderableSlots | null = children?.slot
-          ? createSlots(children)
+          ? createSlots(children, iterationData)
           : null
         // Handle dom elements and components
         return h(
           el,
           attrs(),
-          (slots || (children ? children() : [])) as Renderable[]
+          (slots || (children ? children(iterationData) : [])) as Renderable[]
         )
       }
 
@@ -559,13 +568,12 @@ function parseSchema(
         if (typeof values !== 'object') return null
         const instanceScope = instanceScopes.get(instanceKey) || []
         for (const key in values) {
-          instanceScope.unshift({
+          const iterationData: Record<string, unknown> = {
             [valueName]: values[key],
             ...(keyName !== null ? { [keyName]: key } : {}),
-          })
-          console.log('<--rendering child-->')
-          fragment.push(repeatedNode())
-          console.log('</--rendering child-->')
+          }
+          instanceScope.unshift(iterationData)
+          fragment.push(repeatedNode.bind(null, iterationData)())
           instanceScope.shift()
         }
         return fragment

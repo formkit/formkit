@@ -526,7 +526,7 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<button>click me to buy</button>')
   })
 
-  it.only('can render the loop data inside the default slot', () => {
+  it('can render the loop data inside the default slot', () => {
     const wrapper = mount(FormKitSchema, {
       props: {
         data: {
@@ -547,7 +547,7 @@ describe('parsing dom elements', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
-    expect(wrapper.text()).toBe('1: a2: b3: c')
+    expect(wrapper.text()).toBe('0: a1: b2: c')
   })
 
   it('can render functional data reactively', async () => {
