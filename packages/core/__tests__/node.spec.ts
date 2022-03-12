@@ -1197,6 +1197,13 @@ describe('value propagation in a node tree', () => {
     expect(tree.at('people.2')!.value).toBe('third')
   })
 
+  it('settles the group when a preserved input is removed', async () => {
+    const group = createNode({ type: 'group' })
+    const child = createNode({ parent: group, props: { preserve: true } })
+    group.remove(child)
+    expect(group.isSettled).toBe(true)
+  })
+
   it('can hydrate a pre-existing tree with values', async () => {
     const [tree] = createTicketTree()
     await tree.input({

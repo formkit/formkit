@@ -1258,6 +1258,8 @@ function removeChild(
         name: node.type === 'list' ? childIndex : child.name,
         value: valueRemoved,
       })
+    } else {
+      node.calm()
     }
     child.parent = null
     // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
