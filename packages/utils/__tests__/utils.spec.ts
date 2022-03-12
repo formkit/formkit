@@ -137,6 +137,14 @@ describe('extend', () => {
   it('removes properties to objects as base depth', () =>
     expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
 
+  it('can preserve initial values against undefined values by setting ignoreUndefined to true', () =>
+    expect(
+      extend({ a: 123, b: 'foo' }, { a: undefined, b: 'bar' }, false, true)
+    ).toStrictEqual({
+      a: 123,
+      b: 'bar',
+    }))
+
   it('removes properties to objects as base depth', () =>
     expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
 

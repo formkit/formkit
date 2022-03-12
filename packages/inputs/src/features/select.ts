@@ -107,7 +107,8 @@ export default function (node: FormKitNode): void {
     if (
       !node.props.placeholder &&
       value === undefined &&
-      node.props?.options &&
+      Array.isArray(node.props?.options) &&
+      node.props.options.length &&
       !('multiple' in node.props?.attrs)
     ) {
       value = node.props.options[0].value

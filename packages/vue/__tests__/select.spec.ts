@@ -480,4 +480,19 @@ describe('select', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('select').element.value).toBe('jim')
   })
+
+  it('allows a select list with no options', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        options: [],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').html()).toBe(
+      '<select id="input_11" class="formkit-input" name="select_10"></select>'
+    )
+  })
 })

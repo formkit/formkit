@@ -24,6 +24,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir)
+    nuxt.options.build.transpile.push('@formkit/vue')
 
     const configPath = await resolver.resolvePath(
       options.configFile || 'formkit.config',

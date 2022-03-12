@@ -94,7 +94,7 @@ type RenderableSlot = (
  * Describes renderable children.
  */
 interface RenderChildren {
-  (): RenderableList | RenderableSlots
+  (iterationData?: Record<string, unknown>): RenderableList | RenderableSlots
   slot?: boolean
 }
 
@@ -102,7 +102,7 @@ interface RenderChildren {
  * The format children elements can be in.
  */
 interface RenderNodes {
-  (): Renderable | Renderable[]
+  (iterationData?: Record<string, unknown>): Renderable | Renderable[]
 }
 
 type SchemaProvider = (
@@ -427,8 +427,10 @@ function parseSchema(
       } else {
         // This is a conditional if/else clause
         const [childCondition, c, a] = parseCondition(library, node.children)
-        children = () =>
-          childCondition && childCondition() ? c && c() : a && a()
+        children = (iterationData?: Record<string, unknown>) =>
+          childCondition && childCondition()
+            ? c && c(iterationData)
+            : a && a(iterationData)
       }
     }
 
@@ -439,23 +441,28 @@ function parseSchema(
         // We also create a new scope for this default slot, and then on each
         // render pass the scoped slot props to the scope.
         const produceChildren = children
-        children = () => ({
-          default(
-            slotData?: Record<string, any>,
-            key?: symbol
-          ): RenderableList {
-            // We need to switch the current instance key back to the one that
-            // originally called this component's render function.
-            const currentKey = instanceKey
-            if (key) instanceKey = key
-            if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-            const c = produceChildren()
-            // Ensure our instance key never changed during runtime
-            instanceScopes.get(instanceKey)?.shift()
-            instanceKey = currentKey
-            return c as RenderableList
-          },
-        })
+        children = (iterationData?: Record<string, unknown>) => {
+          return {
+            default(
+              slotData?: Record<string, any>,
+              key?: symbol
+            ): RenderableList {
+              // We need to switch the current instance key back to the one that
+              // originally called this component's render function.
+              const currentKey = instanceKey
+              if (key) instanceKey = key
+              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+              if (iterationData)
+                instanceScopes.get(instanceKey)?.unshift(iterationData)
+              const c = produceChildren(iterationData)
+              // Ensure our instance key never changed during runtime
+              if (slotData) instanceScopes.get(instanceKey)?.shift()
+              if (iterationData) instanceScopes.get(instanceKey)?.shift()
+              instanceKey = currentKey
+              return c as RenderableList
+            },
+          }
+        }
         children.slot = true
       } else {
         // If we dont have any children, we still need to provide an object
@@ -486,13 +493,17 @@ function parseSchema(
    * render the slots.
    * @param children - The children() function that will produce slots
    */
-  function createSlots(children: RenderChildren): RenderableSlots | null {
-    const slots = children() as RenderableSlots
+  function createSlots(
+    children: RenderChildren,
+    iterationData?: Record<string, unknown>
+  ): RenderableSlots | null {
+    const slots = children(iterationData) as RenderableSlots
     const currentKey = instanceKey
     return Object.keys(slots).reduce((allSlots, slotName) => {
       const slotFn = slots && slots[slotName]
-      allSlots[slotName] = (data?: Record<string, any>) =>
-        (slotFn && slotFn(data, currentKey)) || null
+      allSlots[slotName] = (data?: Record<string, any>) => {
+        return (slotFn && slotFn(data, currentKey)) || null
+      }
       return allSlots
     }, {} as RenderableSlots)
   }
@@ -513,10 +524,14 @@ function parseSchema(
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
     // manner possible.
-    let createNodes: RenderNodes = (() => {
+    let createNodes: RenderNodes = ((
+      iterationData?: Record<string, unknown>
+    ) => {
       if (condition && element === null && children) {
         // Handle conditional if/then statements
-        return condition() ? children() : alternate && alternate()
+        return condition()
+          ? children(iterationData)
+          : alternate && alternate(iterationData)
       }
 
       if (element && (!condition || condition())) {
@@ -525,22 +540,24 @@ function parseSchema(
           return createTextVNode(String(children()))
         }
         // Handle lone slots
-        if (element === 'slot' && children) return children()
+        if (element === 'slot' && children) return children(iterationData)
         // Handle resolving components
         const el = resolve ? resolveComponent(element as string) : element
         // If we are rendering slots as children, ensure their instanceKey is properly added
         const slots: RenderableSlots | null = children?.slot
-          ? createSlots(children)
+          ? createSlots(children, iterationData)
           : null
         // Handle dom elements and components
         return h(
           el,
           attrs(),
-          (slots || (children ? children() : [])) as Renderable[]
+          (slots || (children ? children(iterationData) : [])) as Renderable[]
         )
       }
 
-      return typeof alternate === 'function' ? alternate() : alternate
+      return typeof alternate === 'function'
+        ? alternate(iterationData)
+        : alternate
     }) as RenderNodes
 
     if (iterator) {
@@ -557,11 +574,28 @@ function parseSchema(
         if (typeof values !== 'object') return null
         const instanceScope = instanceScopes.get(instanceKey) || []
         for (const key in values) {
-          instanceScope.unshift({
-            [valueName]: values[key],
-            ...(keyName !== null ? { [keyName]: key } : {}),
-          })
-          fragment.push(repeatedNode())
+          const iterationData: Record<string, unknown> = Object.defineProperty(
+            {
+              ...instanceScope.reduce(
+                (
+                  previousIterationData: Record<string, undefined>,
+                  scopedData: Record<string, undefined>
+                ) => {
+                  if (previousIterationData.__idata) {
+                    return { ...previousIterationData, ...scopedData }
+                  }
+                  return scopedData
+                },
+                {} as Record<string, undefined>
+              ),
+              [valueName]: values[key],
+              ...(keyName !== null ? { [keyName]: key } : {}),
+            },
+            '__idata',
+            { enumerable: false, value: true }
+          )
+          instanceScope.unshift(iterationData)
+          fragment.push(repeatedNode.bind(null, iterationData)())
           instanceScope.shift()
         }
         return fragment
@@ -583,11 +617,12 @@ function parseSchema(
   ): RenderChildren {
     if (Array.isArray(schema)) {
       const els = schema.map(createElement.bind(null, library))
-      return () => els.map((element) => element())
+      return (iterationData?: Record<string, unknown>) =>
+        els.map((element) => element(iterationData))
     }
     // Single node to render
     const element = createElement(library, schema)
-    return () => element()
+    return (iterationData?: Record<string, unknown>) => element(iterationData)
   }
 
   /**
@@ -685,7 +720,7 @@ function createRenderFn(
     (requirements, hints: Record<string, boolean> = {}) => {
       return requirements.reduce((tokens, token) => {
         if (token.startsWith('slots.')) {
-          const slot = token.substr(6)
+          const slot = token.substring(6)
           const hasSlot = data.slots && has(data.slots, slot)
           if (hints.if) {
             // If statement — dont render the slot, check if it exists

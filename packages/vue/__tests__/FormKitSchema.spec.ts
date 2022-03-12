@@ -1,4 +1,4 @@
-import { reactive, nextTick, defineComponent, markRaw } from 'vue'
+import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
@@ -524,6 +524,157 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.html()).toBe('<button>click me to buy</button>')
+  })
+
+  it('can render the loop data inside the default slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          items: ['a', 'b', 'c'],
+        },
+        schema: [
+          {
+            $cmp: 'FormKit',
+            for: ['item', 'index', '$items'],
+            props: {
+              type: 'group',
+            },
+            children: '$index + ": " + $item',
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('0: a1: b2: c')
+  })
+
+  it('can render the loop data inside the default slot when nested in an $el', async () => {
+    const colors = ref(['red', 'green', 'blue'])
+    const items = ref(['a', 'b', 'c'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          colors,
+          items,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['color', '$colors'],
+            children: [
+              {
+                $el: 'span',
+                for: ['item', 'index', '$items'],
+                children: [
+                  {
+                    $cmp: 'FormKit',
+                    props: {
+                      type: 'group',
+                    },
+                    children: '$color + ": " + $index + " : " + $item + "|"',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe(
+      'red: 0 : a|red: 1 : b|red: 2 : c|green: 0 : a|green: 1 : b|green: 2 : c|blue: 0 : a|blue: 1 : b|blue: 2 : c|'
+    )
+    colors.value.shift()
+    await nextTick()
+    expect(wrapper.text()).toBe(
+      'green: 0 : a|green: 1 : b|green: 2 : c|blue: 0 : a|blue: 1 : b|blue: 2 : c|'
+    )
+    items.value.push('d')
+    await nextTick()
+    expect(wrapper.text()).toBe(
+      'green: 0 : a|green: 1 : b|green: 2 : c|green: 3 : d|blue: 0 : a|blue: 1 : b|blue: 2 : c|blue: 3 : d|'
+    )
+  })
+
+  it('can render iteration data inside the slot of a conditional component', async () => {
+    const colors = ref(['red', 'green', 'blue'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          colors,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['color', '$colors'],
+            children: {
+              if: '$color === "red"',
+              then: 'RED!',
+              else: {
+                $cmp: 'FormKit',
+                props: {
+                  type: 'group',
+                },
+                children: '$color + "|"',
+              },
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('RED!green|blue|')
+  })
+
+  it('can render iteration data in an element that is in the slot of a conditional component', async () => {
+    const letters = ref(['a', 'b', 'c'])
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          letters,
+        },
+        schema: [
+          {
+            $el: 'div',
+            for: ['letter', 'index', '$letters'],
+            attrs: {
+              class: 'repeated',
+            },
+            children: [
+              {
+                if: '$letter !== "b"',
+                then: {
+                  $el: 'h2',
+                  children: 'Not B',
+                },
+                else: {
+                  $cmp: 'FormKit',
+                  props: {
+                    type: 'group',
+                  },
+                  children: [
+                    {
+                      $el: 'h1',
+                      children: '$letter',
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.text()).toBe('Not BbNot B')
   })
 
   it('can render functional data reactively', async () => {

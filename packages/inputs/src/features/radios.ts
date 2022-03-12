@@ -19,6 +19,9 @@ function toggleChecked(node: FormKitNode, event: Event) {
  * @returns
  */
 function isChecked(node: FormKitNode, value: string) {
+  // We need to force vue’s reactivity to respond when the value is run:
+  node.context?.value
+  node.context?._value
   return node._value == value
 }
 

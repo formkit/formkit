@@ -1,5 +1,5 @@
 import { FormKitNode, FormKitClasses } from '@formkit/core'
-import plugin from 'tailwindcss/plugin'
+import plugin from 'tailwindcss/plugin.js'
 
 /**
  * The FormKit plugin for Tailwind
@@ -25,7 +25,7 @@ const formKitVariants = plugin(({ addVariant, theme }) => {
  * @internal
  */
 interface FormKitClassFunctions {
-  [index:string]: ClassFunction
+  [index: string]: ClassFunction
 }
 
 /**
@@ -42,16 +42,17 @@ type ClassFunction = (
  * A function to generate FormKit class functions from a javascript object
  * @param classes - An object of input types with nested objects of sectionKeys and class lists
  * @returns FormKitClassFunctions
+ * @public
  */
-export function generateClasses (
-  classes:Record<string, Record<string, string>>
+export function generateClasses(
+  classes: Record<string, Record<string, string>>
 ): FormKitClassFunctions {
-  const classesBySectionKey:Record<string, Record<string, any>> = {}
-  Object.keys(classes).forEach(type => {
-    Object.keys(classes[type]).forEach(sectionKey => {
+  const classesBySectionKey: Record<string, Record<string, any>> = {}
+  Object.keys(classes).forEach((type) => {
+    Object.keys(classes[type]).forEach((sectionKey) => {
       if (!classesBySectionKey[sectionKey]) {
         classesBySectionKey[sectionKey] = {
-          [type]: classes[type][sectionKey]
+          [type]: classes[type][sectionKey],
         }
       } else {
         classesBySectionKey[sectionKey][type] = classes[type][sectionKey]
@@ -59,9 +60,9 @@ export function generateClasses (
     })
   })
 
-  Object.keys(classesBySectionKey).forEach(sectionKey => {
+  Object.keys(classesBySectionKey).forEach((sectionKey) => {
     const classesObject = classesBySectionKey[sectionKey]
-    classesBySectionKey[sectionKey] = function(
+    classesBySectionKey[sectionKey] = function (
       node: FormKitNode,
       sectionKey: string,
       sectionClassList: FormKitClasses | string | Record<string, boolean>
@@ -73,7 +74,7 @@ export function generateClasses (
   return classesBySectionKey as FormKitClassFunctions
 }
 
-function formKitStates (
+function formKitStates(
   node: FormKitNode,
   _sectionKey: string,
   _sectionClassList: FormKitClasses | string | Record<string, boolean>,
