@@ -99,6 +99,7 @@ export interface FormKitHooks {
   error: FormKitDispatcher<string>
   init: FormKitDispatcher<FormKitNode>
   input: FormKitDispatcher<any>
+  message: FormKitDispatcher<FormKitMessage>
   prop: FormKitDispatcher<{
     prop: string | symbol
     value: any

@@ -348,4 +348,13 @@ describe('removing store messages', () => {
     expect(foo.store).not.toHaveProperty('message')
     expect(foo.store.message2.value).toBe('later-registration')
   })
+
+  it('can modify the message being set with the message hook', () => {
+    const node = createNode()
+    node.hook.message((message, next) => {
+      return next({ ...message, meta: { foo: 'bar' } })
+    })
+    node.store.set(createMessage({ key: 'foobar' }))
+    expect(node.store.foobar.meta.foo).toBe('bar')
+  })
 })
