@@ -86,6 +86,16 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
+   * The value is not letter and/or spaces
+   * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
+   */
+  alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
+    return `${s(name)} могут содержать только буквы и пробелы.`
+    /* </i18n> */
+  },
+
+  /**
    * The date is not before
    * @see {@link https://docs.formkit.com/essentials/validation#date-before}
    */

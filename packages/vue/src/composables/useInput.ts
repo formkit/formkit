@@ -174,14 +174,19 @@ export function useInput(
    */
   const initialProps = createInitialProps()
   const node = createNode(
-    extend(config || {}, {
-      name: props.name || undefined,
-      value,
-      parent: initialProps.ignore ? null : parent,
-      plugins: (config.plugins || []).concat(props.plugins),
-      config: props.config,
-      props: initialProps,
-    }) as Partial<FormKitOptions>
+    extend(
+      config || {},
+      {
+        name: props.name || undefined,
+        value,
+        parent: initialProps.ignore ? null : parent,
+        plugins: (config.plugins || []).concat(props.plugins),
+        config: props.config,
+        props: initialProps,
+      },
+      false,
+      true
+    ) as Partial<FormKitOptions>
   ) as FormKitNode
 
   /**

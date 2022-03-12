@@ -166,23 +166,31 @@ Any dependent packages will also require publishing to include dependency change
     const didCommit = await promptForGitCommit()
     if (!didCommit && !force) return msg.error('Publish aborted. 👋')
   }
-  if (tag) {
-    msg.info(`♻️ Clearing JSDelivr @${tag} tag`)
-    const res = await axios.post('http://purge.jsdelivr.net/', {
+  msg.info(`♻️ Clearing JSDelivr @${tag || 'latest'} tag`)
+  const res = await axios({
+    method: 'POST',
+    url: 'https://purge.jsdelivr.net/',
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+    },
+    data: {
       path: [
-        '/npm/@formkit/core@next/dist/index.mjs',
-        '/npm/@formkit/dev@next/dist/index.mjs',
-        '/npm/@formkit/i18n@next/dist/index.mjs',
-        '/npm/@formkit/inputs@next/dist/index.mjs',
-        '/npm/@formkit/observer@next/dist/index.mjs',
-        '/npm/@formkit/rules@next/dist/index.mjs',
-        '/npm/@formkit/themes@next/dist/genesis/theme.css',
-        '/npm/@formkit/utils@next/dist/index.mjs',
-        '/npm/@formkit/validation@next/dist/index.mjs',
-        '/npm/@formkit/vue@next/dist/index.mjs',
+        `/npm/@formkit/core@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/dev@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/i18n@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/inputs@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/observer@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/rules@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/genesis/theme.css`,
+        `/npm/@formkit/utils@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/validation@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/vue@${tag || 'latest'}/dist/index.mjs`,
       ],
-    })
-    console.log(res.data)
+    },
+  })
+  if (res.data.id) {
+    msg.info(`Purge status: https://purge.jsdelivr.net/status/${res.data.id}`)
   }
   msg.headline(' 🎉   All changes published and committed!')
   // drawPublishPreviewGraph(prePublished)

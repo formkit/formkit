@@ -1,4 +1,5 @@
 import * as ar from './locales/ar'
+import * as cs from './locales/cs'
 import * as da from './locales/da'
 import * as de from './locales/de'
 import * as en from './locales/en'
@@ -6,6 +7,7 @@ import * as es from './locales/es'
 import * as fa from './locales/fa'
 import * as fi from './locales/fi'
 import * as fr from './locales/fr'
+import * as fy from './locales/fy'
 import * as he from './locales/he'
 import * as hr from './locales/hr'
 import * as ko from './locales/ko'
@@ -30,6 +32,7 @@ export * from './i18n'
  */
 export const locales = {
   ar,
+  cs,
   da,
   de,
   en,
@@ -37,6 +40,7 @@ export const locales = {
   fa,
   fi,
   fr,
+  fy,
   he,
   hr,
   id,
@@ -57,6 +61,7 @@ export const locales = {
 
 export {
   ar,
+  cs,
   da,
   de,
   en,
@@ -64,6 +69,7 @@ export {
   fa,
   fi,
   fr,
+  fy,
   he,
   hr,
   id,

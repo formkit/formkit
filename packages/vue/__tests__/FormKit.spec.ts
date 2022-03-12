@@ -621,6 +621,25 @@ describe('configuration', () => {
     expect(wrapper.vm.$data.node2?.props.errorVisibility).toBe('barfoo')
     expect(wrapper.vm.$data.node3?.props.errorVisibility).toBe('live')
   })
+
+  it('can change validation rules from vue plugin injected props', () => {
+    const wrapper = mount(FormKit, {
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              props: {
+                validation: 'required',
+                validationVisibility: 'live',
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
 })
 
 describe('classes', () => {

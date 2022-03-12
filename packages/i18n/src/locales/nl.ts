@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list, date } from '../formatters'
+import { sentence as s, list, date, order } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -18,6 +18,10 @@ export const ui: FormKitLocaleMessages = {
    */
   remove: 'Verwijder',
   /**
+   * Shown when there are multiple items to remove at the same time.
+   */
+  removeAll: 'Verwijder alles',
+  /**
    * Shown when all fields are not filled out correctly.
    */
   incomplete: 'Sorry, niet alle velden zijn correct ingevuld.',
@@ -25,6 +29,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: 'Versturen',
+  /**
+   * Shown when no files are selected.
+   */
+  noFiles: 'Geen bestand gekozen',
 }
 
 /**
@@ -78,6 +86,16 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
+   * The value is not letter and/or spaces
+   * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
+   */
+  alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
+    return `${s(name)} kunnen alleen letters en spaties bevatten.`
+    /* </i18n> */
+  },
+
+  /**
    * The date is not before
    * @see {@link https://docs.formkit.com/essentials/validation#date-before}
    */
@@ -99,11 +117,12 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `Dit veld is verkeerd geconfigureerd en kan niet worden ingediend.`
+      return `Dit veld is onjuist geconfigureerd en kan niet worden verzonden.`
       /* </i18n> */
     }
+    const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} moet tussen ${args[0]} en ${args[1]} liggen.`
+    return `${s(name)} moet tussen ${a} en ${b} liggen.`
     /* </i18n> */
   },
 
@@ -173,8 +192,8 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://docs.formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = first <= second ? first : second
-    const max = second >= first ? second : first
+    const min = Number(first) <= Number(second) ? first : second
+    const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} moet minimaal één teken zijn.`
@@ -182,9 +201,7 @@ export const validation: FormKitValidationMessages = {
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(
-        name
-      )} moet kleiner zijn dan of gelijk zijn aan ${max} tekens.`
+      return `${s(name)} moet kleiner zijn dan of gelijk zijn aan ${max} tekens.`
       /* </i18n> */
     }
     if (min && max === Infinity) {

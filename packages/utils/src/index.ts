@@ -183,18 +183,23 @@ export function isPojo(o: any): boolean {
  * @param original - An object to extend
  * @param additional - An object to modify the original object with.
  * @param arrays - By default replaces arrays, but can also append to them.
+ * @param ignoreUndefined - when true it treats undefined values as if they dont exist
  * @public
  */
 export function extend(
   original: Record<string, any>,
   additional: Record<string, any> | string | null,
-  extendArrays = false
+  extendArrays = false,
+  ignoreUndefined = false
 ): Record<string, any> | string | null {
   if (additional === null) return null
   const merged: Record<string, any> = {}
   if (typeof additional === 'string') return additional
   for (const key in original) {
-    if (has(additional, key)) {
+    if (
+      has(additional, key) &&
+      (additional[key] !== undefined || !ignoreUndefined)
+    ) {
       if (
         extendArrays &&
         Array.isArray(original[key]) &&
@@ -207,7 +212,12 @@ export function extend(
         continue
       }
       if (isPojo(original[key]) && isPojo(additional[key])) {
-        merged[key] = extend(original[key], additional[key])
+        merged[key] = extend(
+          original[key],
+          additional[key],
+          extendArrays,
+          ignoreUndefined
+        )
       } else {
         merged[key] = additional[key]
       }
