@@ -19,7 +19,7 @@ export * from './plugin'
  * The root FormKit component.
  * @public
  */
-export { default as FormKit } from './FormKit'
+export { default as FormKit, parentSymbol } from './FormKit'
 
 /**
  * The FormKitSchema component.
