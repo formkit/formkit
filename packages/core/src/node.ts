@@ -1023,7 +1023,8 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // perform a down-tree synchronous input which will cascade values down
       // and then ultimately back up.
       const childValue =
-        child.type !== 'input' || typeof _value[child.name] === 'object'
+        child.type !== 'input' ||
+        (_value[child.name] && typeof _value[child.name] === 'object')
           ? init(_value[child.name])
           : _value[child.name]
       child.input(childValue, false)

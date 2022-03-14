@@ -529,7 +529,6 @@ export function undefine(value: unknown): true | undefined {
  */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
 export function init<T extends object>(obj: T): T & { __init: true } {
-  if (!obj) return obj
   return Object.defineProperty(obj, '__init', {
     enumerable: false,
     value: true,
