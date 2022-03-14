@@ -14,7 +14,7 @@
 </p>
 
 # FormKit (Beta)
-<h2>Industry-leading form development. 10x faster. For <img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3.</h2>
+<h2><img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3 form development. 10x faster.</h2>
 
 FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
 faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
