@@ -60,6 +60,7 @@ export function eq(valA: any, valB: any, deep = true): boolean {
   if (typeof valA === typeof valB && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
+    if (valA === null || valB === null) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
     for (const key in valA) {
       if (!(key in valB)) return false

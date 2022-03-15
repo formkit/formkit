@@ -27,6 +27,15 @@ describe('eq', () => {
     expect(eq(function () {}, {})).toBe(false)
   })
 
+  it('handles null and undefined vales', () => {
+    expect(eq(null, [])).toBe(false)
+    expect(eq([], null)).toBe(false)
+    expect(eq(null, null)).toBe(true)
+    expect(eq(undefined, undefined)).toBe(true)
+    expect(eq(undefined, null)).toBe(false)
+    expect(eq(undefined, [])).toBe(false)
+  })
+
   it('evaluates single depth objects correctly', () => {
     const t = { first: 'first', second: 'second' }
     expect(eq(t, t)).toBe(true)
