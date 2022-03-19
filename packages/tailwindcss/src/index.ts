@@ -53,14 +53,6 @@ const formKitVariants = plugin(({ addVariant }) => {
 })
 
 /**
- * An object of ClassFunctions
- * @internal
- */
-interface FormKitClassFunctions {
-  [index: string]: ClassFunction
-}
-
-/**
  * A function that returns a class list string
  * @internal
  */
@@ -78,7 +70,7 @@ type ClassFunction = (
  */
 export function generateClasses(
   classes: Record<string, Record<string, string>>
-): FormKitClassFunctions {
+): Record<string, string | FormKitClasses | Record<string, boolean>> {
   const classesBySectionKey: Record<string, Record<string, any>> = {}
   Object.keys(classes).forEach((type) => {
     Object.keys(classes[type]).forEach((sectionKey) => {
@@ -94,16 +86,12 @@ export function generateClasses(
 
   Object.keys(classesBySectionKey).forEach((sectionKey) => {
     const classesObject = classesBySectionKey[sectionKey]
-    classesBySectionKey[sectionKey] = function (
-      node: FormKitNode,
-      sectionKey: string,
-      sectionClassList: FormKitClasses | string | Record<string, boolean>
-    ) {
+    classesBySectionKey[sectionKey] = function (node, sectionKey, sectionClassList) {
       return formKitStates(node, sectionKey, sectionClassList, classesObject)
-    }
+    } as ClassFunction
   })
 
-  return classesBySectionKey as FormKitClassFunctions
+  return classesBySectionKey;
 }
 
 function formKitStates(
