@@ -81,7 +81,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `Pole ${s(name)} może tylko zawierać znaki alfanumeryczne.`
+    return `Pole ${s(name)} może zawierać tylko znaki alfanumeryczne.`
     /* </i18n> */
   },
 
