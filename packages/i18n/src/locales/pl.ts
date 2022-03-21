@@ -143,7 +143,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `Wartość pola ${s(name)} nie jest poprawną datą, proszę użyć formatu ${args[0]}`
+      return `Wartość pola ${s(
+        name
+      )} nie jest poprawną datą, proszę użyć formatu ${args[0]}`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -157,7 +159,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `Data w polu ${s(name)} musi być pomiędzy ${date(args[0])} i ${date(args[1])}`
+    return `Data w polu ${s(name)} musi być pomiędzy ${date(args[0])} i ${date(
+      args[1]
+    )}`
     /* </i18n> */
   },
 
@@ -273,7 +277,7 @@ export const validation: FormKitValidationMessages = {
    * Is not an allowed value
    * @see {@link https://docs.formkit.com/essentials/validation#not}
    */
-  not({ name, node: { value } }) {
+  not({ name }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
     return `Wartość pola ${name} jest niedozwolona.`
     /* </i18n> */
