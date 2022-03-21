@@ -102,11 +102,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `Data ${s(name)} musi być przed ${date(args[0])}.`
+      return `${s(name)} musi być przed ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `Data ${s(name)} musi być w przeszłości.`
+    return `${s(name)} musi być w przeszłości.`
     /* </i18n> */
   },
 
