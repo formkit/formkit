@@ -46,7 +46,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const validationVisibility = ref<string>(
     node.props.validationVisibility || 'blur'
   )
-  node.on('props:validationVisibility', ({ payload }) => {
+  node.on('prop:validationVisibility', ({ payload }) => {
     validationVisibility.value = payload
   })
 

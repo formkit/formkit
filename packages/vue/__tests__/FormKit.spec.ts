@@ -566,6 +566,31 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.complete).toBe(false)
   })
+
+  it('can dynamically change the validation-visibility', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            visibility: 'blur',
+          }
+        },
+        template: `<FormKit
+        validation="required"
+        :validation-visibility="visibility"
+      />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    wrapper.vm.visibility = 'live'
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
 })
 
 describe('configuration', () => {
