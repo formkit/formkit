@@ -1,4 +1,4 @@
-import { reactive, computed, ref, watch } from 'vue'
+import { reactive, computed, ref, watch, markRaw } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -209,7 +209,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     id: node.props.id as string,
     label: node.props.label,
     messages,
-    node,
+    node: markRaw(node),
     options: node.props.options,
     state: {
       blurred: false,
