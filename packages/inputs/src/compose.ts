@@ -124,7 +124,7 @@ export function useSchema(
           inner(extensions.inner, [
             prefix(extensions.prefix),
             ...(Array.isArray(input) ? input : [input]),
-            suffix(extensions.prefix),
+            suffix(extensions.suffix),
           ]),
         ]),
         help(extensions.help, '$help'),
