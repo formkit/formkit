@@ -990,6 +990,33 @@ describe('value propagation in a node tree', () => {
     expect(food.value).toStrictEqual(['pizza', 'pasta', 'fish'])
   })
 
+  it('can remove a child from a list by destroying it', async () => {
+    const repeater = createNode({
+      type: 'list',
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: '123' })],
+        }),
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: 'abc' })],
+        }),
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: 'xyz' })],
+        }),
+      ],
+    })
+    const commitListener = jest.fn()
+    repeater.on('commit', commitListener)
+    repeater.at('1')?.destroy()
+    await repeater.settled
+    expect(repeater.children.length).toBe(2)
+    expect(repeater.value).toStrictEqual([{ a: '123' }, { a: 'xyz' }])
+    expect(commitListener).toHaveBeenCalledTimes(1)
+  })
+
   it('can remove a child from a group’s values', async () => {
     const address = createNode({
       type: 'group',
