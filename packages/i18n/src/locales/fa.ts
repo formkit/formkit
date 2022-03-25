@@ -14,6 +14,10 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
+   * Shown on buttons for adding new items.
+   */
+  add: 'افزودن',
+  /**
    * Shown when a button to remove items is visible.
    */
   remove: 'حذف',
@@ -89,7 +93,7 @@ export const validation: FormKitValidationMessages = {
    * The value is not letter and/or spaces
    * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
    */
-   alpha_spaces({ name }) {
+  alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} فقط می تواند شامل حروف و فاصله باشد.`
     /* </i18n> */

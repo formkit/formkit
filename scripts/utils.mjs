@@ -41,6 +41,14 @@ export function getPackages() {
 }
 
 /**
+ * Get the available packages from the packages directory.
+ */
+export function getLocales() {
+  const availableLocales = fs.readdirSync(`${packagesDir}/i18n/src/locales`)
+  return availableLocales.map((file) => file.substring(0, file.length - 3))
+}
+
+/**
  * Get the available themes from the themes directory.
  */
 export function getThemes() {

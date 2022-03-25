@@ -14,6 +14,10 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
+   * Shown on buttons for adding new items.
+   */
+  add: 'Inserisci',
+  /**
    * Shown when a button to remove items is visible.
    */
   remove: 'Rimuovi',
@@ -89,7 +93,7 @@ export const validation: FormKitValidationMessages = {
    * The value is not letter and/or spaces
    * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
    */
-   alpha_spaces({ name }) {
+  alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} può contenere solo lettere e spazi.`
     /* </i18n> */
@@ -143,7 +147,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} non è una data valida, per favore usa il formato ${args[0]}`
+      return `${s(name)} non è una data valida, per favore usa il formato ${
+        args[0]
+      }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */

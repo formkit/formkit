@@ -7,6 +7,7 @@
   "devDependencies": {
     "@aws-sdk/client-cloudfront": "^3.45.0",
     "@aws-sdk/client-s3": "^3.45.0",
+    "@aws-sdk/client-translate": "^3.56.0",
     "@microsoft/api-extractor": "^7.18.4",
     "@nuxt/kit": "npm:@nuxt/kit-edge@latest",
     "@nuxt/module-builder": "^0.1.7",
@@ -26,6 +27,7 @@
     "axios": "^0.26.0",
     "cac": "^6.7.3",
     "chalk": "^4.1.1",
+    "clipboardy": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-html": "^6.1.2",
     "eslint-plugin-tsdoc": "^0.2.14",
@@ -61,6 +63,7 @@
     "build-test": "yarn build all && yarn test",
     "publish": "node scripts/cli.mjs --script publish",
     "local": "node scripts/cli.mjs --script local",
+    "translate": "node scripts/cli.mjs --script translate",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",
     "deploy": "node scripts/cli.mjs --script=deploy",
