@@ -73,7 +73,7 @@ export function eq(
     for (const key in valA) {
       if (!(key in valB)) return false
       if (valA[key] !== valB[key] && !deep) return false
-      if (deep && !eq(valA[key], valB[key], true)) return false
+      if (deep && !eq(valA[key], valB[key], deep, explicit)) return false
     }
     return true
   }
@@ -459,7 +459,8 @@ export function kebab(str: string): string {
  * @public
  */
 export function clone<T extends Record<string, unknown> | unknown[] | null>(
-  obj: T
+  obj: T,
+  explicit: string[] = ['__key', '__init']
 ): T {
   if (
     obj === null ||
@@ -468,17 +469,30 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     (typeof File === 'function' && obj instanceof File)
   )
     return obj
+  let returnObject
   if (Array.isArray(obj)) {
-    return obj.map((value) => {
-      if (typeof value === 'object') return clone(value as unknown[])
+    returnObject = obj.map((value) => {
+      if (typeof value === 'object') return clone(value as unknown[], explicit)
       return value
     }) as T
+  } else {
+    returnObject = Object.keys(obj).reduce((newObj, key) => {
+      newObj[key] =
+        typeof obj[key] === 'object'
+          ? clone(obj[key] as unknown[], explicit)
+          : obj[key]
+      return newObj
+    }, {} as Record<string, unknown>) as T
   }
-  return Object.keys(obj).reduce((newObj, key) => {
-    newObj[key] =
-      typeof obj[key] === 'object' ? clone(obj[key] as unknown[]) : obj[key]
-    return newObj
-  }, {} as Record<string, unknown>) as T
+  for (const key of explicit) {
+    if (key in obj) {
+      Object.defineProperty(returnObject, key, {
+        enumerable: false,
+        value: (obj as any)[key],
+      })
+    }
+  }
+  return returnObject
 }
 
 /**

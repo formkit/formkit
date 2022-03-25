@@ -373,6 +373,38 @@ describe('it can clone an object', () => {
     const date = new Date()
     expect(clone({ date }).date).toBe(date)
   })
+
+  it('clones explicitly named non enumerable properties', () => {
+    const a: { a: number; __key?: string } = Object.defineProperty(
+      { a: 123 },
+      '__key',
+      { value: 'yes' }
+    )
+    const cloned = clone(a)
+    expect(cloned === a).toBe(false)
+    expect(cloned.__key).toBe('yes')
+  })
+
+  it('does not clone standard non enumerable properties', () => {
+    const a: { a: number; __foo?: string } = Object.defineProperty(
+      { a: 123 },
+      '__foo',
+      { value: 'yes' }
+    )
+    const cloned = clone(a)
+    expect(cloned === a).toBe(false)
+    expect(cloned.__foo).toBe(undefined)
+  })
+
+  it('clones explicit enumerable properties on deep objects', () => {
+    const world: { hello: string; planet: { a: 123; __init?: string } } = {
+      hello: 'world',
+      planet: Object.defineProperty({ a: 123 }, '__init', { value: 'yes' }),
+    }
+    const cloned = clone(world)
+    expect(cloned === world).toBe(false)
+    expect(cloned.planet.__init).toBe('yes')
+  })
 })
 
 describe('only', () => {
