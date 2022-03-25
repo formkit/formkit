@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for takign the time to report the bug you found! However, before filing this issue, please ensure you have taken these steps first:
+        Thanks for taking the time to report the bug you found! However, before filing this issue, please ensure you have taken these steps first:
 
           👉 I've searched open and closed issues for this bug.
           👉 I can reliably reproduce this issue.
