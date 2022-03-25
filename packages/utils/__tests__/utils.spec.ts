@@ -69,46 +69,53 @@ describe('eq', () => {
         }
       )
     ).toBe(true)
+    expect(
+      eq(
+        {
+          name: {
+            first: 'jane',
+            last: 'DIFFERENT',
+          },
+          age: 20,
+        },
+        {
+          name: {
+            first: 'jane',
+            last: 'flair',
+          },
+          age: 20,
+        },
+        false // Disable depth
+      )
+    ).toBe(false)
+    expect(
+      eq(
+        {
+          name: {
+            first: 'jane',
+            last: 'DIFFERENT',
+          },
+          age: 20,
+        },
+        {
+          name: {
+            first: 'jane',
+            last: 'flair',
+          },
+          age: 20,
+        }
+      )
+    ).toBe(false)
+    expect(eq([{}], [{}])).toBe(true)
+    expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
   })
-  expect(
-    eq(
-      {
-        name: {
-          first: 'jane',
-          last: 'DIFFERENT',
-        },
-        age: 20,
-      },
-      {
-        name: {
-          first: 'jane',
-          last: 'flair',
-        },
-        age: 20,
-      },
-      false // Disable depth
-    )
-  ).toBe(false)
-  expect(
-    eq(
-      {
-        name: {
-          first: 'jane',
-          last: 'DIFFERENT',
-        },
-        age: 20,
-      },
-      {
-        name: {
-          first: 'jane',
-          last: 'flair',
-        },
-        age: 20,
-      }
-    )
-  ).toBe(false)
-  expect(eq([{}], [{}])).toBe(true)
-  expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
+
+  it('can explicitly look at certain keys that are not enumerable', () => {
+    const a = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'foo' })
+    const b = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'bar' })
+    expect(eq(a, b)).toBe(true)
+    expect(eq(a, b, true, ['_id'])).toBe(false)
+  })
 })
 
 describe('empty', () => {

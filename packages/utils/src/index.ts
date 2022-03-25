@@ -51,17 +51,25 @@ export function has(
  * @param valA - Any type of input
  * @param valB - Any type of output
  * @param deep - Indicate if we should recurse into the object
+ * @param explicit - Explicit keys
  * @returns boolean
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function eq(valA: any, valB: any, deep = true): boolean {
+export function eq(
+  valA: any, // eslint-disable-line
+  valB: any, // eslint-disable-line
+  deep = true,
+  explicit: string[] = ['__key']
+): boolean {
   if (valA === valB) return true
-  if (typeof valA === typeof valB && typeof valA === 'object') {
+  if (typeof valB === 'object' && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
     if (valA === null || valB === null) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
+    for (const k of explicit) {
+      if ((k in valA || k in valB) && valA[k] !== valB[k]) return false
+    }
     for (const key in valA) {
       if (!(key in valB)) return false
       if (valA[key] !== valB[key] && !deep) return false
