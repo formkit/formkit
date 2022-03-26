@@ -480,6 +480,7 @@ export type FormKitOptions = Partial<
     config: Partial<FormKitConfig>
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
+    index?: number
     plugins: FormKitPlugin[]
     alias: string
     schemaAlias: string
@@ -528,7 +529,7 @@ export type FormKitNode = {
   /**
    * Add a child to a node, the node must be a group or list.
    */
-  add: (node: FormKitNode) => FormKitNode
+  add: (node: FormKitNode, index?: number) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name There are a few
@@ -1166,7 +1167,8 @@ function define(
 function addChild(
   parent: FormKitNode,
   parentContext: FormKitContext,
-  child: FormKitNode
+  child: FormKitNode,
+  index?: number
 ) {
   if (parent.type === 'input') error(100, parent)
   if (child.parent && child.parent !== parent) {
@@ -1175,6 +1177,7 @@ function addChild(
   // Synchronously set the initial value on the parent
   if (!parentContext.children.includes(child)) {
     parentContext.children.push(child)
+    if (index !== undefined) child.index = index
     if (!child.isSettled) parent.disturb()
   }
   if (child.parent !== parent) {
@@ -1821,7 +1824,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
-  if (node.parent) node.parent.add(node)
+  if (node.parent) node.parent.add(node, options.index)
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) error(100, node)
   // Apply the input hook to the initial value.
