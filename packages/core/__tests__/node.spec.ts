@@ -381,19 +381,18 @@ describe('node', () => {
     expect(children[3]).toBe(moveMe)
   })
 
-  // it.only('can inject a new child directly into a parent at a given index', () => {
-  //   const list = createNode({
-  //     type: 'list',
-  //     children: [
-  //       createNode({ value: 'A' }),
-  //       createNode({ value: 'C' }),
-  //       createNode({ value: 'D' }),
-  //     ],
-  //   })
-  //   createNode({ value: 'B', parent: list, index: 1 })
-  //   console.log(list.value)
-  //   expect(list.value).toStrictEqual(['A', 'B', 'C', 'D'])
-  // })
+  it('can inject a new child directly into a parent at a given index', () => {
+    const list = createNode({
+      type: 'list',
+      children: [
+        createNode({ value: 'A' }),
+        createNode({ value: 'C' }),
+        createNode({ value: 'D' }),
+      ],
+    })
+    createNode({ value: 'B', parent: list, index: 1 })
+    expect(list.value).toStrictEqual(['A', 'B', 'C', 'D'])
+  })
 
   it('can always reference the root', () => {
     const nestedChild = createNode()

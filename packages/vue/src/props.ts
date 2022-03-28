@@ -93,6 +93,10 @@ const nativeProps = {
     type: Object as PropType<Record<string, string[]>>,
     default: () => ({}),
   },
+  index: {
+    type: Number,
+    required: false,
+  },
   id: {
     type: String,
     required: false,

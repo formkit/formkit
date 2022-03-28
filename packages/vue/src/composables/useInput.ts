@@ -40,6 +40,7 @@ interface FormKitComponentProps {
   parent?: FormKitNode
   errors: string[]
   inputErrors: Record<string, string | string[]>
+  index?: number
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
@@ -122,11 +123,6 @@ export function useInput(
   const config = Object.assign({}, inject(optionsSymbol) || {}, options)
 
   /**
-   * The parent node.
-   */
-  const parent = props.parent || inject(parentSymbol, null)
-
-  /**
    * The current instance.
    */
   const instance = getCurrentInstance()
@@ -173,16 +169,25 @@ export function useInput(
    * Create the FormKitNode.
    */
   const initialProps = createInitialProps()
+
+  /**
+   * The parent node.
+   */
+  const parent = initialProps.ignore
+    ? null
+    : props.parent || inject(parentSymbol, null)
+
   const node = createNode(
     extend(
       config || {},
       {
         name: props.name || undefined,
         value,
-        parent: initialProps.ignore ? null : parent,
+        parent,
         plugins: (config.plugins || []).concat(props.plugins),
         config: props.config,
         props: initialProps,
+        index: props.index,
       },
       false,
       true

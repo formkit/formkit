@@ -502,7 +502,7 @@ export interface FormKitChildCallback {
 export interface FormKitChildValue {
   name: string | number | symbol
   value: any
-  from?: number
+  from?: number | symbol
 }
 
 /**
@@ -722,6 +722,13 @@ export const valueRemoved = Symbol('removed')
  * @public
  */
 export const valueMoved = Symbol('moved')
+
+/**
+ * When creating a new node and having its value injected directly at a specific
+ * location.
+ * @public
+ */
+export const valueInserted = Symbol('inserted')
 
 /**
  * A simple type guard to determine if the context being evaluated is a list
@@ -990,12 +997,12 @@ function partial(
     const insert: any[] =
       value === valueRemoved
         ? []
-        : value === valueMoved
-        ? context._value.splice(from!, 1) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        : value === valueMoved && typeof from === 'number'
+        ? context._value.splice(from, 1)
         : [value]
     context._value.splice(
       name as number,
-      value === valueMoved ? 0 : 1,
+      value === valueMoved || from === valueInserted ? 0 : 1,
       ...insert
     )
     return
@@ -1168,7 +1175,7 @@ function addChild(
   parent: FormKitNode,
   parentContext: FormKitContext,
   child: FormKitNode,
-  index?: number
+  listIndex?: number
 ) {
   if (parent.type === 'input') error(100, parent)
   if (child.parent && child.parent !== parent) {
@@ -1176,8 +1183,18 @@ function addChild(
   }
   // Synchronously set the initial value on the parent
   if (!parentContext.children.includes(child)) {
-    parentContext.children.push(child)
-    if (index !== undefined) child.index = index
+    if (listIndex !== undefined && parent.type === 'list') {
+      // Inject the child:
+      parentContext.children.splice(listIndex, 0, child)
+      // Immediately inject the child’s value at the given index:
+      parent.disturb().calm({
+        name: listIndex,
+        value: child.value,
+        from: valueInserted,
+      })
+    } else {
+      parentContext.children.push(child)
+    }
     if (!child.isSettled) parent.disturb()
   }
   if (child.parent !== parent) {
