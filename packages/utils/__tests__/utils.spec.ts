@@ -132,6 +132,7 @@ describe('empty', () => {
     expect(empty(['a'])).toBe(false))
   it('considers an object with key not empty', () =>
     expect(empty({ a: undefined })).toBe(false))
+  it('considers regex not empty', () => expect(empty(/^foo/)).toBe(false))
 })
 
 describe('isPojo', () => {

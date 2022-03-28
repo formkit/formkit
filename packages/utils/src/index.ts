@@ -97,6 +97,7 @@ export function empty(
   if (type === 'object') {
     if (value === null) return true
     for (const _i in value) return false
+    if (value instanceof RegExp) return false
     return true
   }
   return false
