@@ -17,7 +17,7 @@ import {
 import { generateClassList } from '../src/classes'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
-import { has } from '@formkit/utils'
+import { has, clone } from '@formkit/utils'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -392,6 +392,24 @@ describe('node', () => {
     })
     createNode({ value: 'B', parent: list, index: 1 })
     expect(list.value).toStrictEqual(['A', 'B', 'C', 'D'])
+  })
+
+  it('can inject a new child directly into a parent at a given index and inherit the value', () => {
+    const A = createNode({ value: 'A' })
+    const C = createNode({ value: 'C' })
+    const list = createNode({
+      type: 'list',
+      children: [A, C],
+    })
+    const val = clone(list.value as string[])
+    val.splice(1, 0, 'B')
+    list.input(val, false)
+    expect(list.value).toStrictEqual(['A', 'B', 'C'])
+    const B = createNode({ value: undefined, parent: list, index: 1 })
+    expect(list.value).toStrictEqual(['A', 'B', 'C'])
+    expect(B.value).toBe('B')
+    B.input('Z', false)
+    expect(list.value).toStrictEqual(['A', 'Z', 'C'])
   })
 
   it('can always reference the root', () => {

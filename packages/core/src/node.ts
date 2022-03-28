@@ -1187,12 +1187,16 @@ function addChild(
       // Inject the child:
       parentContext.children.splice(listIndex, 0, child)
 
-      // Immediately inject the child’s value at the given index:
-      parent.disturb().calm({
-        name: listIndex,
-        value: child.value,
-        from: valueInserted,
-      })
+      // If the child has an explicit value, we should insert it into the list
+      // directly — otherwise we assume the list value is the source of truth
+      // and the node should inherit the value from the appropriate index.
+      if (child.value) {
+        parent.disturb().calm({
+          name: listIndex,
+          value: child.value,
+          from: valueInserted,
+        })
+      }
     } else {
       parentContext.children.push(child)
     }
