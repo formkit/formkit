@@ -148,6 +148,36 @@ describe('numeric lists', () => {
     expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
   })
 
+  // it.only('can render a list of inputs each with an index number', async () => {
+  //   const wrapper = mount(
+  //     {
+  //       data() {
+  //         return {
+  //           showB: false,
+  //           values: ['A', 'B', 'C'],
+  //         }
+  //       },
+  //       template: `<FormKit type="list" v-model="values">
+  //       <FormKit
+  //         v-for="(value, index) in values"
+  //         v-if="values.length < 10"
+  //         :key="value"
+  //         :value="value"
+  //         :index="1 * index"
+  //       />
+  //     </FormKit>
+  //     `,
+  //     },
+  //     {
+  //       global: {
+  //         plugins: [[plugin, defaultConfig]],
+  //       },
+  //     }
+  //   )
+  //   console.log(wrapper.vm.values)
+  //   expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
+  // })
+
   // it.only('can remove an item by inputting a smaller array', async () => {
   //   const wrapper = mount(
   //     {

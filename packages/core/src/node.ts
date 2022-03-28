@@ -1186,6 +1186,7 @@ function addChild(
     if (listIndex !== undefined && parent.type === 'list') {
       // Inject the child:
       parentContext.children.splice(listIndex, 0, child)
+
       // Immediately inject the child’s value at the given index:
       parent.disturb().calm({
         name: listIndex,
