@@ -1364,4 +1364,12 @@ describe('resetting', () => {
     node.reset()
     expect(node.value).toEqual({ alpha: 'abc' })
   })
+
+  it('emits an reset event', async () => {
+    const resetEvent = jest.fn()
+    const node = createNode({ value: 'foobar' })
+    node.on('reset', resetEvent)
+    node.reset()
+    expect(resetEvent).toHaveBeenCalledTimes(1)
+  })
 })

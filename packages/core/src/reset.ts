@@ -59,6 +59,7 @@ export function reset(
     // release the events.
     node._e.play(node)
     clearState(node)
+    node.emit('reset', node)
     return node
   }
   warn(152, id)
