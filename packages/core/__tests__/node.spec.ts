@@ -412,6 +412,30 @@ describe('node', () => {
     expect(list.value).toStrictEqual(['A', 'Z', 'C'])
   })
 
+  it('can inject a new value into a list without the list immediately inheriting that index’s sub values', () => {
+    const A = createNode({
+      type: 'group',
+      children: [createNode({ name: 'i', value: 'A' })],
+    })
+    const C = createNode({
+      type: 'group',
+      children: [createNode({ name: 'i', value: 'C' })],
+    })
+    const list = createNode({
+      type: 'list',
+      children: [A, C],
+    })
+    const val = clone(list.value as Array<{ i?: string }>)
+    val.splice(1, 0, { i: 'B' })
+    list.input(val, false)
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'B' }, { i: 'C' }])
+    const B = createNode({ type: 'group', parent: list, index: 1 })
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'B' }, { i: 'C' }])
+    expect(B.value).toStrictEqual({ i: 'B' })
+    B.input({ i: 'Z' }, false)
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'Z' }, { i: 'C' }])
+  })
+
   it('can always reference the root', () => {
     const nestedChild = createNode()
     const parent = createNode({ type: 'group' })

@@ -1023,6 +1023,18 @@ function partial(
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   const _value = context._value as KeyedValue
+  if (
+    node.type === 'list' &&
+    Array.isArray(context._value) &&
+    context.children.length < context._value.length
+  ) {
+    // In this odd edge case, we have more values in our node’s list value than
+    // we have nodes — this usually only occurs when a user has explicitly
+    // spliced/pushed data into the list value, but no node has yet been created
+    // to "own" that data. In this case we don't actually want to perform any
+    // hydration until the respective nodes have been created.
+    return node
+  }
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
     // if (has(context._value as FormKitGroupValue, child.name)) {
@@ -1187,10 +1199,18 @@ function addChild(
       // Inject the child:
       parentContext.children.splice(listIndex, 0, child)
 
-      // If the child has an explicit value, we should insert it into the list
-      // directly — otherwise we assume the list value is the source of truth
-      // and the node should inherit the value from the appropriate index.
-      if (child.value) {
+      if (
+        Array.isArray(parent.value) &&
+        parent.value.length < parentContext.children.length
+      ) {
+        // When adding an node or value to a list it is absolutely critical to
+        // know if, at the moment of injection, the parent’s value or the node
+        // children are the source of truth. For example, if a user pushes or
+        // splices a new value onto the lists’s array then we want to use that
+        // value as the value of the new node, but if a user adds a node to the
+        // list then we want the node’s value. In this specific case, we
+        // assume (due to length) that a new node was injected into the list, so
+        // we want that new node’s value injected into the parent list value.
         parent.disturb().calm({
           name: listIndex,
           value: child.value,
