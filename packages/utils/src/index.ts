@@ -98,6 +98,7 @@ export function empty(
     if (value === null) return true
     for (const _i in value) return false
     if (value instanceof RegExp) return false
+    if (value instanceof Date) return false
     return true
   }
   return false
