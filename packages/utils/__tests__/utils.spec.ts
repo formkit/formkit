@@ -16,6 +16,7 @@ import {
   undefine,
   token,
   slugify,
+  shallowClone,
 } from '../src/index'
 
 describe('eq', () => {
@@ -149,6 +150,30 @@ describe('isPojo', () => {
   })
   it('checks the __POJO__ property', () => {
     expect(isPojo({ __POJO__: false })).toBe(false)
+  })
+})
+
+describe('shallowClone', () => {
+  it('returns a scalar value passed in', () => {
+    expect(shallowClone('a')).toBe('a')
+  })
+
+  it('returns a new object when passed a pojo', () => {
+    const x = { a: 123 }
+    expect(shallowClone(x)).not.toBe(x)
+    expect(shallowClone(x)).toStrictEqual({ a: 123 })
+  })
+
+  it('nested objects are left alone', () => {
+    const z = { foo: 'bar' }
+    const x = { a: z }
+    expect(shallowClone(x).a).toBe(z)
+  })
+
+  it('returns new arrays', () => {
+    const z = [1, 2, 3]
+    expect(shallowClone(z)).not.toBe(z)
+    expect(shallowClone(z)).toStrictEqual([1, 2, 3])
   })
 })
 

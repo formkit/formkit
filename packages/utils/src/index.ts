@@ -456,6 +456,19 @@ export function kebab(str: string): string {
 }
 
 /**
+ * Very shallowly clones the given object.
+ * @param obj - The object to shallow clone
+ * @returns
+ */
+export function shallowClone<T>(obj: T): T {
+  if (typeof obj === 'object') {
+    if (Array.isArray(obj)) return [...obj] as unknown as T
+    if (isPojo(obj)) return { ...obj }
+  }
+  return obj
+}
+
+/**
  * Perform a recursive clone on a given object. This only intended to be used
  * for simple objects like arrays and pojos.
  * @param obj - Object to clone

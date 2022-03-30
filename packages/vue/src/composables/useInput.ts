@@ -21,6 +21,7 @@ import {
   slugify,
 } from '@formkit/utils'
 import {
+  toRef,
   watchEffect,
   inject,
   provide,
@@ -31,6 +32,7 @@ import {
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
+import watchVerbose from './watchVerbose'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -335,15 +337,9 @@ export function useInput(
   if (props.modelValue !== undefined) {
     // Warning that v-model isnt the most performant for non-inputs:
     // if (node.type !== 'input') warn()
-    watch(
-      () => props.modelValue,
-      (value) => {
-        node.input(value, false)
-      },
-      {
-        deep: true,
-      }
-    )
+    watchVerbose(toRef(props.modelValue), (value) => {
+      node.input(value, false)
+    })
   }
 
   /**
