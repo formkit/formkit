@@ -176,7 +176,7 @@ export function isObject(o: any): boolean {
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function isPojo(o: any): boolean {
+export function isPojo(o: any): o is Record<string, any> {
   if (isObject(o) === false) return false
   if (o.__FKNode__ || o.__POJO__ === false) return false
   const ctor = o.constructor
