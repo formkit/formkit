@@ -65,6 +65,7 @@ export function eq(
   if (typeof valB === 'object' && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
+    if (valA instanceof Date) return false
     if (valA === null || valB === null) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
     for (const k of explicit) {

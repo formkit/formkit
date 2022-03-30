@@ -110,6 +110,12 @@ describe('eq', () => {
     expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
   })
 
+  it('can compare date objects', () => {
+    const date = new Date()
+    expect(eq(date, date)).toBe(true)
+    expect(eq(new Date(), new Date())).toBe(false)
+  })
+
   it('can explicitly look at certain keys that are not enumerable', () => {
     const a = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'foo' })
     const b = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'bar' })
