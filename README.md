@@ -35,21 +35,21 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
   </a>
 </p>
 
-### Platinum Sponsors
+### 👑 Platinum Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
 </p>
 
 
-### Gold Sponsors
+### 🥇 Gold Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
 </p>
 
 
-### Silver Sponsors
+### 🥈 Silver Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
@@ -57,7 +57,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 -->
 
-### Bronze sponsors
+### 🥉 Bronze sponsors
 
 <p style="margin-bottom: 1em;">
   <a href="https://www.perbyte.com">
