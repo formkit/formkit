@@ -68,9 +68,11 @@ Become the first Platinum Sponsor!
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
 </p>
 
+-->
+
 ### Backers
 
-<p>Your name here, your name here, your name here, your name here, your name here, your name here. </p> -->
+[uscreen](https://uscreen.de)
 
 <table style="width: 100%;">
 	<tr>
@@ -120,6 +122,16 @@ Become the first Platinum Sponsor!
 	</tr>
 
 </table>
+
+## Contributing
+Thank you for your willingness to contribute to this free and open source project! When contributing, consider first discussing your desired change with the core team via [GitHub issues](https://github.com/formkit/formkit/issues), [Discord](https://discord.gg/Vhu97pAC76), or other method.
+
+
+### Contributors
+
+This project exists thanks to all the people who volunteer their time to contribute!
+
+<a href="https://github.com/formkit/formkit/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=formkit/formkit" /></a>
 
 ## License
 
