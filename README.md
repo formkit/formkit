@@ -57,7 +57,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 -->
 
-### Bronze Sponsors
+### Bronze sponsors
 
 <p style="margin-bottom: 1em;">
   <a href="https://www.perbyte.com">
