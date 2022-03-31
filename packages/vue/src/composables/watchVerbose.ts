@@ -61,7 +61,10 @@ function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
   return (path: ObjectPath) => {
     let newMutation = true
     for (const dispatched in dispatchedPaths) {
-      if (path.__str.startsWith(`${dispatched}`)) {
+      if (
+        path.__str.startsWith(`${dispatched}${dispatched ? '.' : ''}`) &&
+        path.__str !== dispatched
+      ) {
         newMutation = false
       }
     }

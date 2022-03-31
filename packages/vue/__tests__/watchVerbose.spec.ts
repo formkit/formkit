@@ -1,4 +1,4 @@
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, reactive } from 'vue'
 import watchVerbose, { getPaths } from '../src/composables/watchVerbose'
 import { jest } from '@jest/globals'
 
@@ -242,5 +242,51 @@ describe('watchVerbose', () => {
     value.value = { a: { b: '456' } }
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback).toHaveBeenNthCalledWith(2, [], { a: { b: '456' } }, value)
+  })
+
+  it('can set values that start with the same string', async () => {
+    const values = ref({
+      price: 7,
+      prices: [5],
+      cart: {
+        price: 4,
+      },
+    })
+    const callback = jest.fn()
+    watchVerbose(values, callback)
+    values.value.price = 0
+    values.value.prices[0] = 0
+    values.value.cart.price = 0
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(3)
+    expect(callback).toHaveBeenNthCalledWith(1, ['price'], 0, values)
+    expect(callback).toHaveBeenNthCalledWith(2, ['prices', '0'], 0, values)
+    expect(callback).toHaveBeenNthCalledWith(3, ['cart', 'price'], 0, values)
+  })
+
+  it('can change the same property twice synchronously', () => {
+    const value = ref({ a: '123' })
+    const callback = jest.fn()
+    watchVerbose(value, callback)
+    value.value.a = '456'
+    value.value.a = '567'
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(1, ['a'], '456', value)
+    expect(callback).toHaveBeenNthCalledWith(2, ['a'], '567', value)
+  })
+
+  it('works with reactive objects', () => {
+    const value = reactive({
+      a: {
+        b: {
+          c: 123,
+        },
+      },
+    })
+    const callback = jest.fn()
+    watchVerbose(value, callback)
+    value.a.b.c = 456
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenNthCalledWith(1, ['a', 'b', 'c'], 456, value)
   })
 })
