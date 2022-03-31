@@ -459,11 +459,27 @@ export function kebab(str: string): string {
  * Very shallowly clones the given object.
  * @param obj - The object to shallow clone
  * @returns
+ * @public
  */
-export function shallowClone<T>(obj: T): T {
-  if (typeof obj === 'object') {
-    if (Array.isArray(obj)) return [...obj] as unknown as T
-    if (isPojo(obj)) return { ...obj }
+export function shallowClone<T>(
+  obj: T,
+  explicit: string[] = ['__key', '__init']
+): T {
+  if (obj !== null && typeof obj === 'object') {
+    let returnObject: any[] | Record<string, any> | undefined
+    if (Array.isArray(obj)) returnObject = [...obj]
+    else if (isPojo(obj)) returnObject = { ...obj }
+    if (returnObject) {
+      for (const key of explicit) {
+        if (key in obj) {
+          Object.defineProperty(returnObject, key, {
+            enumerable: false,
+            value: (obj as any)[key],
+          })
+        }
+      }
+      return returnObject as T
+    }
   }
   return obj
 }

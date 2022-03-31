@@ -19,6 +19,7 @@ import {
   kebab,
   cloneAny,
   slugify,
+  shallowClone,
 } from '@formkit/utils'
 import {
   toRef,
@@ -335,10 +336,9 @@ export function useInput(
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (props.modelValue !== undefined) {
-    // Warning that v-model isnt the most performant for non-inputs:
-    // if (node.type !== 'input') warn()
-    watchVerbose(toRef(props.modelValue), (value) => {
-      node.input(value, false)
+    watchVerbose(toRef(props, 'modelValue'), (path, value) => {
+      if (!path.length) node.input(shallowClone(value), false)
+      else node.at(path)?.input(shallowClone(value), false)
     })
   }
 

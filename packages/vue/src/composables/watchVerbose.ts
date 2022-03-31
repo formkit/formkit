@@ -1,5 +1,5 @@
 import { isPojo } from '@formkit/utils'
-import { Ref, watch, isRef, WatchStopHandle } from 'vue'
+import { Ref, watch, isRef, WatchStopHandle, nextTick } from 'vue'
 
 type ObjectPath = string[] & {
   __str: string
@@ -10,23 +10,24 @@ type ObjectPath = string[] & {
  *
  * @param obj - An object to observe at depth
  * @param callback - A callback that
+ * @public
  */
-export default function watchVerbose<T extends Ref<unknown>>(
+export default function watchVerbose<
+  T extends Ref<unknown> | Record<string, any>
+>(
   obj: T,
-  callback: (keypath?: string[], value?: unknown, obj?: T) => void
+  callback: (keypath: string[], value?: unknown, obj?: T) => void
 ): void {
-  if (!isRef(obj)) return
-  // If there arent any child objects to watch, dont
-  if (typeof obj.value !== 'object' || obj.value === null) return
   const watchers: Record<string, WatchStopHandle> = {}
 
   const applyWatch = (paths: ObjectPath[]): void => {
     // Watch each property
     for (const path of paths) {
+      // Stops pre-existing watchers at a given location to prevent dupes:
       if (path.__str in watchers) watchers[path.__str]()
       watchers[path.__str] = watch(
         touch.bind(null, obj, path),
-        buffer.bind(null, path),
+        dispatcher.bind(null, path),
         {
           deep: false,
           flush: 'sync',
@@ -34,58 +35,50 @@ export default function watchVerbose<T extends Ref<unknown>>(
       )
     }
   }
-  const buffer = createBuffer(obj, callback, applyWatch)
-  applyWatch(getPaths(obj.value))
+  const dispatcher = createDispatcher(obj, callback, applyWatch)
+  applyWatch(getPaths(obj))
 }
 
 /**
- * Creates a buffer that automatically flushes on the next tick — but ensures
- * that only the least-specific of a given path set are flushed.
- *
- * @param obj - The ref to observe
- * @param callback - The callback used when flushing the buffer
+ * This function synchronously dispatches to the watch callbacks. It uses the
+ * knowledge that the getPath function is a depth-first-search thus lower
+ * specificity (lower tree nodes) will always have their watchers called first.
+ * If a lower specificity watcher is triggered we want to ignore the higher
+ * specificity watcher.
+ * @param obj - The object to dispatch
+ * @param callback - The callback function to emit
+ * @param applyWatch - A way to apply watchers to update objects
  * @returns
  */
-function createBuffer<T extends Ref<unknown>>(
+function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
   obj: T,
-  callback: (keypath?: string[], value?: unknown, obj?: T) => void,
+  callback: (keypath: string[], value?: unknown, obj?: T) => void,
   applyWatch: (paths: ObjectPath[]) => void
 ): (path: ObjectPath) => void {
-  let bufferedPaths: Record<string, ObjectPath> = {}
-  let flushTimer: any
-  const buffer = (path: ObjectPath) => {
-    bufferedPaths[path.__str] = path
-    clearTimeout(flushTimer)
-    flushTimer = setTimeout(flush, 0)
-  }
-  const flush = () => {
-    const lowestSpecificity: Record<string, ObjectPath> = {}
-    for (const candidatePath in bufferedPaths) {
-      let isNewMutation = true
-      for (const currentLowest in lowestSpecificity) {
-        if (currentLowest.startsWith(candidatePath)) {
-          // in this case our candidate is a lower specificity so we should use
-          // that for our callback instead
-          delete lowestSpecificity[currentLowest]
-          lowestSpecificity[candidatePath] = bufferedPaths[candidatePath]
-          isNewMutation = false
-        } else if (isNewMutation && candidatePath.startsWith(currentLowest)) {
-          isNewMutation = false
-        }
-      }
-      if (isNewMutation) {
-        lowestSpecificity[candidatePath] = bufferedPaths[candidatePath]
+  let dispatchedPaths: Record<string, ObjectPath> = {}
+  let clear: Promise<void> | null = null
+
+  return (path: ObjectPath) => {
+    let newMutation = true
+    for (const dispatched in dispatchedPaths) {
+      if (path.__str.startsWith(`${dispatched}`)) {
+        newMutation = false
       }
     }
-    bufferedPaths = {}
-    Object.values(lowestSpecificity).forEach((keypath) => {
-      const value = get(obj, keypath)
+    if (newMutation) {
+      dispatchedPaths[path.__str] = path
+      const value = get(obj, path)
       if (typeof value === 'object')
-        applyWatch(getPaths(value, [keypath], ...keypath))
-      callback(keypath, value, obj)
-    })
+        applyWatch(getPaths(value, [path], ...path))
+      callback(path, value, obj)
+      if (!clear) {
+        clear = nextTick().then(() => {
+          dispatchedPaths = {}
+          clear = null
+        })
+      }
+    }
   }
-  return buffer
 }
 
 /**
@@ -96,9 +89,9 @@ function createBuffer<T extends Ref<unknown>>(
  * @param path - An array of strings representing the path to locate
  * @returns
  */
-function touch(obj: Ref<any>, path: ObjectPath) {
+function touch(obj: Ref<any> | Record<string, any>, path: ObjectPath) {
   const value = get(obj, path)
-  return path.__deep ? Object.keys(value) : value
+  return value && typeof value === 'object' ? Object.keys(value) : value
 }
 
 /**
@@ -107,13 +100,17 @@ function touch(obj: Ref<any>, path: ObjectPath) {
  * @param path - An array of strings representing the path to locate
  * @returns
  */
-function get(obj: Ref<any>, path: string[]) {
+function get(obj: unknown, path: string[]) {
+  if (isRef(obj)) {
+    if (path.length === 0) return obj.value
+    obj = obj.value
+  }
   return path.reduce((value, segment) => {
-    if (typeof value === null || typeof value !== 'object') {
+    if (value === null || typeof value !== 'object') {
       return value
     }
-    return value[segment]
-  }, obj.value)
+    return (value as any)[segment]
+  }, obj)
 }
 
 /**
@@ -139,11 +136,23 @@ function get(obj: Ref<any>, path: string[]) {
  * @internal
  */
 export function getPaths(
-  obj: Record<string, any>,
+  obj: Record<string, any> | null,
   paths: Array<ObjectPath> = [],
   ...parents: string[]
 ): ObjectPath[] {
   if (obj === null) return paths
+  if (isRef(obj) && !parents.length) {
+    const path = Object.defineProperty([], '__str', {
+      value: '',
+    }) as unknown as ObjectPath
+    if (obj.value && typeof obj.value === 'object') {
+      Object.defineProperty(path, '__deep', { value: true })
+      obj = obj.value
+      paths.push(path)
+    } else {
+      return [path]
+    }
+  }
   for (const key in obj) {
     const path = parents.concat(key) as ObjectPath
     Object.defineProperty(path, '__str', { value: path.join('.') })

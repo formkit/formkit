@@ -6,6 +6,7 @@ import { props } from './props'
 
 /**
  * The symbol that represents the formkit parent injection value.
+ * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 

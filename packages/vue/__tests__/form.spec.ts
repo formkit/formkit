@@ -81,7 +81,7 @@ describe('value propagation', () => {
         ...global,
       }
     )
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     const inputs = wrapper.get('form').findAll('input')
     expect(inputs.length).toBe(3)

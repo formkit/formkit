@@ -1,8 +1,6 @@
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import watchVerbose, { getPaths } from '../src/composables/watchVerbose'
 import { jest } from '@jest/globals'
-
-const doubleTick = () => new Promise((r) => setTimeout(r, 1))
 
 describe('getPaths', () => {
   it('retrieves single-depth paths', () => {
@@ -36,6 +34,18 @@ describe('getPaths', () => {
       ['c'],
     ])
   })
+
+  it('includes a root path when passed a ref', () => {
+    expect(
+      getPaths(
+        ref({
+          a: {
+            b: 'c',
+          },
+        })
+      )
+    ).toStrictEqual([[], ['a'], ['a', 'b']])
+  })
 })
 
 describe('watchVerbose', () => {
@@ -44,10 +54,10 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.b = 'c'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledWith(['b'], 'c', values)
     values.value.b = 'd'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledWith(['b'], 'd', values)
   })
 
@@ -61,7 +71,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b = 'foobar'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(['a', 'b'], 'foobar', values)
   })
@@ -76,7 +86,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.z = 'foobar'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(['z'], 'foobar', values)
   })
@@ -91,7 +101,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.c = 'foobar'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(
       ['a'],
@@ -114,7 +124,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b.c = { z: 'h' }
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenNthCalledWith(
       1,
@@ -134,7 +144,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b.push({ x: 10 })
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(
       ['a', 'b'],
@@ -153,7 +163,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b[1].x = 567
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(['a', 'b', '1', 'x'], 567, values)
   })
@@ -168,7 +178,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b.push({ a: 567 })
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledWith(
       ['a', 'b'],
@@ -176,7 +186,7 @@ describe('watchVerbose', () => {
       values
     )
     values.value.a.b[3].a = 8910
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback).toHaveBeenNthCalledWith(
       2,
@@ -196,9 +206,9 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(values, callback)
     values.value.a.b[0] = 'foobar'
-    await doubleTick()
+    await nextTick()
     values.value.a.b[0] = 'barfoo'
-    await doubleTick()
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback).toHaveBeenNthCalledWith(
       2,
@@ -206,5 +216,31 @@ describe('watchVerbose', () => {
       'barfoo',
       values
     )
+  })
+
+  it('can detect changes at the root of the ref', async () => {
+    const value = ref('abc')
+    const callback = jest.fn()
+    watchVerbose(value, callback)
+    value.value = 'def'
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith([], 'def', value)
+  })
+
+  it('can remove and replace old properties without getting watch sequence out of order', async () => {
+    const value = ref<Record<string, any> | string>({
+      a: {
+        b: '123',
+      },
+    })
+    const callback = jest.fn()
+    watchVerbose(value, callback)
+    value.value = 'foobar'
+    expect(callback).toHaveBeenCalledTimes(1)
+    await nextTick()
+    value.value = { a: { b: '456' } }
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(2, [], { a: { b: '456' } }, value)
   })
 })

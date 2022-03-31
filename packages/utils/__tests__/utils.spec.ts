@@ -175,6 +175,15 @@ describe('shallowClone', () => {
     expect(shallowClone(z)).not.toBe(z)
     expect(shallowClone(z)).toStrictEqual([1, 2, 3])
   })
+
+  it('preserves non-enumerable keys', () => {
+    const z: { foo: string; __key?: boolean } = Object.defineProperty(
+      { foo: 'bar' },
+      '__key',
+      { value: true }
+    )
+    expect(shallowClone(z).__key).toBe(true)
+  })
 })
 
 describe('extend', () => {

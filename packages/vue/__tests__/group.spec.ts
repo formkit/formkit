@@ -157,7 +157,7 @@ describe('clearing values', () => {
           }
         },
         template: `
-        <FormKit type="group" v-model="data">
+        <FormKit type="group" v-model="data" id="groupId">
           <FormKit name="name" />
           <FormKit name="email" id="${emailToken}" value="example@example.com" />
           <FormKit type="group" name="address">
