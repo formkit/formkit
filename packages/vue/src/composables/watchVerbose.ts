@@ -35,7 +35,22 @@ export default function watchVerbose<
       )
     }
   }
-  const dispatcher = createDispatcher(obj, callback, applyWatch)
+
+  /**
+   * Clear any watchers deeper than this path.
+   * @param path - The path to start from
+   */
+  const clearWatch = (path: ObjectPath) => {
+    for (const key in watchers) {
+      if (`${key}`.startsWith(`${path.__str}.`)) {
+        console.log('clearing watcher', key)
+        watchers[key]()
+        delete watchers[key]
+      }
+    }
+  }
+
+  const dispatcher = createDispatcher(obj, callback, applyWatch, clearWatch)
   applyWatch(getPaths(obj))
 }
 
@@ -53,7 +68,8 @@ export default function watchVerbose<
 function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
   obj: T,
   callback: (keypath: string[], value?: unknown, obj?: T) => void,
-  applyWatch: (paths: ObjectPath[]) => void
+  applyWatch: (paths: ObjectPath[]) => void,
+  clearChildWatches: (paths: ObjectPath) => void
 ): (path: ObjectPath) => void {
   let dispatchedPaths: Record<string, ObjectPath> = {}
   let clear: Promise<void> | null = null
@@ -71,6 +87,7 @@ function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
     if (newMutation) {
       dispatchedPaths[path.__str] = path
       const value = get(obj, path)
+      if (path.__deep) clearChildWatches(path)
       if (typeof value === 'object')
         applyWatch(getPaths(value, [path], ...path))
       callback(path, value, obj)

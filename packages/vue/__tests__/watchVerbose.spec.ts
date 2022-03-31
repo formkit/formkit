@@ -1,4 +1,4 @@
-import { ref, nextTick, reactive } from 'vue'
+import { ref, nextTick, reactive, toRef } from 'vue'
 import watchVerbose, { getPaths } from '../src/composables/watchVerbose'
 import { jest } from '@jest/globals'
 
@@ -288,5 +288,27 @@ describe('watchVerbose', () => {
     value.a.b.c = 456
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenNthCalledWith(1, ['a', 'b', 'c'], 456, value)
+  })
+
+  it('unwatches objects that are detached from the original ref', async () => {
+    const values = ref<any>({
+      a: {
+        b: {
+          c: 123,
+        },
+      },
+    })
+    const callback = jest.fn((path: any) =>
+      console.log('watcher called with path: ', path.__str)
+    )
+    watchVerbose(values, callback)
+    const detached = toRef(values.value.a, 'b')
+    values.value.a = 'foobar'
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
+    console.log('adding to root')
+    detached.value.c = 'bar'
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
   })
 })
