@@ -28,14 +28,14 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
+<!-- 
 <p>
   <a href="https://github.com/sponsors/formkit">
     <img src="./.github/your-logo-here.svg" width="290" height="150" alt="Sponsor formkit to add your logo here">
   </a>
 </p>
 
-<!-- ### Platinum Sponsors
-Become the first Platinum Sponsor!
+### Platinum Sponsors
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
@@ -46,7 +46,6 @@ Become the first Platinum Sponsor!
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
 </p>
 
 
@@ -54,21 +53,17 @@ Become the first Platinum Sponsor!
 
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
-</P>
+</p>
 
+-->
 
 ### Bronze Sponsors
 
 <p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 14%;">
+  <a href="https://www.perbyte.com">
+    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
+  </a>
 </p>
-
--->
 
 ### Backers
 
