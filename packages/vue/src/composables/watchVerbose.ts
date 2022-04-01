@@ -43,7 +43,6 @@ export default function watchVerbose<
   const clearWatch = (path: ObjectPath) => {
     for (const key in watchers) {
       if (`${key}`.startsWith(`${path.__str}.`)) {
-        console.log('clearing watcher', key)
         watchers[key]()
         delete watchers[key]
       }
