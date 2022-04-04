@@ -34,3 +34,8 @@ export {
   extendSchema,
   FormKitInputSchema,
 } from './compose'
+
+/**
+ * Export the features of the inputs for third party use (#188):
+ */
+export { default as features } from './features'
