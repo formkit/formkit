@@ -12,6 +12,7 @@ import select from './select'
 
 /**
  * Export all features (#188):
+ * @public
  */
 export default {
   checkbox,

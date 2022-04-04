@@ -75,8 +75,9 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
 /**
  * Converts the options prop to usable values.
  * @param node - A formkit node.
+ * @public
  */
-export default function (node: FormKitNode): void {
+export default function form(node: FormKitNode): void {
   node.props.isForm = true
   node.on('created', () => {
     if (node.context?.handlers) {

@@ -42,8 +42,9 @@ function normalizeOptions(
 /**
  * Converts the options prop to usable values.
  * @param node - A formkit node.
+ * @public
  */
-export default function (node: FormKitNode): void {
+export default function options(node: FormKitNode): void {
   node.hook.prop((prop, next) => {
     if (prop.prop === 'options') {
       const options = normalizeOptions(prop.value)

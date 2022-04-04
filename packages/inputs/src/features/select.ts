@@ -58,8 +58,9 @@ function applyPlaceholder(options: FormKitOptionsList, placeholder: string) {
 /**
  * Converts the options prop to usable values.
  * @param node - A formkit node.
+ * @public
  */
-export default function (node: FormKitNode): void {
+export default function select(node: FormKitNode): void {
   // Set the initial value of a multi-input
   node.on('created', () => {
     const isMultiple = node.props.attrs?.multiple !== undefined

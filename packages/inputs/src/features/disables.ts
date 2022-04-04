@@ -4,8 +4,9 @@ import { undefine } from '@formkit/utils'
 /**
  * Allows disabling children of this.
  * @param node - The FormKitNode of the form/group/list
+ * @public
  */
-export default function (node: FormKitNode): void {
+export default function disables(node: FormKitNode): void {
   node.hook.prop(({ prop, value }, next) => {
     value = prop === 'disabled' ? undefine(value) : value
     return next({ prop, value })

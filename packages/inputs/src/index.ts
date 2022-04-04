@@ -37,5 +37,8 @@ export {
 
 /**
  * Export the features of the inputs for third party use (#188):
+ * Note: As of TS 4.5.5:
+ * export * as features from './features' syntax
+ * Is not yet supported.
  */
 export { default as features } from './features'

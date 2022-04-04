@@ -44,8 +44,9 @@ function isChecked(node: FormKitNode, value: any) {
 /**
  * Adds checkbox selection support
  * @param node - Node the feature is added to
+ * @public
  */
-export default function (node: FormKitNode): void {
+export default function checkboxes(node: FormKitNode): void {
   node.on('created', () => {
     if (node.context?.handlers) {
       node.context.handlers.toggleChecked = toggleChecked.bind(null, node)

@@ -28,6 +28,7 @@ function isChecked(node: FormKitNode, value: string) {
 /**
  * Determines if a given radio input is being evaluated.
  * @param node - The radio input group.
+ * @public
  */
 export default function radios(node: FormKitNode): void {
   node.on('created', () => {
