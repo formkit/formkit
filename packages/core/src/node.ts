@@ -921,11 +921,8 @@ function input(
   context: FormKitContext,
   value: unknown,
   async = true
-  // eqBefore = true
 ): Promise<unknown> {
-  // if (eqBefore && eq(context._value, value)) return context.settled
   context._value = validateInput(node, node.hook.input.dispatch(value))
-  // if (!eqBefore && eq(context._value, value)) return context.settled
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (async) {

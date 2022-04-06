@@ -10,6 +10,7 @@ import {
 } from '@formkit/core'
 import { eq, has, camel, empty } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
+import { lock } from './composables/useMutex'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
@@ -302,16 +303,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    switch (node.type) {
-      case 'group':
-        context.value = { ...payload }
-        break
-      case 'list':
-        context.value = [...payload]
-        break
-      default:
-        context.value = payload
-    }
+    lock(payload)
+    context.value = payload
     // The input is dirty after a value has been input by a user
     if (!context.state.dirty && node.isCreated) context.handlers.touch()
   })

@@ -19,7 +19,6 @@ import {
   kebab,
   cloneAny,
   slugify,
-  shallowClone,
 } from '@formkit/utils'
 import {
   toRef,
@@ -34,6 +33,7 @@ import {
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
 import watchVerbose from './watchVerbose'
+import { unlock } from './useMutex'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -337,9 +337,15 @@ export function useInput(
    */
   if (props.modelValue !== undefined) {
     watchVerbose(toRef(props, 'modelValue'), (path, value) => {
-      if (!path.length) node.input(shallowClone(value), false)
-      else node.at(path)?.input(shallowClone(value), false)
+      if (unlock(value)) {
+        if (!path.length) node.input(value, false)
+        else node.at(path)?.input(value, false)
+      }
     })
+    // const model = toRef(props, 'modelValue')
+    // watch(model, () => {
+
+    // }, { deep: true })
   }
 
   /**
