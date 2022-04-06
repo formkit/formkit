@@ -298,15 +298,12 @@ describe('watchVerbose', () => {
         },
       },
     })
-    const callback = jest.fn((path: any) =>
-      console.log('watcher called with path: ', path.__str)
-    )
+    const callback = jest.fn()
     watchVerbose(values, callback)
     const detached = toRef(values.value.a, 'b')
     values.value.a = 'foobar'
     await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
-    console.log('adding to root')
     detached.value.c = 'bar'
     await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
