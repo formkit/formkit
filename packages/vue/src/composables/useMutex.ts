@@ -13,10 +13,7 @@ const mutex = new WeakMap<object, boolean>() // eslint-disable-line @typescript-
  * @param obj - An object to lock
  */
 export function lock(obj: unknown): void {
-  if (typeof obj === 'object' && obj !== null)
-    if (mutex.has(obj)) {
-      mutex.set(obj, true)
-    }
+  if (typeof obj === 'object' && obj !== null) mutex.set(obj, true)
 }
 
 /**
@@ -29,9 +26,9 @@ export function lock(obj: unknown): void {
 export function unlock(obj: unknown): boolean {
   if (typeof obj === 'object' && obj !== null) {
     if (mutex.has(obj)) {
-      const value = mutex.has(obj)
+      const value = mutex.get(obj)
       mutex.set(obj, false)
-      return value
+      return !!value
     }
   }
   return true

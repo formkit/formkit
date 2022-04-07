@@ -323,14 +323,11 @@ export function useInput(
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
-  watch(
-    () => node.context?.value,
-    () => {
-      // Emit the values after commit
-      context.emit('input', node.context?.value)
-      context.emit('update:modelValue', node.context?.value)
-    }
-  )
+  node.on('modelUpdated', () => {
+    // Emit the values after commit
+    context.emit('input', node.context?.value)
+    context.emit('update:modelValue', node.context?.value)
+  })
 
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended

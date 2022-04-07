@@ -75,7 +75,7 @@ describe('props', () => {
     expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
-  it('children emit a model update event on boot', () => {
+  it('children emit a model update event on boot', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -93,7 +93,7 @@ describe('props', () => {
       },
     })
     const eventWrapper = wrapper.emitted('update:modelValue')
-    expect(eventWrapper?.length).toBe(1)
+    expect(eventWrapper?.length).toBe(2)
     expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
   })
 

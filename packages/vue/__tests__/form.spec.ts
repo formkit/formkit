@@ -129,19 +129,20 @@ describe('value propagation', () => {
     ).toStrictEqual([true, false, true])
   })
 
-  it('can set the state of checkboxes from a v-model using vue reactive object', async () => {
+  it('can set the state of text input from a v-model using vue reactive object', async () => {
     const wrapper = mount(
       {
         setup() {
-          const options = ['a', 'b', 'c']
-          const values = reactive<{ form: Record<string, any> }>({ form: {} })
+          const values = reactive<{ form: Record<string, any> }>({
+            form: {},
+          })
           const changeValues = () => {
             values.form.foo = 'bar bar'
           }
-          return { options, values, changeValues }
+          return { values, changeValues }
         },
         template: `<FormKit type="form" v-model="values.form">
-        <FormKit type="text" name="foo" />
+        <FormKit type="text" name="foo" value="foo" />
         <button type="button" @click="changeValues">Change</button>
       </FormKit>`,
       },
@@ -152,9 +153,9 @@ describe('value propagation', () => {
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     const inputs = wrapper.get('form').findAll('input[type="text"]')
     expect(inputs.length).toBe(1)
-    expect(wrapper.find('input').element.value).toEqual('')
-    wrapper.find('button[type="button"').trigger('click')
-    await nextTick()
+    expect(wrapper.find('input').element.value).toEqual('foo')
+    wrapper.find('button[type="button"]').trigger('click')
+    await new Promise((r) => setTimeout(r, 200))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
   })
 })

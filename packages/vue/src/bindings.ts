@@ -305,6 +305,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   node.on('commit', ({ payload }) => {
     lock(payload)
     context.value = payload
+    node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (!context.state.dirty && node.isCreated) context.handlers.touch()
   })
