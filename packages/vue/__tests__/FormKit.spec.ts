@@ -3,10 +3,11 @@ import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode, setErrors } from '@formkit/core'
+import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
+import { jest } from '@jest/globals'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -75,7 +76,7 @@ describe('props', () => {
     expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
-  it('children emit a model update event on boot', () => {
+  it('children emit a model update event on boot', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -93,7 +94,7 @@ describe('props', () => {
       },
     })
     const eventWrapper = wrapper.emitted('update:modelValue')
-    expect(eventWrapper?.length).toBe(1)
+    expect(eventWrapper?.length).toBe(2)
     expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
   })
 
@@ -1194,5 +1195,27 @@ describe('exposures', () => {
       }
     )
     expect(wrapper.find('input').element.value).toBe('engineer')
+  })
+
+  it('emits the HTML event that triggered the input', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    const callback = jest.fn()
+    node?.on('domInputEvent', callback)
+    wrapper.find('input').setValue('foo bar')
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect((callback.mock.calls[0][0] as FormKitEvent).payload).toBeInstanceOf(
+      Event
+    )
   })
 })

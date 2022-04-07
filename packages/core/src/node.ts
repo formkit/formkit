@@ -920,12 +920,9 @@ function input(
   node: FormKitNode,
   context: FormKitContext,
   value: unknown,
-  async = true,
-  eqBefore = true
+  async = true
 ): Promise<unknown> {
-  if (eqBefore && eq(context._value, value)) return context.settled
   context._value = validateInput(node, node.hook.input.dispatch(value))
-  if (!eqBefore && eq(context._value, value)) return context.settled
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (async) {
@@ -1870,7 +1867,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) error(100, node)
   // Apply the input hook to the initial value.
-  input(node, node._c, node._value, false, false)
+  input(node, node._c, node._value, false)
   // Release the store buffer
   node.store.release()
   // Register the node globally if someone explicitly gave it an id

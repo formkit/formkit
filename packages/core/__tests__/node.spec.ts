@@ -31,9 +31,9 @@ describe('node', () => {
       node.on('commit', commitEvent)
     }
     const node = createNode({ value: '', plugins: [countEmits] })
-    expect(commitEvent).toHaveBeenCalledTimes(0)
-    node.input(['a', 'b'], false)
     expect(commitEvent).toHaveBeenCalledTimes(1)
+    node.input(['a', 'b'], false)
+    expect(commitEvent).toHaveBeenCalledTimes(2)
   })
 
   it('emits a singe commit event for type list', () => {
@@ -74,9 +74,9 @@ describe('node', () => {
       parent: parentC,
       value: undefined,
     })
-    expect(commitEvent).toHaveBeenCalledTimes(3)
+    expect(commitEvent).toHaveBeenCalledTimes(12)
     node.input([{}, {}, {}], false)
-    expect(commitEvent).toHaveBeenCalledTimes(7)
+    expect(commitEvent).toHaveBeenCalledTimes(16)
   })
 
   it('allows configuration to flow to children', () => {
@@ -855,7 +855,7 @@ describe('commit hook', () => {
     phone.input('233.662')
     phone.input('233.6621244')
     await phone.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(1)
+    expect(commitMiddleware).toHaveBeenCalledTimes(2)
     expect(phone.value).toBe('(233) 662-1244')
   })
 })
@@ -946,14 +946,14 @@ describe('value propagation in a node tree', () => {
     email.input('test@example.com')
     username.input('test-user')
     await username.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(3) // 2 partials, 1 full commit
+    expect(commitMiddleware).toHaveBeenCalledTimes(4) // 2 partials, 1 full commit
     expect(parent.value).toEqual({ email: undefined, username: 'test-user' })
     await email.settled
     expect(parent.value).toEqual({
       email: 'test@example.com',
       username: 'test-user',
     })
-    expect(commitMiddleware).toHaveBeenCalledTimes(4)
+    expect(commitMiddleware).toHaveBeenCalledTimes(5)
   })
 
   it('collects values from a list of children', async () => {
@@ -1203,11 +1203,11 @@ describe('value propagation in a node tree', () => {
       type: 'group',
       name: 'form',
     })
-    expect(plugin.calls).toBe(0)
-    form.add(createNode({ name: 'letters', type: 'group', value: { a: 123 } }))
     expect(plugin.calls).toBe(1)
-    form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
+    form.add(createNode({ name: 'letters', type: 'group', value: { a: 123 } }))
     expect(plugin.calls).toBe(2)
+    form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
+    expect(plugin.calls).toBe(3)
     expect(form._d).toBe(0)
   })
 

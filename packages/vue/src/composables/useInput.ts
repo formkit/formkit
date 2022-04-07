@@ -19,7 +19,6 @@ import {
   kebab,
   cloneAny,
   slugify,
-  shallowClone,
 } from '@formkit/utils'
 import {
   toRef,
@@ -323,23 +322,24 @@ export function useInput(
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
-  watch(
-    () => node.context?.value,
-    () => {
-      // Emit the values after commit
-      context.emit('input', node.context?.value)
-      context.emit('update:modelValue', node.context?.value)
-    }
-  )
+  node.on('modelUpdated', () => {
+    // Emit the values after commit
+    context.emit('input', node.context?.value)
+    context.emit('update:modelValue', node.context?.value)
+  })
 
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (props.modelValue !== undefined) {
     watchVerbose(toRef(props, 'modelValue'), (path, value) => {
-      if (!path.length) node.input(shallowClone(value), false)
-      else node.at(path)?.input(shallowClone(value), false)
+      if (!path.length) node.input(value, false)
+      else node.at(path)?.input(value, false)
     })
+    // const model = toRef(props, 'modelValue')
+    // watch(model, () => {
+
+    // }, { deep: true })
   }
 
   /**

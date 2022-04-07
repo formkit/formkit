@@ -493,7 +493,7 @@ describe('validation rule sequencing', () => {
     expect(foo.store).not.toHaveProperty('rule_required')
     expect(foo.store).not.toHaveProperty('rule_confirm')
     expect(foo.store).toHaveProperty('rule_length')
-    expect(required).toHaveBeenCalledTimes(1) // Should not have been called again
+    expect(required).toHaveBeenCalledTimes(2) // Should be called again, because we dont do equality comparisons (after >= beta.7)
     expect(confirm).toHaveBeenCalledTimes(2)
     expect(length).toHaveBeenCalledTimes(1) // have been should be triggered because it's state was null ie "unknown"
     foo.input('', false)

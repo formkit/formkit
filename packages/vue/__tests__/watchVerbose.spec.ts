@@ -5,7 +5,7 @@ import { jest } from '@jest/globals'
 describe('getPaths', () => {
   it('retrieves single-depth paths', () => {
     const x = { a: '1', b: '2', c: '3' }
-    expect(getPaths(x)).toStrictEqual([['a'], ['b'], ['c']])
+    expect(getPaths(x)).toStrictEqual([[], ['a'], ['b'], ['c']])
   })
 
   it('retrieves slightly nested paths', () => {
@@ -15,7 +15,7 @@ describe('getPaths', () => {
       },
       c: '3',
     }
-    expect(getPaths(x)).toStrictEqual([['a'], ['a', 'b'], ['c']])
+    expect(getPaths(x)).toStrictEqual([[], ['a'], ['a', 'b'], ['c']])
   })
 
   it('retrieves nested array paths', () => {
@@ -26,6 +26,7 @@ describe('getPaths', () => {
       c: '3',
     }
     expect(getPaths(x)).toStrictEqual([
+      [],
       ['a'],
       ['a', 'b'],
       ['a', 'b', '0'],
@@ -307,5 +308,30 @@ describe('watchVerbose', () => {
     detached.value.c = 'bar'
     await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('responds to new additions on vue reactive objects', async () => {
+    const values = reactive<{ a?: string }>({})
+    const callback = jest.fn()
+    watchVerbose(values, callback)
+    values.a = '123'
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith([], { a: '123' }, values)
+  })
+
+  it('responds to additions on vue reactive objects at depth', async () => {
+    const values = reactive<{ form: { a?: string } }>({
+      form: {},
+    })
+    const callback = jest.fn()
+    watchVerbose(values, callback)
+    values.form.a = '123'
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenCalledWith(['form'], { a: '123' }, values)
+    values.form.a = 'bar'
+    await nextTick()
+    expect(callback).toHaveBeenCalledWith(['form', 'a'], 'bar', values)
   })
 })

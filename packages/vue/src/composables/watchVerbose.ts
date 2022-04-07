@@ -1,10 +1,15 @@
 import { isPojo } from '@formkit/utils'
-import { Ref, watch, isRef, WatchStopHandle, nextTick } from 'vue'
+import { Ref, watch, isRef, WatchStopHandle } from 'vue'
 
 type ObjectPath = string[] & {
   __str: string
   __deep?: true
 }
+
+/**
+ * Indicates that the path that was requested is no longer valid in the object.
+ */
+const invalidGet = Symbol()
 
 /**
  *
@@ -70,33 +75,35 @@ function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
   applyWatch: (paths: ObjectPath[]) => void,
   clearChildWatches: (paths: ObjectPath) => void
 ): (path: ObjectPath) => void {
-  let dispatchedPaths: Record<string, ObjectPath> = {}
-  let clear: Promise<void> | null = null
+  // let dispatchedPaths: Record<string, ObjectPath> = {}
+  // let clear: Promise<void> | null = null
 
   return (path: ObjectPath) => {
-    let newMutation = true
-    for (const dispatched in dispatchedPaths) {
-      if (
-        path.__str.startsWith(`${dispatched}${dispatched ? '.' : ''}`) &&
-        path.__str !== dispatched
-      ) {
-        newMutation = false
-      }
-    }
-    if (newMutation) {
-      dispatchedPaths[path.__str] = path
-      const value = get(obj, path)
-      if (path.__deep) clearChildWatches(path)
-      if (typeof value === 'object')
-        applyWatch(getPaths(value, [path], ...path))
-      callback(path, value, obj)
-      if (!clear) {
-        clear = nextTick().then(() => {
-          dispatchedPaths = {}
-          clear = null
-        })
-      }
-    }
+    // let newMutation = true
+    // for (const dispatched in dispatchedPaths) {
+    //   if (
+    //     path.__str.startsWith(`${dispatched}${dispatched ? '.' : ''}`) &&
+    //     path.__str !== dispatched
+    //   ) {
+    //     newMutation = false
+    //     break
+    //   }
+    // }
+    // if (newMutation) {
+    //   dispatchedPaths[path.__str] = path
+    const value = get(obj, path)
+    if (value === invalidGet) return
+    if (path.__deep) clearChildWatches(path)
+    if (typeof value === 'object') applyWatch(getPaths(value, [path], ...path))
+    callback(path, value, obj)
+    // if (!clear) {
+    //   clear = nextTick().then(() => {
+    //     console.log('cleared')
+    //     dispatchedPaths = {}
+    //     clear = null
+    //   })
+    // }
+    // }
   }
 }
 
@@ -125,8 +132,11 @@ function get(obj: unknown, path: string[]) {
     obj = obj.value
   }
   return path.reduce((value, segment) => {
+    if (value === invalidGet) return value
     if (value === null || typeof value !== 'object') {
-      return value
+      // console.log('reducer value', value, index, segment)
+      // return index < path.length - 1 ? invalidGet : value
+      return invalidGet
     }
     return (value as any)[segment]
   }, obj)
@@ -155,27 +165,29 @@ function get(obj: unknown, path: string[]) {
  * @internal
  */
 export function getPaths(
-  obj: Record<string, any> | null,
+  obj: unknown,
   paths: Array<ObjectPath> = [],
   ...parents: string[]
 ): ObjectPath[] {
   if (obj === null) return paths
-  if (isRef(obj) && !parents.length) {
+  if (!parents.length) {
     const path = Object.defineProperty([], '__str', {
       value: '',
     }) as unknown as ObjectPath
-    if (obj.value && typeof obj.value === 'object') {
+    obj = isRef(obj) ? obj.value : obj
+    if (obj && typeof obj === 'object') {
       Object.defineProperty(path, '__deep', { value: true })
-      obj = obj.value
       paths.push(path)
     } else {
       return [path]
     }
   }
+  if (obj === null || typeof obj !== 'object') return paths
+
   for (const key in obj) {
     const path = parents.concat(key) as ObjectPath
     Object.defineProperty(path, '__str', { value: path.join('.') })
-    const value = obj[key]
+    const value = (obj as Record<string, unknown>)[key]
     if (isPojo(value) || Array.isArray(value)) {
       paths.push(Object.defineProperty(path, '__deep', { value: true }))
       paths = paths.concat(getPaths(value, [], ...path))
