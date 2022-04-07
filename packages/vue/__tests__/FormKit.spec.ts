@@ -3,10 +3,11 @@ import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode, setErrors } from '@formkit/core'
+import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
+import { jest } from '@jest/globals'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -1194,5 +1195,27 @@ describe('exposures', () => {
       }
     )
     expect(wrapper.find('input').element.value).toBe('engineer')
+  })
+
+  it('emits the HTML event that triggered the input', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    const callback = jest.fn()
+    node?.on('domInputEvent', callback)
+    wrapper.find('input').setValue('foo bar')
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect((callback.mock.calls[0][0] as FormKitEvent).payload).toBeInstanceOf(
+      Event
+    )
   })
 })

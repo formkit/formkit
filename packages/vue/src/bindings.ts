@@ -10,7 +10,6 @@ import {
 } from '@formkit/core'
 import { eq, has, camel, empty } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
-import { lock } from './composables/useMutex'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
@@ -125,8 +124,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
    */
-  let inputElement: null | HTMLInputElement = null
-
   const cachedClasses = reactive({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
@@ -202,8 +199,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
-        inputElement = e.target as HTMLInputElement
         node.input((e.target as HTMLInputElement).value)
+        node.emit('domInputEvent', e)
       },
     },
     help: node.props.help,
@@ -294,16 +291,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.on('input', ({ payload }) => {
     context._value = payload
-    if (inputElement) {
-      inputElement.value = context._value
-    }
   })
 
   /**
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    lock(payload)
     context.value = payload
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
