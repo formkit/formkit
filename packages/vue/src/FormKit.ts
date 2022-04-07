@@ -19,6 +19,7 @@ export const FormKit = defineComponent({
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
     input: (_value: any) => true,
+    inputRaw: (_value: any) => true,
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
     submit: (_data: FormKitGroupValue, _node: FormKitNode) => true,

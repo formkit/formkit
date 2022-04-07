@@ -319,12 +319,20 @@ export function useInput(
     provide(parentSymbol, node)
   }
 
+  let inputTimeout: number | undefined
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
   node.on('modelUpdated', () => {
     // Emit the values after commit
-    context.emit('input', node.context?.value)
+    context.emit('inputRaw', node.context?.value)
+    clearTimeout(inputTimeout)
+    inputTimeout = setTimeout(
+      context.emit,
+      20,
+      'input',
+      node.context?.value
+    ) as unknown as number
     context.emit('update:modelValue', node.context?.value)
   })
 

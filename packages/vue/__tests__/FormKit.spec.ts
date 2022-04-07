@@ -1218,4 +1218,33 @@ describe('exposures', () => {
       Event
     )
   })
+
+  it('debounces the input event and not the inputRaw event', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'group',
+      },
+      slots: {
+        default() {
+          return [
+            h(FormKit, {
+              name: 'child',
+              value: 'foobar',
+            }),
+            h(FormKit, {
+              name: 'child2',
+              value: 'barfoo',
+            }),
+          ]
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.emitted('inputRaw')!.length).toBe(5)
+    expect(wrapper.emitted('input')!.length).toBe(1)
+    // expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
+  })
 })
