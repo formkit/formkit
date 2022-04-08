@@ -1245,6 +1245,30 @@ describe('exposures', () => {
     await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.emitted('inputRaw')!.length).toBe(5)
     expect(wrapper.emitted('input')!.length).toBe(1)
-    // expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
+  })
+
+  it('can set values on a group with values that dont have correlating nodes', () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            groupValue: { a: 'bar' } as any,
+          }
+        },
+        template: `<FormKit type="group" v-model="groupValue" id="${groupId}">
+        <FormKit name="a" value="foo" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.vm.groupValue).toStrictEqual({ a: 'bar' })
+    wrapper.vm.groupValue.b = 'foo'
+    expect(getNode(groupId)!.value).toStrictEqual({ a: 'bar', b: 'foo' })
   })
 })
