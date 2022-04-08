@@ -1020,18 +1020,6 @@ function partial(
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   const _value = context._value as KeyedValue
-  if (
-    node.type === 'list' &&
-    Array.isArray(context._value) &&
-    context.children.length < context._value.length
-  ) {
-    // In this odd edge case, we have more values in our node’s list value than
-    // we have nodes — this usually only occurs when a user has explicitly
-    // spliced/pushed data into the list value, but no node has yet been created
-    // to "own" that data. In this case we don't actually want to perform any
-    // hydration until the respective nodes have been created.
-    return node
-  }
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
     // if (has(context._value as FormKitGroupValue, child.name)) {
