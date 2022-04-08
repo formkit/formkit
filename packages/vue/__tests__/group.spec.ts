@@ -267,4 +267,26 @@ describe('clearing values', () => {
       },
     })
   })
+
+  it('can output reactive values without a v-model using context.value', async () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${groupId}" type="group" #default="{ value }">
+        <pre>{{ value }}</pre>
+        <FormKit name="user" value="abc"/>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(getNode(groupId)!.value).toStrictEqual({ user: 'abc' })
+    await nextTick()
+    expect(wrapper.find('pre').html()).toBe(`<pre>{
+  "user": "abc"
+}</pre>`)
+  })
 })

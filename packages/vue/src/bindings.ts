@@ -1,4 +1,4 @@
-import { reactive, computed, ref, watch, markRaw } from 'vue'
+import { reactive, computed, ref, watch, markRaw, triggerRef } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -39,7 +39,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       return store
     }, {} as Record<string, FormKitMessage>)
   )
-
   /**
    * A flag that determines when validation messages should be displayed.
    */
@@ -177,8 +176,11 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     return describers.length ? describers.join(' ') : undefined
   })
 
+  const value = ref(node.value)
+  const _value = ref(node.value)
+
   const context: FormKitFrameworkContext = reactive({
-    _value: node.value,
+    _value,
     attrs: node.props.attrs,
     disabled: node.props.disabled,
     describedBy,
@@ -222,7 +224,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     type: node.props.type,
     ui,
-    value: node.value,
+    value,
     classes,
   })
 
@@ -231,8 +233,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.on('created', () => {
     if (!eq(context.value, node.value)) {
-      context._value = node.value
-      context.value = node.value
+      _value.value = node.value
+      value.value = node.value
+      triggerRef(value)
+      triggerRef(_value)
     }
   })
 
@@ -290,14 +294,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input events from core.
    */
   node.on('input', ({ payload }) => {
-    context._value = payload
+    _value.value = payload
+    triggerRef(_value)
   })
 
   /**
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    context.value = payload
+    value.value = payload
+    triggerRef(value)
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (!context.state.dirty && node.isCreated) context.handlers.touch()
