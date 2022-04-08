@@ -237,6 +237,7 @@ describe('clearing values', () => {
         type: ['residential'],
       },
     })
+    await nextTick()
     wrapper.vm.data = {
       name: 'Volodymyr Zelenskyy',
       email: 'volo@ukraine.ua',

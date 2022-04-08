@@ -33,10 +33,7 @@ export default function watchVerbose<
       watchers[path.__str] = watch(
         touch.bind(null, obj, path),
         dispatcher.bind(null, path),
-        {
-          deep: false,
-          flush: 'sync',
-        }
+        { deep: false }
       )
     }
   }
@@ -79,31 +76,11 @@ function createDispatcher<T extends Ref<unknown> | Record<string, any>>(
   // let clear: Promise<void> | null = null
 
   return (path: ObjectPath) => {
-    // let newMutation = true
-    // for (const dispatched in dispatchedPaths) {
-    //   if (
-    //     path.__str.startsWith(`${dispatched}${dispatched ? '.' : ''}`) &&
-    //     path.__str !== dispatched
-    //   ) {
-    //     newMutation = false
-    //     break
-    //   }
-    // }
-    // if (newMutation) {
-    //   dispatchedPaths[path.__str] = path
     const value = get(obj, path)
     if (value === invalidGet) return
     if (path.__deep) clearChildWatches(path)
     if (typeof value === 'object') applyWatch(getPaths(value, [path], ...path))
     callback(path, value, obj)
-    // if (!clear) {
-    //   clear = nextTick().then(() => {
-    //     console.log('cleared')
-    //     dispatchedPaths = {}
-    //     clear = null
-    //   })
-    // }
-    // }
   }
 }
 
@@ -134,8 +111,6 @@ function get(obj: unknown, path: string[]) {
   return path.reduce((value, segment) => {
     if (value === invalidGet) return value
     if (value === null || typeof value !== 'object') {
-      // console.log('reducer value', value, index, segment)
-      // return index < path.length - 1 ? invalidGet : value
       return invalidGet
     }
     return (value as any)[segment]

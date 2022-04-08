@@ -238,9 +238,10 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(value, callback)
     value.value = 'foobar'
-    expect(callback).toHaveBeenCalledTimes(1)
     await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
     value.value = { a: { b: '456' } }
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(2)
     expect(callback).toHaveBeenNthCalledWith(2, [], { a: { b: '456' } }, value)
   })
@@ -265,18 +266,18 @@ describe('watchVerbose', () => {
     expect(callback).toHaveBeenNthCalledWith(3, ['cart', 'price'], 0, values)
   })
 
-  it('can change the same property twice synchronously', () => {
+  it('can change the same property twice synchronously', async () => {
     const value = ref({ a: '123' })
     const callback = jest.fn()
     watchVerbose(value, callback)
     value.value.a = '456'
     value.value.a = '567'
-    expect(callback).toHaveBeenCalledTimes(2)
-    expect(callback).toHaveBeenNthCalledWith(1, ['a'], '456', value)
-    expect(callback).toHaveBeenNthCalledWith(2, ['a'], '567', value)
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect(callback).toHaveBeenNthCalledWith(1, ['a'], '567', value)
   })
 
-  it('works with reactive objects', () => {
+  it('works with reactive objects', async () => {
     const value = reactive({
       a: {
         b: {
@@ -287,6 +288,7 @@ describe('watchVerbose', () => {
     const callback = jest.fn()
     watchVerbose(value, callback)
     value.a.b.c = 456
+    await nextTick()
     expect(callback).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenNthCalledWith(1, ['a', 'b', 'c'], 456, value)
   })

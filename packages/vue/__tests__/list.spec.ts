@@ -96,6 +96,7 @@ describe('numeric lists', () => {
     expect(authorB.element.value).toBe('Harper Lee')
     expect(titleC.element.value).toBe('')
     expect(authorC.element.value).toBe('')
+    await nextTick()
     titleC.setValue('The Great Gatsby')
     authorC.setValue('F. Scott Fitzgerald')
     await new Promise((r) => setTimeout(r, 30))

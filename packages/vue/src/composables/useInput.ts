@@ -344,10 +344,6 @@ export function useInput(
       if (!path.length) node.input(value, false)
       else node.at(path)?.input(value, false)
     })
-    // const model = toRef(props, 'modelValue')
-    // watch(model, () => {
-
-    // }, { deep: true })
   }
 
   /**
