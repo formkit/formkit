@@ -39,5 +39,6 @@
   "dependencies": {},
   "devDependencies": {
     "tailwindcss": "^3.0.23",
+    "unocss": "^0.31.0"
   }
 }
