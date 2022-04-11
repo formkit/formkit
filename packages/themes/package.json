@@ -30,7 +30,8 @@
   "contributors": [
     "Justin Schroeder <justin@formkit.com>",
     "Andrew Boyd <andrew@formkit.com>",
-    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>"
+    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>",
+    "Gustavo Fenilli <gustavofenilli@gmail.com>"
   ],
   "license": "MIT",
   "scripts": {
