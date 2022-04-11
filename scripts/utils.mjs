@@ -49,14 +49,6 @@ export function getLocales() {
 }
 
 /**
- * Get the available themes from the themes directory.
- */
-export function getThemes() {
-  const availablePackages = fs.readdirSync(packagesDir + '/themes/src')
-  return availablePackages
-}
-
-/**
  * Determine the correct build order of a provided array of packages
  */
 export function getBuildOrder(packages = [], orderedPackages = []) {

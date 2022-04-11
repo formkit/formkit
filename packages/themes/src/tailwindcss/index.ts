@@ -4,7 +4,7 @@ import plugin from 'tailwindcss/plugin.js'
  * The FormKit plugin for Tailwind
  * @public
  */
-const formKitVariants = plugin(({ addVariant }) => {
+const FormKitVariants = plugin(({ addVariant }) => {
   addVariant('formkit-disabled', [
     '&[data-disabled]',
     '[data-disabled] &',
@@ -51,4 +51,4 @@ const formKitVariants = plugin(({ addVariant }) => {
   ])
 })
 
-export default formKitVariants
+export default FormKitVariants
