@@ -583,11 +583,13 @@ export function undefine(value: unknown): true | undefined {
  * @public
  */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
-export function init<T extends object>(obj: T): T & { __init: true } {
-  return Object.defineProperty(obj, '__init', {
-    enumerable: false,
-    value: true,
-  }) as T & { __init: true }
+export function init<T extends object>(obj: T): T & { __init?: true } {
+  return !Object.isFrozen(obj)
+    ? (Object.defineProperty(obj, '__init', {
+        enumerable: false,
+        value: true,
+      }) as T & { __init: true })
+    : obj
 }
 
 /**

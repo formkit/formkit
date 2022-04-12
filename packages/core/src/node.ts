@@ -990,6 +990,7 @@ function partial(
   context: FormKitContext,
   { name, value, from }: FormKitChildValue
 ) {
+  if (Object.isFrozen(context._value)) return
   if (isList(context)) {
     const insert: any[] =
       value === valueRemoved
