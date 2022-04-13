@@ -10,12 +10,27 @@ import { isRef, isReactive, toRaw } from 'vue'
 const mutex = new Map<object, boolean>() // eslint-disable-line @typescript-eslint/ban-types
 
 /**
+ * Gets the raw underlying target object from a Vue Ref or Reactive object.
+ * @param obj - Get the underlying target object, or no-op.
+ * @returns
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+function getRaw<T extends object>(obj: T): object {
+  if (isReactive(obj)) {
+    obj = toRaw(obj)
+  } else if (isRef(obj)) {
+    obj = obj.value as T
+  }
+  return obj
+}
+
+/**
  * Locks the current object, meaning a v-model should not re-transmit this value
  * back into FormKit’s core. This is an idempotent operation.
  * @param obj - An object to lock
  */
 export function lock(obj: unknown): void {
-  if (typeof obj === 'object' && obj !== null) mutex.set(obj, false)
+  if (typeof obj === 'object' && obj !== null) mutex.set(getRaw(obj), false)
 }
 
 /**
@@ -26,15 +41,11 @@ export function lock(obj: unknown): void {
  * @returns boolean
  */
 export function unlock(obj: unknown): boolean {
-  if (isReactive(obj)) {
-    obj = toRaw(obj)
-  } else if (isRef(obj)) {
-    obj = obj.value
-  }
   if (typeof obj === 'object' && obj !== null) {
-    if (mutex.has(obj)) {
-      const value = mutex.get(obj)
-      mutex.set(obj, true)
+    const rawObject = getRaw(obj)
+    if (mutex.has(rawObject)) {
+      const value = mutex.get(rawObject)
+      mutex.set(rawObject, true)
       return !!value
     }
   }
