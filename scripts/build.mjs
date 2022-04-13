@@ -21,7 +21,7 @@ import execa from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { getPackages, getBuildOrder, msg } from './utils.mjs'
+import { getPackages, getThemes, getBuildOrder, msg } from './utils.mjs'
 import { exec } from 'child_process'
 
 const augmentations = {
@@ -93,11 +93,7 @@ export async function buildPackage(p) {
   await cleanDist(p)
   msg.info('» bundling distributions')
   msg.loader.start()
-  if (p === 'themes') {
-    bundle(p, 'esm', 'genesis')
-    await bundle(p, 'esm')
-    await bundle(p, 'cjs')
-  } else if (p === 'nuxt') {
+  if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
     await bundle(p, 'esm')
@@ -111,6 +107,14 @@ export async function buildPackage(p) {
   msg.info('» extracting type definitions')
   msg.loader.start()
   if (p !== 'nuxt') await declarations(p)
+
+  // special case for CSS themes, processing needs to happen AFTER
+  // type declarations are extracted from the non-CSS theme exports
+  if (p === 'themes') {
+    const themes = getThemes()
+    await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
+  }
+
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }

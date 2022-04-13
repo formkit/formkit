@@ -65,11 +65,11 @@
     "local": "node scripts/cli.mjs --script local",
     "translate": "node scripts/cli.mjs --script translate",
     "cli": "node scripts/cli.mjs",
-    "dev": "vite --config ./examples/vite.config.ts",
+    "dev": "vite --config ./examples/vite.config.ts --host",
     "deploy": "node scripts/cli.mjs --script=deploy",
     "nuxt-pack": "nuxt-module-build packages/nuxt",
     "nuxt-dev": "nuxi dev packages/nuxt/playground",
-    "tailwind-dev": "vite packages/tailwindcss/playground",
+    "tailwind-dev": "vite packages/tailwindcss/playground --host",
     "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch"
   },
   "dependencies": {},

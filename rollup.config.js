@@ -34,7 +34,8 @@ export default {
  * Create the expected path for the input file.
  */
 function createInputPath() {
-  return `${rootPath}/src/${theme ? theme + '/' : ''}index.ts`
+  console.log(`${rootPath}/src/${theme ? 'css/' + theme + '/' : ''}index.ts`)
+  return `${rootPath}/src/${theme ? 'css/' + theme + '/' : ''}index.ts`
 }
 
 /**
@@ -80,7 +81,7 @@ function createPluginsConfig() {
   if (pkg === 'themes') {
     plugins.push(
       postcss({
-        from: `${rootPath}/src/${theme}/${theme}.css`,
+        from: `${rootPath}/src/css/${theme}/${theme}.css`,
         plugins: [atImport(), postcssNesting(), autoprefixer()],
         extract: true,
       })
