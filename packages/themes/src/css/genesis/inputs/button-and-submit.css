@@ -20,12 +20,11 @@
     }
   }
 
-  &[data-disabled] {
-    & .formkit-input {
-      background: var(--fk-color-border) !important;
-      color: var(--fk-color-button) !important;
-      cursor: not-allowed;
-    }
+  &[data-disabled] .formkit-input,
+  & .formkit-input[disabled] {
+    background: var(--fk-color-border) !important;
+    color: var(--fk-color-button) !important;
+    cursor: not-allowed;
   }
 }
 
