@@ -136,5 +136,5 @@ function addClassesBySection(
   if (listParts.length > 1) {
     return `$reset ${listParts[listParts.length - 1].trim()}`
   }
-  return listParts[0]
+  return listParts[0].trim()
 }
