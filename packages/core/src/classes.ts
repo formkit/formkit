@@ -132,5 +132,9 @@ function addClassesBySection(
   if (classesByType[type]) {
     classList += classesByType[type]
   }
-  return classList.trim()
+  const listParts = classList.split('$reset')
+  if (listParts.length > 1) {
+    return `$reset ${listParts[listParts.length - 1].trim()}`
+  }
+  return listParts[0]
 }
