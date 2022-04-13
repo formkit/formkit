@@ -34,7 +34,6 @@ export default {
  * Create the expected path for the input file.
  */
 function createInputPath() {
-  console.log(`${rootPath}/src/${theme ? 'css/' + theme + '/' : ''}index.ts`)
   return `${rootPath}/src/${theme ? 'css/' + theme + '/' : ''}index.ts`
 }
 
