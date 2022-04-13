@@ -33,6 +33,10 @@ const messageStatesVariants: Variant = (matcher) => {
   }
 }
 
+/**
+ * The FormKit plugin for UnoCSS
+ * @public
+ */
 const FormKitVariants = (): Preset => {
   return {
     name: 'unocss-preset-formkit',
