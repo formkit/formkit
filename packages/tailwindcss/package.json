@@ -29,8 +29,10 @@
   "license": "MIT",
   "type": "module",
   "peerDependencies": {
-    "@types/tailwindcss": "^3.0.0",
     "tailwindcss": "^3.0.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "@types/tailwindcss": "^3.0.10"
+  }
 }

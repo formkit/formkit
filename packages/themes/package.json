@@ -30,12 +30,16 @@
   "contributors": [
     "Justin Schroeder <justin@formkit.com>",
     "Andrew Boyd <andrew@formkit.com>",
-    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>"
+    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>",
+    "Gustavo Fenilli <gustavofenilli@gmail.com>"
   ],
   "license": "MIT",
   "scripts": {
     "test": "jest"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "tailwindcss": "^3.0.23",
+    "unocss": "^0.31.0"
+  }
 }
