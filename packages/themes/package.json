@@ -40,6 +40,7 @@
   "dependencies": {},
   "devDependencies": {
     "tailwindcss": "^3.0.23",
-    "unocss": "^0.31.0"
+    "unocss": "^0.31.0",
+    "windicss": "^3.5.1"
   }
 }
