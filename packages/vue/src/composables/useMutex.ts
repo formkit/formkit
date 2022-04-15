@@ -7,7 +7,7 @@ import { isRef, isReactive, toRaw } from 'vue'
  * with scalar values, but it gets really important for objects that can be
  * deeply linked/referenced.
  */
-const mutex = new Map<object, boolean>() // eslint-disable-line @typescript-eslint/ban-types
+const mutex = new WeakMap<object, boolean>() // eslint-disable-line @typescript-eslint/ban-types
 
 /**
  * Gets the raw underlying target object from a Vue Ref or Reactive object.
