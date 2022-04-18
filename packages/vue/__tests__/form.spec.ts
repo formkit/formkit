@@ -154,6 +154,7 @@ describe('value propagation', () => {
     const inputs = wrapper.get('form').findAll('input[type="text"]')
     expect(inputs.length).toBe(1)
     expect(wrapper.find('input').element.value).toEqual('foo')
+    // await new Promise((r) => setTimeout(r, 20))
     wrapper.find('button[type="button"]').trigger('click')
     await new Promise((r) => setTimeout(r, 200))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')

@@ -19,6 +19,8 @@ import {
   kebab,
   cloneAny,
   slugify,
+  spread,
+  isObject,
 } from '@formkit/utils'
 import {
   toRef,
@@ -33,7 +35,8 @@ import {
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
 import watchVerbose from './watchVerbose'
-import { unlock } from './useMutex'
+import useRaw from './useRaw'
+import { observe, isObserver } from './mutationObserver'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -136,11 +139,16 @@ export function useInput(
   const listeners = onlyListeners(instance?.vnode.props)
 
   /**
+   * Determines if the prop is v-modeled.
+   */
+  const isVmodeled = props.modelValue !== undefined
+
+  /**
    * Define the initial component
    */
   const value: any =
     props.modelValue !== undefined
-      ? props.modelValue
+      ? useRaw(props.modelValue)
       : cloneAny(context.attrs.value)
 
   /**
@@ -334,18 +342,25 @@ export function useInput(
       'input',
       node.context?.value
     ) as unknown as number
-    context.emit('update:modelValue', node.context?.value)
+
+    if (isVmodeled) {
+      const value = spread(node.context?.value)
+      context.emit('update:modelValue', observe(value))
+    }
   })
 
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
-  if (props.modelValue !== undefined) {
+  if (isVmodeled) {
     watchVerbose(toRef(props, 'modelValue'), (path, value) => {
-      if (unlock(value)) {
-        if (!path.length) node.input(value, false)
-        else node.at(path)?.input(value, false)
+      if (isObject(value) && isObserver(value)) {
+        if (!value.__fk_mut) return
+        value.__fk_rst()
+        value = value.__fk_trg
       }
+      if (!path.length) node.input(value, false)
+      else node.at(path)?.input(value, false)
     })
   }
 

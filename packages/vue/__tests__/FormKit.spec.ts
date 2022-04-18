@@ -76,7 +76,7 @@ describe('props', () => {
     expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
-  it('children emit a model update event on boot', async () => {
+  it('children emit no model update if not v-modeled on boot', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -94,8 +94,7 @@ describe('props', () => {
       },
     })
     const eventWrapper = wrapper.emitted('update:modelValue')
-    expect(eventWrapper?.length).toBe(2)
-    expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
+    expect(eventWrapper?.length).toBe(undefined)
   })
 
   it('does not emit updatedModel if child has ignored prop', () => {
@@ -1247,7 +1246,7 @@ describe('exposures', () => {
     expect(wrapper.emitted('input')!.length).toBe(1)
   })
 
-  it('can set values on a group with values that dont have correlating nodes', () => {
+  it('can set values on a group with values that dont have correlating nodes', async () => {
     const groupId = token()
     const wrapper = mount(
       {
@@ -1269,6 +1268,7 @@ describe('exposures', () => {
 
     expect(wrapper.vm.groupValue).toStrictEqual({ a: 'bar' })
     wrapper.vm.groupValue.b = 'foo'
+    await nextTick()
     expect(getNode(groupId)!.value).toStrictEqual({ a: 'bar', b: 'foo' })
   })
 })

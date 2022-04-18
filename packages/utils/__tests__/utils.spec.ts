@@ -17,6 +17,7 @@ import {
   token,
   slugify,
   shallowClone,
+  spread,
 } from '../src/index'
 
 describe('eq', () => {
@@ -547,4 +548,47 @@ describe('slugify', () => {
     expect(slugify('This!-is*&%#@^up!')).toBe('this-is-up'))
   it('converts non-standard unicode', () =>
     expect(slugify('Amélie')).toBe('amelie'))
+})
+
+describe('spread', () => {
+  it('returns the same string values', () => expect(spread('foo')).toBe('foo'))
+  it('returns the same number values', () => expect(spread(123)).toBe(123))
+  it('returns the same RegExp values', () => {
+    const pattern = /^foo_$/
+    expect(spread(pattern)).toBe(pattern)
+  })
+  it('returns the same Date values', () => {
+    const date = new Date()
+    expect(spread(date)).toBe(date)
+  })
+  it('returns the same shape, but not the same value for POJOs', () => {
+    const obj = { a: 123, b: 'bar' }
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+  })
+  it('returns the same shape, but not the same value for POJOs when using explicit non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__index', {
+      value: 123,
+    })
+    const spreadObj = spread(obj, ['__index'])
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__index).toBe(123)
+  })
+  it('returns the same shape, but not the same value for POJOs when using default non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__key', {
+      value: 45645,
+    })
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__key).toBe(45645)
+  })
+  it('returns the same shape, but not the same value for Arrays', () => {
+    const arr = ['a', 'b', 'c']
+    const spreadArr = spread(arr)
+    expect(spreadArr).toStrictEqual(arr)
+    expect(spreadArr).not.toBe(arr)
+  })
 })
