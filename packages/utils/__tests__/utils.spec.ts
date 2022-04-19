@@ -375,7 +375,7 @@ describe('camel', () => {
   })
 })
 
-describe('it can clone an object', () => {
+describe('clone', () => {
   it('does not return the same object', () => {
     const arr = ['foo']
     expect(clone(arr)).not.toBe(arr)
@@ -440,7 +440,7 @@ describe('it can clone an object', () => {
     expect(cloned.__foo).toBe(undefined)
   })
 
-  it('clones explicit enumerable properties on deep objects', () => {
+  it('clones explicit properties on deep objects', () => {
     const world: { hello: string; planet: { a: 123; __init?: string } } = {
       hello: 'world',
       planet: Object.defineProperty({ a: 123 }, '__init', { value: 'yes' }),
@@ -448,6 +448,16 @@ describe('it can clone an object', () => {
     const cloned = clone(world)
     expect(cloned === world).toBe(false)
     expect(cloned.planet.__init).toBe('yes')
+  })
+
+  it('clones explicit non-standard properties on deep objects', () => {
+    const world: { hello: string; planet: { a: 123; __index?: number } } = {
+      hello: 'world',
+      planet: Object.defineProperty({ a: 123 }, '__index', { value: 456 }),
+    }
+    const cloned = clone(world, ['__index'])
+    expect(cloned === world).toBe(false)
+    expect(cloned.planet.__index).toBe(456)
   })
 })
 
