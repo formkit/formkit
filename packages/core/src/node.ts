@@ -972,7 +972,7 @@ function commit(
   calm = true,
   hydrate = true
 ) {
-  context.value = node.hook.commit.dispatch(context._value)
+  context._value = context.value = node.hook.commit.dispatch(context._value)
   if (node.type !== 'input' && hydrate) node.hydrate()
   node.emit('commit', context.value)
   if (calm) node.calm()

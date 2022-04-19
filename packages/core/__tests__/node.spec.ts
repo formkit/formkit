@@ -860,6 +860,16 @@ describe('commit hook', () => {
   })
 })
 
+it('can change both _value and value with commit hook', () => {
+  const node = createNode({ value: 123 })
+  node.hook.commit((value, next) => next(value + 10))
+  expect(node.value).toBe(123)
+  expect(node._value).toBe(123)
+  node.input(1, false)
+  expect(node.value).toBe(11)
+  expect(node._value).toBe(11)
+})
+
 describe('value propagation in a node tree', () => {
   it('disturbs parents when a leaf receives input', async () => {
     const field = createNode({ value: '' })
