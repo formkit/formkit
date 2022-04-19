@@ -23,6 +23,7 @@ export function observe<T>(obj: T): T {
  * Observe a formkit object.
  * @param obj - An object that might be an observed object.o
  * @returns
+ * @public
  */
 export function isObserver<T>(obj: T): obj is MutationObserver<T> {
   return !!(
