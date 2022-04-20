@@ -591,6 +591,31 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('does automatically set the validation state to dirty', async () => {
+    const firstNode = token()
+    mount(
+      {
+        data() {
+          return {
+            visibility: 'blur',
+          }
+        },
+        template: `
+        <FormKit type="form">
+          <FormKit id="${firstNode}"/>
+          <FormKit />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(getNode(firstNode)?.store.dirty).toBe(undefined)
+  })
 })
 
 describe('configuration', () => {

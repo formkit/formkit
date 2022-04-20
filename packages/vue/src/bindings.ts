@@ -1,4 +1,12 @@
-import { reactive, computed, ref, watch, markRaw, triggerRef } from 'vue'
+import {
+  reactive,
+  computed,
+  ref,
+  watch,
+  markRaw,
+  triggerRef,
+  nextTick,
+} from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -27,6 +35,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.ledger.count('errors', (m) => m.type === 'error')
   const hasErrors = ref<boolean>(!!node.ledger.value('errors'))
+
+  /**
+   * Keep track of the first time a Vue tick cycle has passed.
+   */
+  let hasTicked = false
+  nextTick(() => {
+    hasTicked = true
+  })
 
   /**
    * All messages with the visibility state set to true.
@@ -307,7 +323,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     triggerRef(value)
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty && node.isCreated) context.handlers.touch()
+    if (!context.state.dirty && node.isCreated && hasTicked)
+      context.handlers.touch()
   })
 
   /**
