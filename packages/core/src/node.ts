@@ -1103,7 +1103,7 @@ function calm(
  * @param node - The node to shut down
  * @param context - The context to clean up
  */
-function destroy(node: FormKitNode) {
+function destroy(node: FormKitNode, context: FormKitContext) {
   node.emit('destroying', node)
   // flush all messages out
   node.store.filter(() => false)
@@ -1111,6 +1111,7 @@ function destroy(node: FormKitNode) {
     node.parent.remove(node)
   }
   deregister(node)
+  context._value = context.value = undefined
   node.emit('destroyed', node)
 }
 
