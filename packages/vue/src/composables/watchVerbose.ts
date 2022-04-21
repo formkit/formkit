@@ -43,6 +43,7 @@ export default function watchVerbose<
    * @param path - The path to start from
    */
   const clearWatch = (path: ObjectPath) => {
+    if (!path.length) return
     for (const key in watchers) {
       if (`${key}`.startsWith(`${path.__str}.`)) {
         watchers[key]()

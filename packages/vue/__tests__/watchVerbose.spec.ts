@@ -336,4 +336,29 @@ describe('watchVerbose', () => {
     await nextTick()
     expect(callback).toHaveBeenCalledWith(['form', 'a'], 'bar', values)
   })
+
+  it('responds to additions to an array via splice', async () => {
+    const values = ref({
+      disregard: ['A', 'B'],
+      users: [{ name: 'A' }, { name: 'B' }],
+    })
+    const callback = jest.fn()
+    watchVerbose(values, callback)
+    values.value.users.splice(1, 1)
+    values.value.users.splice(
+      1,
+      2,
+      { name: 'splice' },
+      { name: 'double spliced' }
+    )
+    await nextTick()
+    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenNthCalledWith(
+      2,
+      ['users'],
+      [{ name: 'A' }, { name: 'splice' }, { name: 'double spliced' }],
+      values
+    )
+    expect((callback.mock.calls[1][0] as any).__str).toBe('users')
+  })
 })
