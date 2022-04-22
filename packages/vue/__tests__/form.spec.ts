@@ -129,12 +129,13 @@ describe('value propagation', () => {
     ).toStrictEqual([true, false, true])
   })
 
-  it.only('can set the state of text input from a v-model using vue reactive object', async () => {
+  it('can set the state of text input from a v-model using vue reactive object', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(
       {
         setup() {
           const values = reactive<{ form: Record<string, any> }>({
-            form: {},
+            form: { abc: '123' },
           })
           const changeValues = async () => {
             values.form.foo = 'bar bar'
@@ -156,8 +157,9 @@ describe('value propagation', () => {
     expect(wrapper.find('input').element.value).toEqual('foo')
     // await new Promise((r) => setTimeout(r, 20))
     wrapper.find('button[type="button"]').trigger('click')
-    await new Promise((r) => setTimeout(r, 20))
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
+    warn.mockRestore()
   })
 })
 

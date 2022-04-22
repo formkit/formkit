@@ -140,14 +140,19 @@ export function useInput(
   /**
    * Determines if the prop is v-modeled.
    */
-  const isVmodeled = props.modelValue !== undefined
+  const isVModeled = props.modelValue !== undefined
+
+  /**
+   * Determines if the object being passed as a v-model is reactive.
+   */
+  // const isReactiveVModel = isVModeled && isReactive(props.modelValue)
 
   /**
    * Define the initial component
    */
   const value: any =
     props.modelValue !== undefined
-      ? useRaw(props.modelValue)
+      ? props.modelValue
       : cloneAny(context.attrs.value)
 
   /**
@@ -346,7 +351,7 @@ export function useInput(
       node.context?.value
     ) as unknown as number
 
-    if (isVmodeled && node.context) {
+    if (isVModeled && node.context) {
       const newValue = useRaw(node.context.value)
       if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
         // If this is an object that has been mutated inside FormKit core then
@@ -361,11 +366,11 @@ export function useInput(
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
-  if (isVmodeled) {
+  if (isVModeled) {
     watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
-      value = useRaw(value)
-      if (isObject(value) && mutex.has(value)) {
-        return mutex.delete(value)
+      const rawValue = useRaw(value)
+      if (isObject(rawValue) && mutex.has(rawValue)) {
+        return mutex.delete(rawValue)
       }
       if (!path.length) node.input(value, false)
       else node.at(path)?.input(value, false)
