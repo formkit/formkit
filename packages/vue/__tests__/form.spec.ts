@@ -129,7 +129,7 @@ describe('value propagation', () => {
     ).toStrictEqual([true, false, true])
   })
 
-  it('can set the state of text input from a v-model using vue reactive object', async () => {
+  it.only('can set the state of text input from a v-model using vue reactive object', async () => {
     const wrapper = mount(
       {
         setup() {

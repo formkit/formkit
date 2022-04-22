@@ -32,6 +32,40 @@ describe('group', () => {
     expect(inputs[2].element.value).toBe('hello')
   })
 
+  it('can mutate v-model values via node.input on child', async () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: { foo: 'abc', baz: 'hello' },
+          }
+        },
+        template: `
+        <div>
+          <FormKit id="${groupId}" type="group" v-model="values">
+            <FormKit name="foo" />
+            <FormKit name="bar" />
+            <FormKit name="baz" />
+          </FormKit>
+        </div>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const group = getNode(groupId)!
+    group.at('bar')!.input('this works great')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.vm.values).toStrictEqual({
+      foo: 'abc',
+      bar: 'this works great',
+      baz: 'hello',
+    })
+  })
+
   it('does not allow mutations to the initial value object. Issue #72', async () => {
     const wrapper = mount(
       {
