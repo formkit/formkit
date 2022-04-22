@@ -19,7 +19,6 @@ import {
   kebab,
   cloneAny,
   slugify,
-  spread,
   isObject,
 } from '@formkit/utils'
 import {
@@ -36,7 +35,7 @@ import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
 import watchVerbose from './watchVerbose'
 import useRaw from './useRaw'
-import { observe, isObserver } from './mutationObserver'
+// import { observe, isObserver } from './mutationObserver'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -329,6 +328,10 @@ export function useInput(
   }
 
   let inputTimeout: number | undefined
+
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  const mutex = new WeakSet<object>()
+
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
@@ -343,9 +346,15 @@ export function useInput(
       node.context?.value
     ) as unknown as number
 
-    if (isVmodeled) {
-      const value = spread(node.context?.value)
-      context.emit('update:modelValue', observe(value))
+    if (isVmodeled && node.context) {
+      const newValue = useRaw(node.context.value)
+      if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
+        // If this is an object that has been mutated inside FormKit core then
+        // we know when it is emitted it will "return" in the watchVerbose so
+        // we pro-actively add it to the mutex.
+        mutex.add(newValue)
+      }
+      context.emit('update:modelValue', newValue)
     }
   })
 
@@ -353,11 +362,10 @@ export function useInput(
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (isVmodeled) {
-    watchVerbose(toRef(props, 'modelValue'), (path, value) => {
-      if (isObject(value) && isObserver(value)) {
-        if (!value.__fk_mut) return
-        value.__fk_rst()
-        value = value.__fk_trg
+    watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
+      value = useRaw(value)
+      if (isObject(value) && mutex.has(value)) {
+        return mutex.delete(value)
       }
       if (!path.length) node.input(value, false)
       else node.at(path)?.input(value, false)

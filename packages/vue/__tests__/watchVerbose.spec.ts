@@ -1,6 +1,11 @@
 import { ref, nextTick, reactive, toRef } from 'vue'
 import watchVerbose, { getPaths } from '../src/composables/watchVerbose'
 import { jest } from '@jest/globals'
+import { mount } from '@vue/test-utils'
+import defaultConfig from '../src/defaultConfig'
+import { plugin } from '../src/plugin'
+import { getNode } from '@formkit/core'
+import { token } from '@formkit/utils'
 
 describe('getPaths', () => {
   it('retrieves single-depth paths', () => {
@@ -344,7 +349,8 @@ describe('watchVerbose', () => {
     })
     const callback = jest.fn()
     watchVerbose(values, callback)
-    values.value.users.splice(1, 1)
+    values.value.users.shift()
+    await nextTick()
     values.value.users.splice(
       1,
       2,
@@ -352,13 +358,57 @@ describe('watchVerbose', () => {
       { name: 'double spliced' }
     )
     await nextTick()
-    expect(callback).toHaveBeenCalledTimes(2)
+    expect(callback).toHaveBeenCalledTimes(4)
     expect(callback).toHaveBeenNthCalledWith(
-      2,
+      4,
       ['users'],
-      [{ name: 'A' }, { name: 'splice' }, { name: 'double spliced' }],
+      [{ name: 'B' }, { name: 'splice' }, { name: 'double spliced' }],
       values
     )
-    expect((callback.mock.calls[1][0] as any).__str).toBe('users')
+  })
+
+  it('detects changes to arrays that are v-modeled', async () => {
+    const usersId = token()
+    const wrapper = mount(
+      {
+        setup(_props, context) {
+          const values = ref<{ users: any[] }>({
+            users: [{ name: 'foo' }, { name: 'bar' }],
+          })
+          context.expose({ values })
+          return { values }
+        },
+        template: `
+        <FormKit type="group" v-model="values">
+          <FormKit type="list" name="users" id="${usersId}" v-slot="{ value }">
+            <FormKit type="group" v-if="value && value.length > 0">
+              <FormKit name="name"/>
+            </FormKit>
+            <FormKit type="group" v-if="value && value.length > 1">
+              <FormKit name="name" />
+            </FormKit>
+          </FormKit>
+        </FormKit>`,
+      },
+      {
+        global: { plugins: [[plugin, defaultConfig]] },
+      }
+    )
+    const usersNode = getNode(usersId)!.use((node) => {
+      if (node.type === 'group') {
+        node.hook.input((value, next) => {
+          if (value === undefined) node.destroy()
+          return next(value || {})
+        })
+      }
+    })
+    await nextTick()
+    expect(usersNode.value).toStrictEqual([{ name: 'foo' }, { name: 'bar' }])
+    wrapper.vm.values.users.shift()
+    await nextTick()
+    expect(usersNode.value).toStrictEqual([{ name: 'bar' }])
+    wrapper.vm.values.users[1] = { name: 'foo' }
+    await nextTick()
+    expect(usersNode.value).toStrictEqual([{ name: 'bar' }, { name: 'foo' }])
   })
 })

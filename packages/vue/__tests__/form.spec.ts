@@ -136,7 +136,7 @@ describe('value propagation', () => {
           const values = reactive<{ form: Record<string, any> }>({
             form: {},
           })
-          const changeValues = () => {
+          const changeValues = async () => {
             values.form.foo = 'bar bar'
           }
           return { values, changeValues }
@@ -156,7 +156,7 @@ describe('value propagation', () => {
     expect(wrapper.find('input').element.value).toEqual('foo')
     // await new Promise((r) => setTimeout(r, 20))
     wrapper.find('button[type="button"]').trigger('click')
-    await new Promise((r) => setTimeout(r, 200))
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
   })
 })
