@@ -1,15 +1,15 @@
-import amex from './amex.svg?raw'
-import discover from './discover.svg?raw'
-import mastercard from './mastercard.svg?raw'
-import paypayl from './paypayl.svg?raw'
-import stripe from './stripe.svg?raw'
-import visa from './visa.svg?raw'
+import amex from './amex'
+import discover from './discover'
+import mastercard from './mastercard'
+import paypayl from './paypayl'
+import stripe from './stripe'
+import visa from './visa'
 
-export default [
+export {
   amex,
   discover,
   mastercard,
   paypayl,
   stripe,
   visa
-]
+}

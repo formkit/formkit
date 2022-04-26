@@ -1,30 +1,30 @@
-import button from './button.svg?raw'
-import checkbox from './checkbox.svg?raw'
-import color from './color.svg?raw'
-import date from './date.svg?raw'
-import datetime from './datetime.svg?raw'
-import email from './email.svg?raw'
-import file from './file.svg?raw'
-import group from './group.svg?raw'
-import hidden from './hidden.svg?raw'
-import list from './list.svg?raw'
-import month from './month.svg?raw'
-import number from './number.svg?raw'
-import password from './password.svg?raw'
-import radio from './radio.svg?raw'
-import range from './range.svg?raw'
-import repeater from './repeater.svg?raw'
-import search from './search.svg?raw'
-import select from './select.svg?raw'
-import submit from './submit.svg?raw'
-import telephone from './telephone.svg?raw'
-import text from './text.svg?raw'
-import textarea from './textarea.svg?raw'
-import time from './time.svg?raw'
-import url from './url.svg?raw'
-import week from './week.svg?raw'
+import button from './button'
+import checkbox from './checkbox'
+import color from './color'
+import date from './date'
+import datetime from './datetime'
+import email from './email'
+import file from './file'
+import group from './group'
+import hidden from './hidden'
+import list from './list'
+import month from './month'
+import number from './number'
+import password from './password'
+import radio from './radio'
+import range from './range'
+import repeater from './repeater'
+import search from './search'
+import select from './select'
+import submit from './submit'
+import telephone from './telephone'
+import text from './text'
+import textarea from './textarea'
+import time from './time'
+import url from './url'
+import week from './week'
 
-export default [
+export {
   button,
   checkbox,
   color,
@@ -50,4 +50,4 @@ export default [
   time,
   url,
   week
-]
+}

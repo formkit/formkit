@@ -1,36 +1,36 @@
-import add from './add.svg?raw'
-import avatarMan from './avatar-man.svg?raw'
-import avatarWoman from './avatar-woman.svg?raw'
-import bookmark from './bookmark.svg?raw'
-import close from './close.svg?raw'
-import exportAction from './export-action.svg?raw'
-import eyeClosed from './eye-closed.svg?raw'
-import flag from './flag.svg?raw'
-import happy from './happy.svg?raw'
-import heart from './heart.svg?raw'
-import help from './help.svg?raw'
-import info from './info.svg?raw'
-import linkExternal from './link-external.svg?raw'
-import link from './link.svg?raw'
-import megaphone from './megaphone.svg?raw'
-import open from './open.svg?raw'
-import people from './people.svg?raw'
-import refresh from './refresh.svg?raw'
-import reorder from './reorder.svg?raw'
-import reply from './reply.svg?raw'
-import sad from './sad.svg?raw'
-import search from './search.svg?raw'
-import settings from './settings.svg?raw'
-import share from './share.svg?raw'
-import start from './start.svg?raw'
-import tag from './tag.svg?raw'
-import tools from './tools.svg?raw'
-import trash from './trash.svg?raw'
-import volumeDown from './volume-down.svg?raw'
-import volumeUp from './volume-up.svg?raw'
-import warning from './warning.svg?raw'
+import add from './add'
+import avatarMan from './avatar-man'
+import avatarWoman from './avatar-woman'
+import bookmark from './bookmark'
+import close from './close'
+import exportAction from './export-action'
+import eyeClosed from './eye-closed'
+import flag from './flag'
+import happy from './happy'
+import heart from './heart'
+import help from './help'
+import info from './info'
+import linkExternal from './link-external'
+import link from './link'
+import megaphone from './megaphone'
+import open from './open'
+import people from './people'
+import refresh from './refresh'
+import reorder from './reorder'
+import reply from './reply'
+import sad from './sad'
+import magnifyingGlass from './search'
+import settings from './settings'
+import share from './share'
+import start from './start'
+import tag from './tag'
+import tools from './tools'
+import trash from './trash'
+import volumeDown from './volume-down'
+import volumeUp from './volume-up'
+import warning from './warning'
 
-export default [
+export {
   add,
   avatarMan,
   avatarWoman,
@@ -52,7 +52,7 @@ export default [
   reorder,
   reply,
   sad,
-  search,
+  magnifyingGlass,
   settings,
   share,
   start,
@@ -62,4 +62,4 @@ export default [
   volumeDown,
   volumeUp,
   warning
-]
+}
