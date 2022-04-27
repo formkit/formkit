@@ -1297,3 +1297,42 @@ describe('exposures', () => {
     expect(getNode(groupId)!.value).toStrictEqual({ a: 'bar', b: 'foo' })
   })
 })
+
+describe('schema changed', () => {
+  it('can change an inputs entire schema and force a re-render', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        methods: {
+          swapSchema() {
+            const node = getNode(id)
+            if (node) {
+              node.props.definition!.schema = () => {
+                return [
+                  {
+                    $el: 'h1',
+                    attrs: {
+                      id: 'new-schema',
+                    },
+                    children: 'changed schema',
+                  },
+                ]
+              }
+              node.emit('schema')
+            }
+          },
+        },
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input').exists()).toBe(true)
+    wrapper.vm.swapSchema()
+    await nextTick()
+    expect(wrapper.html()).toBe('<h1 id="new-schema">changed schema</h1>')
+  })
+})

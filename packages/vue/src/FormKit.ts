@@ -1,5 +1,11 @@
-import { error, FormKitNode, FormKitGroupValue } from '@formkit/core'
-import { h, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
+import {
+  error,
+  FormKitNode,
+  FormKitGroupValue,
+  FormKitSchemaCondition,
+  FormKitSchemaNode,
+} from '@formkit/core'
+import { h, ref, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
@@ -40,12 +46,20 @@ export const FormKit = defineComponent({
           { ...context.slots }
         )
     }
-    const schemaDefinition = node.props.definition.schema
-    if (!schemaDefinition) error(601, node)
-    const schema =
-      typeof schemaDefinition === 'function'
-        ? schemaDefinition({ ...props.sectionsSchema })
-        : schemaDefinition
+    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    const generateSchema = () => {
+      const schemaDefinition = node.props?.definition?.schema
+      if (!schemaDefinition) error(601, node)
+      schema.value =
+        typeof schemaDefinition === 'function'
+          ? schemaDefinition({ ...props.sectionsSchema })
+          : schemaDefinition
+    }
+    generateSchema()
+
+    // If someone emits the schema event, we re-generate the schema
+    node.on('schema', generateSchema)
+
     context.emit('node', node)
     const library = node.props.definition.library as
       | Record<string, ConcreteComponent>
@@ -57,7 +71,7 @@ export const FormKit = defineComponent({
     return () =>
       h(
         FormKitSchema,
-        { schema, data: node.context, library },
+        { schema: schema.value, data: node.context, library },
         { ...context.slots }
       )
   },
