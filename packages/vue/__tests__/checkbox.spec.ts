@@ -95,6 +95,20 @@ describe('single checkbox', () => {
     expect(wrapper.vm.value).toBe('foo')
   })
 
+  it('can use an object as an on-value and off-value', () => {
+    const wrapper = mount(
+      {
+        template:
+          '<FormKit :delay="0" type="checkbox" :on-value="{ a: 123 }" :off-value="{ b: 456 }" :value="{ a: 123 }" />',
+      },
+      {
+        ...global,
+      }
+    )
+    const checkbox = wrapper.find('input')
+    expect(checkbox.element.checked).toBe(true)
+  })
+
   it('outputs a data-disabled on the wrapper', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -116,6 +130,7 @@ describe('multiple checkboxes', () => {
         type: 'checkbox',
         label: 'All checkboxes',
         help: 'help-text',
+        name: 'mybox',
         options: ['foo', 'bar', 'baz'],
       },
       ...global,
@@ -128,7 +143,7 @@ describe('multiple checkboxes', () => {
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">foo</span>
         </label>
@@ -136,7 +151,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">bar</span>
         </label>
@@ -144,7 +159,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">baz</span>
         </label>

@@ -9,7 +9,7 @@ const box = composable('input', () => ({
     name: '$node.props.altName || $node.name',
     disabled: '$option.attrs.disabled || $disabled',
     onInput: '$handlers.toggleChecked',
-    checked: '$_value === $onValue',
+    checked: '$fns.eq($_value, $onValue)',
     onBlur: '$handlers.blur',
     value: '$: true',
     id: '$id',

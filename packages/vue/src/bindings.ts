@@ -205,6 +205,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       number: (value: any) => Number(value),
       string: (value: any) => String(value),
       json: (value: any) => JSON.stringify(value),
+      eq,
     },
     handlers: {
       blur: () =>
