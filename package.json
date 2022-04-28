@@ -66,6 +66,7 @@
     "translate": "node scripts/cli.mjs --script translate",
     "cli": "node scripts/cli.mjs",
     "dev": "vite --config ./examples/vite.config.ts",
+    "dev-build": "vite build --config ./examples/vite.config.ts",
     "deploy": "node scripts/cli.mjs --script=deploy",
     "nuxt-pack": "nuxt-module-build packages/nuxt",
     "nuxt-dev": "nuxi dev packages/nuxt/playground",

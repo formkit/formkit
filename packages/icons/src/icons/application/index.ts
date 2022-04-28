@@ -4,6 +4,7 @@ import avatarWoman from './avatar-woman'
 import bookmark from './bookmark'
 import close from './close'
 import exportAction from './export-action'
+import eye from './eye'
 import eyeClosed from './eye-closed'
 import flag from './flag'
 import happy from './happy'
@@ -37,6 +38,7 @@ export {
   bookmark,
   close,
   exportAction,
+  eye,
   eyeClosed,
   flag,
   happy,
