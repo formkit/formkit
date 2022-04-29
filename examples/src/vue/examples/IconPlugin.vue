@@ -9,24 +9,37 @@
     <FormKit
       type="email"
       name="email"
-      label="Email address"
+      label="Prefix icon"
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
-      icon="month"
+      icon="email"
+    />
+    <FormKit
+      id="star"
+      name="star"
+      type="text"
+      label="Suffix icon"
+      icon-suffix="customStar"
     />
     <FormKit
       id="fruit"
       name="fruit"
-      type="text"
-      label="Favorite pie"
-      icon="customStar"
+      type="select"
+      label="Icon with select input"
+      placeholder="Select some pie"
+      icon="apple"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
     />
     <FormKit
       id="framework"
       name="framework"
       type="text"
-      label="Favorite Form Framework"
+      label="Inline SVG icon"
       value="FormKit"
       :icon="formkitLogo"
     />
@@ -43,13 +56,14 @@
       name="password"
       :type="passwordInputType"
       label="A fancy password input"
-      value=""
+      value="mySecretPassword!"
       icon-prefix="password"
       :icon-suffix="passwordIcon"
     />
   </FormKit>
 
-  <button @click="changeIcon">Change Icon</button>
+  <button @click="changeIcon">Change Password visibility</button>
+  password icon: {{ passwordIcon }}
   <pre>{{ data }}</pre>
 </template>
 
@@ -58,10 +72,10 @@ import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 
 const data = ref({})
-const passwordIcon = ref('eye')
+const passwordIcon = ref('eyeClosed')
 const passwordInputType = ref('password')
 
-const formkitLogo = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="#2B303A"/></svg>`
+const formkitLogo = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`
 
 const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
@@ -70,7 +84,7 @@ const submitHandler = async function () {
 
 const changeIcon = function () {
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
-  passwordInputType.value = passwordIcon.value === 'eye' ? 'password' : 'text'
+  passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
 }
 </script>
 

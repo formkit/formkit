@@ -15,11 +15,9 @@ import { FormKitNode } from '@formkit/core'
  * @public
  */
 export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) => void {
-  icons = wrapIconsToSchema(icons)
-
   return function iconPlugin(node: FormKitNode): void {
     // add required props to node
-    addProps(node, ['iconPosition', 'iconSuffix', 'iconPrefix'])
+    addProps(node, ['icon', 'iconSuffix', 'iconPrefix'])
 
     const iconPosition = node.props.iconPosition || 'prefix'
     const iconSchemaProps = getIconAttrsFromNode(node)
@@ -43,24 +41,20 @@ export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) =
     if (!Object.keys(inputIcons).length) return // do nothing else if we have on icons
 
     Object.keys(inputIcons).forEach(iconKey => {
-      let icon = icons[inputIcons[iconKey]] || inputIcons[iconKey]
-      if (typeof icon === 'string') {
-        if (!icon.startsWith('<svg')) {
-          delete inputIcons[iconKey] // we do not have a matching icon and the provided icon string was not an SVG
-          return
-        }
-        icon = wrapIconsToSchema({ inlineSvg: icon }).inlineSvg
-      }
-
       if (node.props.definition) {
         const cloneDefinition = clone(node.props.definition)
         if (typeof cloneDefinition.schema === 'function') {
           const targetPosition = iconKey === 'prefixIcon' ? 'prefix' : 'suffix'
           const originalSchema = cloneDefinition.schema
           cloneDefinition.schema = (extensions: Record<string, any>) => {
-            const clonedIcon = clone(icon)
-            clonedIcon.attrs.class = `$classes.${targetPosition} + ' ' +` + clonedIcon.attrs.class
-            extensions[targetPosition] = extend(clonedIcon, extensions[targetPosition] || {})
+            extensions[targetPosition] = extend({
+              $el: 'div',
+              attrs: {
+                class: `$classes.${targetPosition} $classes.icon`,
+                'data-icon': '$iconKey',
+                innerHTML: '$iconSvg'
+              },
+            }, extensions[targetPosition] || {})
             return originalSchema(extensions)
           }
         }
@@ -68,25 +62,6 @@ export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) =
       }
     })
   }
-}
-
-/**
- * Given an object of icons, wraps all the markup in a FormKit provided <div>
- * @param icons - an object of icon names to svg definitions
- * @returns
- */
-function wrapIconsToSchema(icons: Record<any, string>): Record<any, Record<any, any>> {
-  return Object.keys(icons).reduce((wrappedIcons, key) => {
-    wrappedIcons[key] = {
-      $el: 'div',
-      attrs: {
-        class: '$classes.icon',
-        'data-icon': key,
-        innerHTML: icons[key]
-      },
-    }
-    return wrappedIcons
-  }, {} as Record<any, any>)
 }
 
 /**
