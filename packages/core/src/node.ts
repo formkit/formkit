@@ -8,6 +8,7 @@ import {
   undefine,
   init,
   cloneAny,
+  clone,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -531,6 +532,11 @@ export type FormKitNode = {
    */
   add: (node: FormKitNode, index?: number) => FormKitNode
   /**
+   * Adds props to the given node by removing them from node.props.attrs and
+   * moving them to the top-level node.props object.
+   */
+  addProps: (props: string[]) => FormKitNode
+  /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name There are a few
    * "special" traversal tokens as well:
@@ -764,6 +770,7 @@ const invalidSetter = (
 const traps = {
   _c: trap(getContext, invalidSetter, false),
   add: trap(addChild),
+  addProps: trap(addProps),
   address: trap(getAddress, invalidSetter, false),
   at: trap(getNode),
   bubble: trap(bubble),
@@ -1127,7 +1134,7 @@ function define(
   // Assign the type
   context.type = definition.type
   // Assign the definition
-  context.props.definition = definition
+  context.props.definition = clone(definition)
   // Ensure the type is seeded with the `__init` value.
   context.value = context._value = createValue({
     type: node.type,
@@ -1141,27 +1148,46 @@ function define(
   // Its possible that input-defined "props" have ended up in the context attrs
   // these should be moved back out of the attrs object.
   if (definition.props) {
-    if (node.props.attrs) {
-      const attrs = { ...node.props.attrs }
-      // Temporarily disable prop emits
-      node.props._emit = false
-      for (const attr in attrs) {
-        const camelName = camel(attr)
-        if (definition.props.includes(camelName)) {
-          node.props[camelName] = attrs[attr]
-          delete attrs[attr]
-        }
+    node.addProps(definition.props)
+  }
+  node.emit('defined', definition)
+}
+
+/**
+ * Adds props to a given node by stripping them out of the node.props.attrs and
+ * then adding them to the nodes.
+ *
+ * @param node - The node to add props to
+ * @param context - The internal context object
+ * @param props - An array of prop strings (in camelCase!)
+ */
+function addProps(node: FormKitNode, context: FormKitContext, props: string[]) {
+  if (node.props.attrs) {
+    const attrs = { ...node.props.attrs }
+    // Temporarily disable prop emits
+    node.props._emit = false
+    for (const attr in attrs) {
+      const camelName = camel(attr)
+      if (props.includes(camelName)) {
+        node.props[camelName] = attrs[attr]
+        delete attrs[attr]
       }
-      const initial = cloneAny(context._value)
-      node.props.initial =
-        node.type !== 'input' ? init(initial as KeyedValue) : initial
-      // Re-enable prop emits
-      node.props._emit = true
-      node.props.attrs = attrs
+    }
+    const initial = cloneAny(context._value)
+    node.props.initial =
+      node.type !== 'input' ? init(initial as KeyedValue) : initial
+    // Re-enable prop emits
+    node.props._emit = true
+    node.props.attrs = attrs
+
+    if (node.props.definition) {
+      node.props.definition.props = [
+        ...(node.props.definition?.props || []),
+        ...props,
+      ]
     }
   }
-
-  node.emit('defined', definition)
+  node.emit('added-props', props)
 }
 
 /**

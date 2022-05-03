@@ -30,6 +30,9 @@ import {
   SetupContext,
   onUnmounted,
   getCurrentInstance,
+  computed,
+  ref,
+  WatchStopHandle,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
@@ -215,11 +218,27 @@ export function useInput(
   if (!node.props.definition) error(600, node)
 
   /**
+   * All props that are bound "late" (after node creation) — are added to a set
+   * which is used to watch the context.attrs object.
+   */
+  const lateBoundProps = ref<Set<string | RegExp>>(
+    new Set(node.props.definition.props || [])
+  )
+
+  /**
+   * Any additional props added at a "later" time should also be part of the
+   * late bound props.
+   */
+  node.on('added-props', ({ payload: lateProps }) => {
+    if (Array.isArray(lateProps))
+      lateProps.forEach((newProp) => lateBoundProps.value.add(newProp))
+  })
+
+  /**
    * These prop names must be assigned.
    */
-  const pseudoPropNames = pseudoProps
-    .concat(node.props.definition.props || [])
-    .reduce((names, prop) => {
+  const pseudoPropNames = computed(() =>
+    pseudoProps.concat([...lateBoundProps.value]).reduce((names, prop) => {
       if (typeof prop === 'string') {
         names.push(camel(prop))
         names.push(kebab(prop))
@@ -228,6 +247,7 @@ export function useInput(
       }
       return names
     }, [] as Array<string | RegExp>)
+  )
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))
@@ -252,15 +272,32 @@ export function useInput(
   /**
    * Watch "pseudoProp" attributes explicitly.
    */
-  const pseudoPropsValues = only(nodeProps(context.attrs), pseudoPropNames)
-  for (const prop in pseudoPropsValues) {
-    const camelName = camel(prop)
-    watch(
-      () => context.attrs[prop],
-      () => {
-        node.props[camelName] = context.attrs[prop]
-      }
-    )
+  const attributeWatchers = new Set<WatchStopHandle>()
+  const possibleProps = nodeProps(context.attrs)
+  watchEffect(() => {
+    watchAttributes(only(possibleProps, pseudoPropNames.value))
+  })
+
+  /**
+   * Defines attributes that should be used as props.
+   * @param attrProps - Attributes that should be used as props instead
+   */
+  function watchAttributes(attrProps: Record<string, any>) {
+    attributeWatchers.forEach((stop) => {
+      stop()
+      attributeWatchers.delete(stop)
+    })
+    for (const prop in attrProps) {
+      const camelName = camel(prop)
+      attributeWatchers.add(
+        watch(
+          () => context.attrs[prop],
+          () => {
+            node.props[camelName] = context.attrs[prop]
+          }
+        )
+      )
+    }
   }
 
   /**
@@ -268,7 +305,7 @@ export function useInput(
    * props and are not pseudoProps
    */
   watchEffect(() => {
-    const attrs = except(nodeProps(context.attrs), pseudoPropNames)
+    const attrs = except(nodeProps(context.attrs), pseudoPropNames.value)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 
