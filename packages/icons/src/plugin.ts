@@ -44,6 +44,7 @@ export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) =
           if (typeof definition.schema === 'function') {
             // add target icon to node context
             if (node && node.context) {
+              node.context.classes[iconKey === 'iconPrefix' ? 'prefix' : 'suffix'] = 'formkit-icon ' + node.context.classes[iconKey === 'iconPrefix' ? 'prefix' : 'suffix']
               if (inputIcons[iconKey].startsWith('<svg')) {
                 node.context[iconKey] = inputIcons[iconKey]
                 node.context[`${iconKey}Name`] = 'inlineIcon'
@@ -55,6 +56,20 @@ export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) =
           }
         }
       })
+
+      if (node && node.context && node.props.onIconClick) {
+        node.context.onIconClick = node.props.onIconClick
+        node.context.handlePrefixIconClick = () => {
+          if (node && node.context && typeof node.context.onIconClick === 'function') {
+            node.context.onIconClick(node, 'prefix')
+          }
+        }
+        node.context.handleSuffixIconClick = () => {
+          if (node && node.context && typeof node.context.onIconClick === 'function') {
+            node.context.onIconClick(node, 'suffix')
+          }
+        }
+      }
     }
 
     if (!node.props.definition || typeof node.props.definition.schema !== 'function') return
@@ -64,18 +79,20 @@ export function createIconPlugin(icons: Record<any, any>): (node: FormKitNode) =
         $el: 'div',
         if: '$iconPrefix',
         attrs: {
-          class: `$classes.prefix formkit-prefix formkit-icon`,
+          class: '$classes.prefix',
           'data-icon': `$iconPrefixName`,
-          innerHTML: `$iconPrefix`
+          innerHTML: `$iconPrefix`,
+          onClick: '$handlePrefixIconClick'
         },
       }, extensions.prefix || {})
       extensions.suffix = extend({
         $el: 'div',
         if: '$iconSuffix',
         attrs: {
-          class: `$classes.suffix formkit-suffix formkit-icon`,
+          class: '$classes.suffix',
           'data-icon': `$iconSuffixName`,
-          innerHTML: `$iconSuffix`
+          innerHTML: `$iconSuffix`,
+          onClick: '$handleSuffixIconClick'
         },
       }, extensions.suffix || {})
       return originalSchema(extensions)

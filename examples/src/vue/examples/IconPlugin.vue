@@ -89,11 +89,12 @@ const submitHandler = async function () {
 const changeIcon = function () {
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
-  console.log(passwordNode.value)
 }
 
-const handleIconClick = function (node:FormKitNode, sectionKey:string) {
-  console.log(node, sectionKey)
+const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
+  if (sectionKey === 'suffix') {
+    changeIcon()
+  }
 }
 </script>
 
@@ -125,6 +126,10 @@ const handleIconClick = function (node:FormKitNode, sectionKey:string) {
 .formkit-icon.formkit-suffix {
   width: 2.25em;
   padding-left: 0em;
+}
+
+.formkit-icon.pointer {
+  cursor: pointer;
 }
 
 .formkit-icon svg {
