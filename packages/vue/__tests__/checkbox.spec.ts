@@ -334,7 +334,7 @@ describe('non string values for checkboxes', () => {
         type: 'checkbox',
         value: [{ zip: '02108' }],
         options: [
-          { value: { zip: '30301' }, label: 'Atlanta' },
+          { value: null, label: 'Atlanta' },
           { value: { zip: '02108' }, label: 'Boston' },
           { value: { zip: '80014' }, label: 'Denver' },
         ],
@@ -355,6 +355,6 @@ describe('non string values for checkboxes', () => {
       true,
       false,
     ])
-    expect(getNode(id)!.value).toEqual([{ zip: '02108' }, { zip: '30301' }])
+    expect(getNode(id)!.value).toEqual([{ zip: '02108' }, null])
   })
 })
