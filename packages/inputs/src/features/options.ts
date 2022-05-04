@@ -9,7 +9,8 @@ import { eq, isPojo } from '@formkit/utils'
 export type FormKitOptionsList = Array<
   {
     label: string
-    value: string | number
+    value: unknown
+    __original?: any
   } & { [index: string]: any }
 >
 

@@ -1,6 +1,7 @@
 import { FormKitNode } from '@formkit/core'
 import { has } from '@formkit/utils'
 import normalizeBoxes from './normalizeBoxes'
+import { shouldSelect, optionValue } from './options'
 
 /**
  * Event handler when an input is toggled.
@@ -10,13 +11,25 @@ import normalizeBoxes from './normalizeBoxes'
 function toggleChecked(node: FormKitNode, e: Event) {
   const el = e.target
   if (el instanceof HTMLInputElement) {
+    const value = Array.isArray(node.props.options)
+      ? optionValue(node.props.options, el.value)
+      : el.value
     if (Array.isArray(node.props.options) && node.props.options.length) {
       if (!Array.isArray(node._value)) {
-        node.input([el.value])
-      } else if (!node._value.includes(el.value)) {
-        node.input([...node._value, el.value])
+        // There is no array value set
+        node.input([value])
+      } else if (
+        !node._value.some((existingValue) => shouldSelect(value, existingValue))
+      ) {
+        // The value is not in the current set
+        node.input([...node._value, value])
       } else {
-        node.input(node._value.filter((val) => val !== el.value))
+        // Filter out equivalent values
+        node.input(
+          node._value.filter(
+            (existingValue) => !shouldSelect(value, existingValue)
+          )
+        )
       }
     } else {
       if (el.checked) {
@@ -38,7 +51,12 @@ function isChecked(node: FormKitNode, value: any) {
   // We need to force vue’s reactivity to respond when the value is run:
   node.context?.value
   node.context?._value
-  return Array.isArray(node._value) ? node._value.includes(value) : false
+  if (Array.isArray(node._value)) {
+    return node._value.some((existingValue) =>
+      shouldSelect(optionValue(node.props.options, value), existingValue)
+    )
+  }
+  return false
 }
 
 /**
