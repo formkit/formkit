@@ -115,7 +115,7 @@ describe('radios', () => {
     ).toStrictEqual([true, false, false])
   })
 
-  it('can have a null value', () => {
+  it('can have an object value', async () => {
     const id = token()
     const wrapper = mount(
       {
@@ -138,9 +138,53 @@ describe('radios', () => {
         ...global,
       }
     )
-    const radios = wrapper.get('div').findAll('input[type="radio"]')
+    const radios = wrapper.get('div').findAll('input')
     expect(
       radios.map((radio) => (radio.element as HTMLInputElement).checked)
     ).toEqual([true, false])
+    radios[1].element.checked = true
+    radios[1].trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, true])
+    expect(getNode(id)!.value).toEqual({ fruit: 'banana' })
+  })
+
+  it('can have a null value', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'B',
+          }
+        },
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="false"
+          :options="[
+            { value: null, label: 'foobar' },
+            { value: false, label: 'fruit' },
+            { value: true, label: 'todd' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, true, false])
+    radios[0].element.checked = true
+    radios[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([true, false, false])
+    expect(getNode(id)!.value).toEqual(null)
   })
 })
