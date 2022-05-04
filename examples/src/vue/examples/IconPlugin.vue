@@ -58,8 +58,9 @@
       :type="passwordInputType"
       label="A fancy password input"
       value="mySecretPassword!"
-      icon-prefix="password"
+      icon="password"
       :icon-suffix="passwordIcon"
+      @icon-click="handleIconClick"
     />
   </FormKit>
 
@@ -69,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import { FormKitNode } from '@formkit/core'
 import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 
@@ -87,9 +89,11 @@ const submitHandler = async function () {
 const changeIcon = function () {
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
-  setTimeout(() => {
-    console.log(passwordNode.value.node.props.iconSuffix, passwordNode.value.node.props)
-  }, 0)
+  console.log(passwordNode.value)
+}
+
+const handleIconClick = function (node:FormKitNode, sectionKey:string) {
+  console.log(node, sectionKey)
 }
 </script>
 
@@ -111,6 +115,11 @@ const changeIcon = function () {
   border-radius: var(--fk-border-radius-tl) 0 0 var(--fk-border-radius-bl) ;
   background: var(--fk-bg-decorator);
   box-shadow: 1px 0 0 0 rgba(0,0,0,0.33);
+}
+[data-type="button"] .formkit-icon.formkit-prefix,
+[data-type="submit"] .formkit-icon.formkit-prefix {
+  background: none;
+  box-shadow: none;
 }
 
 .formkit-icon.formkit-suffix {
