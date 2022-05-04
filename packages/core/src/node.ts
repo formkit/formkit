@@ -1161,7 +1161,11 @@ function define(
  * @param context - The internal context object
  * @param props - An array of prop strings (in camelCase!)
  */
-function addProps(node: FormKitNode, context: FormKitContext, props: string[]) {
+function addProps(
+  node: FormKitNode,
+  context: FormKitContext,
+  props: string[]
+): FormKitNode {
   if (node.props.attrs) {
     const attrs = { ...node.props.attrs }
     // Temporarily disable prop emits
@@ -1188,6 +1192,7 @@ function addProps(node: FormKitNode, context: FormKitContext, props: string[]) {
     }
   }
   node.emit('added-props', props)
+  return node
 }
 
 /**

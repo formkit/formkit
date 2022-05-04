@@ -114,4 +114,33 @@ describe('radios', () => {
       inputs.map((input) => (input.element as HTMLInputElement).checked)
     ).toStrictEqual([true, false, false])
   })
+
+  it('can have a null value', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'B',
+          }
+        },
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="{ foo: 'bar' }"
+          :options="[
+            { value: { foo: 'bar'}, label: 'foobar' },
+            { value: { fruit: 'banana' }, label: 'fruit' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input[type="radio"]')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([true, false])
+  })
 })
