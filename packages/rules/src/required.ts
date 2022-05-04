@@ -6,8 +6,10 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const required: FormKitValidationRule = function required({ value }) {
-  return !empty(value)
+const required: FormKitValidationRule = function required({ value }, action = 'default') {
+  return action === 'trim'
+    ? !empty(String(value).trim())
+    : !empty(value)
 }
 
 /**
