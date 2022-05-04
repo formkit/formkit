@@ -205,6 +205,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       number: (value: any) => Number(value),
       string: (value: any) => String(value),
       json: (value: any) => JSON.stringify(value),
+      eq,
     },
     handlers: {
       blur: () =>
@@ -302,9 +303,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (definition.props) observeProps(definition.props)
   }
 
-  node.props.definition
-    ? definedAs(node.props.definition)
-    : node.on('defined', ({ payload }) => definedAs(payload))
+  node.props.definition && definedAs(node.props.definition)
+
+  /**
+   * When new props are added to the core node as "props" (ie not attrs) then
+   * we automatically need to start tracking them here.
+   */
+  node.on('added-props', ({ payload }) => observeProps(payload))
 
   /**
    * Watch for input events from core.
