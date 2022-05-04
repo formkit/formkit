@@ -1,5 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-import { eq, isPojo, token } from '@formkit/utils'
+import { eq, isPojo } from '@formkit/utils'
 
 /**
  * Options should always be formated as an array of objects with label and value
@@ -21,6 +21,7 @@ export type FormKitOptionsList = Array<
 function normalizeOptions(
   options: string[] | FormKitOptionsList | { [value: string]: string }
 ): FormKitOptionsList {
+  let i = 1
   if (Array.isArray(options)) {
     return options.map((option) => {
       if (typeof option === 'string' || typeof option === 'number') {
@@ -31,7 +32,10 @@ function normalizeOptions(
       }
       if (typeof option == 'object') {
         if ('value' in option && typeof option.value !== 'string') {
-          Object.assign(option, { value: token(), __original: option.value })
+          Object.assign(option, {
+            value: `__mask_${i++}`,
+            __original: option.value,
+          })
         }
       }
       return option

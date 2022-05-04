@@ -503,6 +503,8 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     obj === null ||
     obj instanceof RegExp ||
     obj instanceof Date ||
+    obj instanceof Map ||
+    obj instanceof Set ||
     (typeof File === 'function' && obj instanceof File)
   )
     return obj
