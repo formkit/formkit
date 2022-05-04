@@ -1,14 +1,6 @@
 import { extend } from '@formkit/utils'
 import { FormKitNode } from '@formkit/core'
 
-/** TODO
- * [x] Have global config option for default icon placement, prefix (default) or suffix
- * [] take IconSchemaProps and turn them into props on the node
- * [x] check if we have 1 or 2 icons
- * [x] modify the schema for the icon(s)
- * [] allow for defining a click handler for the icon(s) and pass along context for which type was clicked (prefix or suffix)
- */
-
 /**
  * The icon plugin function, everything must be bootstrapped here.
  * @param node - The node to apply icons to.
@@ -95,51 +87,39 @@ export function createIconPlugin(
       return
     const originalSchema = node.props.definition.schema
     node.props.definition.schema = (extensions: Record<string, any>) => {
-      extensions.prefix = extend(
-        {
-          $el: 'div',
-          if: '$iconPrefix',
-          attrs: {
-            class: '$classes.prefix',
-            'data-icon': `$iconPrefixName`,
-            innerHTML: `$iconPrefix`,
-            'data-clickable': {
-              if: '$onIconClick',
-              then: 'true',
+      const createIconSchema = (sectionKey: string) => {
+        const capSectionKey = `${sectionKey[0].toUpperCase()}${sectionKey.slice(1)}`
+        if (
+          (node.context && node.context[`icon${capSectionKey}`]) &&
+          !extensions[sectionKey]?.children
+        ) {
+          extensions[sectionKey] = extend(
+            {
+              $el: 'div',
+              attrs: {
+                class: `$classes.${sectionKey}`,
+                'data-icon': `$icon${capSectionKey}Name`,
+                innerHTML: `$icon${capSectionKey}`,
+                'data-clickable': {
+                  if: '$onIconClick',
+                  then: 'true',
+                },
+                onClick: {
+                  if: '$onIconClick',
+                  then: `$handle${capSectionKey}IconClick`,
+                },
+              },
             },
-            onClick: {
-              if: '$onIconClick',
-              then: '$handlePrefixIconClick',
-            },
-          },
-        },
-        extensions.prefix || {}
-      )
-      extensions.suffix = extend(
-        {
-          $el: 'div',
-          if: '$iconSuffix',
-          attrs: {
-            class: '$classes.suffix',
-            'data-icon': `$iconSuffixName`,
-            innerHTML: `$iconSuffix`,
-            'data-clickable': {
-              if: '$onIconClick',
-              then: 'true',
-            },
-            onClick: {
-              if: '$onIconClick',
-              then: '$handleSuffixIconClick',
-            },
-          },
-        },
-        extensions.suffix || {}
-      )
+            extensions[sectionKey] || {}
+          )
+        }
+      }
+      createIconSchema('prefix')
+      createIconSchema('suffix')
       return originalSchema(extensions)
     }
 
     defineIcon()
-    console.log(node.context)
     node.on('prop:icon', defineIcon)
     node.on('prop:iconPrefix', defineIcon)
     node.on('prop:iconSuffix', defineIcon)
