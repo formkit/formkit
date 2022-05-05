@@ -569,4 +569,43 @@ describe('select object values', () => {
     ])
     expect(getNode(id)!.value).toEqual({ tool: 'hammer' })
   })
+
+  it('allows multiple objects as values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        delay: 0,
+        multiple: true,
+        id,
+        value: [{ tool: 'socket' }, { tool: 'hammer' }],
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(getNode(id)!.value).toEqual([{ tool: 'socket' }, { tool: 'hammer' }])
+    const options = wrapper.find('select').findAll('option')
+    expect(options.map((option) => option.element.selected)).toEqual([
+      true,
+      false,
+      true,
+    ])
+    for (const i in options) {
+      options[i].element.selected = i === '1' || i === '2'
+    }
+    wrapper.find('select').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(options.map((option) => option.element.selected)).toEqual([
+      false,
+      true,
+      true,
+    ])
+    expect(getNode(id)!.value).toEqual([{ tool: 'wrench' }, { tool: 'socket' }])
+  })
 })
