@@ -3,6 +3,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
+import { token } from '@formkit/utils'
 import { nextTick } from 'vue'
 // import { jest } from '@jest/globals'
 
@@ -494,5 +495,78 @@ describe('select', () => {
     expect(wrapper.find('select').html()).toBe(
       '<select id="input_11" class="formkit-input" name="select_10"></select>'
     )
+  })
+})
+
+describe('select object values', () => {
+  it('allows numeric values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        delay: 0,
+        id,
+        options: [
+          { value: 1, label: 'One' },
+          { value: 2, label: 'Two' },
+          { value: 3, label: 'Three' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(getNode(id)!.value).toBe(1)
+    const options = wrapper.find('select').findAll('option')
+    expect(options.map((option) => option.element.selected)).toEqual([
+      true,
+      false,
+      false,
+    ])
+    wrapper.find('select').setValue('__mask_2')
+    wrapper.find('select').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(options.map((option) => option.element.selected)).toEqual([
+      false,
+      true,
+      false,
+    ])
+    expect(getNode(id)!.value).toBe(2)
+  })
+
+  it('allows objects as values of select options', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        delay: 0,
+        id,
+        value: { tool: 'socket' },
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(getNode(id)!.value).toEqual({ tool: 'socket' })
+    const options = wrapper.find('select').findAll('option')
+    expect(options.map((option) => option.element.selected)).toEqual([
+      false,
+      false,
+      true,
+    ])
+    wrapper.find('select').setValue('__mask_1')
+    wrapper.find('select').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(options.map((option) => option.element.selected)).toEqual([
+      true,
+      false,
+      false,
+    ])
+    expect(getNode(id)!.value).toEqual({ tool: 'hammer' })
   })
 })

@@ -1,5 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-import type { FormKitOptionsList } from './options'
+import { FormKitOptionsList, shouldSelect, optionValue } from './options'
 
 /**
  * Checks if a the given option should have the selected attribute.
@@ -10,9 +10,10 @@ import type { FormKitOptionsList } from './options'
 function isSelected(node: FormKitNode, option: string) {
   // Here we trick reactivity (if at play) to watch this function.
   node.context && node.context.value
+  const value = optionValue(node.props.options, option)
   return Array.isArray(node._value)
-    ? node._value.includes(option)
-    : (node.value === undefined && !option) || node._value == option
+    ? node._value.some((optionA) => shouldSelect(optionA, value))
+    : (node.value === undefined && !option) || shouldSelect(value, node._value)
 }
 
 /**
@@ -22,8 +23,10 @@ function isSelected(node: FormKitNode, option: string) {
 function selectInput(node: FormKitNode, e: Event) {
   const target = e.target as HTMLSelectElement
   const value = target.hasAttribute('multiple')
-    ? Array.from(target.selectedOptions).map((o) => o.value)
-    : target.value
+    ? Array.from(target.selectedOptions).map((o) =>
+        optionValue(node.props.options, o.value)
+      )
+    : optionValue(node.props.options, target.value)
   node.input(value)
 }
 
@@ -85,7 +88,7 @@ export default function select(node: FormKitNode): void {
         node.input([], false)
       }
     } else if (node.context && !node.context.options) {
-      // If this input us (probably) using the default slot, we need to add a
+      // If this input is (probably) using the default slot, we need to add a
       // "value" attribute to get bound
       node.props.attrs = Object.assign({}, node.props.attrs, {
         value: node._value,
@@ -112,7 +115,10 @@ export default function select(node: FormKitNode): void {
       node.props.options.length &&
       !('multiple' in node.props?.attrs)
     ) {
-      value = node.props.options[0].value
+      value =
+        '__original' in node.props.options[0]
+          ? node.props.options[0].__original
+          : node.props.options[0].value
     }
     return next(value)
   })

@@ -60,12 +60,14 @@ export function optionValue(
   options: FormKitOptionsList,
   value: string
 ): unknown {
-  for (const option of options) {
-    if (value == option.value) {
-      return '__original' in option ? option.__original : option.value
+  if (Array.isArray(options)) {
+    for (const option of options) {
+      if (value == option.value) {
+        return '__original' in option ? option.__original : option.value
+      }
     }
   }
-  return false
+  return value
 }
 
 /**
