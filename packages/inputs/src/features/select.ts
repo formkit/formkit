@@ -1,4 +1,5 @@
 import { FormKitNode } from '@formkit/core'
+import { undefine } from '@formkit/utils'
 import { FormKitOptionsList, shouldSelect, optionValue } from './options'
 
 /**
@@ -66,7 +67,7 @@ function applyPlaceholder(options: FormKitOptionsList, placeholder: string) {
 export default function select(node: FormKitNode): void {
   // Set the initial value of a multi-input
   node.on('created', () => {
-    const isMultiple = node.props.attrs?.multiple !== undefined
+    const isMultiple = undefine(node.props.attrs?.multiple)
     if (
       !isMultiple &&
       node.props.placeholder &&
@@ -113,7 +114,7 @@ export default function select(node: FormKitNode): void {
       value === undefined &&
       Array.isArray(node.props?.options) &&
       node.props.options.length &&
-      !('multiple' in node.props?.attrs)
+      !undefine(node.props?.attrs?.multiple)
     ) {
       value =
         '__original' in node.props.options[0]

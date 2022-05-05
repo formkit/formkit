@@ -496,6 +496,22 @@ describe('select', () => {
       '<select id="input_11" class="formkit-input" name="select_10"></select>'
     )
   })
+
+  it('selects the placeholder when multiple is explicitly set to false (#148)', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        multiple: false,
+        placeholder: 'Foo bar!',
+        options: ['A', 'B'],
+        name: 'no-multi',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('')
+  })
 })
 
 describe('select object values', () => {
