@@ -690,6 +690,23 @@ describe('configuration', () => {
     })
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('reactively changes the name used in a rendered validation message', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        validation: 'required',
+        validationVisibility: 'live',
+        label: 'foobar',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('li').text()).toBe('Foobar is required.')
+    wrapper.setProps({ label: 'zippydoo' })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('li').text()).toBe('Zippydoo is required.')
+  })
 })
 
 describe('classes', () => {

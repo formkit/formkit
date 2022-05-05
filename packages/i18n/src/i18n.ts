@@ -63,6 +63,9 @@ export function createI18nPlugin(
       // Run through all the messages in the store and update with new locale
       node.store.touch()
     })
+    node.on('prop:label', () => node.store.touch())
+    node.on('prop:validationLabel', () => node.store.touch())
+
     /**
      * Hook into the core text or t() hook to perform localization on the
      * output of core functionality.
