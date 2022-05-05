@@ -1789,7 +1789,10 @@ function createProps(initial: unknown) {
         value: originalValue,
       })
       // Typescript compiler cannot handle a symbol index, even though js can:
-      if (!eq(props[prop as string], value, false)) {
+      if (
+        !eq(props[prop as string], value, false) ||
+        typeof value === 'object'
+      ) {
         const didSet = Reflect.set(target, prop, value, receiver)
         if (isEmitting) {
           node.emit('prop', { prop, value })

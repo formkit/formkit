@@ -162,7 +162,7 @@ export function createObserver(
       return observe(value, args[1])
     },
   })
-  return (observed as unknown) as FormKitObservedNode
+  return observed as unknown as FormKitObservedNode
 }
 
 /**

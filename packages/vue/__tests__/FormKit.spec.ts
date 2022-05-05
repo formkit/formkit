@@ -1,4 +1,4 @@
-import { nextTick, h } from 'vue'
+import { nextTick, h, reactive, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
@@ -914,6 +914,45 @@ describe('classes', () => {
         },
       })
     ).not.toThrow()
+  })
+
+  it('reacts to an updated classes prop', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const border = ref(false)
+          const classes = reactive({
+            inner: {
+              'my-class': border,
+            },
+          })
+          function changeBorder() {
+            border.value = true
+          }
+          return { classes, changeBorder }
+        },
+        template: `
+        <FormKit
+        type="text"
+        label="invalid"
+        :classes="classes"
+      />
+      <button @click="changeBorder">Change Border</button>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-inner').attributes('class')).toBe(
+      'formkit-inner'
+    )
+    wrapper.find('button').trigger('click')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-inner').attributes('class')).toBe(
+      'formkit-inner my-class'
+    )
   })
 
   it('respects the delay prop', async () => {

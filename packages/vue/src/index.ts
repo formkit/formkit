@@ -15,11 +15,6 @@ export { createInput } from './composables/createInput'
 export { default as watchVerbose } from './composables/watchVerbose'
 
 /**
- * A special watcher for Vue that reports the location of a deep mutation.
- */
-export { isObserver } from './composables/mutationObserver'
-
-/**
  * The plugin and plugin types.
  * @public
  */
