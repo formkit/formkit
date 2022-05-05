@@ -79,12 +79,15 @@ export function createIconPlugin(
         node.context.handleSuffixIconClick = iconClick.bind(null, 'suffix')
       }
     }
+    defineIcon()
 
     if (
       !node.props.definition ||
       typeof node.props.definition.schema !== 'function'
-    )
+    ) {
       return
+    }
+
     const originalSchema = node.props.definition.schema
     node.props.definition.schema = (extensions: Record<string, any>) => {
       const createIconSchema = (sectionKey: string) => {
@@ -119,7 +122,6 @@ export function createIconPlugin(
       return originalSchema(extensions)
     }
 
-    defineIcon()
     node.on('prop:icon', defineIcon)
     node.on('prop:iconPrefix', defineIcon)
     node.on('prop:iconSuffix', defineIcon)
