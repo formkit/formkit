@@ -7,8 +7,8 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @public
  */
 const required: FormKitValidationRule = function required({ value }, action = 'default') {
-  return action === 'trim'
-    ? !empty(String(value).trim())
+  return action === 'trim' && typeof value === 'string'
+    ? !empty(value.trim())
     : !empty(value)
 }
 
