@@ -70,7 +70,6 @@ export function createIconPlugin(
       if (node && node.context && node.props.onIconClick) {
         node.context.onIconClick = node.props.onIconClick
         function iconClick(sectionKey: string) {
-          console.log('clicked', node, sectionKey)
           if (typeof node.context?.onIconClick === 'function') {
             node.context.onIconClick(node, sectionKey)
           }
