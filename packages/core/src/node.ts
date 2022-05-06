@@ -403,7 +403,7 @@ export interface FormKitFrameworkContext {
   /**
    * A collection of state trackers/details about the input.
    */
-  state: FormKitContextState
+  state: FormKitFrameworkContextState
   /**
    * The type of input "text" or "select" (retrieved from node.props.type). This
    * is not the core node type (input, group, or list).
@@ -421,7 +421,7 @@ export interface FormKitFrameworkContext {
  * like blurred, and validity states.
  * @public
  */
-export interface FormKitContextState {
+export interface FormKitFrameworkContextState {
   /**
    * If the input has been blurred.
    */
