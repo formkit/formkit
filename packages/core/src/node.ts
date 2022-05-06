@@ -403,63 +403,7 @@ export interface FormKitFrameworkContext {
   /**
    * A collection of state trackers/details about the input.
    */
-  state: Record<string, boolean | undefined> & {
-    /**
-     * If the input has been blurred.
-     */
-    blurred: boolean
-    /**
-     * True when these conditions are met:
-     *
-     * Either:
-     * - The input has validation rules
-     * - The validation rules are all passing
-     * - There are no errors on the input
-     * Or:
-     * - The input has no validation rules
-     * - The input has no errors
-     * - The input is dirty and has a value
-     *
-     * This is not intended to be used on forms/groups/lists but instead on
-     * individual inputs. Imagine placing a green checkbox next to each input
-     * when the user filled it out correctly — thats what these are for.
-     */
-    complete: boolean
-    /**
-     * If the input has had a value typed into it or a change made to it.
-     */
-    dirty: boolean
-    /**
-     * If the input has explicit errors placed on it, or in the case of a group,
-     * list, or form, this is true if any children have errors on them.
-     */
-    errors: boolean
-    /**
-     * True when the input has validation rules. Has nothing to do with the
-     * state of those validation rules.
-     */
-    rules: boolean
-    /**
-     * True when the input has completed its internal debounce cycle and the
-     * value was committed to the form.
-     */
-    settled: boolean
-    /**
-     * If the form has been submitted.
-     */
-    submitted: boolean
-    /**
-     * If the input (or group/form/list) is passing all validation rules. In
-     * the case of groups, forms, and lists this includes the validation state
-     * of all its children.
-     */
-    valid: boolean
-    /**
-     * If the validation-visibility has been satisfied and any validation
-     * messages should be displayed.
-     */
-    validationVisible: boolean
-  }
+  state: FormKitContextState
   /**
    * The type of input "text" or "select" (retrieved from node.props.type). This
    * is not the core node type (input, group, or list).
@@ -470,6 +414,73 @@ export interface FormKitFrameworkContext {
    * used for most use cases.
    */
   value: any
+}
+
+/**
+ * The state inside a node’s framework context. Usually used to track things
+ * like blurred, and validity states.
+ * @public
+ */
+export interface FormKitContextState {
+  /**
+   * If the input has been blurred.
+   */
+  blurred: boolean
+  /**
+   * True when these conditions are met:
+   *
+   * Either:
+   * - The input has validation rules
+   * - The validation rules are all passing
+   * - There are no errors on the input
+   * Or:
+   * - The input has no validation rules
+   * - The input has no errors
+   * - The input is dirty and has a value
+   *
+   * This is not intended to be used on forms/groups/lists but instead on
+   * individual inputs. Imagine placing a green checkbox next to each input
+   * when the user filled it out correctly — thats what these are for.
+   */
+  complete: boolean
+  /**
+   * If the input has had a value typed into it or a change made to it.
+   */
+  dirty: boolean
+  /**
+   * If the input has explicit errors placed on it, or in the case of a group,
+   * list, or form, this is true if any children have errors on them.
+   */
+  errors: boolean
+  /**
+   * True when the input has validation rules. Has nothing to do with the
+   * state of those validation rules.
+   */
+  rules: boolean
+  /**
+   * True when the input has completed its internal debounce cycle and the
+   * value was committed to the form.
+   */
+  settled: boolean
+  /**
+   * If the form has been submitted.
+   */
+  submitted: boolean
+  /**
+   * If the input (or group/form/list) is passing all validation rules. In
+   * the case of groups, forms, and lists this includes the validation state
+   * of all its children.
+   */
+  valid: boolean
+  /**
+   * If the validation-visibility has been satisfied and any validation
+   * messages should be displayed.
+   */
+  validationVisible: boolean
+  /**
+   * Allow users to add their own arbitrary states.
+   */
+  [index: string]: boolean
 }
 
 /**
