@@ -370,6 +370,29 @@ describe('form submission', () => {
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
   })
 
+  it('can disable submit button in a form with only the presence of the disabled attribute (#215)', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="form"
+          :submit-attrs="{ id: '${id}' }"
+          disabled
+        >
+        </FormKit>`,
+      },
+      global
+    )
+    expect(
+      wrapper.find('[data-type="submit"]').element.hasAttribute('data-disabled')
+    ).toBe(true)
+  })
+
   it('can swap languages', async () => {
     const wrapper = mount(
       {
