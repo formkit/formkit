@@ -651,7 +651,7 @@ describe('validation', () => {
     expect(warning).not.toHaveBeenCalled()
   })
 
-  it.only('can use reactive values in validation rules defined with array syntax', async () => {
+  it('can use reactive values in validation rules defined with array syntax', async () => {
     const wrapper = mount(
       {
         setup() {

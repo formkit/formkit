@@ -6,6 +6,7 @@ import {
   diffDeps,
   removeListeners,
   FormKitDependencies,
+  isKilled,
 } from '@formkit/observer'
 import { has, empty, token, clone, cloneAny, eq } from '@formkit/utils'
 
@@ -200,6 +201,7 @@ function validate(
   validations: FormKitValidation[],
   state: FormKitValidationState
 ) {
+  if (isKilled(node)) return
   state.input = token()
   state.isPassing = true
   node.store.filter((message) => !message.meta.removeImmediately, 'validation')

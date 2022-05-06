@@ -7,14 +7,12 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @public
  */
 const is: FormKitValidationRule = function is({ value }, ...stack: any[]) {
-  const ret = stack.some((item) => {
+  return stack.some((item) => {
     if (typeof item === 'object') {
       return eq(item, value)
     }
     return item == value
   })
-  console.log('isRule', ret)
-  return ret
 }
 
 export default is
