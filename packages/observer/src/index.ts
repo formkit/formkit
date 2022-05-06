@@ -44,6 +44,11 @@ export interface FormKitWatchable {
 }
 
 /**
+ * A registry of all revoked observers.
+ */
+const revokedObservers = new WeakSet()
+
+/**
  * The FormKitNode to observe.
  * @param node - Any formkit node to observe.
  * @returns
@@ -147,8 +152,11 @@ export function createObserver(
         case 'receipts':
           return receipts
         case 'kill':
-          removeListeners(receipts)
-          return () => revoke()
+          return () => {
+            removeListeners(receipts)
+            revokedObservers.add(args[2])
+            revoke()
+          }
       }
       const value = Reflect.get(...args)
       // If we're dealing with a function, we need to sub-call the function
@@ -273,4 +281,14 @@ export function diffDeps(
     }
   })
   return [toAdd, toRemove]
+}
+
+/**
+ * Checks if the given noe is revoked.
+ * @param node - Any observed node to check.
+ * @returns
+ * @public
+ */
+export function isKilled(node: FormKitObservedNode): boolean {
+  return revokedObservers.has(node)
 }

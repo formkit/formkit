@@ -7,7 +7,7 @@ import {
   removeListeners,
   FormKitDependencies,
 } from '@formkit/observer'
-import { has, empty, token, clone } from '@formkit/utils'
+import { has, empty, token, clone, cloneAny, eq } from '@formkit/utils'
 
 /**
  * Special validation properties that affect the way validations are applied.
@@ -166,21 +166,24 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       node.props.validationRules as FormKitValidationRules
     )
     // create an observed node
-    const observedNode = createObserver(node)
+    let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
+    let validation = cloneAny(node.props.validation)
     // If the node's validation prop changes, update the rules:
-    node.on('prop', (event) => {
-      if (event.payload.prop === 'validation') {
-        // Destroy all observers that may re-trigger validation on an old stack
-        removeListeners(observedNode.receipts)
-        // Remove all existing messages before re-validating
-        node.store.filter(() => false, 'validation')
-        node.props.parsedRules = parseRules(event.payload.value, availableRules)
-        validate(observedNode, node.props.parsedRules, state)
-      }
+    node.on('prop:validation', ({ payload: value }) => {
+      if (eq(validation, value)) return
+      validation = cloneAny(value)
+      // Destroy all observers that may re-trigger validation on an old stack
+      removeListeners(observedNode.receipts)
+      // Remove all existing messages before re-validating
+      node.store.filter(() => false, 'validation')
+      node.props.parsedRules = parseRules(value, availableRules)
+      observedNode.kill()
+      observedNode = createObserver(node)
+      validate(observedNode, node.props.parsedRules, state)
     })
     // Validate the field when this plugin is initialized
-    node.props.parsedRules = parseRules(node.props.validation, availableRules)
+    node.props.parsedRules = parseRules(validation, availableRules)
     validate(observedNode, node.props.parsedRules, state)
   }
 }

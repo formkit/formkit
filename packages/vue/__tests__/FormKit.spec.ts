@@ -616,6 +616,74 @@ describe('validation', () => {
     await nextTick()
     expect(getNode(firstNode)?.store.dirty).toBe(undefined)
   })
+
+  it('avoids recursive updates when using state.valid and array computed array rules (#255)', async () => {
+    const warning = jest.fn()
+    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    mount(
+      {
+        setup() {
+          const list = [{ url: 'a' }, { url: 'b' }]
+          return { list }
+        },
+        template: `
+      <FormKit
+        type="form"
+        #default="{ state: { valid } }"
+      >
+        {{ valid }}
+        <FormKit
+          :validation="[
+            ['not', ...list.map(e => e.url)]
+          ]"
+        />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 500))
+    mock.mockRestore()
+    expect(warning).not.toHaveBeenCalled()
+  })
+
+  it.only('can use reactive values in validation rules defined with array syntax', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const list = ref(['a', 'b', 'c'])
+          const addD = () => list.value.push('d')
+          return { list, addD }
+        },
+        template: `
+      <FormKit
+        type="form"
+        #default="{ state: { valid } }"
+      >
+        <FormKit
+          value="d"
+          :validation="[['is', ...list]]"
+        />
+        <span class="validity" @click="addD">{{ valid }}</span>
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.find('.validity').text()).toBe('false')
+    wrapper.find('.validity').trigger('click')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.validity').text()).toBe('true')
+  })
 })
 
 describe('configuration', () => {
