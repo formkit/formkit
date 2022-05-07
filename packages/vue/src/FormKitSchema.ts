@@ -156,9 +156,9 @@ const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
  */
 function getRef(token: string, data: Record<string, any>): Ref<unknown> {
   const value = ref<any>(null)
-  const nodeRef = ref<unknown>(undefined)
   if (token === 'get') {
-    value.value = get.bind(null, nodeRef)
+    const nodeRefs: Record<string, Ref<unknown>> = {}
+    value.value = get.bind(null, nodeRefs)
     return value
   }
   const path = token.split('.')
@@ -205,17 +205,18 @@ function getValue(
  * Get the node from the global registry
  * @param id - A dot-syntax string where the node is located.
  */
-function get(nodeRef: Ref<unknown>, id?: string) {
+function get(nodeRefs: Record<string, Ref<unknown>>, id?: string) {
   if (typeof id !== 'string') return warn(650)
-  if (nodeRef.value === undefined) {
-    nodeRef.value = null
+  if (!(id in nodeRefs)) nodeRefs[id] = ref<unknown>(undefined)
+  if (nodeRefs[id].value === undefined) {
+    nodeRefs[id].value = null
     const root = getNode(id)
-    if (root) nodeRef.value = root.context
+    if (root) nodeRefs[id].value = root.context
     watchRegistry(id, ({ payload: node }) => {
-      nodeRef.value = isNode(node) ? node.context : node
+      nodeRefs[id].value = isNode(node) ? node.context : node
     })
   }
-  return nodeRef.value
+  return nodeRefs[id].value
 }
 
 /**
