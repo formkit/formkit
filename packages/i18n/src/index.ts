@@ -21,6 +21,7 @@ import * as ro from './locales/ro'
 import * as ru from './locales/ru'
 import * as sl from './locales/sl'
 import * as sv from './locales/sv'
+import * as th from './locales/th'
 import * as tr from './locales/tr'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
@@ -58,6 +59,7 @@ export const locales = {
   ru,
   sl,
   sv,
+  th,
   tr,
   vi,
   zh,
@@ -91,6 +93,7 @@ export {
   ru,
   sl,
   sv,
+  th,
   tr,
   vi,
   zh,
