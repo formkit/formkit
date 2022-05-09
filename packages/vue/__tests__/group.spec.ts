@@ -32,6 +32,40 @@ describe('group', () => {
     expect(inputs[2].element.value).toBe('hello')
   })
 
+  it('can mutate v-model values via node.input on child', async () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: { foo: 'abc', baz: 'hello' },
+          }
+        },
+        template: `
+        <div>
+          <FormKit id="${groupId}" type="group" v-model="values">
+            <FormKit name="foo" />
+            <FormKit name="bar" />
+            <FormKit name="baz" />
+          </FormKit>
+        </div>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const group = getNode(groupId)!
+    group.at('bar')!.input('this works great')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.vm.values).toStrictEqual({
+      foo: 'abc',
+      bar: 'this works great',
+      baz: 'hello',
+    })
+  })
+
   it('does not allow mutations to the initial value object. Issue #72', async () => {
     const wrapper = mount(
       {
@@ -157,7 +191,7 @@ describe('clearing values', () => {
           }
         },
         template: `
-        <FormKit type="group" v-model="data">
+        <FormKit type="group" v-model="data" id="groupId">
           <FormKit name="name" />
           <FormKit name="email" id="${emailToken}" value="example@example.com" />
           <FormKit type="group" name="address">
@@ -237,6 +271,7 @@ describe('clearing values', () => {
         type: ['residential'],
       },
     })
+    await nextTick()
     wrapper.vm.data = {
       name: 'Volodymyr Zelenskyy',
       email: 'volo@ukraine.ua',
@@ -266,5 +301,27 @@ describe('clearing values', () => {
         type: ['residential'],
       },
     })
+  })
+
+  it('can output reactive values without a v-model using context.value', async () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${groupId}" type="group" #default="{ value }">
+        <pre>{{ value }}</pre>
+        <FormKit name="user" value="abc"/>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(getNode(groupId)!.value).toStrictEqual({ user: 'abc' })
+    await nextTick()
+    expect(wrapper.find('pre').html()).toBe(`<pre>{
+  "user": "abc"
+}</pre>`)
   })
 })

@@ -228,7 +228,9 @@ function setMessage(
       }
     }
     const e = `message-${has(messageStore, message.key) ? 'updated' : 'added'}`
-    messageStore[message.key] = Object.freeze(message)
+    messageStore[message.key] = Object.freeze(
+      node.hook.message.dispatch(message)
+    )
     node.emit(e, message)
   }
   return store
@@ -393,7 +395,7 @@ export function createMessages(
       key: slugify(error),
       type: 'error',
       value: error,
-      meta: { source: sourceKey },
+      meta: { source: sourceKey, autoClear: true },
     })
   return errors
     .filter((m) => !!m)

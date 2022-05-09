@@ -1,8 +1,9 @@
-import { getNode, reset } from '@formkit/core'
+import { FormKitMiddleware, getNode, reset } from '@formkit/core'
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { jest } from '@jest/globals'
 
 describe('numeric lists', () => {
   it('uses list index as key', () => {
@@ -96,6 +97,7 @@ describe('numeric lists', () => {
     expect(authorB.element.value).toBe('Harper Lee')
     expect(titleC.element.value).toBe('')
     expect(authorC.element.value).toBe('')
+    await nextTick()
     titleC.setValue('The Great Gatsby')
     authorC.setValue('F. Scott Fitzgerald')
     await new Promise((r) => setTimeout(r, 30))
@@ -118,6 +120,105 @@ describe('numeric lists', () => {
       { title: undefined, author: undefined },
     ])
   })
+
+  it('can insert an input between other inputs', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            showB: false,
+            values: [],
+          }
+        },
+        template: `<FormKit type="list" v-model="values">
+        <FormKit value="A" />
+        <FormKit value="B" v-if="showB" :index="1" />
+        <FormKit value="C" />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.vm.values).toStrictEqual(['A', 'C'])
+    wrapper.vm.showB = true
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
+  })
+
+  it('can can replace the value array', () => {
+    const middleware: FormKitMiddleware<any[]> = (value, next) => {
+      return next(value.map((childValue: any) => childValue))
+      // return next(value)
+    }
+    const hookCallback = jest.fn(middleware)
+    mount(
+      {
+        data() {
+          return {
+            values: ['foo'],
+          }
+        },
+        template: `<FormKit type="list" v-model="values">
+          <FormKit />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [
+                  function (node) {
+                    if (node.type === 'list') {
+                      node.hook.commit(hookCallback)
+                    }
+                  },
+                ],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(hookCallback).toBeCalledTimes(4)
+  })
+
+  // it.only('can render a list of inputs each with an index number', async () => {
+  //   const wrapper = mount(
+  //     {
+  //       data() {
+  //         return {
+  //           showB: false,
+  //           values: ['A', 'B', 'C'],
+  //         }
+  //       },
+  //       template: `<FormKit type="list" v-model="values">
+  //       <FormKit
+  //         v-for="(value, index) in values"
+  //         v-if="values.length < 10"
+  //         :key="value"
+  //         :value="value"
+  //         :index="1 * index"
+  //       />
+  //     </FormKit>
+  //     `,
+  //     },
+  //     {
+  //       global: {
+  //         plugins: [[plugin, defaultConfig]],
+  //       },
+  //     }
+  //   )
+  //   console.log(wrapper.vm.values)
+  //   expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
+  // })
 
   // it.only('can remove an item by inputting a smaller array', async () => {
   //   const wrapper = mount(

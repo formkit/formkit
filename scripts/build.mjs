@@ -93,10 +93,7 @@ export async function buildPackage(p) {
   await cleanDist(p)
   msg.info('» bundling distributions')
   msg.loader.start()
-  if (p === 'themes') {
-    const themes = getThemes()
-    await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
-  } else if (p === 'nuxt') {
+  if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
     await bundle(p, 'esm')
@@ -109,7 +106,15 @@ export async function buildPackage(p) {
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
-  if (p !== 'themes' && p !== 'nuxt') await declarations(p)
+  if (p !== 'nuxt') await declarations(p)
+
+  // special case for CSS themes, processing needs to happen AFTER
+  // type declarations are extracted from the non-CSS theme exports
+  if (p === 'themes') {
+    const themes = getThemes()
+    await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
+  }
+
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }

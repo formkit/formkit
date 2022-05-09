@@ -16,6 +16,8 @@ import {
   undefine,
   token,
   slugify,
+  shallowClone,
+  spread,
 } from '../src/index'
 
 describe('eq', () => {
@@ -25,6 +27,15 @@ describe('eq', () => {
     expect(eq(true, true)).toBe(true)
     expect(eq(false, true)).toBe(false)
     expect(eq(function () {}, {})).toBe(false)
+  })
+
+  it('handles null and undefined vales', () => {
+    expect(eq(null, [])).toBe(false)
+    expect(eq([], null)).toBe(false)
+    expect(eq(null, null)).toBe(true)
+    expect(eq(undefined, undefined)).toBe(true)
+    expect(eq(undefined, null)).toBe(false)
+    expect(eq(undefined, [])).toBe(false)
   })
 
   it('evaluates single depth objects correctly', () => {
@@ -60,46 +71,59 @@ describe('eq', () => {
         }
       )
     ).toBe(true)
+    expect(
+      eq(
+        {
+          name: {
+            first: 'jane',
+            last: 'DIFFERENT',
+          },
+          age: 20,
+        },
+        {
+          name: {
+            first: 'jane',
+            last: 'flair',
+          },
+          age: 20,
+        },
+        false // Disable depth
+      )
+    ).toBe(false)
+    expect(
+      eq(
+        {
+          name: {
+            first: 'jane',
+            last: 'DIFFERENT',
+          },
+          age: 20,
+        },
+        {
+          name: {
+            first: 'jane',
+            last: 'flair',
+          },
+          age: 20,
+        }
+      )
+    ).toBe(false)
+    expect(eq([{}], [{}])).toBe(true)
+    expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
   })
-  expect(
-    eq(
-      {
-        name: {
-          first: 'jane',
-          last: 'DIFFERENT',
-        },
-        age: 20,
-      },
-      {
-        name: {
-          first: 'jane',
-          last: 'flair',
-        },
-        age: 20,
-      },
-      false // Disable depth
-    )
-  ).toBe(false)
-  expect(
-    eq(
-      {
-        name: {
-          first: 'jane',
-          last: 'DIFFERENT',
-        },
-        age: 20,
-      },
-      {
-        name: {
-          first: 'jane',
-          last: 'flair',
-        },
-        age: 20,
-      }
-    )
-  ).toBe(false)
-  expect(eq([{}], [{}])).toBe(true)
-  expect(eq([{ a: 250 }], [{ b: { value: 250 } }])).toBe(false)
+
+  it('can compare date objects', () => {
+    const date = new Date()
+    expect(eq(date, date)).toBe(true)
+    expect(eq(new Date(), new Date())).toBe(false)
+  })
+
+  it('can explicitly look at certain keys that are not enumerable', () => {
+    const a = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'foo' })
+    const b = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'bar' })
+    expect(eq(a, b)).toBe(true)
+    expect(eq(a, b, true, ['_id'])).toBe(false)
+  })
 })
 
 describe('empty', () => {
@@ -116,6 +140,9 @@ describe('empty', () => {
     expect(empty(['a'])).toBe(false))
   it('considers an object with key not empty', () =>
     expect(empty({ a: undefined })).toBe(false))
+  it('considers regex not empty', () => expect(empty(/^foo/)).toBe(false))
+  it('considers a date object to not be empty', () =>
+    expect(empty(new Date())).toBe(false))
 })
 
 describe('isPojo', () => {
@@ -124,6 +151,39 @@ describe('isPojo', () => {
   })
   it('checks the __POJO__ property', () => {
     expect(isPojo({ __POJO__: false })).toBe(false)
+  })
+})
+
+describe('shallowClone', () => {
+  it('returns a scalar value passed in', () => {
+    expect(shallowClone('a')).toBe('a')
+  })
+
+  it('returns a new object when passed a pojo', () => {
+    const x = { a: 123 }
+    expect(shallowClone(x)).not.toBe(x)
+    expect(shallowClone(x)).toStrictEqual({ a: 123 })
+  })
+
+  it('nested objects are left alone', () => {
+    const z = { foo: 'bar' }
+    const x = { a: z }
+    expect(shallowClone(x).a).toBe(z)
+  })
+
+  it('returns new arrays', () => {
+    const z = [1, 2, 3]
+    expect(shallowClone(z)).not.toBe(z)
+    expect(shallowClone(z)).toStrictEqual([1, 2, 3])
+  })
+
+  it('preserves non-enumerable keys', () => {
+    const z: { foo: string; __key?: boolean } = Object.defineProperty(
+      { foo: 'bar' },
+      '__key',
+      { value: true }
+    )
+    expect(shallowClone(z).__key).toBe(true)
   })
 })
 
@@ -267,7 +327,7 @@ describe('parseArgs', () => {
     expect(parseArgs('abc, 123')).toEqual(['abc', '123'])
   })
   it('can parse simple strings with quotes containing commas', () => {
-    expect(parseArgs('"abc,123", 123')).toEqual(['abc,123', '123'])
+    expect(parseArgs('"abc,123", 123')).toEqual(['"abc,123"', '123'])
   })
   it('can parse arguments that contain parenthetical with commas', () => {
     expect(parseArgs('1, (1 + 2, "345, 678"), 500')).toEqual([
@@ -277,11 +337,11 @@ describe('parseArgs', () => {
     ])
   })
   it('can parse single arguments', () => {
-    expect(parseArgs("'hello world'")).toEqual(['hello world'])
+    expect(parseArgs("'hello world'")).toEqual(["'hello world'"])
   })
   it('can use escaped quotes', () => {
     expect(parseArgs("'this isn\\'t counted', 456")).toEqual([
-      "this isn't counted",
+      "'this isn\\'t counted'",
       '456',
     ])
   })
@@ -315,7 +375,7 @@ describe('camel', () => {
   })
 })
 
-describe('it can clone an object', () => {
+describe('clone', () => {
   it('does not return the same object', () => {
     const arr = ['foo']
     expect(clone(arr)).not.toBe(arr)
@@ -356,6 +416,48 @@ describe('it can clone an object', () => {
   it('skips cloning dates', () => {
     const date = new Date()
     expect(clone({ date }).date).toBe(date)
+  })
+
+  it('clones explicitly named non enumerable properties', () => {
+    const a: { a: number; __key?: string } = Object.defineProperty(
+      { a: 123 },
+      '__key',
+      { value: 'yes' }
+    )
+    const cloned = clone(a)
+    expect(cloned === a).toBe(false)
+    expect(cloned.__key).toBe('yes')
+  })
+
+  it('does not clone standard non enumerable properties', () => {
+    const a: { a: number; __foo?: string } = Object.defineProperty(
+      { a: 123 },
+      '__foo',
+      { value: 'yes' }
+    )
+    const cloned = clone(a)
+    expect(cloned === a).toBe(false)
+    expect(cloned.__foo).toBe(undefined)
+  })
+
+  it('clones explicit properties on deep objects', () => {
+    const world: { hello: string; planet: { a: 123; __init?: string } } = {
+      hello: 'world',
+      planet: Object.defineProperty({ a: 123 }, '__init', { value: 'yes' }),
+    }
+    const cloned = clone(world)
+    expect(cloned === world).toBe(false)
+    expect(cloned.planet.__init).toBe('yes')
+  })
+
+  it('clones explicit non-standard properties on deep objects', () => {
+    const world: { hello: string; planet: { a: 123; __index?: number } } = {
+      hello: 'world',
+      planet: Object.defineProperty({ a: 123 }, '__index', { value: 456 }),
+    }
+    const cloned = clone(world, ['__index'])
+    expect(cloned === world).toBe(false)
+    expect(cloned.planet.__index).toBe(456)
   })
 })
 
@@ -456,4 +558,47 @@ describe('slugify', () => {
     expect(slugify('This!-is*&%#@^up!')).toBe('this-is-up'))
   it('converts non-standard unicode', () =>
     expect(slugify('Amélie')).toBe('amelie'))
+})
+
+describe('spread', () => {
+  it('returns the same string values', () => expect(spread('foo')).toBe('foo'))
+  it('returns the same number values', () => expect(spread(123)).toBe(123))
+  it('returns the same RegExp values', () => {
+    const pattern = /^foo_$/
+    expect(spread(pattern)).toBe(pattern)
+  })
+  it('returns the same Date values', () => {
+    const date = new Date()
+    expect(spread(date)).toBe(date)
+  })
+  it('returns the same shape, but not the same value for POJOs', () => {
+    const obj = { a: 123, b: 'bar' }
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+  })
+  it('returns the same shape, but not the same value for POJOs when using explicit non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__index', {
+      value: 123,
+    })
+    const spreadObj = spread(obj, ['__index'])
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__index).toBe(123)
+  })
+  it('returns the same shape, but not the same value for POJOs when using default non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__key', {
+      value: 45645,
+    })
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__key).toBe(45645)
+  })
+  it('returns the same shape, but not the same value for Arrays', () => {
+    const arr = ['a', 'b', 'c']
+    const spreadArr = spread(arr)
+    expect(spreadArr).toStrictEqual(arr)
+    expect(spreadArr).not.toBe(arr)
+  })
 })

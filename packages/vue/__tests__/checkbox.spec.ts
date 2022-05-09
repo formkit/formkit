@@ -4,6 +4,7 @@ import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { getNode } from '@formkit/core'
+import { token } from '@formkit/utils'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -95,6 +96,20 @@ describe('single checkbox', () => {
     expect(wrapper.vm.value).toBe('foo')
   })
 
+  it('can use an object as an on-value and off-value', () => {
+    const wrapper = mount(
+      {
+        template:
+          '<FormKit :delay="0" type="checkbox" :on-value="{ a: 123 }" :off-value="{ b: 456 }" :value="{ a: 123 }" />',
+      },
+      {
+        ...global,
+      }
+    )
+    const checkbox = wrapper.find('input')
+    expect(checkbox.element.checked).toBe(true)
+  })
+
   it('outputs a data-disabled on the wrapper', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -116,6 +131,7 @@ describe('multiple checkboxes', () => {
         type: 'checkbox',
         label: 'All checkboxes',
         help: 'help-text',
+        name: 'mybox',
         options: ['foo', 'bar', 'baz'],
       },
       ...global,
@@ -128,7 +144,7 @@ describe('multiple checkboxes', () => {
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">foo</span>
         </label>
@@ -136,7 +152,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">bar</span>
         </label>
@@ -144,7 +160,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="checkbox_7" id="checkbox_7-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">baz</span>
         </label>
@@ -272,5 +288,73 @@ describe('multiple checkboxes', () => {
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     expect(wrapper.get('fieldset').findAll('label').length).toBe(3)
     expect(wrapper.html()).toContain('<span class="formkit-label">A</span>')
+  })
+})
+
+describe('non string values for checkboxes', () => {
+  it('can have numbers as values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        type: 'checkbox',
+        value: [2, 3],
+        options: [
+          { value: 1, label: 'One' },
+          { value: 2, label: 'Two' },
+          { value: 3, label: 'Three' },
+        ],
+      },
+      ...global,
+    })
+    const checkboxes = wrapper.find('div').findAll('input')
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      false,
+      true,
+      true,
+    ])
+    checkboxes[0].element.checked = false
+    checkboxes[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      true,
+      true,
+      true,
+    ])
+    expect(getNode(id)!.value).toEqual([2, 3, 1])
+  })
+
+  it('can have objects as values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        type: 'checkbox',
+        value: [{ zip: '02108' }],
+        options: [
+          { value: null, label: 'Atlanta' },
+          { value: { zip: '02108' }, label: 'Boston' },
+          { value: { zip: '80014' }, label: 'Denver' },
+        ],
+      },
+      ...global,
+    })
+    const checkboxes = wrapper.find('div').findAll('input')
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      false,
+      true,
+      false,
+    ])
+    checkboxes[0].element.checked = false
+    checkboxes[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      true,
+      true,
+      false,
+    ])
+    expect(getNode(id)!.value).toEqual([{ zip: '02108' }, null])
   })
 })

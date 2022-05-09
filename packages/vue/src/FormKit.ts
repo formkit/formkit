@@ -1,11 +1,18 @@
-import { error, FormKitNode, FormKitGroupValue } from '@formkit/core'
-import { h, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
+import {
+  error,
+  FormKitNode,
+  FormKitGroupValue,
+  FormKitSchemaCondition,
+  FormKitSchemaNode,
+} from '@formkit/core'
+import { h, ref, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
 
 /**
  * The symbol that represents the formkit parent injection value.
+ * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
@@ -17,11 +24,12 @@ export const FormKit = defineComponent({
   props,
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    input: (_value: any) => true,
+    input: (_value: any, _node: FormKitNode) => true,
+    inputRaw: (_value: any, _node: FormKitNode) => true,
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
     submit: (_data: FormKitGroupValue, _node: FormKitNode) => true,
-    submitRaw: (_event: Event) => true,
+    submitRaw: (_event: Event, _node: FormKitNode) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,
@@ -38,12 +46,20 @@ export const FormKit = defineComponent({
           { ...context.slots }
         )
     }
-    const schemaDefinition = node.props.definition.schema
-    if (!schemaDefinition) error(601, node)
-    const schema =
-      typeof schemaDefinition === 'function'
-        ? schemaDefinition({ ...props.sectionsSchema })
-        : schemaDefinition
+    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    const generateSchema = () => {
+      const schemaDefinition = node.props?.definition?.schema
+      if (!schemaDefinition) error(601, node)
+      schema.value =
+        typeof schemaDefinition === 'function'
+          ? schemaDefinition({ ...props.sectionsSchema })
+          : schemaDefinition
+    }
+    generateSchema()
+
+    // If someone emits the schema event, we re-generate the schema
+    node.on('schema', generateSchema)
+
     context.emit('node', node)
     const library = node.props.definition.library as
       | Record<string, ConcreteComponent>
@@ -55,7 +71,7 @@ export const FormKit = defineComponent({
     return () =>
       h(
         FormKitSchema,
-        { schema, data: node.context, library },
+        { schema: schema.value, data: node.context, library },
         { ...context.slots }
       )
   },

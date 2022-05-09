@@ -77,6 +77,11 @@ const warnings: Record<
   650: 'Schema "$get()" must use the id of an input to access.',
   651: ({ data: id }: { data: string }) =>
     `Cannot setErrors() on "${id}" because no such id exists.`,
+  652: ({ data: id }: { data: string }) =>
+    `Cannot clearErrors() on "${id}" because no such id exists.`,
+  /**
+   * Deprecation warnings:
+   */
 }
 
 /**

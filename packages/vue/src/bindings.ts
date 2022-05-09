@@ -1,4 +1,12 @@
-import { reactive, computed, ref, watch } from 'vue'
+import {
+  reactive,
+  computed,
+  ref,
+  watch,
+  markRaw,
+  triggerRef,
+  nextTick,
+} from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -8,7 +16,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel, empty } from '@formkit/utils'
+import { eq, has, camel, empty, undefine } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -29,6 +37,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const hasErrors = ref<boolean>(!!node.ledger.value('errors'))
 
   /**
+   * Keep track of the first time a Vue tick cycle has passed.
+   */
+  let hasTicked = false
+  nextTick(() => {
+    hasTicked = true
+  })
+
+  /**
    * All messages with the visibility state set to true.
    */
   const availableMessages = reactive<Record<string, FormKitMessage>>(
@@ -39,14 +55,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       return store
     }, {} as Record<string, FormKitMessage>)
   )
-
   /**
    * A flag that determines when validation messages should be displayed.
    */
   const validationVisibility = ref<string>(
     node.props.validationVisibility || 'blur'
   )
-  node.on('props:validationVisibility', ({ payload }) => {
+  node.on('prop:validationVisibility', ({ payload }) => {
     validationVisibility.value = payload
   })
 
@@ -124,8 +139,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
    */
-  let inputElement: null | HTMLInputElement = null
-
   const cachedClasses = reactive({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
@@ -179,8 +192,11 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     return describers.length ? describers.join(' ') : undefined
   })
 
+  const value = ref(node.value)
+  const _value = ref(node.value)
+
   const context: FormKitFrameworkContext = reactive({
-    _value: node.value,
+    _value,
     attrs: node.props.attrs,
     disabled: node.props.disabled,
     describedBy,
@@ -189,6 +205,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       number: (value: any) => Number(value),
       string: (value: any) => String(value),
       json: (value: any) => JSON.stringify(value),
+      eq,
     },
     handlers: {
       blur: () =>
@@ -201,15 +218,15 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
-        inputElement = e.target as HTMLInputElement
         node.input((e.target as HTMLInputElement).value)
+        node.emit('dom-input-event', e)
       },
     },
     help: node.props.help,
     id: node.props.id as string,
     label: node.props.label,
     messages,
-    node,
+    node: markRaw(node),
     options: node.props.options,
     state: {
       blurred: false,
@@ -224,7 +241,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     type: node.props.type,
     ui,
-    value: node.value,
+    value,
     classes,
   })
 
@@ -233,8 +250,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.on('created', () => {
     if (!eq(context.value, node.value)) {
-      context._value = node.value
-      context.value = node.value
+      _value.value = node.value
+      value.value = node.value
+      triggerRef(value)
+      triggerRef(_value)
     }
   })
 
@@ -272,6 +291,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     'options',
     'type',
     'attrs',
+    'preserve',
+    'preserveErrors',
     'id',
   ]
   observeProps(rootProps)
@@ -284,36 +305,43 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (definition.props) observeProps(definition.props)
   }
 
-  node.props.definition
-    ? definedAs(node.props.definition)
-    : node.on('defined', ({ payload }) => definedAs(payload))
+  node.props.definition && definedAs(node.props.definition)
+
+  /**
+   * When new props are added to the core node as "props" (ie not attrs) then
+   * we automatically need to start tracking them here.
+   */
+  node.on('added-props', ({ payload }) => observeProps(payload))
 
   /**
    * Watch for input events from core.
    */
   node.on('input', ({ payload }) => {
-    context._value = payload
-    if (inputElement) {
-      inputElement.value = context._value
-    }
+    _value.value = payload
+    triggerRef(_value)
   })
 
   /**
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    switch (node.type) {
-      case 'group':
-        context.value = { ...payload }
-        break
-      case 'list':
-        context.value = [...payload]
-        break
-      default:
-        context.value = payload
-    }
+    value.value = _value.value = payload
+    triggerRef(value)
+    node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty && node.isCreated) context.handlers.touch()
+    if (!context.state.dirty && node.isCreated && hasTicked)
+      context.handlers.touch()
+    if (
+      isComplete &&
+      node.type === 'input' &&
+      hasErrors.value &&
+      !undefine(node.props.preserveErrors)
+    ) {
+      node.store.filter(
+        (message) =>
+          !(message.type === 'error' && message.meta?.autoClear === true)
+      )
+    }
   })
 
   /**

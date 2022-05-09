@@ -1,7 +1,7 @@
 {
   "name": "@formkit/tailwindcss",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "A FormKit plugin for Tailwind that supplies custom variants based on input state",
   "keywords": [
     "forms",
@@ -29,8 +29,12 @@
   "license": "MIT",
   "type": "module",
   "peerDependencies": {
-    "@types/tailwindcss": "^3.0.0",
     "tailwindcss": "^3.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@formkit/themes": "1.0.0-beta.6"
+  },
+  "devDependencies": {
+    "@types/tailwindcss": "^3.0.10"
+  }
 }

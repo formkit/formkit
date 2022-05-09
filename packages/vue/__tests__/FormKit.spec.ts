@@ -1,12 +1,13 @@
-import { nextTick, h } from 'vue'
+import { nextTick, h, reactive, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode, setErrors } from '@formkit/core'
+import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import vuePlugin from '../src/bindings'
+import { jest } from '@jest/globals'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -75,7 +76,85 @@ describe('props', () => {
     expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
-  it('children emit a model update event on boot', () => {
+  it('automatically clears an input’s errors on input', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        name: 'simple',
+        errors: ['Explicit error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.setErrors(['This is a huge problem!'])
+    const outer = wrapper.find('div')
+    await nextTick()
+    expect(outer.findAll('.formkit-message').length).toBe(2)
+    node.input('foo', false)
+    await nextTick()
+    expect(outer.findAll('.formkit-message').length).toBe(1)
+  })
+
+  it('does not clear an input’s errors with preserve-errors prop', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        preserveErrors: true,
+        name: 'simple',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.setErrors(['This is a huge problem!'])
+    await nextTick()
+    expect(wrapper.find('.formkit-message').exists()).toBe(true)
+    node.input('foo', false)
+    await nextTick()
+    expect(wrapper.find('.formkit-message').exists()).toBe(true)
+  })
+
+  it('can clear all errors of children of a group', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        methods: {
+          handleSubmit(_data: Record<string, any>, node: FormKitNode) {
+            node.setErrors(['There were issues with your form'], {
+              username: ['This username was already taken'],
+            })
+          },
+        },
+        template: `
+      <FormKit id="${id}" type="form" @submit="handleSubmit">
+        <FormKit name="username" :delay="0" preserve-errors="true" />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+    const form = getNode(id)!
+    expect(form.ledger.value('errors')).toBe(2)
+    wrapper.find('input').setValue('bar foo')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(form.ledger.value('errors')).toBe(2)
+    form.clearErrors()
+    await nextTick()
+    expect(form.ledger.value('errors')).toBe(0)
+  })
+
+  it('children emit no model update if not v-modeled on boot', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -93,8 +172,7 @@ describe('props', () => {
       },
     })
     const eventWrapper = wrapper.emitted('update:modelValue')
-    expect(eventWrapper?.length).toBe(1)
-    expect(eventWrapper![0]).toEqual([{ child: 'foobar' }])
+    expect(eventWrapper?.length).toBe(undefined)
   })
 
   it('does not emit updatedModel if child has ignored prop', () => {
@@ -566,6 +644,124 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.complete).toBe(false)
   })
+
+  it('can dynamically change the validation-visibility', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            visibility: 'blur',
+          }
+        },
+        template: `<FormKit
+        validation="required"
+        :validation-visibility="visibility"
+      />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    wrapper.vm.visibility = 'live'
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+
+  it('does automatically set the validation state to dirty', async () => {
+    const firstNode = token()
+    mount(
+      {
+        data() {
+          return {
+            visibility: 'blur',
+          }
+        },
+        template: `
+        <FormKit type="form">
+          <FormKit id="${firstNode}"/>
+          <FormKit />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(getNode(firstNode)?.store.dirty).toBe(undefined)
+  })
+
+  it('avoids recursive updates when using state.valid and array computed array rules (#255)', async () => {
+    const warning = jest.fn()
+    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    mount(
+      {
+        setup() {
+          const list = [{ url: 'a' }, { url: 'b' }]
+          return { list }
+        },
+        template: `
+      <FormKit
+        type="form"
+        #default="{ state: { valid } }"
+      >
+        {{ valid }}
+        <FormKit
+          :validation="[
+            ['not', ...list.map(e => e.url)]
+          ]"
+        />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 500))
+    mock.mockRestore()
+    expect(warning).not.toHaveBeenCalled()
+  })
+
+  it('can use reactive values in validation rules defined with array syntax', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const list = ref(['a', 'b', 'c'])
+          const addD = () => list.value.push('d')
+          return { list, addD }
+        },
+        template: `
+      <FormKit
+        type="form"
+        #default="{ state: { valid } }"
+      >
+        <FormKit
+          value="d"
+          :validation="[['is', ...list]]"
+        />
+        <span class="validity" @click="addD">{{ valid }}</span>
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.find('.validity').text()).toBe('false')
+    wrapper.find('.validity').trigger('click')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.validity').text()).toBe('true')
+  })
 })
 
 describe('configuration', () => {
@@ -639,6 +835,23 @@ describe('configuration', () => {
       },
     })
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+
+  it('reactively changes the name used in a rendered validation message', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        validation: 'required',
+        validationVisibility: 'live',
+        label: 'foobar',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('li').text()).toBe('Foobar is required.')
+    wrapper.setProps({ label: 'zippydoo' })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('li').text()).toBe('Zippydoo is required.')
   })
 })
 
@@ -847,6 +1060,45 @@ describe('classes', () => {
         },
       })
     ).not.toThrow()
+  })
+
+  it('reacts to an updated classes prop', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const border = ref(false)
+          const classes = reactive({
+            inner: {
+              'my-class': border,
+            },
+          })
+          function changeBorder() {
+            border.value = true
+          }
+          return { classes, changeBorder }
+        },
+        template: `
+        <FormKit
+        type="text"
+        label="invalid"
+        :classes="classes"
+      />
+      <button @click="changeBorder">Change Border</button>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-inner').attributes('class')).toBe(
+      'formkit-inner'
+    )
+    wrapper.find('button').trigger('click')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-inner').attributes('class')).toBe(
+      'formkit-inner my-class'
+    )
   })
 
   it('respects the delay prop', async () => {
@@ -1169,5 +1421,120 @@ describe('exposures', () => {
       }
     )
     expect(wrapper.find('input').element.value).toBe('engineer')
+  })
+
+  it('emits the HTML event that triggered the input', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    const callback = jest.fn()
+    node?.on('dom-input-event', callback)
+    wrapper.find('input').setValue('foo bar')
+    expect(callback).toHaveBeenCalledTimes(1)
+    expect((callback.mock.calls[0][0] as FormKitEvent).payload).toBeInstanceOf(
+      Event
+    )
+  })
+
+  it('debounces the input event and not the inputRaw event', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'group',
+      },
+      slots: {
+        default() {
+          return [
+            h(FormKit, {
+              name: 'child',
+              value: 'foobar',
+            }),
+            h(FormKit, {
+              name: 'child2',
+              value: 'barfoo',
+            }),
+          ]
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.emitted('inputRaw')!.length).toBe(5)
+    expect(wrapper.emitted('input')!.length).toBe(1)
+  })
+
+  it('can set values on a group with values that dont have correlating nodes', async () => {
+    const groupId = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            groupValue: { a: 'bar' } as any,
+          }
+        },
+        template: `<FormKit type="group" v-model="groupValue" id="${groupId}">
+        <FormKit name="a" value="foo" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.vm.groupValue).toStrictEqual({ a: 'bar' })
+    wrapper.vm.groupValue.b = 'foo'
+    await nextTick()
+    expect(getNode(groupId)!.value).toStrictEqual({ a: 'bar', b: 'foo' })
+  })
+})
+
+describe('schema changed', () => {
+  it('can change an inputs entire schema and force a re-render', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        methods: {
+          swapSchema() {
+            const node = getNode(id)
+            if (node) {
+              node.props.definition!.schema = () => {
+                return [
+                  {
+                    $el: 'h1',
+                    attrs: {
+                      id: 'new-schema',
+                    },
+                    children: 'changed schema',
+                  },
+                ]
+              }
+              node.emit('schema')
+            }
+          },
+        },
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input').exists()).toBe(true)
+    wrapper.vm.swapSchema()
+    await nextTick()
+    expect(wrapper.html()).toBe('<h1 id="new-schema">changed schema</h1>')
   })
 })

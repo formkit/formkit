@@ -10,13 +10,18 @@ import * as fr from './locales/fr'
 import * as fy from './locales/fy'
 import * as he from './locales/he'
 import * as hr from './locales/hr'
-import * as ko from './locales/ko'
 import * as id from './locales/id'
 import * as it from './locales/it'
+import * as ja from './locales/ja'
+import * as ko from './locales/ko'
 import * as nl from './locales/nl'
 import * as pl from './locales/pl'
 import * as pt from './locales/pt'
+import * as ro from './locales/ro'
 import * as ru from './locales/ru'
+import * as sl from './locales/sl'
+import * as sv from './locales/sv'
+import * as th from './locales/th'
 import * as tr from './locales/tr'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
@@ -45,11 +50,16 @@ export const locales = {
   hr,
   id,
   it,
+  ja,
   ko,
   nl,
   pl,
   pt,
+  ro,
   ru,
+  sl,
+  sv,
+  th,
   tr,
   vi,
   zh,
@@ -74,11 +84,16 @@ export {
   hr,
   id,
   it,
+  ja,
   ko,
   nl,
   pl,
   pt,
+  ro,
   ru,
+  sl,
+  sv,
+  th,
   tr,
   vi,
   zh,

@@ -65,6 +65,9 @@ type FormKitSyntheticProps = {
   preserve: {
     type: PropType<string | boolean | undefined>
   }
+  preserveErrors: {
+    type: PropType<string | boolean | undefined>
+  }
 }
 
 /**
@@ -92,6 +95,10 @@ const nativeProps = {
   inputErrors: {
     type: Object as PropType<Record<string, string[]>>,
     default: () => ({}),
+  },
+  index: {
+    type: Number,
+    required: false,
   },
   id: {
     type: String,

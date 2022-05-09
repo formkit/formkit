@@ -81,7 +81,7 @@ describe('value propagation', () => {
         ...global,
       }
     )
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     const inputs = wrapper.get('form').findAll('input')
     expect(inputs.length).toBe(3)
@@ -129,19 +129,21 @@ describe('value propagation', () => {
     ).toStrictEqual([true, false, true])
   })
 
-  it('can set the state of checkboxes from a v-model using vue reactive object', async () => {
+  it('can set the state of text input from a v-model using vue reactive object', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(
       {
         setup() {
-          const options = ['a', 'b', 'c']
-          const values = reactive<{ form: Record<string, any> }>({ form: {} })
-          const changeValues = () => {
+          const values = reactive<{ form: Record<string, any> }>({
+            form: { abc: '123' },
+          })
+          const changeValues = async () => {
             values.form.foo = 'bar bar'
           }
-          return { options, values, changeValues }
+          return { values, changeValues }
         },
         template: `<FormKit type="form" v-model="values.form">
-        <FormKit type="text" name="foo" />
+        <FormKit type="text" name="foo" value="foo" />
         <button type="button" @click="changeValues">Change</button>
       </FormKit>`,
       },
@@ -152,10 +154,12 @@ describe('value propagation', () => {
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     const inputs = wrapper.get('form').findAll('input[type="text"]')
     expect(inputs.length).toBe(1)
-    expect(wrapper.find('input').element.value).toEqual('')
-    wrapper.find('button[type="button"').trigger('click')
-    await nextTick()
+    expect(wrapper.find('input').element.value).toEqual('foo')
+    // await new Promise((r) => setTimeout(r, 20))
+    wrapper.find('button[type="button"]').trigger('click')
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
+    warn.mockRestore()
   })
 })
 
@@ -364,6 +368,29 @@ describe('form submission', () => {
     await nextTick()
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+
+  it('can disable submit button in a form with only the presence of the disabled attribute (#215)', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="form"
+          :submit-attrs="{ id: '${id}' }"
+          disabled
+        >
+        </FormKit>`,
+      },
+      global
+    )
+    expect(
+      wrapper.find('[data-type="submit"]').element.hasAttribute('data-disabled')
+    ).toBe(true)
   })
 
   it('can swap languages', async () => {

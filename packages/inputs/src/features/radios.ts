@@ -1,5 +1,6 @@
 import { FormKitNode, warn } from '@formkit/core'
 import normalizeBoxes from './normalizeBoxes'
+import { optionValue, shouldSelect } from './options'
 
 /**
  * Sets the value of a radio button when checked.
@@ -8,7 +9,7 @@ import normalizeBoxes from './normalizeBoxes'
  */
 function toggleChecked(node: FormKitNode, event: Event) {
   if (event.target instanceof HTMLInputElement) {
-    node.input(event.target.value)
+    node.input(optionValue(node.props.options, event.target.value))
   }
 }
 
@@ -22,12 +23,13 @@ function isChecked(node: FormKitNode, value: string) {
   // We need to force vue’s reactivity to respond when the value is run:
   node.context?.value
   node.context?._value
-  return node._value == value
+  return shouldSelect(optionValue(node.props.options, value), node._value)
 }
 
 /**
  * Determines if a given radio input is being evaluated.
  * @param node - The radio input group.
+ * @public
  */
 export default function radios(node: FormKitNode): void {
   node.on('created', () => {

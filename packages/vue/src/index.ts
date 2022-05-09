@@ -10,6 +10,11 @@ export { useInput } from './composables/useInput'
 export { createInput } from './composables/createInput'
 
 /**
+ * A special watcher for Vue that reports the location of a deep mutation.
+ */
+export { default as watchVerbose } from './composables/watchVerbose'
+
+/**
  * The plugin and plugin types.
  * @public
  */
@@ -19,7 +24,7 @@ export * from './plugin'
  * The root FormKit component.
  * @public
  */
-export { default as FormKit } from './FormKit'
+export { default as FormKit, parentSymbol } from './FormKit'
 
 /**
  * The FormKitSchema component.
@@ -47,6 +52,7 @@ export {
   resetCount,
   errorHandler,
   setErrors,
+  clearErrors,
   submitForm,
   reset,
 } from '@formkit/core'

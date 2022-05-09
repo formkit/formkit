@@ -51,20 +51,30 @@ export function has(
  * @param valA - Any type of input
  * @param valB - Any type of output
  * @param deep - Indicate if we should recurse into the object
+ * @param explicit - Explicit keys
  * @returns boolean
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function eq(valA: any, valB: any, deep = true): boolean {
+export function eq(
+  valA: any, // eslint-disable-line
+  valB: any, // eslint-disable-line
+  deep = true,
+  explicit: string[] = ['__key']
+): boolean {
   if (valA === valB) return true
-  if (typeof valA === typeof valB && typeof valA === 'object') {
+  if (typeof valB === 'object' && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
+    if (valA instanceof Date) return false
+    if (valA === null || valB === null) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
+    for (const k of explicit) {
+      if ((k in valA || k in valB) && valA[k] !== valB[k]) return false
+    }
     for (const key in valA) {
       if (!(key in valB)) return false
       if (valA[key] !== valB[key] && !deep) return false
-      if (deep && !eq(valA[key], valB[key], true)) return false
+      if (deep && !eq(valA[key], valB[key], deep, explicit)) return false
     }
     return true
   }
@@ -88,6 +98,8 @@ export function empty(
   if (type === 'object') {
     if (value === null) return true
     for (const _i in value) return false
+    if (value instanceof RegExp) return false
+    if (value instanceof Date) return false
     return true
   }
   return false
@@ -151,9 +163,21 @@ export function nodeType(type: string): 'list' | 'group' | 'input' {
  * @returns
  * @public
  */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function isObject(o: any): boolean {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isRecord(o: unknown): o is Record<PropertyKey, unknown> {
   return Object.prototype.toString.call(o) === '[object Object]'
+}
+
+/**
+ * Checks if an object is a simple array or record.
+ * @param o - A value to check
+ * @returns
+ * @public
+ */
+export function isObject(
+  o: unknown
+): o is Record<PropertyKey, unknown> | unknown[] {
+  return isRecord(o) || Array.isArray(o)
 }
 
 /**
@@ -165,13 +189,13 @@ export function isObject(o: any): boolean {
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function isPojo(o: any): boolean {
-  if (isObject(o) === false) return false
+export function isPojo(o: any): o is Record<string, any> {
+  if (isRecord(o) === false) return false
   if (o.__FKNode__ || o.__POJO__ === false) return false
   const ctor = o.constructor
   if (ctor === undefined) return true
   const prot = ctor.prototype
-  if (isObject(prot) === false) return false
+  if (isRecord(prot) === false) return false
   if (prot.hasOwnProperty('isPrototypeOf') === false) {
     return false
   }
@@ -349,7 +373,6 @@ export function parseArgs(str: string): string[] {
       depth--
     }
     if (char === ',' && !quote && depth === 0) {
-      if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
       args.push(arg)
       arg = ''
     } else if (char !== ' ' || quote) {
@@ -358,7 +381,6 @@ export function parseArgs(str: string): string[] {
     lastChar = char
   }
   if (arg) {
-    if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
     args.push(arg)
   }
   return args
@@ -444,32 +466,70 @@ export function kebab(str: string): string {
 }
 
 /**
+ * Very shallowly clones the given object.
+ * @param obj - The object to shallow clone
+ * @returns
+ * @public
+ */
+export function shallowClone<T>(
+  obj: T,
+  explicit: string[] = ['__key', '__init']
+): T {
+  if (obj !== null && typeof obj === 'object') {
+    let returnObject: any[] | Record<string, any> | undefined
+    if (Array.isArray(obj)) returnObject = [...obj]
+    else if (isPojo(obj)) returnObject = { ...obj }
+    if (returnObject) {
+      applyExplicit(obj, returnObject, explicit)
+      return returnObject as T
+    }
+  }
+  return obj
+}
+
+/**
  * Perform a recursive clone on a given object. This only intended to be used
  * for simple objects like arrays and pojos.
  * @param obj - Object to clone
  * @public
  */
 export function clone<T extends Record<string, unknown> | unknown[] | null>(
-  obj: T
+  obj: T,
+  explicit: string[] = ['__key', '__init']
 ): T {
   if (
     obj === null ||
     obj instanceof RegExp ||
     obj instanceof Date ||
+    obj instanceof Map ||
+    obj instanceof Set ||
     (typeof File === 'function' && obj instanceof File)
   )
     return obj
+  let returnObject
   if (Array.isArray(obj)) {
-    return obj.map((value) => {
-      if (typeof value === 'object') return clone(value as unknown[])
+    returnObject = obj.map((value) => {
+      if (typeof value === 'object') return clone(value as unknown[], explicit)
       return value
     }) as T
+  } else {
+    returnObject = Object.keys(obj).reduce((newObj, key) => {
+      newObj[key] =
+        typeof obj[key] === 'object'
+          ? clone(obj[key] as unknown[], explicit)
+          : obj[key]
+      return newObj
+    }, {} as Record<string, unknown>) as T
   }
-  return Object.keys(obj).reduce((newObj, key) => {
-    newObj[key] =
-      typeof obj[key] === 'object' ? clone(obj[key] as unknown[]) : obj[key]
-    return newObj
-  }, {} as Record<string, unknown>) as T
+  for (const key of explicit) {
+    if (key in obj) {
+      Object.defineProperty(returnObject, key, {
+        enumerable: false,
+        value: (obj as any)[key],
+      })
+    }
+  }
+  return returnObject
 }
 
 /**
@@ -528,11 +588,13 @@ export function undefine(value: unknown): true | undefined {
  * @public
  */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
-export function init<T extends object>(obj: T): T & { __init: true } {
-  return Object.defineProperty(obj, '__init', {
-    enumerable: false,
-    value: true,
-  }) as T & { __init: true }
+export function init<T extends object>(obj: T): T & { __init?: true } {
+  return !Object.isFrozen(obj)
+    ? (Object.defineProperty(obj, '__init', {
+        enumerable: false,
+        value: true,
+      }) as T & { __init: true })
+    : obj
 }
 
 /**
@@ -547,4 +609,53 @@ export function slugify(str: string): string {
     .replace(/[^a-z0-9]/g, ' ')
     .trim()
     .replace(/\s+/g, '-')
+}
+
+/**
+ * Spreads an object or an array, otherwise returns the same value.
+ * @param obj - Any value, but will spread objects and arrays
+ * @public
+ */
+export function spread<T>(obj: T, explicit: string[] = ['__key', '__init']): T {
+  if (obj && typeof obj === 'object') {
+    if (obj instanceof RegExp) return obj
+    if (obj instanceof Date) return obj
+    let spread: T
+    if (Array.isArray(obj)) {
+      spread = [...obj] as unknown as T
+    } else {
+      spread = { ...(obj as Record<PropertyKey, any>) } as T
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    return applyExplicit(
+      obj as Record<PropertyKey, any> | any[],
+      spread,
+      explicit
+    ) as unknown as T
+  }
+  return obj
+}
+
+/**
+ * Apply non enumerable properties to an object.
+ * @param obj - The object to apply non-enumerable properties to
+ * @param explicit - An array of non-enumerable properties to apply
+ * @internal
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+function applyExplicit<T extends object | any[]>(
+  original: T,
+  obj: T,
+  explicit: string[]
+): T {
+  for (const key of explicit) {
+    if (key in original) {
+      Object.defineProperty(obj, key, {
+        enumerable: false,
+        value: original[key as keyof T],
+      })
+    }
+  }
+  return obj
 }

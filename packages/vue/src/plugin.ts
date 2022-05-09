@@ -5,6 +5,7 @@ import {
   getNode,
   createConfig,
   setErrors,
+  clearErrors,
   submitForm,
   reset,
 } from '@formkit/core'
@@ -24,6 +25,7 @@ export interface FormKitVuePlugin {
     errors: string[] | Record<string, string | string[]>,
     inputErrors?: string[] | Record<string, string | string[]>
   ) => void
+  clearErrors: (formId: string) => void
   submit: (formId: string) => void
   reset: (formId: string, resetTo?: unknown) => void
 }
@@ -47,6 +49,7 @@ function createPlugin(
         options.config.rootConfig.locale = locale
       }
     },
+    clearErrors,
     setErrors,
     submit: submitForm,
     reset,

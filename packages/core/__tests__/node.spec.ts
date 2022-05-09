@@ -17,7 +17,7 @@ import {
 import { generateClassList } from '../src/classes'
 import { jest } from '@jest/globals'
 import { FormKitMiddleware } from '../src/dispatcher'
-import { has } from '@formkit/utils'
+import { has, clone } from '@formkit/utils'
 
 describe('node', () => {
   it('defaults to a text node', () => {
@@ -31,9 +31,9 @@ describe('node', () => {
       node.on('commit', commitEvent)
     }
     const node = createNode({ value: '', plugins: [countEmits] })
-    expect(commitEvent).toHaveBeenCalledTimes(0)
-    node.input(['a', 'b'], false)
     expect(commitEvent).toHaveBeenCalledTimes(1)
+    node.input(['a', 'b'], false)
+    expect(commitEvent).toHaveBeenCalledTimes(2)
   })
 
   it('emits a singe commit event for type list', () => {
@@ -74,9 +74,9 @@ describe('node', () => {
       parent: parentC,
       value: undefined,
     })
-    expect(commitEvent).toHaveBeenCalledTimes(3)
+    expect(commitEvent).toHaveBeenCalledTimes(12)
     node.input([{}, {}, {}], false)
-    expect(commitEvent).toHaveBeenCalledTimes(7)
+    expect(commitEvent).toHaveBeenCalledTimes(16)
   })
 
   it('allows configuration to flow to children', () => {
@@ -93,7 +93,7 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
-  it('allows config to be overriden by child props', () => {
+  it('allows config to be overridden by child props', () => {
     const child = createNode({
       props: {
         flavor: 'cherry',
@@ -379,6 +379,61 @@ describe('node', () => {
     moveMe.index = 99
     children = [...parent.children]
     expect(children[3]).toBe(moveMe)
+  })
+
+  it('can inject a new child directly into a parent at a given index', () => {
+    const list = createNode({
+      type: 'list',
+      children: [
+        createNode({ value: 'A' }),
+        createNode({ value: 'C' }),
+        createNode({ value: 'D' }),
+      ],
+    })
+    createNode({ value: 'B', parent: list, index: 1 })
+    expect(list.value).toStrictEqual(['A', 'B', 'C', 'D'])
+  })
+
+  it('can inject a new child directly into a parent at a given index and inherit the value', () => {
+    const A = createNode({ value: 'A' })
+    const C = createNode({ value: 'C' })
+    const list = createNode({
+      type: 'list',
+      children: [A, C],
+    })
+    const val = clone(list.value as string[])
+    val.splice(1, 0, 'B')
+    list.input(val, false)
+    expect(list.value).toStrictEqual(['A', 'B', 'C'])
+    const B = createNode({ value: undefined, parent: list, index: 1 })
+    expect(list.value).toStrictEqual(['A', 'B', 'C'])
+    expect(B.value).toBe('B')
+    B.input('Z', false)
+    expect(list.value).toStrictEqual(['A', 'Z', 'C'])
+  })
+
+  it('can inject a new value into a list without the list immediately inheriting that index’s sub values', () => {
+    const A = createNode({
+      type: 'group',
+      children: [createNode({ name: 'i', value: 'A' })],
+    })
+    const C = createNode({
+      type: 'group',
+      children: [createNode({ name: 'i', value: 'C' })],
+    })
+    const list = createNode({
+      type: 'list',
+      children: [A, C],
+    })
+    const val = clone(list.value as Array<{ i?: string }>)
+    val.splice(1, 0, { i: 'B' })
+    list.input(val, false)
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'B' }, { i: 'C' }])
+    const B = createNode({ type: 'group', parent: list, index: 1 })
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'B' }, { i: 'C' }])
+    expect(B.value).toStrictEqual({ i: 'B' })
+    B.input({ i: 'Z' }, false)
+    expect(list.value).toStrictEqual([{ i: 'A' }, { i: 'Z' }, { i: 'C' }])
   })
 
   it('can always reference the root', () => {
@@ -800,9 +855,19 @@ describe('commit hook', () => {
     phone.input('233.662')
     phone.input('233.6621244')
     await phone.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(1)
+    expect(commitMiddleware).toHaveBeenCalledTimes(2)
     expect(phone.value).toBe('(233) 662-1244')
   })
+})
+
+it('can change both _value and value with commit hook', () => {
+  const node = createNode({ value: 123 })
+  node.hook.commit((value, next) => next(value + 10))
+  expect(node.value).toBe(123)
+  expect(node._value).toBe(123)
+  node.input(1, false)
+  expect(node.value).toBe(11)
+  expect(node._value).toBe(11)
 })
 
 describe('value propagation in a node tree', () => {
@@ -891,14 +956,14 @@ describe('value propagation in a node tree', () => {
     email.input('test@example.com')
     username.input('test-user')
     await username.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(3) // 2 partials, 1 full commit
+    expect(commitMiddleware).toHaveBeenCalledTimes(4) // 2 partials, 1 full commit
     expect(parent.value).toEqual({ email: undefined, username: 'test-user' })
     await email.settled
     expect(parent.value).toEqual({
       email: 'test@example.com',
       username: 'test-user',
     })
-    expect(commitMiddleware).toHaveBeenCalledTimes(4)
+    expect(commitMiddleware).toHaveBeenCalledTimes(5)
   })
 
   it('collects values from a list of children', async () => {
@@ -988,6 +1053,33 @@ describe('value propagation in a node tree', () => {
     expect(food.children.length).toBe(3)
     expect(food.isSettled).toBe(true)
     expect(food.value).toStrictEqual(['pizza', 'pasta', 'fish'])
+  })
+
+  it('can remove a child from a list by destroying it', async () => {
+    const repeater = createNode({
+      type: 'list',
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: '123' })],
+        }),
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: 'abc' })],
+        }),
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'a', value: 'xyz' })],
+        }),
+      ],
+    })
+    const commitListener = jest.fn()
+    repeater.on('commit', commitListener)
+    repeater.at('1')?.destroy()
+    await repeater.settled
+    expect(repeater.children.length).toBe(2)
+    expect(repeater.value).toStrictEqual([{ a: '123' }, { a: 'xyz' }])
+    expect(commitListener).toHaveBeenCalledTimes(1)
   })
 
   it('can remove a child from a group’s values', async () => {
@@ -1121,11 +1213,11 @@ describe('value propagation in a node tree', () => {
       type: 'group',
       name: 'form',
     })
-    expect(plugin.calls).toBe(0)
-    form.add(createNode({ name: 'letters', type: 'group', value: { a: 123 } }))
     expect(plugin.calls).toBe(1)
-    form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
+    form.add(createNode({ name: 'letters', type: 'group', value: { a: 123 } }))
     expect(plugin.calls).toBe(2)
+    form.at('letters')!.add(createNode({ name: 'a', value: 456 }))
+    expect(plugin.calls).toBe(3)
     expect(form._d).toBe(0)
   })
 
@@ -1195,6 +1287,13 @@ describe('value propagation in a node tree', () => {
     expect(tree.at('people.0')!.value).toBe('first')
     expect(tree.at('people.1')!.value).toBe('second')
     expect(tree.at('people.2')!.value).toBe('third')
+  })
+
+  it('settles the group when a preserved input is removed', async () => {
+    const group = createNode({ type: 'group' })
+    const child = createNode({ parent: group, props: { preserve: true } })
+    group.remove(child)
+    expect(group.isSettled).toBe(true)
   })
 
   it('can hydrate a pre-existing tree with values', async () => {
@@ -1317,4 +1416,30 @@ describe('resetting', () => {
     node.reset()
     expect(node.value).toEqual({ alpha: 'abc' })
   })
+
+  it('emits an reset event', async () => {
+    const resetEvent = jest.fn()
+    const node = createNode({ value: 'foobar' })
+    node.on('reset', resetEvent)
+    node.reset()
+    expect(resetEvent).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('errors', () => {
+  const form = createNode({
+    type: 'group',
+    name: 'myForm',
+    children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+  })
+  form.ledger.count('errors', (m) => m.type === 'error')
+  form.setErrors(['This is my error'], {
+    foo: 'And this is a child one',
+    bar: ['And this is another child one'],
+  })
+  expect(form.ledger.value('errors')).toBe(3)
+  form.clearErrors(false)
+  expect(form.ledger.value('errors')).toBe(2)
+  form.clearErrors()
+  expect(form.ledger.value('errors')).toBe(0)
 })

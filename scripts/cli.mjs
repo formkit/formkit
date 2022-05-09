@@ -5,6 +5,7 @@ import build from './build.mjs'
 import publish from './publish.mjs'
 import publishLocal from './publishLocal.mjs'
 import deploy from './deploy.mjs'
+import translate from './translate.mjs'
 
 async function runCLI(s) {
   let script = s[0]
@@ -20,6 +21,9 @@ async function runCLI(s) {
       break
     case 'local':
       script = publishLocal
+      break
+    case 'translate':
+      script = translate
       break
     default:
       script = ''
@@ -46,6 +50,10 @@ async function runCLI(s) {
         {
           title: 'Deploy',
           value: deploy,
+        },
+        {
+          title: 'Translate string',
+          value: translate,
         },
       ],
     })

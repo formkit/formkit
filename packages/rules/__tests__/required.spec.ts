@@ -5,6 +5,18 @@ describe('required rule', () => {
   it('fails on an empty string', () =>
     expect(required(createNode({ value: '' }))).toBe(false))
 
+  it('fails on an whitespace', () =>
+    expect(required(createNode({ value: ' ' }), 'trim')).toBe(false))
+
+  it('passes on some letters beginning with whitespace', () =>
+    expect(required(createNode({ value: ' foo' }), 'trim')).toBe(true))
+
+  it('passes on some letters ending with whitespace', () =>
+    expect(required(createNode({ value: 'foo  ' }), 'trim')).toBe(true))
+
+  it('passes on whitespace without trim argument', () =>
+    expect(required(createNode({ value: '  ' }))).toBe(true))
+
   it('passes on some letters', () =>
     expect(required(createNode({ value: 'foo' }))).toBe(true))
 

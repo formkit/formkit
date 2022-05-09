@@ -8,6 +8,7 @@ import {
   undefine,
   init,
   cloneAny,
+  clone,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -99,6 +100,7 @@ export interface FormKitHooks {
   error: FormKitDispatcher<string>
   init: FormKitDispatcher<FormKitNode>
   input: FormKitDispatcher<any>
+  message: FormKitDispatcher<FormKitMessage>
   prop: FormKitDispatcher<{
     prop: string | symbol
     value: any
@@ -401,63 +403,7 @@ export interface FormKitFrameworkContext {
   /**
    * A collection of state trackers/details about the input.
    */
-  state: Record<string, boolean | undefined> & {
-    /**
-     * If the input has been blurred.
-     */
-    blurred: boolean
-    /**
-     * True when these conditions are met:
-     *
-     * Either:
-     * - The input has validation rules
-     * - The validation rules are all passing
-     * - There are no errors on the input
-     * Or:
-     * - The input has no validation rules
-     * - The input has no errors
-     * - The input is dirty and has a value
-     *
-     * This is not intended to be used on forms/groups/lists but instead on
-     * individual inputs. Imagine placing a green checkbox next to each input
-     * when the user filled it out correctly — thats what these are for.
-     */
-    complete: boolean
-    /**
-     * If the input has had a value typed into it or a change made to it.
-     */
-    dirty: boolean
-    /**
-     * If the input has explicit errors placed on it, or in the case of a group,
-     * list, or form, this is true if any children have errors on them.
-     */
-    errors: boolean
-    /**
-     * True when the input has validation rules. Has nothing to do with the
-     * state of those validation rules.
-     */
-    rules: boolean
-    /**
-     * True when the input has completed its internal debounce cycle and the
-     * value was committed to the form.
-     */
-    settled: boolean
-    /**
-     * If the form has been submitted.
-     */
-    submitted: boolean
-    /**
-     * If the input (or group/form/list) is passing all validation rules. In
-     * the case of groups, forms, and lists this includes the validation state
-     * of all its children.
-     */
-    valid: boolean
-    /**
-     * If the validation-visibility has been satisfied and any validation
-     * messages should be displayed.
-     */
-    validationVisible: boolean
-  }
+  state: FormKitFrameworkContextState
   /**
    * The type of input "text" or "select" (retrieved from node.props.type). This
    * is not the core node type (input, group, or list).
@@ -471,6 +417,73 @@ export interface FormKitFrameworkContext {
 }
 
 /**
+ * The state inside a node’s framework context. Usually used to track things
+ * like blurred, and validity states.
+ * @public
+ */
+export interface FormKitFrameworkContextState {
+  /**
+   * If the input has been blurred.
+   */
+  blurred: boolean
+  /**
+   * True when these conditions are met:
+   *
+   * Either:
+   * - The input has validation rules
+   * - The validation rules are all passing
+   * - There are no errors on the input
+   * Or:
+   * - The input has no validation rules
+   * - The input has no errors
+   * - The input is dirty and has a value
+   *
+   * This is not intended to be used on forms/groups/lists but instead on
+   * individual inputs. Imagine placing a green checkbox next to each input
+   * when the user filled it out correctly — thats what these are for.
+   */
+  complete: boolean
+  /**
+   * If the input has had a value typed into it or a change made to it.
+   */
+  dirty: boolean
+  /**
+   * If the input has explicit errors placed on it, or in the case of a group,
+   * list, or form, this is true if any children have errors on them.
+   */
+  errors: boolean
+  /**
+   * True when the input has validation rules. Has nothing to do with the
+   * state of those validation rules.
+   */
+  rules: boolean
+  /**
+   * True when the input has completed its internal debounce cycle and the
+   * value was committed to the form.
+   */
+  settled: boolean
+  /**
+   * If the form has been submitted.
+   */
+  submitted: boolean
+  /**
+   * If the input (or group/form/list) is passing all validation rules. In
+   * the case of groups, forms, and lists this includes the validation state
+   * of all its children.
+   */
+  valid: boolean
+  /**
+   * If the validation-visibility has been satisfied and any validation
+   * messages should be displayed.
+   */
+  validationVisible: boolean
+  /**
+   * Allow users to add their own arbitrary states.
+   */
+  [index: string]: boolean
+}
+
+/**
  * Options that can be used to instantiate a new node via createNode()
  * @public
  */
@@ -479,6 +492,7 @@ export type FormKitOptions = Partial<
     config: Partial<FormKitConfig>
     props: Partial<FormKitProps>
     children: FormKitNode[] | Set<FormKitNode>
+    index?: number
     plugins: FormKitPlugin[]
     alias: string
     schemaAlias: string
@@ -500,7 +514,7 @@ export interface FormKitChildCallback {
 export interface FormKitChildValue {
   name: string | number | symbol
   value: any
-  from?: number
+  from?: number | symbol
 }
 
 /**
@@ -527,7 +541,12 @@ export type FormKitNode = {
   /**
    * Add a child to a node, the node must be a group or list.
    */
-  add: (node: FormKitNode) => FormKitNode
+  add: (node: FormKitNode, index?: number) => FormKitNode
+  /**
+   * Adds props to the given node by removing them from node.props.attrs and
+   * moving them to the top-level node.props object.
+   */
+  addProps: (props: string[]) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name There are a few
@@ -549,7 +568,11 @@ export type FormKitNode = {
    * An internal mechanism for calming a disturbance — which is a mechanism
    * used to know the state of input settlement in the tree.
    */
-  calm: (childValue?: FormKitChildValue) => void
+  calm: (childValue?: FormKitChildValue) => FormKitNode
+  /**
+   * Clears the errors of the node, and optionally all the children.
+   */
+  clearErrors: (clearChildren?: boolean) => FormKitNode
   /**
    * An object that is shared tree-wide with various configuration options that
    * should be applied to the entire tree.
@@ -722,6 +745,13 @@ export const valueRemoved = Symbol('removed')
 export const valueMoved = Symbol('moved')
 
 /**
+ * When creating a new node and having its value injected directly at a specific
+ * location.
+ * @public
+ */
+export const valueInserted = Symbol('inserted')
+
+/**
  * A simple type guard to determine if the context being evaluated is a list
  * type.
  * @param arg -
@@ -755,9 +785,11 @@ const invalidSetter = (
 const traps = {
   _c: trap(getContext, invalidSetter, false),
   add: trap(addChild),
+  addProps: trap(addProps),
   address: trap(getAddress, invalidSetter, false),
   at: trap(getNode),
   bubble: trap(bubble),
+  clearErrors: trap(clearErrors),
   calm: trap(calm),
   config: trap(false),
   define: trap(define),
@@ -777,7 +809,7 @@ const traps = {
   root: trap(getRoot, invalidSetter, false),
   reset: trap(resetValue),
   resetConfig: trap(resetConfig),
-  setErrors: trap(errors),
+  setErrors: trap(setErrors),
   submit: trap(submit),
   t: trap(text),
   use: trap(use),
@@ -911,12 +943,9 @@ function input(
   node: FormKitNode,
   context: FormKitContext,
   value: unknown,
-  async = true,
-  eqBefore = true
+  async = true
 ): Promise<unknown> {
-  if (eqBefore && eq(context._value, value)) return context.settled
   context._value = validateInput(node, node.hook.input.dispatch(value))
-  if (!eqBefore && eq(context._value, value)) return context.settled
   node.emit('input', context._value)
   if (context.isSettled) node.disturb()
   if (async) {
@@ -966,8 +995,8 @@ function commit(
   calm = true,
   hydrate = true
 ) {
+  context._value = context.value = node.hook.commit.dispatch(context._value)
   if (node.type !== 'input' && hydrate) node.hydrate()
-  context.value = node.hook.commit.dispatch(context._value)
   node.emit('commit', context.value)
   if (calm) node.calm()
 }
@@ -984,16 +1013,17 @@ function partial(
   context: FormKitContext,
   { name, value, from }: FormKitChildValue
 ) {
+  if (Object.isFrozen(context._value)) return
   if (isList(context)) {
     const insert: any[] =
       value === valueRemoved
         ? []
-        : value === valueMoved
-        ? context._value.splice(from!, 1) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+        : value === valueMoved && typeof from === 'number'
+        ? context._value.splice(from, 1)
         : [value]
     context._value.splice(
       name as number,
-      value === valueMoved ? 0 : 1,
+      value === valueMoved || from === valueInserted ? 0 : 1,
       ...insert
     )
     return
@@ -1022,7 +1052,8 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // perform a down-tree synchronous input which will cascade values down
       // and then ultimately back up.
       const childValue =
-        child.type !== 'input' || typeof _value[child.name] === 'object'
+        child.type !== 'input' ||
+        (_value[child.name] && typeof _value[child.name] === 'object')
           ? init(_value[child.name])
           : _value[child.name]
       child.input(childValue, false)
@@ -1095,7 +1126,7 @@ function calm(
  * @param node - The node to shut down
  * @param context - The context to clean up
  */
-function destroy(node: FormKitNode) {
+function destroy(node: FormKitNode, context: FormKitContext) {
   node.emit('destroying', node)
   // flush all messages out
   node.store.filter(() => false)
@@ -1103,6 +1134,7 @@ function destroy(node: FormKitNode) {
     node.parent.remove(node)
   }
   deregister(node)
+  context._value = context.value = undefined
   node.emit('destroyed', node)
 }
 
@@ -1118,7 +1150,7 @@ function define(
   // Assign the type
   context.type = definition.type
   // Assign the definition
-  context.props.definition = definition
+  context.props.definition = clone(definition)
   // Ensure the type is seeded with the `__init` value.
   context.value = context._value = createValue({
     type: node.type,
@@ -1132,27 +1164,51 @@ function define(
   // Its possible that input-defined "props" have ended up in the context attrs
   // these should be moved back out of the attrs object.
   if (definition.props) {
-    if (node.props.attrs) {
-      const attrs = { ...node.props.attrs }
-      // Temporarily disable prop emits
-      node.props._emit = false
-      for (const attr in attrs) {
-        const camelName = camel(attr)
-        if (definition.props.includes(camelName)) {
-          node.props[camelName] = attrs[attr]
-          delete attrs[attr]
-        }
+    node.addProps(definition.props)
+  }
+  node.emit('defined', definition)
+}
+
+/**
+ * Adds props to a given node by stripping them out of the node.props.attrs and
+ * then adding them to the nodes.
+ *
+ * @param node - The node to add props to
+ * @param context - The internal context object
+ * @param props - An array of prop strings (in camelCase!)
+ */
+function addProps(
+  node: FormKitNode,
+  context: FormKitContext,
+  props: string[]
+): FormKitNode {
+  if (node.props.attrs) {
+    const attrs = { ...node.props.attrs }
+    // Temporarily disable prop emits
+    node.props._emit = false
+    for (const attr in attrs) {
+      const camelName = camel(attr)
+      if (props.includes(camelName)) {
+        node.props[camelName] = attrs[attr]
+        delete attrs[attr]
       }
-      const initial = cloneAny(context._value)
-      node.props.initial =
-        node.type !== 'input' ? init(initial as KeyedValue) : initial
-      // Re-enable prop emits
-      node.props._emit = true
-      node.props.attrs = attrs
+    }
+    const initial = cloneAny(context._value)
+    node.props.initial =
+      node.type !== 'input' ? init(initial as KeyedValue) : initial
+    // Re-enable prop emits
+    node.props._emit = true
+    node.props.attrs = attrs
+
+    if (node.props.definition) {
+      node.props.definition.props = [
+        ...(node.props.definition?.props || []),
+        ...props,
+      ]
     }
   }
-
-  node.emit('defined', definition)
+  node.emit('added-props', props)
+  return node
 }
 
 /**
@@ -1164,7 +1220,8 @@ function define(
 function addChild(
   parent: FormKitNode,
   parentContext: FormKitContext,
-  child: FormKitNode
+  child: FormKitNode,
+  listIndex?: number
 ) {
   if (parent.type === 'input') error(100, parent)
   if (child.parent && child.parent !== parent) {
@@ -1172,7 +1229,31 @@ function addChild(
   }
   // Synchronously set the initial value on the parent
   if (!parentContext.children.includes(child)) {
-    parentContext.children.push(child)
+    if (listIndex !== undefined && parent.type === 'list') {
+      // Inject the child:
+      parentContext.children.splice(listIndex, 0, child)
+
+      if (
+        Array.isArray(parent.value) &&
+        parent.value.length < parentContext.children.length
+      ) {
+        // When adding an node or value to a list it is absolutely critical to
+        // know if, at the moment of injection, the parent’s value or the node
+        // children are the source of truth. For example, if a user pushes or
+        // splices a new value onto the lists’s array then we want to use that
+        // value as the value of the new node, but if a user adds a node to the
+        // list then we want the node’s value. In this specific case, we
+        // assume (due to length) that a new node was injected into the list, so
+        // we want that new node’s value injected into the parent list value.
+        parent.disturb().calm({
+          name: listIndex,
+          value: child.value,
+          from: valueInserted,
+        })
+      }
+    } else {
+      parentContext.children.push(child)
+    }
     if (!child.isSettled) parent.disturb()
   }
   if (child.parent !== parent) {
@@ -1258,6 +1339,8 @@ function removeChild(
         name: node.type === 'list' ? childIndex : child.name,
         value: valueRemoved,
       })
+    } else {
+      node.calm()
     }
     child.parent = null
     // Remove the child from the config. Is this weird? Yes. Is it ok? Yes.
@@ -1667,7 +1750,7 @@ function resetValue(
  * @param localErrors - An array of errors to set on this node
  * @param childErrors - An object of name to errors to set on children.
  */
-function errors(
+function setErrors(
   node: FormKitNode,
   _context: FormKitContext,
   localErrors: ErrorMessages,
@@ -1677,6 +1760,35 @@ function errors(
   createMessages(node, localErrors, childErrors).forEach((errors) => {
     node.store.apply(errors, (message) => message.meta.source === sourceKey)
   })
+  return node
+}
+
+/**
+ * Clears errors on the node and optionally its children.
+ * @param node - The node to set errors on
+ * @param _context - Not used
+ * @param localErrors - An array of errors to set on this node
+ * @param childErrors - An object of name to errors to set on children.
+ */
+function clearErrors(
+  node: FormKitNode,
+  context: FormKitContext,
+  clearChildErrors = true
+) {
+  setErrors(node, context, [])
+  if (clearChildErrors) {
+    const sourceKey = `${node.name}-set`
+    node.walk((child) => {
+      child.store.filter((message) => {
+        return !(
+          message.type === 'error' &&
+          message.meta &&
+          message.meta.source === sourceKey
+        )
+      })
+    })
+  }
+  return node
 }
 
 /**
@@ -1722,7 +1834,10 @@ function createProps(initial: unknown) {
         value: originalValue,
       })
       // Typescript compiler cannot handle a symbol index, even though js can:
-      if (!eq(props[prop as string], value, false)) {
+      if (
+        !eq(props[prop as string], value, false) ||
+        typeof value === 'object'
+      ) {
         const didSet = Reflect.set(target, prop, value, receiver)
         if (isEmitting) {
           node.emit('prop', { prop, value })
@@ -1817,11 +1932,11 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
-  if (node.parent) node.parent.add(node)
+  if (node.parent) node.parent.add(node, options.index)
   // Inputs are leafs, and cannot have children
   if (node.type === 'input' && node.children.length) error(100, node)
   // Apply the input hook to the initial value.
-  input(node, node._c, node._value, false, false)
+  input(node, node._c, node._value, false)
   // Release the store buffer
   node.store.release()
   // Register the node globally if someone explicitly gave it an id

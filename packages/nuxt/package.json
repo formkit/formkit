@@ -2,7 +2,7 @@
   "name": "@formkit/nuxt",
   "repository": "https://github.com/formkit/formkit",
   "description": "The official Nuxt module for FormKit.",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -21,7 +21,7 @@
     "dev": "nuxi dev playground"
   },
   "dependencies": {
-    "@formkit/vue": "1.0.0-beta.5",
+    "@formkit/vue": "1.0.0-beta.6",
     "@nuxt/kit": "npm:@nuxt/kit-edge@latest"
   }
 }

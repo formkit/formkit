@@ -14,6 +14,10 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
+   * Shown on buttons for adding new items.
+   */
+  add: '추가',
+  /**
    * Shown when a button to remove items is visible.
    */
   remove: '제거',

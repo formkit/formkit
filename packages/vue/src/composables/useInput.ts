@@ -19,8 +19,10 @@ import {
   kebab,
   cloneAny,
   slugify,
+  isObject,
 } from '@formkit/utils'
 import {
+  toRef,
   watchEffect,
   inject,
   provide,
@@ -28,9 +30,15 @@ import {
   SetupContext,
   onUnmounted,
   getCurrentInstance,
+  computed,
+  ref,
+  WatchStopHandle,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
+import watchVerbose from './watchVerbose'
+import useRaw from './useRaw'
+// import { observe, isObserver } from './mutationObserver'
 
 interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
@@ -40,6 +48,7 @@ interface FormKitComponentProps {
   parent?: FormKitNode
   errors: string[]
   inputErrors: Record<string, string | string[]>
+  index?: number
   config: Record<string, any>
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
@@ -61,6 +70,7 @@ const pseudoProps = [
   'ignore',
   'disabled',
   'preserve',
+  /^preserve(-e|E)rrors/,
   /^[a-z]+(?:-visibility|Visibility)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
 ]
@@ -72,9 +82,14 @@ const pseudoProps = [
  */
 function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
   if (props.classes) {
-    Object.keys(props.classes).forEach((key) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      node.props[`_${key}Class`] = props.classes![key]
+    Object.keys(props.classes).forEach((key: keyof typeof props['classes']) => {
+      if (typeof key === 'string') {
+        node.props[`_${key}Class`] = props.classes[key]
+        // We need to ensure Vue is aware that we want to actually observe the
+        // child values too, so we touch them here.
+        if (isObject(props.classes[key]) && key === 'inner')
+          Object.values(props.classes[key])
+      }
     })
   }
 }
@@ -122,11 +137,6 @@ export function useInput(
   const config = Object.assign({}, inject(optionsSymbol) || {}, options)
 
   /**
-   * The parent node.
-   */
-  const parent = props.parent || inject(parentSymbol, null)
-
-  /**
    * The current instance.
    */
   const instance = getCurrentInstance()
@@ -135,6 +145,16 @@ export function useInput(
    * Extracts the listeners.
    */
   const listeners = onlyListeners(instance?.vnode.props)
+
+  /**
+   * Determines if the prop is v-modeled.
+   */
+  const isVModeled = props.modelValue !== undefined
+
+  /**
+   * Determines if the object being passed as a v-model is reactive.
+   */
+  // const isReactiveVModel = isVModeled && isReactive(props.modelValue)
 
   /**
    * Define the initial component
@@ -173,16 +193,25 @@ export function useInput(
    * Create the FormKitNode.
    */
   const initialProps = createInitialProps()
+
+  /**
+   * The parent node.
+   */
+  const parent = initialProps.ignore
+    ? null
+    : props.parent || inject(parentSymbol, null)
+
   const node = createNode(
     extend(
       config || {},
       {
         name: props.name || undefined,
         value,
-        parent: initialProps.ignore ? null : parent,
+        parent,
         plugins: (config.plugins || []).concat(props.plugins),
         config: props.config,
         props: initialProps,
+        index: props.index,
       },
       false,
       true
@@ -195,11 +224,27 @@ export function useInput(
   if (!node.props.definition) error(600, node)
 
   /**
+   * All props that are bound "late" (after node creation) — are added to a set
+   * which is used to watch the context.attrs object.
+   */
+  const lateBoundProps = ref<Set<string | RegExp>>(
+    new Set(node.props.definition.props || [])
+  )
+
+  /**
+   * Any additional props added at a "later" time should also be part of the
+   * late bound props.
+   */
+  node.on('added-props', ({ payload: lateProps }) => {
+    if (Array.isArray(lateProps))
+      lateProps.forEach((newProp) => lateBoundProps.value.add(newProp))
+  })
+
+  /**
    * These prop names must be assigned.
    */
-  const pseudoPropNames = pseudoProps
-    .concat(node.props.definition.props || [])
-    .reduce((names, prop) => {
+  const pseudoPropNames = computed(() =>
+    pseudoProps.concat([...lateBoundProps.value]).reduce((names, prop) => {
       if (typeof prop === 'string') {
         names.push(camel(prop))
         names.push(kebab(prop))
@@ -208,6 +253,7 @@ export function useInput(
       }
       return names
     }, [] as Array<string | RegExp>)
+  )
 
   /* Splits Classes object into discrete props for each key */
   watchEffect(() => classesToNodeProps(node, props))
@@ -232,15 +278,32 @@ export function useInput(
   /**
    * Watch "pseudoProp" attributes explicitly.
    */
-  const pseudoPropsValues = only(nodeProps(context.attrs), pseudoPropNames)
-  for (const prop in pseudoPropsValues) {
-    const camelName = camel(prop)
-    watch(
-      () => context.attrs[prop],
-      () => {
-        node.props[camelName] = context.attrs[prop]
-      }
-    )
+  const attributeWatchers = new Set<WatchStopHandle>()
+  const possibleProps = nodeProps(context.attrs)
+  watchEffect(() => {
+    watchAttributes(only(possibleProps, pseudoPropNames.value))
+  })
+
+  /**
+   * Defines attributes that should be used as props.
+   * @param attrProps - Attributes that should be used as props instead
+   */
+  function watchAttributes(attrProps: Record<string, any>) {
+    attributeWatchers.forEach((stop) => {
+      stop()
+      attributeWatchers.delete(stop)
+    })
+    for (const prop in attrProps) {
+      const camelName = camel(prop)
+      attributeWatchers.add(
+        watch(
+          () => context.attrs[prop],
+          () => {
+            node.props[camelName] = context.attrs[prop]
+          }
+        )
+      )
+    }
   }
 
   /**
@@ -248,7 +311,7 @@ export function useInput(
    * props and are not pseudoProps
    */
   watchEffect(() => {
-    const attrs = except(nodeProps(context.attrs), pseudoPropNames)
+    const attrs = except(nodeProps(context.attrs), pseudoPropNames.value)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 
@@ -312,33 +375,50 @@ export function useInput(
     provide(parentSymbol, node)
   }
 
+  let inputTimeout: number | undefined
+
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  const mutex = new WeakSet<object>()
+
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
-  watch(
-    () => node.context?.value,
-    () => {
-      // Emit the values after commit
-      context.emit('input', node.context?.value)
-      context.emit('update:modelValue', node.context?.value)
+  node.on('modelUpdated', () => {
+    // Emit the values after commit
+    context.emit('inputRaw', node.context?.value, node)
+    clearTimeout(inputTimeout)
+    inputTimeout = setTimeout(
+      context.emit,
+      20,
+      'input',
+      node.context?.value,
+      node
+    ) as unknown as number
+
+    if (isVModeled && node.context) {
+      const newValue = useRaw(node.context.value)
+      if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
+        // If this is an object that has been mutated inside FormKit core then
+        // we know when it is emitted it will "return" in the watchVerbose so
+        // we pro-actively add it to the mutex.
+        mutex.add(newValue)
+      }
+      context.emit('update:modelValue', newValue)
     }
-  )
+  })
 
   /**
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
-  if (props.modelValue !== undefined) {
-    // Warning that v-model isnt the most performant for non-inputs:
-    // if (node.type !== 'input') warn()
-    watch(
-      () => props.modelValue,
-      (value) => {
-        node.input(value, false)
-      },
-      {
-        deep: true,
+  if (isVModeled) {
+    watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
+      const rawValue = useRaw(value)
+      if (isObject(rawValue) && mutex.has(rawValue)) {
+        return mutex.delete(rawValue)
       }
-    )
+      if (!path.length) node.input(value, false)
+      else node.at(path)?.input(value, false)
+    })
   }
 
   /**

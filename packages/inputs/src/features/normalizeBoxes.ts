@@ -1,7 +1,13 @@
 import { FormKitMiddleware, FormKitNode } from '@formkit/core'
 import { extend, kebab } from '@formkit/utils'
 
-export default function (
+/**
+ * Normalize the boxes.
+ * @param node - The node
+ * @returns
+ * @public
+ */
+export default function normalizeBoxes(
   node: FormKitNode
 ): FormKitMiddleware<{ prop: string | symbol; value: any }> {
   return function (prop, next) {

@@ -26,6 +26,7 @@ function removeHover(e: Event) {
 /**
  * Prevent stray drag/drop events from navigating the window.
  * @param e - Event
+ * @public
  */
 function preventStrayDrop(type: string, e: Event) {
   if (!(e.target instanceof HTMLInputElement)) {
@@ -38,7 +39,7 @@ function preventStrayDrop(type: string, e: Event) {
   }
 }
 
-export default function (node: FormKitNode): void {
+export default function files(node: FormKitNode): void {
   // Localize our content:
   localize('noFiles', 'Select file')(node)
   localize('removeAll', 'Remove all')(node)

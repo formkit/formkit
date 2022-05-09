@@ -15,6 +15,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
     'tsdoc/syntax': 'warn',
   },
+  ignorePatterns: ['dist.*'],
   overrides: [
     {
       files: '*.mjs',

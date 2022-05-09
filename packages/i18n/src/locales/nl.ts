@@ -14,6 +14,10 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
+   * Shown on buttons for adding new items.
+   */
+  add: 'Toevoegen',
+  /**
    * Shown when a button to remove items is visible.
    */
   remove: 'Verwijder',
@@ -201,7 +205,9 @@ export const validation: FormKitValidationMessages = {
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} moet kleiner zijn dan of gelijk zijn aan ${max} tekens.`
+      return `${s(
+        name
+      )} moet kleiner zijn dan of gelijk zijn aan ${max} tekens.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
