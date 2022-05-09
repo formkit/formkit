@@ -5,6 +5,8 @@ import plugin from 'tailwindcss/plugin.js'
  * @public
  */
 const formKitVariants = plugin(({ addVariant }) => {
+  console.warn('@formkit/tailwindcss is deprecated in favor of @formkit/themes')
+
   addVariant('formkit-disabled', [
     '&[data-disabled]',
     '[data-disabled] &',
