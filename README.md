@@ -54,7 +54,6 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 <p style="margin-bottom: 1em;">
   <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
 </p>
-
 -->
 
 ### 🥉 Bronze sponsors
