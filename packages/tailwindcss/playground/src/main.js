@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { generateClasses } from '@formkit/core'
+import { generateClasses } from '@formkit/themes'
 import { plugin, defaultConfig } from '../../../vue/dist'
 import theme from './theme.js'
 import '../dist/index.css'
