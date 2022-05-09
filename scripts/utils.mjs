@@ -51,8 +51,8 @@ export function getLocales() {
 /**
  * Get the available themes from the themes directory.
  */
-export function getThemes() {
-  const availablePackages = fs.readdirSync(packagesDir + '/themes/src')
+ export function getThemes() {
+  const availablePackages = fs.readdirSync(packagesDir + '/themes/src/css')
   return availablePackages
 }
 

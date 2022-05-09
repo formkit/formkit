@@ -3,17 +3,24 @@
   "version": "1.0.0-beta.6",
   "type": "module",
   "description": "FormKit base themes",
-  "main": "./genesis/theme.js",
-  "module": "./genesis/theme.js",
   "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "exports": {
-    "./genesis": "./dist/genesis/theme.css"
+    "./genesis": "./dist/genesis/theme.css",
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
   },
   "keywords": [
     "vue",
     "forms",
     "ui",
-    "styling"
+    "styling",
+    "css",
+    "classes"
   ],
   "repository": {
     "type": "git",
@@ -23,12 +30,19 @@
   "contributors": [
     "Justin Schroeder <justin@formkit.com>",
     "Andrew Boyd <andrew@formkit.com>",
-    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>"
+    "lennartzellmer <2241624+lennartzellmer@users.noreply.github.com>",
+    "Gustavo Fenilli <gustavofenilli@gmail.com>"
   ],
   "license": "MIT",
   "scripts": {
     "test": "jest"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "@formkit/core": "1.0.0-beta.6"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.23",
+    "unocss": "^0.31.0",
+    "windicss": "^3.5.1"
+  }
 }
