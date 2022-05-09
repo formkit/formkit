@@ -373,7 +373,6 @@ export function parseArgs(str: string): string[] {
       depth--
     }
     if (char === ',' && !quote && depth === 0) {
-      if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
       args.push(arg)
       arg = ''
     } else if (char !== ' ' || quote) {
@@ -382,7 +381,6 @@ export function parseArgs(str: string): string[] {
     lastChar = char
   }
   if (arg) {
-    if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
     args.push(arg)
   }
   return args

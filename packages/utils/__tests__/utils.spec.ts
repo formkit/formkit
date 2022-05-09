@@ -327,7 +327,7 @@ describe('parseArgs', () => {
     expect(parseArgs('abc, 123')).toEqual(['abc', '123'])
   })
   it('can parse simple strings with quotes containing commas', () => {
-    expect(parseArgs('"abc,123", 123')).toEqual(['abc,123', '123'])
+    expect(parseArgs('"abc,123", 123')).toEqual(['"abc,123"', '123'])
   })
   it('can parse arguments that contain parenthetical with commas', () => {
     expect(parseArgs('1, (1 + 2, "345, 678"), 500')).toEqual([
@@ -337,11 +337,11 @@ describe('parseArgs', () => {
     ])
   })
   it('can parse single arguments', () => {
-    expect(parseArgs("'hello world'")).toEqual(['hello world'])
+    expect(parseArgs("'hello world'")).toEqual(["'hello world'"])
   })
   it('can use escaped quotes', () => {
     expect(parseArgs("'this isn\\'t counted', 456")).toEqual([
-      "this isn't counted",
+      "'this isn\\'t counted'",
       '456',
     ])
   })
