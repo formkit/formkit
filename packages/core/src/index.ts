@@ -108,7 +108,7 @@ export { createConfig } from './config'
 /**
  * Sets error store messages on inputs.
  */
-export { setErrors } from './setErrors'
+export * from './setErrors'
 
 /**
  * Programmatically submits a form by the id.

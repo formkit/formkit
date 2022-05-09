@@ -1359,7 +1359,7 @@ describe('exposures', () => {
     )
     const node = getNode(id)
     const callback = jest.fn()
-    node?.on('domInputEvent', callback)
+    node?.on('dom-input-event', callback)
     wrapper.find('input').setValue('foo bar')
     expect(callback).toHaveBeenCalledTimes(1)
     expect((callback.mock.calls[0][0] as FormKitEvent).payload).toBeInstanceOf(

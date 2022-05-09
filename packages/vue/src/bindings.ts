@@ -219,7 +219,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       },
       DOMInput: (e: Event) => {
         node.input((e.target as HTMLInputElement).value)
-        node.emit('domInputEvent', e)
+        node.emit('dom-input-event', e)
       },
     },
     help: node.props.help,

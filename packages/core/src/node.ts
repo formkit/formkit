@@ -568,7 +568,11 @@ export type FormKitNode = {
    * An internal mechanism for calming a disturbance — which is a mechanism
    * used to know the state of input settlement in the tree.
    */
-  calm: (childValue?: FormKitChildValue) => void
+  calm: (childValue?: FormKitChildValue) => FormKitNode
+  /**
+   * Clears the errors of the node, and optionally all the children.
+   */
+  clearErrors: (clearChildren?: boolean) => FormKitNode
   /**
    * An object that is shared tree-wide with various configuration options that
    * should be applied to the entire tree.
@@ -785,6 +789,7 @@ const traps = {
   address: trap(getAddress, invalidSetter, false),
   at: trap(getNode),
   bubble: trap(bubble),
+  clearErrors: trap(clearErrors),
   calm: trap(calm),
   config: trap(false),
   define: trap(define),
@@ -804,7 +809,7 @@ const traps = {
   root: trap(getRoot, invalidSetter, false),
   reset: trap(resetValue),
   resetConfig: trap(resetConfig),
-  setErrors: trap(errors),
+  setErrors: trap(setErrors),
   submit: trap(submit),
   t: trap(text),
   use: trap(use),
@@ -1745,7 +1750,7 @@ function resetValue(
  * @param localErrors - An array of errors to set on this node
  * @param childErrors - An object of name to errors to set on children.
  */
-function errors(
+function setErrors(
   node: FormKitNode,
   _context: FormKitContext,
   localErrors: ErrorMessages,
@@ -1755,6 +1760,35 @@ function errors(
   createMessages(node, localErrors, childErrors).forEach((errors) => {
     node.store.apply(errors, (message) => message.meta.source === sourceKey)
   })
+  return node
+}
+
+/**
+ * Clears errors on the node and optionally its children.
+ * @param node - The node to set errors on
+ * @param _context - Not used
+ * @param localErrors - An array of errors to set on this node
+ * @param childErrors - An object of name to errors to set on children.
+ */
+function clearErrors(
+  node: FormKitNode,
+  context: FormKitContext,
+  clearChildErrors = true
+) {
+  setErrors(node, context, [])
+  if (clearChildErrors) {
+    const sourceKey = `${node.name}-set`
+    node.walk((child) => {
+      child.store.filter((message) => {
+        return !(
+          message.type === 'error' &&
+          message.meta &&
+          message.meta.source === sourceKey
+        )
+      })
+    })
+  }
+  return node
 }
 
 /**
