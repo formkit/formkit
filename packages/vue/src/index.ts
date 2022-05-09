@@ -52,6 +52,7 @@ export {
   resetCount,
   errorHandler,
   setErrors,
+  clearErrors,
   submitForm,
   reset,
 } from '@formkit/core'
