@@ -76,6 +76,84 @@ describe('props', () => {
     expect(wrapper.get('div').findAll('li').length).toBe(1)
   })
 
+  it('automatically clears an input’s errors on input', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        name: 'simple',
+        errors: ['Explicit error'],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.setErrors(['This is a huge problem!'])
+    const outer = wrapper.find('div')
+    await nextTick()
+    expect(outer.findAll('.formkit-message').length).toBe(2)
+    node.input('foo', false)
+    await nextTick()
+    expect(outer.findAll('.formkit-message').length).toBe(1)
+  })
+
+  it('does not clear an input’s errors with preserve-errors prop', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        preserveErrors: true,
+        name: 'simple',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.setErrors(['This is a huge problem!'])
+    await nextTick()
+    expect(wrapper.find('.formkit-message').exists()).toBe(true)
+    node.input('foo', false)
+    await nextTick()
+    expect(wrapper.find('.formkit-message').exists()).toBe(true)
+  })
+
+  it('can clear all errors of children of a group', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        methods: {
+          handleSubmit(_data: Record<string, any>, node: FormKitNode) {
+            node.setErrors(['There were issues with your form'], {
+              username: ['This username was already taken'],
+            })
+          },
+        },
+        template: `
+      <FormKit id="${id}" type="form" @submit="handleSubmit">
+        <FormKit name="username" :delay="0" preserve-errors="true" />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+    const form = getNode(id)!
+    expect(form.ledger.value('errors')).toBe(2)
+    wrapper.find('input').setValue('bar foo')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(form.ledger.value('errors')).toBe(2)
+    form.clearErrors()
+    await nextTick()
+    expect(form.ledger.value('errors')).toBe(0)
+  })
+
   it('children emit no model update if not v-modeled on boot', async () => {
     const wrapper = mount(FormKit, {
       props: {

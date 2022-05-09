@@ -26,6 +26,7 @@ export function setErrors(
  * Clears child errors.
  * @param id - The id of the node you want to clear errors for
  * @param clearChildren - Determines if the the children of this node should have their errors cleared.
+ * @public
  */
 export function clearErrors(id: string, clearChildren = true): void {
   const node = getNode(id)

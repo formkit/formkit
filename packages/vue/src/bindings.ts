@@ -16,7 +16,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel, empty } from '@formkit/utils'
+import { eq, has, camel, empty, undefine } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -291,6 +291,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     'options',
     'type',
     'attrs',
+    'preserve',
+    'preserveErrors',
     'id',
   ]
   observeProps(rootProps)
@@ -329,6 +331,17 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     // The input is dirty after a value has been input by a user
     if (!context.state.dirty && node.isCreated && hasTicked)
       context.handlers.touch()
+    if (
+      isComplete &&
+      node.type === 'input' &&
+      hasErrors.value &&
+      !undefine(node.props.preserveErrors)
+    ) {
+      node.store.filter(
+        (message) =>
+          !(message.type === 'error' && message.meta?.autoClear === true)
+      )
+    }
   })
 
   /**
