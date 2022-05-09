@@ -1153,6 +1153,27 @@ describe('schema $get function', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toBe('you found me!')
   })
+
+  it('can fetch multiple $get statements in the same expression', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$get(ten).value + $get(five).value'],
+      },
+    })
+    expect(wrapper.html()).toBe('0')
+    createNode({
+      plugins: [corePlugin],
+      props: { id: 'ten' },
+      value: 10,
+    })
+    createNode({
+      plugins: [corePlugin],
+      props: { id: 'five' },
+      value: 5,
+    })
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toBe('15')
+  })
 })
 
 describe('$reset', () => {

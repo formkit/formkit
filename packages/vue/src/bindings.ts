@@ -1,4 +1,12 @@
-import { reactive, computed, ref, watch, markRaw, triggerRef } from 'vue'
+import {
+  reactive,
+  computed,
+  ref,
+  watch,
+  markRaw,
+  triggerRef,
+  nextTick,
+} from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -27,6 +35,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.ledger.count('errors', (m) => m.type === 'error')
   const hasErrors = ref<boolean>(!!node.ledger.value('errors'))
+
+  /**
+   * Keep track of the first time a Vue tick cycle has passed.
+   */
+  let hasTicked = false
+  nextTick(() => {
+    hasTicked = true
+  })
 
   /**
    * All messages with the visibility state set to true.
@@ -189,6 +205,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       number: (value: any) => Number(value),
       string: (value: any) => String(value),
       json: (value: any) => JSON.stringify(value),
+      eq,
     },
     handlers: {
       blur: () =>
@@ -202,7 +219,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       },
       DOMInput: (e: Event) => {
         node.input((e.target as HTMLInputElement).value)
-        node.emit('domInputEvent', e)
+        node.emit('dom-input-event', e)
       },
     },
     help: node.props.help,
@@ -286,9 +303,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (definition.props) observeProps(definition.props)
   }
 
-  node.props.definition
-    ? definedAs(node.props.definition)
-    : node.on('defined', ({ payload }) => definedAs(payload))
+  node.props.definition && definedAs(node.props.definition)
+
+  /**
+   * When new props are added to the core node as "props" (ie not attrs) then
+   * we automatically need to start tracking them here.
+   */
+  node.on('added-props', ({ payload }) => observeProps(payload))
 
   /**
    * Watch for input events from core.
@@ -302,11 +323,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    value.value = payload
+    value.value = _value.value = payload
     triggerRef(value)
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty && node.isCreated) context.handlers.touch()
+    if (!context.state.dirty && node.isCreated && hasTicked)
+      context.handlers.touch()
   })
 
   /**

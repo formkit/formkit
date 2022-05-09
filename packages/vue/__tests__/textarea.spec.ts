@@ -48,7 +48,7 @@ describe('textarea classification', () => {
         template: '<FormKit type="textarea" :delay="0" v-model="value" />',
       },
       {
-        ...global
+        ...global,
       }
     )
     expect(wrapper.vm.value).toBe('bar')

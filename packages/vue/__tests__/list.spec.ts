@@ -1,8 +1,9 @@
-import { getNode, reset } from '@formkit/core'
+import { FormKitMiddleware, getNode, reset } from '@formkit/core'
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
+import { jest } from '@jest/globals'
 
 describe('numeric lists', () => {
   it('uses list index as key', () => {
@@ -147,6 +148,46 @@ describe('numeric lists', () => {
     wrapper.vm.showB = true
     await new Promise((r) => setTimeout(r, 25))
     expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
+  })
+
+  it('can can replace the value array', () => {
+    const middleware: FormKitMiddleware<any[]> = (value, next) => {
+      return next(value.map((childValue: any) => childValue))
+      // return next(value)
+    }
+    const hookCallback = jest.fn(middleware)
+    mount(
+      {
+        data() {
+          return {
+            values: ['foo'],
+          }
+        },
+        template: `<FormKit type="list" v-model="values">
+          <FormKit />
+      </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [
+                  function (node) {
+                    if (node.type === 'list') {
+                      node.hook.commit(hookCallback)
+                    }
+                  },
+                ],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(hookCallback).toBeCalledTimes(4)
   })
 
   // it.only('can render a list of inputs each with an index number', async () => {

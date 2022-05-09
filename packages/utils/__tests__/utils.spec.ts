@@ -17,6 +17,7 @@ import {
   token,
   slugify,
   shallowClone,
+  spread,
 } from '../src/index'
 
 describe('eq', () => {
@@ -326,7 +327,7 @@ describe('parseArgs', () => {
     expect(parseArgs('abc, 123')).toEqual(['abc', '123'])
   })
   it('can parse simple strings with quotes containing commas', () => {
-    expect(parseArgs('"abc,123", 123')).toEqual(['abc,123', '123'])
+    expect(parseArgs('"abc,123", 123')).toEqual(['"abc,123"', '123'])
   })
   it('can parse arguments that contain parenthetical with commas', () => {
     expect(parseArgs('1, (1 + 2, "345, 678"), 500')).toEqual([
@@ -336,11 +337,11 @@ describe('parseArgs', () => {
     ])
   })
   it('can parse single arguments', () => {
-    expect(parseArgs("'hello world'")).toEqual(['hello world'])
+    expect(parseArgs("'hello world'")).toEqual(["'hello world'"])
   })
   it('can use escaped quotes', () => {
     expect(parseArgs("'this isn\\'t counted', 456")).toEqual([
-      "this isn't counted",
+      "'this isn\\'t counted'",
       '456',
     ])
   })
@@ -374,7 +375,7 @@ describe('camel', () => {
   })
 })
 
-describe('it can clone an object', () => {
+describe('clone', () => {
   it('does not return the same object', () => {
     const arr = ['foo']
     expect(clone(arr)).not.toBe(arr)
@@ -439,7 +440,7 @@ describe('it can clone an object', () => {
     expect(cloned.__foo).toBe(undefined)
   })
 
-  it('clones explicit enumerable properties on deep objects', () => {
+  it('clones explicit properties on deep objects', () => {
     const world: { hello: string; planet: { a: 123; __init?: string } } = {
       hello: 'world',
       planet: Object.defineProperty({ a: 123 }, '__init', { value: 'yes' }),
@@ -447,6 +448,16 @@ describe('it can clone an object', () => {
     const cloned = clone(world)
     expect(cloned === world).toBe(false)
     expect(cloned.planet.__init).toBe('yes')
+  })
+
+  it('clones explicit non-standard properties on deep objects', () => {
+    const world: { hello: string; planet: { a: 123; __index?: number } } = {
+      hello: 'world',
+      planet: Object.defineProperty({ a: 123 }, '__index', { value: 456 }),
+    }
+    const cloned = clone(world, ['__index'])
+    expect(cloned === world).toBe(false)
+    expect(cloned.planet.__index).toBe(456)
   })
 })
 
@@ -547,4 +558,47 @@ describe('slugify', () => {
     expect(slugify('This!-is*&%#@^up!')).toBe('this-is-up'))
   it('converts non-standard unicode', () =>
     expect(slugify('Amélie')).toBe('amelie'))
+})
+
+describe('spread', () => {
+  it('returns the same string values', () => expect(spread('foo')).toBe('foo'))
+  it('returns the same number values', () => expect(spread(123)).toBe(123))
+  it('returns the same RegExp values', () => {
+    const pattern = /^foo_$/
+    expect(spread(pattern)).toBe(pattern)
+  })
+  it('returns the same Date values', () => {
+    const date = new Date()
+    expect(spread(date)).toBe(date)
+  })
+  it('returns the same shape, but not the same value for POJOs', () => {
+    const obj = { a: 123, b: 'bar' }
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+  })
+  it('returns the same shape, but not the same value for POJOs when using explicit non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__index', {
+      value: 123,
+    })
+    const spreadObj = spread(obj, ['__index'])
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__index).toBe(123)
+  })
+  it('returns the same shape, but not the same value for POJOs when using default non enumerable properties', () => {
+    const obj: any = Object.defineProperty({ a: 123, b: 'bar' }, '__key', {
+      value: 45645,
+    })
+    const spreadObj = spread(obj)
+    expect(spreadObj).toStrictEqual(obj)
+    expect(spreadObj).not.toBe(obj)
+    expect(spreadObj.__key).toBe(45645)
+  })
+  it('returns the same shape, but not the same value for Arrays', () => {
+    const arr = ['a', 'b', 'c']
+    const spreadArr = spread(arr)
+    expect(spreadArr).toStrictEqual(arr)
+    expect(spreadArr).not.toBe(arr)
+  })
 })

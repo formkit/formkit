@@ -93,7 +93,7 @@ describe('node', () => {
     expect(email.config.delimiter).toBe('$')
   })
 
-  it('allows config to be overriden by child props', () => {
+  it('allows config to be overridden by child props', () => {
     const child = createNode({
       props: {
         flavor: 'cherry',
@@ -860,6 +860,16 @@ describe('commit hook', () => {
   })
 })
 
+it('can change both _value and value with commit hook', () => {
+  const node = createNode({ value: 123 })
+  node.hook.commit((value, next) => next(value + 10))
+  expect(node.value).toBe(123)
+  expect(node._value).toBe(123)
+  node.input(1, false)
+  expect(node.value).toBe(11)
+  expect(node._value).toBe(11)
+})
+
 describe('value propagation in a node tree', () => {
   it('disturbs parents when a leaf receives input', async () => {
     const field = createNode({ value: '' })
@@ -1414,4 +1424,22 @@ describe('resetting', () => {
     node.reset()
     expect(resetEvent).toHaveBeenCalledTimes(1)
   })
+})
+
+describe('errors', () => {
+  const form = createNode({
+    type: 'group',
+    name: 'myForm',
+    children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+  })
+  form.ledger.count('errors', (m) => m.type === 'error')
+  form.setErrors(['This is my error'], {
+    foo: 'And this is a child one',
+    bar: ['And this is another child one'],
+  })
+  expect(form.ledger.value('errors')).toBe(3)
+  form.clearErrors(false)
+  expect(form.ledger.value('errors')).toBe(2)
+  form.clearErrors()
+  expect(form.ledger.value('errors')).toBe(0)
 })

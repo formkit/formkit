@@ -130,13 +130,14 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(
       {
         setup() {
           const values = reactive<{ form: Record<string, any> }>({
-            form: {},
+            form: { abc: '123' },
           })
-          const changeValues = () => {
+          const changeValues = async () => {
             values.form.foo = 'bar bar'
           }
           return { values, changeValues }
@@ -154,9 +155,11 @@ describe('value propagation', () => {
     const inputs = wrapper.get('form').findAll('input[type="text"]')
     expect(inputs.length).toBe(1)
     expect(wrapper.find('input').element.value).toEqual('foo')
+    // await new Promise((r) => setTimeout(r, 20))
     wrapper.find('button[type="button"]').trigger('click')
-    await new Promise((r) => setTimeout(r, 200))
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('input').element.value).toStrictEqual('bar bar')
+    warn.mockRestore()
   })
 })
 
@@ -365,6 +368,29 @@ describe('form submission', () => {
     await nextTick()
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+  })
+
+  it('can disable submit button in a form with only the presence of the disabled attribute (#215)', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            disabled: false,
+          }
+        },
+        template: `<FormKit
+          type="form"
+          :submit-attrs="{ id: '${id}' }"
+          disabled
+        >
+        </FormKit>`,
+      },
+      global
+    )
+    expect(
+      wrapper.find('[data-type="submit"]').element.hasAttribute('data-disabled')
+    ).toBe(true)
   })
 
   it('can swap languages', async () => {

@@ -114,4 +114,104 @@ describe('radios', () => {
       inputs.map((input) => (input.element as HTMLInputElement).checked)
     ).toStrictEqual([true, false, false])
   })
+
+  it('can have an object value', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="{ foo: 'bar' }"
+          :options="[
+            { value: { foo: 'bar'}, label: 'foobar' },
+            { value: { fruit: 'banana' }, label: 'fruit' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([true, false])
+    radios[1].element.checked = true
+    radios[1].trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, true])
+    expect(getNode(id)!.value).toEqual({ fruit: 'banana' })
+  })
+
+  it('can have a null value', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="false"
+          :options="[
+            { value: null, label: 'foobar' },
+            { value: false, label: 'fruit' },
+            { value: true, label: 'todd' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, true, false])
+    radios[0].element.checked = true
+    radios[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([true, false, false])
+    expect(getNode(id)!.value).toEqual(null)
+  })
+
+  it('can have map values', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: new Map([['a', 'first']]),
+          }
+        },
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="value"
+          :options="[
+            { value: null, label: 'foobar' },
+            { value: value, label: 'fruit' },
+            { value: true, label: 'todd' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, true, false])
+    radios[0].element.checked = true
+    radios[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([true, false, false])
+    expect(getNode(id)!.value).toEqual(null)
+  })
 })
