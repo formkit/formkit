@@ -1,8 +1,8 @@
 import { FormKitNode, FormKitClasses } from '@formkit/core'
 
-export { default as FormKitTailwind } from './tailwindcss'
-export { default as FormKitUnoCSS } from './unocss'
-export { default as FormKitWindiCSS } from './windicss'
+export { default as formKitTailwind } from './tailwindcss'
+export { default as formKitUno } from './unocss'
+export { default as formKitWindi } from './windicss'
 
 /**
  * A function that returns a class list string
