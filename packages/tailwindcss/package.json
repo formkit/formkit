@@ -31,7 +31,9 @@
   "peerDependencies": {
     "tailwindcss": "^3.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@formkit/core": "1.0.0-beta.6"
+  },
   "devDependencies": {
     "@types/tailwindcss": "^3.0.10"
   }

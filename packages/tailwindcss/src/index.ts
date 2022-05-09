@@ -52,3 +52,4 @@ const formKitVariants = plugin(({ addVariant }) => {
 })
 
 export default formKitVariants
+export { generateClasses } from '@formkit/core'
