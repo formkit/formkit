@@ -385,13 +385,14 @@ export function useInput(
    */
   node.on('modelUpdated', () => {
     // Emit the values after commit
-    context.emit('inputRaw', node.context?.value)
+    context.emit('inputRaw', node.context?.value, node)
     clearTimeout(inputTimeout)
     inputTimeout = setTimeout(
       context.emit,
       20,
       'input',
-      node.context?.value
+      node.context?.value,
+      node
     ) as unknown as number
 
     if (isVModeled && node.context) {
