@@ -10,15 +10,18 @@
     "./genesis": "./dist/genesis/theme.css",
     "./windicss": {
       "import": "./dist/windicss/index.mjs",
-      "require": "./dist/windicss/index.cjs"
+      "require": "./dist/windicss/index.cjs",
+      "types": "./dist/windicss/index.d.ts"
     },
     "./tailwindcss": {
       "import": "./dist/tailwindcss/index.mjs",
-      "require": "./dist/tailwindcss/index.cjs"
+      "require": "./dist/tailwindcss/index.cjs",
+      "types": "./dist/tailwindcss/index.d.ts"
     },
     "./unocss": {
       "import": "./dist/unocss/index.mjs",
-      "require": "./dist/unocss/index.cjs"
+      "require": "./dist/unocss/index.cjs",
+      "types": "./dist/unocss/index.d.ts"
     },
     ".": {
       "import": "./dist/index.mjs",

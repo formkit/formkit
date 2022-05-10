@@ -16,6 +16,7 @@ const pkg = process.env.PKG
 const format = process.env.FORMAT
 const declarations = process.env.DECLARATIONS ? true : false
 const theme = process.env.THEME || false
+const plugin = process.env.PLUGIN || false
 
 if (!pkg) throw Error('Please include a package to bundle')
 if (!format) throw Error('Please include a bundle format')
@@ -34,7 +35,10 @@ export default {
  * Create the expected path for the input file.
  */
 function createInputPath() {
-  return `${rootPath}/src/${theme ? 'css/' + theme + '/' : ''}index.ts`
+  let subpath = ''
+  if (theme) subpath = 'css/' + theme + '/'
+  if (plugin) subpath = `${plugin}/`
+  return `${rootPath}/src/${subpath}index.ts`
 }
 
 /**
@@ -53,6 +57,7 @@ function createOutputConfig() {
       }
     }
     if (theme) fileName = theme + '/theme.js'
+    if (plugin) fileName = `${plugin}/${fileName}`
     return {
       file: `${rootPath}/dist/${fileName}`,
       name:
@@ -106,11 +111,17 @@ function createPluginsConfig() {
  * equivalent to the typescript compilerOptions.
  */
 function createTypeScriptConfig() {
+  let include = `./packages/${pkg}/src/**/*`
+  let out = `${rootPath}/dist`
+  if (plugin) {
+    include = `./packages/${pkg}/src/${plugin}/**/*`
+    out = `${rootPath}/dist/${plugin}`
+  }
   const base = {
     tsconfig: 'tsconfig.json',
     rootDir: `./`,
-    outDir: `${rootPath}/dist`,
-    include: [`./packages/${pkg}/src/**/*`],
+    outDir: out,
+    include: [include],
     noEmitOnError: true,
   }
   if (!declarations) {
