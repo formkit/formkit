@@ -21,7 +21,13 @@ import execa from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { getPackages, getThemes, getBuildOrder, msg } from './utils.mjs'
+import {
+  getPackages,
+  getThemes,
+  getBuildOrder,
+  getPlugins,
+  msg,
+} from './utils.mjs'
 import { exec } from 'child_process'
 
 const augmentations = {
@@ -93,10 +99,7 @@ export async function buildPackage(p) {
   await cleanDist(p)
   msg.info('» bundling distributions')
   msg.loader.start()
-  if (p === 'themes') {
-    const themes = getThemes()
-    await Promise.all(themes.map((theme) => bundle(p, 'esm', theme)))
-  } else if (p === 'nuxt') {
+  if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
     await bundle(p, 'esm')
@@ -109,7 +112,25 @@ export async function buildPackage(p) {
   msg.loader.stop()
   msg.info('» extracting type definitions')
   msg.loader.start()
-  if (p !== 'themes' && p !== 'nuxt') await declarations(p)
+  if (p !== 'nuxt') await declarations(p)
+
+  // special case for CSS themes, processing needs to happen AFTER
+  // type declarations are extracted from the non-CSS theme exports
+  if (p === 'themes') {
+    const themes = getThemes()
+    await Promise.all(themes.map((theme) => bundle(p, 'esm', ['theme', theme])))
+    const plugins = getPlugins()
+    await Promise.all(
+      plugins.map((plugin) =>
+        Promise.all([
+          bundle(p, 'esm', ['plugin', plugin]),
+          bundle(p, 'cjs', ['plugin', plugin]),
+          declarations(p, plugin),
+        ])
+      )
+    )
+  }
+
   msg.loader.stop()
   msg.success(`📦 build complete`)
 }
@@ -150,15 +171,20 @@ async function cleanDist(p) {
  * @param p package name
  * @param format the format to create (cjs, esm, umd, etc...)
  */
-async function bundle(p, format, theme) {
+async function bundle(p, format, subPackage) {
   const args = [
     { name: 'PKG', value: p },
     { name: 'FORMAT', value: format },
   ]
-  if (theme) {
-    args.push({ name: 'THEME', value: theme })
+  if (subPackage && subPackage[0] === 'theme') {
+    args.push({ name: 'THEME', value: subPackage[1] })
+    msg.loader.text = `Bundling theme ${subPackage[1]} (${format})`
+  } else if (subPackage && subPackage[0] === 'plugin') {
+    args.push({ name: 'PLUGIN', value: subPackage[1] })
+    msg.loader.text = `Bundling ${subPackage[1]} plugin (${format})`
+  } else {
+    msg.loader.text = `Bundling ${p} as ${format}`
   }
-  msg.loader.text = `Bundling ${p} as ${format}`
   await execa(rollup, [
     '-c',
     '--environment',
@@ -187,18 +213,18 @@ async function buildNuxtModule() {
  * Emit type declarations for the package to the dist directory.
  * @param p - package name
  */
-async function declarations(p) {
+async function declarations(p, plugin = '') {
   msg.loader.text = `Emitting type declarations`
+  const args = [
+    { name: 'PKG', value: p },
+    { name: 'FORMAT', value: 'esm' },
+    { name: 'DECLARATIONS', value: 1 },
+  ]
+  if (plugin) args.push({ name: 'PLUGIN', value: plugin })
   const output = await execa(rollup, [
     '-c',
     '--environment',
-    [
-      { name: 'PKG', value: p },
-      { name: 'FORMAT', value: 'esm' },
-      { name: 'DECLARATIONS', value: 1 },
-    ]
-      .map(({ name, value }) => `${name}:${value}`)
-      .join(','),
+    args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])
   if (output.exitCode) {
     console.log(output)
@@ -206,9 +232,32 @@ async function declarations(p) {
   }
   // Annoyingly even though we tell @rollup/plugin-typescript
   // emitDeclarationOnly it still outputs an index.js — is this a bug?
-  await fs.rm(`${packagesDir}/${p}/dist/index.js`)
-  msg.loader.text = `Rolling up type declarations`
-  apiExtractor(p)
+  const artifactToDelete = `${packagesDir}/${p}/dist/${
+    plugin ? plugin + '/' : ''
+  }index.js`
+  let shouldDelete
+  try {
+    shouldDelete = await fs.stat(artifactToDelete)
+  } catch {
+    shouldDelete = false
+  }
+  if (shouldDelete) {
+    await fs.rm(artifactToDelete)
+  }
+  if (plugin) {
+    msg.loader.text = `Emitting type declarations for ${plugin}`
+    await execa('mv', [
+      `${rootDir}/packages/themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`,
+      `${rootDir}/packages/themes/dist/${plugin}/index.d.ts`,
+    ])
+    await execa('rm', [
+      '-rf',
+      `${rootDir}/packages/themes/dist/${plugin}/packages`,
+    ])
+  } else {
+    msg.loader.text = `Rolling up type declarations`
+    apiExtractor(p)
+  }
 }
 
 /**

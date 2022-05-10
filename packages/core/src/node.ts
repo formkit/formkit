@@ -403,63 +403,7 @@ export interface FormKitFrameworkContext {
   /**
    * A collection of state trackers/details about the input.
    */
-  state: Record<string, boolean | undefined> & {
-    /**
-     * If the input has been blurred.
-     */
-    blurred: boolean
-    /**
-     * True when these conditions are met:
-     *
-     * Either:
-     * - The input has validation rules
-     * - The validation rules are all passing
-     * - There are no errors on the input
-     * Or:
-     * - The input has no validation rules
-     * - The input has no errors
-     * - The input is dirty and has a value
-     *
-     * This is not intended to be used on forms/groups/lists but instead on
-     * individual inputs. Imagine placing a green checkbox next to each input
-     * when the user filled it out correctly — thats what these are for.
-     */
-    complete: boolean
-    /**
-     * If the input has had a value typed into it or a change made to it.
-     */
-    dirty: boolean
-    /**
-     * If the input has explicit errors placed on it, or in the case of a group,
-     * list, or form, this is true if any children have errors on them.
-     */
-    errors: boolean
-    /**
-     * True when the input has validation rules. Has nothing to do with the
-     * state of those validation rules.
-     */
-    rules: boolean
-    /**
-     * True when the input has completed its internal debounce cycle and the
-     * value was committed to the form.
-     */
-    settled: boolean
-    /**
-     * If the form has been submitted.
-     */
-    submitted: boolean
-    /**
-     * If the input (or group/form/list) is passing all validation rules. In
-     * the case of groups, forms, and lists this includes the validation state
-     * of all its children.
-     */
-    valid: boolean
-    /**
-     * If the validation-visibility has been satisfied and any validation
-     * messages should be displayed.
-     */
-    validationVisible: boolean
-  }
+  state: FormKitFrameworkContextState
   /**
    * The type of input "text" or "select" (retrieved from node.props.type). This
    * is not the core node type (input, group, or list).
@@ -470,6 +414,73 @@ export interface FormKitFrameworkContext {
    * used for most use cases.
    */
   value: any
+}
+
+/**
+ * The state inside a node’s framework context. Usually used to track things
+ * like blurred, and validity states.
+ * @public
+ */
+export interface FormKitFrameworkContextState {
+  /**
+   * If the input has been blurred.
+   */
+  blurred: boolean
+  /**
+   * True when these conditions are met:
+   *
+   * Either:
+   * - The input has validation rules
+   * - The validation rules are all passing
+   * - There are no errors on the input
+   * Or:
+   * - The input has no validation rules
+   * - The input has no errors
+   * - The input is dirty and has a value
+   *
+   * This is not intended to be used on forms/groups/lists but instead on
+   * individual inputs. Imagine placing a green checkbox next to each input
+   * when the user filled it out correctly — thats what these are for.
+   */
+  complete: boolean
+  /**
+   * If the input has had a value typed into it or a change made to it.
+   */
+  dirty: boolean
+  /**
+   * If the input has explicit errors placed on it, or in the case of a group,
+   * list, or form, this is true if any children have errors on them.
+   */
+  errors: boolean
+  /**
+   * True when the input has validation rules. Has nothing to do with the
+   * state of those validation rules.
+   */
+  rules: boolean
+  /**
+   * True when the input has completed its internal debounce cycle and the
+   * value was committed to the form.
+   */
+  settled: boolean
+  /**
+   * If the form has been submitted.
+   */
+  submitted: boolean
+  /**
+   * If the input (or group/form/list) is passing all validation rules. In
+   * the case of groups, forms, and lists this includes the validation state
+   * of all its children.
+   */
+  valid: boolean
+  /**
+   * If the validation-visibility has been satisfied and any validation
+   * messages should be displayed.
+   */
+  validationVisible: boolean
+  /**
+   * Allow users to add their own arbitrary states.
+   */
+  [index: string]: boolean
 }
 
 /**
@@ -557,7 +568,11 @@ export type FormKitNode = {
    * An internal mechanism for calming a disturbance — which is a mechanism
    * used to know the state of input settlement in the tree.
    */
-  calm: (childValue?: FormKitChildValue) => void
+  calm: (childValue?: FormKitChildValue) => FormKitNode
+  /**
+   * Clears the errors of the node, and optionally all the children.
+   */
+  clearErrors: (clearChildren?: boolean) => FormKitNode
   /**
    * An object that is shared tree-wide with various configuration options that
    * should be applied to the entire tree.
@@ -774,6 +789,7 @@ const traps = {
   address: trap(getAddress, invalidSetter, false),
   at: trap(getNode),
   bubble: trap(bubble),
+  clearErrors: trap(clearErrors),
   calm: trap(calm),
   config: trap(false),
   define: trap(define),
@@ -793,7 +809,7 @@ const traps = {
   root: trap(getRoot, invalidSetter, false),
   reset: trap(resetValue),
   resetConfig: trap(resetConfig),
-  setErrors: trap(errors),
+  setErrors: trap(setErrors),
   submit: trap(submit),
   t: trap(text),
   use: trap(use),
@@ -1161,7 +1177,11 @@ function define(
  * @param context - The internal context object
  * @param props - An array of prop strings (in camelCase!)
  */
-function addProps(node: FormKitNode, context: FormKitContext, props: string[]) {
+function addProps(
+  node: FormKitNode,
+  context: FormKitContext,
+  props: string[]
+): FormKitNode {
   if (node.props.attrs) {
     const attrs = { ...node.props.attrs }
     // Temporarily disable prop emits
@@ -1188,6 +1208,7 @@ function addProps(node: FormKitNode, context: FormKitContext, props: string[]) {
     }
   }
   node.emit('added-props', props)
+  return node
 }
 
 /**
@@ -1729,7 +1750,7 @@ function resetValue(
  * @param localErrors - An array of errors to set on this node
  * @param childErrors - An object of name to errors to set on children.
  */
-function errors(
+function setErrors(
   node: FormKitNode,
   _context: FormKitContext,
   localErrors: ErrorMessages,
@@ -1739,6 +1760,35 @@ function errors(
   createMessages(node, localErrors, childErrors).forEach((errors) => {
     node.store.apply(errors, (message) => message.meta.source === sourceKey)
   })
+  return node
+}
+
+/**
+ * Clears errors on the node and optionally its children.
+ * @param node - The node to set errors on
+ * @param _context - Not used
+ * @param localErrors - An array of errors to set on this node
+ * @param childErrors - An object of name to errors to set on children.
+ */
+function clearErrors(
+  node: FormKitNode,
+  context: FormKitContext,
+  clearChildErrors = true
+) {
+  setErrors(node, context, [])
+  if (clearChildErrors) {
+    const sourceKey = `${node.name}-set`
+    node.walk((child) => {
+      child.store.filter((message) => {
+        return !(
+          message.type === 'error' &&
+          message.meta &&
+          message.meta.source === sourceKey
+        )
+      })
+    })
+  }
+  return node
 }
 
 /**
@@ -1784,7 +1834,10 @@ function createProps(initial: unknown) {
         value: originalValue,
       })
       // Typescript compiler cannot handle a symbol index, even though js can:
-      if (!eq(props[prop as string], value, false)) {
+      if (
+        !eq(props[prop as string], value, false) ||
+        typeof value === 'object'
+      ) {
         const didSet = Reflect.set(target, prop, value, receiver)
         if (isEmitting) {
           node.emit('prop', { prop, value })

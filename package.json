@@ -49,12 +49,14 @@
     "rollup-plugin-vue": "^6.0.0",
     "stylelint": "^14.0.1",
     "stylelint-config-standard": "^23.0.0",
-    "tailwindcss": "^3.0.23",
+    "tailwindcss": "^3.0.24",
     "terser": "^5.10.0",
     "ts-jest": "27.0.3",
     "typescript": "4.4.3",
+    "unocss": "^0.33.2",
     "vite": "^2.4.4",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "windicss": "^3.5.2"
   },
   "license": "UNLICENSED",
   "scripts": {
@@ -65,12 +67,12 @@
     "local": "node scripts/cli.mjs --script local",
     "translate": "node scripts/cli.mjs --script translate",
     "cli": "node scripts/cli.mjs",
-    "dev": "vite --config ./examples/vite.config.ts",
+    "dev": "vite --config ./examples/vite.config.ts --host",
     "dev-build": "vite build --config ./examples/vite.config.ts",
     "deploy": "node scripts/cli.mjs --script=deploy",
     "nuxt-pack": "nuxt-module-build packages/nuxt",
     "nuxt-dev": "nuxi dev packages/nuxt/playground",
-    "tailwind-dev": "vite packages/tailwindcss/playground",
+    "tailwind-dev": "vite packages/tailwindcss/playground --host",
     "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch"
   },
   "dependencies": {},

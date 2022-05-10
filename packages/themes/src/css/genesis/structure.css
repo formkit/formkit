@@ -96,6 +96,10 @@
       & option {
         color: var(--fk-color-input);
 
+        &[disabled] {
+          color: var(--fk-color-disabled);
+        }
+
         &[data-is-placeholder] {
           color: var(--fk-color-placeholder);
         }

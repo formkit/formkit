@@ -373,7 +373,6 @@ export function parseArgs(str: string): string[] {
       depth--
     }
     if (char === ',' && !quote && depth === 0) {
-      if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
       args.push(arg)
       arg = ''
     } else if (char !== ' ' || quote) {
@@ -382,7 +381,6 @@ export function parseArgs(str: string): string[] {
     lastChar = char
   }
   if (arg) {
-    if (isQuotedString(arg)) arg = rmEscapes(arg.substr(1, arg.length - 2))
     args.push(arg)
   }
   return args
@@ -503,6 +501,8 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
     obj === null ||
     obj instanceof RegExp ||
     obj instanceof Date ||
+    obj instanceof Map ||
+    obj instanceof Set ||
     (typeof File === 'function' && obj instanceof File)
   )
     return obj

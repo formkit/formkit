@@ -371,4 +371,13 @@ describe('logic compiler', () => {
       })()
     ).toBe('canada')
   })
+
+  it('can parse quoted strings inside a function call (#150)', () => {
+    const say = (value: string) => value
+    expect(
+      compile('$say("who are you")').provide(() => {
+        return { say: () => say }
+      })()
+    ).toBe('who are you')
+  })
 })

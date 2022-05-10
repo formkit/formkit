@@ -4,6 +4,7 @@ import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { getNode } from '@formkit/core'
+import { token } from '@formkit/utils'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -287,5 +288,73 @@ describe('multiple checkboxes', () => {
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     expect(wrapper.get('fieldset').findAll('label').length).toBe(3)
     expect(wrapper.html()).toContain('<span class="formkit-label">A</span>')
+  })
+})
+
+describe('non string values for checkboxes', () => {
+  it('can have numbers as values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        type: 'checkbox',
+        value: [2, 3],
+        options: [
+          { value: 1, label: 'One' },
+          { value: 2, label: 'Two' },
+          { value: 3, label: 'Three' },
+        ],
+      },
+      ...global,
+    })
+    const checkboxes = wrapper.find('div').findAll('input')
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      false,
+      true,
+      true,
+    ])
+    checkboxes[0].element.checked = false
+    checkboxes[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      true,
+      true,
+      true,
+    ])
+    expect(getNode(id)!.value).toEqual([2, 3, 1])
+  })
+
+  it('can have objects as values', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        delay: 0,
+        type: 'checkbox',
+        value: [{ zip: '02108' }],
+        options: [
+          { value: null, label: 'Atlanta' },
+          { value: { zip: '02108' }, label: 'Boston' },
+          { value: { zip: '80014' }, label: 'Denver' },
+        ],
+      },
+      ...global,
+    })
+    const checkboxes = wrapper.find('div').findAll('input')
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      false,
+      true,
+      false,
+    ])
+    checkboxes[0].element.checked = false
+    checkboxes[0].trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(checkboxes.map((input) => input.element.checked)).toEqual([
+      true,
+      true,
+      false,
+    ])
+    expect(getNode(id)!.value).toEqual([{ zip: '02108' }, null])
   })
 })

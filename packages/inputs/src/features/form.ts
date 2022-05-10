@@ -20,7 +20,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   })
 
   if (typeof node.props.onSubmitRaw === 'function') {
-    node.props.onSubmitRaw(submitEvent)
+    node.props.onSubmitRaw(submitEvent, node)
   }
 
   if (node.ledger.value('blocking')) {

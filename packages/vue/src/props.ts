@@ -65,6 +65,9 @@ type FormKitSyntheticProps = {
   preserve: {
     type: PropType<string | boolean | undefined>
   }
+  preserveErrors: {
+    type: PropType<string | boolean | undefined>
+  }
 }
 
 /**

@@ -7,12 +7,15 @@ import { undefine } from '@formkit/utils'
  * @public
  */
 export default function disables(node: FormKitNode): void {
+  node.on('created', () => {
+    node.props.disabled = undefine(node.props.disabled)
+  })
   node.hook.prop(({ prop, value }, next) => {
     value = prop === 'disabled' ? undefine(value) : value
     return next({ prop, value })
   })
   node.on('prop:disabled', ({ payload: value }) => {
-    node.config.disabled = value
+    node.config.disabled = undefine(value)
   })
   node.on('created', () => {
     node.config.disabled = undefine(node.props.disabled)

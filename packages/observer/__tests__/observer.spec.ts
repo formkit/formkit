@@ -1,7 +1,6 @@
 import { createNode, createMessage } from '@formkit/core'
-import { createObserver, FormKitWatchable } from '../src'
+import { createObserver, FormKitWatchable, isKilled } from '../src'
 import { jest } from '@jest/globals'
-import {} from 'packages/core/src'
 
 describe('observer', () => {
   it('can detect requests for value on primary node', () => {
@@ -144,6 +143,15 @@ describe('observer', () => {
     expect(watcher).toHaveBeenCalledTimes(1)
     expect(success).toHaveBeenCalledTimes(0)
     expect(() => obs.value).toThrow(TypeError)
+  })
+
+  it('tracks when an observer has been destroyed', () => {
+    const node = createNode()
+    const observer = createObserver(node)
+    const observer2 = createObserver(node)
+    observer.kill()
+    expect(isKilled(observer)).toBe(true)
+    expect(isKilled(observer2)).toBe(false)
   })
 
   it('can observe a ledger count', () => {

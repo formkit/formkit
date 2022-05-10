@@ -70,6 +70,7 @@ const pseudoProps = [
   'ignore',
   'disabled',
   'preserve',
+  /^preserve(-e|E)rrors/,
   /^[a-z]+(?:-visibility|Visibility)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
 ]
@@ -81,9 +82,14 @@ const pseudoProps = [
  */
 function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
   if (props.classes) {
-    Object.keys(props.classes).forEach((key) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      node.props[`_${key}Class`] = props.classes![key]
+    Object.keys(props.classes).forEach((key: keyof typeof props['classes']) => {
+      if (typeof key === 'string') {
+        node.props[`_${key}Class`] = props.classes[key]
+        // We need to ensure Vue is aware that we want to actually observe the
+        // child values too, so we touch them here.
+        if (isObject(props.classes[key]) && key === 'inner')
+          Object.values(props.classes[key])
+      }
     })
   }
 }
@@ -379,13 +385,14 @@ export function useInput(
    */
   node.on('modelUpdated', () => {
     // Emit the values after commit
-    context.emit('inputRaw', node.context?.value)
+    context.emit('inputRaw', node.context?.value, node)
     clearTimeout(inputTimeout)
     inputTimeout = setTimeout(
       context.emit,
       20,
       'input',
-      node.context?.value
+      node.context?.value,
+      node
     ) as unknown as number
 
     if (isVModeled && node.context) {

@@ -159,7 +159,7 @@ export function compile(expr: string): FormKitCompilerOutput {
     if (!candidates.length) return false
     return candidates.find((symbol) => {
       if (expression.length >= p + symbol.length) {
-        const nextChars = expression.substr(p, symbol.length)
+        const nextChars = expression.substring(p, p + symbol.length)
         if (nextChars === symbol) return symbol
       }
       return false
@@ -174,8 +174,8 @@ export function compile(expr: string): FormKitCompilerOutput {
    */
   function getStep(p: number, expression: string, direction = 1): number {
     let next = direction
-      ? expression.substr(p + 1).trim()
-      : expression.substr(0, p).trim()
+      ? expression.substring(p + 1).trim()
+      : expression.substring(0, p).trim()
     if (!next.length) return -1
     if (!direction) {
       // left hand direction could include a function name we need to remove
@@ -245,6 +245,7 @@ export function compile(expr: string): FormKitCompilerOutput {
     let lastChar = ''
     let char = ''
     let parenthetical = ''
+    let parenQuote: false | string = ''
     let startP = 0
     const addTo = (depth: number, char: string) => {
       depth ? (parenthetical += char) : (operand += char)
@@ -253,19 +254,29 @@ export function compile(expr: string): FormKitCompilerOutput {
       lastChar = char
       char = expression.charAt(p)
       if (
-        !quote &&
         (char === "'" || char === '"') &&
         lastChar !== '\\' &&
-        depth === 0
+        ((depth === 0 && !quote) || (depth && !parenQuote))
       ) {
-        quote = char
+        if (depth) {
+          parenQuote = char
+        } else {
+          quote = char
+        }
         addTo(depth, char)
         continue
-      } else if (quote && (char !== quote || lastChar === '\\')) {
+      } else if (
+        (quote && (char !== quote || lastChar === '\\')) ||
+        (parenQuote && (char !== parenQuote || lastChar === '\\'))
+      ) {
         addTo(depth, char)
         continue
       } else if (quote === char) {
         quote = false
+        addTo(depth, char)
+        continue
+      } else if (parenQuote === char) {
+        parenQuote = false
         addTo(depth, char)
         continue
       } else if (char === ' ') {
@@ -314,7 +325,8 @@ export function compile(expr: string): FormKitCompilerOutput {
           const lStep = op ? step : getStep(startP, expression, 0)
           const rStep = getStep(p, expression)
           if (lStep === -1 && rStep === -1) {
-            // This parenthetical was unnecessarily wrapped at the root
+            // This parenthetical was unnecessarily wrapped at the root, or
+            // these are args of a function call.
             operand = evaluate(parenthetical, -1, fn, tail) as string
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
             // has a left hand operator with a higher order of operation
@@ -471,7 +483,7 @@ export function compile(expr: string): FormKitCompilerOutput {
 
       // Truly quotes strings cannot contain an operation, return the string
       if (isQuotedString(operand))
-        return rmEscapes(operand.substr(1, operand.length - 2))
+        return rmEscapes(operand.substring(1, operand.length - 1))
 
       // Actual numbers cannot be contain an operation
       if (!isNaN(+operand)) return Number(operand)
@@ -480,7 +492,7 @@ export function compile(expr: string): FormKitCompilerOutput {
         return parseLogicals(operand, step + 1)
       } else {
         if (operand.startsWith('$')) {
-          const cleaned = operand.substr(1)
+          const cleaned = operand.substring(1)
           requirements.add(cleaned)
           return function getToken(tokens: FormKitTokens) {
             return cleaned in tokens ? tokens[cleaned]() : undefined
@@ -497,7 +509,9 @@ export function compile(expr: string): FormKitCompilerOutput {
   /**
    * Compile the string.
    */
-  const compiled = parseLogicals(expr.startsWith('$:') ? expr.substr(2) : expr)
+  const compiled = parseLogicals(
+    expr.startsWith('$:') ? expr.substring(2) : expr
+  )
   /**
    * Convert compiled requirements to an array.
    */
