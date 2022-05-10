@@ -1,17 +1,10 @@
 import { FormKitNode, FormKitClasses } from '@formkit/core'
 
-export { default as formKitTailwind } from './tailwindcss'
-export { default as formKitUno } from './unocss'
-export { default as formKitWindi } from './windicss'
-
 /**
  * A function that returns a class list string
  * @internal
  */
- type ClassFunction = (
-  node: FormKitNode,
-  sectionKey: string
-) => string
+type ClassFunction = (node: FormKitNode, sectionKey: string) => string
 
 /**
  * A function to generate FormKit class functions from a javascript object
@@ -19,7 +12,7 @@ export { default as formKitWindi } from './windicss'
  * @returns FormKitClassFunctions
  * @public
  */
- export function generateClasses(
+export function generateClasses(
   classes: Record<string, Record<string, string>>
 ): Record<string, string | FormKitClasses | Record<string, boolean>> {
   const classesBySectionKey: Record<string, Record<string, any>> = {}
@@ -42,7 +35,7 @@ export { default as formKitWindi } from './windicss'
     } as ClassFunction
   })
 
-  return classesBySectionKey;
+  return classesBySectionKey
 }
 
 /**

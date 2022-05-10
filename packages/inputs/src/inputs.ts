@@ -153,7 +153,7 @@ export const hidden: FormKitTypeDefinition = {
 }
 
 /**
- * The group input type.
+ * The select input type.
  * @public
  */
 export const select: FormKitTypeDefinition = {
@@ -196,7 +196,7 @@ export const group: FormKitTypeDefinition = {
 }
 
 /**
- * The group input type.
+ * The form input type.
  * @public
  */
 export const form: FormKitTypeDefinition = {
@@ -214,7 +214,7 @@ export const form: FormKitTypeDefinition = {
 }
 
 /**
- * The group input type.
+ * The list input type.
  * @public
  */
 export const list: FormKitTypeDefinition = {

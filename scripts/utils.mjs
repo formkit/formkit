@@ -51,9 +51,21 @@ export function getLocales() {
 /**
  * Get the available themes from the themes directory.
  */
- export function getThemes() {
+export function getThemes() {
   const availablePackages = fs.readdirSync(packagesDir + '/themes/src/css')
   return availablePackages
+}
+
+/**
+ * Get all the plugin directories in the themes package
+ */
+export function getPlugins() {
+  const possiblePlugins = fs.readdirSync(packagesDir + '/themes/src', {
+    withFileTypes: true,
+  })
+  return possiblePlugins
+    .filter((file) => file.isDirectory() && file.name !== 'css')
+    .map((file) => file.name)
 }
 
 /**

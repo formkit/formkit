@@ -8,6 +8,21 @@
   "module": "dist/index.mjs",
   "exports": {
     "./genesis": "./dist/genesis/theme.css",
+    "./windicss": {
+      "import": "./dist/windicss/index.mjs",
+      "require": "./dist/windicss/index.cjs",
+      "types": "./dist/windicss/index.d.ts"
+    },
+    "./tailwindcss": {
+      "import": "./dist/tailwindcss/index.mjs",
+      "require": "./dist/tailwindcss/index.cjs",
+      "types": "./dist/tailwindcss/index.d.ts"
+    },
+    "./unocss": {
+      "import": "./dist/unocss/index.mjs",
+      "require": "./dist/unocss/index.cjs",
+      "types": "./dist/unocss/index.d.ts"
+    },
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
@@ -40,9 +55,20 @@
   "dependencies": {
     "@formkit/core": "1.0.0-beta.7"
   },
-  "devDependencies": {
-    "tailwindcss": "^3.0.23",
+  "peerDependencies": {
+    "tailwindcss": "^3.0.0",
     "unocss": "^0.31.0",
-    "windicss": "^3.5.1"
+    "windicss": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "tailwindcss": {
+      "optional": true
+    },
+    "unocss": {
+      "optional": true
+    },
+    "windicss": {
+      "optional": true
+    }
   }
 }
