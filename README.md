@@ -28,33 +28,6 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
-<!-- 
-<p>
-  <a href="https://github.com/sponsors/formkit">
-    <img src="./.github/your-logo-here.svg" width="290" height="150" alt="Sponsor formkit to add your logo here">
-  </a>
-</p>
-
-### 👑 Platinum Sponsors
-
-<p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 33%;">
-</p>
-
-
-### 🥇 Gold Sponsors
-
-<p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 25%;">
-</p>
-
-
-### 🥈 Silver Sponsors
-
-<p style="margin-bottom: 1em;">
-  <img src="https://cdn.formk.it/web-assets/logo-ipsum-3.svg" style="width: 18%;">
-</p>-->
-
 ### 🥉 Bronze sponsors
 
 <p style="margin-bottom: 1em;">
