@@ -25,7 +25,7 @@ const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
 export default {
-  external: ['vue', 'react'],
+  external: ['vue', 'react', 'unocss', 'tailwindcss', 'windicss'],
   input: createInputPath(),
   output: createOutputConfig(),
   plugins: createPluginsConfig(),
