@@ -44,4 +44,37 @@ describe('plugins', () => {
     await nextTick()
     expect(wrapper.find('[foo-bar]').exists()).toBe(false)
   })
+
+  it('can directly modify node.prop.attrs via hooks and props', async () => {
+    const id = token()
+    const changeAttrs = (node: FormKitNode) => {
+      node.hook.prop(({ prop, value }, next) => {
+        if (prop === 'placeholder') {
+          value = 'should be this'
+        }
+        return next({ prop, value })
+      })
+      node.props.placeholder = node.props.placeholder
+      node.props.label = 'this label'
+    }
+    const wrapper = mount(FormKit, {
+      props: {
+        placeholder: 'should not be this',
+        type: 'select',
+        label: 'not this label',
+        options: ['a', 'b'],
+        id,
+        plugins: [changeAttrs],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    await nextTick()
+    expect(getNode(id)!.props.placeholder).toBe('should be this')
+    expect(wrapper.find('option[data-is-placeholder]').text()).toBe(
+      'should be this'
+    )
+    expect(wrapper.find('label').text()).toBe('this label')
+  })
 })
