@@ -158,6 +158,18 @@ export function nodeType(type: string): 'list' | 'group' | 'input' {
 }
 
 /**
+ * Given a rule and a set of rules returns if this rule exists
+ * @param rule - Any string
+ * @param ruleSet - A validation string or array
+ * @public
+ */
+export function hasRule(rule: string, ruleSet: string | Array<Array<string>>): boolean {
+	if (Array.isArray(ruleSet)) return !!ruleSet.find(r => r.includes(rule));
+  
+	return !!ruleSet.split('|').map(r => r.split(/:|,+/g)).find(r => r.includes(rule));
+};
+
+/**
  * Determines if an object is an object or not.
  * @param o - any value
  * @returns
