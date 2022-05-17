@@ -979,7 +979,7 @@ describe('rendering components', () => {
   })
 
   it('passes through key with shorthand for $formkit', async () => {
-    const data = reactive({ show: false, one: Number, two: Number, three: Number })
+    const data = reactive({ show: false })
     const wrapper = mount(FormKitSchema, {
       props: {
         data,
