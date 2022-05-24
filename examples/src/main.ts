@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
-import { createIconPlugin, newIcons } from '@formkit/icons'
+import { createIconPlugin, applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
 import { de, fr } from '@formkit/i18n'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import '@formkit/themes/genesis'
@@ -29,7 +29,14 @@ const config = defaultConfig({
     iconPosition: 'prefix'
   },
   plugins: [createIconPlugin({
-    ...newIcons
+    ...applicationIcons,
+    ...brandIcons,
+    ...cryptoIcons,
+    ...currencyIcons,
+    ...directionalIcons,
+    ...fileIcons,
+    ...inputIcons,
+    ...paymentIcons
   })]
 })
 
