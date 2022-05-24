@@ -1,35 +1,49 @@
-import add from './add'
-import avatarMan from './avatar-man'
-import avatarWoman from './avatar-woman'
-import bookmark from './bookmark'
-import close from './close'
-import exportAction from './export-action'
-import eye from './eye'
-import eyeClosed from './eye-closed'
-import flag from './flag'
-import happy from './happy'
-import heart from './heart'
-import help from './help'
-import info from './info'
-import linkExternal from './link-external'
-import link from './link'
-import megaphone from './megaphone'
-import open from './open'
-import people from './people'
-import refresh from './refresh'
-import reorder from './reorder'
-import reply from './reply'
-import sad from './sad'
-import magnifyingGlass from './search'
-import settings from './settings'
-import share from './share'
-import start from './start'
-import tag from './tag'
-import tools from './tools'
-import trash from './trash'
-import volumeDown from './volume-down'
-import volumeUp from './volume-up'
-import warning from './warning'
+import add from './Add'
+import avatarMan from './AvatarMan'
+import avatarWoman from './AvatarWoman'
+import bookmark from './Bookmark'
+import close from './Close'
+import exportAction from './Export'
+import eye from './Eye'
+import eyeClosed from './EyeClosed'
+import flag from './Flag'
+import happy from './Happy'
+import heart from './Heart'
+import help from './Help'
+import info from './Info'
+import linkExternal from './LinkExternal'
+import link from './Link'
+import megaphone from './Megaphone'
+import open from './Open'
+import people from './People'
+import refresh from './Refresh'
+import reorder from './Reorder'
+import reply from './Reply'
+import sad from './Sad'
+import magnifyingGlass from './Search'
+import settings from './Settings'
+import share from './Share'
+import start from './Start'
+import tag from './Tag'
+import tools from './Tools'
+import trash from './Trash'
+import volumeDown from './VolumeDown'
+import volumeUp from './VolumeUp'
+import warning from './Warning'
+
+// ported from "video" category
+import compress from './Compress'
+import expand from './Expand'
+import fastForward from './FastForward'
+import minimize from './Minimize'
+import pause from './Pause'
+import playCircle from './PlayCircle'
+import play from './Play'
+import rewind from './Rewind'
+import stepBack from './StepBack'
+import stepForward from './StepForward'
+import stop from './Stop'
+
 
 export {
   add,
@@ -63,5 +77,17 @@ export {
   trash,
   volumeDown,
   volumeUp,
-  warning
+  warning,
+  // ported from "video" category
+  compress,
+  expand,
+  fastForward,
+  minimize,
+  pause,
+  playCircle,
+  play,
+  rewind,
+  stepBack,
+  stepForward,
+  stop
 }

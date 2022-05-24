@@ -1,13 +1,11 @@
-import bitcoin from './bitcoin'
-import bnb from './bnb'
-import cardano from './cardano'
-import dogecoin from './dogecoin'
-import ethereum from './ethereum'
-import solana from './solana'
-import terra from './terra'
-import tether from './tether'
-import usdc from './usdc'
-import xrp from './xrp'
+import bitcoin from './Bitcoin'
+import bnb from './BNB'
+import cardano from './Cardano'
+import dogecoin from './Dogecoin'
+import ethereum from './Ethereum'
+import solana from './Solana'
+import tether from './Tether'
+import usdc from './USDC'
 
 export {
   bitcoin,
@@ -16,8 +14,6 @@ export {
   dogecoin,
   ethereum,
   solana,
-  terra,
   tether,
-  usdc,
-  xrp
+  usdc
 }

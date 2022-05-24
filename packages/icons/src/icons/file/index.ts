@@ -1,14 +1,14 @@
-import downloadCloud from './download-cloud'
-import download from './download'
-import fileAudio from './file-audio'
-import fileDoc from './file-doc'
-import fileImage from './file-image'
-import filePdf from './file-pdf'
-import fileVideo from './file-video'
-import fileDefault from './file'
-import uploadCloud from './upload-cloud'
-import upload from './upload'
-import zip from './zip'
+import downloadCloud from './DownloadCloud'
+import download from './Download'
+import fileAudio from './FileAudio'
+import fileDoc from './FileDoc'
+import fileImage from './FileImage'
+import filePdf from './FilePDF'
+import fileVideo from './FileVideo'
+import folder from './Folder'
+import uploadCloud from './UploadCloud'
+import upload from './Upload'
+import zip from './Zip'
 
 export {
   downloadCloud,
@@ -18,7 +18,7 @@ export {
   fileImage,
   filePdf,
   fileVideo,
-  fileDefault,
+  folder,
   uploadCloud,
   upload,
   zip
