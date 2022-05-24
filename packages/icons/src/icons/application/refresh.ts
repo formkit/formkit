@@ -1,4 +1,1 @@
-export default `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M13 8C13 10.7614 10.7614 13 8 13C5.23858 13 3 10.7614 3 8C3 5.23858 5.23858 3 8 3C9.48083 3 10.8113 3.64375 11.7268 4.66667" stroke="currentColor" stroke-linecap="round"/>
-<path d="M8.47032 5.47032H12.3651V1.57554" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>`
+export default `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 16"><path d="M12.5,6.68h-3.68c-.28,0-.5-.22-.5-.5s.22-.5,.5-.5h3.18V2.49c0-.28,.22-.5,.5-.5s.5,.22,.5,.5v3.68c0,.28-.22,.5-.5,.5Z" fill="currentColor"/><path d="M7,14.01c-3.31,0-6-2.69-6-6S3.69,2.01,7,2.01c2.34,0,4.48,1.37,5.46,3.5,.12,.25,0,.55-.25,.66-.25,.12-.55,0-.66-.25-.81-1.77-2.6-2.92-4.55-2.92-2.76,0-5,2.24-5,5s2.24,5,5,5,5-2.24,5-5c0-.28,.22-.5,.5-.5s.5,.22,.5,.5c0,3.31-2.69,6-6,6Z" fill="currentColor"/></svg>`

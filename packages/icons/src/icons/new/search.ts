@@ -1,1 +1,0 @@
-export default `<svg id="a" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 16"><circle cx="7.02" cy="6.98" r="5.52" fill="none" stroke="currentColor" stroke-miterlimit="4" stroke-width="1"/><line x1="10.94" y1="10.94" x2="13.5" y2="13.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>`
