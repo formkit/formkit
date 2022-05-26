@@ -14,7 +14,7 @@ const FormKitVariants = plugin(({ addVariant, theme }) => {
     })
   });
 
-  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', ...attributes].forEach((attribute) => {
+  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', 'has-prefix-icon', 'has-suffix-icon', ...attributes].forEach((attribute) => {
     addVariant(`formkit-${attribute}`, ({ modifySelectors }) => {
       return modifySelectors(({ className }) => {
         return `.${className}[data-${attribute}], [data-${attribute}] .${className}, [data-${attribute}].${className}`
