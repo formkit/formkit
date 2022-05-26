@@ -4,6 +4,7 @@
     id="form"
     v-model="data"
     type="form"
+    :actions="false"
     :plugins="[iconPlugin]"
     @submit="submitHandler"
   >
@@ -30,11 +31,21 @@
       label="Icon with select input"
       placeholder="Select some pie"
       icon="apple"
+      icon-suffix="formkit"
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
         peach: 'Peach cobbler'
       }"
+    />
+    <FormKit
+      id="textarea"
+      name="textarea"
+      type="textarea"
+      label="Text Area input"
+      placeholder="Write something"
+      icon="apple"
+      icon-suffix="formkit"
     />
     <FormKit
       id="framework"
@@ -63,9 +74,132 @@
       :icon-suffix="passwordIcon"
       @icon-click="handleIconClick"
     />
+    <FormKit
+      id="single_radio"
+      name="single_radio"
+      type="radio"
+      label="a single_radio input"
+      icon="formkit"
+      icon-suffix="apple"
+    />
+    <FormKit
+      id="single_checkbox"
+      name="single_checkbox"
+      type="checkbox"
+      label="a single_checkbox input"
+      icon="formkit"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      id="radio"
+      name="radio"
+      type="radio"
+      label="a radio input"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+      icon="formkit"
+      icon-suffix="apple"
+    />
+    <FormKit
+      id="checkbox"
+      name="checkbox"
+      type="checkbox"
+      label="a checkbox input"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+      icon="formkit"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      id="range"
+      name="range"
+      type="range"
+      label="a range input"
+      icon="formkit"
+      icon-suffix="formkit"
+    />
+    <FormKit
+      id="color"
+      name="color"
+      type="color"
+      label="a color input with no icons"
+    />
+    <FormKit
+      id="color"
+      name="color"
+      type="color"
+      label="a color input with prefix icon"
+      icon="color"
+    />
+    <FormKit
+      id="color"
+      name="color"
+      type="color"
+      label="a color input with suffix icon"
+      icon-suffix="settings"
+    />
+    <FormKit
+      id="color"
+      name="color"
+      type="color"
+      label="a color input with both icons"
+      icon="color"
+      icon-suffix="settings"
+    />
+    <FormKit
+      id="date"
+      name="date"
+      type="date"
+      label="a date input"
+      icon="date"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      id="datetime"
+      name="datetime"
+      type="datetime-local"
+      label="a datetime input"
+      icon="datetime"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      id="file"
+      name="file"
+      type="file"
+      label="a file input"
+      icon="filePdf"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      id="file_multiple"
+      name="file_multiple"
+      type="file"
+      label="a multi-file input"
+      icon="file"
+      icon-suffix="bitcoin"
+      :multiple="true"
+    />
+    <FormKit
+      type="button"
+      label="a button input"
+      icon="formkit"
+      icon-suffix="bitcoin"
+    />
+    <FormKit
+      type="submit"
+      label="a submit input"
+      icon="formkit"
+      icon-suffix="bitcoin"
+    />
   </FormKit>
 
-  <button @click="changeIcon">Change Password visibility</button>
+  <!-- <button @click="changeIcon">Change Password visibility</button>
   password icon: {{ passwordIcon }}
   <pre>{{ data }}</pre>
 
@@ -82,7 +216,7 @@
         {{ icon }}
       </span>
     </li>
-  </ul>
+  </ul> -->
 </template>
 
 <script setup lang="ts">

@@ -18,6 +18,14 @@ export function createIconPlugin(
   if (icons) Object.assign(iconRegistry, icons)
 
   return function iconPlugin(node: FormKitNode): void {
+    // bail if we're an incompatible input type
+    if (
+      node && node.context &&
+      ['radio', 'checkbox', 'hidden', 'list', 'group', 'form'].includes(node.context.type)
+    ) {
+      return
+    }
+
     node.addProps(['icon', 'iconSuffix', 'iconPrefix', 'onIconClick'])
     const iconPosition = node.props.iconPosition || 'prefix'
     let isUpdating = false
@@ -111,10 +119,13 @@ export function createIconPlugin(
     node.props.definition.schema = (extensions: Record<string, any>) => {
       const createIconSchema = (sectionKey: string) => {
         const capSectionKey = `${sectionKey[0].toUpperCase()}${sectionKey.slice(1)}`
-        if (
-          (node.context && node.context[`icon${capSectionKey}`]) &&
-          !extensions[sectionKey]?.children
-        ) {
+        console.log(node.context)
+        if (node.context && node.context[`icon${capSectionKey}`]) {
+          const newOuterSchema = {
+            attrs: {
+              [`data-has-${sectionKey}-icon`]: true
+            }
+          }
           const newSchema = {
             $el: 'div',
             attrs: {
@@ -135,12 +146,13 @@ export function createIconPlugin(
           } else if (newSchema && newSchema.attrs) {
             newSchema.attrs.innerHTML = `$icon${capSectionKey}`
           }
-          console.log(newSchema)
+          extensions.outer = extend(newOuterSchema, extensions.outer || {})
           extensions[sectionKey] = extend(newSchema, extensions[sectionKey] || {})
         }
       }
       createIconSchema('prefix')
       createIconSchema('suffix')
+      console.log(originalSchema(extensions))
       return originalSchema(extensions)
     }
 
