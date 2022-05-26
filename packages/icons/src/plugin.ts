@@ -1,5 +1,7 @@
 import { extend } from '@formkit/utils'
-import { FormKitNode } from '@formkit/core'
+import { FormKitNode, FormKitSchemaComponent } from '@formkit/core'
+
+export const iconRegistry: Record<string, string> = {}
 
 /**
  * The icon plugin function, everything must be bootstrapped here.
@@ -7,13 +9,23 @@ import { FormKitNode } from '@formkit/core'
  * @public
  */
 export function createIconPlugin(
-  icons: Record<any, any>
-): (node: FormKitNode) => void {
+  iconsOrFunction: Record<string, string> | ((location: string) => FormKitSchemaComponent)
+): ((node: FormKitNode) => any) {
+  const icons = typeof iconsOrFunction === 'object' && iconsOrFunction !== undefined ? iconsOrFunction : {}
+  const userSchemaFunction = typeof iconsOrFunction === 'function' ? iconsOrFunction : false
+
+  // add icons to icon registry
+  if (icons) Object.assign(iconRegistry, icons)
+
   return function iconPlugin(node: FormKitNode): void {
     node.addProps(['icon', 'iconSuffix', 'iconPrefix', 'onIconClick'])
     const iconPosition = node.props.iconPosition || 'prefix'
+    let isUpdating = false
 
     const defineIcon = () => {
+      if (isUpdating) return
+      isUpdating = true
+
       // assign default icon prop to its specific prop value
       node.props.iconPrefix =
         !node.props.iconPrefix && iconPosition === 'prefix'
@@ -24,12 +36,14 @@ export function createIconPlugin(
           ? node.props.icon
           : node.props.iconSuffix
 
+      isUpdating = false
       if (!node.props.iconPrefix && !node.props.iconSuffix) return // do nothing else if we have on icons
 
       let inputIcons: Record<any, any> = {
         iconPrefix: node.props.iconPrefix,
         iconSuffix: node.props.iconSuffix,
       }
+
       inputIcons = Object.keys(inputIcons).reduce((collectedIcons, key) => {
         if (inputIcons[key]) {
           collectedIcons[key] = inputIcons[key]
@@ -39,28 +53,34 @@ export function createIconPlugin(
 
       Object.keys(inputIcons).forEach((iconKey) => {
         if (
+          !userSchemaFunction &&
           !icons[inputIcons[iconKey]] &&
           !inputIcons[iconKey].startsWith('<svg')
-        )
+        ) {
           return
+        }
         if (node.props.definition) {
           const definition = node.props.definition
           if (typeof definition.schema === 'function') {
             // add target icon to node context
             if (node && node.context) {
-              node.context.classes[
-                iconKey === 'iconPrefix' ? 'prefix' : 'suffix'
-              ] =
-                'formkit-icon ' +
-                node.context.classes[
-                  iconKey === 'iconPrefix' ? 'prefix' : 'suffix'
-                ]
-              if (inputIcons[iconKey].startsWith('<svg')) {
-                node.context[iconKey] = inputIcons[iconKey]
-                node.context[`${iconKey}Name`] = 'inlineIcon'
+              // add classes for style targeting
+              const target = iconKey === 'iconPrefix' ? 'prefix' : 'suffix'
+              if (node.context.classes[target].indexOf('formkit-icon') === -1) {
+                node.context.classes[target] = 'formkit-icon ' + node.context.classes[target]
+              }
+              if (!userSchemaFunction) {
+                if (inputIcons[iconKey].startsWith('<svg')) {
+                  node.context[iconKey] = inputIcons[iconKey]
+                  node.context[`${iconKey}Name`] = 'inlineIcon'
+                } else {
+                  node.context[iconKey] = icons[inputIcons[iconKey]]
+                  node.context[`${iconKey}Name`] = inputIcons[iconKey]
+                }
               } else {
-                node.context[iconKey] = icons[inputIcons[iconKey]]
-                node.context[`${iconKey}Name`] = inputIcons[iconKey]
+                // if the user provided a schema definition then use the
+                // prop values as the icon values, not their names
+                node.context[iconKey] = inputIcons[iconKey]
               }
             }
           }
@@ -95,25 +115,28 @@ export function createIconPlugin(
           (node.context && node.context[`icon${capSectionKey}`]) &&
           !extensions[sectionKey]?.children
         ) {
-          extensions[sectionKey] = extend(
-            {
-              $el: 'div',
-              attrs: {
-                class: `$classes.${sectionKey}`,
-                'data-icon': `$icon${capSectionKey}Name`,
-                innerHTML: `$icon${capSectionKey}`,
-                'data-clickable': {
-                  if: '$onIconClick',
-                  then: 'true',
-                },
-                onClick: {
-                  if: '$onIconClick',
-                  then: `$handle${capSectionKey}IconClick`,
-                },
+          const newSchema = {
+            $el: 'div',
+            attrs: {
+              class: `$classes.${sectionKey}`,
+              'data-icon': `$icon${capSectionKey}Name`,
+              'data-clickable': {
+                if: '$onIconClick',
+                then: 'true',
+              },
+              onClick: {
+                if: '$onIconClick',
+                then: `$handle${capSectionKey}IconClick`,
               },
             },
-            extensions[sectionKey] || {}
-          )
+          } as Record<any, any>
+          if (userSchemaFunction) {
+            newSchema.children = [userSchemaFunction(`$icon${capSectionKey}`)]
+          } else if (newSchema && newSchema.attrs) {
+            newSchema.attrs.innerHTML = `$icon${capSectionKey}`
+          }
+          console.log(newSchema)
+          extensions[sectionKey] = extend(newSchema, extensions[sectionKey] || {})
         }
       }
       createIconSchema('prefix')
@@ -125,4 +148,8 @@ export function createIconPlugin(
     node.on('prop:iconPrefix', defineIcon)
     node.on('prop:iconSuffix', defineIcon)
   }
+}
+
+export function getIcon(iconName: string): string | undefined {
+  return iconRegistry[iconName]
 }

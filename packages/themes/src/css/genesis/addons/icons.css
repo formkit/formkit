@@ -7,6 +7,7 @@
   flex-shrink: 0;
   display: flex;
   align-self: stretch;
+  user-select: none;
 }
 .formkit-icon.formkit-prefix {
   border-radius: var(--fk-border-radius-tl) 0 0 var(--fk-border-radius-bl) ;
@@ -22,9 +23,6 @@
   width: 1.75em;
   padding-left: 0em;
   padding-right: 0.75em;
-}
-.formkit-icon.pointer {
-  cursor: pointer;
 }
 .formkit-icon svg {
   margin: auto;

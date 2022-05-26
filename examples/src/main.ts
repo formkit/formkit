@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
-import { createIconPlugin, applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
 import { de, fr } from '@formkit/i18n'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import '@formkit/themes/genesis'
@@ -8,36 +7,28 @@ import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
 import IconPlugin from './vue/examples/IconPlugin.vue'
+import IconPluginFontAwesome from './vue/examples/IconPluginFontAwesome.vue'
 import CustomInput from './vue/examples/custom-input/CustomInput.vue'
 import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 const myInput = createInput(CurrencyInput)
 
 // Create the Vue application:
 const app = createApp(App)
 
+// add font-awesome component
+app.component('FontAwesomeIcon', FontAwesomeIcon)
+
 // Configure FormKit:
 const config = defaultConfig({
   locales: { de, fr },
   locale: 'en',
-  inputs: { foo: myInput },
-  config: {
-    iconPosition: 'prefix'
-  },
-  plugins: [createIconPlugin({
-    ...applicationIcons,
-    ...brandIcons,
-    ...cryptoIcons,
-    ...currencyIcons,
-    ...directionalIcons,
-    ...fileIcons,
-    ...inputIcons,
-    ...paymentIcons
-  })]
+  inputs: { foo: myInput }
 })
 
 // Install FormKit:
@@ -57,7 +48,11 @@ const router = createRouter({
     },
     {
       path: '/icon-plugin',
-      component: IconPlugin
+      component: IconPlugin,
+    },
+    {
+      path: '/icon-plugin-font-awesome',
+      component: IconPluginFontAwesome,
     },
     {
       path: '/custom-input',

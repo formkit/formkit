@@ -4,6 +4,7 @@
     id="form"
     v-model="data"
     type="form"
+    :plugins="[iconPlugin]"
     @submit="submitHandler"
   >
     <FormKit
@@ -41,7 +42,7 @@
       type="text"
       label="Inline SVG icon"
       value="FormKit"
-      :icon="formkitLogo"
+      icon="formkit"
     />
     <FormKit
       id="invalid"
@@ -70,15 +71,15 @@
 
   <ul class="icon-grid">
     <li
-      v-for="(icon, iconName) in icons"
-      :key="iconName"
+      v-for="icon in iconList"
+      :key="icon"
     >
       <span
         class="icon"
-        v-html="icon"
+        v-html="getIcon(icon)"
       />
       <span class="label">
-        {{ iconName }}
+        {{ icon }}
       </span>
     </li>
   </ul>
@@ -86,11 +87,12 @@
 
 <script setup lang="ts">
 import { FormKitNode } from '@formkit/core'
-import { applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
+import { getIcon, iconRegistry, createIconPlugin, applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
 import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 
-const icons = {
+const iconPlugin = createIconPlugin({
+  formkit: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`,
   ...applicationIcons,
   ...brandIcons,
   ...cryptoIcons,
@@ -99,17 +101,14 @@ const icons = {
   ...fileIcons,
   ...inputIcons,
   ...paymentIcons
-}
+})
 
-const iconList = Object.keys(icons)
-console.log(iconList)
+const iconList = Object.keys(iconRegistry)
 
 const data = ref({})
 const passwordIcon = ref('eyeClosed')
 const passwordInputType = ref('password')
 const passwordNode = ref(null)
-
-const formkitLogo = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`
 
 const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
