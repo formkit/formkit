@@ -5,7 +5,6 @@ const file = composable('input', () => ({
   bind: '$attrs',
   attrs: {
     type: 'file',
-    foo: 'bar',
     disabled: '$disabled',
     class: '$classes.input',
     name: '$node.name',
