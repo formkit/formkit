@@ -64,17 +64,6 @@
       icon="doesNotExist"
     />
     <FormKit
-      id="password"
-      ref="passwordNode"
-      name="password"
-      :type="passwordInputType"
-      label="A fancy password input"
-      value="mySecretPassword!"
-      icon="password"
-      :icon-suffix="passwordIcon"
-      @icon-click="handleIconClick"
-    />
-    <FormKit
       id="single_radio"
       name="single_radio"
       type="radio"
@@ -188,18 +177,31 @@
     <FormKit
       type="button"
       label="a button input"
-      icon="formkit"
-      icon-suffix="bitcoin"
+      icon="tag"
+      icon-suffix="submit"
+      :plugins="[iconPlugin]"
     />
     <FormKit
       type="submit"
       label="a submit input"
-      icon="formkit"
-      icon-suffix="bitcoin"
+      icon="tag"
+      icon-suffix="submit"
+      :plugins="[iconPlugin]"
+    />
+    <FormKit
+      id="password"
+      ref="passwordNode"
+      name="password"
+      :type="passwordInputType"
+      label="A fancy password input"
+      value="mySecretPassword!"
+      icon="password"
+      :icon-suffix="passwordIcon"
+      @icon-click="handleIconClick"
     />
   </FormKit>
 
-  <!-- <button @click="changeIcon">Change Password visibility</button>
+  <button @click="changeIcon">Change Password visibility</button>
   password icon: {{ passwordIcon }}
   <pre>{{ data }}</pre>
 
@@ -216,7 +218,7 @@
         {{ icon }}
       </span>
     </li>
-  </ul> -->
+  </ul>
 </template>
 
 <script setup lang="ts">

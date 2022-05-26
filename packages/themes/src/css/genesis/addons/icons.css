@@ -20,6 +20,7 @@
   padding-right: 0.75em;
 }
 .formkit-icon svg {
+  width: 100%;
   margin: auto;
   max-height: 1em;
   max-width: 1em;
@@ -39,6 +40,7 @@
   & .formkit-icon {
     padding: 0;
     width: 1em;
+    font-size: 1rem;
 
     &.formkit-prefix {
       margin-right: 0.5em;
