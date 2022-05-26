@@ -978,6 +978,48 @@ describe('rendering components', () => {
       </select>`)
   })
 
+  it('passes through key with shorthand for $formkit', async () => {
+    const data = reactive({ show: false })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'number',
+            id: 'one',
+            key: 'one',
+            name: 'one',
+            if: '$show',
+            value: 11,
+          },
+          {
+            $formkit: 'number',
+            id: 'two',
+            key: 'two',
+            name: 'two',
+            if: 'true',
+            value: 12,
+          },
+          {
+            $formkit: 'number',
+            id: 'three',
+            key: 'three',
+            if: '$show',
+            name: 'three',
+            value: 13,
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('input').element.value).toBe('12')
+    data.show = true
+    await nextTick()
+    expect(wrapper.find('input').element.value).toBe('11')
+  })
+
   it('does not let $get to bogard a select list placeholder', async () => {
     const wrapper = mount(FormKitSchema, {
       props: {

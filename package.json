@@ -43,7 +43,7 @@
     "ora": "^5.4.1",
     "postcss": "^8.3.11",
     "postcss-import": "^14.0.2",
-    "postcss-nesting": "^9.0.0",
+    "postcss-nesting": "^10.1.6",
     "prettier": "^2.2.1",
     "prompts": "^2.4.1",
     "rollup": "^2.53.2",
