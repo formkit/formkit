@@ -119,7 +119,6 @@ export function createIconPlugin(
     node.props.definition.schema = (extensions: Record<string, any>) => {
       const createIconSchema = (sectionKey: string) => {
         const capSectionKey = `${sectionKey[0].toUpperCase()}${sectionKey.slice(1)}`
-        console.log(node.context)
         if (node.context && node.context[`icon${capSectionKey}`]) {
           const newOuterSchema = {
             attrs: {
@@ -152,7 +151,6 @@ export function createIconPlugin(
       }
       createIconSchema('prefix')
       createIconSchema('suffix')
-      console.log(originalSchema(extensions))
       return originalSchema(extensions)
     }
 
