@@ -7,6 +7,16 @@
         </router-link>
       </li>
       <li>
+        <router-link to="/icon-plugin">
+          Icon Plugin
+        </router-link>
+      </li>
+      <li>
+        <router-link to="/icon-plugin-font-awesome">
+          Icon Plugin - Font Awesome
+        </router-link>
+      </li>
+      <li>
         <router-link to="/custom-input">
           Custom input
         </router-link>

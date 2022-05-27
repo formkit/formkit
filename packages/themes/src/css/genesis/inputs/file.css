@@ -8,6 +8,7 @@
   & .formkit-no-files,
   & .formkit-file-item {
     display: flex;
+    flex-grow: 1;
     align-items: center;
     font-size: var(--fk-font-size-input);
     line-height: var(--fk-line-height-input);

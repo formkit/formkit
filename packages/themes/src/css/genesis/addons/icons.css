@@ -1,0 +1,118 @@
+.formkit-inner:focus-within .formkit-icon.formkit-prefix {
+  color: var(--fk-color-primary);
+}
+.formkit-icon {
+  width: 2.5em;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-self: stretch;
+  user-select: none;
+}
+.formkit-icon.formkit-prefix {
+  border-radius: var(--fk-border-radius-tl) 0 0 var(--fk-border-radius-bl) ;
+  background: var(--fk-bg-decorator);
+  box-shadow: 1px 0 0 0 rgba(0,0,0,0.33);
+}
+.formkit-icon.formkit-suffix {
+  width: 1.75em;
+  padding-left: 0em;
+  padding-right: 0.75em;
+}
+.formkit-icon svg {
+  width: 100%;
+  margin: auto;
+  max-height: 1em;
+  max-width: 1em;
+}
+
+/* input specific variations */
+[data-type="button"],
+[data-type="submit"],
+[data-type="range"] {
+  & .formkit-icon.formkit-prefix {
+    background: none;
+    box-shadow: none;
+  }
+  & .formkit-inner:focus-within .formkit-icon {
+    color: currentColor;
+  }
+  & .formkit-icon {
+    padding: 0;
+    width: 1em;
+    font-size: 1rem;
+
+    &.formkit-prefix {
+      margin-right: 0.5em;
+    }
+    &.formkit-suffix {
+      margin-left: 0.5em;
+    }
+  }
+}
+
+[data-has-prefix-icon="true"] {
+  &[data-type="color"] {
+    & input[type="color"] {
+      &::-webkit-color-swatch {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+      &::-moz-color-swatch {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    }
+  }
+  &[data-type="file"] {
+    & .formkit-no-files,
+    & .formkit-file-item {
+      &::before {
+        display: none;
+      }
+    }
+
+    &[data-multiple="true"] .formkit-remove-files {
+      left: calc(var(--fk-padding-input-l) + (4em - var(--fk-font-size-remove)));
+    }
+  }
+}
+
+[data-has-suffix-icon="true"] {
+  &[data-type="color"] {
+    & input[type="color"] {
+      &::-webkit-color-swatch {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      &::-moz-color-swatch {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+    }
+    & .formkit-icon.formkit-suffix {
+      padding-right: 0;
+      width: 2.5em;
+    }
+  }
+  &[data-type="select"] .formkit-inner::after {
+    right: 2.5em;
+  }
+}
+
+[data-has-prefix-icon="true"],
+[data-has-suffix-icon="true"] {
+  &[data-type="color"] {
+    & .formkit-inner {
+      max-width: 7.5em;
+    }
+  }
+}
+
+[data-has-prefix-icon="true"][data-has-suffix-icon="true"] {
+  &[data-type="color"] {
+    & .formkit-inner {
+      max-width: 10em;
+    }
+  }
+}
