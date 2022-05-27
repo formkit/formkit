@@ -106,6 +106,7 @@ export interface FormKitHooks {
     value: any
   }>
   text: FormKitDispatcher<FormKitTextFragment>
+  schema: FormKitDispatcher<FormKitSchemaNode[] | FormKitSchemaCondition>
 }
 
 /**

@@ -19,6 +19,21 @@ export type FormKitListStatement =
   | [value: any, list: FormKitListValue]
 
 /**
+ * Meta attributes are not used when parsing the schema, but can be used to
+ * create tooling.
+ */
+export type FormKitSchemaMeta = {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined
+    | null
+    | CallableFunction
+    | FormKitSchemaMeta
+}
+
+/**
  * Properties available in all schema nodes.
  * @public
  */
@@ -28,6 +43,7 @@ export interface FormKitSchemaProps {
   if?: string
   for?: FormKitListStatement
   bind?: string
+  meta?: FormKitSchemaMeta
 }
 
 /**
