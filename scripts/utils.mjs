@@ -254,6 +254,7 @@ export function getPackageVersion(pkg) {
 export function getDependencyVersion(pkg, parent) {
   const packageJSON = getPackageJSON(parent)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
+  delete dependencies['@formkit/auto-animate']
   const devDependencies = packageJSON.devDependencies
     ? packageJSON.devDependencies
     : []
@@ -270,8 +271,8 @@ export function getDependencyVersion(pkg, parent) {
  * extract matching FK dependency package names from keys in a given object
  */
 export function getFKDependenciesFromObj(dependencies) {
-  let matches = Object.keys(dependencies).filter((key) =>
-    key.startsWith('@formkit/')
+  let matches = Object.keys(dependencies).filter(
+    (key) => key.startsWith('@formkit/') && key !== '@formkit/auto-animate'
   )
   matches = matches.map((dependency) => dependency.replace('@formkit/', ''))
   return matches
