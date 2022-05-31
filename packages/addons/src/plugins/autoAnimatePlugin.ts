@@ -1,9 +1,9 @@
-import { FormKitNode, isConditional, isDOM } from '@formkit/core'
-import autoAnimate from '@formkit/auto-animate'
+import { FormKitNode, FormKitPlugin, isConditional, isDOM } from '@formkit/core'
+import autoAnimate, { AutoAnimateOptions } from '@formkit/auto-animate'
 import { extend } from '@formkit/utils'
 import { FormKitSchemaDOMNode } from 'packages/core/src'
 
-const pendingIds: Set<string> = new Set()
+const pendingIds: Map<string, AutoAnimateOptions | undefined> = new Map()
 
 let observer: MutationObserver | null = null
 
@@ -26,12 +26,11 @@ function createObserver() {
 }
 
 function observeIds() {
-  pendingIds.forEach((id) => {
+  pendingIds.forEach((options, id) => {
     const outer = document.getElementById(id)
     if (outer) {
       pendingIds.delete(id)
-      console.log('autoAnimate()', outer)
-      autoAnimate(outer)
+      autoAnimate(outer, options || {})
     }
   })
 }
@@ -41,28 +40,32 @@ function observeIds() {
  * @param node - A formkit node
  * @public
  */
-export function autoAnimatePlugin(node: FormKitNode): void {
-  node.on('created', () => {
-    if (typeof node.props.definition?.schema === 'function') {
-      // add an outer wrapper id or get the current one
-      const original = node.props.definition.schema
-      node.props.definition.schema = (extensions) => {
-        extensions.outer = extend(
-          { attrs: { id: `outer-${node.props.id}` } },
-          extensions.outer || {}
-        ) as Partial<FormKitSchemaDOMNode>
-        const finalSchema = original(extensions)
-        const outer = isConditional(finalSchema[0])
-          ? Array.isArray(finalSchema[0].else)
-            ? finalSchema[0].else[0]
-            : finalSchema[0].else
-          : finalSchema[0]
-        if (outer && isDOM(outer) && outer.attrs && 'id' in outer.attrs) {
-          pendingIds.add(String(outer.attrs.id))
+export function createAutoAnimatePlugin(
+  options?: AutoAnimateOptions
+): FormKitPlugin {
+  return (node: FormKitNode) => {
+    node.on('created', () => {
+      if (typeof node.props.definition?.schema === 'function') {
+        // add an outer wrapper id or get the current one
+        const original = node.props.definition.schema
+        node.props.definition.schema = (extensions) => {
+          extensions.outer = extend(
+            { attrs: { id: `outer-${node.props.id}` } },
+            extensions.outer || {}
+          ) as Partial<FormKitSchemaDOMNode>
+          const finalSchema = original(extensions)
+          const outer = isConditional(finalSchema[0])
+            ? Array.isArray(finalSchema[0].else)
+              ? finalSchema[0].else[0]
+              : finalSchema[0].else
+            : finalSchema[0]
+          if (outer && isDOM(outer) && outer.attrs && 'id' in outer.attrs) {
+            pendingIds.set(String(outer.attrs.id), options || undefined)
+          }
+          return finalSchema
         }
-        return finalSchema
       }
-    }
-    if (!observer) createObserver()
-  })
+      if (!observer) createObserver()
+    })
+  }
 }
