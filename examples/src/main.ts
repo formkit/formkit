@@ -14,21 +14,19 @@ import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { autoAnimatePlugin } from '@formkit/addons'
 
 const myInput = createInput(CurrencyInput)
 
 // Create the Vue application:
 const app = createApp(App)
 
-// add font-awesome component
-app.component('FontAwesomeIcon', FontAwesomeIcon)
-
 // Configure FormKit:
 const config = defaultConfig({
   locales: { de, fr },
   locale: 'en',
-  inputs: { foo: myInput }
+  inputs: { foo: myInput },
+  plugins: [autoAnimatePlugin],
 })
 
 // Install FormKit:
