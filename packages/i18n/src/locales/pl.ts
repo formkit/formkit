@@ -217,6 +217,9 @@ export const validation: FormKitValidationMessages = {
       return `Pole ${s(name)} musi zawierać ${min} lub więcej znaków.`
       /* </i18n> */
     }
+    if (min === max) {
+      return `Pole ${s(name)} musi mieć ${min} znaków.`
+    }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
     return `Pole ${s(name)} musi mieć ${min}-${max} znaków.`
     /* </i18n> */
