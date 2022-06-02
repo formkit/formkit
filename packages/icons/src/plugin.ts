@@ -126,10 +126,11 @@ export function createIconPlugin(
             }
           }
           const newSchema = {
-            $el: 'div',
+            $el: 'label',
             attrs: {
               class: `$classes.${sectionKey}`,
               'data-icon': `$icon${capSectionKey}Name`,
+              'for': '$id',
               'data-clickable': {
                 if: '$onIconClick',
                 then: 'true',
