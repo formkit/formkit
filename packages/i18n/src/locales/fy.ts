@@ -14,6 +14,10 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
+   * Shown on a button for adding additional items.
+   */
+  add: 'Foeg ta',
+  /**
    * Shown when a button to remove items is visible.
    */
   remove: 'Ferwider',
@@ -82,6 +86,16 @@ export const validation: FormKitValidationMessages = {
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
     return `${s(name)} mei allinne letters en sifers befetsje.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not letter and/or spaces
+   * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
+   */
+  alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
+    return `${s(name)} mei allinne letters en spaasjes befetsje.`
     /* </i18n> */
   },
 
