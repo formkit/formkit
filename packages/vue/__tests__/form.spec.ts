@@ -130,7 +130,7 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => { })
     const wrapper = mount(
       {
         setup() {
@@ -810,7 +810,7 @@ describe('programmatic submission', () => {
     const id = 'programmatic-form-test'
     const submit = jest.fn()
     const submitRaw = jest.fn()
-    const warning = jest.fn(() => {})
+    const warning = jest.fn(() => { })
     const mock = jest.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
       {
@@ -971,5 +971,35 @@ describe('resetting', () => {
       },
     })
     expect(form.find('.formkit-message').exists()).toBe(false)
+  })
+})
+
+describe('submit hook', () => {
+  it('can change the fields before submitting', async () => {
+    const id = 'programmatic-form-test'
+    const submitHandler = jest.fn()
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler,
+        },
+        template: `<FormKit id="${id}" type="form" @submit="(fields) => submitHandler(fields)">
+          <FormKit validation="required|email" name="email" value="foo@bar.com" />
+        </FormKit>`,
+      },
+      global
+    )
+    const form = getNode(id)
+    form?.hook.submit((payload, next) => {
+      payload.email = 'modifiedfoo@bar.com'
+      payload.newField = 'my new field'
+      return next(payload)
+    })
+    wrapper.find('form').trigger('submit')
+    await nextTick()
+    expect(submitHandler).toHaveBeenCalledWith({
+      email: 'modifiedfoo@bar.com',
+      newField: 'my new field'
+    })
   })
 })
