@@ -45,7 +45,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
     if (typeof node.props.onSubmit === 'function') {
       // call onSubmit
       const retVal = node.props.onSubmit(
-        clone(node.value as Record<string, any>),
+        node.hook.submit.dispatch(clone(node.value as Record<string, any>)),
         node
       )
       if (retVal instanceof Promise) {
