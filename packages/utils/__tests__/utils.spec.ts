@@ -2,6 +2,7 @@ import {
   eq,
   empty,
   extend,
+  hasRule,
   isPojo,
   isQuotedString,
   assignDeep,
@@ -26,7 +27,7 @@ describe('eq', () => {
     expect(eq('123', 123)).toBe(false)
     expect(eq(true, true)).toBe(true)
     expect(eq(false, true)).toBe(false)
-    expect(eq(function () {}, {})).toBe(false)
+    expect(eq(function () { }, {})).toBe(false)
   })
 
   it('handles null and undefined vales', () => {
@@ -143,6 +144,34 @@ describe('empty', () => {
   it('considers regex not empty', () => expect(empty(/^foo/)).toBe(false))
   it('considers a date object to not be empty', () =>
     expect(empty(new Date())).toBe(false))
+})
+
+describe('hasRule', () => {
+  it('checks if rule exists in single rule in rule set', () => {
+    expect(hasRule('required', 'required')).toBe(true)
+  })
+  it('fails if rule does not exist in single rule in rule set', () => {
+    expect(hasRule('email', 'required')).toBe(false)
+  })
+  it('checks if rule exists in piped rule set', () => {
+    expect(hasRule('required', 'required|email|ends_with:.edu')).toBe(true)
+    expect(hasRule('email', 'required|email|ends_with:.edu')).toBe(true)
+    expect(hasRule('ends_with', 'required|email|ends_with:.edu')).toBe(true)
+  })
+  it('fails if rule does not exists in piped rule set', () => {
+    expect(hasRule('date_format', 'required|email|ends_with:.edu')).toBe(false)
+  })
+  it('checks if rule exists in array rule set', () => {
+    expect(hasRule('required', [['required']])).toBe(true)
+  })
+  it('checks if rule exists in array rule set with multiple rules', () => {
+    expect(hasRule('required', [['required'], ['email'], ['ends_with', '.edu']])).toBe(true)
+    expect(hasRule('email', [['required'], ['email'], ['ends_with', '.edu']])).toBe(true)
+    expect(hasRule('ends_with', [['required'], ['email'], ['ends_with', '.edu']])).toBe(true)
+  })
+  it('fails if rule does not exists in array rule set', () => {
+    expect(hasRule('date_format', [['required'], ['email'], ['ends_with', '.edu']])).toBe(false)
+  })
 })
 
 describe('isPojo', () => {
