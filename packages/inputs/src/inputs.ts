@@ -1,5 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import textSchema from './classifications/text'
+// import textSchema from './classifications/text'
+import textInput from './inputs/text'
 import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
@@ -23,10 +24,11 @@ import initialValue from './features/initialValue'
 /**
  * Default classifications that are available.
  */
-const textClassification: FormKitTypeDefinition = {
-  type: 'input',
-  schema: textSchema,
-}
+// const textClassification: FormKitTypeDefinition = {
+//   type: 'input',
+//   schema: textSchema,
+// }
+const textClassification = textInput
 
 /**
  * The color input.

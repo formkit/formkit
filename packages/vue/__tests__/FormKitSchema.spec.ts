@@ -1124,7 +1124,7 @@ describe('rendering components', () => {
     // parent scope — but it does exist in the child scope. This indicates the
     // value $label was pared by the parent instead of the child.
     expect(wrapper.html()).toContain(
-      '<h1 id="help-foobar" class="formkit-help"></h1>'
+      '<h1 class="formkit-help" id="help-foobar"></h1>'
     )
   })
 
@@ -1153,7 +1153,7 @@ describe('rendering components', () => {
     // We expect the h1 to contain the value of the label defined in the child,
     // this would indicate that sectionsSchema was parsed by the child.
     expect(wrapper.html()).toContain(
-      '<h1 id="help-foobar" class="formkit-help">foobar</h1>'
+      '<h1 class="formkit-help" id="help-foobar">foobar</h1>'
     )
   })
 })

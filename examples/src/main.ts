@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr } from '@formkit/i18n'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import '@formkit/themes/genesis'
+// import '@formkit/themes/genesis'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
@@ -14,7 +14,7 @@ import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
-import { autoAnimatePlugin } from '@formkit/addons'
+import { createAutoAnimatePlugin } from '@formkit/addons'
 
 const myInput = createInput(CurrencyInput)
 
@@ -26,7 +26,7 @@ const config = defaultConfig({
   locales: { de, fr },
   locale: 'en',
   inputs: { foo: myInput },
-  plugins: [autoAnimatePlugin],
+  plugins: [createAutoAnimatePlugin()],
 })
 
 // Install FormKit:

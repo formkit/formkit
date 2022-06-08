@@ -872,14 +872,14 @@ describe('classes', () => {
     })
     expect(wrapper.html())
       .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
-  <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
+  <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
-      <!----><input type="text" class="formkit-input" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
+      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
       <!---->
     </div>
   </div>
-  <div id="help-foobar" class="formkit-help">input help text</div>
-  <ul class="formkit-messages" aria-live="polite">
+  <div class="formkit-help" id="help-foobar">input help text</div>
+  <ul class="formkit-messages">
     <li class="formkit-message" id="foobar-rule_required" data-message-type="validation">Input label is required.</li>
   </ul>
 </div>`)
@@ -1015,7 +1015,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html()).toContain(
-      '<label for="foo" class="formkit-label foo-bar">Howdy folks</label>'
+      '<label class="formkit-label foo-bar" for="foo">Howdy folks</label>'
     )
   })
 
@@ -1191,7 +1191,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Hush<input type="password" class="formkit-input" name="table_stakes" id="pass">Show</div>'
+      '<div class="formkit-inner">Hush<input class="formkit-input" type="password" name="table_stakes" id="pass">Show</div>'
     )
   })
 
