@@ -5,6 +5,7 @@ export default createSection(
   () => ({
     $el: 'div',
     attrs: {
+      key: '$id',
       'data-type': '$type',
       'data-multiple': '$attrs.multiple',
       'data-disabled': '$disabled || undefined',
