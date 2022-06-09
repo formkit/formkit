@@ -49,7 +49,7 @@
     />
     <FormKit
       label="Countries"
-      type="radio"
+      type="checkbox"
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"

@@ -70,7 +70,9 @@ export function extendSchema(
 }
 
 /**
- * Creates a new section key.
+ * ================================================================
+ * NOTE: This function is deprecated. Use `createSection` instead!
+ * ================================================================
  *
  * @param key - A new section key name.
  * @param schema - The default schema in this composable slot.
@@ -251,11 +253,53 @@ export function $attrs(
     const attributes = typeof attrs === 'function' ? attrs() : attrs
     if (!isObject(attributes)) return node
     if (isConditional(node) && node.else && isDOM(node.else)) {
-      node.else.attrs = { ...attributes, ...node.else.attrs }
+      node.else.attrs = { ...node.else.attrs, ...attributes }
     } else if (isDOM(node)) {
-      node.attrs = { ...attributes, ...node.attrs }
+      node.attrs = { ...node.attrs, ...attributes }
     }
     console.log(node)
     return node
+  }
+}
+
+/**
+ *
+ * @param condition - A schema condition to apply to a section.
+ * @param then - The section that applies if the condition is true.
+ * @param otherwise - (else) The section that applies if the condition is false.
+ * @returns
+ * @public
+ */
+export function $if(
+  condition: string,
+  then: FormKitSchemaExtendableSection,
+  otherwise?: FormKitSchemaExtendableSection
+): FormKitSchemaExtendableSection {
+  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+    const node = then(extensions)
+    if (otherwise) {
+      return {
+        if: condition,
+        then: node,
+        else: otherwise(extensions),
+      }
+    }
+    return Object.assign({ if: condition }, node)
+  }
+}
+
+/**
+ * Extends a schema node with a given set of extensions.
+ * @param section - A section to apply an extension to.
+ * @param extendWith - A partial schema snippet to apply to the section.
+ * @returns
+ */
+export function $extend(
+  section: FormKitSchemaExtendableSection,
+  extendWith: Partial<FormKitSchemaNode>
+): FormKitSchemaExtendableSection {
+  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+    const sectionSchema = section({})
+    return extendSchema(extendSchema(sectionSchema, extendWith), extensions)
   }
 }

@@ -1,6 +1,7 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 // import textSchema from './classifications/text'
 import textInput from './inputs/text'
+import checkboxInput from './inputs/checkbox'
 import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
@@ -12,7 +13,7 @@ import formSchema from './classifications/form'
 import buttonSchema from './classifications/button'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
-import checkboxes from './features/checkboxes'
+// import checkboxes from './features/checkboxes'
 import radios from './features/radios'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
@@ -169,12 +170,14 @@ export const select: FormKitTypeDefinition = {
  * The checkbox input type.
  * @public
  */
-export const checkbox: FormKitTypeDefinition = {
-  type: 'input',
-  schema: boxSchema,
-  props: ['options', 'onValue', 'offValue'],
-  features: [formatsOptions, checkboxes],
-}
+// export const checkbox: FormKitTypeDefinition = {
+//   type: 'input',
+//   schema: boxSchema,
+//   props: ['options', 'onValue', 'offValue'],
+//   features: [formatsOptions, checkboxes],
+// }
+
+export const checkbox = checkboxInput
 
 /**
  * The radio input type.
