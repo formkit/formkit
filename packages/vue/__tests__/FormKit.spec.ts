@@ -1208,7 +1208,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Prefix<input type="checkbox" class="formkit-input" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
+      '<div class="formkit-inner">Prefix<input class="formkit-input" type="checkbox" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
     )
   })
 

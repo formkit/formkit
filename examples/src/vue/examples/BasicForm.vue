@@ -54,6 +54,10 @@
       placeholder="Select the best country"
       :options="countries"
     />
+    <FormKit
+      type="checkbox"
+      label="Do you agree to our terms?"
+    />
   </FormKit>
   <pre>{{ data }}</pre>
 </template>

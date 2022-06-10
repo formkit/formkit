@@ -2,7 +2,6 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import {
   outer,
   inner,
-  wrapper,
   help,
   boxHelp,
   messages,
@@ -34,7 +33,7 @@ const definition: FormKitTypeDefinition = {
       /**
        * Single checkbox structure.
        */
-      wrapper(
+      boxWrapper(
         inner(
           prefix(),
           box(),
@@ -65,15 +64,15 @@ const definition: FormKitTypeDefinition = {
                 decorator(),
                 suffix()
               ),
-              $if('$option.label', boxLabel('$option.label'))
+              $if('$option.label', boxLabel('$option.label')),
             ),
-            boxHelp('$option.attrs.help')
+            boxHelp('$option.help')
           )
         )
       )
     ),
     // Help text only goes under the input when it is a single.
-    $if('$options == undefined', help()),
+    $if('$options.length === 0 && $help', help()),
     messages(
       message('$message.value')
     )
@@ -93,73 +92,3 @@ const definition: FormKitTypeDefinition = {
 }
 
 export default definition
-
-/**
- * The schema for text classifications.
- * @public
- */
-// const boxSchema: FormKitExtendableSchemaRoot = (extensions = {}) => {
-//   const singleCheckbox = [
-//     wrapper(extensions.wrapper, [
-//       inner(extensions.inner, [
-//         prefix(extensions.prefix),
-//         box(extensions.input),
-//         decorator(extensions.decorator),
-//         suffix(extensions.suffix),
-//       ]),
-//       label(extensions.label, '$label'),
-//     ]),
-//     help(extensions.help, '$help'),
-//   ]
-
-//   const multiCheckbox = fieldset(extensions.fieldset, [
-//     legend(extensions.legend, '$label'),
-//     help(extensions.help, '$help'),
-//     options(extensions.options, [
-//       boxes(extensions.option, [
-//         wrapper(extensions.wrapper, [
-//           inner(extensions.inner, [
-//             prefix(extensions.prefix),
-//             box(
-//               extend(
-//                 {
-//                   bind: '$option.attrs',
-//                   attrs: {
-//                     id: '$option.attrs.id',
-//                     value: '$option.value',
-//                     checked: '$fns.isChecked($option.value)',
-//                   },
-//                 },
-//                 extensions.input || {}
-//               ) as FormKitSchemaNode
-//             ),
-//             decorator(extensions.decorator),
-//             suffix(extensions.suffix),
-//           ]),
-//           label(extensions.label, '$option.label'),
-//         ]),
-//         help(
-//           extensions.optionHelp,
-//           '$option.help',
-//           'optionHelp',
-//           '$option.help'
-//         ),
-//       ]),
-//     ]),
-//   ])
-
-//   return [
-//     outer(extensions.outer, [
-//       {
-//         if: '$options.length',
-//         then: multiCheckbox,
-//         else: singleCheckbox,
-//       },
-//       messages(extensions.messages, [
-//         message(extensions.message, '$message.value'),
-//       ]),
-//     ]),
-//   ]
-// }
-
-// export default boxSchema

@@ -49,6 +49,36 @@ function isSchemaObject(
 }
 
 /**
+ * Checks if the current schema node is a slot condition like:
+ * ```js
+ * {
+ *  if: '$slot.name',
+ *  then: '$slot.name',
+ *  else: []
+ * }
+ * ```
+ * @param node - a schema node
+ * @returns
+ */
+function isSlotCondition(node: FormKitSchemaNode): node is {
+  if: string
+  then: string
+  else: FormKitSchemaNode | FormKitSchemaNode[]
+} {
+  if (
+    isConditional(node) &&
+    node.if &&
+    node.if.startsWith('$slots.') &&
+    typeof node.then === 'string' &&
+    node.then.startsWith('$slots.') &&
+    'else' in node
+  ) {
+    return true
+  }
+  return false
+}
+
+/**
  * Extends a single schema node with an extension. The extension can be any partial node including strings.
  * @param schema - Extend a base schema node.
  * @param extension - The values to extend on the base schema node.
@@ -252,12 +282,11 @@ export function $attrs(
     const node = section(extensions)
     const attributes = typeof attrs === 'function' ? attrs() : attrs
     if (!isObject(attributes)) return node
-    if (isConditional(node) && node.else && isDOM(node.else)) {
+    if (isSlotCondition(node) && isDOM(node.else)) {
       node.else.attrs = { ...node.else.attrs, ...attributes }
     } else if (isDOM(node)) {
       node.attrs = { ...node.attrs, ...attributes }
     }
-    console.log(node)
     return node
   }
 }
@@ -283,8 +312,12 @@ export function $if(
         then: node,
         else: otherwise(extensions),
       }
+    } else if (isSlotCondition(node)) {
+      Object.assign(node.else, { if: condition })
+    } else if (isSchemaObject(node)) {
+      Object.assign(node, { if: condition })
     }
-    return Object.assign({ if: condition }, node)
+    return node
   }
 }
 
@@ -299,7 +332,12 @@ export function $extend(
   extendWith: Partial<FormKitSchemaNode>
 ): FormKitSchemaExtendableSection {
   return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
-    const sectionSchema = section({})
-    return extendSchema(extendSchema(sectionSchema, extendWith), extensions)
+    const node = section({})
+    if (isSlotCondition(node)) {
+      if (Array.isArray(node.else)) return node
+      node.else = extendSchema(extendSchema(node.else, extendWith), extensions)
+      return node
+    }
+    return extendSchema(extendSchema(node, extendWith), extensions)
   }
 }
