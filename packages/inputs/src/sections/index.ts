@@ -34,4 +34,8 @@ export { boxHelp } from './boxHelp'
 
 export { boxLabel } from './boxLabel'
 
+export { buttonInput } from './buttonInput'
+
+export { buttonLabel } from './buttonLabel'
+
 export { textInput } from './textInput'

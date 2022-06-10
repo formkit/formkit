@@ -3,6 +3,7 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import textInput from './inputs/text'
 import checkboxInput from './inputs/checkbox'
 import radioInput from './inputs/radio'
+import buttonInput from './inputs/button'
 
 import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
@@ -12,16 +13,16 @@ import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 // import boxSchema from './classifications/box'
 import formSchema from './classifications/form'
-import buttonSchema from './classifications/button'
+// import buttonSchema from './classifications/button'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 // import checkboxes from './features/checkboxes'
 // import radios from './features/radios'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
-import localize from './features/localize'
+// import localize from './features/localize'
 import files from './features/files'
-import ignore from './features/ignore'
+// import ignore from './features/ignore'
 import initialValue from './features/initialValue'
 
 /**
@@ -130,11 +131,7 @@ export const textarea: FormKitTypeDefinition = {
 /**
  * Buttons are all this classification:
  */
-const buttonClassification: FormKitTypeDefinition = {
-  type: 'input',
-  schema: buttonSchema,
-  features: [localize('submit'), ignore],
-}
+const buttonClassification = buttonInput
 
 /**
  * The submit input.
