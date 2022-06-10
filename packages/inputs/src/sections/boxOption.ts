@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('option', () => ({
+export const boxOption = createSection('option', () => ({
   $el: 'li',
   for: ['option', '$options'],
   attrs: {

@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('box', () => ({
+export const box = createSection('box', () => ({
   $el: 'input',
   bind: '$attrs',
   attrs: {

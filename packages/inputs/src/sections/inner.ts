@@ -1,3 +1,3 @@
 import { createSection } from '../compose'
 
-export default createSection('inner', 'div')
+export const inner = createSection('inner', 'div')

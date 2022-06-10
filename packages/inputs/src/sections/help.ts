@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('help', () => ({
+export const help = createSection('help', () => ({
   $el: 'div',
   if: '$help',
   attrs: {

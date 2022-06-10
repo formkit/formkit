@@ -1,3 +1,3 @@
 import { createSection } from '../compose'
 
-export default createSection('options', 'ul')
+export const boxOptions = createSection('options', 'ul')

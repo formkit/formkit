@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('legend', () => ({
+export const legend = createSection('legend', () => ({
   $el: 'legend',
   if: '$label',
 }))

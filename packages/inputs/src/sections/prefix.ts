@@ -1,3 +1,3 @@
 import { createSection } from '../compose'
 
-export default createSection('prefix', null)
+export const prefix = createSection('prefix', null)

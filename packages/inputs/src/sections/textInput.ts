@@ -1,7 +1,7 @@
 import { textAttrs } from '../attrs'
 import { createSection } from '../compose'
 
-export default createSection('input', () => ({
+export const textInput = createSection('input', () => ({
   $el: 'input',
   bind: '$attrs',
   attrs: textAttrs(),

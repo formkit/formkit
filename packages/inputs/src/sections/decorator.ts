@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('label', () => ({
+export const decorator = createSection('decorator', () => ({
   $el: 'span',
   attrs: {
     'aria-hidden': 'true',

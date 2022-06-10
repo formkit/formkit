@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('message', () => ({
+export const message = createSection('message', () => ({
   $el: 'li',
   for: ['message', '$messages'],
   attrs: {

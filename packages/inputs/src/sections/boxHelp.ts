@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection('optionHelp', () => ({
+export const boxHelp = createSection('optionHelp', () => ({
   $el: 'div',
   if: '$option.attrs.help',
   attrs: {

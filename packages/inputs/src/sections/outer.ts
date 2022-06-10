@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export default createSection(
+export const outer = createSection(
   'outer',
   () => ({
     $el: 'div',

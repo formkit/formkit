@@ -3,7 +3,6 @@ import {
   outer,
   inner,
   wrapper,
-  label,
   help,
   boxHelp,
   messages,
@@ -16,11 +15,13 @@ import {
   legend,
   boxOption,
   boxOptions,
+  boxWrapper,
+  boxLabel,
 } from '../sections'
 import formatsOptions from '../features/options'
 import checkboxes from '../features/checkboxes'
 
-import { $if, $attrs, $extend } from '../compose'
+import { $if, $extend } from '../compose'
 
 const definition: FormKitTypeDefinition = {
   /**
@@ -40,7 +41,7 @@ const definition: FormKitTypeDefinition = {
           decorator(),
           suffix(),
         ),
-        label('$label')
+        $if('$label', boxLabel('$label'))
       ),
       /**
        * Multi checkbox structure.
@@ -50,7 +51,7 @@ const definition: FormKitTypeDefinition = {
         help('$help'),
         boxOptions(
           boxOption(
-            wrapper(
+            boxWrapper(
               inner(
                 prefix(),
                 $extend(box(), {
@@ -64,7 +65,7 @@ const definition: FormKitTypeDefinition = {
                 decorator(),
                 suffix()
               ),
-              $attrs({ for: '$option.id' }, label('$option.label'))
+              $if('$option.label', boxLabel('$option.label'))
             ),
             boxHelp('$option.attrs.help')
           )

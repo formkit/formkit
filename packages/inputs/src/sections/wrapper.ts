@@ -1,3 +1,3 @@
 import { createSection } from '../compose'
 
-export default createSection('wrapper', 'div')
+export const wrapper = createSection('wrapper', 'div')
