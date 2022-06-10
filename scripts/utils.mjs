@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import { execSync } from 'child_process'
-import { dirname, resolve } from 'path'
+import { dirname, resolve, join } from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
@@ -32,6 +32,29 @@ export function isAlphaNumericVersion(string) {
   return /[a-z].(\d+)$/.test(string)
 }
 
+/** Given a string, convert it to camelCase */
+export function toCamelCase(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+    return index === 0 ? word.toLowerCase() : word.toUpperCase()
+  }).replace(/\s+/g, '')
+}
+
+/**
+ * Given a directory return all files recursively from subdirectories
+ */
+export function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath)
+  arrayOfFiles = arrayOfFiles || []
+  files.forEach(function(file) {
+    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+    } else {
+      arrayOfFiles.push(join(dirPath, "/", file))
+    }
+  })
+  return arrayOfFiles
+}
+
 /**
  * Get the available packages from the packages directory.
  */
@@ -54,6 +77,23 @@ export function getLocales() {
 export function getThemes() {
   const availablePackages = fs.readdirSync(packagesDir + '/themes/src/css')
   return availablePackages
+}
+
+/**
+ * Get the available icons from the icons directory.
+ */
+ export function getIcons() {
+  const iconFiles = getAllFiles(packagesDir + '/icons/src/icons')
+  const icons = {}
+  iconFiles.forEach((filePath) => {
+    if (!filePath.endsWith('.ts')) return
+    let name = filePath.split('/')
+    name = toCamelCase(name[name.length - 1].split('.')[0])
+    let data = fs.readFileSync(filePath, 'utf8')
+    data = data.replace('export default `', '').replace('</svg>`', '</svg>')
+    icons[name] = data
+  })
+  return icons
 }
 
 /**

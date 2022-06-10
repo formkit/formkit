@@ -24,6 +24,7 @@ import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
 import {
   getPackages,
   getThemes,
+  getIcons,
   getBuildOrder,
   getPlugins,
   msg,
@@ -129,6 +130,15 @@ export async function buildPackage(p) {
         ])
       )
     )
+  }
+
+  // special case for Icons package
+  if (p === 'icons') {
+    const icons = getIcons()
+    await fs.mkdir(`${rootDir}/packages/icons/dist/icons`, { recursive: true }, (err) => { if (err) throw err })
+    Object.keys(icons).forEach(async (icon) => {
+      await fs.writeFile(`${rootDir}/packages/icons/dist/icons/${icon}.svg`, icons[icon])
+    })
   }
 
   msg.loader.stop()
