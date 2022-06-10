@@ -1,11 +1,58 @@
+<script setup lang="ts">
+import { FormKitNode } from '@formkit/core'
+// import { applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
+import { setErrors, FormKitIcon } from '@formkit/vue'
+import { ref } from 'vue'
+
+// const iconPlugin = createIconPlugin({
+//   formkit: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`,
+//   ...applicationIcons,
+//   ...brandIcons,
+//   ...cryptoIcons,
+//   ...currencyIcons,
+//   ...directionalIcons,
+//   ...fileIcons,
+//   ...inputIcons,
+//   ...paymentIcons
+// })
+
+// const iconList = Object.keys(iconRegistry)
+
+const data = ref({})
+const passwordIcon = ref('eyeClosed')
+const passwordInputType = ref('password')
+const passwordNode = ref(null)
+const loadedIcon = ref(null)
+
+const submitHandler = async function () {
+  await new Promise(r => setTimeout(r, 2000))
+  setErrors('form', ['This isn’t setup to actually do anything.'])
+}
+
+const changeIcon = function () {
+  passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
+  passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
+}
+
+const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
+  if (sectionKey === 'suffix') {
+    changeIcon()
+  }
+}
+</script>
+
 <template>
-  <h1>Icon Plugin</h1>
+  <h1>Theme Plugin</h1>
+  <div style="max-width: 10em;" v-html="loadedIcon" />
+  <FormKitIcon icon="avatarMan" />
+  <FormKitIcon icon="add" />
+  <FormKitIcon icon="visa" />
+  <FormKitIcon icon="close" />
   <FormKit
     id="form"
     v-model="data"
     type="form"
     :actions="false"
-    :plugins="[iconPlugin]"
     @submit="submitHandler"
   >
     <FormKit
@@ -64,14 +111,6 @@
       icon="doesNotExist"
     />
     <FormKit
-      id="single_radio"
-      name="single_radio"
-      type="radio"
-      label="a single_radio input"
-      icon="formkit"
-      icon-suffix="apple"
-    />
-    <FormKit
       id="single_checkbox"
       name="single_checkbox"
       type="checkbox"
@@ -120,21 +159,21 @@
       label="a color input with no icons"
     />
     <FormKit
-      id="color"
+      id="color_1"
       name="color"
       type="color"
       label="a color input with prefix icon"
       icon="color"
     />
     <FormKit
-      id="color"
+      id="color_2"
       name="color"
       type="color"
       label="a color input with suffix icon"
       icon-suffix="settings"
     />
     <FormKit
-      id="color"
+      id="color_3"
       name="color"
       type="color"
       label="a color input with both icons"
@@ -179,14 +218,12 @@
       label="a button input"
       icon="tag"
       icon-suffix="submit"
-      :plugins="[iconPlugin]"
     />
     <FormKit
       type="submit"
       label="a submit input"
       icon="tag"
       icon-suffix="submit"
-      :plugins="[iconPlugin]"
     />
     <FormKit
       id="password"
@@ -205,7 +242,7 @@
   password icon: {{ passwordIcon }}
   <pre>{{ data }}</pre>
 
-  <ul class="icon-grid">
+  <!-- <ul class="icon-grid">
     <li
       v-for="icon in iconList"
       :key="icon"
@@ -218,52 +255,14 @@
         {{ icon }}
       </span>
     </li>
-  </ul>
+  </ul> -->
 </template>
 
-<script setup lang="ts">
-import { FormKitNode } from '@formkit/core'
-import { getIcon, iconRegistry, createIconPlugin, applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
-import { setErrors } from '@formkit/vue'
-import { ref } from 'vue'
-
-const iconPlugin = createIconPlugin({
-  formkit: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`,
-  ...applicationIcons,
-  ...brandIcons,
-  ...cryptoIcons,
-  ...currencyIcons,
-  ...directionalIcons,
-  ...fileIcons,
-  ...inputIcons,
-  ...paymentIcons
-})
-
-const iconList = Object.keys(iconRegistry)
-
-const data = ref({})
-const passwordIcon = ref('eyeClosed')
-const passwordInputType = ref('password')
-const passwordNode = ref(null)
-
-const submitHandler = async function () {
-  await new Promise(r => setTimeout(r, 2000))
-  setErrors('form', ['This isn’t setup to actually do anything.'])
-}
-
-const changeIcon = function () {
-  passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
-  passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
-}
-
-const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
-  if (sectionKey === 'suffix') {
-    changeIcon()
-  }
-}
-</script>
-
 <style>
+.formkit-icon {
+  display: block;
+  max-width: 5em;
+}
 .icon-grid {
   padding: 0;
   margin: 0;

@@ -1,6 +1,6 @@
 {
   "name": "@formkit/icons",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-beta.9-icon-preview",
   "type": "module",
   "description": "Icons for FormKit inputs.",
   "main": "dist/index.cjs",
