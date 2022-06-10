@@ -50,6 +50,7 @@
     <FormKit
       label="Countries"
       type="checkbox"
+      name="countries"
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
@@ -57,6 +58,14 @@
     <FormKit
       type="checkbox"
       label="Do you agree to our terms?"
+    />
+    <FormKit
+      label="Select a fruit"
+      type="radio"
+      name="fruit"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="['Apple', 'Strawberry', 'Banana']"
     />
   </FormKit>
   <pre>{{ data }}</pre>

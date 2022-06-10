@@ -2,19 +2,21 @@ import { FormKitTypeDefinition } from '@formkit/core'
 // import textSchema from './classifications/text'
 import textInput from './inputs/text'
 import checkboxInput from './inputs/checkbox'
+import radioInput from './inputs/radio'
+
 import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
-import boxSchema from './classifications/box'
+// import boxSchema from './classifications/box'
 import formSchema from './classifications/form'
 import buttonSchema from './classifications/button'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 // import checkboxes from './features/checkboxes'
-import radios from './features/radios'
+// import radios from './features/radios'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
 import localize from './features/localize'
@@ -183,12 +185,13 @@ export const checkbox = checkboxInput
  * The radio input type.
  * @public
  */
-export const radio: FormKitTypeDefinition = {
-  type: 'input',
-  schema: boxSchema,
-  props: ['options'],
-  features: [formatsOptions, radios],
-}
+// export const radio: FormKitTypeDefinition = {
+//   type: 'input',
+//   schema: boxSchema,
+//   props: ['options'],
+//   features: [formatsOptions, radios],
+// }
+export const radio = radioInput
 
 /**
  * The group input type.
