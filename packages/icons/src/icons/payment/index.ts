@@ -1,7 +1,7 @@
 import amex from './Amex'
 import discover from './Discover'
 import mastercard from './Mastercard'
-import paypal from './PayPal'
+import paypal from './Paypal'
 import stripe from './Stripe'
 import visa from './Visa'
 
