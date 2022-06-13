@@ -1240,7 +1240,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      `<div class="formkit-inner">Prefix<select id="alpha" class="formkit-input" name="alpha">
+      `<div class="formkit-inner">Prefix<select class="formkit-input" id="alpha" name="alpha">
     <option class="formkit-option" value="A">A</option>
     <option class="formkit-option" value="B">B</option>
   </select>Suffix</div>`

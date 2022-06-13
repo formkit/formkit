@@ -9,18 +9,19 @@ import formInput from './inputs/form'
 import groupInput from './inputs/group'
 import hiddenInput from './inputs/hidden'
 import listInput from './inputs/list'
+import selectInput from './inputs/select'
 
 // import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 // import hiddenSchema from './classifications/hidden'
 // import groupSchema from './classifications/group'
 // import listSchema from './classifications/list'
-import selectSchema from './classifications/select'
+// import selectSchema from './classifications/select'
 // import boxSchema from './classifications/box'
 // import formSchema from './classifications/form'
 // import buttonSchema from './classifications/button'
-import formatsOptions from './features/options'
-import selectFeatures from './features/select'
+// import formatsOptions from './features/options'
+// import selectFeatures from './features/select'
 // import checkboxes from './features/checkboxes'
 // import radios from './features/radios'
 // import disablesChildren from './features/disables'
@@ -160,12 +161,14 @@ export const hidden: FormKitTypeDefinition = hiddenInput
  * The select input type.
  * @public
  */
-export const select: FormKitTypeDefinition = {
-  type: 'input',
-  schema: selectSchema,
-  props: ['options', 'placeholder'],
-  features: [formatsOptions, selectFeatures],
-}
+export const select: FormKitTypeDefinition = selectInput
+
+// export const select: FormKitTypeDefinition = {
+//   type: 'input',
+//   schema: selectSchema,
+//   props: ['options', 'placeholder'],
+//   features: [formatsOptions, selectFeatures],
+// }
 
 /**
  * The checkbox input type.

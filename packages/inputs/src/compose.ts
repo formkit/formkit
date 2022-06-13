@@ -322,6 +322,29 @@ export function $if(
 }
 
 /**
+ * Applies a condition to a given schema section.
+ * @param varName - The name of the variable that holds the current instance.
+ * @param inName - The variable we are iterating over.
+ * @param section - A section to repeat
+ * @returns
+ */
+export function $for(
+  varName: string,
+  inName: string,
+  section: FormKitSchemaExtendableSection
+) {
+  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+    const node = section(extensions)
+    if (isSlotCondition(node)) {
+      Object.assign(node.else, { for: `${varName} in ${inName}` })
+    } else if (isSchemaObject(node)) {
+      Object.assign(node, { for: `${varName} in ${inName}` })
+    }
+    return node
+  }
+}
+
+/**
  * Extends a schema node with a given set of extensions.
  * @param section - A section to apply an extension to.
  * @param extendWith - A partial schema snippet to apply to the section.

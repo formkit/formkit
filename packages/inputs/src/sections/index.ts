@@ -59,3 +59,9 @@ export { submit } from './submit'
 export { textInput } from './textInput'
 
 export { fragment } from './fragment'
+
+export { selectInput } from './selectInput'
+
+export { option } from './option'
+
+export { optionSlot } from './optionSlot'

@@ -972,7 +972,7 @@ describe('rendering components', () => {
       },
     })
     expect(wrapper.html())
-      .toContain(`<select id="where_waldo" class=\"formkit-input\" name=\"foobar\">
+      .toContain(`<select class=\"formkit-input\" id="where_waldo" name=\"foobar\">
         <option class=\"formkit-option\" value=\"hello\">Hello</option>
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)
