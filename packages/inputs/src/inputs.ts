@@ -7,10 +7,11 @@ import buttonInput from './inputs/button'
 import fileInput from './inputs/file'
 import formInput from './inputs/form'
 import groupInput from './inputs/group'
+import hiddenInput from './inputs/hidden'
 
 // import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
-import hiddenSchema from './classifications/hidden'
+// import hiddenSchema from './classifications/hidden'
 // import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
@@ -152,10 +153,7 @@ export const button = buttonClassification
  * The hidden input.
  * @public
  */
-export const hidden: FormKitTypeDefinition = {
-  type: 'input',
-  schema: hiddenSchema,
-}
+export const hidden: FormKitTypeDefinition = hiddenInput
 
 /**
  * The select input type.

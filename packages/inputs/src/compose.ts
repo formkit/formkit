@@ -341,3 +341,14 @@ export function $extend(
     return extendSchema(extendSchema(node, extendWith), extensions)
   }
 }
+
+/**
+ * Creates a root schema section.
+ * @param section - A section to make a root from.
+ * @returns
+ */
+export function $root(
+  section: FormKitSchemaExtendableSection
+): FormKitExtendableSchemaRoot {
+  return createRoot(section)
+}
