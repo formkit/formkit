@@ -28,10 +28,6 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
 
 <template>
   <h1>Theme Plugin</h1>
-  <FormKitIcon icon="avatarMan" />
-  <FormKitIcon icon="add" />
-  <FormKitIcon icon="visa" />
-  <FormKitIcon icon="close" />
   <FormKit
     id="form"
     v-model="data"
@@ -243,10 +239,6 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
 </template>
 
 <style>
-.formkit-icon {
-  display: block;
-  max-width: 5em;
-}
 .icon-grid {
   padding: 0;
   margin: 0;
