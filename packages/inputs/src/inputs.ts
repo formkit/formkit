@@ -5,6 +5,7 @@ import checkboxInput from './inputs/checkbox'
 import radioInput from './inputs/radio'
 import buttonInput from './inputs/button'
 import fileInput from './inputs/file'
+import formInput from './inputs/form'
 
 // import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
@@ -13,14 +14,14 @@ import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 // import boxSchema from './classifications/box'
-import formSchema from './classifications/form'
+// import formSchema from './classifications/form'
 // import buttonSchema from './classifications/button'
 import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 // import checkboxes from './features/checkboxes'
 // import radios from './features/radios'
 import disablesChildren from './features/disables'
-import formHandler from './features/form'
+// import formHandler from './features/form'
 // import localize from './features/localize'
 // import files from './features/files'
 // import ignore from './features/ignore'
@@ -205,19 +206,21 @@ export const group: FormKitTypeDefinition = {
  * The form input type.
  * @public
  */
-export const form: FormKitTypeDefinition = {
-  type: 'group',
-  schema: formSchema,
-  props: [
-    'actions',
-    'submit',
-    'submitLabel',
-    'submitAttrs',
-    'submitBehavior',
-    'incompleteMessage',
-  ],
-  features: [formHandler, disablesChildren],
-}
+// export const form: FormKitTypeDefinition = {
+//   type: 'group',
+//   schema: formSchema,
+//   props: [
+//     'actions',
+//     'submit',
+//     'submitLabel',
+//     'submitAttrs',
+//     'submitBehavior',
+//     'incompleteMessage',
+//   ],
+//   features: [formHandler, disablesChildren],
+// }
+
+export const form: FormKitTypeDefinition = formInput
 
 /**
  * The list input type.
