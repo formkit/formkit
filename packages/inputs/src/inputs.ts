@@ -8,12 +8,13 @@ import fileInput from './inputs/file'
 import formInput from './inputs/form'
 import groupInput from './inputs/group'
 import hiddenInput from './inputs/hidden'
+import listInput from './inputs/list'
 
 // import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 // import hiddenSchema from './classifications/hidden'
 // import groupSchema from './classifications/group'
-import listSchema from './classifications/list'
+// import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 // import boxSchema from './classifications/box'
 // import formSchema from './classifications/form'
@@ -22,7 +23,7 @@ import formatsOptions from './features/options'
 import selectFeatures from './features/select'
 // import checkboxes from './features/checkboxes'
 // import radios from './features/radios'
-import disablesChildren from './features/disables'
+// import disablesChildren from './features/disables'
 // import formHandler from './features/form'
 // import localize from './features/localize'
 // import files from './features/files'
@@ -226,11 +227,12 @@ export const form: FormKitTypeDefinition = formInput
  * The list input type.
  * @public
  */
-export const list: FormKitTypeDefinition = {
-  type: 'list',
-  schema: listSchema,
-  features: [disablesChildren],
-}
+export const list: FormKitTypeDefinition = listInput
+// export const list: FormKitTypeDefinition = {
+//   type: 'list',
+//   schema: listSchema,
+//   features: [disablesChildren],
+// }
 
 /**
  * The file input.
