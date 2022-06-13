@@ -4,8 +4,9 @@ import textInput from './inputs/text'
 import checkboxInput from './inputs/checkbox'
 import radioInput from './inputs/radio'
 import buttonInput from './inputs/button'
+import fileInput from './inputs/file'
 
-import fileSchema from './classifications/file'
+// import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
 import groupSchema from './classifications/group'
@@ -21,7 +22,7 @@ import selectFeatures from './features/select'
 import disablesChildren from './features/disables'
 import formHandler from './features/form'
 // import localize from './features/localize'
-import files from './features/files'
+// import files from './features/files'
 // import ignore from './features/ignore'
 import initialValue from './features/initialValue'
 
@@ -232,12 +233,13 @@ export const list: FormKitTypeDefinition = {
  * The file input.
  * @public
  */
-export const file: FormKitTypeDefinition = {
-  type: 'input',
-  schema: fileSchema,
-  features: [files],
-  props: ['files'],
-}
+// export const file: FormKitTypeDefinition = {
+//   type: 'input',
+//   schema: fileSchema,
+//   features: [files],
+//   props: ['files'],
+// }
+export const file: FormKitTypeDefinition = fileInput
 
 /**
  * A single file object in FormKit’s synthetic "FileList".

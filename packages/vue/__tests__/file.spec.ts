@@ -26,7 +26,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.pdf</span><a href="#" class="formkit-remove-files">Remove</a></li>'
+      '<li class="formkit-file-item"><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove">Remove</button></li>'
     )
   })
 
@@ -49,7 +49,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.jpg</span><a href="#" class="formkit-remove-files">Remove</a></li>'
+      '<li class="formkit-file-item"><span class="formkit-file-name">test.jpg</span><button class="formkit-file-remove">Remove</button></li>'
     )
   })
 

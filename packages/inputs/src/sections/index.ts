@@ -38,4 +38,14 @@ export { buttonInput } from './buttonInput'
 
 export { buttonLabel } from './buttonLabel'
 
+export { fileInput } from './fileInput'
+
+export { fileItem } from './fileItem'
+
+export { fileList } from './fileList'
+
+export { fileName } from './fileName'
+
+export { fileRemove } from './fileRemove'
+
 export { textInput } from './textInput'
