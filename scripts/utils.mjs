@@ -361,3 +361,23 @@ export function getCurrentHash(suffix = 7) {
     .trim()
   return hash.substr(hash.length - suffix)
 }
+
+/**
+ * Updates the version number export in the @formkit/core package to reflect the
+ * version that is about to be published
+ */
+export function updateFKCoreVersionExport(newVersion) {
+  const fileNames = [
+    'index.cjs',
+    'index.d.ts',
+    'index.mjs'
+  ]
+  const coreBuiltFiles = {}
+  fileNames.forEach((fileName) => {
+    coreBuiltFiles[fileName] = fs.readFileSync(`${packagesDir}/core/dist/${fileName}`, 'utf8')
+  })
+  Object.keys(coreBuiltFiles).forEach((fileName) => {
+    coreBuiltFiles[fileName] = coreBuiltFiles[fileName].replace('__FKV__', newVersion)
+    fs.writeFileSync(`${packagesDir}/core/dist/${fileName}`, coreBuiltFiles[fileName], { encoding: 'utf8' })
+  })
+}

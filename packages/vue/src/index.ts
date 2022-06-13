@@ -47,6 +47,7 @@ export { default as bindings } from './bindings'
 
 /**
  * A vue component for rendering icons from the FormKit icon registry
+ * @public
  */
 export { FormKitIcon } from './FormKitIcon'
 

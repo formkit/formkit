@@ -1,6 +1,4 @@
-import { FormKitNode, FormKitClasses } from '@formkit/core'
-
-let FORMKIT_VERSION = '%FORMKIT_VERSION%'
+import { FORMKIT_VERSION, FormKitNode, FormKitClasses } from '@formkit/core'
 
 /**
  * A function that returns a class list string
@@ -10,6 +8,7 @@ type ClassFunction = (node: FormKitNode, sectionKey: string) => string
 
 /**
  * A function that returns an icon SVG string
+ * @public
  */
 export interface FormKitIconLoader {
   (iconName: string):string | undefined | Promise<string | undefined>
@@ -81,14 +80,11 @@ function addClassesBySection(
 let documentStyles: Record<any, any> = {}
 
 /**
- * The icon Registry - a global collection of loaded icons.
+ * iconRegistry proxy setup.
  * When an icon that does not exist is requested it attempts to source it
  * from a local css variable.
  */
-const iconRegistryTarget: Record<string, string | undefined> = {
-  // TODO: remove this test icon
-  avatarMan: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 13 16"><path d="M4,10h5c1.66,0,3,1.34,3,3v2H1v-2c0-1.66,1.34-3,3-3Z" fill="currentColor"/><path d="M4,4h5v2.5c0,1.38-1.12,2.5-2.5,2.5h0c-1.38,0-2.5-1.12-2.5-2.5v-2.5h0Z" fill="currentColor"/><path d="M9,4h0c.55,0,1,.45,1,1h0c0,.55-.45,1-1,1h0v-2h0Z" fill="currentColor"/><path d="M3,4h0c.55,0,1,.45,1,1h0c0,.55-.45,1-1,1h0v-2h0Z" transform="translate(7 10) rotate(180)" fill="currentColor"/><path d="M4.12,4.12h-.5c-.75-.62-.62-1.57-.62-2.37h0s.5-.26,1-.26,1,.5,1,.5c-.88,0-1-1-1-1h3c1.1,0,2,.9,2,2h.5s.25,.75-.12,1.25l-5.25-.12Z" fill="currentColor"/></svg>'
-}
+const iconRegistryTarget: Record<string, string | undefined> = {}
 const iconRegistryHandler: Record<string, any> = {
   get(target: Record<string, string>, prop: string) {
     if (target[prop]) {
@@ -106,6 +102,10 @@ const iconRegistryHandler: Record<string, any> = {
     return undefined
   }
 }
+/**
+ * The FormKit icon Registry - a global record of loaded icons.
+ * @public
+ */
 export const iconRegistry = new Proxy(iconRegistryTarget, iconRegistryHandler)
 
 /**
@@ -124,7 +124,6 @@ export function createThemePlugin(
     Object.assign(iconRegistry, icons)
   }
 
-  // TODO: assign theme version on build
   let themeDidLoad: (value?: unknown) => void
   const themeLoaded = new Promise((res) => themeDidLoad = res)
   documentStyles = getComputedStyle(document.documentElement)
@@ -143,10 +142,10 @@ export function createThemePlugin(
       documentThemeLinkTag?.getAttribute('data-theme') !== theme
     ))
   ) {
-    // if for some reason we didn't overwrite the %FORMKIT_VERSION% token during the build
+    // if for some reason we didn't overwrite the __FKV__ token during publish
     // then use the `latest` tag for CDN fetching. (this applies to local dev as well)
-    FORMKIT_VERSION = FORMKIT_VERSION.startsWith('%') ? 'latest' : FORMKIT_VERSION
-    const themeUrl = `https://cdn.jsdelivr.net/npm/@formkit/themes@${FORMKIT_VERSION}/dist/${theme}/theme.css`
+    const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
+    const themeUrl = `https://cdn.jsdelivr.net/npm/@formkit/themes@${formkitVersion}/dist/${theme}/theme.css`
     const link = document.createElement('link')
     link.type = 'text/css'
     link.rel = 'stylesheet'
@@ -182,7 +181,7 @@ export function createThemePlugin(
  * @param iconName - The string name of the icon
  * @public
  */
-function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader {
+export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader {
   return (iconName: string) => {
     const icon = iconRegistry[iconName]
     if (icon || iconName in iconRegistry) {

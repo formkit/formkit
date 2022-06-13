@@ -4,25 +4,10 @@ import { FormKitNode } from '@formkit/core'
 import { setErrors, FormKitIcon } from '@formkit/vue'
 import { ref } from 'vue'
 
-// const iconPlugin = createIconPlugin({
-//   formkit: `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 0.0182495H0V4.01533H4V8.01167L7.9989 8.01167V12.0088H4V16.0058H0V20.0029H4V16.0058H8V12.0088H11.9989V8.01167L8 8.01167V4.01459H4V0.0182495ZM11.9983 20.0029H15.9977H15.9983H19.9972H19.9977H23.9972V24H19.9977H19.9972H15.9983H15.9977H11.9983V20.0029Z" fill="currentColor"/></svg>`,
-//   ...applicationIcons,
-//   ...brandIcons,
-//   ...cryptoIcons,
-//   ...currencyIcons,
-//   ...directionalIcons,
-//   ...fileIcons,
-//   ...inputIcons,
-//   ...paymentIcons
-// })
-
-// const iconList = Object.keys(iconRegistry)
-
 const data = ref({})
 const passwordIcon = ref('eyeClosed')
 const passwordInputType = ref('password')
 const passwordNode = ref(null)
-const loadedIcon = ref(null)
 
 const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
@@ -43,7 +28,6 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
 
 <template>
   <h1>Theme Plugin</h1>
-  <div style="max-width: 10em;" v-html="loadedIcon" />
   <FormKitIcon icon="avatarMan" />
   <FormKitIcon icon="add" />
   <FormKitIcon icon="visa" />
