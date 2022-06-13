@@ -1,8 +1,16 @@
-import { textAttrs } from '../attrs'
 import { createSection } from '../compose'
 
 export const textInput = createSection('input', () => ({
   $el: 'input',
   bind: '$attrs',
-  attrs: textAttrs(),
+  attrs: {
+    type: '$type',
+    disabled: '$disabled',
+    name: '$node.name',
+    onInput: '$handlers.DOMInput',
+    onBlur: '$handlers.blur',
+    value: '$_value',
+    id: '$id',
+    'aria-describedby': '$describedBy',
+  },
 }))

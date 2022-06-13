@@ -10,9 +10,10 @@ import groupInput from './inputs/group'
 import hiddenInput from './inputs/hidden'
 import listInput from './inputs/list'
 import selectInput from './inputs/select'
+import textareaInput from './inputs/textarea'
 
 // import fileSchema from './classifications/file'
-import textareaSchema from './classifications/textarea'
+// import textareaSchema from './classifications/textarea'
 // import hiddenSchema from './classifications/hidden'
 // import groupSchema from './classifications/group'
 // import listSchema from './classifications/list'
@@ -29,7 +30,7 @@ import textareaSchema from './classifications/textarea'
 // import localize from './features/localize'
 // import files from './features/files'
 // import ignore from './features/ignore'
-import initialValue from './features/initialValue'
+// import initialValue from './features/initialValue'
 
 /**
  * Default classifications that are available.
@@ -128,11 +129,7 @@ export const range = textClassification
  * The textarea input.
  * @public
  */
-export const textarea: FormKitTypeDefinition = {
-  type: 'input',
-  schema: textareaSchema,
-  features: [initialValue],
-}
+export const textarea: FormKitTypeDefinition = textareaInput
 
 /**
  * Buttons are all this classification:

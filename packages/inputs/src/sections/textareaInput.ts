@@ -1,8 +1,9 @@
-import { FormKitSchemaAttributes } from '@formkit/core'
+import { createSection } from '../compose'
 
-export default function textAttrs(): FormKitSchemaAttributes {
-  return {
-    type: '$type',
+export const textareaInput = createSection('input', () => ({
+  $el: 'textarea',
+  bind: '$attrs',
+  attrs: {
     disabled: '$disabled',
     name: '$node.name',
     onInput: '$handlers.DOMInput',
@@ -10,5 +11,6 @@ export default function textAttrs(): FormKitSchemaAttributes {
     value: '$_value',
     id: '$id',
     'aria-describedby': '$describedBy',
-  }
-}
+  },
+  children: '$initialValue',
+}))
