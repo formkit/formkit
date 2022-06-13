@@ -14,6 +14,7 @@ import {
   fileList,
   fileName,
   fileRemove,
+  noFiles,
 } from '../sections'
 import files from '../features/files'
 import { $if } from '../compose'
@@ -36,6 +37,7 @@ const definition: FormKitTypeDefinition = {
           )
         ),
         $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
+        noFiles('$ui.noFiles.value'),
         suffix()
       )
     ),

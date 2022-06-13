@@ -48,4 +48,6 @@ export { fileName } from './fileName'
 
 export { fileRemove } from './fileRemove'
 
+export { noFiles } from './noFiles'
+
 export { textInput } from './textInput'

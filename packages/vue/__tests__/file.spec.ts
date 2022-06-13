@@ -75,4 +75,24 @@ describe('file inputs', () => {
     expect(fileName.exists()).toBe(true)
     expect(fileName.attributes('class')).toContain('my-name')
   })
+
+  it('has a default "no files" label', () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            type="file"
+            name="file"
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
+  })
 })

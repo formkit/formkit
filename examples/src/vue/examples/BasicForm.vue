@@ -15,6 +15,14 @@
       validation-visibility="live"
     />
     <FormKit
+      type="file"
+      name="file"
+      label="Your file"
+      placeholder="jon@foo.com"
+      validation="required|email|length:16,9"
+      validation-visibility="live"
+    />
+    <FormKit
       id="fruit"
       name="fruit"
       type="select"
