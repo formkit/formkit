@@ -6,11 +6,12 @@ import radioInput from './inputs/radio'
 import buttonInput from './inputs/button'
 import fileInput from './inputs/file'
 import formInput from './inputs/form'
+import groupInput from './inputs/group'
 
 // import fileSchema from './classifications/file'
 import textareaSchema from './classifications/textarea'
 import hiddenSchema from './classifications/hidden'
-import groupSchema from './classifications/group'
+// import groupSchema from './classifications/group'
 import listSchema from './classifications/list'
 import selectSchema from './classifications/select'
 // import boxSchema from './classifications/box'
@@ -196,11 +197,12 @@ export const radio = radioInput
  * The group input type.
  * @public
  */
-export const group: FormKitTypeDefinition = {
-  type: 'group',
-  schema: groupSchema,
-  features: [disablesChildren],
-}
+// export const group: FormKitTypeDefinition = {
+//   type: 'group',
+//   schema: groupSchema,
+//   features: [disablesChildren],
+// }
+export const group: FormKitTypeDefinition = groupInput
 
 /**
  * The form input type.

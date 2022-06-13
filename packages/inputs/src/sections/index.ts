@@ -57,3 +57,5 @@ export { actions } from './actions'
 export { submit } from './submit'
 
 export { textInput } from './textInput'
+
+export { fragment } from './fragment'
