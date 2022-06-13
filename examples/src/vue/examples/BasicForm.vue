@@ -19,8 +19,9 @@
       name="file"
       label="Your file"
       placeholder="jon@foo.com"
-      validation="required|email|length:16,9"
+      validation="required"
       validation-visibility="live"
+      multiple="true"
     />
     <FormKit
       id="fruit"
