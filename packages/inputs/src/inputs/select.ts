@@ -9,6 +9,7 @@ import {
   message,
   prefix,
   suffix,
+  icon,
   selectInput,
   option,
   optionSlot,
@@ -30,6 +31,7 @@ export const select: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
+        icon('prefix'),
         prefix(),
         selectInput(
           $if(
@@ -41,7 +43,9 @@ export const select: FormKitTypeDefinition = {
             )
           )
         ),
-        suffix()
+        icon('select'),
+        suffix(),
+        icon('prefix')
       )
     ),
     help('$help'),

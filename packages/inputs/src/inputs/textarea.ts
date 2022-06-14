@@ -9,6 +9,7 @@ import {
   message,
   prefix,
   suffix,
+  icon,
   textareaInput,
 } from '../sections'
 import initialValue from '../features/initialValue'
@@ -26,9 +27,11 @@ export const textarea: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
+        icon('prefix'),
         prefix(),
         textareaInput(),
-        suffix()
+        suffix(),
+        icon('suffix')
       )
     ),
     help('$help'),
