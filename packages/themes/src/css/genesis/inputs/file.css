@@ -31,7 +31,12 @@
     }
   }
 
-  & .formkit-remove-files {
+  & .formkit-file-remove {
+    appearance: none;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
     position: absolute;
     font-size: var(--fk-font-size-remove);
     color: var(--fk-color-primary);
@@ -39,13 +44,14 @@
     left: calc(var(--fk-padding-input-l) + (1em - var(--fk-font-size-remove)));
     display: block;
     z-index: 5;
+    cursor: pointer;
 
     &:hover {
       color: var(--fk-color-danger);
     }
   }
 
-  & .formkit-file-item .formkit-remove-files {
+  & .formkit-file-item .formkit-file-remove {
     position: absolute;
     margin-left: auto;
     margin-right: 0;

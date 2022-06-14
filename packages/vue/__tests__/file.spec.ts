@@ -26,7 +26,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.pdf</span><a href="#" class="formkit-remove-files">Remove</a></li>'
+      '<li class="formkit-file-item"><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove">Remove</button></li>'
     )
   })
 
@@ -49,7 +49,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.jpg</span><a href="#" class="formkit-remove-files">Remove</a></li>'
+      '<li class="formkit-file-item"><span class="formkit-file-name">test.jpg</span><button class="formkit-file-remove">Remove</button></li>'
     )
   })
 
@@ -74,5 +74,25 @@ describe('file inputs', () => {
     const fileName = wrapper.find('.formkit-file-name')
     expect(fileName.exists()).toBe(true)
     expect(fileName.attributes('class')).toContain('my-name')
+  })
+
+  it('has a default "no files" label', () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            type="file"
+            name="file"
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
   })
 })

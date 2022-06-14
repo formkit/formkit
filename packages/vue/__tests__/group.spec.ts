@@ -324,4 +324,20 @@ describe('clearing values', () => {
   "user": "abc"
 }</pre>`)
   })
+
+  it('can add a fieldset around the group', () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit type="group" :sections-schema="{ wrapper: { $el: 'fieldset' } }">Hello</FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toBe(
+      '<fieldset class="formkit-wrapper">Hello</fieldset>'
+    )
+  })
 })
