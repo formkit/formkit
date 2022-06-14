@@ -32,6 +32,7 @@ export {
   createSection,
   useSchema,
   extendSchema,
+  composable,
   FormKitInputSchema,
   FormKitSchemaExtendableSection,
   FormKitSection,
