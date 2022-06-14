@@ -17,7 +17,11 @@ import { $if } from '../compose'
 import formatsOptions from '../features/options'
 import selectFeatures from '../features/select'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a select.
+ * @public
+ */
+export const select: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -58,5 +62,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [formatsOptions, selectFeatures],
 }
-
-export default definition

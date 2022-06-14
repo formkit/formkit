@@ -22,7 +22,11 @@ import checkboxes from '../features/checkboxes'
 
 import { $if, $extend } from '../compose'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a checkbox(ess).
+ * @public
+ */
+export const checkbox: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -90,5 +94,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [formatsOptions, checkboxes],
 }
-
-export default definition

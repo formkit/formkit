@@ -12,7 +12,11 @@ import {
   textInput,
 } from '../sections'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a text.
+ * @public
+ */
+export const text: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -44,5 +48,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [],
 }
-
-export default definition

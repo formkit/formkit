@@ -2,7 +2,11 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import { textInput } from '../sections'
 import { $root } from '../compose'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a hidden input.
+ * @public
+ */
+export const hidden: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -21,5 +25,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [],
 }
-
-export default definition

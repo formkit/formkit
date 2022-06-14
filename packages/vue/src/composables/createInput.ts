@@ -1,5 +1,6 @@
-import { FormKitTypeDefinition } from '@formkit/core'
-import { FormKitInputSchema, useSchema } from '@formkit/inputs'
+import { FormKitTypeDefinition, FormKitSchemaNode } from '@formkit/core'
+import { cloneAny } from '@formkit/utils'
+import { createSection, FormKitSection, useSchema } from '@formkit/inputs'
 import { Component, markRaw } from 'vue'
 
 let totalCreated = 1
@@ -31,25 +32,27 @@ function isComponent(obj: any): obj is Component {
  * @public
  */
 export function createInput(
-  schemaOrComponent: FormKitInputSchema | Component,
+  schemaOrComponent: FormKitSchemaNode | FormKitSection | Component,
   definitionOptions: Partial<FormKitTypeDefinition> = {}
 ): FormKitTypeDefinition {
   const definition: FormKitTypeDefinition = {
     type: 'input',
     ...definitionOptions,
   }
-  let schema: FormKitInputSchema | undefined = undefined
+  let schema: FormKitSection
   if (isComponent(schemaOrComponent)) {
     const cmpName = `SchemaComponent${totalCreated++}`
-    schema = () => ({
+    schema = createSection('input', () => ({
       $cmp: cmpName,
       props: {
         context: '$node.context',
       },
-    })
+    }))
     definition.library = { [cmpName]: markRaw(schemaOrComponent) }
-  } else {
+  } else if (typeof schemaOrComponent === 'function') {
     schema = schemaOrComponent
+  } else {
+    schema = createSection('input', () => cloneAny(schemaOrComponent))
   }
 
   // Use the default wrapping schema

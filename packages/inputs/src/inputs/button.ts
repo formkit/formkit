@@ -13,7 +13,11 @@ import {
 import localize from '../features/localize'
 import ignore from '../features/ignore'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a button.
+ * @public
+ */
+export const button: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -44,5 +48,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [localize('submit'), ignore],
 }
-
-export default definition

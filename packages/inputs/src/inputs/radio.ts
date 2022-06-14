@@ -21,7 +21,11 @@ import formatsOptions from '../features/options'
 import radios from '../features/radios'
 import { $if, $extend } from '../compose'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a radio.
+ * @public
+ */
+export const radio: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -89,5 +93,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [formatsOptions, radios],
 }
-
-export default definition

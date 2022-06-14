@@ -82,6 +82,7 @@ const warnings: Record<
   /**
    * Deprecation warnings:
    */
+  800: ({ data: name }: { data: string }) => `${name} is deprecated.`,
 }
 
 /**

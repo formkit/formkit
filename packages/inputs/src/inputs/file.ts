@@ -19,7 +19,11 @@ import {
 import files from '../features/files'
 import { $if } from '../compose'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a file input.
+ * @public
+ */
+export const file: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -59,5 +63,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [files],
 }
-
-export default definition

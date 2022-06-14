@@ -1,6 +1,6 @@
 import { FormKitNode } from '@formkit/core'
 import localize from './localize'
-import { FormKitFileValue } from '../inputs'
+import { FormKitFileValue } from '../index'
 
 declare global {
   interface Window {

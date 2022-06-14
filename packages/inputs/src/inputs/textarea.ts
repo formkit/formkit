@@ -13,7 +13,11 @@ import {
 } from '../sections'
 import initialValue from '../features/initialValue'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a textarea.
+ * @public
+ */
+export const textarea: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -45,5 +49,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [initialValue],
 }
-
-export default definition

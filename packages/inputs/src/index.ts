@@ -29,10 +29,12 @@ export { FormKitOptionsList } from './features/options'
  * Composable logic.
  */
 export {
-  composable,
+  createSection,
   useSchema,
   extendSchema,
   FormKitInputSchema,
+  FormKitSchemaExtendableSection,
+  FormKitSection,
 } from './compose'
 
 /**
@@ -42,3 +44,18 @@ export {
  * Is not yet supported.
  */
 export { default as features } from './features'
+
+/**
+ * A single file object in FormKit’s synthetic "FileList".
+ * @public
+ */
+export interface FormKitFile {
+  name: string
+  file?: File
+}
+
+/**
+ * A synthetic array-based "FileList".
+ * @public
+ */
+export type FormKitFileValue = FormKitFile[]

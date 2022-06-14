@@ -1,26 +1,29 @@
 import {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
-  FormKitSchemaComposable,
   FormKitSchemaNode,
   FormKitSchemaDOMNode,
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
   FormKitSchemaCondition,
+  FormKitSchemaComposable,
   isComponent,
   isDOM,
   isConditional,
+  warn,
 } from '@formkit/core'
+import {
+  outer,
+  wrapper,
+  prefix,
+  suffix,
+  label,
+  inner,
+  messages,
+  message,
+  help,
+} from './sections'
 import { clone, extend, isObject } from '@formkit/utils'
-import label from './composables/label'
-import outer from './composables/outer'
-import wrapper from './composables/wrapper'
-import inner from './composables/inner'
-import help from './composables/help'
-import messages from './composables/messages'
-import message from './composables/message'
-import prefix from './composables/prefix'
-import suffix from './composables/suffix'
 
 /**
  * Either a schema node, or a function that returns a schema node.
@@ -113,6 +116,7 @@ export function composable(
   key: string,
   schema: FormKitInputSchema
 ): FormKitSchemaComposable {
+  warn(800, 'composable function')
   return (extendWith = {}, children = undefined) => {
     const root =
       typeof schema === 'function'
@@ -149,27 +153,13 @@ export function composable(
  * @public
  */
 export function useSchema(
-  inputSchema: FormKitInputSchema
+  inputSection: FormKitSection
 ): FormKitExtendableSchemaRoot {
-  return (extensions = {}) => {
-    const input = composable('input', inputSchema)(extensions.input)
-    return [
-      outer(extensions.outer, [
-        wrapper(extensions.wrapper, [
-          label(extensions.label, '$label'),
-          inner(extensions.inner, [
-            prefix(extensions.prefix),
-            ...(Array.isArray(input) ? input : [input]),
-            suffix(extensions.suffix),
-          ]),
-        ]),
-        help(extensions.help, '$help'),
-        messages(extensions.messages, [
-          message(extensions.message, '$message.value'),
-        ]),
-      ]),
-    ]
-  }
+  return outer(
+    wrapper(label('$label'), inner(prefix(), inputSection(), suffix())),
+    help('$help'),
+    messages(message('$message.value'))
+  )
 }
 
 // ========================================================
@@ -177,6 +167,7 @@ export function useSchema(
 /**
  * A function that is called with an extensions argument and returns a valid
  * schema node.
+ * @public
  */
 export interface FormKitSchemaExtendableSection {
   (extensions: Record<string, Partial<FormKitSchemaNode>>): FormKitSchemaNode
@@ -185,16 +176,13 @@ export interface FormKitSchemaExtendableSection {
 /**
  * A function that when called, returns a function that can in turn be called
  * with an extension parameter.
+ * @public
  */
 export interface FormKitSection<T = FormKitSchemaExtendableSection> {
   (...children: Array<FormKitSchemaExtendableSection | string>): T
 }
 
 /**
- * Creates a new reusable section.
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- * @returns
  * @public
  */
 export function createSection(
@@ -202,15 +190,29 @@ export function createSection(
   el: string | null | (() => FormKitSchemaNode),
   root: true
 ): FormKitSection<FormKitExtendableSchemaRoot>
+/**
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode)
 ): FormKitSection<FormKitSchemaExtendableSection>
+/**
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | (() => FormKitSchemaNode),
   root: false
 ): FormKitSection<FormKitSchemaExtendableSection>
+/**
+ * Creates a new reusable section.
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @param root - When true returns an extendable root schema node.
+ * @returns
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
@@ -333,7 +335,9 @@ export function $for(
   inName: string,
   section: FormKitSchemaExtendableSection
 ) {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+  return (
+    extensions: Record<string, Partial<FormKitSchemaNode>>
+  ): FormKitSchemaNode => {
     const node = section(extensions)
     if (isSlotCondition(node)) {
       Object.assign(node.else, { for: `${varName} in ${inName}` })

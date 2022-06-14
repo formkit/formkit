@@ -2,7 +2,11 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import { fragment } from '../sections'
 import disablesChildren from '../features/disables'
 
-const definition: FormKitTypeDefinition = {
+/**
+ * Input definition for a group.
+ * @public
+ */
+export const group: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
@@ -21,5 +25,3 @@ const definition: FormKitTypeDefinition = {
    */
   features: [disablesChildren],
 }
-
-export default definition
