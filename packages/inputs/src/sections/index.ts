@@ -67,3 +67,5 @@ export { option } from './option'
 export { optionSlot } from './optionSlot'
 
 export { textareaInput } from './textareaInput'
+
+export { icon } from './icon'

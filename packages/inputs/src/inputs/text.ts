@@ -7,6 +7,7 @@ import {
   help,
   messages,
   message,
+  icon,
   prefix,
   suffix,
   textInput,
@@ -25,9 +26,11 @@ export const text: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
+        icon('prefix'),
         prefix(),
         textInput(),
-        suffix()
+        suffix(),
+        icon('suffix')
       )
     ),
     help('$help'),
