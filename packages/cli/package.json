@@ -1,0 +1,38 @@
+{
+  "name": "@formkit/cli",
+  "version": "1.0.0-beta.8",
+  "type": "module",
+  "description": "FormKit command line interface.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./dist/*"
+  },
+  "keywords": [
+    "vue",
+    "forms",
+    "inputs",
+    "validation",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formkit/formkit.git",
+    "directory": "packages/cli"
+  },
+  "contributors": [
+    "Justin Schroeder <justin@formkit.com>"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
