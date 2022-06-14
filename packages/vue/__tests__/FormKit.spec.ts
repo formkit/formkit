@@ -195,6 +195,38 @@ describe('props', () => {
     })
     expect(wrapper.emitted('update:modelValue')).toBe(undefined)
   })
+
+  it('can use regex pseudo props', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            type="form"
+            :foo-bar-icon="icon"
+            #default="{ fooBarIcon }"
+          >
+            {{ fooBarIcon }}
+          </FormKit>
+        `,
+        data () {
+          return {
+            icon: 'avatarMan'
+          }
+        }
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        }
+      },
+    )
+    expect(wrapper.html()).toContain('avatarMan')
+    wrapper.setData({
+      icon: 'avatarWoman'
+    })
+    await nextTick()
+    expect(wrapper.html()).toContain('avatarWoman')
+  })
 })
 
 describe('id', () => {

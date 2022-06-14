@@ -284,18 +284,25 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   /**
    * We use a node observer to individually observe node props.
    */
-  const rootProps = [
-    'help',
-    'label',
-    'disabled',
-    'options',
-    'type',
-    'attrs',
-    'preserve',
-    'preserveErrors',
-    'id',
-  ]
-  observeProps(rootProps)
+  const rootProps = () => {
+    const props = [
+      'help',
+      'label',
+      'disabled',
+      'options',
+      'type',
+      'attrs',
+      'preserve',
+      'preserveErrors',
+      'id',
+    ]
+    const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
+    const matchingProps = Object.keys(node.props).filter((prop) => {
+      return iconPattern.test(prop)
+    })
+    return props.concat(matchingProps)
+  }
+  observeProps(rootProps())
 
   /**
    * Once the input is defined, deal with it.

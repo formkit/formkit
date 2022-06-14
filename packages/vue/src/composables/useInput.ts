@@ -73,6 +73,9 @@ const pseudoProps = [
   /^preserve(-e|E)rrors/,
   /^[a-z]+(?:-visibility|Visibility)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
+  'prefixIcon',
+  'suffixIcon',
+  /^[a-zA-Z-]+(?:-icon|Icon)$/
 ]
 
 /**
