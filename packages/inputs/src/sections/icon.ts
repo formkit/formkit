@@ -2,11 +2,13 @@ import { createSection, FormKitSchemaExtendableSection } from '../compose'
 
 export const icon = (sectionKey: string): FormKitSchemaExtendableSection => {
   return createSection(`${sectionKey}Icon`, () => {
+    const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}Icon`
     return {
-      if: `$${sectionKey}Icon && $_${sectionKey}IconRaw`,
+      if: `$${sectionKey}Icon && $${rawIconProp}`,
       $el: 'span',
       attrs: {
-        innerHTML: `$_${sectionKey}IconRaw`
+        class: `$classes.${sectionKey}Icon + " formkit-icon"`,
+        innerHTML: `$${rawIconProp}`
       }
     }
   })()

@@ -13,6 +13,7 @@ import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import { createAutoAnimatePlugin } from '@formkit/addons'
+import '@formkit/themes/genesis'
 
 const myInput = createInput(CurrencyInput)
 
@@ -23,7 +24,6 @@ const app = createApp(App)
 const config = defaultConfig({
   locales: { de, fr },
   locale: 'en',
-  theme: 'genesis',
   icons: {
     close: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 16"><path d="M10,12.5c-.13,0-.26-.05-.35-.15L1.65,4.35c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0L10.35,11.65c.2,.2,.2,.51,0,.71-.1,.1-.23,.15-.35,.15Z" fill="currentColor"/><path d="M2,12.5c-.13,0-.26-.05-.35-.15-.2-.2-.2-.51,0-.71L9.65,3.65c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71L2.35,12.35c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"/></svg>'
   },

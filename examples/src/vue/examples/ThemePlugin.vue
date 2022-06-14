@@ -131,8 +131,8 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       name="range"
       type="range"
       label="a range input"
-      prefix-icon="formkit"
-      suffix-icon="formkit"
+      prefix-icon="apple"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="color"

@@ -38,6 +38,7 @@ export const file: FormKitTypeDefinition = {
         fileInput(),
         fileList(
           fileItem(
+            icon('file-item'),
             fileName('$file.name'),
             $if('$value.length === 1', fileRemove('$ui.remove.value')),
           )

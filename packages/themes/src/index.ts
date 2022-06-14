@@ -109,6 +109,11 @@ const iconRegistryHandler: Record<string, any> = {
 export const iconRegistry = new Proxy(iconRegistryTarget, iconRegistryHandler)
 
 /**
+ * A collection of existing icon requests to avoid duplicate fetching
+ */
+const iconRequests: Record<string, any> = {}
+
+/**
  * Creates the theme plugin based on a given theme name
  * @param theme - The name or id of the theme to apply
  * @param iconLoader - A function that handles loading an icon
@@ -166,11 +171,16 @@ export function createThemePlugin(
   const iconHandler = handleIcons(iconLoader)
 
   const themePlugin = async function themePlugin(node: FormKitNode) {
-    await themeLoaded
+    // if we have a theme declared, wait for it
+    if (theme) {
+      await themeLoaded
+    }
+
     node.addProps(['iconHandler'])
     if (typeof node.props.iconHandler === 'undefined') {
       node.props.iconHandler = iconHandler
     }
+    loadIconPropIcons(node, iconHandler)
   }
   themePlugin.iconHandler = iconHandler
   return themePlugin
@@ -183,11 +193,14 @@ export function createThemePlugin(
  */
 export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader {
   return (iconName: string) => {
+    // first check if we've already loaded the icon before
     const icon = iconRegistry[iconName]
     if (icon || iconName in iconRegistry) {
       return icon
     }
+    // otherwise, load the icon with the user handler, or our default
     const loadedIcon = typeof iconLoader === 'function' ? iconLoader(iconName) : getRemoteIcon(iconName)
+    // if the icon is being fetched remotely, return the promise
     if (loadedIcon instanceof Promise) {
       return loadedIcon.then((iconString) => {
         iconRegistry[iconName] = iconString
@@ -196,6 +209,7 @@ export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader 
         return undefined
       })
     }
+    // otherwise add the icon to the registry and return it immediately
    iconRegistry[iconName] = loadedIcon
    return loadedIcon
   }
@@ -207,11 +221,50 @@ export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader 
  * @public
  */
 async function getRemoteIcon(iconName: string): Promise<string | undefined> {
-  const icon = await fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@1.0.0-beta.9-icon-preview/dist/icons/${iconName}.svg`)
-    .then(r => r.text())
+  // if we are already awaiting a promise for this icon then return the existing promise
+  if (iconRequests[iconName] && iconRequests[iconName] instanceof Promise) {
+    console.log(iconName, ' was already requested, awaiting existing promise')
+    return await iconRequests[iconName]
+  }
+  console.log('requesting "' + iconName + '" for the first time...')
+  iconRequests[iconName] = fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@1.0.0-beta.9-icon-preview/dist/icons/${iconName}.svg`)
+    .then(async (r) => {
+      const icon = await r.text()
+      if (icon.startsWith('<svg')) {
+        return icon
+      }
+      return undefined
+    })
     .catch(e => console.error(e))
-  if (icon && icon.startsWith('<svg')) {
-    return icon
+  if (iconRequests[iconName] instanceof Promise) {
+    return await iconRequests[iconName]
+  }
+  if (iconRequests[iconName] && iconRequests[iconName].startsWith('<svg')) {
+    return iconRequests[iconName]
   }
   return undefined
+}
+
+/**
+ * Loads icons for the matching `-icon` props on a given node
+ */
+function loadIconPropIcons(node: FormKitNode, iconLoader: FormKitIconLoader): void {
+  const iconRegex = /^[a-zA-Z-]+(?:-icon|Icon)$/
+  const iconProps = Object.keys(node.props).filter((prop) => {
+    return iconRegex.test(prop)
+  })
+  iconProps.forEach((sectionKey) => {
+    const iconName = node.props[sectionKey]
+    const loadedIcon = iconLoader(iconName)
+    const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
+    node.addProps([rawIconProp])
+    if (loadedIcon instanceof Promise) {
+      return loadedIcon.then((svg) => {
+        node.props[rawIconProp] = svg
+      })
+    } else {
+      node.props[rawIconProp] = loadedIcon
+    }
+    return
+  })
 }

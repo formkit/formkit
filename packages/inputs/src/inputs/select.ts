@@ -45,7 +45,7 @@ export const select: FormKitTypeDefinition = {
         ),
         icon('select'),
         suffix(),
-        icon('prefix')
+        icon('suffix')
       )
     ),
     help('$help'),
