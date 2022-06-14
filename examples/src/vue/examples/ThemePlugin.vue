@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { FormKitNode } from '@formkit/core'
-// import { applicationIcons, brandIcons, cryptoIcons, currencyIcons, directionalIcons, fileIcons, inputIcons, paymentIcons } from '@formkit/icons'
-import { setErrors, FormKitIcon } from '@formkit/vue'
+import { FormKitIcon } from '@formkit/vue'
 import { ref } from 'vue'
 
 const data = ref({})
@@ -11,7 +10,6 @@ const passwordNode = ref(null)
 
 const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
-  setErrors('form', ['This isn’t setup to actually do anything.'])
 }
 
 const changeIcon = function () {
@@ -28,6 +26,10 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
 
 <template>
   <h1>Theme Plugin</h1>
+  <div class="example-icon-component">
+    <h5>Example <code>FormKitIcon</code> component</h5>
+    <FormKitIcon icon="avatarMan" />
+  </div>
   <FormKit
     id="form"
     v-model="data"
@@ -42,14 +44,14 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
-      icon="email"
+      prefix-icon="email"
     />
     <FormKit
       id="star"
       name="star"
       type="text"
       label="Suffix icon"
-      icon-suffix="ethereum"
+      suffix-icon="ethereum"
     />
     <FormKit
       id="fruit"
@@ -57,8 +59,8 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       type="select"
       label="Icon with select input"
       placeholder="Select some pie"
-      icon="apple"
-      icon-suffix="formkit"
+      prefix-icon="apple"
+      suffix-icon="formkit"
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
@@ -71,8 +73,8 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       type="textarea"
       label="Text Area input"
       placeholder="Write something"
-      icon="apple"
-      icon-suffix="formkit"
+      prefix-icon="apple"
+      suffix-icon="formkit"
     />
     <FormKit
       id="framework"
@@ -80,7 +82,7 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       type="text"
       label="Inline SVG icon"
       value="FormKit"
-      icon="formkit"
+      prefix-icon="formkit"
     />
     <FormKit
       id="invalid"
@@ -88,15 +90,15 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       type="text"
       label="Invalid Icon"
       value=""
-      icon="doesNotExist"
+      prefix-icon="doesNotExist"
     />
     <FormKit
       id="single_checkbox"
       name="single_checkbox"
       type="checkbox"
       label="a single_checkbox input"
-      icon="formkit"
-      icon-suffix="bitcoin"
+      prefix-icon="formkit"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="radio"
@@ -108,8 +110,8 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
         pumpkin: 'Pumpkin pie',
         peach: 'Peach cobbler'
       }"
-      icon="formkit"
-      icon-suffix="apple"
+      prefix-icon="formkit"
+      suffix-icon="apple"
     />
     <FormKit
       id="checkbox"
@@ -121,16 +123,16 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
         pumpkin: 'Pumpkin pie',
         peach: 'Peach cobbler'
       }"
-      icon="formkit"
-      icon-suffix="bitcoin"
+      prefix-icon="formkit"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="range"
       name="range"
       type="range"
       label="a range input"
-      icon="formkit"
-      icon-suffix="formkit"
+      prefix-icon="formkit"
+      suffix-icon="formkit"
     />
     <FormKit
       id="color"
@@ -143,67 +145,67 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       name="color"
       type="color"
       label="a color input with prefix icon"
-      icon="color"
+      prefix-icon="color"
     />
     <FormKit
       id="color_2"
       name="color"
       type="color"
       label="a color input with suffix icon"
-      icon-suffix="settings"
+      suffix-icon="settings"
     />
     <FormKit
       id="color_3"
       name="color"
       type="color"
       label="a color input with both icons"
-      icon="color"
-      icon-suffix="settings"
+      prefix-icon="color"
+      suffix-icon="settings"
     />
     <FormKit
       id="date"
       name="date"
       type="date"
       label="a date input"
-      icon="date"
-      icon-suffix="bitcoin"
+      prefix-icon="date"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="datetime"
       name="datetime"
       type="datetime-local"
       label="a datetime input"
-      icon="datetime"
-      icon-suffix="bitcoin"
+      prefix-icon="datetime"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="file"
       name="file"
       type="file"
       label="a file input"
-      icon="filePdf"
-      icon-suffix="bitcoin"
+      prefix-icon="filePdf"
+      suffix-icon="bitcoin"
     />
     <FormKit
       id="file_multiple"
       name="file_multiple"
       type="file"
       label="a multi-file input"
-      icon="file"
-      icon-suffix="bitcoin"
+      prefix-icon="file"
+      suffix-icon="bitcoin"
       :multiple="true"
     />
     <FormKit
       type="button"
       label="a button input"
-      icon="tag"
-      icon-suffix="submit"
+      prefix-icon="tag"
+      suffix-icon="submit"
     />
     <FormKit
       type="submit"
       label="a submit input"
-      icon="tag"
-      icon-suffix="submit"
+      prefix-icon="tag"
+      suffix-icon="submit"
     />
     <FormKit
       id="password"
@@ -212,9 +214,9 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       :type="passwordInputType"
       label="A fancy password input"
       value="mySecretPassword!"
-      icon="password"
-      :icon-suffix="passwordIcon"
-      @icon-click="handleIconClick"
+      prefix-icon="password"
+      :suffix-icon="passwordIcon"
+      @prefix-icon-click="handleIconClick"
     />
   </FormKit>
 
@@ -239,6 +241,9 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
 </template>
 
 <style>
+.example-icon-component {
+  max-width: 5em;
+}
 .icon-grid {
   padding: 0;
   margin: 0;
