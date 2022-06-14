@@ -5,6 +5,7 @@ import {
   help,
   messages,
   message,
+  icon,
   prefix,
   suffix,
   buttonInput,
@@ -28,9 +29,11 @@ export const button: FormKitTypeDefinition = {
     ),
     wrapper(
       buttonInput(
+        icon('prefix'),
         prefix(),
         buttonLabel('$label || $ui.submit.value'),
-        suffix()
+        suffix(),
+        icon('suffix')
       ),
     ),
     help('$help'),

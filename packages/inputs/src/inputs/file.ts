@@ -9,6 +9,7 @@ import {
   message,
   prefix,
   suffix,
+  icon,
   fileInput,
   fileItem,
   fileList,
@@ -32,6 +33,7 @@ export const file: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
+        icon('prefix'),
         prefix(),
         fileInput(),
         fileList(
@@ -42,7 +44,8 @@ export const file: FormKitTypeDefinition = {
         ),
         $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
         noFiles('$ui.noFiles.value'),
-        suffix()
+        suffix(),
+        icon('suffix')
       )
     ),
     help('$help'),
