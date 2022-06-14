@@ -15,6 +15,15 @@
       validation-visibility="live"
     />
     <FormKit
+      type="file"
+      name="file"
+      label="Your file"
+      placeholder="jon@foo.com"
+      validation="required"
+      validation-visibility="live"
+      multiple="true"
+    />
+    <FormKit
       id="fruit"
       name="fruit"
       type="select"
@@ -49,10 +58,23 @@
     />
     <FormKit
       label="Countries"
-      type="radio"
+      type="checkbox"
+      name="countries"
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
+    />
+    <FormKit
+      type="checkbox"
+      label="Do you agree to our terms?"
+    />
+    <FormKit
+      label="Select a fruit"
+      type="radio"
+      name="fruit"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="['Apple', 'Strawberry', 'Banana']"
     />
   </FormKit>
   <pre>{{ data }}</pre>

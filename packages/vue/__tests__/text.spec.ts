@@ -18,7 +18,7 @@ describe('text classification', () => {
       },
       ...global,
     })
-    expect(wrapper.html()).toContain('<input type="text"')
+    expect(wrapper.html()).toContain('<input class="formkit-input" type="text"')
   })
 
   it('renders arbitrary attributes on the input element', () => {
@@ -34,7 +34,7 @@ describe('text classification', () => {
       ...global,
     })
     expect(wrapper.html()).toContain(
-      '<input placeholder="Favorite food?" type="text" class="formkit-input" name="food" id="foobar">'
+      '<input placeholder="Favorite food?" class="formkit-input" type="text" name="food" id="foobar">'
     )
   })
 

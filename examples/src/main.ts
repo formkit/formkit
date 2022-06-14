@@ -14,7 +14,7 @@ import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
-import { autoAnimatePlugin } from '@formkit/addons'
+import { createAutoAnimatePlugin } from '@formkit/addons'
 
 const myInput = createInput(CurrencyInput)
 
@@ -26,7 +26,7 @@ const config = defaultConfig({
   locales: { de, fr },
   locale: 'en',
   inputs: { foo: myInput },
-  plugins: [autoAnimatePlugin],
+  plugins: [createAutoAnimatePlugin()],
 })
 
 // Install FormKit:

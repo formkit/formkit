@@ -32,13 +32,13 @@ describe('form structure', () => {
       ...global,
     })
     expect(wrapper.html())
-      .toEqual(`<form id="foo" class="formkit-form" name="test_form">
+      .toEqual(`<form class="formkit-form" id="foo" name="test_form">
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="button">
+      <div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_1" id="button">
           <!---->Submit
           <!---->
         </button></div>
