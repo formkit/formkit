@@ -1,4 +1,4 @@
-.formkit-inner:focus-within .formkit-icon.formkit-prefix {
+.formkit-inner:focus-within .formkit-icon.formkit-prefix-icon {
   color: var(--fk-color-primary);
 }
 .formkit-icon {
@@ -9,12 +9,12 @@
   align-self: stretch;
   user-select: none;
 }
-.formkit-icon.formkit-prefix {
+.formkit-icon.formkit-prefix-icon {
   border-radius: var(--fk-border-radius-tl) 0 0 var(--fk-border-radius-bl) ;
   background: var(--fk-bg-decorator);
   box-shadow: 1px 0 0 0 rgba(0,0,0,0.33);
 }
-.formkit-icon.formkit-suffix {
+.formkit-icon.formkit-suffix-icon {
   width: 1.75em;
   padding-left: 0em;
   padding-right: 0.75em;
@@ -30,7 +30,7 @@
 [data-type="button"],
 [data-type="submit"],
 [data-type="range"] {
-  & .formkit-icon.formkit-prefix {
+  & .formkit-icon.formkit-prefix-icon {
     background: none;
     box-shadow: none;
   }
@@ -42,10 +42,10 @@
     width: 1em;
     font-size: 1rem;
 
-    &.formkit-prefix {
+    &.formkit--prefix-icon {
       margin-right: 0.5em;
     }
-    &.formkit-suffix {
+    &.formkit-suffix-icon {
       margin-left: 0.5em;
     }
   }
@@ -90,7 +90,7 @@
         border-bottom-right-radius: 0;
       }
     }
-    & .formkit-icon.formkit-suffix {
+    & .formkit-icon.formkit-suffix-icon {
       padding-right: 0;
       width: 2.5em;
     }

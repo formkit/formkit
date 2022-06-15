@@ -14,6 +14,8 @@ export const outer = createSection(
         '$state.valid === false && $state.validationVisible || undefined',
       'data-errors': '$state.errors || undefined',
       'data-submitted': '$state.submitted || undefined',
+      'data-has-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',
+      'data-has-suffix-icon': '$_rawSuffixIcon !== undefined || undefined'
     },
   }),
   true
