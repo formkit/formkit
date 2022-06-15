@@ -55,12 +55,40 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
     />
     <FormKit
       id="fruit"
-      name="fruit"
+      name="fruit-1"
       type="select"
-      label="Icon with select input"
+      label="Select with prefix icon"
       placeholder="Select some pie"
       prefix-icon="apple"
-      suffix-icon="formkit"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+    />
+    <FormKit
+      id="fruit-2"
+      name="fruit-2"
+      type="select"
+      label="Select with prefix and select icon"
+      placeholder="Select some pie"
+      prefix-icon="apple"
+      select-icon="caretDown"
+      :options="{
+        apple: 'Apple pie',
+        pumpkin: 'Pumpkin pie',
+        peach: 'Peach cobbler'
+      }"
+    />
+    <FormKit
+      id="fruit-3"
+      name="fruit-3"
+      type="select"
+      label="select with prefix, select, and suffix icon"
+      placeholder="Select some pie"
+      prefix-icon="apple"
+      select-icon="caretDown"
+      suffix-icon="settings"
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
@@ -91,40 +119,6 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       label="Invalid Icon"
       value=""
       prefix-icon="doesNotExist"
-    />
-    <FormKit
-      id="single_checkbox"
-      name="single_checkbox"
-      type="checkbox"
-      label="a single_checkbox input"
-      prefix-icon="formkit"
-      suffix-icon="bitcoin"
-    />
-    <FormKit
-      id="radio"
-      name="radio"
-      type="radio"
-      label="a radio input"
-      :options="{
-        apple: 'Apple pie',
-        pumpkin: 'Pumpkin pie',
-        peach: 'Peach cobbler'
-      }"
-      prefix-icon="formkit"
-      suffix-icon="apple"
-    />
-    <FormKit
-      id="checkbox"
-      name="checkbox"
-      type="checkbox"
-      label="a checkbox input"
-      :options="{
-        apple: 'Apple pie',
-        pumpkin: 'Pumpkin pie',
-        peach: 'Peach cobbler'
-      }"
-      prefix-icon="formkit"
-      suffix-icon="bitcoin"
     />
     <FormKit
       id="range"

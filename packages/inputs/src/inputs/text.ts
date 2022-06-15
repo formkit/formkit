@@ -26,7 +26,7 @@ export const text: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
-        icon('prefix'),
+        icon('prefix', 'label'),
         prefix(),
         textInput(),
         suffix(),

@@ -27,7 +27,7 @@ export const textarea: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
-        icon('prefix'),
+        icon('prefix', 'label'),
         prefix(),
         textareaInput(),
         suffix(),

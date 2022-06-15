@@ -33,7 +33,7 @@ export const file: FormKitTypeDefinition = {
     wrapper(
       label('$label'),
       inner(
-        icon('prefix'),
+        icon('prefix', 'label'),
         prefix(),
         fileInput(),
         fileList(
