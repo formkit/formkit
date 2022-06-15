@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const fieldset = createSection('fieldset', () => ({
   $el: 'fieldset',
   attrs: {

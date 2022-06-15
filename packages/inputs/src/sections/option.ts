@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const option = createSection('option', () => ({
   $el: 'option',
   for: ['option', '$options'],

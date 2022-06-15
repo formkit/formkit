@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const boxHelp = createSection('optionHelp', () => ({
   $el: 'div',
   if: '$option.help',

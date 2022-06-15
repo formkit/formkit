@@ -7,6 +7,7 @@ import { FormKitOptionsList, shouldSelect, optionValue } from './options'
  * @param node - The node being evaluated.
  * @param option - The option value to check
  * @returns
+ * @public
  */
 function isSelected(node: FormKitNode, option: string) {
   // Here we trick reactivity (if at play) to watch this function.

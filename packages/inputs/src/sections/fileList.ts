@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const fileList = createSection('fileList', () => ({
   $el: 'ul',
   if: '$value.length',

@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const message = createSection('message', () => ({
   $el: 'li',
   for: ['message', '$messages'],
