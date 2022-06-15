@@ -87,7 +87,7 @@ let documentStyles: Record<any, any> = {}
 const iconRegistryTarget: Record<string, string | undefined> = {}
 const iconRegistryHandler: Record<string, any> = {
   get(target: Record<string, string>, prop: string) {
-    if (target[prop]) {
+    if (prop in target) {
       // we have the icon so return it
       return target[prop]
     }

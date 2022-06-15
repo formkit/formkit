@@ -17,8 +17,7 @@ import {
   fileRemove,
   noFiles,
 } from '../sections'
-import files from '../features/files'
-import defaultIcon from '../features/icon'
+import { files, defaultIcon } from '../features'
 import { $if } from '../compose'
 
 /**

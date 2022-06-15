@@ -1,6 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import { fragment } from '../sections'
-import disablesChildren from '../features/disables'
+import { disablesChildren } from '../features'
 
 /**
  * Input definition for a list.

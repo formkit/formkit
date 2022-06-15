@@ -17,8 +17,7 @@ import {
   boxWrapper,
   boxLabel,
 } from '../sections'
-import formatsOptions from '../features/options'
-import radios from '../features/radios'
+import { options, radios } from '../features'
 import { $if, $extend } from '../compose'
 
 /**
@@ -91,5 +90,5 @@ export const radio: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [formatsOptions, radios],
+  features: [options, radios],
 }

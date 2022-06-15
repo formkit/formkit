@@ -1,7 +1,6 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { form as formEl, messages, message, actions, submit } from '../sections'
-import formHandler from '../features/form'
-import disablesChildren from '../features/disables'
+import { formInput, messages, message, actions, submitInput } from '../sections'
+import { forms, disablesChildren } from '../features'
 
 /**
  * Input definition for a form.
@@ -12,12 +11,12 @@ export const form: FormKitTypeDefinition = {
    * The actual schema of the input, or a function that returns the schema.
    */
   // prettier-ignore
-  schema: formEl(
+  schema: formInput(
     '$slots.default',
     messages(
       message('$message.value')
     ),
-    actions(submit())
+    actions(submitInput())
   ),
   /**
    * The type of node, can be a list, group, or input.
@@ -37,5 +36,5 @@ export const form: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [formHandler, disablesChildren],
+  features: [forms, disablesChildren],
 }

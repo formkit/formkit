@@ -17,9 +17,7 @@ import {
   boxWrapper,
   boxLabel,
 } from '../sections'
-import formatsOptions from '../features/options'
-import checkboxes from '../features/checkboxes'
-
+import { options, checkboxes } from '../features'
 import { $if, $extend } from '../compose'
 
 /**
@@ -92,5 +90,5 @@ export const checkbox: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [formatsOptions, checkboxes],
+  features: [options, checkboxes],
 }

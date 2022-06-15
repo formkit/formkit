@@ -15,9 +15,7 @@ import {
   optionSlot,
 } from '../sections'
 import { $if } from '../compose'
-import formatsOptions from '../features/options'
-import selectFeatures from '../features/select'
-import defaultIcon from '../features/icon'
+import { options, selects, defaultIcon } from '../features'
 
 /**
  * Input definition for a select.
@@ -65,5 +63,5 @@ export const select: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [formatsOptions, selectFeatures, defaultIcon('select', 'down')],
+  features: [options, selects, defaultIcon('select', 'down')],
 }
