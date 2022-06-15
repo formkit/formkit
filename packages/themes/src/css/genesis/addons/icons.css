@@ -51,6 +51,18 @@
   }
 }
 
+[data-type="button"],
+[data-type="submit"] {
+  & .formkit-prefix-icon {
+    margin-left: -0.5em;
+    margin-right: 0.5em;
+  }
+  & .formkit-suffix-icon {
+    margin-left: 0.5em;
+    margin-right: -0.5em;
+  }
+}
+
 [data-has-prefix-icon="true"] {
   &[data-type="color"] {
     & input[type="color"] {
