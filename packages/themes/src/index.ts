@@ -1,4 +1,4 @@
-import { FORMKIT_VERSION, FormKitNode, FormKitClasses } from '@formkit/core'
+import { FORMKIT_VERSION, FormKitNode, FormKitClasses, FormKitEvent } from '@formkit/core'
 
 /**
  * A function that returns a class list string
@@ -91,9 +91,10 @@ const iconRegistryHandler: Record<string, any> = {
       // we have the icon so return it
       return target[prop]
     }
-    if (documentStyles.getPropertyValue(`--fk-icon-${prop}`)) {
+    const cssVarIcon = documentStyles.getPropertyValue(`--fk-icon-${prop}`)
+    if (cssVarIcon) {
       // if we have a matching icon in the CSS properties, then decode it
-      const icon: string = atob(documentStyles.getPropertyValue(`--fk-icon-${prop}`))
+      const icon: string = atob(cssVarIcon)
       if (icon.startsWith('<svg')) {
         target[prop] = icon
         return target[prop]
@@ -192,8 +193,15 @@ export function createThemePlugin(
  * @public
  */
 export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader {
-  return (iconName: string) => {
-    // first check if we've already loaded the icon before
+  return (iconName: string | boolean) => {
+    if (typeof iconName === 'boolean') {
+      return // do nothing if we're dealing with a boolean
+    }
+    // if we're dealing with an inline SVG, just use it as-is
+    if (iconName.startsWith('<svg')) {
+      return iconName
+    }
+    // check if we've already loaded the icon before
     const icon = iconRegistry[iconName]
     if (icon || iconName in iconRegistry) {
       return icon
@@ -223,10 +231,8 @@ export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader 
 async function getRemoteIcon(iconName: string): Promise<string | undefined> {
   // if we are already awaiting a promise for this icon then return the existing promise
   if (iconRequests[iconName] && iconRequests[iconName] instanceof Promise) {
-    console.log(iconName, ' was already requested, awaiting existing promise')
     return await iconRequests[iconName]
   }
-  console.log('requesting "' + iconName + '" for the first time...')
   iconRequests[iconName] = fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@1.0.0-beta.9-icon-preview/dist/icons/${iconName}.svg`)
     .then(async (r) => {
       const icon = await r.text()
@@ -254,10 +260,43 @@ function loadIconPropIcons(node: FormKitNode, iconLoader: FormKitIconLoader): vo
     return iconRegex.test(prop)
   })
   iconProps.forEach((sectionKey) => {
-    const iconName = node.props[sectionKey]
+    return loadPropIcon(node, iconLoader, sectionKey)
+  })
+}
+
+/**
+ * Loads an icon from an icon-prop declaration eg. suffix-icon="settings"
+ */
+function loadPropIcon(node: FormKitNode, iconLoader: FormKitIconLoader, sectionKey: string): Promise<void> | void {
+  const iconName = node.props[sectionKey]
+  const loadedIcon = iconLoader(iconName)
+  const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
+  node.addProps([rawIconProp])
+  // listen for changes to the icon prop
+  node.on(`prop:${sectionKey}`, reloadIcon)
+  if (loadedIcon instanceof Promise) {
+    return loadedIcon.then((svg) => {
+      node.props[rawIconProp] = svg
+    })
+  } else {
+    node.props[rawIconProp] = loadedIcon
+  }
+  return
+}
+
+/**
+ * reloads an icon when the prop value changes
+ */
+function reloadIcon(event: FormKitEvent): void | Promise<void> {
+  const node = event.origin
+  const iconName = event.payload
+  const iconLoader = node?.context?.iconHandler
+  const sectionKey = event.name.split(':')[1]
+  const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
+
+  if (iconLoader && typeof iconLoader === 'function') {
     const loadedIcon = iconLoader(iconName)
-    const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
-    node.addProps([rawIconProp])
+
     if (loadedIcon instanceof Promise) {
       return loadedIcon.then((svg) => {
         node.props[rawIconProp] = svg
@@ -265,6 +304,5 @@ function loadIconPropIcons(node: FormKitNode, iconLoader: FormKitIconLoader): vo
     } else {
       node.props[rawIconProp] = loadedIcon
     }
-    return
-  })
+  }
 }
