@@ -39,7 +39,7 @@
     }
   }
 
-  & .formkit-file-item-icon {
+  & .formkit-inner .formkit-file-item-icon {
     width: 1em;
     margin-right: 0.5em;
   }

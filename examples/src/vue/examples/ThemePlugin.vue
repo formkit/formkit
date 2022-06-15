@@ -30,7 +30,7 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
   <h1>Theme Plugin</h1>
   <div class="example-icon-component">
     <h5>Example <code>FormKitIcon</code> component</h5>
-    <FormKitIcon icon="avatarMan" />
+    <FormKitIcon :icon="inlineSVG" />
   </div>
   <FormKit
     id="form"
