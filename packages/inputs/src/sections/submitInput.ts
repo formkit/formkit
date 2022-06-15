@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export const submit = createSection('submit', () => ({
+export const submitInput = createSection('submit', () => ({
   $cmp: 'FormKit',
   bind: '$submitAttrs',
   props: {

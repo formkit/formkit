@@ -17,7 +17,7 @@ import {
   fileRemove,
   noFiles,
 } from '../sections'
-import files from '../features/files'
+import { files } from '../features'
 import { $if } from '../compose'
 
 /**

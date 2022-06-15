@@ -1,6 +1,6 @@
 import { createSection } from '../compose'
 
-export const form = createSection(
+export const formInput = createSection(
   'form',
   () => ({
     $el: 'form',

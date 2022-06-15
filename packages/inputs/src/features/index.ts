@@ -1,29 +1,11 @@
-import checkbox from './checkboxes'
-import disables from './disables'
-import files from './files'
-import form from './form'
-import ignore from './ignore'
-import initialValue from './initialValue'
-import localize from './localize'
-import normalizeBoxes from './normalizeBoxes'
-import options from './options'
-import radios from './radios'
-import select from './select'
-
-/**
- * Export all features (#188):
- * @public
- */
-export default {
-  checkbox,
-  disables,
-  files,
-  form,
-  ignore,
-  initialValue,
-  localize,
-  normalizeBoxes,
-  options,
-  radios,
-  select,
-}
+export { default as checkboxes } from './checkboxes'
+export { default as disablesChildren } from './disables'
+export { default as files } from './files'
+export { default as forms } from './forms'
+export { default as ignores } from './ignores'
+export { default as initialValue } from './initialValue'
+export { default as localize } from './localize'
+export { default as normalizeBoxes } from './normalizeBoxes'
+export { default as options } from './options'
+export { default as radios } from './radios'
+export { default as selects } from './selects'

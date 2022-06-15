@@ -50,11 +50,11 @@ export { fileRemove } from './fileRemove'
 
 export { noFiles } from './noFiles'
 
-export { form } from './form'
+export { formInput } from './formInput'
 
 export { actions } from './actions'
 
-export { submit } from './submit'
+export { submitInput } from './submitInput'
 
 export { textInput } from './textInput'
 

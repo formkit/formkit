@@ -33,18 +33,24 @@ export {
   useSchema,
   extendSchema,
   composable,
+  $if,
+  $for,
+  $attrs,
+  $extend,
   FormKitInputSchema,
   FormKitSchemaExtendableSection,
   FormKitSection,
 } from './compose'
 
 /**
- * Export the features of the inputs for third party use (#188):
- * Note: As of TS 4.5.5:
- * export * as features from './features' syntax
- * Is not yet supported.
+ * All features, must maintain namespace clearance
  */
-export { default as features } from './features'
+export * from './features'
+
+/**
+ * Exports all sections.
+ */
+export * from './sections'
 
 /**
  * A single file object in FormKit’s synthetic "FileList".
