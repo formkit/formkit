@@ -37,6 +37,7 @@ export {
   $for,
   $attrs,
   $extend,
+  $root,
   FormKitInputSchema,
   FormKitSchemaExtendableSection,
   FormKitSection,

@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const boxWrapper = createSection('wrapper', () => ({
   $el: 'label',
   attrs: {

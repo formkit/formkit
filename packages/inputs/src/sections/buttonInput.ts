@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const buttonInput = createSection('input', () => ({
   $el: 'button',
   bind: '$attrs',

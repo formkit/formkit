@@ -275,6 +275,7 @@ export function createRoot(
  * @param attrs - Apply attributes to a FormKitSchemaExtendableSection
  * @param section - A section to apply attributes to
  * @returns
+ * @public
  */
 export function $attrs(
   attrs: FormKitSchemaAttributes | (() => FormKitSchemaAttributes),
@@ -329,6 +330,7 @@ export function $if(
  * @param inName - The variable we are iterating over.
  * @param section - A section to repeat
  * @returns
+ * @public
  */
 export function $for(
   varName: string,
@@ -353,6 +355,7 @@ export function $for(
  * @param section - A section to apply an extension to.
  * @param extendWith - A partial schema snippet to apply to the section.
  * @returns
+ * @public
  */
 export function $extend(
   section: FormKitSchemaExtendableSection,
@@ -373,6 +376,7 @@ export function $extend(
  * Creates a root schema section.
  * @param section - A section to make a root from.
  * @returns
+ * @public
  */
 export function $root(
   section: FormKitSchemaExtendableSection

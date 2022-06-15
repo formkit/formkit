@@ -39,6 +39,11 @@ function preventStrayDrop(type: string, e: Event) {
   }
 }
 
+/**
+ * Feature to add file handling support to an input.
+ * @param node - The node being checked
+ * @public
+ */
 export default function files(node: FormKitNode): void {
   // Localize our content:
   localize('noFiles', 'Select file')(node)

@@ -4,6 +4,7 @@ import { has, clone } from '@formkit/utils'
 /**
  * Handle the submit event.
  * @param e - The event
+ * @public
  */
 async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   submitEvent.preventDefault()

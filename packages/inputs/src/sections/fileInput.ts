@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const fileInput = createSection('input', () => ({
   $el: 'input',
   bind: '$attrs',

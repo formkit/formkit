@@ -1,5 +1,8 @@
 import { createSection } from '../compose'
 
+/**
+ * @public
+ */
 export const textareaInput = createSection('input', () => ({
   $el: 'textarea',
   bind: '$attrs',
