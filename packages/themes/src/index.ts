@@ -271,7 +271,8 @@ function loadPropIcon(node: FormKitNode, iconLoader: FormKitIconLoader, sectionK
   const iconName = node.props[sectionKey]
   const loadedIcon = iconLoader(iconName)
   const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
-  node.addProps([rawIconProp])
+  const clickHandlerProp = `on${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}Click`
+  node.addProps([rawIconProp, clickHandlerProp])
   // listen for changes to the icon prop
   node.on(`prop:${sectionKey}`, reloadIcon)
   if (loadedIcon instanceof Promise) {

@@ -14,8 +14,10 @@ export const outer = createSection(
         '$state.valid === false && $state.validationVisible || undefined',
       'data-errors': '$state.errors || undefined',
       'data-submitted': '$state.submitted || undefined',
-      'data-has-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',
-      'data-has-suffix-icon': '$_rawSuffixIcon !== undefined || undefined'
+      'data-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',
+      'data-suffix-icon': '$_rawSuffixIcon !== undefined || undefined',
+      'data-prefix-icon-click': '$onPrefixIconClick !== undefined || undefined',
+      'data-suffix-icon-click': '$onSuffixIconClick !== undefined || undefined'
     },
   }),
   true

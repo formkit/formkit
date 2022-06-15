@@ -66,7 +66,10 @@
   }
 }
 
-[data-has-prefix-icon="true"] {
+[data-prefix-icon="true"] {
+  &[data-prefix-icon-click="true"] .formkit-prefix-icon {
+    cursor: pointer;
+  }
   &[data-type="color"] {
     & input[type="color"] {
       &::-webkit-color-swatch {
@@ -86,7 +89,10 @@
   }
 }
 
-[data-has-suffix-icon="true"] {
+[data-suffix-icon="true"] {
+  &[data-suffix-icon-click="true"] .formkit-suffix-icon {
+    cursor: pointer;
+  }
   &[data-type="color"] {
     & input[type="color"] {
       &::-webkit-color-swatch {
@@ -108,8 +114,8 @@
   }
 }
 
-[data-has-prefix-icon="true"],
-[data-has-suffix-icon="true"] {
+[data-prefix-icon="true"],
+[data-suffix-icon="true"] {
   &[data-type="color"] {
     & .formkit-inner {
       max-width: 7.5em;
@@ -117,7 +123,7 @@
   }
 }
 
-[data-has-prefix-icon="true"][data-has-suffix-icon="true"] {
+[data-prefix-icon="true"][data-suffix-icon="true"] {
   &[data-type="color"] {
     & .formkit-inner {
       max-width: 10em;

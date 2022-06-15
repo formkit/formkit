@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { FormKitNode } from '@formkit/core'
 import { FormKitIcon } from '@formkit/vue'
 import { ref } from 'vue'
 
@@ -19,10 +18,8 @@ const changeIcon = function () {
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
 }
 
-const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
-  if (sectionKey === 'suffix') {
-    changeIcon()
-  }
+const fileClickTest = () => {
+  alert('click handler on file icon prop. neat!')
 }
 </script>
 
@@ -114,7 +111,7 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       value="FormKit"
       prefix-icon="formkit"
     />
-     <FormKit
+    <FormKit
       id="inline_icon"
       name="inline_icon"
       type="text"
@@ -228,7 +225,7 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       value="mySecretPassword!"
       prefix-icon="password"
       :suffix-icon="passwordIcon"
-      @prefix-icon-click="handleIconClick"
+      @suffix-icon-click="changeIcon"
     />
   </FormKit>
 
