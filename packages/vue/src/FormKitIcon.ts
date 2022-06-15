@@ -40,3 +40,5 @@ export const FormKitIcon = defineComponent({
     }
   }
 })
+
+export default FormKitIcon

@@ -17,17 +17,14 @@ const changeIcon = function () {
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
 }
-
-const fileClickTest = () => {
-  alert('click handler on file icon prop. neat!')
-}
 </script>
 
 <template>
   <h1>Theme Plugin</h1>
   <div class="example-icon-component">
-    <h5>Example <code>FormKitIcon</code> component</h5>
+    <h5>Example <code>FormKitIcon</code> components</h5>
     <FormKitIcon :icon="inlineSVG" />
+    <FormKitIcon icon="table" />
   </div>
   <FormKit
     id="form"
