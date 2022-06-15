@@ -177,7 +177,6 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       name="file"
       type="file"
       label="a file input"
-      prefix-icon="filePdf"
       suffix-icon="bitcoin"
     />
     <FormKit
@@ -186,7 +185,17 @@ const handleIconClick = function (_node:FormKitNode, sectionKey:string) {
       type="file"
       label="a multi-file input"
       prefix-icon="file"
+      file-item-icon="happy"
       suffix-icon="bitcoin"
+      :multiple="true"
+    />
+    <FormKit
+      id="file_no_icon"
+      name="file_no_icon"
+      type="file"
+      label="a file input with no file item icons"
+      prefix-icon="file"
+      :file-item-icon="false"
       :multiple="true"
     />
     <FormKit

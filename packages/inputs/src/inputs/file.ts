@@ -18,6 +18,7 @@ import {
   noFiles,
 } from '../sections'
 import files from '../features/files'
+import defaultIcon from '../features/icon'
 import { $if } from '../compose'
 
 /**
@@ -38,13 +39,19 @@ export const file: FormKitTypeDefinition = {
         fileInput(),
         fileList(
           fileItem(
-            icon('file-item'),
+            icon('fileItem'),
             fileName('$file.name'),
-            $if('$value.length === 1', fileRemove('$ui.remove.value')),
+            $if('$value.length === 1', fileRemove(
+              icon('fileRemove'),
+              '$ui.remove.value'
+            )),
           )
         ),
         $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
-        noFiles('$ui.noFiles.value'),
+        noFiles(
+         icon('fileItem'),
+          '$ui.noFiles.value'
+        ),
         suffix(),
         icon('suffix')
       )
@@ -65,5 +72,9 @@ export const file: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [files],
+  features: [
+    files,
+    defaultIcon('fileItem', 'fileDoc'),
+    defaultIcon('fileRemove', 'close')
+  ],
 }

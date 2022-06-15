@@ -77,14 +77,7 @@
     }
   }
   &[data-type="file"] {
-    & .formkit-no-files,
-    & .formkit-file-item {
-      &::before {
-        display: none;
-      }
-    }
-
-    &[data-multiple="true"] .formkit-remove-files {
+    &[data-multiple="true"] .formkit-file-remove {
       left: calc(var(--fk-padding-input-l) + (4em - var(--fk-font-size-remove)));
     }
   }
