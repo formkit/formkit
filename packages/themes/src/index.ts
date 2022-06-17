@@ -177,11 +177,30 @@ export function createThemePlugin(
       await themeLoaded
     }
 
+    // register the icon handler
     node.addProps(['iconHandler'])
     if (typeof node.props.iconHandler === 'undefined') {
       node.props.iconHandler = iconHandler
     }
+
+    // load all icons from props
     loadIconPropIcons(node, iconHandler)
+
+    // set up the icon click handler
+    node.on('created', () => {
+      if (node?.context?.handlers) {
+        node.context.handlers.iconClick = (sectionKey: string): ((e: MouseEvent) => void) | void => {
+          const clickHandlerProp = `on${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}IconClick`
+          const handlerFunction = node.props[clickHandlerProp]
+          if (handlerFunction && typeof handlerFunction === 'function') {
+            return (e: MouseEvent) => {
+              return handlerFunction(node, e)
+            }
+          }
+          return undefined
+        }
+      }
+    })
   }
   themePlugin.iconHandler = iconHandler
   return themePlugin

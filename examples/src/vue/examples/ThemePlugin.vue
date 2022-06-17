@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FormKitNode } from '@formkit/core'
 import { FormKitIcon } from '@formkit/vue'
 import { ref } from 'vue'
 
@@ -12,7 +13,8 @@ const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
 }
 
-const changeIcon = function () {
+const changeIcon = function (node: FormKitNode, e: MouseEvent) {
+  console.log(node, e)
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
 }
