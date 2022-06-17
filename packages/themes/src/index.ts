@@ -233,7 +233,8 @@ async function getRemoteIcon(iconName: string): Promise<string | undefined> {
   if (iconRequests[iconName] && iconRequests[iconName] instanceof Promise) {
     return await iconRequests[iconName]
   }
-  iconRequests[iconName] = fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@1.0.0-beta.9-icon-preview/dist/icons/${iconName}.svg`)
+  const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
+  iconRequests[iconName] = fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@${formkitVersion}/dist/icons/${iconName}.svg`)
     .then(async (r) => {
       const icon = await r.text()
       if (icon.startsWith('<svg')) {
