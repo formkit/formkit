@@ -261,7 +261,7 @@ export function createSection(
  * @param rootSection - Creates the root node.
  * @returns
  */
-export function createRoot(
+function createRoot(
   rootSection: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
   return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {

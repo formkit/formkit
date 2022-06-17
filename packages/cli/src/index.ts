@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import prompts from 'prompts'
 import { inputs } from '@formkit/inputs'
 import { resolve, dirname } from 'path'
-import { access, mkdir, readFile } from 'fs/promises'
+import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
@@ -60,22 +60,46 @@ export async function exportInput(
       `Cannot export “${inputName}” because it is not part of the @formkit/inputs package.`
     )
   }
-  const inputFile = loadInput(inputName, options.lang)
-  console.log(inputFile)
-  const outDir = resolve(process.cwd(), options.dir || './inputs')
-  const lang = options.lang || 'ts'
-
+  let exportData = await loadInput(inputName, options.lang)
+  if (exportData) {
+    exportData = exportData.replace("} from '../'", "} from '@formkit/inputs'")
+  } else {
+    return error(
+      'Unable to export the input file because it cannot be located.'
+    )
+  }
+  const dir = options.dir || './inputs'
+  const outDir = resolve(process.cwd(), dir)
+  const lang = options.lang || guessLang()
   const validDir = await upsertDir(outDir)
   if (validDir === false) return error(`${outDir} is not a writable directory.`)
   if (!validDir) return
+  const outFile = resolve(outDir, `${inputName}.${lang}`)
+  if (!existsSync(outFile)) {
+    await writeFile(outFile, exportData)
+  } else {
+    return error('Did not export input because that file already exists.')
+  }
+  green(`Success! Exported ${outDir}/${inputName}.${lang}`)
+  info(`To use it pass it to your FormKit configuration:
 
-  green(`Exporting ${outDir}/${inputName}.${lang}`)
+  import { ${inputName} } from '${dir}/${inputName}'
+  // ...
+  const config = defaultConfig({
+    inputs: {
+      ${inputName}
+    }
+  })
+  `)
 }
 
-export async function loadInput(
-  name: string,
-  lang?: string
-): Promise<string | false> {
+/**
+ * Loads the string data of an input that should be exported.
+ * @param name - The name of the input to load.
+ * @param lang - The language to load the input in.
+ * @returns
+ */
+async function loadInput(name: string, lang?: string): Promise<string | false> {
   lang = !lang ? guessLang() : lang
   const localFile = resolve(
     __dirname,
@@ -95,7 +119,6 @@ export async function loadInput(
   if (!fileData) {
     error(`Unable to load export ${name}.${lang}`)
   } else {
-    console.log(fileData)
     return fileData
   }
   return false
