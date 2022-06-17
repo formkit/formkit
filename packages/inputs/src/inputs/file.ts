@@ -19,7 +19,7 @@ import {
   files,
   $if,
   defaultIcon,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a file input.

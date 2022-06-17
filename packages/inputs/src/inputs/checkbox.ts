@@ -20,7 +20,7 @@ import {
   checkboxes,
   $if,
   $extend,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a checkbox(ess).

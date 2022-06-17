@@ -12,7 +12,7 @@ import {
   icon,
   textareaInput,
   initialValue,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a textarea.

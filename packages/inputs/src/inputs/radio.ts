@@ -20,7 +20,7 @@ import {
   radios,
   $if,
   $extend,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a radio.

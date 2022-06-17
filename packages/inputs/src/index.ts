@@ -1,24 +1,7 @@
-import * as inputs from './inputs'
-
-/**
- * Export the entire input library as a single object.
- */
-export { inputs }
-
-/**
- * Export individual input types.
- */
-export * from './inputs'
-
 /**
  * Export the plugin.
  */
 export { createLibraryPlugin } from './plugin'
-
-/**
- * Export the localize.
- */
-export { default as localize } from './features/localize'
 
 /**
  * Options types.
@@ -28,30 +11,7 @@ export { FormKitOptionsList } from './features/options'
 /**
  * Composable logic.
  */
-export {
-  createSection,
-  useSchema,
-  extendSchema,
-  composable,
-  $if,
-  $for,
-  $attrs,
-  $extend,
-  $root,
-  FormKitInputSchema,
-  FormKitSchemaExtendableSection,
-  FormKitSection,
-} from './compose'
-
-/**
- * All features, must maintain namespace clearance
- */
-export * from './features'
-
-/**
- * Exports all sections.
- */
-export * from './sections'
+export * from './compose'
 
 /**
  * A single file object in FormKit’s synthetic "FileList".
@@ -67,3 +27,14 @@ export interface FormKitFile {
  * @public
  */
 export type FormKitFileValue = FormKitFile[]
+
+/**
+ * Export individual input types.
+ */
+export * from './inputs'
+
+/**
+ * Export again as group.
+ */
+import * as inputs from './inputs'
+export { inputs }

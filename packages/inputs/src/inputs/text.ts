@@ -11,7 +11,7 @@ import {
   prefix,
   suffix,
   textInput,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a text.

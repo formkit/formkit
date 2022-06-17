@@ -17,7 +17,7 @@ import {
   options,
   selects,
   defaultIcon,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a select.

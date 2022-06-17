@@ -12,7 +12,7 @@ import {
   buttonLabel,
   localize,
   ignores,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a button.

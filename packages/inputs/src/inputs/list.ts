@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { fragment, disablesChildren } from '../'
+import { fragment, disablesChildren } from '../compose'
 
 /**
  * Input definition for a list.

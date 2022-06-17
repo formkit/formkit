@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { textInput, $root } from '../'
+import { textInput, $root } from '../compose'
 
 /**
  * Input definition for a hidden input.

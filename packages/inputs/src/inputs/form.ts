@@ -7,7 +7,7 @@ import {
   submitInput,
   forms,
   disablesChildren,
-} from '../'
+} from '../compose'
 
 /**
  * Input definition for a form.

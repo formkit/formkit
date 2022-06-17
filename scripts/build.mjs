@@ -125,9 +125,18 @@ export async function buildPackage(p) {
   // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
-    await fs.mkdir(`${rootDir}/packages/icons/dist/icons`, { recursive: true }, (err) => { if (err) throw err })
+    await fs.mkdir(
+      `${rootDir}/packages/icons/dist/icons`,
+      { recursive: true },
+      (err) => {
+        if (err) throw err
+      }
+    )
     Object.keys(icons).forEach(async (icon) => {
-      await fs.writeFile(`${rootDir}/packages/icons/dist/icons/${icon}.svg`, icons[icon])
+      await fs.writeFile(
+        `${rootDir}/packages/icons/dist/icons/${icon}.svg`,
+        icons[icon]
+      )
     })
   }
 
@@ -149,7 +158,7 @@ export async function buildAllPackages(packages) {
 }
 
 /**
- *
+ * Output a typescript input file for each `type` key.
  */
 export async function inputsBuildExtras() {
   msg.info('» Exporting inputs by type')
@@ -159,7 +168,10 @@ export async function inputsBuildExtras() {
   await fs.mkdir(distDir, { recursive: true })
   await Promise.all(
     inputs.map(async (input) => {
-      await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
+      // await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
+      let fileData = await fs.readFile(input.filePath, { encoding: 'utf8' })
+      fileData = fileData.replace("} from '../compose'", "} from '../'")
+      await fs.writeFile(resolve(distDir, `${input.name}.ts`), fileData)
     })
   )
   const tsconfig = resolve(distDir, 'tsconfig.json')

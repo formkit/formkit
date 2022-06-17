@@ -383,3 +383,6 @@ export function $root(
 ): FormKitExtendableSchemaRoot {
   return createRoot(section)
 }
+
+export * from './features'
+export * from './sections'
