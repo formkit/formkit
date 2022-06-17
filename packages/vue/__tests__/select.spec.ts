@@ -27,10 +27,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
+      <!---->
       <!----><select class="formkit-input" id="input_0" name="select_1" aria-describedby="help-input_0">
         <option class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -59,10 +62,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
+      <!---->
       <!----><select class="formkit-input" id="input_1" name="select_d" aria-describedby="help-input_1">
         <option disabled="" class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -87,10 +93,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
+      <!---->
       <!----><select class="formkit-input" id="input_2" name="select_foo">
         <option class="formkit-option" value="foo">foo</option>
         <option class="formkit-option" value="bar">bar</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -115,11 +124,14 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
+      <!---->
       <!----><select class="formkit-input" id="input_3" name="select_foo">
         <option class="formkit-option" value="1">1</option>
         <option class="formkit-option" value="2">2</option>
         <option class="formkit-option" value="3">3</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -148,10 +160,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
+      <!---->
       <!----><select class="formkit-input" id="select_foo" name="select_foo">
         <option class="formkit-option" value="foo">Bar</option>
         <option class="formkit-option" value="baz">Bim</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>

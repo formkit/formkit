@@ -37,6 +37,7 @@ import {
   isAlphaNumericVersion,
   msg,
   getCurrentHash,
+  updateFKCoreVersionExport
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
 import axios from 'axios'
@@ -152,10 +153,18 @@ Any dependent packages will also require publishing to include dependency change
 
   msg.headline('  Publishing 🚀  ')
   const didWrite = writePackageJSONFiles()
+
+  // if core is being published, then update the FORMKIT_VERSION export
+  // to match the newly set version number
+  if (prePublished.core) {
+    updateFKCoreVersionExport(prePublished.core.newVersion)
+  }
+
   if (!didWrite && !force) return msg.error('Publish aborted. 👋')
   console.log('\n\n')
 
   const didPublish = publishAffectedPackages()
+
   if (tag || (!didPublish && !force)) {
     await restoredPackageJSONFiles()
   }

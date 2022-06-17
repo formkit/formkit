@@ -25,8 +25,8 @@ describe('file inputs', () => {
         },
       }
     )
-    expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove">Remove</button></li>'
+    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
+      '<li class="formkit-file-item"><!----><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove"><!---->Remove</button></li>'
     )
   })
 
@@ -48,9 +48,7 @@ describe('file inputs', () => {
         },
       }
     )
-    expect(wrapper.html()).toContain(
-      '<li class="formkit-file-item"><span class="formkit-file-name">test.jpg</span><button class="formkit-file-remove">Remove</button></li>'
-    )
+    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(`<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove</button></li>`)
   })
 
   it('can override the class for a file’s name', () => {
