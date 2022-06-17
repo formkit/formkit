@@ -46,7 +46,7 @@ export const file: FormKitTypeDefinition = {
             )
           )
         ),
-        noFiles('$ui.noFiles.value'),
+        noFiles(icon('fileItem'), '$ui.noFiles.value'),
         suffix(),
         icon('suffix')
       )
