@@ -16,9 +16,10 @@ import {
   fileName,
   fileRemove,
   noFiles,
-} from '../sections'
-import { files, defaultIcon } from '../features'
-import { $if } from '../compose'
+  files,
+  $if,
+  defaultIcon,
+} from '../'
 
 /**
  * Input definition for a file input.
@@ -28,7 +29,6 @@ export const file: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
     wrapper(
       label('$label'),
@@ -40,25 +40,19 @@ export const file: FormKitTypeDefinition = {
           fileItem(
             icon('fileItem'),
             fileName('$file.name'),
-            $if('$value.length === 1', fileRemove(
-              icon('fileRemove'),
-              '$ui.remove.value'
-            )),
+            $if(
+              '$value.length === 1',
+              fileRemove(icon('fileRemove'), '$ui.remove.value')
+            )
           )
         ),
-        $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
-        noFiles(
-         icon('fileItem'),
-          '$ui.noFiles.value'
-        ),
+        noFiles('$ui.noFiles.value'),
         suffix(),
         icon('suffix')
       )
     ),
     help('$help'),
-    messages(
-      message('$message.value')
-    )
+    messages(message('$message.value'))
   ),
   /**
    * The type of node, can be a list, group, or input.
@@ -74,6 +68,6 @@ export const file: FormKitTypeDefinition = {
   features: [
     files,
     defaultIcon('fileItem', 'fileDoc'),
-    defaultIcon('fileRemove', 'close')
+    defaultIcon('fileRemove', 'close'),
   ],
 }

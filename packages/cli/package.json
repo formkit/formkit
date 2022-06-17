@@ -39,7 +39,10 @@
   "dependencies": {
     "@formkit/inputs": "1.0.0-beta.8",
     "chalk": "^5.0.1",
-    "commander": "^9.3.0"
+    "commander": "^9.3.0",
+    "prompts": "^2.4.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/prompts": "^2.0.14"
+  }
 }

@@ -1,6 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { fragment } from '../sections'
-import { disablesChildren } from '../features'
+import { fragment, disablesChildren } from '../'
 
 /**
  * Input definition for a list.
@@ -10,7 +9,6 @@ export const list: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: fragment('$slots.default'),
   /**
    * The type of node, can be a list, group, or input.

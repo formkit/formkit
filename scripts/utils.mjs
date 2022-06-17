@@ -34,9 +34,11 @@ export function isAlphaNumericVersion(string) {
 
 /** Given a string, convert it to camelCase */
 export function toCamelCase(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-    return index === 0 ? word.toLowerCase() : word.toUpperCase()
-  }).replace(/\s+/g, '')
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+      return index === 0 ? word.toLowerCase() : word.toUpperCase()
+    })
+    .replace(/\s+/g, '')
 }
 
 /**
@@ -45,11 +47,11 @@ export function toCamelCase(str) {
 export function getAllFiles(dirPath, arrayOfFiles) {
   const files = fs.readdirSync(dirPath)
   arrayOfFiles = arrayOfFiles || []
-  files.forEach(function(file) {
-    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles)
+  files.forEach(function (file) {
+    if (fs.statSync(dirPath + '/' + file).isDirectory()) {
+      arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles)
     } else {
-      arrayOfFiles.push(join(dirPath, "/", file))
+      arrayOfFiles.push(join(dirPath, '/', file))
     }
   })
   return arrayOfFiles
@@ -82,7 +84,7 @@ export function getThemes() {
 /**
  * Get the available icons from the icons directory.
  */
- export function getIcons() {
+export function getIcons() {
   const iconFiles = getAllFiles(packagesDir + '/icons/src/icons')
   const icons = {}
   iconFiles.forEach((filePath) => {
@@ -367,17 +369,55 @@ export function getCurrentHash(suffix = 7) {
  * version that is about to be published
  */
 export function updateFKCoreVersionExport(newVersion) {
-  const fileNames = [
-    'index.cjs',
-    'index.d.ts',
-    'index.mjs'
-  ]
+  const fileNames = ['index.cjs', 'index.d.ts', 'index.mjs']
   const coreBuiltFiles = {}
   fileNames.forEach((fileName) => {
-    coreBuiltFiles[fileName] = fs.readFileSync(`${packagesDir}/core/dist/${fileName}`, 'utf8')
+    coreBuiltFiles[fileName] = fs.readFileSync(
+      `${packagesDir}/core/dist/${fileName}`,
+      'utf8'
+    )
   })
   Object.keys(coreBuiltFiles).forEach((fileName) => {
-    coreBuiltFiles[fileName] = coreBuiltFiles[fileName].replace('__FKV__', newVersion)
-    fs.writeFileSync(`${packagesDir}/core/dist/${fileName}`, coreBuiltFiles[fileName], { encoding: 'utf8' })
+    coreBuiltFiles[fileName] = coreBuiltFiles[fileName].replace(
+      '__FKV__',
+      newVersion
+    )
+    fs.writeFileSync(
+      `${packagesDir}/core/dist/${fileName}`,
+      coreBuiltFiles[fileName],
+      { encoding: 'utf8' }
+    )
   })
+}
+
+/**
+ * Get all the inputs declared in the inputs/index.ts file.
+ */
+export function getInputs() {
+  const inputsDir = resolve(packagesDir, 'inputs/src/inputs')
+  const exportFile = resolve(inputsDir, 'index.ts')
+  const file = fs.readFileSync(exportFile, { encoding: 'utf-8' })
+  return file
+    .split(/\r?\n/)
+    .filter((line) => !!line.trim())
+    .map((line) => {
+      const matches = line.match(
+        /^export { ([a-zA-Z ]+) } from '\.\/([a-zA-Z]+)'$/
+      )
+      if (matches) {
+        const [, rawName, fileName] = matches
+        const names = rawName.split(' ')
+        const name = names[names.length - 1]
+        const filePath = resolve(inputsDir, `${fileName}.ts`)
+        return {
+          name,
+          filePath,
+          fileName,
+        }
+      } else {
+        msg.error(`Failed to parse export from inputs/index.ts: ${line}`)
+        process.exit(1)
+      }
+      return matches
+    })
 }

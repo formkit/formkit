@@ -10,8 +10,9 @@ import {
   suffix,
   buttonInput,
   buttonLabel,
-} from '../sections'
-import { localize, ignores } from '../features'
+  localize,
+  ignores,
+} from '../'
 
 /**
  * Input definition for a button.
@@ -21,11 +22,8 @@ export const button: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
-    messages(
-      message('$message.value')
-    ),
+    messages(message('$message.value')),
     wrapper(
       buttonInput(
         icon('prefix'),
@@ -33,9 +31,9 @@ export const button: FormKitTypeDefinition = {
         buttonLabel('$label || $ui.submit.value'),
         suffix(),
         icon('suffix')
-      ),
+      )
     ),
-    help('$help'),
+    help('$help')
   ),
   /**
    * The type of node, can be a list, group, or input.

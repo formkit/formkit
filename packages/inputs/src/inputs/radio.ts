@@ -16,9 +16,11 @@ import {
   boxOptions,
   boxWrapper,
   boxLabel,
-} from '../sections'
-import { options, radios } from '../features'
-import { $if, $extend } from '../compose'
+  options,
+  radios,
+  $if,
+  $extend,
+} from '../'
 
 /**
  * Input definition for a radio.
@@ -28,7 +30,6 @@ export const radio: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
     $if(
       '$options == undefined',
@@ -36,12 +37,7 @@ export const radio: FormKitTypeDefinition = {
        * Single radio structure.
        */
       boxWrapper(
-        inner(
-          prefix(),
-          box(),
-          decorator(),
-          suffix(),
-        ),
+        inner(prefix(), box(), decorator(), suffix()),
         $if('$label', boxLabel('$label'))
       ),
       /**
@@ -66,7 +62,7 @@ export const radio: FormKitTypeDefinition = {
                 decorator(),
                 suffix()
               ),
-              $if('$option.label', boxLabel('$option.label')),
+              $if('$option.label', boxLabel('$option.label'))
             ),
             boxHelp('$option.help')
           )
@@ -75,9 +71,7 @@ export const radio: FormKitTypeDefinition = {
     ),
     // Help text only goes under the input when it is a single.
     $if('$options.length === 0 && $help', help()),
-    messages(
-      message('$message.value')
-    )
+    messages(message('$message.value'))
   ),
   /**
    * The type of node, can be a list, group, or input.

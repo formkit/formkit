@@ -1,6 +1,13 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { formInput, messages, message, actions, submitInput } from '../sections'
-import { forms, disablesChildren } from '../features'
+import {
+  formInput,
+  messages,
+  message,
+  actions,
+  submitInput,
+  forms,
+  disablesChildren,
+} from '../'
 
 /**
  * Input definition for a form.
@@ -10,12 +17,9 @@ export const form: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: formInput(
     '$slots.default',
-    messages(
-      message('$message.value')
-    ),
+    messages(message('$message.value')),
     actions(submitInput())
   ),
   /**

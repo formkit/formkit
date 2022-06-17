@@ -11,7 +11,7 @@ import {
   prefix,
   suffix,
   textInput,
-} from '../sections'
+} from '../'
 
 /**
  * Input definition for a text.
@@ -21,7 +21,6 @@ export const text: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
     wrapper(
       label('$label'),
@@ -34,9 +33,7 @@ export const text: FormKitTypeDefinition = {
       )
     ),
     help('$help'),
-    messages(
-      message('$message.value')
-    )
+    messages(message('$message.value'))
   ),
   /**
    * The type of node, can be a list, group, or input.

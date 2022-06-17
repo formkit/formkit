@@ -11,8 +11,8 @@ import {
   suffix,
   icon,
   textareaInput,
-} from '../sections'
-import { initialValue } from '../features'
+  initialValue,
+} from '../'
 
 /**
  * Input definition for a textarea.
@@ -22,7 +22,6 @@ export const textarea: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
     wrapper(
       label('$label'),
@@ -35,9 +34,7 @@ export const textarea: FormKitTypeDefinition = {
       )
     ),
     help('$help'),
-    messages(
-      message('$message.value')
-    )
+    messages(message('$message.value'))
   ),
   /**
    * The type of node, can be a list, group, or input.

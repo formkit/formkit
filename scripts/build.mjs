@@ -28,6 +28,7 @@ import {
   getBuildOrder,
   getPlugins,
   msg,
+  getInputs,
 } from './utils.mjs'
 import { exec } from 'child_process'
 
@@ -117,20 +118,9 @@ export async function buildPackage(p) {
 
   // special case for CSS themes, processing needs to happen AFTER
   // type declarations are extracted from the non-CSS theme exports
-  if (p === 'themes') {
-    const themes = getThemes()
-    await Promise.all(themes.map((theme) => bundle(p, 'esm', ['theme', theme])))
-    const plugins = getPlugins()
-    await Promise.all(
-      plugins.map((plugin) =>
-        Promise.all([
-          bundle(p, 'esm', ['plugin', plugin]),
-          bundle(p, 'cjs', ['plugin', plugin]),
-          declarations(p, plugin),
-        ])
-      )
-    )
-  }
+  if (p === 'themes') await themesBuildExtras()
+
+  if (p === 'inputs') await inputsBuildExtras()
 
   // special case for Icons package
   if (p === 'icons') {
@@ -156,6 +146,57 @@ export async function buildAllPackages(packages) {
     msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
     await buildPackage(p)
   }
+}
+
+/**
+ *
+ */
+export async function inputsBuildExtras() {
+  msg.info('» Exporting inputs by type')
+  const inputs = getInputs()
+  const distDir = resolve(packagesDir, 'inputs/dist/exports')
+  console.log(distDir)
+  await fs.mkdir(distDir, { recursive: true })
+  await Promise.all(
+    inputs.map(async (input) => {
+      await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
+    })
+  )
+  const tsconfig = resolve(distDir, 'tsconfig.json')
+  const tsData = JSON.parse(
+    await fs.readFile(resolve(rootDir, 'tsconfig.json'))
+  )
+  tsData.compilerOptions.outDir = './'
+  await fs.writeFile(tsconfig, JSON.stringify(tsData, null, 2))
+  await execa('npx', ['tsc', '--project', tsconfig])
+  await execa('npx', [
+    'prettier',
+    '--no-semi',
+    '--single-quote',
+    '--write',
+    resolve(distDir, '*.js'),
+  ])
+  await fs.unlink(tsconfig)
+}
+
+/**
+ * Special considerations for building the themes package.
+ */
+async function themesBuildExtras() {
+  const themes = getThemes()
+  await Promise.all(
+    themes.map((theme) => bundle('themes', 'esm', ['theme', theme]))
+  )
+  const plugins = getPlugins()
+  await Promise.all(
+    plugins.map((plugin) =>
+      Promise.all([
+        bundle('themes', 'esm', ['plugin', plugin]),
+        bundle('themes', 'cjs', ['plugin', plugin]),
+        declarations('themes', plugin),
+      ])
+    )
+  )
 }
 
 /**

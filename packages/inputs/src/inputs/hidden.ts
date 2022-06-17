@@ -1,6 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { textInput } from '../sections'
-import { $root } from '../compose'
+import { textInput, $root } from '../'
 
 /**
  * Input definition for a hidden input.
@@ -10,7 +9,6 @@ export const hidden: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: $root(textInput()),
   /**
    * The type of node, can be a list, group, or input.

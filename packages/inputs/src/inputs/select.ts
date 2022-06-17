@@ -13,9 +13,11 @@ import {
   selectInput,
   option,
   optionSlot,
-} from '../sections'
-import { $if } from '../compose'
-import { options, selects, defaultIcon } from '../features'
+  $if,
+  options,
+  selects,
+  defaultIcon,
+} from '../'
 
 /**
  * Input definition for a select.
@@ -25,7 +27,6 @@ export const select: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  // prettier-ignore
   schema: outer(
     wrapper(
       label('$label'),
@@ -36,10 +37,7 @@ export const select: FormKitTypeDefinition = {
           $if(
             '$slots.default',
             () => '$slots.default',
-            $if('$slots.option',
-              optionSlot,
-              option('$option.label')
-            )
+            $if('$slots.option', optionSlot, option('$option.label'))
           )
         ),
         icon('select'),
@@ -48,9 +46,7 @@ export const select: FormKitTypeDefinition = {
       )
     ),
     help('$help'),
-    messages(
-      message('$message.value')
-    )
+    messages(message('$message.value'))
   ),
   /**
    * The type of node, can be a list, group, or input.
