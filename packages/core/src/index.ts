@@ -4,7 +4,11 @@
  * In this file we explicitly declare what should end up in the public API.
  */
 
-// this version will be automatically replaced during publish
+/**
+ * The current version of FormKit at the time the package is published. Is replaced
+ * as part of the publishing script.
+ * @public
+ */
 export const FORMKIT_VERSION = '__FKV__'
 
 /**

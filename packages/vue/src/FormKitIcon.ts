@@ -3,6 +3,10 @@ import { optionsSymbol } from './plugin'
 import { FormKitPlugin } from '@formkit/core'
 import { FormKitIconLoader } from '@formkit/themes'
 
+/**
+ * Renders an icon using the current IconLoader set at the root FormKit config
+ * @public
+ */
 export const FormKitIcon = defineComponent({
   props: {
     icon: {

@@ -1,5 +1,8 @@
 import { createSection, FormKitSchemaExtendableSection } from '../compose'
 
+/**
+ * @public
+ */
 export const icon = (sectionKey: string, el?: string): FormKitSchemaExtendableSection => {
   return createSection(`${sectionKey}Icon`, () => {
     const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}Icon`
