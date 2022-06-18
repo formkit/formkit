@@ -7,6 +7,7 @@ import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
+// import axios from 'axios'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -110,6 +111,7 @@ async function loadInput(name: string, lang?: string): Promise<string | false> {
     fileData = await readFile(localFile, { encoding: 'utf8' })
   } else {
     warning(`Unable to locate ${localFile}`)
+    // await axios('https:')
   }
 
   if (!fileData) {
