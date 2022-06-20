@@ -2,7 +2,7 @@ import { FORMKIT_VERSION } from '@formkit/core'
 import { Command } from 'commander'
 import prompts from 'prompts'
 import { inputs } from '@formkit/inputs'
-import { resolve, dirname } from 'path'
+import { resolve, dirname, relative, isAbsolute } from 'path'
 import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import chalk from 'chalk'
@@ -47,8 +47,8 @@ export default function main(): void {
   program.parse()
 }
 
-function error(message: string): void {
-  console.error(red(message))
+function error(message: string): never {
+  red(message)
   process.exit(1)
 }
 
@@ -58,7 +58,116 @@ function error(message: string): void {
 export async function exportInput(
   options: Record<string, string | undefined>
 ): Promise<void> {
-  let inputName = options.input
+  const input = await requireInput(options.input)
+  const lang = await requireLang(options.lang)
+  const exportData = await requireInputCode(input, lang)
+  const sourceCode = transformSource(exportData)
+  const [absoluteDir, relativeDir] = await requireOutputDir(options.dir)
+  const validDir = await upsertDir(absoluteDir)
+
+  if (validDir === false)
+    return error(`${relativeDir} is not a writable directory.`)
+  if (!validDir) return
+  const outFile = resolve(absoluteDir, `${input}.${lang}`)
+  if (!existsSync(outFile)) {
+    await writeFile(outFile, sourceCode)
+  } else {
+    return error('Did not export input because that file already exists.')
+  }
+  green(`Success! Exported ${relativeDir}/${input}.${lang}`)
+  console.log(`To use it pass it to your FormKit configuration:
+  // ...
+  import { ${input} } from '${relativeDir}/${input}'
+  // ...
+  const config = defaultConfig({
+    inputs: {
+      ${input}
+    }
+  })
+  `)
+}
+
+/**
+ * Attempts to intelligently determine the directory to export to.
+ * @param dir - The directory to export the input to.
+ * @returns
+ */
+async function requireOutputDir(
+  dir?: string
+): Promise<[string, string]> | never {
+  if (dir && isAbsolute(dir)) {
+    return [dir, relative(process.cwd(), dir)]
+  } else if (dir) {
+    const abs = resolve(process.cwd(), dir)
+    return [abs, relative(process.cwd(), abs)]
+  }
+  const rel = await prompts({
+    type: 'text',
+    name: 'dir',
+    message:
+      'Where should the input be exported to (relative to the current directory)?',
+    initial: guessDir(),
+  }).then((res) => res.dir)
+  const abs = resolve(process.cwd(), rel)
+  return [abs, rel]
+}
+
+function guessDir() {
+  const srcDir = resolve(process.cwd(), 'src')
+  if (existsSync(srcDir)) {
+    return './src/inputs'
+  }
+  return './inputs'
+}
+
+/**
+ * Transforms the source code of the inputs to be used locally.
+ * @param exportData - The code to export.
+ * @returns
+ */
+function transformSource(exportData: string): string | never {
+  if (exportData) {
+    exportData = exportData.replace("} from '../'", "} from '@formkit/inputs'")
+  } else {
+    error('Unable to export the input file because it cannot be located.')
+  }
+  return exportData
+}
+
+/**
+ * Determine the language the user wants to export.
+ * @param lang - The language to export the input to.
+ * @returns
+ */
+async function requireLang(lang?: string): Promise<string> {
+  if (!lang) {
+    const guessedLang = guessLang()
+    lang = await prompts({
+      type: 'select',
+      name: 'lang',
+      message: 'What language should be used?',
+      choices: [
+        guessedLang === 'ts'
+          ? { title: 'TypeScript', value: 'ts' }
+          : { title: 'JavaScript', value: 'js' },
+        guessedLang === 'ts'
+          ? { title: 'JavaScript', value: 'js' }
+          : { title: 'TypeScript', value: 'ts' },
+      ],
+    }).then((val) => val.lang)
+    if (!lang) {
+      error('No language selected, exiting.')
+    }
+  }
+  return lang
+}
+
+/**
+ * Fetch the input name that the user wants to export.
+ * @param inputName - The name of the input to load.
+ * @returns
+ */
+async function requireInput(inputName?: string): Promise<string> | never {
   if (!inputName) {
     const res = await prompts({
       type: 'autocomplete',
@@ -72,41 +181,11 @@ export async function exportInput(
     inputName = res.inputName
   }
   if (!inputName || !(inputName in inputs)) {
-    return error(
+    error(
       `Cannot export “${inputName}” because it is not part of the @formkit/inputs package.`
     )
   }
-  let exportData = await loadInput(inputName, options.lang)
-  if (exportData) {
-    exportData = exportData.replace("} from '../'", "} from '@formkit/inputs'")
-  } else {
-    return error(
-      'Unable to export the input file because it cannot be located.'
-    )
-  }
-  const dir = options.dir || './inputs'
-  const outDir = resolve(process.cwd(), dir)
-  const lang = options.lang || guessLang()
-  const validDir = await upsertDir(outDir)
-  if (validDir === false) return error(`${outDir} is not a writable directory.`)
-  if (!validDir) return
-  const outFile = resolve(outDir, `${inputName}.${lang}`)
-  if (!existsSync(outFile)) {
-    await writeFile(outFile, exportData)
-  } else {
-    return error('Did not export input because that file already exists.')
-  }
-  green(`Success! Exported ${outDir}/${inputName}.${lang}`)
-  info(`To use it pass it to your FormKit configuration:
-
-  import { ${inputName} } from '${dir}/${inputName}'
-  // ...
-  const config = defaultConfig({
-    inputs: {
-      ${inputName}
-    }
-  })
-  `)
+  return inputName
 }
 
 /**
@@ -115,7 +194,10 @@ export async function exportInput(
  * @param lang - The language to load the input in.
  * @returns
  */
-async function loadInput(name: string, lang?: string): Promise<string | false> {
+async function requireInputCode(
+  name: string,
+  lang?: string
+): Promise<string> | never {
   lang = !lang ? guessLang() : lang
   const localFile = resolve(
     __dirname,
@@ -133,7 +215,6 @@ async function loadInput(name: string, lang?: string): Promise<string | false> {
     } catch (e: any) {
       if (e && e?.response?.status) {
         error(`${e.response.status} — unable to load ${localFile}`)
-        return false
       } else {
         error(
           'Unable to load input file — probably a network error. Are you online?'
@@ -151,7 +232,6 @@ async function loadInput(name: string, lang?: string): Promise<string | false> {
   } else {
     return fileData
   }
-  return false
 }
 
 /**
