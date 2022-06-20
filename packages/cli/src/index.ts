@@ -7,7 +7,7 @@ import { access, mkdir, readFile, writeFile } from 'fs/promises'
 import { constants, existsSync } from 'fs'
 import chalk from 'chalk'
 import { fileURLToPath } from 'url'
-// import axios from 'axios'
+import axios from 'axios'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -32,7 +32,10 @@ program
 
 program
   .command('export')
-  .argument('<inputName>', 'An input to export (from @formkit/inputs)')
+  .option(
+    '-i, --input',
+    'An input to export (from @formkit/inputs, like "text" or "select")'
+  )
   .option('-d, --dir <dir>', 'The directory to export inputs to')
   .option('-l, --lang <ts|js>', 'Export as TypeScript (ts) or JavaScript (js)')
   .action(exportInput)
@@ -53,10 +56,22 @@ function error(message: string): void {
  * @internal
  */
 export async function exportInput(
-  inputName: string,
   options: Record<string, string | undefined>
 ): Promise<void> {
-  if (!(inputName in inputs)) {
+  let inputName = options.input
+  if (!inputName) {
+    const res = await prompts({
+      type: 'autocomplete',
+      name: 'inputName',
+      message: 'What input do you want to export?',
+      choices: Object.keys(inputs).map((i) => ({
+        title: i,
+        value: i,
+      })),
+    })
+    inputName = res.inputName
+  }
+  if (!inputName || !(inputName in inputs)) {
     return error(
       `Cannot export “${inputName}” because it is not part of the @formkit/inputs package.`
     )
@@ -111,7 +126,20 @@ async function loadInput(name: string, lang?: string): Promise<string | false> {
     fileData = await readFile(localFile, { encoding: 'utf8' })
   } else {
     warning(`Unable to locate ${localFile}`)
-    // await axios('https:')
+    const cdnUrl = `https://cdn.jsdelivr.net/npm/@formkit/inputs@${FORMKIT_VERSION}/dist/exports/${name}.${lang}`
+    try {
+      const res = await axios.get(cdnUrl)
+      fileData = res.data
+    } catch (e: any) {
+      if (e && e?.response?.status) {
+        error(`${e.response.status} — unable to load ${localFile}`)
+        return false
+      } else {
+        error(
+          'Unable to load input file — probably a network error. Are you online?'
+        )
+      }
+    }
   }
 
   if (!fileData) {
@@ -141,10 +169,11 @@ function guessLang() {
  */
 async function upsertDir(dir: string): Promise<boolean | void> {
   if (!existsSync(dir)) {
+    const local = '.' + dir.replace(process.cwd(), '')
     const { confirm } = await prompts({
       type: 'confirm',
       name: 'confirm',
-      message: `${dir} does not exist. Create it?`,
+      message: `Export directory does not exist (${local}) does not exist. Create it?`,
     })
     if (!confirm) return info('Directory not created — no input was exported.')
     try {
