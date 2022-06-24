@@ -176,18 +176,17 @@ export function createThemePlugin(
     if (theme) {
       await themeLoaded
     }
-
     // register the icon handler, and override with local prop value if it exists
-    node.addProps(['iconHandler'])
+    node.addProps(['iconHandler', 'iconLoader'])
     if (
       typeof node.props.iconHandler === 'undefined' &&
-      typeof node.config.iconLoader === 'undefined'
+      typeof node.props.iconLoader === 'undefined'
     ) {
       node.props.iconHandler = iconHandler
     } else if (typeof node.props.iconHandler === 'function') {
       node.props.iconHandler = node.props.iconHandler
-    } else if (typeof node.config.iconLoader === 'function') {
-      node.props.iconHandler = handleIcons(node.config.iconLoader)
+    } else if (typeof node.props.iconLoader === 'function') {
+      node.props.iconHandler = handleIcons(node.props.iconLoader)
     }
     loadIconPropIcons(node, node.props.iconHandler)
 

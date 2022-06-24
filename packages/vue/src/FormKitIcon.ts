@@ -1,7 +1,8 @@
-import { h, ref, defineComponent, inject } from 'vue'
+import { h, ref, defineComponent, inject, PropType } from 'vue'
 import { optionsSymbol } from './plugin'
+import { parentSymbol } from './FormKit'
 import { FormKitPlugin } from '@formkit/core'
-import { FormKitIconLoader } from '@formkit/themes'
+import { FormKitIconLoader, handleIcons } from '@formkit/themes'
 
 /**
  * Renders an icon using the current IconLoader set at the root FormKit config
@@ -12,16 +13,35 @@ export const FormKitIcon = defineComponent({
     icon: {
       type: String,
       default: ''
+    },
+    loader: {
+      type: Function as PropType<FormKitIconLoader>,
+      default: null
     }
   },
   setup (props) {
     const icon = ref<undefined|string>(undefined)
     const config = inject(optionsSymbol)
-    const iconPlugin = config?.plugins?.find(plugin => {
-      return typeof (plugin as FormKitPlugin & { iconHandler: FormKitIconLoader }).iconHandler === 'function'
-    }) as FormKitPlugin & { iconHandler: FormKitIconLoader } | undefined
-    if (iconPlugin) {
-      const iconOrPromise = iconPlugin.iconHandler(props.icon)
+    const parent = inject(parentSymbol)
+    let iconHandler: FormKitIconLoader | undefined = undefined
+
+    if (props.loader && typeof props.loader === 'function') {
+      // if we have a locally supplied loader, then use it
+      iconHandler = handleIcons(props.loader)
+    } else if (parent && parent.props?.iconLoader) {
+      // otherwise try to inherit from a parent
+      iconHandler = handleIcons(parent.props.iconLoader)
+    } else {
+      // grab our iconHandler from the global config
+      const iconPlugin = config?.plugins?.find(plugin => {
+        return typeof (plugin as FormKitPlugin & { iconHandler: FormKitIconLoader }).iconHandler === 'function'
+      }) as FormKitPlugin & { iconHandler: FormKitIconLoader } | undefined
+      if (iconPlugin) {
+        iconHandler = iconPlugin.iconHandler
+      }
+    }
+    if (iconHandler && typeof iconHandler === 'function') {
+      const iconOrPromise = iconHandler(props.icon)
       if (iconOrPromise instanceof Promise) {
         iconOrPromise.then((iconValue) => {
           icon.value = iconValue

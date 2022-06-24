@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FormKitIcon } from '@formkit/vue'
+
 const fontAwesomeLoader = async (iconName: string) => {
   return fetch(`https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/svgs/solid/${iconName}.svg`)
     .then(async (r) => {
@@ -14,6 +16,18 @@ const fontAwesomeLoader = async (iconName: string) => {
 
 <template>
   <h1>Custom Icons</h1>
+  <h5>I use the global loader</h5>
+  <div class="icon-holder">
+    <FormKitIcon icon="number" />
+  </div>
+
+  <h5>I have my own loader defined</h5>
+  <div class="icon-holder">
+    <FormKitIcon
+      icon="lightbulb"
+      :loader="fontAwesomeLoader"
+    />
+  </div>
   <FormKit
     type="form"
     :actions="false"
@@ -26,5 +40,15 @@ const fontAwesomeLoader = async (iconName: string) => {
       prefix-icon="bell"
       suffix-icon="ice-cream"
     />
+    <h5>I inherit from my parent loader</h5>
+    <div class="icon-holder">
+      <FormKitIcon icon="jedi" />
+    </div>
   </FormKit>
 </template>
+
+<style>
+.icon-holder {
+  max-width: 5em;
+}
+</style>
