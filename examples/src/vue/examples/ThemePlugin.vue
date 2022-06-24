@@ -14,7 +14,6 @@ const submitHandler = async function () {
 }
 
 const changeIcon = function (node: FormKitNode, e: MouseEvent) {
-  console.log(node, e)
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
 }

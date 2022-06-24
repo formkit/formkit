@@ -122,8 +122,8 @@ const iconRequests: Record<string, any> = {}
  */
 export function createThemePlugin(
   theme?: string,
+  icons?: Record<string, string | undefined>,
   iconLoader?: FormKitIconLoader,
-  icons?: Record<string, string | undefined>
 ): ((node: FormKitNode) => any) {
   if (icons) {
     // add any user-provided icons to the registry
@@ -177,17 +177,22 @@ export function createThemePlugin(
       await themeLoaded
     }
 
-    // register the icon handler
+    // register the icon handler, and override with local prop value if it exists
     node.addProps(['iconHandler'])
-    if (typeof node.props.iconHandler === 'undefined') {
+    if (
+      typeof node.props.iconHandler === 'undefined' &&
+      typeof node.config.iconLoader === 'undefined'
+    ) {
       node.props.iconHandler = iconHandler
+    } else if (typeof node.props.iconHandler === 'function') {
+      node.props.iconHandler = node.props.iconHandler
+    } else if (typeof node.config.iconLoader === 'function') {
+      node.props.iconHandler = handleIcons(node.config.iconLoader)
     }
+    loadIconPropIcons(node, node.props.iconHandler)
 
-    // load all icons from props
-    loadIconPropIcons(node, iconHandler)
-
-    // set up the icon click handler
     node.on('created', () => {
+      // set up the icon click handler
       if (node?.context?.handlers) {
         node.context.handlers.iconClick = (sectionKey: string): ((e: MouseEvent) => void) | void => {
           const clickHandlerProp = `on${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}IconClick`
@@ -202,7 +207,8 @@ export function createThemePlugin(
       }
     })
   }
-  themePlugin.iconHandler = iconHandler
+
+  themePlugin.iconHandler = handleIcons(iconLoader)
   return themePlugin
 }
 
@@ -222,11 +228,16 @@ export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader 
     }
     // check if we've already loaded the icon before
     const icon = iconRegistry[iconName]
+    let loadedIcon:(string | undefined | Promise<string | undefined>) = undefined
     if (icon || iconName in iconRegistry) {
       return icon
+    } else if (iconRequests[iconName] && iconRequests[iconName] instanceof Promise) {
+      // if we are already awaiting a promise for this icon then return the existing promise
+      loadedIcon = iconRequests[iconName]
+    } else {
+      // otherwise, load the icon with the user handler, or our default
+      loadedIcon = typeof iconLoader === 'function' ? iconLoader(iconName) : getRemoteIcon(iconName)
     }
-    // otherwise, load the icon with the user handler, or our default
-    const loadedIcon = typeof iconLoader === 'function' ? iconLoader(iconName) : getRemoteIcon(iconName)
     // if the icon is being fetched remotely, return the promise
     if (loadedIcon instanceof Promise) {
       return loadedIcon.then((iconString) => {
@@ -248,10 +259,6 @@ export function handleIcons (iconLoader?: FormKitIconLoader): FormKitIconLoader 
  * @public
  */
 async function getRemoteIcon(iconName: string): Promise<string | undefined> {
-  // if we are already awaiting a promise for this icon then return the existing promise
-  if (iconRequests[iconName] && iconRequests[iconName] instanceof Promise) {
-    return await iconRequests[iconName]
-  }
   const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
   iconRequests[iconName] = fetch(`https://cdn.jsdelivr.net/npm/@formkit/icons@${formkitVersion}/dist/icons/${iconName}.svg`)
     .then(async (r) => {

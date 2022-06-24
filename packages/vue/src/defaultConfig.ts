@@ -77,7 +77,7 @@ const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
   /**
    * Create the theme plugin for the user provided theme
    */
-  const themePlugin = createThemePlugin(theme, iconLoader, icons)
+  const themePlugin = createThemePlugin(theme, icons, iconLoader)
 
   return extend(
     {

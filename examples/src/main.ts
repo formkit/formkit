@@ -6,6 +6,7 @@ import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
 import ThemePlugin from './vue/examples/ThemePlugin.vue'
+import ThirdPartyIcons from './vue/examples/3rdPartyIcons.vue'
 import CustomInput from './vue/examples/custom-input/CustomInput.vue'
 import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
@@ -50,6 +51,10 @@ const router = createRouter({
     {
       path: '/theme-plugin',
       component: ThemePlugin,
+    },
+    {
+      path: '/custom-icons',
+      component: ThirdPartyIcons,
     },
     {
       path: '/custom-input',

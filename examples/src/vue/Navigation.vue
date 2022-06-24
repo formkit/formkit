@@ -12,6 +12,11 @@
         </router-link>
       </li>
       <li>
+        <router-link to="/custom-icons">
+          3rd-Party Icons
+        </router-link>
+      </li>
+      <li>
         <router-link to="/custom-input">
           Custom input
         </router-link>
