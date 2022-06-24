@@ -46,6 +46,7 @@ export const file: FormKitTypeDefinition = {
             )
           )
         ),
+        $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
         noFiles(icon('fileItem'), '$ui.noFiles.value'),
         suffix(),
         icon('suffix')
