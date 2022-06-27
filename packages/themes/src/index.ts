@@ -103,6 +103,9 @@ const iconRegistryHandler: Record<string, any> = {
       // we have the icon so return it
       return target[prop]
     }
+    // if we need to do dynamic loading then make sure we're on the client-side
+    // otherwise bail
+    if (typeof window === 'undefined') return
     if (!documentStyles) {
       documentStyles = getComputedStyle(document.documentElement)
     }
