@@ -1,7 +1,6 @@
 <template>
   <h1>Basic Form</h1>
   <FormKit
-    id="form"
     v-model="data"
     type="form"
     @submit="submitHandler"
@@ -69,12 +68,18 @@
       label="Do you agree to our terms?"
     />
     <FormKit
+      v-model="fruit"
       label="Select a fruit"
       type="radio"
       name="fruit"
       help="Hello help text!"
       placeholder="Select the best country"
       :options="['Apple', 'Strawberry', 'Banana']"
+    />
+    <FormKit
+      v-if="fruit"
+      type="checkbox"
+      :label="`Please confirm that you meant to select ${fruit}?`"
     />
   </FormKit>
   <pre>{{ data }}</pre>
@@ -89,6 +94,7 @@ const date = new Date()
 const month = date.getMonth() + 1
 const day = date.getDate()
 const year = date.getFullYear()
+const fruit = ref(null)
 const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)

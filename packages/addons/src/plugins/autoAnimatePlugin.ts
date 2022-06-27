@@ -54,13 +54,13 @@ export function createAutoAnimatePlugin(
             extensions.outer || {}
           ) as Partial<FormKitSchemaDOMNode>
           const finalSchema = original(extensions)
-          const outer = isConditional(finalSchema[0])
+          const outermostSchema = isConditional(finalSchema[0])
             ? Array.isArray(finalSchema[0].else)
               ? finalSchema[0].else[0]
               : finalSchema[0].else
             : finalSchema[0]
-          if (outer && isDOM(outer) && outer.attrs && 'id' in outer.attrs) {
-            pendingIds.set(String(outer.attrs.id), options || undefined)
+          if (outermostSchema && isDOM(outermostSchema) && outermostSchema.attrs && 'id' in outermostSchema.attrs) {
+            pendingIds.set(String(outermostSchema.attrs.id === '$id' ? node.props.id : outermostSchema.attrs.id), options || undefined)
           }
           return finalSchema
         }
