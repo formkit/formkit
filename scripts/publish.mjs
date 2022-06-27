@@ -213,6 +213,8 @@ Any dependent packages will also require publishing to include dependency change
         `/npm/@formkit/validation@${tag || 'latest'}/dist/index.min.mjs`,
         `/npm/@formkit/vue@${tag || 'latest'}/dist/index.mjs`,
         `/npm/@formkit/vue@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/addons@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/addons@${tag || 'latest'}/dist/index.min.mjs`,
       ],
     },
   })
