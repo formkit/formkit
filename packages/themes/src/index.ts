@@ -77,7 +77,19 @@ function addClassesBySection(
 /**
  * The document's computed CSS styles
  */
-let documentStyles: Record<any, any> = {}
+let documentStyles: Record<any, any>|undefined = undefined
+let documentThemeLinkTag: HTMLElement|null = null
+
+/**
+ * Stores the state of theme loading
+ */
+let themeDidLoad: (value?: unknown) => void
+let isThemeLoaded = false
+const themeLoaded = new Promise((res) => {
+  themeDidLoad = res
+}).then((value) => {
+  isThemeLoaded = !!value
+})
 
 /**
  * iconRegistry proxy setup.
@@ -90,6 +102,9 @@ const iconRegistryHandler: Record<string, any> = {
     if (prop in target) {
       // we have the icon so return it
       return target[prop]
+    }
+    if (!documentStyles) {
+      documentStyles = getComputedStyle(document.documentElement)
     }
     const cssVarIcon = documentStyles.getPropertyValue(`--fk-icon-${prop}`)
     if (cssVarIcon) {
@@ -129,51 +144,16 @@ export function createThemePlugin(
     // add any user-provided icons to the registry
     Object.assign(iconRegistry, icons)
   }
-
-  let themeDidLoad: (value?: unknown) => void
-  const themeLoaded = new Promise((res) => themeDidLoad = res)
-  documentStyles = getComputedStyle(document.documentElement)
-  const documentThemeLinkTag = document.getElementById('formkit-theme')
-
-  if (
-    theme &&
-    // if we have a window object
-    typeof window !== undefined &&
-    // we don't have an existing theme OR the theme being set up is different
-    ((
-      !documentStyles.getPropertyValue('--formkit-theme') &&
-      !documentThemeLinkTag
-    ) || (
-      documentThemeLinkTag?.getAttribute('data-theme') &&
-      documentThemeLinkTag?.getAttribute('data-theme') !== theme
-    ))
-  ) {
-    // if for some reason we didn't overwrite the __FKV__ token during publish
-    // then use the `latest` tag for CDN fetching. (this applies to local dev as well)
-    const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
-    const themeUrl = `https://cdn.jsdelivr.net/npm/@formkit/themes@${formkitVersion}/dist/${theme}/theme.css`
-    const link = document.createElement('link')
-    link.type = 'text/css'
-    link.rel = 'stylesheet'
-    link.id = 'formkit-theme'
-    link.setAttribute('data-theme', theme)
-    link.onload = () => {
-      documentStyles = getComputedStyle(document.documentElement) // grab new variables from theme
-      themeDidLoad()
-    }
-    document.head.appendChild(link)
-    link.href = themeUrl
-    // if we had an existing theme being loaded, remove it.
-    if (documentThemeLinkTag) {
-      documentThemeLinkTag.remove()
-    }
-  }
-
   const iconHandler = handleIcons(iconLoader)
 
   const themePlugin = async function themePlugin(node: FormKitNode) {
     // if we have a theme declared, wait for it
-    if (theme) {
+    if (
+      theme &&
+      !isThemeLoaded &&
+      typeof window !== 'undefined'
+    ) {
+      loadTheme(theme)
       await themeLoaded
     }
     // register the icon handler, and override with local prop value if it exists
@@ -209,6 +189,62 @@ export function createThemePlugin(
 
   themePlugin.iconHandler = handleIcons(iconLoader)
   return themePlugin
+}
+
+/**
+ * Loads a FormKit theme
+ */
+function loadTheme (theme: string) {
+  if (
+    !theme ||
+    typeof window === 'undefined' ||
+    typeof getComputedStyle !== 'function'
+  ) {
+    // if we're not client-side then bail
+    return
+  }
+
+  // retrieve document styles on plugin creation when the window object exists
+  if (!documentStyles) {
+    documentStyles = getComputedStyle(document.documentElement)
+  }
+  documentThemeLinkTag = document.getElementById('formkit-theme')
+
+  // retrieve document styles on plugin creation when the window object exists
+
+  if (
+    theme &&
+    // if we have a window object
+    typeof window !== 'undefined' &&
+    // we don't have an existing theme OR the theme being set up is different
+    ((
+      !documentStyles.getPropertyValue('--formkit-theme') &&
+      !documentThemeLinkTag
+    ) || (
+      documentThemeLinkTag?.getAttribute('data-theme') &&
+      documentThemeLinkTag?.getAttribute('data-theme') !== theme
+    ))
+  ) {
+    // if for some reason we didn't overwrite the __FKV__ token during publish
+    // then use the `latest` tag for CDN fetching. (this applies to local dev as well)
+    const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
+    const themeUrl = `https://cdn.jsdelivr.net/npm/@formkit/themes@${formkitVersion}/dist/${theme}/theme.css`
+    const link = document.createElement('link')
+    link.type = 'text/css'
+    link.rel = 'stylesheet'
+    link.id = 'formkit-theme'
+    link.setAttribute('data-theme', theme)
+    link.onload = () => {
+      documentStyles = getComputedStyle(document.documentElement) // grab new variables from theme
+      themeDidLoad()
+    }
+    document.head.appendChild(link)
+    link.href = themeUrl
+    // if we had an existing theme being loaded, remove it.
+    if (documentThemeLinkTag) {
+      documentThemeLinkTag.remove()
+    }
+  }
 }
 
 /**
