@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
-import { de, fr } from '@formkit/i18n'
+import { de, fr, bg } from '@formkit/i18n'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
@@ -23,7 +23,7 @@ const app = createApp(App)
 
 // Configure FormKit:
 const config = defaultConfig({
-  locales: { de, fr },
+  locales: { de, fr, bg },
   locale: 'en',
   // theme: 'genesis',
   icons: {
