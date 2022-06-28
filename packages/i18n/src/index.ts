@@ -11,6 +11,7 @@ import * as fr from './locales/fr'
 import * as fy from './locales/fy'
 import * as he from './locales/he'
 import * as hr from './locales/hr'
+import * as hu from './locales/hu'
 import * as id from './locales/id'
 import * as it from './locales/it'
 import * as ja from './locales/ja'
@@ -50,6 +51,7 @@ export const locales = {
   fy,
   he,
   hr,
+  hu,
   id,
   it,
   ja,
@@ -85,6 +87,7 @@ export {
   fy,
   he,
   hr,
+  hu,
   id,
   it,
   ja,
