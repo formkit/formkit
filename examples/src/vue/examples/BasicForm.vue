@@ -118,8 +118,9 @@ const countries = [
   },
 ]
 
-const submitHandler = async function () {
+const submitHandler = async function (data: { email: string }) {
   await new Promise(r => setTimeout(r, 2000))
+  console.log(data)
   setErrors('form', ['This isn’t setup to actually do anything.'])
 }
 </script>
