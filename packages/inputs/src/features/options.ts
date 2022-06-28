@@ -16,11 +16,15 @@ export type FormKitOptionsList = Array<
 
 /**
  * Accepts an array of objects, array of strings, or object of key-value pairs.
- * and returns an array of objects with value and label properties.
+ * and returns an array of objects with value and label properties. Also accepts
+ * function. If the function returns a promise, we are reassigning the function
+ * to the loadOptions prop. If the function returns anything other than promise,
+ * then we are going to call normalizeOptions on the given value.
  * @param options -
  */
 function normalizeOptions(
-  options: string[] | FormKitOptionsList | { [value: string]: string }
+  options: string[] | FormKitOptionsList | { [value: string]: string } | any,
+  node: FormKitNode
 ): FormKitOptionsList {
   let i = 1
   if (Array.isArray(options)) {
@@ -41,6 +45,13 @@ function normalizeOptions(
       }
       return option
     })
+  } else if (typeof options === 'function') {
+    if (options() instanceof Promise) {
+      node.props.optionsLoader = options
+    } else if (!(options() instanceof Promise)) {
+      return normalizeOptions(options(), node)
+    }
+    return []
   }
   return Object.keys(options).map((value) => {
     return {
@@ -89,7 +100,7 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
 export default function options(node: FormKitNode): void {
   node.hook.prop((prop, next) => {
     if (prop.prop === 'options') {
-      const options = normalizeOptions(prop.value)
+      const options = normalizeOptions(prop.value, node)
       prop.value = options
     }
     return next(prop)
