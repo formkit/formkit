@@ -2,7 +2,7 @@ import { h, ref, defineComponent, inject, PropType } from 'vue'
 import { optionsSymbol } from './plugin'
 import { parentSymbol } from './FormKit'
 import { FormKitPlugin } from '@formkit/core'
-import { FormKitIconLoader, handleIcons } from '@formkit/themes'
+import { FormKitIconLoader, createIconHandler } from '@formkit/themes'
 
 /**
  * Renders an icon using the current IconLoader set at the root FormKit config
@@ -27,10 +27,10 @@ export const FormKitIcon = defineComponent({
 
     if (props.loader && typeof props.loader === 'function') {
       // if we have a locally supplied loader, then use it
-      iconHandler = handleIcons(props.loader)
+      iconHandler = createIconHandler(props.loader)
     } else if (parent && parent.props?.iconLoader) {
       // otherwise try to inherit from a parent
-      iconHandler = handleIcons(parent.props.iconLoader)
+      iconHandler = createIconHandler(parent.props.iconLoader)
     } else {
       // grab our iconHandler from the global config
       const iconPlugin = config?.plugins?.find(plugin => {
