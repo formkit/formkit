@@ -255,7 +255,7 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
       return icon
     } else if (!iconRequests[iconName]) {
       loadedIcon = getIconFromStylesheet(iconName)
-      loadedIcon = typeof loadedIcon === 'undefined' ? Promise.resolve(loadedIcon) : loadedIcon
+      loadedIcon = isClient && typeof loadedIcon === 'undefined' ? Promise.resolve(loadedIcon) : loadedIcon
       if (loadedIcon instanceof Promise) {
         iconRequests[iconName] = loadedIcon.then((iconValue) => {
           if (!iconValue) {
