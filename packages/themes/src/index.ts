@@ -104,7 +104,7 @@ const themeLoaded = new Promise<void>((res) => {
 /**
  * Check if we are client-side
  */
-const isClient = typeof window !== 'undefined'
+const isClient = typeof window !== 'undefined' && typeof fetch !== 'undefined'
 documentStyles = isClient ? getComputedStyle(document.documentElement) : undefined
 
 /**
@@ -138,7 +138,12 @@ export function createThemePlugin(
 
   const themePlugin = function themePlugin(node: FormKitNode) {
     // if we have a theme declared, request it
-    if (isClient && documentStyles?.getPropertyValue('--formkit-theme')) {
+    if (
+      isClient &&
+      !themeWasRequested &&
+      documentStyles?.getPropertyValue('--formkit-theme')
+    ) {
+      // we have the theme loaded locally
       themeDidLoad()
       themeWasRequested = true
     } else if (
@@ -146,7 +151,14 @@ export function createThemePlugin(
       !themeWasRequested &&
       isClient
     ) {
+      // we have the theme name but need to request it remotely
       loadTheme(theme)
+    } else if (
+      !themeWasRequested &&
+      isClient
+    ) {
+      // we don't have a discoverable theme, so don't wait for it
+      themeDidLoad()
     }
 
     // register the icon handler, and override with local prop value if it exists
@@ -301,9 +313,10 @@ function loadStylesheetIcon (iconName: string) {
  * @param iconName - The string name of the icon
  * @public
  */
-function getRemoteIcon(iconName: string, iconLoaderUrl?: FormKitIconLoaderUrl): Promise<string | undefined> {
+function getRemoteIcon(iconName: string, iconLoaderUrl?: FormKitIconLoaderUrl): Promise<string | undefined> | undefined {
   const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
   const fetchUrl = typeof iconLoaderUrl === 'function' ? iconLoaderUrl(iconName) : `https://cdn.jsdelivr.net/npm/@formkit/icons@${formkitVersion}/dist/icons/${iconName}.svg`
+  if (!isClient) return undefined
   return fetch(`${fetchUrl}`)
     .then(async (r) => {
       const icon = await r.text()

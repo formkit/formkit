@@ -14,8 +14,12 @@ export const FormKitIcon = defineComponent({
       type: String,
       default: ''
     },
-    loader: {
+    iconLoader: {
       type: Function as PropType<FormKitIconLoader>,
+      default: null
+    },
+    iconLoaderUrl: {
+      type: Function as PropType<((iconName: string) => string)>,
       default: null
     }
   },
@@ -25,12 +29,14 @@ export const FormKitIcon = defineComponent({
     const parent = inject(parentSymbol, null)
     let iconHandler: FormKitIconLoader | undefined = undefined
 
-    if (props.loader && typeof props.loader === 'function') {
+    if (props.iconLoader && typeof props.iconLoader === 'function') {
       // if we have a locally supplied loader, then use it
-      iconHandler = createIconHandler(props.loader)
+      iconHandler = createIconHandler(props.iconLoader)
     } else if (parent && parent.props?.iconLoader) {
       // otherwise try to inherit from a parent
       iconHandler = createIconHandler(parent.props.iconLoader)
+    } else if (props.iconLoaderUrl && typeof props.iconLoaderUrl === 'function') {
+      iconHandler = createIconHandler(iconHandler, props.iconLoaderUrl)
     } else {
       // grab our iconHandler from the global config
       const iconPlugin = config?.plugins?.find(plugin => {

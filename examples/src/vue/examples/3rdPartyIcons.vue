@@ -25,9 +25,14 @@ const fontAwesomeLoader = async (iconName: string) => {
   <div class="icon-holder">
     <FormKitIcon
       icon="lightbulb"
-      :loader="fontAwesomeLoader"
+      :icon-loader="fontAwesomeLoader"
     />
   </div>
+  <FormKit
+    label="I have an inline iconLoaderUrl prop"
+    prefix-icon="annotation"
+    :icon-loader-url="(iconName: string) => `https://cdn.jsdelivr.net/npm/heroicons/outline/${iconName}.svg`"
+  />
   <FormKit
     type="form"
     :actions="false"
