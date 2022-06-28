@@ -80,5 +80,6 @@ describe('options', () => {
       },
     })
     expect(node.props.options).toEqual([])
+    expect(node.props.optionsLoader).toBeDefined()
   })
 })
