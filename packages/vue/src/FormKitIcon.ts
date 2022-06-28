@@ -21,8 +21,8 @@ export const FormKitIcon = defineComponent({
   },
   setup (props) {
     const icon = ref<undefined|string>(undefined)
-    const config = inject(optionsSymbol)
-    const parent = inject(parentSymbol)
+    const config = inject(optionsSymbol, {})
+    const parent = inject(parentSymbol, null)
     let iconHandler: FormKitIconLoader | undefined = undefined
 
     if (props.loader && typeof props.loader === 'function') {

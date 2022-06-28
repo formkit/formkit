@@ -185,7 +185,7 @@ export function createThemePlugin(
 function loadTheme (theme: string) {
   if (
     !theme ||
-    typeof window === 'undefined' ||
+    !isClient ||
     typeof getComputedStyle !== 'function'
   ) {
     // if we're not client-side then bail
@@ -255,7 +255,7 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
       return icon
     } else if (!iconRequests[iconName]) {
       loadedIcon = getIconFromStylesheet(iconName)
-
+      loadedIcon = typeof loadedIcon === 'undefined' ? Promise.resolve(loadedIcon) : loadedIcon
       if (loadedIcon instanceof Promise) {
         iconRequests[iconName] = loadedIcon.then((iconValue) => {
           if (!iconValue) {
