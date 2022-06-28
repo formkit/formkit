@@ -136,31 +136,31 @@ export function createThemePlugin(
     Object.assign(iconRegistry, icons)
   }
 
-  const themePlugin = function themePlugin(node: FormKitNode) {
-    // if we have a theme declared, request it
-    if (
-      isClient &&
-      !themeWasRequested &&
-      documentStyles?.getPropertyValue('--formkit-theme')
-    ) {
-      // we have the theme loaded locally
-      themeDidLoad()
-      themeWasRequested = true
-    } else if (
-      theme &&
-      !themeWasRequested &&
-      isClient
-    ) {
-      // we have the theme name but need to request it remotely
-      loadTheme(theme)
-    } else if (
-      !themeWasRequested &&
-      isClient
-    ) {
-      // we don't have a discoverable theme, so don't wait for it
-      themeDidLoad()
-    }
+  // if we have a theme declared, request it
+  if (
+    isClient &&
+    !themeWasRequested &&
+    documentStyles?.getPropertyValue('--formkit-theme')
+  ) {
+    // we have the theme loaded locally
+    themeDidLoad()
+    themeWasRequested = true
+  } else if (
+    theme &&
+    !themeWasRequested &&
+    isClient
+  ) {
+    // we have the theme name but need to request it remotely
+    loadTheme(theme)
+  } else if (
+    !themeWasRequested &&
+    isClient
+  ) {
+    // we don't have a discoverable theme, so don't wait for it
+    themeDidLoad()
+  }
 
+  const themePlugin = function themePlugin(node: FormKitNode) {
     // register the icon handler, and override with local prop value if it exists
     node.addProps(['iconLoader', 'iconLoaderUrl'])
     node.props.iconHandler = createIconHandler(
