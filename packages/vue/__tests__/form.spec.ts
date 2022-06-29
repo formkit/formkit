@@ -975,7 +975,7 @@ describe('resetting', () => {
     expect(form.find('.formkit-message').exists()).toBe(false)
   })
 
-  it.only('reacts to changes on the inputErrors prop', async () => {
+  it('reacts to changes on the inputErrors prop', async () => {
     const errors = ref<Record<string, string>>({ email: 'foo bar is bad' })
     const form = mount(
       {
