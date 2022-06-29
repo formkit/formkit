@@ -974,4 +974,34 @@ describe('resetting', () => {
     })
     expect(form.find('.formkit-message').exists()).toBe(false)
   })
+
+  it.only('reacts to changes on the inputErrors prop', async () => {
+    const errors = ref<Record<string, string>>({ email: 'foo bar is bad' })
+    const form = mount(
+      {
+        setup() {
+          return { errors }
+        },
+        template: `
+        <FormKit type="form" :input-errors="errors">
+          <FormKit name="email" value="test@example.com" />
+        </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(form.html()).toContain('foo bar is bad')
+    errors.value = { email: 'foo bar is good' }
+    await nextTick()
+    expect(form.html()).toContain('foo bar is good')
+    errors.value = {}
+    await nextTick()
+    expect(form.html()).not.toContain('foo bar is good')
+  })
 })
