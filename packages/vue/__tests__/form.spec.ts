@@ -132,7 +132,7 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => { })
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(
       {
         setup() {
@@ -812,7 +812,7 @@ describe('programmatic submission', () => {
     const id = 'programmatic-form-test'
     const submit = jest.fn()
     const submitRaw = jest.fn()
-    const warning = jest.fn(() => { })
+    const warning = jest.fn(() => {})
     const mock = jest.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
       {
@@ -1031,7 +1031,7 @@ describe('submit hook', () => {
     await nextTick()
     expect(submitHandler).toHaveBeenCalledWith({
       email: 'modifiedfoo@bar.com',
-      newField: 'my new field'
+      newField: 'my new field',
     })
   })
 })

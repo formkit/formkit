@@ -38,7 +38,7 @@ describe('node', () => {
 
   it('emits a singe commit event for type list', () => {
     const commitEvent = jest.fn()
-    const lib = function libraryPlugin() { }
+    const lib = function libraryPlugin() {}
     lib.library = (node: FormKitNode) => {
       if (node.props.type === 'list') {
         node.define({ type: 'list' })
@@ -671,7 +671,7 @@ describe('props system', () => {
 
 describe('plugin system', () => {
   it('runs plugins on node creation', () => {
-    const plugin = jest.fn(() => { })
+    const plugin = jest.fn(() => {})
     const node = createNode({
       plugins: [plugin],
     })
@@ -679,8 +679,8 @@ describe('plugin system', () => {
   })
 
   it('automatically inherits from parent plugins', () => {
-    const pluginA = jest.fn(() => { })
-    const pluginB = jest.fn(() => { })
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
     const parent = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -696,8 +696,8 @@ describe('plugin system', () => {
   })
 
   it('runs inherited plugins when being added to a tree', () => {
-    const pluginA = jest.fn(() => { })
-    const pluginB = jest.fn(() => { })
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
     createNode({
       type: 'list',
       plugins: [pluginA],
@@ -712,8 +712,8 @@ describe('plugin system', () => {
   })
 
   it('inherits the plugins when moving between trees', () => {
-    const pluginA = jest.fn(() => { })
-    const pluginB = jest.fn(() => { })
+    const pluginA = jest.fn(() => {})
+    const pluginB = jest.fn(() => {})
     const treeA = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -730,7 +730,7 @@ describe('plugin system', () => {
   })
 
   it('does not re-run plugins when moving position in tree', () => {
-    const pluginA = jest.fn(() => { })
+    const pluginA = jest.fn(() => {})
     const child = createNode()
     const treeA = createNode({
       type: 'group',
@@ -869,14 +869,21 @@ describe('setErrors hook', () => {
     })
     form.hook.setErrors((payload, next) => {
       payload.localErrors = ['This is a hooked error']
-      if (payload.childErrors && typeof payload.childErrors !== 'string' && !Array.isArray(payload.childErrors)) payload.childErrors.foo = 'Hooked child node'
+      if (
+        payload.childErrors &&
+        typeof payload.childErrors !== 'string' &&
+        !Array.isArray(payload.childErrors)
+      )
+        payload.childErrors.foo = 'Hooked child node'
       return next(payload)
     })
     form.setErrors(['This is my error'], {
       foo: 'And this is a child one',
       bar: ['And this is another child one'],
     })
-    expect(form.store['this-is-a-hooked-error'].value).toBe('This is a hooked error')
+    expect(form.store['this-is-a-hooked-error'].value).toBe(
+      'This is a hooked error'
+    )
     const foo = form.at('foo')
     expect(foo?.store['hooked-child-node'].value).toBe('Hooked child node')
   })
