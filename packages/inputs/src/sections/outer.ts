@@ -10,7 +10,7 @@ export const outer = createSection(
     attrs: {
       key: '$id',
       'data-type': '$type',
-      'data-multiple': '$attrs.multiple',
+      'data-multiple': '$attrs.multiple || undefined',
       'data-disabled': '$disabled || undefined',
       'data-complete': '$state.complete || undefined',
       'data-invalid':
@@ -20,7 +20,7 @@ export const outer = createSection(
       'data-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',
       'data-suffix-icon': '$_rawSuffixIcon !== undefined || undefined',
       'data-prefix-icon-click': '$onPrefixIconClick !== undefined || undefined',
-      'data-suffix-icon-click': '$onSuffixIconClick !== undefined || undefined'
+      'data-suffix-icon-click': '$onSuffixIconClick !== undefined || undefined',
     },
   }),
   true
