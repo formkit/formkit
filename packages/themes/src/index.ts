@@ -278,6 +278,8 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
           iconRegistry[iconName] = finalIcon
           return finalIcon
         })
+      } else if (typeof loadedIcon !== 'undefined') {
+        return loadedIcon
       }
     }
     return iconRequests[iconName]
