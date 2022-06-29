@@ -16,27 +16,27 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
-  add: 'Foeg ta',
+  add: 'қосу',
   /**
    * Shown when a button to remove items is visible.
    */
-  remove: 'Ferwider',
+  remove: 'Жою',
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Ferwider alles',
+  removeAll: 'Барлығын жою',
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Sorry, net alle fjilden binne korrekt ynfolle.',
+  incomplete: 'Кешіріңіз, барлық өрістер дұрыс толтырылмаған.',
   /**
    * Shown in a button inside a form to submit the form.
    */
-  submit: 'Ferstjoere',
+  submit: 'Жіберу',
   /**
    * Shown when no files are selected.
    */
-  noFiles: 'Gjin bestân keazen',
+  noFiles: 'Ешбір файл таңдалмады',
 }
 
 /**
@@ -50,7 +50,7 @@ export const validation: FormKitValidationMessages = {
    */
   accepted({ name }): string {
     /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
-    return `Akseptearje de ${name}.`
+    return `қабылдаңыз ${name}.`
     /* </i18n> */
   },
 
@@ -61,11 +61,11 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `${s(name)} moat nei ${date(args[0])} wêze.`
+      return `${s(name)} кейін болуы керек ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
-    return `${s(name)} moat yn de takomst lizze.`
+    return `${s(name)} болашақта болуы керек.`
     /* </i18n> */
   },
 
@@ -75,7 +75,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `${s(name)} mei allinne alfabetyske tekens befetsje.`
+    return `${s(name)} тек алфавиттік таңбаларды қамтуы мүмкін.`
     /* </i18n> */
   },
 
@@ -85,7 +85,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `${s(name)} mei allinne letters en sifers befetsje.`
+    return `${s(name)} тек әріптер мен сандардан тұруы мүмкін.`
     /* </i18n> */
   },
 
@@ -95,7 +95,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
-    return `${s(name)} mei allinne letters en spaasjes befetsje.`
+    return `${s(name)} тек әріптер мен бос орындар болуы мүмкін.`
     /* </i18n> */
   },
 
@@ -106,11 +106,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `${s(name)} moat foar ${date(args[0])} falle.`
+      return `${s(name)} бұрын болуы керек ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `${s(name)} moat yn it ferline wêze.`
+    return `${s(name)} өткенде болуы керек.`
     /* </i18n> */
   },
 
@@ -121,12 +121,12 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `Dit fjild is ferkeard konfigurearre en kin net ferstjoerd wurde.`
+      return `Бұл өріс қате конфигурацияланған және оны жіберу мүмкін емес.`
       /* </i18n> */
     }
     const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} moat tusken ${a} en ${b} lizze.`
+    return `${s(name)} арасында болуы керек ${a} және ${b}.`
     /* </i18n> */
   },
 
@@ -136,7 +136,7 @@ export const validation: FormKitValidationMessages = {
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
-    return `${s(name)} komt net oerien.`
+    return `${s(name)} сәйкес келмейді.`
     /* </i18n> */
   },
 
@@ -147,11 +147,11 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} is gjin jildige datum, brûk de notaasje ${args[0]}`
+      return `${s(name)} жарамды күн емес, пішімді пайдаланыңыз ${args[0]}`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'Dit fjild is ferkeard konfigurearre en kin net ferstjoerd wurde'
+    return 'Бұл өріс қате конфигурацияланған және оны жіберу мүмкін емес'
     /* </i18n> */
   },
 
@@ -161,7 +161,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} moat tusken ${date(args[0])} en ${date(args[1])} lizze`
+    return `${s(name)} арасында болуы керек ${date(args[0])} және ${date(args[1])}`
     /* </i18n> */
   },
 
@@ -169,7 +169,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'Folje in jildich e-mailadres yn.',
+  email: 'Өтінеміз қолданыстағы электронды пошта адресін енгізіңіз.',
 
   /**
    * Does not end with the specified value
@@ -177,7 +177,7 @@ export const validation: FormKitValidationMessages = {
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
-    return `${s(name)} einiget net mei ${list(args)}.`
+    return `${s(name)} -мен бітпейді ${list(args)}.`
     /* </i18n> */
   },
 
@@ -187,7 +187,7 @@ export const validation: FormKitValidationMessages = {
    */
   is({ name }) {
     /* <i18n case="Shown when the user-provided value is not one of the values supplied to the rule."> */
-    return `${s(name)} is gjin tastiene wearde.`
+    return `${s(name)} рұқсат етілген мән емес.`
     /* </i18n> */
   },
 
@@ -200,21 +200,21 @@ export const validation: FormKitValidationMessages = {
     const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `${s(name)} moat minimaal ien teken wêze.`
+      return `${s(name)} кем дегенде бір таңба болуы керек.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} moat lytser wêze as of gelyk wêze oan ${max} tekens.`
+      return `${s(name)} кем немесе тең болуы керек ${max} кейіпкерлер.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} moat grutter wêze as of gelyk wêze oan ${min} tekens.`
+      return `${s(name)} артық немесе тең болуы керек ${min} кейіпкерлер.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${s(name)} moat tusken de ${min} en ${max} tekens befetsje.`
+    return `${s(name)} арасында болуы керек ${min} және ${max} кейіпкерлер.`
     /* </i18n> */
   },
 
@@ -224,7 +224,7 @@ export const validation: FormKitValidationMessages = {
    */
   matches({ name }) {
     /* <i18n case="Shown when the user-provided value does not match any of the values or RegExp patterns supplied to the rule. "> */
-    return `${s(name)} is gjin tastiene wearde.`
+    return `${s(name)} рұқсат етілген мән емес.`
     /* </i18n> */
   },
 
@@ -235,11 +235,11 @@ export const validation: FormKitValidationMessages = {
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is longer than the max supplied to the rule."> */
-      return `Mei net mear as ${args[0]} ${name} hawwe.`
+      return `артық болуы мүмкін емес ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} moat lytser wêze as of gelyk wêze oan ${args[0]}.`
+    return `${s(name)} кем немесе тең болуы керек ${args[0]}.`
     /* </i18n> */
   },
 
@@ -250,11 +250,11 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'Gjin bestânsnotaasjes tastien.'
+      return 'Файл пішімдері рұқсат етілмейді.'
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `${s(name)} moat fan it type: ${args[0]} wêze`
+    return `${s(name)} типте болуы керек: ${args[0]}`
     /* </i18n> */
   },
 
@@ -265,11 +265,11 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `Mei net minder as ${args[0]} ${name} hawwe.`
+      return `кем болуы мүмкін емес ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `${s(name)} moat minimaal ${args[0]} wêze.`
+    return `${s(name)} кем дегенде болуы керек ${args[0]}.`
     /* </i18n> */
   },
 
@@ -279,7 +279,7 @@ export const validation: FormKitValidationMessages = {
    */
   not({ name, node: { value } }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
-    return `"${value}" is gjin tastiene ${name}.`
+    return `“${value}” рұқсат етілмейді ${name}.`
     /* </i18n> */
   },
 
@@ -289,7 +289,7 @@ export const validation: FormKitValidationMessages = {
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
-    return `${s(name)} moat in getal wêze.`
+    return `${s(name)} сан болуы керек.`
     /* </i18n> */
   },
 
@@ -299,7 +299,7 @@ export const validation: FormKitValidationMessages = {
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
-    return `${s(name)} is ferplicht.`
+    return `${s(name)} талап етіледі.`
     /* </i18n> */
   },
 
@@ -309,7 +309,7 @@ export const validation: FormKitValidationMessages = {
    */
   starts_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not start with the substring supplied to the rule."> */
-    return `${s(name)} begjint net mei ${list(args)}.`
+    return `${s(name)} -ден басталмайды ${list(args)}.`
     /* </i18n> */
   },
 
@@ -319,7 +319,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Doch der in jildige url by.`
+    return `Жарамды URL мекенжайын қосыңыз.`
     /* </i18n> */
   },
 }

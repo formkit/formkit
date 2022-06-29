@@ -12,7 +12,7 @@ import {
   en,
 } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
-import { createThemePlugin, FormKitIconLoader } from '@formkit/themes'
+import { createThemePlugin, FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes'
 import bindings from './bindings'
 import '@formkit/dev'
 
@@ -22,6 +22,7 @@ interface PluginConfigs {
   inputs: FormKitLibrary
   messages: Record<string, Partial<FormKitLocale>>
   theme: string
+  iconLoaderUrl: FormKitIconLoaderUrl
   iconLoader: FormKitIconLoader
   icons: Record<string,string|undefined>
 }
@@ -47,6 +48,7 @@ const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
     messages = {},
     locale = undefined,
     theme = undefined,
+    iconLoaderUrl = undefined,
     iconLoader = undefined,
     icons = {},
     ...nodeOptions
@@ -77,7 +79,7 @@ const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
   /**
    * Create the theme plugin for the user provided theme
    */
-  const themePlugin = createThemePlugin(theme, icons, iconLoader)
+  const themePlugin = createThemePlugin(theme, icons, iconLoaderUrl, iconLoader)
 
   return extend(
     {

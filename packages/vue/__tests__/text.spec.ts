@@ -3,6 +3,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { jest } from '@jest/globals'
+import { nextTick } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -131,5 +132,19 @@ describe('text classification', () => {
   it('renders week input when type is "week"', () => {
     const wrapper = mount(FormKit, { props: { type: 'week' }, ...global })
     expect(wrapper.html()).toContain('type="week"')
+  })
+
+  it('can add a blur handler to a text input', async () => {
+    const onBlur = jest.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        onBlur,
+      },
+      ...global,
+    })
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(onBlur).toHaveBeenCalled()
   })
 })

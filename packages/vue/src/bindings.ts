@@ -208,10 +208,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       eq,
     },
     handlers: {
-      blur: () =>
+      blur: (e?: Event) => {
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
-        ),
+        )
+        if (typeof node.props.attrs.onBlur === 'function') {
+          node.props.attrs.onBlur(e)
+        }
+      },
       touch: () => {
         node.store.set(
           createMessage({ key: 'dirty', visible: false, value: true })

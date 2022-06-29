@@ -1,7 +1,6 @@
 import {
   error,
   FormKitNode,
-  FormKitGroupValue,
   FormKitSchemaCondition,
   FormKitSchemaNode,
 } from '@formkit/core'
@@ -28,8 +27,8 @@ export const FormKit = defineComponent({
     inputRaw: (_value: any, _node: FormKitNode) => true,
     'update:modelValue': (_value: any) => true,
     node: (node: FormKitNode) => !!node,
-    submit: (_data: FormKitGroupValue, _node: FormKitNode) => true,
-    submitRaw: (_event: Event, _node: FormKitNode) => true,
+    submit: (_data: any, _node?: FormKitNode) => true,
+    submitRaw: (_event: Event, _node?: FormKitNode) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,

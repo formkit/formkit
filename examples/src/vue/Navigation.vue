@@ -17,6 +17,11 @@
         </router-link>
       </li>
       <li>
+        <router-link to="/formkit-icon-component">
+          FormKitIcon Example
+        </router-link>
+      </li>
+      <li>
         <router-link to="/custom-input">
           Custom input
         </router-link>
