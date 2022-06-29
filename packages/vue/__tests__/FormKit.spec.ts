@@ -869,7 +869,7 @@ describe('configuration', () => {
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
 
-  it.only('reactively changes the name used in a rendered validation message', async () => {
+  it('reactively changes the name used in a rendered validation message', async () => {
     const label = ref('foobar')
     const wrapper = mount(
       {

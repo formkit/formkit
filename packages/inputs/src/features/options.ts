@@ -2,7 +2,7 @@ import { FormKitNode } from '@formkit/core'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
- * Options should always be formated as an array of objects with label and value
+ * Options should always be formatted as an array of objects with label and value
  * properties.
  * @public
  */
@@ -15,15 +15,22 @@ export type FormKitOptionsList = Array<
 >
 
 /**
- * Accepts an array of objects, array of strings, or object of key-value pairs.
- * and returns an array of objects with value and label properties. Also accepts
- * function. If the function returns a promise, we are reassigning the function
+ * Options to be normalized
+ */
+type FormKitOptionsToBeNormalized = string[] | FormKitOptionsList | { [value: string]: string }
+
+/**
+ * Accepts an array of objects, array of strings, an object of key-value pairs,
+ * or a function that returns any of those items or a Promise that resolves to them.
+ * Returns an array of objects with value and label properties.
+ * If the return value is a function that returns a promise, we are reassigning the function
  * to the loadOptions prop. If the function returns anything other than promise,
  * then we are going to call normalizeOptions on the given value.
  * @param options -
+ * @param node -
  */
 function normalizeOptions(
-  options: string[] | FormKitOptionsList | { [value: string]: string } | any,
+  options: FormKitOptionsToBeNormalized | (() => FormKitOptionsToBeNormalized),
   node: FormKitNode
 ): FormKitOptionsList {
   let i = 1
