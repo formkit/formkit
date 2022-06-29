@@ -972,10 +972,52 @@ describe('rendering components', () => {
       },
     })
     expect(wrapper.html())
-      .toContain(`<select id="where_waldo" class=\"formkit-input\" name=\"foobar\">
+      .toContain(`<select class=\"formkit-input\" id="where_waldo" name=\"foobar\">
         <option class=\"formkit-option\" value=\"hello\">Hello</option>
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)
+  })
+
+  it('passes through key with shorthand for $formkit', async () => {
+    const data = reactive({ show: false })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'number',
+            id: 'one',
+            key: 'one',
+            name: 'one',
+            if: '$show',
+            value: 11,
+          },
+          {
+            $formkit: 'number',
+            id: 'two',
+            key: 'two',
+            name: 'two',
+            if: 'true',
+            value: 12,
+          },
+          {
+            $formkit: 'number',
+            id: 'three',
+            key: 'three',
+            if: '$show',
+            name: 'three',
+            value: 13,
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('input').element.value).toBe('12')
+    data.show = true
+    await nextTick()
+    expect(wrapper.find('input').element.value).toBe('11')
   })
 
   it('does not let $get to bogard a select list placeholder', async () => {
@@ -1082,7 +1124,7 @@ describe('rendering components', () => {
     // parent scope — but it does exist in the child scope. This indicates the
     // value $label was pared by the parent instead of the child.
     expect(wrapper.html()).toContain(
-      '<h1 id="help-foobar" class="formkit-help"></h1>'
+      '<h1 class="formkit-help" id="help-foobar"></h1>'
     )
   })
 
@@ -1111,7 +1153,7 @@ describe('rendering components', () => {
     // We expect the h1 to contain the value of the label defined in the child,
     // this would indicate that sectionsSchema was parsed by the child.
     expect(wrapper.html()).toContain(
-      '<h1 id="help-foobar" class="formkit-help">foobar</h1>'
+      '<h1 class="formkit-help" id="help-foobar">foobar</h1>'
     )
   })
 })

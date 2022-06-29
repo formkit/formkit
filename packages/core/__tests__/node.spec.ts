@@ -860,6 +860,35 @@ describe('commit hook', () => {
   })
 })
 
+describe('setErrors hook', () => {
+  it('can change the the errors being assigned', async () => {
+    const form = createNode({
+      type: 'group',
+      name: 'myForm',
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+    })
+    form.hook.setErrors((payload, next) => {
+      payload.localErrors = ['This is a hooked error']
+      if (
+        payload.childErrors &&
+        typeof payload.childErrors !== 'string' &&
+        !Array.isArray(payload.childErrors)
+      )
+        payload.childErrors.foo = 'Hooked child node'
+      return next(payload)
+    })
+    form.setErrors(['This is my error'], {
+      foo: 'And this is a child one',
+      bar: ['And this is another child one'],
+    })
+    expect(form.store['this-is-a-hooked-error'].value).toBe(
+      'This is a hooked error'
+    )
+    const foo = form.at('foo')
+    expect(foo?.store['hooked-child-node'].value).toBe('Hooked child node')
+  })
+})
+
 it('can change both _value and value with commit hook', () => {
   const node = createNode({ value: 123 })
   node.hook.commit((value, next) => next(value + 10))

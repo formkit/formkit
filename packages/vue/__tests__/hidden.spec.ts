@@ -16,7 +16,7 @@ describe('hidden input', () => {
       },
     })
     expect(wrapper.html()).toBe(
-      '<input type="hidden" class="formkit-input" name="bar" id="baz">'
+      '<input class="formkit-input" type="hidden" name="bar" id="baz">'
     )
   })
 })

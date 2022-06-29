@@ -20,7 +20,9 @@ describe('single checkbox', () => {
       },
       ...global,
     })
-    expect(wrapper.html()).toContain('<input type="checkbox"')
+    expect(wrapper.html()).toContain(
+      '<input class="formkit-input" type="checkbox"'
+    )
   })
 
   it('can check a single checkbox with a true value', () => {
@@ -138,13 +140,13 @@ describe('multiple checkboxes', () => {
     })
     expect(wrapper.html())
       .toBe(`<div class="formkit-outer" data-type="checkbox">
-  <fieldset id="my-id" class="formkit-fieldset" aria-describedby="help-my-id">
+  <fieldset class="formkit-fieldset" id="my-id" aria-describedby="help-my-id">
     <legend class="formkit-legend">All checkboxes</legend>
-    <div id="help-my-id" class="formkit-help">help-text</div>
+    <div class="formkit-help" id="help-my-id">help-text</div>
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">foo</span>
         </label>
@@ -152,7 +154,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">bar</span>
         </label>
@@ -160,7 +162,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input type="checkbox" class="formkit-input" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
             <!---->
           </div><span class="formkit-label">baz</span>
         </label>
@@ -168,6 +170,7 @@ describe('multiple checkboxes', () => {
       </li>
     </ul>
   </fieldset>
+  <!---->
   <!---->
 </div>`)
   })
@@ -241,11 +244,11 @@ describe('multiple checkboxes', () => {
     expect(wrapper.find('li').html()).toBe(
       `<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper">
     <div class="formkit-inner">
-      <!----><input type="checkbox" class="formkit-input" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span>
+      <!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span>
       <!---->
     </div><span class="formkit-label">Italy</span>
   </label>
-  <div id="help-countries-option-it" class="formkit-option-help">Good food here</div>
+  <div class="formkit-option-help" id="help-countries-option-it">Good food here</div>
 </li>`
     )
   })

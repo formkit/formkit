@@ -5,6 +5,13 @@
  */
 
 /**
+ * The current version of FormKit at the time the package is published. Is replaced
+ * as part of the publishing script.
+ * @public
+ */
+export const FORMKIT_VERSION = '__FKV__'
+
+/**
  * Include all exported methods from node, this is the primary API.
  */
 export * from './node'

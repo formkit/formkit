@@ -1,7 +1,6 @@
 <template>
   <h1>Basic Form</h1>
   <FormKit
-    id="form"
     v-model="data"
     type="form"
     @submit="submitHandler"
@@ -13,6 +12,15 @@
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
+    />
+    <FormKit
+      type="file"
+      name="file"
+      label="Your file"
+      placeholder="jon@foo.com"
+      validation="required"
+      validation-visibility="live"
+      multiple="true"
     />
     <FormKit
       id="fruit"
@@ -49,10 +57,29 @@
     />
     <FormKit
       label="Countries"
-      type="radio"
+      type="checkbox"
+      name="countries"
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
+    />
+    <FormKit
+      type="checkbox"
+      label="Do you agree to our terms?"
+    />
+    <FormKit
+      v-model="fruit"
+      label="Select a fruit"
+      type="radio"
+      name="fruit"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="['Apple', 'Strawberry', 'Banana']"
+    />
+    <FormKit
+      v-if="fruit"
+      type="checkbox"
+      :label="`Please confirm that you meant to select ${fruit}?`"
     />
   </FormKit>
   <pre>{{ data }}</pre>
@@ -67,6 +94,7 @@ const date = new Date()
 const month = date.getMonth() + 1
 const day = date.getDate()
 const year = date.getFullYear()
+const fruit = ref(null)
 const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)
@@ -90,8 +118,9 @@ const countries = [
   },
 ]
 
-const submitHandler = async function () {
+const submitHandler = async function (data: { email: string }) {
   await new Promise(r => setTimeout(r, 2000))
+  console.log(data)
   setErrors('form', ['This isn’t setup to actually do anything.'])
 }
 </script>

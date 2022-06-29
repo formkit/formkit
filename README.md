@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-  <a href="https://circleci.com/gh/formkit/formkit/tree/master"><img title="CircleCI" alt="CI build status" src="https://circleci.com/gh/formkit/formkit/tree/master.svg?style=shield&circle-token=d6f469a71ef441701050fb5634ace5088111e0d1"></a>
+  <a href="https://github.com/formkit/formkit/actions"><img title="Build Badge" alt="GitHub Build Status" src="https://github.com/formkit/formkit/actions/workflows/tests.yml/badge.svg"></a>
   <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>
   <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
 </p>

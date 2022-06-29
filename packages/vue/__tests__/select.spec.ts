@@ -27,14 +27,17 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select id="input_0" class="formkit-input" name="select_1" aria-describedby="help-input_0">
+      <!---->
+      <!----><select class="formkit-input" id="input_0" name="select_1" aria-describedby="help-input_0">
         <option class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
+      <!---->
+      <!---->
     </div>
   </div>
-  <div id="help-input_0" class="formkit-help">I am help text</div>
+  <div class="formkit-help" id="help-input_0">I am help text</div>
   <!---->
 </div>`)
   })
@@ -59,14 +62,17 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select id="input_1" class="formkit-input" name="select_d" aria-describedby="help-input_1">
+      <!---->
+      <!----><select class="formkit-input" id="input_1" name="select_d" aria-describedby="help-input_1">
         <option disabled="" class="formkit-option" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
+      <!---->
+      <!---->
     </div>
   </div>
-  <div id="help-input_1" class="formkit-help">This is help text</div>
+  <div class="formkit-help" id="help-input_1">This is help text</div>
   <!---->
 </div>`)
   })
@@ -87,10 +93,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select id="input_2" class="formkit-input" name="select_foo">
+      <!---->
+      <!----><select class="formkit-input" id="input_2" name="select_foo">
         <option class="formkit-option" value="foo">foo</option>
         <option class="formkit-option" value="bar">bar</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -115,11 +124,14 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select id="input_3" class="formkit-input" name="select_foo">
+      <!---->
+      <!----><select class="formkit-input" id="input_3" name="select_foo">
         <option class="formkit-option" value="1">1</option>
         <option class="formkit-option" value="2">2</option>
         <option class="formkit-option" value="3">3</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -148,10 +160,13 @@ describe('select', () => {
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
-      <!----><select id="select_foo" class="formkit-input" name="select_foo">
+      <!---->
+      <!----><select class="formkit-input" id="select_foo" name="select_foo">
         <option class="formkit-option" value="foo">Bar</option>
         <option class="formkit-option" value="baz">Bim</option>
       </select>
+      <!---->
+      <!---->
       <!---->
     </div>
   </div>
@@ -493,7 +508,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').html()).toBe(
-      '<select id="input_11" class="formkit-input" name="select_10"></select>'
+      '<select class="formkit-input" id="input_11" name="select_10"></select>'
     )
   })
 

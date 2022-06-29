@@ -195,6 +195,38 @@ describe('props', () => {
     })
     expect(wrapper.emitted('update:modelValue')).toBe(undefined)
   })
+
+  it('can use regex pseudo props', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            type="form"
+            :foo-bar-icon="icon"
+            #default="{ fooBarIcon }"
+          >
+            {{ fooBarIcon }}
+          </FormKit>
+        `,
+        data() {
+          return {
+            icon: 'avatarMan',
+          }
+        },
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('avatarMan')
+    wrapper.setData({
+      icon: 'avatarWoman',
+    })
+    await nextTick()
+    expect(wrapper.html()).toContain('avatarWoman')
+  })
 })
 
 describe('id', () => {
@@ -838,20 +870,33 @@ describe('configuration', () => {
   })
 
   it('reactively changes the name used in a rendered validation message', async () => {
-    const wrapper = mount(FormKit, {
-      props: {
-        validation: 'required',
-        validationVisibility: 'live',
-        label: 'foobar',
+    const label = ref('foobar')
+    const wrapper = mount(
+      {
+        setup() {
+          return { label }
+        },
+        template: `
+        <FormKit
+          type="text"
+          validation="required"
+          validation-visibility="live"
+          :label="label"
+        />
+      `,
       },
-      global: {
-        plugins: [[plugin, defaultConfig]],
-      },
-    })
-    expect(wrapper.find('li').text()).toBe('Foobar is required.')
-    wrapper.setProps({ label: 'zippydoo' })
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-message').text()).toBe('Foobar is required.')
+    label.value = 'zippydoo'
     await new Promise((r) => setTimeout(r, 10))
-    expect(wrapper.find('li').text()).toBe('Zippydoo is required.')
+    expect(wrapper.find('.formkit-message').text()).toBe(
+      'Zippydoo is required.'
+    )
   })
 })
 
@@ -872,14 +917,16 @@ describe('classes', () => {
     })
     expect(wrapper.html())
       .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
-  <div class="formkit-wrapper"><label for="foobar" class="formkit-label">input label</label>
+  <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
-      <!----><input type="text" class="formkit-input" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
+      <!---->
+      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
+      <!---->
       <!---->
     </div>
   </div>
-  <div id="help-foobar" class="formkit-help">input help text</div>
-  <ul class="formkit-messages" aria-live="polite">
+  <div class="formkit-help" id="help-foobar">input help text</div>
+  <ul class="formkit-messages">
     <li class="formkit-message" id="foobar-rule_required" data-message-type="validation">Input label is required.</li>
   </ul>
 </div>`)
@@ -1015,7 +1062,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html()).toContain(
-      '<label for="foo" class="formkit-label foo-bar">Howdy folks</label>'
+      '<label class="formkit-label foo-bar" for="foo">Howdy folks</label>'
     )
   })
 
@@ -1177,6 +1224,85 @@ describe('plugins', () => {
   })
 })
 
+describe('icons', () => {
+  it('can add prefix and suffix icons', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        prefixIcon: 'heart',
+        suffixIcon: 'settings',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              icons: {
+                heart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 16"><path d="M7.5,14c-.2,0-.4-.08-.56-.23-1.06-1.04-4.58-4.59-5.49-6.34-.63-1.2-.59-2.7,.09-3.83,.61-1.01,1.67-1.59,2.9-1.59,1.56,0,2.53,.81,3.06,1.63,.53-.82,1.5-1.63,3.06-1.63,1.23,0,2.29,.58,2.9,1.59,.68,1.13,.72,2.63,.09,3.83-.92,1.76-4.43,5.3-5.49,6.34-.16,.16-.36,.23-.56,.23ZM4.44,3c-.88,0-1.61,.39-2.04,1.11-.51,.83-.53,1.95-.06,2.85,.66,1.26,3.07,3.88,5.17,5.96,2.09-2.08,4.51-4.69,5.17-5.96,.47-.9,.44-2.02-.06-2.85-.43-.72-1.16-1.11-2.04-1.11-2.12,0-2.55,1.9-2.57,1.98h-.98c-.02-.08-.47-1.98-2.57-1.98Z" fill="currentColor"/></svg>`,
+                settings: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8,10.5c-1.38,0-2.5-1.12-2.5-2.5s1.12-2.5,2.5-2.5,2.5,1.12,2.5,2.5-1.12,2.5-2.5,2.5Zm0-4c-.83,0-1.5,.67-1.5,1.5s.67,1.5,1.5,1.5,1.5-.67,1.5-1.5-.67-1.5-1.5-1.5Z" fill="currentColor"/><path d="M8.85,15h-1.7c-.32,0-.6-.22-.67-.53l-.41-1.79-1.56,.98c-.27,.17-.62,.13-.85-.1l-1.2-1.2c-.23-.23-.27-.58-.1-.85l.98-1.56-1.79-.41c-.31-.07-.53-.35-.53-.67v-1.7c0-.32,.22-.6,.53-.67l1.79-.41-.98-1.56c-.17-.27-.13-.62,.1-.85l1.2-1.2c.23-.23,.58-.27,.85-.1l1.56,.98,.41-1.79c.07-.31,.35-.53,.67-.53h1.7c.32,0,.6,.22,.67,.53l.41,1.79,1.56-.98c.27-.17,.62-.13,.85,.1l1.2,1.2c.23,.23,.27,.58,.1,.85l-.98,1.56,1.79,.41c.31,.07,.53,.35,.53,.67v1.7c0,.32-.22,.6-.53,.67l-1.79,.41,.98,1.56c.17,.27,.13,.62-.1,.85l-1.2,1.2c-.23,.23-.58,.27-.85,.1l-1.56-.98-.41,1.79c-.07,.31-.35,.53-.67,.53Zm-1.45-1h1.2l.67-2.92,2.54,1.59,.85-.85-1.59-2.54,2.92-.67v-1.2l-2.92-.67,1.59-2.54-.85-.85-2.54,1.59-.67-2.92h-1.2l-.67,2.92-2.54-1.59-.85,.85,1.59,2.54-2.92,.67v1.2l2.92,.67-1.59,2.54,.85,.85,2.54-1.59,.67,2.92Zm6.84-6.55h0Z" fill="currentColor"/></svg>`,
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toContain(
+      `<label class=\"formkit-prefix-icon formkit-icon\"`
+    )
+    expect(wrapper.html()).toContain(
+      `<span class="formkit-suffix-icon formkit-icon">`
+    )
+  })
+
+  it('adds data attributes for prefix and suffix icons', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        prefixIcon: 'heart',
+        suffixIcon: 'settings',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              icons: {
+                heart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 16"><path d="M7.5,14c-.2,0-.4-.08-.56-.23-1.06-1.04-4.58-4.59-5.49-6.34-.63-1.2-.59-2.7,.09-3.83,.61-1.01,1.67-1.59,2.9-1.59,1.56,0,2.53,.81,3.06,1.63,.53-.82,1.5-1.63,3.06-1.63,1.23,0,2.29,.58,2.9,1.59,.68,1.13,.72,2.63,.09,3.83-.92,1.76-4.43,5.3-5.49,6.34-.16,.16-.36,.23-.56,.23ZM4.44,3c-.88,0-1.61,.39-2.04,1.11-.51,.83-.53,1.95-.06,2.85,.66,1.26,3.07,3.88,5.17,5.96,2.09-2.08,4.51-4.69,5.17-5.96,.47-.9,.44-2.02-.06-2.85-.43-.72-1.16-1.11-2.04-1.11-2.12,0-2.55,1.9-2.57,1.98h-.98c-.02-.08-.47-1.98-2.57-1.98Z" fill="currentColor"/></svg>`,
+                settings: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8,10.5c-1.38,0-2.5-1.12-2.5-2.5s1.12-2.5,2.5-2.5,2.5,1.12,2.5,2.5-1.12,2.5-2.5,2.5Zm0-4c-.83,0-1.5,.67-1.5,1.5s.67,1.5,1.5,1.5,1.5-.67,1.5-1.5-.67-1.5-1.5-1.5Z" fill="currentColor"/><path d="M8.85,15h-1.7c-.32,0-.6-.22-.67-.53l-.41-1.79-1.56,.98c-.27,.17-.62,.13-.85-.1l-1.2-1.2c-.23-.23-.27-.58-.1-.85l.98-1.56-1.79-.41c-.31-.07-.53-.35-.53-.67v-1.7c0-.32,.22-.6,.53-.67l1.79-.41-.98-1.56c-.17-.27-.13-.62,.1-.85l1.2-1.2c.23-.23,.58-.27,.85-.1l1.56,.98,.41-1.79c.07-.31,.35-.53,.67-.53h1.7c.32,0,.6,.22,.67,.53l.41,1.79,1.56-.98c.27-.17,.62-.13,.85,.1l1.2,1.2c.23,.23,.27,.58,.1,.85l-.98,1.56,1.79,.41c.31,.07,.53,.35,.53,.67v1.7c0,.32-.22,.6-.53,.67l-1.79,.41,.98,1.56c.17,.27,.13,.62-.1,.85l-1.2,1.2c-.23,.23-.58,.27-.85,.1l-1.56-.98-.41,1.79c-.07,.31-.35,.53-.67,.53Zm-1.45-1h1.2l.67-2.92,2.54,1.59,.85-.85-1.59-2.54,2.92-.67v-1.2l-2.92-.67,1.59-2.54-.85-.85-2.54,1.59-.67-2.92h-1.2l-.67,2.92-2.54-1.59-.85,.85,1.59,2.54-2.92,.67v1.2l2.92,.67-1.59,2.54,.85,.85,2.54-1.59,.67,2.92Zm6.84-6.55h0Z" fill="currentColor"/></svg>`,
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toContain(`data-prefix-icon=\"true\"`)
+    expect(wrapper.html()).toContain(`data-suffix-icon=\"true\"`)
+  })
+
+  it('can register click handlers on icons', async () => {
+    const iconClick = jest.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        prefixIcon: 'heart',
+        onPrefixIconClick: iconClick,
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              icons: {
+                heart: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 16"><path d="M7.5,14c-.2,0-.4-.08-.56-.23-1.06-1.04-4.58-4.59-5.49-6.34-.63-1.2-.59-2.7,.09-3.83,.61-1.01,1.67-1.59,2.9-1.59,1.56,0,2.53,.81,3.06,1.63,.53-.82,1.5-1.63,3.06-1.63,1.23,0,2.29,.58,2.9,1.59,.68,1.13,.72,2.63,.09,3.83-.92,1.76-4.43,5.3-5.49,6.34-.16,.16-.36,.23-.56,.23ZM4.44,3c-.88,0-1.61,.39-2.04,1.11-.51,.83-.53,1.95-.06,2.85,.66,1.26,3.07,3.88,5.17,5.96,2.09-2.08,4.51-4.69,5.17-5.96,.47-.9,.44-2.02-.06-2.85-.43-.72-1.16-1.11-2.04-1.11-2.12,0-2.55,1.9-2.57,1.98h-.98c-.02-.08-.47-1.98-2.57-1.98Z" fill="currentColor"/></svg>`,
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    wrapper.find('.formkit-prefix-icon').trigger('click')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(iconClick).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('prefix and suffix', () => {
   it('supports prefix and suffix on text based inputs', () => {
     const wrapper = mount(FormKit, {
@@ -1191,7 +1317,10 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Hush<input type="password" class="formkit-input" name="table_stakes" id="pass">Show</div>'
+      `<div class="formkit-inner">
+  <!---->Hush<input class="formkit-input" type="password" name="table_stakes" id="pass">Show
+  <!---->
+</div>`
     )
   })
 
@@ -1208,7 +1337,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Prefix<input type="checkbox" class="formkit-input" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
+      '<div class="formkit-inner">Prefix<input class="formkit-input" type="checkbox" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
     )
   })
 
@@ -1240,10 +1369,14 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      `<div class="formkit-inner">Prefix<select id="alpha" class="formkit-input" name="alpha">
+      `<div class="formkit-inner">
+  <!---->Prefix<select class="formkit-input" id="alpha" name="alpha">
     <option class="formkit-option" value="A">A</option>
     <option class="formkit-option" value="B">B</option>
-  </select>Suffix</div>`
+  </select>
+  <!---->Suffix
+  <!---->
+</div>`
     )
   })
 })

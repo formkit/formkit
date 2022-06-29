@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import { execSync } from 'child_process'
-import { dirname, resolve } from 'path'
+import { dirname, resolve, join } from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
@@ -32,6 +32,31 @@ export function isAlphaNumericVersion(string) {
   return /[a-z].(\d+)$/.test(string)
 }
 
+/** Given a string, convert it to camelCase */
+export function toCamelCase(str) {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+      return index === 0 ? word.toLowerCase() : word.toUpperCase()
+    })
+    .replace(/\s+/g, '')
+}
+
+/**
+ * Given a directory return all files recursively from subdirectories
+ */
+export function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath)
+  arrayOfFiles = arrayOfFiles || []
+  files.forEach(function (file) {
+    if (fs.statSync(dirPath + '/' + file).isDirectory()) {
+      arrayOfFiles = getAllFiles(dirPath + '/' + file, arrayOfFiles)
+    } else {
+      arrayOfFiles.push(join(dirPath, '/', file))
+    }
+  })
+  return arrayOfFiles
+}
+
 /**
  * Get the available packages from the packages directory.
  */
@@ -54,6 +79,23 @@ export function getLocales() {
 export function getThemes() {
   const availablePackages = fs.readdirSync(packagesDir + '/themes/src/css')
   return availablePackages
+}
+
+/**
+ * Get the available icons from the icons directory.
+ */
+export function getIcons() {
+  const iconFiles = getAllFiles(packagesDir + '/icons/src/icons')
+  const icons = {}
+  iconFiles.forEach((filePath) => {
+    if (!filePath.endsWith('.ts')) return
+    let name = filePath.split('/')
+    name = toCamelCase(name[name.length - 1].split('.')[0])
+    let data = fs.readFileSync(filePath, 'utf8')
+    data = data.replace('export default `', '').replace('</svg>`', '</svg>')
+    icons[name] = data
+  })
+  return icons
 }
 
 /**
@@ -254,6 +296,7 @@ export function getPackageVersion(pkg) {
 export function getDependencyVersion(pkg, parent) {
   const packageJSON = getPackageJSON(parent)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
+  delete dependencies['@formkit/auto-animate']
   const devDependencies = packageJSON.devDependencies
     ? packageJSON.devDependencies
     : []
@@ -270,8 +313,8 @@ export function getDependencyVersion(pkg, parent) {
  * extract matching FK dependency package names from keys in a given object
  */
 export function getFKDependenciesFromObj(dependencies) {
-  let matches = Object.keys(dependencies).filter((key) =>
-    key.startsWith('@formkit/')
+  let matches = Object.keys(dependencies).filter(
+    (key) => key.startsWith('@formkit/') && key !== '@formkit/auto-animate'
   )
   matches = matches.map((dependency) => dependency.replace('@formkit/', ''))
   return matches
@@ -319,4 +362,62 @@ export function getCurrentHash(suffix = 7) {
     .toString()
     .trim()
   return hash.substr(hash.length - suffix)
+}
+
+/**
+ * Updates the version number export in the @formkit/core package to reflect the
+ * version that is about to be published
+ */
+export function updateFKCoreVersionExport(newVersion) {
+  const fileNames = ['index.cjs', 'index.d.ts', 'index.mjs']
+  const coreBuiltFiles = {}
+  fileNames.forEach((fileName) => {
+    coreBuiltFiles[fileName] = fs.readFileSync(
+      `${packagesDir}/core/dist/${fileName}`,
+      'utf8'
+    )
+  })
+  Object.keys(coreBuiltFiles).forEach((fileName) => {
+    coreBuiltFiles[fileName] = coreBuiltFiles[fileName].replace(
+      '__FKV__',
+      newVersion
+    )
+    fs.writeFileSync(
+      `${packagesDir}/core/dist/${fileName}`,
+      coreBuiltFiles[fileName],
+      { encoding: 'utf8' }
+    )
+  })
+}
+
+/**
+ * Get all the inputs declared in the inputs/index.ts file.
+ */
+export function getInputs() {
+  const inputsDir = resolve(packagesDir, 'inputs/src/inputs')
+  const exportFile = resolve(inputsDir, 'index.ts')
+  const file = fs.readFileSync(exportFile, { encoding: 'utf-8' })
+  return file
+    .split(/\r?\n/)
+    .filter((line) => !!line.trim())
+    .map((line) => {
+      const matches = line.match(
+        /^export { ([a-zA-Z ]+) } from '\.\/([a-zA-Z]+)'$/
+      )
+      if (matches) {
+        const [, rawName, fileName] = matches
+        const names = rawName.split(' ')
+        const name = names[names.length - 1]
+        const filePath = resolve(inputsDir, `${fileName}.ts`)
+        return {
+          name,
+          filePath,
+          fileName,
+        }
+      } else {
+        msg.error(`Failed to parse export from inputs/index.ts: ${line}`)
+        process.exit(1)
+      }
+      return matches
+    })
 }

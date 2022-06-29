@@ -73,6 +73,9 @@ const pseudoProps = [
   /^preserve(-e|E)rrors/,
   /^[a-z]+(?:-visibility|Visibility)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
+  'prefixIcon',
+  'suffixIcon',
+  /^[a-zA-Z-]+(?:-icon|Icon)$/,
 ]
 
 /**
@@ -340,6 +343,7 @@ export function useInput(
     const sourceKey = `${node.name}-prop`
     watchEffect(() => {
       const keys = Object.keys(props.inputErrors)
+      if (!keys.length) node.clearErrors(true, sourceKey)
       const messages = keys.reduce((messages, key) => {
         let value = props.inputErrors[key]
         if (typeof value === 'string') value = [value]

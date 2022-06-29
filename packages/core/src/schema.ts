@@ -19,6 +19,21 @@ export type FormKitListStatement =
   | [value: any, list: FormKitListValue]
 
 /**
+ * Meta attributes are not used when parsing the schema, but can be used to
+ * create tooling.
+ */
+export type FormKitSchemaMeta = {
+  [key: string]:
+    | string
+    | number
+    | boolean
+    | undefined
+    | null
+    | CallableFunction
+    | FormKitSchemaMeta
+}
+
+/**
  * Properties available in all schema nodes.
  * @public
  */
@@ -28,6 +43,7 @@ export interface FormKitSchemaProps {
   if?: string
   for?: FormKitListStatement
   bind?: string
+  meta?: FormKitSchemaMeta
 }
 
 /**
@@ -240,7 +256,6 @@ export function sugar<T extends FormKitSchemaNode>(
       for: iterator,
       if: condition,
       children,
-      key,
       bind,
       ...props
     } = node as FormKitSchemaFormKit
@@ -252,7 +267,6 @@ export function sugar<T extends FormKitSchemaNode>(
       condition ? { if: condition } : {},
       iterator ? { for: iterator } : {},
       children ? { children } : {},
-      key ? { key } : {},
       bind ? { bind } : {}
     )
   }

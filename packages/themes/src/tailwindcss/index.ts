@@ -10,7 +10,7 @@ const FormKitVariants = plugin(({ addVariant, theme }) => {
 
   addVariant('formkit-action', ['.formkit-actions &', '.formkit-actions&']);
 
-  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', ...attributes].forEach((attribute) => {
+  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', 'has-prefix-icon', 'has-suffix-icon', ...attributes].forEach((attribute) => {
     addVariant(`formkit-${attribute}`, [`&[data-${attribute}]`, `[data-${attribute}] &`, `[data-${attribute}]&`])
   });
 

@@ -98,14 +98,20 @@ export interface FormKitHooks {
   }>
   commit: FormKitDispatcher<any>
   error: FormKitDispatcher<string>
+  setErrors: FormKitDispatcher<{
+    localErrors: ErrorMessages
+    childErrors?: ErrorMessages
+  }>
   init: FormKitDispatcher<FormKitNode>
   input: FormKitDispatcher<any>
+  submit: FormKitDispatcher<Record<string, any>>
   message: FormKitDispatcher<FormKitMessage>
   prop: FormKitDispatcher<{
     prop: string | symbol
     value: any
   }>
   text: FormKitDispatcher<FormKitTextFragment>
+  schema: FormKitDispatcher<FormKitSchemaNode[] | FormKitSchemaCondition>
 }
 
 /**
@@ -572,7 +578,7 @@ export type FormKitNode = {
   /**
    * Clears the errors of the node, and optionally all the children.
    */
-  clearErrors: (clearChildren?: boolean) => FormKitNode
+  clearErrors: (clearChildren?: boolean, sourceKey?: string) => FormKitNode
   /**
    * An object that is shared tree-wide with various configuration options that
    * should be applied to the entire tree.
@@ -1757,9 +1763,12 @@ function setErrors(
   childErrors?: ErrorMessages
 ) {
   const sourceKey = `${node.name}-set`
-  createMessages(node, localErrors, childErrors).forEach((errors) => {
-    node.store.apply(errors, (message) => message.meta.source === sourceKey)
-  })
+  const errors = node.hook.setErrors.dispatch({ localErrors, childErrors })
+  createMessages(node, errors.localErrors, errors.childErrors).forEach(
+    (errors) => {
+      node.store.apply(errors, (message) => message.meta.source === sourceKey)
+    }
+  )
   return node
 }
 
@@ -1773,11 +1782,12 @@ function setErrors(
 function clearErrors(
   node: FormKitNode,
   context: FormKitContext,
-  clearChildErrors = true
+  clearChildErrors = true,
+  sourceKey?: string
 ) {
   setErrors(node, context, [])
   if (clearChildErrors) {
-    const sourceKey = `${node.name}-set`
+    sourceKey = sourceKey || `${node.name}-set`
     node.walk((child) => {
       child.store.filter((message) => {
         return !(

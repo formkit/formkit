@@ -46,6 +46,12 @@ export { default as defaultConfig, DefaultConfigOptions } from './defaultConfig'
 export { default as bindings } from './bindings'
 
 /**
+ * A vue component for rendering icons from the FormKit icon registry
+ * @public
+ */
+export { FormKitIcon } from './FormKitIcon'
+
+/**
  * Export the reset count explicitly
  */
 export {
