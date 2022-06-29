@@ -6,6 +6,7 @@ import { optionValue, shouldSelect } from './options'
  * Sets the value of a radio button when checked.
  * @param node - FormKitNode
  * @param value - Value
+ * @public
  */
 function toggleChecked(node: FormKitNode, event: Event) {
   if (event.target instanceof HTMLInputElement) {

@@ -1,4 +1,5 @@
 import * as ar from './locales/ar'
+import * as bg from './locales/bg'
 import * as cs from './locales/cs'
 import * as da from './locales/da'
 import * as de from './locales/de'
@@ -10,9 +11,11 @@ import * as fr from './locales/fr'
 import * as fy from './locales/fy'
 import * as he from './locales/he'
 import * as hr from './locales/hr'
+import * as hu from './locales/hu'
 import * as id from './locales/id'
 import * as it from './locales/it'
 import * as ja from './locales/ja'
+import * as kk from './locales/kk'
 import * as ko from './locales/ko'
 import * as nl from './locales/nl'
 import * as pl from './locales/pl'
@@ -20,7 +23,9 @@ import * as pt from './locales/pt'
 import * as ro from './locales/ro'
 import * as ru from './locales/ru'
 import * as sl from './locales/sl'
+import * as sr from './locales/sr'
 import * as sv from './locales/sv'
+import * as tg from './locales/tg'
 import * as th from './locales/th'
 import * as tr from './locales/tr'
 import * as vi from './locales/vi'
@@ -37,6 +42,7 @@ export * from './i18n'
  */
 export const locales = {
   ar,
+  bg,
   cs,
   da,
   de,
@@ -48,9 +54,11 @@ export const locales = {
   fy,
   he,
   hr,
+  hu,
   id,
   it,
   ja,
+  kk,
   ko,
   nl,
   pl,
@@ -58,7 +66,9 @@ export const locales = {
   ro,
   ru,
   sl,
+  sr,
   sv,
+  tg,
   th,
   tr,
   vi,
@@ -71,6 +81,7 @@ export const locales = {
 
 export {
   ar,
+  bg,
   cs,
   da,
   de,
@@ -82,17 +93,21 @@ export {
   fy,
   he,
   hr,
+  hu,
   id,
   it,
   ja,
   ko,
+  kk,
   nl,
   pl,
   pt,
   ro,
   ru,
   sl,
+  sr,
   sv,
+  tg,
   th,
   tr,
   vi,

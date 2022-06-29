@@ -32,14 +32,16 @@ describe('form structure', () => {
       ...global,
     })
     expect(wrapper.html())
-      .toEqual(`<form id="foo" class="formkit-form" name="test_form">
+      .toEqual(`<form class="formkit-form" id="foo" name="test_form">
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
     <div class="formkit-outer" data-type="submit">
       <!---->
-      <div class="formkit-wrapper"><button type="submit" class="formkit-input" name="submit_1" id="button">
+      <div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_1" id="button">
+          <!---->
           <!---->Submit
+          <!---->
           <!---->
         </button></div>
       <!---->
@@ -971,6 +973,36 @@ describe('resetting', () => {
       },
     })
     expect(form.find('.formkit-message').exists()).toBe(false)
+  })
+
+  it.only('reacts to changes on the inputErrors prop', async () => {
+    const errors = ref<Record<string, string>>({ email: 'foo bar is bad' })
+    const form = mount(
+      {
+        setup() {
+          return { errors }
+        },
+        template: `
+        <FormKit type="form" :input-errors="errors">
+          <FormKit name="email" value="test@example.com" />
+        </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(form.html()).toContain('foo bar is bad')
+    errors.value = { email: 'foo bar is good' }
+    await nextTick()
+    expect(form.html()).toContain('foo bar is good')
+    errors.value = {}
+    await nextTick()
+    expect(form.html()).not.toContain('foo bar is good')
   })
 })
 

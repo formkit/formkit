@@ -7,6 +7,7 @@ import { shouldSelect, optionValue } from './options'
  * Event handler when an input is toggled.
  * @param node - The node being toggled
  * @param e - The input even related to the toggling
+ * @public
  */
 function toggleChecked(node: FormKitNode, e: Event) {
   const el = e.target

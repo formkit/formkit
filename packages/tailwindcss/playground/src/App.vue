@@ -11,6 +11,9 @@
           validation-visibility="live"
         />
         <FormKit
+          type="select"
+        />
+        <FormKit
           label="Disabled input"
           :disabled="true"
           placeholder="Enter something here..."

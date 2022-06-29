@@ -108,6 +108,7 @@ export interface FormKitHooks {
     value: any
   }>
   text: FormKitDispatcher<FormKitTextFragment>
+  schema: FormKitDispatcher<FormKitSchemaNode[] | FormKitSchemaCondition>
 }
 
 /**
@@ -574,7 +575,7 @@ export type FormKitNode = {
   /**
    * Clears the errors of the node, and optionally all the children.
    */
-  clearErrors: (clearChildren?: boolean) => FormKitNode
+  clearErrors: (clearChildren?: boolean, sourceKey?: string) => FormKitNode
   /**
    * An object that is shared tree-wide with various configuration options that
    * should be applied to the entire tree.
@@ -1776,11 +1777,12 @@ function setErrors(
 function clearErrors(
   node: FormKitNode,
   context: FormKitContext,
-  clearChildErrors = true
+  clearChildErrors = true,
+  sourceKey?: string
 ) {
   setErrors(node, context, [])
   if (clearChildErrors) {
-    const sourceKey = `${node.name}-set`
+    sourceKey = sourceKey || `${node.name}-set`
     node.walk((child) => {
       child.store.filter((message) => {
         return !(

@@ -208,10 +208,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       eq,
     },
     handlers: {
-      blur: () =>
+      blur: (e?: Event) => {
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
-        ),
+        )
+        if (typeof node.props.attrs.onBlur === 'function') {
+          node.props.attrs.onBlur(e)
+        }
+      },
       touch: () => {
         node.store.set(
           createMessage({ key: 'dirty', visible: false, value: true })
@@ -284,18 +288,25 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   /**
    * We use a node observer to individually observe node props.
    */
-  const rootProps = [
-    'help',
-    'label',
-    'disabled',
-    'options',
-    'type',
-    'attrs',
-    'preserve',
-    'preserveErrors',
-    'id',
-  ]
-  observeProps(rootProps)
+  const rootProps = () => {
+    const props = [
+      'help',
+      'label',
+      'disabled',
+      'options',
+      'type',
+      'attrs',
+      'preserve',
+      'preserveErrors',
+      'id',
+    ]
+    const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
+    const matchingProps = Object.keys(node.props).filter((prop) => {
+      return iconPattern.test(prop)
+    })
+    return props.concat(matchingProps)
+  }
+  observeProps(rootProps())
 
   /**
    * Once the input is defined, deal with it.
