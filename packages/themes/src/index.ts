@@ -371,12 +371,12 @@ function loadPropIcon(node: FormKitNode, iconHandler: FormKitIconLoader, section
 function reloadIcon(event: FormKitEvent): void | Promise<void> {
   const node = event.origin
   const iconName = event.payload
-  const iconLoader = node?.context?.iconHandler
+  const iconHandler = node?.props?.iconHandler
   const sectionKey = event.name.split(':')[1]
   const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
 
-  if (iconLoader && typeof iconLoader === 'function') {
-    const loadedIcon = iconLoader(iconName)
+  if (iconHandler && typeof iconHandler === 'function') {
+    const loadedIcon = iconHandler(iconName)
 
     if (loadedIcon instanceof Promise) {
       return loadedIcon.then((svg) => {
