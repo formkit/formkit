@@ -260,8 +260,15 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
     if (iconName.startsWith('<svg')) {
       return iconName
     }
+    if (typeof iconName !== 'string') return // bail if we got something that wasn't a boolean or string
+
     // check if we've already loaded the icon before
     const icon = iconRegistry[iconName]
+
+    // is this a default icon that should only load from a stylesheet?
+    const isDefault = iconName.startsWith('default:')
+    iconName = isDefault ? iconName.split(':')[1] : iconName
+
     let loadedIcon:(string | undefined | Promise<string | undefined>) = undefined
     if (icon || iconName in iconRegistry) {
       return icon
@@ -270,15 +277,18 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
       loadedIcon = isClient && typeof loadedIcon === 'undefined' ? Promise.resolve(loadedIcon) : loadedIcon
       if (loadedIcon instanceof Promise) {
         iconRequests[iconName] = loadedIcon.then((iconValue) => {
-          if (!iconValue) {
+          if (!iconValue && typeof iconName === 'string' && !isDefault) {
             return loadedIcon = typeof iconLoader === 'function' ? iconLoader(iconName) : getRemoteIcon(iconName, iconLoaderUrl)
           }
           return iconValue
         }).then((finalIcon) => {
-          iconRegistry[iconName] = finalIcon
+          if (typeof iconName === 'string') {
+            iconRegistry[isDefault ? `default:${iconName}` : iconName] = finalIcon
+          }
           return finalIcon
         })
-      } else if (typeof loadedIcon !== 'undefined') {
+      } else if (typeof loadedIcon === 'string') {
+        iconRegistry[isDefault ? `default:${iconName}` : iconName] = loadedIcon
         return loadedIcon
       }
     }
