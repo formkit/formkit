@@ -1,11 +1,14 @@
 {
-  "name": "@formkit/addons",
-  "type": "module",
+  "name": "formkit",
   "version": "1.0.0-beta.9",
-  "description": "Optional features you can add to your FormKit inputs.",
+  "type": "module",
+  "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "bin": {
+    "formkit": "./bin/formkit.mjs"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
@@ -18,12 +21,13 @@
     "vue",
     "forms",
     "inputs",
-    "validation"
+    "validation",
+    "cli"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/formkit/formkit.git",
-    "directory": "packages/addons"
+    "directory": "packages/cli"
   },
   "contributors": [
     "Justin Schroeder <justin@formkit.com>"
@@ -33,9 +37,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/auto-animate": "latest",
-    "@formkit/core": "1.0.0-beta.9",
-    "@formkit/utils": "1.0.0-beta.9"
-  },
-  "devDependencies": {}
+    "@formkit/cli": "1.0.0-beta.9"
+  }
 }

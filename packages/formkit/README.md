@@ -13,12 +13,14 @@
   <a href="https://formkit.com">Documentation website</a>
 </p>
 
-# FormKit (Beta)
+# FormKit Command Line Tool
 <h2><img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3 form development. 10x faster.</h2>
 
 FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
 faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
 handling, and validation rules. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+
+This package contains the command line tool that ships with FormKit.
 
 <p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
 
@@ -32,9 +34,10 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 <p style="margin-bottom: 1em;">
   <a href="https://www.perbyte.com">
-    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
+    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" width="200">
   </a>
 </p>
+
 
 ### Backers
 

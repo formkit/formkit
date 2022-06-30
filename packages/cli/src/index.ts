@@ -253,6 +253,7 @@ async function upsertDir(dir: string): Promise<boolean | void> {
     const { confirm } = await prompts({
       type: 'confirm',
       name: 'confirm',
+      initial: true,
       message: `Export directory does not exist (${local}) does not exist. Create it?`,
     })
     if (!confirm) return info('Directory not created — no input was exported.')

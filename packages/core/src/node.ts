@@ -98,8 +98,13 @@ export interface FormKitHooks {
   }>
   commit: FormKitDispatcher<any>
   error: FormKitDispatcher<string>
+  setErrors: FormKitDispatcher<{
+    localErrors: ErrorMessages
+    childErrors?: ErrorMessages
+  }>
   init: FormKitDispatcher<FormKitNode>
   input: FormKitDispatcher<any>
+  submit: FormKitDispatcher<Record<string, any>>
   message: FormKitDispatcher<FormKitMessage>
   prop: FormKitDispatcher<{
     prop: string | symbol
@@ -1758,9 +1763,12 @@ function setErrors(
   childErrors?: ErrorMessages
 ) {
   const sourceKey = `${node.name}-set`
-  createMessages(node, localErrors, childErrors).forEach((errors) => {
-    node.store.apply(errors, (message) => message.meta.source === sourceKey)
-  })
+  const errors = node.hook.setErrors.dispatch({ localErrors, childErrors })
+  createMessages(node, errors.localErrors, errors.childErrors).forEach(
+    (errors) => {
+      node.store.apply(errors, (message) => message.meta.source === sourceKey)
+    }
+  )
   return node
 }
 

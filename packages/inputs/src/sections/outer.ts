@@ -10,7 +10,7 @@ export const outer = createSection(
     attrs: {
       key: '$id',
       'data-type': '$type',
-      'data-multiple': '$attrs.multiple || undefined',
+      'data-multiple': '$attrs.multiple',
       'data-disabled': '$disabled || undefined',
       'data-complete': '$state.complete || undefined',
       'data-invalid':
