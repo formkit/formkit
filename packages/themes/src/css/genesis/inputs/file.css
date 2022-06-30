@@ -13,10 +13,11 @@
     font-size: var(--fk-font-size-input);
     line-height: var(--fk-line-height-input);
     position: relative;
+  }
 
-    & + .formkit-file-item {
-      margin-top: var(--fk-padding-input-t);
-    }
+  & .formkit-no-files + .formkit-file-item,
+  & .formkit-file-item + .formkit-file-item {
+    margin-top: var(--fk-padding-input-t);
   }
 
   &[data-multiple] .formkit-file-remove {
