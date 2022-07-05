@@ -53,9 +53,9 @@ function normalizeOptions(
       return option
     })
   } else if (typeof options === 'function') {
-    if (options() instanceof Promise) {
+    if (options.constructor.name === 'AsyncFunction') {
       node.props.optionsLoader = options
-    } else if (!(options() instanceof Promise)) {
+    } else {
       return normalizeOptions(options(), node)
     }
     return []
