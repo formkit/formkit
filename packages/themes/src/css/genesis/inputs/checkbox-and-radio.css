@@ -23,51 +23,52 @@
     overflow: hidden;
     opacity: 0;
     left: -999em;
+  }
 
-    & ~ .formkit-decorator {
-      background: var(--fk-bg-decorator);
-      display: block;
-      box-sizing: content-box;
-      width: var(--fk-box-size);
-      height: var(--fk-box-size);
-      flex: 0 0 var(--fk-box-size);
-      border: none;
-      box-shadow: var(--fk-border-box-shadow);
-      border-radius: var(--fk-border-radius);
-      margin: var(--fk-margin-decorator);
-      position: relative;
+  & .formkit-input ~ .formkit-decorator {
+    background: var(--fk-bg-decorator);
+    display: block;
+    box-sizing: content-box;
+    width: var(--fk-box-size);
+    height: var(--fk-box-size);
+    flex: 0 0 var(--fk-box-size);
+    border: none;
+    box-shadow: var(--fk-border-box-shadow);
+    border-radius: var(--fk-border-radius);
+    margin: var(--fk-margin-decorator);
+    position: relative;
+  }
 
-      &::before {
-        background: transparent;
-        content: "";
-        display: block;
-        width: 55%;
-        height: 20%;
-        pointer-events: none;
-        border-bottom: 0.2em solid transparent;
-        border-left: 0.2em solid transparent;
-        transform: rotate(-45deg);
-        transform-origin: bottom left;
-        position: absolute;
-        bottom: 20%;
-        left: 40%;
-      }
-    }
+  & .formkit-input ~ .formkit-decorator::before {
+    background: transparent;
+    content: "";
+    display: block;
+    width: 55%;
+    height: 20%;
+    pointer-events: none;
+    border-bottom: 0.2em solid transparent;
+    border-left: 0.2em solid transparent;
+    transform: rotate(-45deg);
+    transform-origin: bottom left;
+    position: absolute;
+    bottom: 20%;
+    left: 40%;
+  }
 
-    &:checked ~ .formkit-decorator {
-      box-shadow: var(--fk-border-box-shadow-decorator-checked);
+  & .formkit-input ~ .formkit-decorator:checked {
+    box-shadow: var(--fk-border-box-shadow-decorator-checked);
+  }
 
-      &::before {
-        border-color: var(--fk-color-border-focus);
-      }
-    }
-    &:focus ~ .formkit-decorator {
-      box-shadow: var(--fk-border-box-shadow-decorator-focus);
-    }
-    &:focus-visible ~ .formkit-decorator {
-      box-shadow: var(--fk-border-box-shadow-decorator-focus-visible);
-    }
+  & .formkit-input ~ .formkit-decorator:checked::before {
+    border-color: var(--fk-color-border-focus);
+  }
 
+  & .formkit-input:focus ~ .formkit-decorator {
+    box-shadow: var(--fk-border-box-shadow-decorator-focus);
+  }
+
+  & .formkit-input:focus-visible ~ .formkit-decorator {
+    box-shadow: var(--fk-border-box-shadow-decorator-focus-visible);
   }
 
   & .formkit-options {
@@ -78,10 +79,10 @@
   & .formkit-option {
     list-style-type: none;
     margin: var(--fk-margin-option);
+  }
 
-    &:last-child {
-      margin-bottom: 0;
-    }
+  & .formkit-option:last-child {
+    margin-bottom: 0;
   }
 
   & fieldset.formkit-fieldset {
