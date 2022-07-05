@@ -83,6 +83,15 @@
       type="checkbox"
       :label="`Please confirm that you meant to select ${fruit}?`"
     />
+
+    <FormKit
+      label="What's your favorite plant?"
+      multiple
+      type="select"
+      name="planet"
+      placeholder="Select the best planet"
+      :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
+    />
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
