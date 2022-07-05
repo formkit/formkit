@@ -9,6 +9,7 @@
       type="email"
       name="email"
       label="Email address"
+      help="What is your email address?"
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
@@ -104,13 +105,13 @@ const countries = [
   {
     label: 'Italy',
     value: 'it',
-    // help: 'This is the best one'
+    help: 'This is the best one'
   },
   {
     label: 'France',
     value: 'fr',
     attrs: { disabled: true },
-    // help: 'This is smelliest one'
+    help: 'This is smelliest one'
   },
   {
     label: 'Germany',

@@ -229,7 +229,7 @@
   --fk-margin-option-y: inherit;
   --fk-margin-option-t: var(--fk-margin-option-y, 0);
   --fk-margin-option-r: var(--fk-margin-option-x, 0);
-  --fk-margin-option-b: var(--fk-margin-option-y, 0.33em);
+  --fk-margin-option-b: var(--fk-margin-option-y, 0.625em);
   --fk-margin-option-l: var(--fk-margin-option-x, 0);
   --fk-margin-option: var(--fk-margin-option-t) var(--fk-margin-option-r) var(--fk-margin-option-b) var(--fk-margin-option-l);
 
