@@ -17,6 +17,7 @@
       type="file"
       name="file"
       label="Your file"
+      no-files-icon="upload"
       placeholder="jon@foo.com"
       validation="required"
       validation-visibility="live"
