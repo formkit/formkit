@@ -70,7 +70,7 @@ export const checkbox: FormKitTypeDefinition = {
       )
     ),
     // Help text only goes under the input when it is a single.
-    $if('$options.length === 0 && $help', help('$help')),
+    $if('$options == undefined && $help', help('$help')),
     messages(message('$message.value'))
   ),
   /**
