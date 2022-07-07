@@ -9,6 +9,12 @@ export { createLibraryPlugin } from './plugin'
 export { FormKitOptionsList } from './features/options'
 
 /**
+ * Helper function for normalizing options.
+ * @internal
+ */
+export { normalizeOptions } from './features/options'
+
+/**
  * Composable logic.
  */
 export * from './compose'

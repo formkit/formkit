@@ -2,7 +2,7 @@ import { FormKitNode } from '@formkit/core'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
- * Options should always be formatted as an array of objects with label and value
+ * Options should always be formated as an array of objects with label and value
  * properties.
  * @public
  */
@@ -15,23 +15,12 @@ export type FormKitOptionsList = Array<
 >
 
 /**
- * Options to be normalized
- */
-type FormKitOptionsToBeNormalized = string[] | FormKitOptionsList | { [value: string]: string }
-
-/**
- * Accepts an array of objects, array of strings, an object of key-value pairs,
- * or a function that returns any of those items or a Promise that resolves to them.
- * Returns an array of objects with value and label properties.
- * If the return value is a function that returns a promise, we are reassigning the function
- * to the loadOptions prop. If the function returns anything other than promise,
- * then we are going to call normalizeOptions on the given value.
+ * Accepts an array of objects, array of strings, or object of key-value pairs.
+ * and returns an array of objects with value and label properties.
  * @param options -
- * @param node -
  */
-function normalizeOptions(
-  options: FormKitOptionsToBeNormalized | (() => FormKitOptionsToBeNormalized),
-  node: FormKitNode
+export function normalizeOptions(
+  options: string[] | FormKitOptionsList | { [value: string]: string }
 ): FormKitOptionsList {
   let i = 1
   if (Array.isArray(options)) {
@@ -52,13 +41,6 @@ function normalizeOptions(
       }
       return option
     })
-  } else if (typeof options === 'function') {
-    if (options.constructor.name === 'AsyncFunction') {
-      node.props.optionsLoader = options
-    } else {
-      return normalizeOptions(options(), node)
-    }
-    return []
   }
   return Object.keys(options).map((value) => {
     return {
@@ -105,10 +87,14 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
  * @public
  */
 export default function options(node: FormKitNode): void {
-  node.hook.prop((prop, next) => {
+  node.hook.prop((prop : any, next : any) => {
     if (prop.prop === 'options') {
-      const options = normalizeOptions(prop.value, node)
-      prop.value = options
+      if (typeof prop.value === 'function') {
+        node.props.optionsLoader = prop.value
+        prop.value = []
+      } else {
+        prop.value = normalizeOptions(prop.value)
+      }
     }
     return next(prop)
   })
