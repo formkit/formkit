@@ -162,10 +162,9 @@ export function useInput(
   /**
    * Define the initial component
    */
-  const value: any =
-    props.modelValue !== undefined
-      ? props.modelValue
-      : cloneAny(context.attrs.value)
+  const value: any = isVModeled
+    ? props.modelValue
+    : cloneAny(context.attrs.value)
 
   /**
    * Creates the node's initial props from the context, props, and definition
