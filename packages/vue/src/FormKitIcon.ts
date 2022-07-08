@@ -9,6 +9,7 @@ import { FormKitIconLoader, createIconHandler } from '@formkit/themes'
  * @public
  */
 export const FormKitIcon = defineComponent({
+  name: 'FormKitIcon',
   props: {
     icon: {
       type: String,
