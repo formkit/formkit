@@ -152,7 +152,7 @@ export function useInput(
   /**
    * Determines if the prop is v-modeled.
    */
-  const isVModeled = props.modelValue !== undefined
+  const isVModeled = 'modelValue' in props
 
   /**
    * Determines if the object being passed as a v-model is reactive.
