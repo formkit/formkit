@@ -65,7 +65,7 @@
 
   --fk-bg-input: transparent;
   --fk-bg-disabled: rgba(0 0 0 / 5%);
-  --fk-bg-decorator: linear-gradient(0deg, rgb(0 0 0 / 7%), transparent);
+  --fk-bg-decorator: linear-gradient(0deg, rgba(0, 0, 0, 0.07), transparent);
   --fk-bg-button: var(--fk-color-primary);
   --fk-bg-button-hover: var(--fk-bg-button);
   --fk-bg-submit: var(--fk-bg-button);
@@ -229,7 +229,7 @@
   --fk-margin-option-y: inherit;
   --fk-margin-option-t: var(--fk-margin-option-y, 0);
   --fk-margin-option-r: var(--fk-margin-option-x, 0);
-  --fk-margin-option-b: var(--fk-margin-option-y, 0.33em);
+  --fk-margin-option-b: var(--fk-margin-option-y, 0.625em);
   --fk-margin-option-l: var(--fk-margin-option-x, 0);
   --fk-margin-option: var(--fk-margin-option-t) var(--fk-margin-option-r) var(--fk-margin-option-b) var(--fk-margin-option-l);
 

@@ -128,7 +128,8 @@
   }
 }
 
-.formkit-help {
+.formkit-help,
+.formkit-option-help {
   margin: var(--fk-margin-help);
 }
 
