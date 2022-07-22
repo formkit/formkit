@@ -9,6 +9,7 @@ export const outer = createSection(
     $el: 'div',
     attrs: {
       key: '$id',
+      'data-family': '$family || undefined',
       'data-type': '$type',
       'data-multiple': '$attrs.multiple',
       'data-disabled': '$disabled || undefined',

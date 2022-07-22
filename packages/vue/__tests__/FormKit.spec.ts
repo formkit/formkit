@@ -12,6 +12,32 @@ import { jest } from '@jest/globals'
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
+  it('uses the input definition’s typeName instead of the type', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'foo',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              inputs: {
+                foo: {
+                  type: 'input',
+                  typeName: 'bar',
+                  schema: ['$type'],
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+
+    expect(wrapper.html()).toBe('bar')
+  })
+
   it('can display prop-defined errors', async () => {
     const id = token()
     const wrapper = mount(FormKit, {
@@ -916,7 +942,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
+      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-invalid="true">
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->

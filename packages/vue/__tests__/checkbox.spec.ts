@@ -150,7 +150,7 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-type="checkbox">
+      .toBe(`<div class="formkit-outer" data-family="box" data-type="checkbox">
   <fieldset class="formkit-fieldset" id="my-id" aria-describedby="help-my-id">
     <legend class="formkit-legend">All checkboxes</legend>
     <div class="formkit-help" id="help-my-id">help-text</div>

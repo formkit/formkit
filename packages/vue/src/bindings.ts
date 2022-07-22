@@ -244,6 +244,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       validationVisible,
     },
     type: node.props.type,
+    family: node.props.family,
     ui,
     value,
     classes,
