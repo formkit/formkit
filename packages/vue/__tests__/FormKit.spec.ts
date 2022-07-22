@@ -12,7 +12,7 @@ import { jest } from '@jest/globals'
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
-  it('uses the input definition’s typeName instead of the type', () => {
+  it('uses the input definition’s forceTypeProp instead of the type', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'foo',
@@ -25,7 +25,7 @@ describe('props', () => {
               inputs: {
                 foo: {
                   type: 'input',
-                  typeName: 'bar',
+                  forceTypeProp: 'bar',
                   schema: ['$type'],
                 },
               },
