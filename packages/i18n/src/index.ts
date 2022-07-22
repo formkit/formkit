@@ -1,4 +1,5 @@
 import * as ar from './locales/ar'
+import * as az from './locales/az'
 import * as bg from './locales/bg'
 import * as cs from './locales/cs'
 import * as da from './locales/da'
@@ -29,6 +30,7 @@ import * as tg from './locales/tg'
 import * as th from './locales/th'
 import * as tr from './locales/tr'
 import * as uk from './locales/uk'
+import * as uz from './locales/uz'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
 
@@ -43,6 +45,7 @@ export * from './i18n'
  */
 export const locales = {
   ar,
+  az,
   bg,
   cs,
   da,
@@ -73,6 +76,7 @@ export const locales = {
   th,
   tr,
   uk,
+  uz,
   vi,
   zh,
 }
@@ -83,6 +87,7 @@ export const locales = {
 
 export {
   ar,
+  az,
   bg,
   cs,
   da,
@@ -113,6 +118,7 @@ export {
   th,
   tr,
   uk,
+  uz,
   vi,
   zh,
 }

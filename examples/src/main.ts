@@ -15,7 +15,7 @@ import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import { createAutoAnimatePlugin } from '@formkit/addons'
-// import '@formkit/themes/genesis'
+import '@formkit/themes/genesis'
 
 const myInput = createInput(CurrencyInput)
 

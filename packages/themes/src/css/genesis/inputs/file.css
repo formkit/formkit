@@ -15,7 +15,8 @@
     position: relative;
   }
 
-  & .formkit-no-files + .formkit-file-item,
+
+  & .formkit-no-files + .formkit-no-files,
   & .formkit-file-item + .formkit-file-item {
     margin-top: var(--fk-padding-input-t);
   }
@@ -40,7 +41,8 @@
     }
   }
 
-  & .formkit-inner .formkit-file-item-icon {
+  & .formkit-inner .formkit-file-item-icon,
+  & .formkit-inner .formkit-no-files-icon {
     width: 1em;
     margin-right: 0.5em;
   }

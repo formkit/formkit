@@ -55,11 +55,11 @@
     left: 40%;
   }
 
-  & .formkit-input ~ .formkit-decorator:checked {
+  & .formkit-input:checked ~ .formkit-decorator {
     box-shadow: var(--fk-border-box-shadow-decorator-checked);
   }
 
-  & .formkit-input ~ .formkit-decorator:checked::before {
+  & .formkit-input:checked ~ .formkit-decorator::before {
     border-color: var(--fk-color-border-focus);
   }
 

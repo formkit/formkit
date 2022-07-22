@@ -9,6 +9,7 @@
       type="email"
       name="email"
       label="Email address"
+      help="What is your email address?"
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
@@ -17,6 +18,7 @@
       type="file"
       name="file"
       label="Your file"
+      no-files-icon="upload"
       placeholder="jon@foo.com"
       validation="required"
       validation-visibility="live"
@@ -81,6 +83,15 @@
       type="checkbox"
       :label="`Please confirm that you meant to select ${fruit}?`"
     />
+
+    <FormKit
+      label="What's your favorite plant?"
+      multiple
+      type="select"
+      name="planet"
+      placeholder="Select the best planet"
+      :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
+    />
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
@@ -103,13 +114,13 @@ const countries = [
   {
     label: 'Italy',
     value: 'it',
-    // help: 'This is the best one'
+    help: 'This is the best one'
   },
   {
     label: 'France',
     value: 'fr',
     attrs: { disabled: true },
-    // help: 'This is smelliest one'
+    help: 'This is smelliest one'
   },
   {
     label: 'Germany',

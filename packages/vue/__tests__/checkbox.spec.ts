@@ -25,6 +25,17 @@ describe('single checkbox', () => {
     )
   })
 
+  it('Single checkboxes render help text', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        help: 'hello world',
+      },
+      ...global,
+    })
+    expect(wrapper.html()).toContain('hello world')
+  })
+
   it('can check a single checkbox with a true value', () => {
     const wrapper = mount(FormKit, {
       props: {
