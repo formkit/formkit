@@ -161,7 +161,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `Дата ${s(name)} повинна бути між ${date(args[0])} та ${date(args[1])}`
+    return `Дата ${s(name)} повинна бути між ${date(args[0])} та ${date(args[1])}.`
     /* </i18n> */
   },
 
@@ -254,7 +254,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `Тип файлу в полі ${s(name)} має бути: ${args[0]}`
+    return `Тип файлу в полі ${s(name)} має бути: ${args[0]}.`
     /* </i18n> */
   },
 
