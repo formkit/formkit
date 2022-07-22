@@ -61,7 +61,7 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `Дата ${s(name)} повинна бути пізніше ${date(args[0])}.`
+      return `Дата ${s(name)} повинна бути пізніше за ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
@@ -106,7 +106,7 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `Дата ${s(name)} повинна бути раніше ${date(args[0])}.`
+      return `Дата ${s(name)} повинна бути раніше за ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
