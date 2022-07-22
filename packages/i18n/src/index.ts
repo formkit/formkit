@@ -28,6 +28,7 @@ import * as sv from './locales/sv'
 import * as tg from './locales/tg'
 import * as th from './locales/th'
 import * as tr from './locales/tr'
+import * as uk from './locales/uk'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
 
@@ -71,6 +72,7 @@ export const locales = {
   tg,
   th,
   tr,
+  uk,
   vi,
   zh,
 }
@@ -110,6 +112,7 @@ export {
   tg,
   th,
   tr,
+  uk,
   vi,
   zh,
 }
