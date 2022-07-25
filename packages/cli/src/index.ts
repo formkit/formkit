@@ -32,8 +32,8 @@ program
 
 program
   .command('export')
-  .option(
-    '-i, --input',
+  .argument(
+    '[input]',
     'An input to export (from @formkit/inputs, like "text" or "select")'
   )
   .option('-d, --dir <dir>', 'The directory to export inputs to')
@@ -56,12 +56,13 @@ function error(message: string): never {
  * @internal
  */
 export async function exportInput(
-  options: Record<string, string | undefined>
+  inputOption?: string,
+  options: Record<string, string | undefined> = {}
 ): Promise<void> {
-  const input = await requireInput(options.input)
+  const input = await requireInput(inputOption)
   const lang = await requireLang(options.lang)
   const exportData = await requireInputCode(input, lang)
-  const sourceCode = transformSource(exportData)
+  const sourceCode = transformSource(exportData, input)
   const [absoluteDir, relativeDir] = await requireOutputDir(options.dir)
   const validDir = await upsertDir(absoluteDir)
 
@@ -125,9 +126,19 @@ function guessDir() {
  * @param exportData - The code to export.
  * @returns
  */
-function transformSource(exportData: string): string | never {
+function transformSource(exportData: string, type: string): string | never {
   if (exportData) {
+    // Change the exports from relative to npm package based.
     exportData = exportData.replace("} from '../'", "} from '@formkit/inputs'")
+    // Inject the forceTypeProp in the definition.
+    exportData = exportData.replace(
+      /^  props: \[(.*)\],/gm,
+      `  props: [$1],
+  /**
+   * Forces node.props.type to be this explicit value.
+   */
+  forceTypeProp: '${type}',`
+    )
   } else {
     error('Unable to export the input file because it cannot be located.')
   }
