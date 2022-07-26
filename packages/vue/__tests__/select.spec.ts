@@ -23,7 +23,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select">
+      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -58,7 +58,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select">
+      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -89,7 +89,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select">
+      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -120,7 +120,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select">
+      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -156,7 +156,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select">
+      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">

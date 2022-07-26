@@ -11,7 +11,7 @@ export const outer = createSection(
       key: '$id',
       'data-family': '$family || undefined',
       'data-type': '$type',
-      'data-multiple': '$attrs.multiple',
+      'data-multiple': '$attrs.multiple || $options != undefined || undefined',
       'data-disabled': '$disabled || undefined',
       'data-complete': '$state.complete || undefined',
       'data-invalid':
