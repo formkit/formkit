@@ -23,7 +23,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -58,7 +58,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -89,7 +89,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -120,7 +120,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -156,7 +156,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.html())
-      .toEqual(`<div class="formkit-outer" data-type="select" data-multiple="true">
+      .toEqual(`<div class="formkit-outer" data-type="select">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
@@ -638,5 +638,40 @@ describe('select object values', () => {
       true,
     ])
     expect(getNode(id)!.value).toEqual([{ tool: 'wrench' }, { tool: 'socket' }])
+  })
+
+  it('does not output data-multiple attribute if multiple attribute is not applied', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).not.toContain('data-multiple')
+  })
+
+  it('does output data-multiple attribute if multiple attribute is applied', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        multiple: true,
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toContain('data-multiple')
   })
 })
