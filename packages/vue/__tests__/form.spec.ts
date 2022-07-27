@@ -1035,3 +1035,46 @@ describe('submit hook', () => {
     })
   })
 })
+
+describe('v-model', () => {
+  it('can change a value and add a value in a single tick cycle', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            data: {
+              field_a: '',
+            },
+          } as { data: any }
+        },
+        template: `
+        <FormKit type="form" v-model="data">
+          <FormKit
+            id="${id}"
+            type="select"
+            label="field A"
+            name="field_a"
+            :delay="0"
+            placeholder="Choose a food"
+            :options="['Pizza', 'Ice Cream', 'Burger']"
+            @change="()=>{ data.name2 = 'added' }"
+          />
+        </FormKit>
+        <pre>{{ data }}</pre>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    wrapper.find('select').setValue('Burger')
+    wrapper.find('select').trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.vm.data).toStrictEqual({ field_a: 'Burger', name2: 'added' })
+    expect(getNode(id)?.value).toBe('Burger')
+  })
+})
