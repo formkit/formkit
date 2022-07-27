@@ -16,7 +16,7 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel, empty, undefine } from '@formkit/utils'
+import { eq, has, camel, empty, undefine, cloneAny } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -260,6 +260,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       triggerRef(value)
       triggerRef(_value)
     }
+    node.props._init = cloneAny(node.value)
   })
 
   /**
@@ -341,7 +342,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     triggerRef(value)
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
-    if (!context.state.dirty && node.isCreated && hasTicked)
+    if (
+      !context.state.dirty &&
+      node.isCreated &&
+      hasTicked &&
+      !eq(value.value, node.props._init)
+    )
       context.handlers.touch()
     if (
       isComplete &&

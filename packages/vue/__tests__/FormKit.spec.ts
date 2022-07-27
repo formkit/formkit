@@ -297,6 +297,31 @@ describe('v-model', () => {
     await flushPromises()
     expect(wrapper.vm.$data.name).toBe('jon')
   })
+
+  it('does not perform input events on v-modeled form', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            formData: {} as { username: string; password: string },
+          }
+        },
+        template: `<FormKit type="form" v-model="formData">
+          <FormKit type="text" name="username" />
+          <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
+    wrapper.vm.$data.formData.username = 'foo'
+    await nextTick()
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
+  })
 })
 
 describe('events', () => {
