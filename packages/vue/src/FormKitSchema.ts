@@ -351,7 +351,7 @@ function parseSchema(
       }
     }
     return () => {
-      const attrs = {}
+      const attrs = Array.isArray(unparsedAttrs) ? [] : {}
       setters.forEach((setter) => setter(attrs))
       return attrs
     }
