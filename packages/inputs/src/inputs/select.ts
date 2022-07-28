@@ -40,7 +40,7 @@ export const select: FormKitTypeDefinition = {
             $if('$slots.option', optionSlot, option('$option.label'))
           )
         ),
-        icon('select'),
+        $if('$attrs.multiple !== undefined', () => '', icon('select')),
         suffix(),
         icon('suffix')
       )
