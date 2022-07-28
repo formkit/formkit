@@ -157,7 +157,7 @@ describe('multiple checkboxes', () => {
     <ul class="formkit-options">
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"><!----></span>
             <!---->
           </div><span class="formkit-label">foo</span>
         </label>
@@ -165,7 +165,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"><!----></span>
             <!---->
           </div><span class="formkit-label">bar</span>
         </label>
@@ -173,7 +173,7 @@ describe('multiple checkboxes', () => {
       </li>
       <li class="formkit-option"><label class="formkit-wrapper">
           <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"></span>
+            <!----><input class="formkit-input" type="checkbox" name="mybox" id="mybox-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"><!----></span>
             <!---->
           </div><span class="formkit-label">baz</span>
         </label>
@@ -255,7 +255,7 @@ describe('multiple checkboxes', () => {
     expect(wrapper.find('li').html()).toBe(
       `<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper">
     <div class="formkit-inner">
-      <!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"></span>
+      <!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="countries-option-it" aria-describedby="help-countries-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"><!----></span>
       <!---->
     </div><span class="formkit-label">Italy</span>
   </label>
