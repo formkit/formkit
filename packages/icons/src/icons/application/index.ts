@@ -2,6 +2,8 @@ import add from './Add'
 import avatarMan from './AvatarMan'
 import avatarWoman from './AvatarWoman'
 import bookmark from './Bookmark'
+import check from './Check'
+import circle from './Circle'
 import close from './Close'
 import exportAction from './Export'
 import eye from './Eye'
@@ -44,12 +46,13 @@ import stepBack from './StepBack'
 import stepForward from './StepForward'
 import stop from './Stop'
 
-
 export {
   add,
   avatarMan,
   avatarWoman,
   bookmark,
+  check,
+  circle,
   close,
   exportAction,
   eye,
@@ -89,5 +92,5 @@ export {
   rewind,
   stepBack,
   stepForward,
-  stop
+  stop,
 }

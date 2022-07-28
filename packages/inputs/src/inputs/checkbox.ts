@@ -11,6 +11,7 @@ import {
   fieldset,
   decorator,
   box,
+  icon,
   legend,
   boxOption,
   boxOptions,
@@ -20,6 +21,7 @@ import {
   checkboxes,
   $if,
   $extend,
+  defaultIcon,
 } from '../compose'
 
 /**
@@ -37,7 +39,7 @@ export const checkbox: FormKitTypeDefinition = {
        * Single checkbox structure.
        */
       boxWrapper(
-        inner(prefix(), box(), decorator(), suffix()),
+        inner(prefix(), box(), decorator(icon('decorator')), suffix()),
         $if('$label', boxLabel('$label'))
       ),
       /**
@@ -59,7 +61,7 @@ export const checkbox: FormKitTypeDefinition = {
                     checked: '$fns.isChecked($option.value)',
                   },
                 }),
-                decorator(),
+                decorator(icon('decorator')),
                 suffix()
               ),
               $if('$option.label', boxLabel('$option.label'))
@@ -89,5 +91,9 @@ export const checkbox: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [options, checkboxes],
+  features: [
+    options,
+    checkboxes,
+    defaultIcon('decorator', 'checkboxDecorator'),
+  ],
 }

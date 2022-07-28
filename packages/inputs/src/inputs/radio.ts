@@ -11,6 +11,7 @@ import {
   fieldset,
   decorator,
   box,
+  icon,
   legend,
   boxOption,
   boxOptions,
@@ -20,6 +21,7 @@ import {
   radios,
   $if,
   $extend,
+  defaultIcon,
 } from '../compose'
 
 /**
@@ -37,7 +39,7 @@ export const radio: FormKitTypeDefinition = {
        * Single radio structure.
        */
       boxWrapper(
-        inner(prefix(), box(), decorator(), suffix()),
+        inner(prefix(), box(), decorator(icon('decorator')), suffix()),
         $if('$label', boxLabel('$label'))
       ),
       /**
@@ -59,7 +61,7 @@ export const radio: FormKitTypeDefinition = {
                     checked: '$fns.isChecked($option.value)',
                   },
                 }),
-                decorator(),
+                decorator(icon('decorator')),
                 suffix()
               ),
               $if('$option.label', boxLabel('$option.label'))
@@ -89,5 +91,5 @@ export const radio: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [options, radios],
+  features: [options, radios, defaultIcon('decorator', 'radioDecorator')],
 }

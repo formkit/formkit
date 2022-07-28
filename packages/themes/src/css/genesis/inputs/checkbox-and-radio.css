@@ -39,28 +39,33 @@
     position: relative;
   }
 
-  & .formkit-input ~ .formkit-decorator::before {
-    background: transparent;
-    content: "";
-    display: block;
-    width: 55%;
-    height: 20%;
-    pointer-events: none;
-    border-bottom: 0.2em solid transparent;
-    border-left: 0.2em solid transparent;
-    transform: rotate(-45deg);
-    transform-origin: bottom left;
+  & .formkit-input ~ .formkit-decorator .formkit-icon {
+    width: 0;
+    height: 0;
     position: absolute;
-    bottom: 20%;
-    left: 40%;
+    padding: 3px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  & .formkit-input ~ .formkit-decorator .formkit-icon svg {
+    height: 100%;
   }
 
   & .formkit-input:checked ~ .formkit-decorator {
     box-shadow: var(--fk-border-box-shadow-decorator-checked);
   }
 
-  & .formkit-input:checked ~ .formkit-decorator::before {
-    border-color: var(--fk-color-border-focus);
+  & .formkit-input:checked ~ .formkit-decorator .formkit-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  & .formkit-input:checked ~ .formkit-decorator .formkit-icon {
+    color: var(--fk-color-border-focus);
   }
 
   & .formkit-input:focus ~ .formkit-decorator {
@@ -88,5 +93,11 @@
   & fieldset.formkit-fieldset {
     border: var(--fk-border);
     border-radius: var(--fk-border-radius);
+  }
+}
+
+[data-type="radio"] {
+  & .formkit-input ~ .formkit-decorator .formkit-icon {
+    padding: 5px;
   }
 }

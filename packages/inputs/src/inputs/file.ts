@@ -73,8 +73,8 @@ export const file: FormKitTypeDefinition = {
    */
   features: [
     files,
-    defaultIcon('fileItem', 'fileDoc'),
-    defaultIcon('fileRemove', 'close'),
-    defaultIcon('noFiles', 'fileDoc'),
+    defaultIcon('fileItem', 'fileItem'),
+    defaultIcon('fileRemove', 'fileRemove'),
+    defaultIcon('noFiles', 'noFiles'),
   ],
 }

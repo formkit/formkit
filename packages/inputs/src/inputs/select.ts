@@ -59,5 +59,5 @@ export const select: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [options, selects, defaultIcon('select', 'down')],
+  features: [options, selects, defaultIcon('select', 'select')],
 }
