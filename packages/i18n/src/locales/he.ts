@@ -169,7 +169,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'אנא ההקלד אימייל תקין.',
+  email: 'אנא הקלד אימייל תקין.',
 
   /**
    * Does not end with the specified value
