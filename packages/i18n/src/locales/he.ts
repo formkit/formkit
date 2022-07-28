@@ -1,4 +1,3 @@
-// Please copy and paste the file your just downloaded here
 import { FormKitValidationMessages } from '@formkit/validation'
 
 /**
@@ -6,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list, date } from '../formatters'
+import { sentence as s, list, date, order } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -15,13 +14,17 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
-   * Shown on buttons for adding new items.
+   * Shown on a button for adding additional items.
    */
   add: 'הוסף',
   /**
    * Shown when a button to remove items is visible.
    */
   remove: 'מחק',
+  /**
+   * Shown when there are multiple items to remove at the same time.
+   */
+  removeAll: 'מחק הכל',
   /**
    * Shown when all fields are not filled out correctly.
    */
@@ -30,6 +33,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: 'שלח',
+  /**
+   * Shown when no files are selected.
+   */
+  noFiles: 'לא נבחר קובץ..',
 }
 
 /**
@@ -117,8 +124,9 @@ export const validation: FormKitValidationMessages = {
       return `שדה זה לא הוגדר כראוי ולא יכול להישלח.`
       /* </i18n> */
     }
+    const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} חייב להיות בין ${args[0]} ו-${args[1]}.`
+    return `${s(name)} חייב להיות בין ${a} ו- ${b}.`
     /* </i18n> */
   },
 
@@ -161,7 +169,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'אנא הקלד אימייל תקין.',
+  email: 'אנא ההקלד אימייל תקין.',
 
   /**
    * Does not end with the specified value
@@ -188,8 +196,8 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://docs.formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = first <= second ? first : second
-    const max = second >= first ? second : first
+    const min = Number(first) <= Number(second) ? first : second
+    const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} חייב להיות לפחות תו אחד.`
@@ -202,7 +210,7 @@ export const validation: FormKitValidationMessages = {
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} חייב ליות גדול או שווה ל- ${min} תווים.`
+      return `${s(name)} חייב להיות גדול או שווה ל- ${min} תווים.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
