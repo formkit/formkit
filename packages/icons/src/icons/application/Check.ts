@@ -1,0 +1,1 @@
+export default `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 43.98 36.44"><polygon fill="currentColor" points="37.09 0 13.92 23.17 6.45 15.7 0 22.15 14.29 36.45 20.68 30.06 20.74 30.12 43.98 6.88 37.09 0"/></svg>`
