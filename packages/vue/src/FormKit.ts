@@ -29,6 +29,7 @@ export const FormKit = defineComponent({
     node: (node: FormKitNode) => !!node,
     submit: (_data: any, _node?: FormKitNode) => true,
     submitRaw: (_event: Event, _node?: FormKitNode) => true,
+    submitInvalid: (_node?: FormKitNode) => true,
     /* eslint-enable @typescript-eslint/no-unused-vars */
   },
   inheritAttrs: false,

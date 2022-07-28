@@ -1078,3 +1078,35 @@ describe('v-model', () => {
     expect(getNode(id)?.value).toBe('Burger')
   })
 })
+
+describe('submit-invalid', () => {
+  it('calls the submit-invalid handler', async () => {
+    const invalidHandler = jest.fn()
+    const wrapper = mount(
+      {
+        methods: {
+          invalidHandler,
+        },
+        template: `
+        <FormKit type="form" @submit-invalid="invalidHandler">
+          <FormKit
+            type="text"
+            label="Some field"
+            name="myInput"
+            :delay="0"
+            validation="required|length:10"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(invalidHandler).toBeCalledTimes(1)
+  })
+})

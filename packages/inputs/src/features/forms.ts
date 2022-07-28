@@ -25,6 +25,9 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   }
 
   if (node.ledger.value('blocking')) {
+    if (typeof node.props.onSubmitInvalid === 'function') {
+      node.props.onSubmitInvalid(node)
+    }
     // There is still a blocking message in the store.
     if (node.props.incompleteMessage !== false) {
       node.store.set(
