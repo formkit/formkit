@@ -62,10 +62,11 @@ export default function files(node: FormKitNode): void {
     }
   }
 
+  node.hook.input((value, next) => next(Array.isArray(value) ? value : []))
+
   node.on('created', () => {
-    if (!Array.isArray(node.value)) {
-      node.input([], false)
-    }
+    if (!Array.isArray(node.value)) node.input([], false)
+
     if (!node.context) return
 
     node.context.handlers.resetFiles = (e: Event) => {

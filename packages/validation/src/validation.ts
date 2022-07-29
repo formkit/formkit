@@ -639,3 +639,34 @@ function fnHints(
     existingHints
   )
 }
+
+/**
+ * Extracts all validation messages from the given node and all its descendants.
+ * This is not reactive and must be re called each time the messages change.
+ * @param node - The FormKit node to extract validation rules from — as well as its descendants.
+ */
+export function getValidationMessages(
+  node: FormKitNode
+): Map<FormKitNode, FormKitMessage[]> {
+  const messages: Map<FormKitNode, FormKitMessage[]> = new Map()
+  const extract = (n: FormKitNode) => {
+    const nodeMessages = []
+    for (const key in n.store) {
+      const message = n.store[key]
+      if (
+        message.type === 'validation' &&
+        message.blocking &&
+        message.visible &&
+        typeof message.value === 'string'
+      ) {
+        nodeMessages.push(message)
+      }
+    }
+    if (nodeMessages.length) {
+      messages.set(n, nodeMessages)
+    }
+    return n
+  }
+  extract(node).walk(extract)
+  return messages
+}

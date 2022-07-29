@@ -5,13 +5,14 @@ import { FormKitNode } from '@formkit/core'
  * @param node - The node to apply icons to.
  * @public
  */
-export function createIconPlugin(icons: Record<any, string>): (node: FormKitNode) => void {
+export function createIconPlugin(
+  icons: Record<any, string>
+): (node: FormKitNode) => void {
   icons = wrapIcons(icons)
 
   return function iconPlugin(node: FormKitNode): void {
     const iconSchemaProps = getIconPropsFromNode(node)
     if (!Object.keys(iconSchemaProps).length) return // do nothing else if we have on matching props
-    console.log(iconSchemaProps.icon, icons[iconSchemaProps.icon])
     /** TODO
      * [] Have global config option for default icon placement, prefix (default) or suffix
      * [] take IconSchemaProps and turn them into props on the node
@@ -30,7 +31,9 @@ export function createIconPlugin(icons: Record<any, string>): (node: FormKitNode
 function wrapIcons(icons: Record<any, string>): Record<any, string> {
   const wrappedIcons: Record<any, string> = {}
   Object.keys(icons).map((key) => {
-    wrappedIcons[key] = `<div class="formkit-icon" data-icon="${key}">${icons[key]}</div>`
+    wrappedIcons[
+      key
+    ] = `<div class="formkit-icon" data-icon="${key}">${icons[key]}</div>`
   })
   return wrappedIcons
 }
@@ -42,8 +45,8 @@ function wrapIcons(icons: Record<any, string>): Record<any, string> {
  */
 function getIconPropsFromNode(node: FormKitNode): Record<any, any> {
   const attrs = node && node.context ? node.context.attrs : {}
-  const {icon, iconPrefix, iconSuffix} = attrs
-  const targetAttrs: Record<any, any> = {icon, iconPrefix, iconSuffix}
+  const { icon, iconPrefix, iconSuffix } = attrs
+  const targetAttrs: Record<any, any> = { icon, iconPrefix, iconSuffix }
   const matchingAttrs: Record<any, any> = {}
   Object.keys(targetAttrs).map((key) => {
     if (targetAttrs[key] !== undefined) {

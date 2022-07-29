@@ -1,5 +1,7 @@
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
+import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 import { mount } from '@vue/test-utils'
 
 /**
@@ -48,7 +50,9 @@ describe('file inputs', () => {
         },
       }
     )
-    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(`<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove</button></li>`)
+    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
+      `<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove</button></li>`
+    )
   })
 
   it('can override the class for a file’s name', () => {
@@ -91,6 +95,29 @@ describe('file inputs', () => {
       }
     )
 
+    expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
+  })
+  it('can be reset to an empty file uploader', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            id="${id}"
+            type="file"
+            name="file"
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
+    getNode(id)!.reset()
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
   })
 })

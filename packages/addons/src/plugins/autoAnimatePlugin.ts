@@ -46,6 +46,7 @@ export function createAutoAnimatePlugin(
   return (node: FormKitNode) => {
     node.on('created', () => {
       if (typeof node.props.definition?.schema === 'function') {
+        if (typeof window === undefined) return
         // add an outer wrapper id or get the current one
         const original = node.props.definition.schema
         node.props.definition.schema = (extensions) => {
@@ -59,8 +60,20 @@ export function createAutoAnimatePlugin(
               ? finalSchema[0].else[0]
               : finalSchema[0].else
             : finalSchema[0]
-          if (outermostSchema && isDOM(outermostSchema) && outermostSchema.attrs && 'id' in outermostSchema.attrs) {
-            pendingIds.set(String(outermostSchema.attrs.id === '$id' ? node.props.id : outermostSchema.attrs.id), options || undefined)
+          if (
+            outermostSchema &&
+            isDOM(outermostSchema) &&
+            outermostSchema.attrs &&
+            'id' in outermostSchema.attrs
+          ) {
+            pendingIds.set(
+              String(
+                outermostSchema.attrs.id === '$id'
+                  ? node.props.id
+                  : outermostSchema.attrs.id
+              ),
+              options || undefined
+            )
           }
           return finalSchema
         }

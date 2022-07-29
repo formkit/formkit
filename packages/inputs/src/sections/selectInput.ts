@@ -19,6 +19,7 @@ export const selectInput = createSection('input', () => ({
     disabled: '$disabled',
     class: '$classes.input',
     name: '$node.name',
+    onChange: '$handlers.onChange',
     onInput: '$handlers.selectInput',
     onBlur: '$handlers.blur',
     'aria-describedby': '$describedBy',

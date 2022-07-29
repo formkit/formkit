@@ -40,7 +40,7 @@ export const select: FormKitTypeDefinition = {
             $if('$slots.option', optionSlot, option('$option.label'))
           )
         ),
-        icon('select'),
+        $if('$attrs.multiple !== undefined', () => '', icon('select')),
         suffix(),
         icon('suffix')
       )
@@ -59,5 +59,5 @@ export const select: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [options, selects, defaultIcon('select', 'down')],
+  features: [options, selects, defaultIcon('select', 'select')],
 }

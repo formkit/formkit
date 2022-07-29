@@ -57,6 +57,7 @@ interface FormKitComponentProps {
 interface FormKitComponentListeners {
   onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
   onSubmitRaw?: (event?: Event) => unknown
+  onSubmitInvalid?: (node?: Node) => unknown
 }
 
 /**
@@ -106,7 +107,7 @@ function onlyListeners(
   props: Record<string, unknown> | null | undefined
 ): FormKitComponentListeners {
   if (!props) return {}
-  const knownListeners = ['Submit', 'SubmitRaw'].reduce(
+  const knownListeners = ['Submit', 'SubmitRaw', 'SubmitInvalid'].reduce(
     (listeners, listener) => {
       const name = `on${listener}`
       if (name in props) {
