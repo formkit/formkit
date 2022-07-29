@@ -1566,6 +1566,36 @@ describe('state attributes', () => {
     await nextTick()
     expect(outer.attributes('data-errors')).toBe(undefined)
   })
+
+  it('adds data-disabled when the input is disabled', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        disabled: true,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-disabled')).toBe('true')
+  })
+
+  it.only('does not add data-disabled when the input’s disabled prop is false', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        delay: 0,
+        disabled: false,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.html()).not.toContain('data-disabled')
+  })
 })
 
 describe('exposures', () => {
