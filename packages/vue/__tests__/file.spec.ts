@@ -118,7 +118,6 @@ describe('file inputs', () => {
     expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
     getNode(id)!.reset()
     await new Promise((r) => setTimeout(r, 20))
-    console.log(wrapper.html())
     expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
   })
 })

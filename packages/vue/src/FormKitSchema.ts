@@ -1,5 +1,5 @@
 import {
-  ConcreteComponent,
+  Component,
   PropType,
   RendererElement,
   RendererNode,
@@ -14,6 +14,7 @@ import {
   watch,
   Ref,
   getCurrentInstance,
+  ConcreteComponent,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -39,7 +40,7 @@ import {
  * registered ones)
  */
 interface FormKitComponentLibrary {
-  [index: string]: ConcreteComponent
+  [index: string]: Component
 }
 
 /**
@@ -47,7 +48,7 @@ interface FormKitComponentLibrary {
  */
 type RenderContent = [
   condition: false | (() => boolean | number | string),
-  element: string | ConcreteComponent | null,
+  element: string | Component | null,
   attrs: () => FormKitSchemaAttributes,
   children: RenderChildren | null,
   alternate: RenderChildren | null,
@@ -550,7 +551,7 @@ function parseSchema(
           : null
         // Handle dom elements and components
         return h(
-          el,
+          el as ConcreteComponent,
           attrs(),
           (slots || (children ? children(iterationData) : [])) as Renderable[]
         )
