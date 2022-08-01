@@ -1,4 +1,9 @@
-import { FORMKIT_VERSION, FormKitNode, FormKitClasses, FormKitEvent } from '@formkit/core'
+import {
+  FORMKIT_VERSION,
+  FormKitNode,
+  FormKitClasses,
+  FormKitEvent,
+} from '@formkit/core'
 
 /**
  * A function that returns a class list string
@@ -11,15 +16,15 @@ type ClassFunction = (node: FormKitNode, sectionKey: string) => string
  * @public
  */
 export interface FormKitIconLoader {
-  (iconName: string):string | undefined | Promise<string | undefined>
+  (iconName: string): string | undefined | Promise<string | undefined>
 }
 
 /**
  * A function that returns a remote url for retrieving an SVG icon by name
  * @public
  */
- export interface FormKitIconLoaderUrl {
-  (iconName: string):string | undefined
+export interface FormKitIconLoaderUrl {
+  (iconName: string): string | undefined
 }
 
 /**
@@ -68,9 +73,13 @@ function addClassesBySection(
   classesByType: Record<string, () => string>
 ): string {
   const type = node.props.type
+  const family = node.props.family
   let classList = ''
   if (classesByType.global) {
     classList += classesByType.global + ' '
+  }
+  if (classesByType[`family:${family}`]) {
+    classList += classesByType[`family:${family}`] + ' '
   }
   if (classesByType[type]) {
     classList += classesByType[type]
@@ -85,8 +94,8 @@ function addClassesBySection(
 /**
  * The document's computed CSS styles
  */
-let documentStyles: Record<any, any>|undefined = undefined
-let documentThemeLinkTag: HTMLElement|null = null
+let documentStyles: Record<any, any> | undefined = undefined
+let documentThemeLinkTag: HTMLElement | null = null
 
 /**
  * Stores the state of theme loading
@@ -105,13 +114,15 @@ const themeLoaded = new Promise<void>((res) => {
  * Check if we are client-side
  */
 const isClient = typeof window !== 'undefined' && typeof fetch !== 'undefined'
-documentStyles = isClient ? getComputedStyle(document.documentElement) : undefined
+documentStyles = isClient
+  ? getComputedStyle(document.documentElement)
+  : undefined
 
 /**
  * The FormKit icon Registry - a global record of loaded icons.
  * @public
  */
-export const iconRegistry: Record<string, string|undefined> = {}
+export const iconRegistry: Record<string, string | undefined> = {}
 
 /**
  * A collection of existing icon requests to avoid duplicate fetching
@@ -129,8 +140,8 @@ export function createThemePlugin(
   theme?: string,
   icons?: Record<string, string | undefined>,
   iconLoaderUrl?: FormKitIconLoaderUrl,
-  iconLoader?: FormKitIconLoader,
-): ((node: FormKitNode) => any) {
+  iconLoader?: FormKitIconLoader
+): (node: FormKitNode) => any {
   if (icons) {
     // add any user-provided icons to the registry
     Object.assign(iconRegistry, icons)
@@ -145,17 +156,10 @@ export function createThemePlugin(
     // we have the theme loaded locally
     themeDidLoad()
     themeWasRequested = true
-  } else if (
-    theme &&
-    !themeWasRequested &&
-    isClient
-  ) {
+  } else if (theme && !themeWasRequested && isClient) {
     // we have the theme name but need to request it remotely
     loadTheme(theme)
-  } else if (
-    !themeWasRequested &&
-    isClient
-  ) {
+  } else if (!themeWasRequested && isClient) {
     // we don't have a discoverable theme, so don't wait for it
     themeDidLoad()
   }
@@ -170,11 +174,14 @@ export function createThemePlugin(
     loadIconPropIcons(node, node.props.iconHandler)
 
     node.on('created', () => {
-
       // set up the `-icon` click handlers
       if (node?.context?.handlers) {
-        node.context.handlers.iconClick = (sectionKey: string): ((e: MouseEvent) => void) | void => {
-          const clickHandlerProp = `on${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}IconClick`
+        node.context.handlers.iconClick = (
+          sectionKey: string
+        ): ((e: MouseEvent) => void) | void => {
+          const clickHandlerProp = `on${sectionKey
+            .charAt(0)
+            .toUpperCase()}${sectionKey.slice(1)}IconClick`
           const handlerFunction = node.props[clickHandlerProp]
           if (handlerFunction && typeof handlerFunction === 'function') {
             return (e: MouseEvent) => {
@@ -194,12 +201,8 @@ export function createThemePlugin(
 /**
  * Loads a FormKit theme
  */
-function loadTheme (theme: string) {
-  if (
-    !theme ||
-    !isClient ||
-    typeof getComputedStyle !== 'function'
-  ) {
+function loadTheme(theme: string) {
+  if (!theme || !isClient || typeof getComputedStyle !== 'function') {
     // if we're not client-side then bail
     return
   }
@@ -216,17 +219,16 @@ function loadTheme (theme: string) {
     // if we have a window object
     isClient &&
     // we don't have an existing theme OR the theme being set up is different
-    ((
-      !documentStyles?.getPropertyValue('--formkit-theme') &&
-      !documentThemeLinkTag
-    ) || (
-      documentThemeLinkTag?.getAttribute('data-theme') &&
-      documentThemeLinkTag?.getAttribute('data-theme') !== theme
-    ))
+    ((!documentStyles?.getPropertyValue('--formkit-theme') &&
+      !documentThemeLinkTag) ||
+      (documentThemeLinkTag?.getAttribute('data-theme') &&
+        documentThemeLinkTag?.getAttribute('data-theme') !== theme))
   ) {
     // if for some reason we didn't overwrite the __FKV__ token during publish
     // then use the `latest` tag for CDN fetching. (this applies to local dev as well)
-    const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
+    const formkitVersion = FORMKIT_VERSION.startsWith('__')
+      ? 'latest'
+      : FORMKIT_VERSION
     const themeUrl = `https://cdn.jsdelivr.net/npm/@formkit/themes@${formkitVersion}/dist/${theme}/theme.css`
     const link = document.createElement('link')
     link.type = 'text/css'
@@ -251,8 +253,13 @@ function loadTheme (theme: string) {
  * @param iconLoader - a function for loading an icon when it's not found in the iconRegistry
  * @public
  */
-export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl?: FormKitIconLoaderUrl): FormKitIconLoader {
-  return (iconName: string | boolean): string | undefined | Promise<string|undefined> => {
+export function createIconHandler(
+  iconLoader?: FormKitIconLoader,
+  iconLoaderUrl?: FormKitIconLoaderUrl
+): FormKitIconLoader {
+  return (
+    iconName: string | boolean
+  ): string | undefined | Promise<string | undefined> => {
     if (typeof iconName === 'boolean') {
       return // do nothing if we're dealing with a boolean
     }
@@ -269,24 +276,33 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
     const isDefault = iconName.startsWith('default:')
     iconName = isDefault ? iconName.split(':')[1] : iconName
 
-    let loadedIcon:(string | undefined | Promise<string | undefined>) = undefined
+    let loadedIcon: string | undefined | Promise<string | undefined> = undefined
     if (icon || iconName in iconRegistry) {
       return icon
     } else if (!iconRequests[iconName]) {
       loadedIcon = getIconFromStylesheet(iconName)
-      loadedIcon = isClient && typeof loadedIcon === 'undefined' ? Promise.resolve(loadedIcon) : loadedIcon
+      loadedIcon =
+        isClient && typeof loadedIcon === 'undefined'
+          ? Promise.resolve(loadedIcon)
+          : loadedIcon
       if (loadedIcon instanceof Promise) {
-        iconRequests[iconName] = loadedIcon.then((iconValue) => {
-          if (!iconValue && typeof iconName === 'string' && !isDefault) {
-            return loadedIcon = typeof iconLoader === 'function' ? iconLoader(iconName) : getRemoteIcon(iconName, iconLoaderUrl)
-          }
-          return iconValue
-        }).then((finalIcon) => {
-          if (typeof iconName === 'string') {
-            iconRegistry[isDefault ? `default:${iconName}` : iconName] = finalIcon
-          }
-          return finalIcon
-        })
+        iconRequests[iconName] = loadedIcon
+          .then((iconValue) => {
+            if (!iconValue && typeof iconName === 'string' && !isDefault) {
+              return (loadedIcon =
+                typeof iconLoader === 'function'
+                  ? iconLoader(iconName)
+                  : getRemoteIcon(iconName, iconLoaderUrl))
+            }
+            return iconValue
+          })
+          .then((finalIcon) => {
+            if (typeof iconName === 'string') {
+              iconRegistry[isDefault ? `default:${iconName}` : iconName] =
+                finalIcon
+            }
+            return finalIcon
+          })
       } else if (typeof loadedIcon === 'string') {
         iconRegistry[isDefault ? `default:${iconName}` : iconName] = loadedIcon
         return loadedIcon
@@ -296,7 +312,9 @@ export function createIconHandler (iconLoader?: FormKitIconLoader, iconLoaderUrl
   }
 }
 
-function getIconFromStylesheet(iconName: string): string | undefined | Promise<string|undefined> {
+function getIconFromStylesheet(
+  iconName: string
+): string | undefined | Promise<string | undefined> {
   if (!isClient) return
   if (themeHasLoaded) {
     return loadStylesheetIcon(iconName)
@@ -307,7 +325,7 @@ function getIconFromStylesheet(iconName: string): string | undefined | Promise<s
   }
 }
 
-function loadStylesheetIcon (iconName: string) {
+function loadStylesheetIcon(iconName: string) {
   const cssVarIcon = documentStyles?.getPropertyValue(`--fk-icon-${iconName}`)
   if (cssVarIcon) {
     // if we have a matching icon in the CSS properties, then decode it
@@ -325,9 +343,17 @@ function loadStylesheetIcon (iconName: string) {
  * @param iconName - The string name of the icon
  * @public
  */
-function getRemoteIcon(iconName: string, iconLoaderUrl?: FormKitIconLoaderUrl): Promise<string | undefined> | undefined {
-  const formkitVersion = FORMKIT_VERSION.startsWith('__') ? 'latest' : FORMKIT_VERSION
-  const fetchUrl = typeof iconLoaderUrl === 'function' ? iconLoaderUrl(iconName) : `https://cdn.jsdelivr.net/npm/@formkit/icons@${formkitVersion}/dist/icons/${iconName}.svg`
+function getRemoteIcon(
+  iconName: string,
+  iconLoaderUrl?: FormKitIconLoaderUrl
+): Promise<string | undefined> | undefined {
+  const formkitVersion = FORMKIT_VERSION.startsWith('__')
+    ? 'latest'
+    : FORMKIT_VERSION
+  const fetchUrl =
+    typeof iconLoaderUrl === 'function'
+      ? iconLoaderUrl(iconName)
+      : `https://cdn.jsdelivr.net/npm/@formkit/icons@${formkitVersion}/dist/icons/${iconName}.svg`
   if (!isClient) return undefined
   return fetch(`${fetchUrl}`)
     .then(async (r) => {
@@ -337,7 +363,7 @@ function getRemoteIcon(iconName: string, iconLoaderUrl?: FormKitIconLoaderUrl): 
       }
       return undefined
     })
-    .catch(e => {
+    .catch((e) => {
       console.error(e)
       return undefined
     })
@@ -346,7 +372,10 @@ function getRemoteIcon(iconName: string, iconLoaderUrl?: FormKitIconLoaderUrl): 
 /**
  * Loads icons for the matching `-icon` props on a given node
  */
-function loadIconPropIcons(node: FormKitNode, iconHandler: FormKitIconLoader): void {
+function loadIconPropIcons(
+  node: FormKitNode,
+  iconHandler: FormKitIconLoader
+): void {
   const iconRegex = /^[a-zA-Z-]+(?:-icon|Icon)$/
   const iconProps = Object.keys(node.props).filter((prop) => {
     return iconRegex.test(prop)
@@ -359,11 +388,19 @@ function loadIconPropIcons(node: FormKitNode, iconHandler: FormKitIconLoader): v
 /**
  * Loads an icon from an icon-prop declaration eg. suffix-icon="settings"
  */
-function loadPropIcon(node: FormKitNode, iconHandler: FormKitIconLoader, sectionKey: string): Promise<void> | void {
+function loadPropIcon(
+  node: FormKitNode,
+  iconHandler: FormKitIconLoader,
+  sectionKey: string
+): Promise<void> | void {
   const iconName = node.props[sectionKey]
   const loadedIcon = iconHandler(iconName)
-  const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
-  const clickHandlerProp = `on${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}Click`
+  const rawIconProp = `_raw${sectionKey
+    .charAt(0)
+    .toUpperCase()}${sectionKey.slice(1)}`
+  const clickHandlerProp = `on${sectionKey
+    .charAt(0)
+    .toUpperCase()}${sectionKey.slice(1)}Click`
   node.addProps([rawIconProp, clickHandlerProp])
   // listen for changes to the icon prop
   node.on(`prop:${sectionKey}`, reloadIcon)
@@ -385,7 +422,9 @@ function reloadIcon(event: FormKitEvent): void | Promise<void> {
   const iconName = event.payload
   const iconHandler = node?.props?.iconHandler
   const sectionKey = event.name.split(':')[1]
-  const rawIconProp = `_raw${sectionKey.charAt(0).toUpperCase()}${sectionKey.slice(1)}`
+  const rawIconProp = `_raw${sectionKey
+    .charAt(0)
+    .toUpperCase()}${sectionKey.slice(1)}`
 
   if (iconHandler && typeof iconHandler === 'function') {
     const loadedIcon = iconHandler(iconName)

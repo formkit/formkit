@@ -1,10 +1,11 @@
 import FormKit from '../src/FormKit'
+import FormKitSchema from '../src/FormKitSchema'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 // import { jest } from '@jest/globals'
 
 describe('select', () => {
@@ -529,7 +530,7 @@ describe('select', () => {
   })
 })
 
-describe('select object values', () => {
+describe('select arbitrary type values', () => {
   it('allows numeric values', async () => {
     const id = token()
     const wrapper = mount(FormKit, {
@@ -638,5 +639,98 @@ describe('select object values', () => {
       true,
     ])
     expect(getNode(id)!.value).toEqual([{ tool: 'wrench' }, { tool: 'socket' }])
+  })
+
+  it('does not output data-multiple attribute if multiple attribute is not applied', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).not.toContain('data-multiple')
+  })
+
+  it('does output data-multiple attribute if multiple attribute is applied', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        multiple: true,
+        options: [
+          { value: { tool: 'hammer' }, label: 'Best' },
+          { value: { tool: 'wrench' }, label: 'Worst' },
+          { value: { tool: 'socket' }, label: 'Middle' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toContain('data-multiple')
+  })
+})
+
+describe('selects rendered via schema', () => {
+  it('can render conditional options', async () => {
+    const number = ref(1)
+    const characterOptions1 = [
+      {
+        value: 'a',
+        label: 'A',
+      },
+      {
+        value: 'aa',
+        label: 'AA',
+      },
+    ]
+
+    const characterOptions2 = [
+      {
+        value: 'b',
+        label: 'B',
+      },
+      {
+        value: 'bb',
+        label: 'BB',
+      },
+    ]
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'select',
+            name: 'character',
+            id: 'character',
+            options: {
+              if: '$number === 1',
+              then: characterOptions1,
+              else: {
+                if: '$number === 2',
+                then: characterOptions2,
+              },
+            },
+          },
+        ],
+        data: {
+          number,
+        },
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('[name="character"]').html()).toBe(
+      `<select class="formkit-input" id="character" name="character">
+  <option class="formkit-option" value="a">A</option>
+  <option class="formkit-option" value="aa">AA</option>
+</select>`
+    )
   })
 })

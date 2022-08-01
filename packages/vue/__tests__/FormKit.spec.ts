@@ -12,6 +12,32 @@ import { jest } from '@jest/globals'
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
+  it('uses the input definition’s forceTypeProp instead of the type', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'foo',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              inputs: {
+                foo: {
+                  type: 'input',
+                  forceTypeProp: 'bar',
+                  schema: ['$type'],
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+
+    expect(wrapper.html()).toBe('bar')
+  })
+
   it('can display prop-defined errors', async () => {
     const id = token()
     const wrapper = mount(FormKit, {
@@ -270,6 +296,31 @@ describe('v-model', () => {
     wrapper.find('input').setValue('jon')
     await flushPromises()
     expect(wrapper.vm.$data.name).toBe('jon')
+  })
+
+  it('does not perform input events on v-modeled form', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            formData: {} as { username: string; password: string },
+          }
+        },
+        template: `<FormKit type="form" v-model="formData">
+          <FormKit type="text" name="username" />
+          <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
+    wrapper.vm.$data.formData.username = 'foo'
+    await nextTick()
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
   })
 })
 
@@ -916,7 +967,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-type="text" data-invalid="true">
+      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-invalid="true">
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->
@@ -1337,7 +1388,7 @@ describe('prefix and suffix', () => {
       },
     })
     expect(wrapper.find('.formkit-inner').html()).toBe(
-      '<div class="formkit-inner">Prefix<input class="formkit-input" type="checkbox" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"></span>Suffix</div>'
+      '<div class="formkit-inner">Prefix<input class="formkit-input" type="checkbox" name="terms" id="terms" value="true"><span class="formkit-decorator" aria-hidden="true"><!----></span>Suffix</div>'
     )
   })
 
@@ -1514,6 +1565,36 @@ describe('state attributes', () => {
     setErrors(formId, [], { foo: [] })
     await nextTick()
     expect(outer.attributes('data-errors')).toBe(undefined)
+  })
+
+  it('adds data-disabled when the input is disabled', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        disabled: true,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.attributes('data-disabled')).toBe('true')
+  })
+
+  it.only('does not add data-disabled when the input’s disabled prop is false', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        delay: 0,
+        disabled: false,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const outer = wrapper.find('.formkit-outer')
+    expect(outer.html()).not.toContain('data-disabled')
   })
 })
 

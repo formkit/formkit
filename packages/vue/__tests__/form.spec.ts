@@ -36,7 +36,7 @@ describe('form structure', () => {
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
-    <div class="formkit-outer" data-type="submit">
+    <div class="formkit-outer" data-family="button" data-type="submit">
       <!---->
       <div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_1" id="button">
           <!---->
@@ -1033,5 +1033,80 @@ describe('submit hook', () => {
       email: 'modifiedfoo@bar.com',
       newField: 'my new field',
     })
+  })
+})
+
+describe('v-model', () => {
+  it('can change a value and add a value in a single tick cycle', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            data: {
+              field_a: '',
+            },
+          } as { data: any }
+        },
+        template: `
+        <FormKit type="form" v-model="data">
+          <FormKit
+            id="${id}"
+            type="select"
+            label="field A"
+            name="field_a"
+            :delay="0"
+            placeholder="Choose a food"
+            :options="['Pizza', 'Ice Cream', 'Burger']"
+            @change="()=>{ data.name2 = 'added' }"
+          />
+        </FormKit>
+        <pre>{{ data }}</pre>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    wrapper.find('select').setValue('Burger')
+    wrapper.find('select').trigger('input')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.vm.data).toStrictEqual({ field_a: 'Burger', name2: 'added' })
+    expect(getNode(id)?.value).toBe('Burger')
+  })
+})
+
+describe('submit-invalid', () => {
+  it('calls the submit-invalid handler', async () => {
+    const invalidHandler = jest.fn()
+    const wrapper = mount(
+      {
+        methods: {
+          invalidHandler,
+        },
+        template: `
+        <FormKit type="form" @submit-invalid="invalidHandler">
+          <FormKit
+            type="text"
+            label="Some field"
+            name="myInput"
+            :delay="0"
+            validation="required|length:10"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(invalidHandler).toBeCalledTimes(1)
   })
 })

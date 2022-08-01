@@ -47,7 +47,7 @@ export const file: FormKitTypeDefinition = {
           )
         ),
         $if('$value.length > 1', fileRemove('$ui.removeAll.value')),
-        noFiles(icon('fileItem'), '$ui.noFiles.value'),
+        noFiles(icon('noFiles'), '$ui.noFiles.value'),
         suffix(),
         icon('suffix')
       )
@@ -60,6 +60,11 @@ export const file: FormKitTypeDefinition = {
    */
   type: 'input',
   /**
+   * The family of inputs this one belongs too. For example "text" and "email"
+   * are both part of the "text" family. This is primary used for styling.
+   */
+  family: 'text',
+  /**
    * An array of extra props to accept for this input.
    */
   props: [],
@@ -68,7 +73,8 @@ export const file: FormKitTypeDefinition = {
    */
   features: [
     files,
-    defaultIcon('fileItem', 'fileDoc'),
-    defaultIcon('fileRemove', 'close'),
+    defaultIcon('fileItem', 'fileItem'),
+    defaultIcon('fileRemove', 'fileRemove'),
+    defaultIcon('noFiles', 'noFiles'),
   ],
 }

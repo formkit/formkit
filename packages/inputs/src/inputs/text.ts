@@ -40,6 +40,11 @@ export const text: FormKitTypeDefinition = {
    */
   type: 'input',
   /**
+   * The family of inputs this one belongs too. For example "text" and "email"
+   * are both part of the "text" family. This is primary used for styling.
+   */
+  family: 'text',
+  /**
    * An array of extra props to accept for this input.
    */
   props: [],

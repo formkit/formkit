@@ -13,6 +13,26 @@ const submitHandler = async function () {
   await new Promise(r => setTimeout(r, 2000))
 }
 
+const fruit = ref(null)
+const countries = [
+  {
+    label: 'Italy',
+    value: 'it',
+    help: 'This is the best one'
+  },
+  {
+    label: 'France',
+    value: 'fr',
+    attrs: { disabled: true },
+    help: 'This is smelliest one'
+  },
+  {
+    label: 'Germany',
+    value: 'de',
+    help: 'This is the cleanest one',
+  },
+]
+
 const changeIcon = function (node: FormKitNode, e: MouseEvent) {
   passwordIcon.value = passwordIcon.value === 'eye' ? 'eyeClosed' : 'eye'
   passwordInputType.value = passwordIcon.value === 'eye' ? 'text' : 'password'
@@ -124,6 +144,32 @@ const changeIcon = function (node: FormKitNode, e: MouseEvent) {
       prefix-icon="doesNotExist"
     />
     <FormKit
+      label="Countries"
+      type="checkbox"
+      name="countries"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="countries"
+    />
+    <FormKit
+      type="checkbox"
+      label="Do you agree to our terms?"
+    />
+    <FormKit
+      v-model="fruit"
+      label="Select a fruit"
+      type="radio"
+      name="fruit"
+      help="Hello help text!"
+      placeholder="Select the best country"
+      :options="['Apple', 'Strawberry', 'Banana']"
+    />
+    <FormKit
+      v-if="fruit"
+      type="checkbox"
+      :label="`Please confirm that you meant to select ${fruit}?`"
+    />
+    <FormKit
       id="range"
       name="range"
       type="range"
@@ -199,6 +245,7 @@ const changeIcon = function (node: FormKitNode, e: MouseEvent) {
       label="a file input with no file item icons"
       prefix-icon="file"
       :file-item-icon="false"
+      :no-files-icon="false"
       :multiple="true"
     />
     <FormKit

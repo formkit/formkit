@@ -46,14 +46,45 @@ import { reset } from './reset'
  * @public
  */
 export type FormKitTypeDefinition = {
+  /**
+   * The FormKit core node type. Can only be input | list | group.
+   */
   type: FormKitNodeType
+  /**
+   * Groups the input into a given family of inputs, generally for styling
+   * purposes only. For example the "text" family would apply to all text-like
+   * inputs.
+   */
+  family?: string
+  /**
+   * An optional name for the input’s type (e.g. "select" for a select input).
+   * If used, this value takes precedence over the "type" prop string.
+   */
+  forceTypeProp?: string
+  /**
+   * Custom props that should be added to the input.
+   */
   props?: string[]
+  /**
+   * The schema used to create the input. Either this or the component is
+   * required.
+   */
   schema?:
     | FormKitExtendableSchemaRoot
     | FormKitSchemaNode[]
     | FormKitSchemaCondition
+  /**
+   * A component to use to render the input. Either this or the schema is
+   * required.
+   */
   component?: unknown
+  /**
+   * A library of components to provide to the internal input schema.
+   */
   library?: Record<string, unknown>
+  /**
+   * An array of additional feature functions to load when booting the input.
+   */
   features?: Array<(node: FormKitNode) => void>
 }
 
@@ -1162,6 +1193,19 @@ function define(
     type: node.type,
     value: context.value,
   })
+  /**
+   * If the user has a typename defined, use it here.
+   */
+  if (definition.forceTypeProp) {
+    if (node.props.type) node.props.originalType = node.props.type
+    context.props.type = definition.forceTypeProp
+  }
+  /**
+   * If the input is part of a family of inputs, add that prop.
+   */
+  if (definition.family) {
+    context.props.family = definition.family
+  }
   // Apply any input features before resetting the props.
   if (definition.features) {
     definition.features.forEach((feature) => feature(node))

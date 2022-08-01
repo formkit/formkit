@@ -19,6 +19,19 @@ function isSelected(node: FormKitNode, option: string) {
 }
 
 /**
+ * Defers the change event till after the next cycle.
+ * @param node - The node being evaluated.
+ * @param e - The change event.
+ */
+async function deferChange(node: FormKitNode, e: Event) {
+  if (typeof node.props.attrs?.onChange === 'function') {
+    await new Promise((r) => setTimeout(r, 0))
+    await node.settled
+    node.props.attrs.onChange(e)
+  }
+}
+
+/**
  * Select the correct values.
  * @param e - The input event emitted by the select.
  */
@@ -103,6 +116,7 @@ export default function select(node: FormKitNode): void {
     }
     if (node.context?.handlers) {
       node.context.handlers.selectInput = selectInput.bind(null, node)
+      node.context.handlers.onChange = deferChange.bind(null, node)
     }
     if (node.context?.fns) {
       node.context.fns.isSelected = isSelected.bind(null, node)

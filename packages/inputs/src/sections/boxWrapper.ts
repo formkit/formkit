@@ -9,7 +9,7 @@ export const boxWrapper = createSection('wrapper', () => ({
     'data-disabled': {
       if: '$options.length',
       then: undefined,
-      else: '$disabled',
+      else: '$disabled || undefined',
     },
   },
 }))

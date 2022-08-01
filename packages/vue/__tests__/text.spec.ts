@@ -134,6 +134,28 @@ describe('text classification', () => {
     expect(wrapper.html()).toContain('type="week"')
   })
 
+  it('renders the text family for all text based inputs', () => {
+    const textInputs = [
+      'color',
+      'date',
+      'datetime-local',
+      'email',
+      'month',
+      'number',
+      'password',
+      'search',
+      'tel',
+      'text',
+      'time',
+      'url',
+      'week',
+    ]
+    textInputs.forEach((type) => {
+      const wrapper = mount(FormKit, { props: { type }, ...global })
+      expect(wrapper.html()).toContain('data-family="text"')
+    })
+  })
+
   it('can add a blur handler to a text input', async () => {
     const onBlur = jest.fn()
     const wrapper = mount(FormKit, {

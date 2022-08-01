@@ -4,6 +4,7 @@ import {
   defaultHints,
   createValidationPlugin,
   FormKitValidationRule,
+  getValidationMessages,
 } from '../src/validation'
 import { createNode } from '@formkit/core'
 import { jest } from '@jest/globals'
@@ -602,5 +603,68 @@ describe('validation rule sequencing', () => {
     node.input('baba', false)
     await new Promise((r) => setTimeout(r, 25))
     expect(node.store).toHaveProperty('rule_contains')
+  })
+})
+
+describe('getValidationMessages', () => {
+  const required: FormKitValidationRule = (node) => !empty(node.value)
+  required.skipEmpty = false
+  const validationPlugin = createValidationPlugin({
+    required,
+  })
+
+  it('extracts a single node’s errors', () => {
+    const node = createNode({
+      value: '',
+      plugins: [validationPlugin],
+      name: 'foo',
+      props: {
+        validation: 'required',
+        validationVisibility: 'live',
+      },
+    })
+    expect(getValidationMessages(node)).toStrictEqual(
+      new Map([[node, [node.store.rule_required]]])
+    )
+  })
+
+  it('extracts a group of node errors', () => {
+    const node = createNode({
+      value: '',
+      type: 'group',
+      plugins: [validationPlugin],
+      name: 'form',
+      children: [
+        createNode({
+          value: '',
+          name: 'bar',
+          props: {
+            validation: 'required',
+            validationVisibility: 'live',
+          },
+        }),
+        createNode({
+          value: '',
+          name: 'bam',
+          props: {
+            validation: 'required',
+            validationVisibility: 'live',
+          },
+        }),
+        createNode({
+          value: '',
+          name: 'bim',
+          props: {
+            validationVisibility: 'live',
+          },
+        }),
+      ],
+    })
+    expect(getValidationMessages(node)).toStrictEqual(
+      new Map([
+        [node.at('form.bar'), [node.at('form.bar')?.store.rule_required]],
+        [node.at('form.bam'), [node.at('form.bam')?.store.rule_required]],
+      ])
+    )
   })
 })
