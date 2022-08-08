@@ -87,7 +87,7 @@ export const checkbox: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['options', 'onValue', 'offValue'],
+  props: ['options', 'onValue', 'offValue', 'optionsLoader'],
   /**
    * Additional features that should be added to your input
    */

@@ -19,7 +19,7 @@ export type FormKitOptionsList = Array<
  * and returns an array of objects with value and label properties.
  * @param options -
  */
-function normalizeOptions(
+export function normalizeOptions(
   options: string[] | FormKitOptionsList | { [value: string]: string }
 ): FormKitOptionsList {
   let i = 1
@@ -87,10 +87,14 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
  * @public
  */
 export default function options(node: FormKitNode): void {
-  node.hook.prop((prop, next) => {
+  node.hook.prop((prop : any, next : any) => {
     if (prop.prop === 'options') {
-      const options = normalizeOptions(prop.value)
-      prop.value = options
+      if (typeof prop.value === 'function') {
+        node.props.optionsLoader = prop.value
+        prop.value = []
+      } else {
+        prop.value = normalizeOptions(prop.value)
+      }
     }
     return next(prop)
   })

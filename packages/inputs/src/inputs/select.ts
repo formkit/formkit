@@ -55,7 +55,7 @@ export const select: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['options', 'placeholder'],
+  props: ['options', 'placeholder', 'optionsLoader'],
   /**
    * Additional features that should be added to your input
    */
