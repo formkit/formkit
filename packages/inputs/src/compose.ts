@@ -39,7 +39,7 @@ export type FormKitInputSchema =
  * Type guard for schema objects.
  * @param schema - returns true if the node is a schema node but not a string or conditional.
  */
-function isSchemaObject(
+export function isSchemaObject(
   schema: Partial<FormKitSchemaNode>
 ): schema is
   | FormKitSchemaDOMNode
@@ -63,7 +63,7 @@ function isSchemaObject(
  * @param node - a schema node
  * @returns
  */
-function isSlotCondition(node: FormKitSchemaNode): node is {
+export function isSlotCondition(node: FormKitSchemaNode): node is {
   if: string
   then: string
   else: FormKitSchemaNode | FormKitSchemaNode[]
