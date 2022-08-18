@@ -440,7 +440,7 @@ export interface FormKitFrameworkContext {
   /**
    * A collection of state trackers/details about the input.
    */
-  state: FormKitFrameworkContextState
+  state: boolean
   /**
    * The type of input "text" or "select" (retrieved from node.props.type). This
    * is not the core node type (input, group, or list).
