@@ -10,6 +10,9 @@ export type FormKitOptionsList = Array<
   {
     label: string
     value: unknown
+    attrs?: {
+      disabled?: boolean
+    } & Record<string, any>
     __original?: any
   } & { [index: string]: any }
 >
@@ -87,7 +90,7 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
  * @public
  */
 export default function options(node: FormKitNode): void {
-  node.hook.prop((prop : any, next : any) => {
+  node.hook.prop((prop: any, next: any) => {
     if (prop.prop === 'options') {
       if (typeof prop.value === 'function') {
         node.props.optionsLoader = prop.value

@@ -41,6 +41,13 @@ type FormKitSyntheticProps = {
       | number[]
       | FormKitOptionsList
       | Record<string | number, string>
+      | ((
+          page?: number
+        ) =>
+          | FormKitOptionsList
+          | string[]
+          | number[]
+          | Promise<FormKitOptionsList | string[] | number[]>)
       | undefined
     >
   }
