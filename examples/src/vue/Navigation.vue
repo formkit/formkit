@@ -46,6 +46,11 @@
           Modify schema with plugin
         </router-link>
       </li>
+      <li>
+        <router-link to="/option-as-plugin">
+          OptionAs Plugin
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
