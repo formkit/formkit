@@ -1,37 +1,23 @@
 import { FormKitNode } from '@formkit/core'
+import { FormKitOptionsProp, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
-
-/**
- * Options should always be formated as an array of objects with label and value
- * properties.
- * @public
- */
-export type FormKitOptionsList = Array<
-  {
-    label: string
-    value: unknown
-    attrs?: {
-      disabled?: boolean
-    } & Record<string, any>
-    __original?: any
-  } & { [index: string]: any }
->
 
 /**
  * Accepts an array of objects, array of strings, or object of key-value pairs.
  * and returns an array of objects with value and label properties.
- * @param options -
+ * @param options - Options to normalize
+ * @public
  */
 export function normalizeOptions(
-  options: string[] | FormKitOptionsList | { [value: string]: string }
+  options: FormKitOptionsProp
 ): FormKitOptionsList {
   let i = 1
   if (Array.isArray(options)) {
     return options.map((option) => {
       if (typeof option === 'string' || typeof option === 'number') {
         return {
-          label: option,
-          value: option,
+          label: String(option),
+          value: String(option),
         }
       }
       if (typeof option == 'object') {
