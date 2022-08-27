@@ -1,34 +1,23 @@
 import { FormKitNode } from '@formkit/core'
+import { FormKitOptionsProp, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
-
-/**
- * Options should always be formated as an array of objects with label and value
- * properties.
- * @public
- */
-export type FormKitOptionsList = Array<
-  {
-    label: string
-    value: unknown
-    __original?: any
-  } & { [index: string]: any }
->
 
 /**
  * Accepts an array of objects, array of strings, or object of key-value pairs.
  * and returns an array of objects with value and label properties.
- * @param options -
+ * @param options - Options to normalize
+ * @public
  */
-function normalizeOptions(
-  options: string[] | FormKitOptionsList | { [value: string]: string }
+export function normalizeOptions(
+  options: FormKitOptionsProp
 ): FormKitOptionsList {
   let i = 1
   if (Array.isArray(options)) {
     return options.map((option) => {
       if (typeof option === 'string' || typeof option === 'number') {
         return {
-          label: option,
-          value: option,
+          label: String(option),
+          value: String(option),
         }
       }
       if (typeof option == 'object') {
@@ -87,10 +76,14 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
  * @public
  */
 export default function options(node: FormKitNode): void {
-  node.hook.prop((prop, next) => {
+  node.hook.prop((prop: any, next: any) => {
     if (prop.prop === 'options') {
-      const options = normalizeOptions(prop.value)
-      prop.value = options
+      if (typeof prop.value === 'function') {
+        node.props.optionsLoader = prop.value
+        prop.value = []
+      } else {
+        prop.value = normalizeOptions(prop.value)
+      }
     }
     return next(prop)
   })

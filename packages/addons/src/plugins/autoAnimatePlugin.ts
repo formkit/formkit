@@ -78,7 +78,7 @@ export function createAutoAnimatePlugin(
           return finalSchema
         }
       }
-      if (!observer) createObserver()
+      if (!observer && typeof window !== 'undefined') createObserver()
     })
   }
 }

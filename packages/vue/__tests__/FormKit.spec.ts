@@ -1582,7 +1582,7 @@ describe('state attributes', () => {
     expect(outer.attributes('data-disabled')).toBe('true')
   })
 
-  it.only('does not add data-disabled when the input’s disabled prop is false', () => {
+  it('does not add data-disabled when the input’s disabled prop is false', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'checkbox',

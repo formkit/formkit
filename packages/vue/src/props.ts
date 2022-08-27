@@ -1,4 +1,4 @@
-import { FormKitOptionsList } from '@formkit/inputs'
+import { FormKitSyntheticProps } from '@formkit/inputs'
 import {
   FormKitNode,
   FormKitPlugin,
@@ -13,62 +13,62 @@ import { PropType } from 'vue'
  * Synthetic props are props that are not explicitly declared as props, but
  * should be treated as props to the outside world.
  */
-type FormKitSyntheticProps = {
-  accept: {
-    type: PropType<string | undefined>
-  }
-  actions: {
-    type: PropType<boolean | undefined>
-  }
-  action: {
-    type: PropType<string>
-  }
-  label: {
-    type: PropType<string | undefined>
-  }
-  method: {
-    type: PropType<string>
-  }
-  ignore: {
-    type: PropType<string | boolean | undefined>
-  }
-  enctype: {
-    type: PropType<string>
-  }
-  options: {
-    type: PropType<
-      | string[]
-      | number[]
-      | FormKitOptionsList
-      | Record<string | number, string>
-      | undefined
-    >
-  }
-  help: {
-    type: PropType<string | undefined>
-  }
-  min: {
-    type: PropType<string | number | undefined>
-  }
-  max: {
-    type: PropType<string | number | undefined>
-  }
-  step: {
-    type: PropType<string | number | undefined>
-  }
-  multiple: {
-    type: PropType<string | boolean | undefined>
-  }
-  disabled: {
-    type: PropType<string | boolean | undefined>
-  }
-  preserve: {
-    type: PropType<string | boolean | undefined>
-  }
-  preserveErrors: {
-    type: PropType<string | boolean | undefined>
+type FormKitSyntheticVueProps = {
+  [Property in keyof FormKitSyntheticProps]: {
+    type: PropType<FormKitSyntheticProps[Property] | undefined>
   }
 }
+
+// {
+//   accept: {
+//     type: PropType<string | undefined>
+//   }
+//   actions: {
+//     type: PropType<boolean | undefined>
+//   }
+//   action: {
+//     type: PropType<string>
+//   }
+//   label: {
+//     type: PropType<string | undefined>
+//   }
+//   method: {
+//     type: PropType<string>
+//   }
+//   ignore: {
+//     type: PropType<string | boolean | undefined>
+//   }
+//   enctype: {
+//     type: PropType<string>
+//   }
+//   options: {
+//     type: PropType<FormKitOptionsProp | undefined>
+//   }
+//   help: {
+//     type: PropType<string | undefined>
+//   }
+//   min: {
+//     type: PropType<string | number | undefined>
+//   }
+//   max: {
+//     type: PropType<string | number | undefined>
+//   }
+//   step: {
+//     type: PropType<string | number | undefined>
+//   }
+//   multiple: {
+//     type: PropType<string | boolean | undefined>
+//   }
+//   disabled: {
+//     type: PropType<string | boolean | undefined>
+//   }
+//   preserve: {
+//     type: PropType<string | boolean | undefined>
+//   }
+//   preserveErrors: {
+//     type: PropType<string | boolean | undefined>
+//   }
+// }
 
 /**
  * All the explicit FormKit props.
@@ -163,7 +163,7 @@ const nativeProps = {
  * The FormKit props merged with synthetics.
  * @internal
  */
-export type FormKitProps = typeof nativeProps & FormKitSyntheticProps
+export type FormKitProps = typeof nativeProps & FormKitSyntheticVueProps
 
 /**
  * The FormKit props object.

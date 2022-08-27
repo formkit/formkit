@@ -32,4 +32,25 @@ describe('options', () => {
       },
     ])
   })
+  it('can take a function and sets the optionsLoader prop and assigns an empty array', () => {
+    const node = createNode({
+      plugins: [
+        createLibraryPlugin({
+          foo: {
+            type: 'input',
+            features: [formatsOptions],
+            props: ['options'],
+          },
+        }),
+      ],
+      props: {
+        type: 'foo',
+        attrs: {
+          options: () => new Promise(() => {}),
+        },
+      },
+    })
+    expect(node.props.options).toEqual([])
+    expect(node.props.optionsLoader).toBeDefined()
+  })
 })
