@@ -2,7 +2,7 @@
   <h1>OptionAs Plugin</h1>
   {{ users }}
   <FormKit id="form" v-model="data" type="form" @submit="submitHandler">
-    <FormKit name="normal-select" type="select" label="Normal Select" :stop-option-map="true" :options="normalCases" />
+    <FormKit name="normal-select" type="select" label="Normal Select" :options="normalCases" />
 
     <FormKit name="with-select" type="select" label="With Plugin" :options="users" />
     <FormKit name="with-select-another-label" type="select" label="With Another Label" label-as="description"
@@ -26,7 +26,7 @@ const data = ref({});
 const normalCases = [
   {
     value: 1,
-    label: 'You can disable the plugin with stop-option-map',
+    label: 'You can use options as normal',
   },
   {
     value: 2,

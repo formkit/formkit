@@ -1,4 +1,4 @@
-import { FormKitNode, FormKitPlugin, FormKitProps } from '@formkit/core';
+import { FormKitNode, FormKitPlugin } from '@formkit/core';
 import { FormKitOptionsList } from '@formkit/inputs';
 
 /**
@@ -14,15 +14,20 @@ export interface MappingOptions {
  * Map values based on node options
  * @internal
  */
-const mapOptions = (mappingOptions: Partial<FormKitProps>, options: string[] | FormKitOptionsList) => {
-  return options.map((option) => {
+const mapOptions = (node: FormKitNode, options?: MappingOptions) => {
+  const mappingOptions = {
+    labelAs: (node.props.labelAs || options?.labelAs) || 'label',
+    valueAs: (node.props.valueAs || options?.valueAs) || 'value'
+  };
+
+  return (node.props.options as FormKitOptionsList).map(option => {
     if (typeof option === 'string' || typeof option === 'number') return option;
 
     return {
       ...option,
-      label: mappingOptions.labelAs ? option[mappingOptions.labelAs] : undefined,
-      value: mappingOptions.valueAs ? option[mappingOptions.valueAs] : undefined
-    };
+      label: option[mappingOptions.labelAs] || option.label,
+      value: option[mappingOptions.valueAs] || option.value,
+    }
   });
 };
 
@@ -34,20 +39,13 @@ const mapOptions = (mappingOptions: Partial<FormKitProps>, options: string[] | F
 export const optionsAsPlugin = (options?: MappingOptions): FormKitPlugin => (node: FormKitNode) => {
   if (!node.props.options || !Array.isArray(node.props.options)) return;
 
-  node.addProps(['labelAs', 'valueAs', 'stopOptionMap']);
+  node.addProps(['labelAs', 'valueAs']);
 
-  if (node.props.stopOptionMap) return;
-
-  if (!node.props.labelAs) node.props.labelAs = options?.labelAs;
-  if (!node.props.valueAs) node.props.valueAs = options?.valueAs;
-
-  if (!(node.props.labelAs || node.props.valueAs)) return;
-
-  node.props.options = mapOptions(node.props, node.props.options);
+  node.props.options = mapOptions(node, options);
 
   node.hook.prop((prop, next) => {
     if (prop.prop === 'options') {
-      prop.value = mapOptions(node.props, prop.value);
+      prop.value = mapOptions(node, options);
     }
 
     return next(prop);
