@@ -45,7 +45,7 @@ export type FormKitOptionsProp =
  * should be treated as props to the outside world.
  * @public
  */
-export interface FormKitSyntheticProps {
+export interface FormKitSyntheticPropsExtensions {
   /**
    * HTML Attribute, read more here: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#accept
    */
@@ -65,4 +65,8 @@ export interface FormKitSyntheticProps {
   disabled: string | boolean
   preserve: string | boolean
   preserveErrors: string | boolean
+}
+
+export type FormKitSyntheticProps = {
+  [Property in keyof FormKitSyntheticPropsExtensions]: FormKitSyntheticPropsExtensions[Property]
 }

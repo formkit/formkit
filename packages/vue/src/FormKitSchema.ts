@@ -185,20 +185,21 @@ function getValue(
     return undefined
   }
   let foundValue: any = undefined
-  path.reduce(
-    (obj: Record<string, any> | undefined, segment: string, i, arr) => {
-      if (typeof obj !== 'object') {
-        foundValue = undefined
-        return arr.splice(1) // Forces an exit
-      }
-      const currentValue = obj[segment]
-      if (i === path.length - 1 && currentValue !== undefined) {
-        foundValue = currentValue
-      }
-      return obj[segment]
-    },
-    set
-  )
+
+  let obj: unknown = set
+  for (const i in path) {
+    const key = path[i]
+    if (typeof obj !== 'object' || obj === null) {
+      foundValue = undefined
+      break
+    }
+    const currentValue: unknown = (obj as Record<string, any>)[key]
+    if (Number(i) === path.length - 1 && currentValue !== undefined) {
+      foundValue = currentValue
+      break
+    }
+    obj = currentValue
+  }
   return foundValue
 }
 

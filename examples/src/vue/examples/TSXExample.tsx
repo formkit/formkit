@@ -1,7 +1,6 @@
 import { defineComponent } from "vue";
 import { FormKit } from '@formkit/vue'
 
-
 export default defineComponent({
   setup () {
     return () =>
@@ -21,6 +20,7 @@ export default defineComponent({
       multiple
       min={10}
       max={15}
+      on-color={123}
     />
   }
 })

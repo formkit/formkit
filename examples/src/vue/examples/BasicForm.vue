@@ -1,3 +1,44 @@
+
+<script setup lang="ts">
+import { setErrors } from '@formkit/vue'
+import { ref } from 'vue'
+const data = ref({})
+
+const date = new Date()
+const month = date.getMonth() + 1
+const day = date.getDate()
+const year = date.getFullYear()
+const fruit = ref(null)
+const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
+const summerStart = new Date(`${year + addYear}-6-21`)
+const summerEnd = new Date(`${year + addYear}-9-22`)
+
+const countries = [
+  {
+    label: 'Italy',
+    value: 'it',
+    help: 'This is the best one'
+  },
+  {
+    label: 'France',
+    value: 'fr',
+    attrs: { disabled: true },
+    help: 'This is smelliest one'
+  },
+  {
+    label: 'Germany',
+    value: 'de',
+    help: 'This is the cleanest one',
+  },
+]
+
+const submitHandler = async function (data: { email: string }) {
+  await new Promise(r => setTimeout(r, 2000))
+  console.log(data)
+  setErrors('form', ['This isn’t setup to actually do anything.'])
+}
+</script>
+
 <template>
   <h1>Basic Form</h1>
   <FormKit
@@ -5,6 +46,9 @@
     type="form"
     @submit="submitHandler"
   >
+    <FormKit
+      type="select"
+    />
     <FormKit
       type="email"
       name="email"
@@ -95,44 +139,4 @@
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
-
-<script setup lang="ts">
-import { setErrors } from '@formkit/vue'
-import { ref } from 'vue'
-const data = ref({})
-
-const date = new Date()
-const month = date.getMonth() + 1
-const day = date.getDate()
-const year = date.getFullYear()
-const fruit = ref(null)
-const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
-const summerStart = new Date(`${year + addYear}-6-21`)
-const summerEnd = new Date(`${year + addYear}-9-22`)
-
-const countries = [
-  {
-    label: 'Italy',
-    value: 'it',
-    help: 'This is the best one'
-  },
-  {
-    label: 'France',
-    value: 'fr',
-    attrs: { disabled: true },
-    help: 'This is smelliest one'
-  },
-  {
-    label: 'Germany',
-    value: 'de',
-    help: 'This is the cleanest one',
-  },
-]
-
-const submitHandler = async function (data: { email: string }) {
-  await new Promise(r => setTimeout(r, 2000))
-  console.log(data)
-  setErrors('form', ['This isn’t setup to actually do anything.'])
-}
-</script>
 
