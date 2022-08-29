@@ -1,6 +1,12 @@
 import { FormKitNode, FormKitPlugin } from '@formkit/core';
 import { FormKitOptionsList } from '@formkit/inputs';
 
+declare module '@formkit/inputs' {
+  interface FormKitOptionsPropExtensions {
+    mappingOptions: Record<string, any>[];
+  }
+};
+
 /**
  * Types for OptionsAsPlugin options
  * @public
