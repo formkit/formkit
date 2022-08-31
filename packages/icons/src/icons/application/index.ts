@@ -25,6 +25,8 @@ import sad from './Sad'
 import magnifyingGlass from './Search'
 import settings from './Settings'
 import share from './Share'
+import spinner from './Spinner'
+import star from './Star'
 import start from './Start'
 import tag from './Tag'
 import tools from './Tools'
@@ -74,6 +76,8 @@ export {
   magnifyingGlass,
   settings,
   share,
+  spinner,
+  star,
   start,
   tag,
   tools,
