@@ -513,6 +513,10 @@ describe('kebab', () => {
     expect(kebab('camelCase')).toBe('camel-case')
   })
 
+  it('keeps capital letters together', () => {
+    expect(kebab('selectedOptionUI')).toBe('selected-option-ui')
+  })
+
   it('can convert a multi-hump camelCase', () => {
     expect(kebab('camelCaseThatIsGood')).toBe('camel-case-that-is-good')
   })
