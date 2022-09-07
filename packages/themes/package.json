@@ -29,6 +29,19 @@
       "types": "./dist/index.d.ts"
     }
   },
+  "typesVersions": {
+    "*": {
+      "windicss": [
+        "./dist/windicss/index.d.ts"
+      ],
+      "tailwindcss": [
+        "./dist/tailwindcss/index.d.ts"
+      ],
+      "unocss": [
+        "./dist/unocss/index.d.ts"
+      ]
+    }
+  },
   "keywords": [
     "vue",
     "forms",
