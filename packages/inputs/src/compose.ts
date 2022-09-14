@@ -344,9 +344,9 @@ export function $for(
   ): FormKitSchemaNode => {
     const node = section(extensions)
     if (isSlotCondition(node)) {
-      Object.assign(node.else, { for: `${varName} in ${inName}` })
+      Object.assign(node.else, { for: [varName, `$${inName}`] })
     } else if (isSchemaObject(node)) {
-      Object.assign(node, { for: `${varName} in ${inName}` })
+      Object.assign(node, { for: [varName, `$${inName}`] })
     }
     return node
   }
