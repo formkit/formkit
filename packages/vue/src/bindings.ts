@@ -6,6 +6,8 @@ import {
   markRaw,
   triggerRef,
   nextTick,
+  isRef,
+  isReactive,
 } from 'vue'
 import {
   FormKitPlugin,
@@ -16,7 +18,15 @@ import {
   generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { eq, has, camel, empty, undefine, cloneAny } from '@formkit/utils'
+import {
+  eq,
+  has,
+  camel,
+  empty,
+  undefine,
+  cloneAny,
+  shallowClone,
+} from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 
 /**
@@ -330,16 +340,24 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input events from core.
    */
   node.on('input', ({ payload }) => {
-    _value.value = payload
-    triggerRef(_value)
+    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
+      _value.value = shallowClone(payload)
+    } else {
+      _value.value = payload
+      triggerRef(_value)
+    }
   })
 
   /**
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    value.value = _value.value = payload
-    triggerRef(value)
+    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
+      value.value = _value.value = shallowClone(payload)
+    } else {
+      value.value = _value.value = payload
+      triggerRef(value)
+    }
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (
