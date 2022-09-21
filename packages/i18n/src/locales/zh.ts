@@ -29,6 +29,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: '提交',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: '向上移动',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: '向下移动',
 }
 
 /**

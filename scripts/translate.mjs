@@ -8,6 +8,8 @@ import { msg, getLocales } from './utils.mjs'
 import clipboardy from 'clipboardy'
 import { execSync } from 'child_process'
 
+const unsuportedLanguages = ['fy', 'tg']
+
 async function translate() {
   const { Text } = await prompts({
     type: 'text',
@@ -33,7 +35,7 @@ async function translate() {
   })
   const commands = []
   for (let locale of locales) {
-    if (locale === 'fy') continue
+    if (unsuportedLanguages.includes(locale)) continue
     commands.push(
       new TranslateTextCommand({
         SourceLanguageCode: 'en',

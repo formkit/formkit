@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Файл не вибрано',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Рухатися вгору',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Пересунути вниз',
 }
 
 /**
@@ -147,7 +155,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `Поле ${s(name)} має неправильну дату. Будь ласка, використовуйте формат ${args[0]}.`
+      return `Поле ${s(
+        name
+      )} має неправильну дату. Будь ласка, використовуйте формат ${args[0]}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -161,7 +171,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `Дата ${s(name)} повинна бути між ${date(args[0])} та ${date(args[1])}.`
+    return `Дата ${s(name)} повинна бути між ${date(args[0])} та ${date(
+      args[1]
+    )}.`
     /* </i18n> */
   },
 
@@ -205,16 +217,22 @@ export const validation: FormKitValidationMessages = {
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `Довжина поля ${s(name)} повинна бути меншою або дорівнювати ${max} символам.`
+      return `Довжина поля ${s(
+        name
+      )} повинна бути меншою або дорівнювати ${max} символам.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `Довжина поля ${s(name)} повинна бути більшою або дорівнювати ${min} символам.`
+      return `Довжина поля ${s(
+        name
+      )} повинна бути більшою або дорівнювати ${min} символам.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `Довжина поля ${s(name)} повинна бути між ${min} та ${max} символами.`
+    return `Довжина поля ${s(
+      name
+    )} повинна бути між ${min} та ${max} символами.`
     /* </i18n> */
   },
 

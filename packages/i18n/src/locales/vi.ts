@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Chưa chọn file',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Di chuyển lên',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Di chuyển xuống',
 }
 
 /**

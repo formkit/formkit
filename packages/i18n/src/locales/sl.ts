@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Nobena datoteka ni izbrana',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Premakni se navzgor',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Premakni se navzdol',
 }
 
 /**

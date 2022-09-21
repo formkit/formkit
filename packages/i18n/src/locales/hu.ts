@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Nincs fájl kiválasztva',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Mozgás felfelé',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Mozgás lefelé',
 }
 
 /**
@@ -161,7 +169,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} mezőnek ${date(args[0])} és ${args[1]} között kell lennie`
+    return `${s(name)} mezőnek ${date(args[0])} és ${
+      args[1]
+    } között kell lennie`
     /* </i18n> */
   },
 

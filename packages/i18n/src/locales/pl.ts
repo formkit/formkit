@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Nie wybrano pliku',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Przesuń w górę',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Przesuń w dół',
 }
 
 /**

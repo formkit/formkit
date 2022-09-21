@@ -37,6 +37,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Heç bir fayl seçilməyib',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'yuxarı hərəkət',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Aşağı hərəkət',
 }
 
 /**
@@ -147,7 +155,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} etibarlı tarix deyil, ${args[0]} formatından istifadə edin`
+      return `${s(name)} etibarlı tarix deyil, ${
+        args[0]
+      } formatından istifadə edin`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
