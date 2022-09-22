@@ -424,6 +424,14 @@ export function useInput(
       if (!path.length) node.input(value, false)
       else node.at(path)?.input(value, false)
     })
+
+    /**
+     * On initialization, if the node’s value was updated (like in a plugin
+     * hook) then we should emit a `modelUpdated` event.
+     */
+    if (node.value !== value) {
+      node.emit('modelUpdated')
+    }
   }
 
   /**
