@@ -967,7 +967,7 @@ export function createValue(options: FormKitOptions): unknown {
   } else if (options.type === 'list') {
     return init(Array.isArray(options.value) ? options.value : [])
   }
-  return options.value === null ? '' : options.value
+  return options.value
 }
 /**
  * Sets the internal value of the node.
