@@ -45,6 +45,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown on buttons that move fields down in a list.
    */
   moveDown: 'Pastga siljish',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Yuklanmoqda...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Ko’proq yuklang',
 }
 
 /**

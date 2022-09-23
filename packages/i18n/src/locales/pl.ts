@@ -45,6 +45,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown on buttons that move fields down in a list.
    */
   moveDown: 'Przesuń w dół',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Ładowanie...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Załaduj więcej',
 }
 
 /**
