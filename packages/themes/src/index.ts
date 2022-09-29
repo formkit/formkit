@@ -278,7 +278,7 @@ export function createIconHandler(
 
     let loadedIcon: string | undefined | Promise<string | undefined> = undefined
     if (icon || iconName in iconRegistry) {
-      return icon
+      return iconRegistry[iconName]
     } else if (!iconRequests[iconName]) {
       loadedIcon = getIconFromStylesheet(iconName)
       loadedIcon =

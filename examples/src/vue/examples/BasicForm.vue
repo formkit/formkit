@@ -49,7 +49,7 @@ const submitHandler = async function (data: { email: string }) {
     <FormKit
       type="select"
     />
-    <FormKit
+    <!-- <FormKit
       type="email"
       name="email"
       label="Email address"
@@ -135,7 +135,7 @@ const submitHandler = async function (data: { email: string }) {
       name="planet"
       placeholder="Select the best planet"
       :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
-    />
+    /> -->
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
