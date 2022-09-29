@@ -16,19 +16,19 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
-  add: 'Qo\'shish',
+  add: "Qo'shish",
   /**
    * Shown when a button to remove items is visible.
    */
-  remove: 'O\'chirish',
+  remove: "O'chirish",
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Hammasini o\'chirish',
+  removeAll: "Hammasini o'chirish",
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Kechirasiz, barcha maydonlar to\'g\'ri to\'ldirilmagan.',
+  incomplete: "Kechirasiz, barcha maydonlar to'g'ri to'ldirilmagan.",
   /**
    * Shown in a button inside a form to submit the form.
    */
@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Hech qanday fayl tanlanmagan',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Yuqoriga ko’taring',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Pastga siljish',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Yuklanmoqda...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Ko’proq yuklang',
 }
 
 /**
@@ -75,7 +91,9 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `${s(name)} faqat alifbo tartibidagi belgilardan iborat bo'lishi mumkin.`
+    return `${s(
+      name
+    )} faqat alifbo tartibidagi belgilardan iborat bo'lishi mumkin.`
     /* </i18n> */
   },
 
@@ -147,11 +165,13 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} haqiqiy sana emas, iltimos ${args[0]} formatidan foydalaning`
+      return `${s(name)} haqiqiy sana emas, iltimos ${
+        args[0]
+      } formatidan foydalaning`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'Bu maydon noto\'g\'ri sozlangan va uni yuborib bo\'lmaydi'
+    return "Bu maydon noto'g'ri sozlangan va uni yuborib bo'lmaydi"
     /* </i18n> */
   },
 
@@ -161,7 +181,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} ${date(args[0])} va ${date(args[1])} oralig'ida bo'lishi kerak`
+    return `${s(name)} ${date(args[0])} va ${date(
+      args[1]
+    )} oralig'ida bo'lishi kerak`
     /* </i18n> */
   },
 
@@ -214,7 +236,9 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${s(name)} ${min} va ${max} gacha belgilardan iborat bo'lishi kerak.`
+    return `${s(
+      name
+    )} ${min} va ${max} gacha belgilardan iborat bo'lishi kerak.`
     /* </i18n> */
   },
 

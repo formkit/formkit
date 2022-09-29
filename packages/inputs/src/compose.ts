@@ -38,8 +38,9 @@ export type FormKitInputSchema =
 /**
  * Type guard for schema objects.
  * @param schema - returns true if the node is a schema node but not a string or conditional.
+ * @public
  */
-function isSchemaObject(
+export function isSchemaObject(
   schema: Partial<FormKitSchemaNode>
 ): schema is
   | FormKitSchemaDOMNode
@@ -62,8 +63,9 @@ function isSchemaObject(
  * ```
  * @param node - a schema node
  * @returns
+ * @public
  */
-function isSlotCondition(node: FormKitSchemaNode): node is {
+export function isSlotCondition(node: FormKitSchemaNode): node is {
   if: string
   then: string
   else: FormKitSchemaNode | FormKitSchemaNode[]
@@ -309,12 +311,19 @@ export function $if(
 ): FormKitSchemaExtendableSection {
   return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
     const node = then(extensions)
-    if (otherwise) {
-      return {
+    if (
+      otherwise ||
+      (isSchemaObject(node) && 'if' in node) ||
+      isSlotCondition(node)
+    ) {
+      const conditionalNode: FormKitSchemaCondition = {
         if: condition,
         then: node,
-        else: otherwise(extensions),
       }
+      if (otherwise) {
+        conditionalNode.else = otherwise(extensions)
+      }
+      return conditionalNode
     } else if (isSlotCondition(node)) {
       Object.assign(node.else, { if: condition })
     } else if (isSchemaObject(node)) {
@@ -342,9 +351,9 @@ export function $for(
   ): FormKitSchemaNode => {
     const node = section(extensions)
     if (isSlotCondition(node)) {
-      Object.assign(node.else, { for: `${varName} in ${inName}` })
+      Object.assign(node.else, { for: [varName, inName] })
     } else if (isSchemaObject(node)) {
-      Object.assign(node, { for: `${varName} in ${inName}` })
+      Object.assign(node, { for: [varName, inName] })
     }
     return node
   }

@@ -788,6 +788,22 @@ describe('parsing dom elements', () => {
     })
     expect(wrapper.html()).toBe('<label><input type="checkbox"></label>')
   })
+
+  it('renders the proper value of a sub-property even if the initial object does not exist when parsing', async () => {
+    const data = ref<any>({
+      myObject: undefined,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$myObject.foo'],
+        data,
+      },
+    })
+    expect(wrapper.html()).toBe('undefined')
+    data.value.myObject = { foo: 'bar' }
+    await nextTick()
+    expect(wrapper.html()).toBe('bar')
+  })
 })
 
 describe('rendering components', () => {

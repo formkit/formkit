@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'No file chosen',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Move up',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Move down',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Loading...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Load more',
 }
 
 /**

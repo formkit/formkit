@@ -22,6 +22,6 @@
   },
   "dependencies": {
     "@formkit/vue": "1.0.0-beta.10",
-    "@nuxt/kit": "npm:@nuxt/kit-edge@latest"
+    "@nuxt/kit": "latest"
   }
 }

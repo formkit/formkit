@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Ei valittuja tiedostoja',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Siirrä ylös',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Siirrä alas',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Ladataan...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Lataa lisää',
 }
 
 /**

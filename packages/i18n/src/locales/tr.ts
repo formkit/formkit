@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Dosya yok',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Yukarı Taşı',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Aşağı taşı',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Yükleniyor...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Daha fazla yükle',
 }
 
 /**

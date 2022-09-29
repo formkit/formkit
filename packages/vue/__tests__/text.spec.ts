@@ -1,3 +1,5 @@
+import { token } from '@formkit/utils'
+import { getNode } from '@formkit/core'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
@@ -168,5 +170,22 @@ describe('text classification', () => {
     wrapper.find('input').trigger('blur')
     await nextTick()
     expect(onBlur).toHaveBeenCalled()
+  })
+
+  it('can render a text input with a null value', async () => {
+    const id = token()
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        value: null,
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(null)
+    node.input(null)
+    await nextTick()
+    expect(wrapper.find('input').element.value).toBe('')
   })
 })

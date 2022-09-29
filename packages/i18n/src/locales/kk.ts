@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Ешбір файл таңдалмады',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Жоғары жылжу',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Төмен жылжытыңыз',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Жүктеу...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Көбірек жүктеңіз',
 }
 
 /**
@@ -161,7 +177,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} арасында болуы керек ${date(args[0])} және ${date(args[1])}`
+    return `${s(name)} арасында болуы керек ${date(args[0])} және ${date(
+      args[1]
+    )}`
     /* </i18n> */
   },
 

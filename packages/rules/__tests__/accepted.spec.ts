@@ -22,4 +22,7 @@ describe('accepted rule', () => {
 
   it('fail with "false"', () =>
     expect(accepted(createNode({ value: 'false' }))).toBe(false))
+
+  it('fail when empty', () =>
+    expect(accepted(createNode({ value: '' }))).toBe(false))
 })

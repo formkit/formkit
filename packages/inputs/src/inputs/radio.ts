@@ -72,7 +72,7 @@ export const radio: FormKitTypeDefinition = {
       )
     ),
     // Help text only goes under the input when it is a single.
-    $if('$options == undefined && $help', help('$help')),
+    $if('$options === undefined && $help', help('$help')),
     messages(message('$message.value'))
   ),
   /**
@@ -87,7 +87,7 @@ export const radio: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['options', 'onValue', 'offValue'],
+  props: ['options', 'onValue', 'offValue', 'optionsLoader'],
   /**
    * Additional features that should be added to your input
    */

@@ -29,6 +29,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown in a button inside a form to submit the form.
    */
   submit: 'Predaj',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Pomaknite se gore',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Pomakni se dolje',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Učitavanje...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Učitaj više',
 }
 
 /**

@@ -23,5 +23,5 @@ export {
   directionalIcons,
   fileIcons,
   inputIcons,
-  paymentIcons
+  paymentIcons,
 }

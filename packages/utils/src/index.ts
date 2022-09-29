@@ -1,4 +1,16 @@
 /**
+ * Explicit keys that should always be cloned.
+ */
+const explicitKeys = [
+  '__key',
+  '__init',
+  '__shim',
+  '__original',
+  '__index',
+  '__prevKey',
+]
+
+/**
  * Generates a random string.
  * @returns string
  * @public
@@ -471,10 +483,7 @@ export function kebab(str: string): string {
  * @returns
  * @public
  */
-export function shallowClone<T>(
-  obj: T,
-  explicit: string[] = ['__key', '__init']
-): T {
+export function shallowClone<T>(obj: T, explicit: string[] = explicitKeys): T {
   if (obj !== null && typeof obj === 'object') {
     let returnObject: any[] | Record<string, any> | undefined
     if (Array.isArray(obj)) returnObject = [...obj]
@@ -495,7 +504,7 @@ export function shallowClone<T>(
  */
 export function clone<T extends Record<string, unknown> | unknown[] | null>(
   obj: T,
-  explicit: string[] = ['__key', '__init']
+  explicit: string[] = explicitKeys
 ): T {
   if (
     obj === null ||
@@ -568,7 +577,7 @@ export function getAt(obj: any, addr: string): unknown {
 
 /**
  * Determines if the value of a prop that is either present (true) or not
- * present (false). For example the prop disabled should disable
+ * present (undefined). For example the prop disabled should disable
  * by just existing, but what if it is set to the string "false" — then it
  * should not be disabled.
  * @param value - value to be checked
@@ -616,7 +625,7 @@ export function slugify(str: string): string {
  * @param obj - Any value, but will spread objects and arrays
  * @public
  */
-export function spread<T>(obj: T, explicit: string[] = ['__key', '__init']): T {
+export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
   if (obj && typeof obj === 'object') {
     if (obj instanceof RegExp) return obj
     if (obj instanceof Date) return obj

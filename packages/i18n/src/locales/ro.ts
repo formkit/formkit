@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Nu este selectat nici un fișier',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Mutare în sus',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Mutare în jos',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Se încarcă...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Încărcați mai mult',
 }
 
 /**

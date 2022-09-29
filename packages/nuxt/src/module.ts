@@ -12,7 +12,7 @@ export default defineNuxtModule<ModuleOptions>({
     name: 'FormKit',
     configKey: 'formkit',
     compatibility: {
-      nuxt: '^3.0.0',
+      nuxt: '^3.0.0-rc.7',
     },
   },
   defaults: {

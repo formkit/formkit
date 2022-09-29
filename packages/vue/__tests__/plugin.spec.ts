@@ -1,8 +1,10 @@
+import { FormKitMiddleware } from './../../core/src/dispatcher'
 import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { defaultConfig, FormKit, plugin } from '../src'
+import { jest } from '@jest/globals'
 
 describe('plugins', () => {
   it('can define props in a standard plugin', () => {
@@ -76,5 +78,38 @@ describe('plugins', () => {
       'should be this'
     )
     expect(wrapper.find('label').text()).toBe('this label')
+  })
+
+  it('can change a v-model value via plugin hook on init. #391', async () => {
+    const inputHook: FormKitMiddleware = jest.fn((_value, next) => {
+      return next('5')
+    })
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: '2',
+            setToFive: (node: FormKitNode) => {
+              node.hook.input(inputHook)
+            },
+          }
+        },
+        template: `
+        <FormKit id="${id}" type="text" v-model="value" :plugins="[setToFive]"/>
+        <h1>{{ value }}</h1>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await flushPromises()
+    expect(inputHook).toHaveBeenCalled()
+    expect(getNode(id!)!.value).toBe('5')
+    expect(wrapper.find('input').element.value).toBe('5')
+    expect(wrapper.find('h1').text()).toBe('5')
   })
 })

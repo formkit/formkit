@@ -39,6 +39,11 @@ const errors: Record<
   108: ({ data: [node, value] }: { data: [FormKitNode, unknown] }) =>
     `Cannot set ${node.name} to non array value: ${value}`,
   /**
+   * Input specific errors:
+   */
+  300: ({ data: [node] }: { data: [FormKitNode, unknown] }) =>
+    `Cannot set behavior prop to overscroll (on ${node.name} input) when options prop is a function.`,
+  /**
    * FormKit vue errors:
    */
   600: ({ data: node }: { data: FormKitNode }) =>

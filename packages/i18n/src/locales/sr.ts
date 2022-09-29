@@ -37,6 +37,22 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Fajl nije odabran',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Pomerite se gore',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Pomeri se dole',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Učitavanje...',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Učitaj više',
 }
 
 /**
@@ -147,7 +163,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} nije važeći datum, molimo Vas koristite format ${args[0]}`
+      return `${s(name)} nije važeći datum, molimo Vas koristite format ${
+        args[0]
+      }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */

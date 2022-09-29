@@ -4,14 +4,20 @@
 export { createLibraryPlugin } from './plugin'
 
 /**
- * Options types.
+ * Helper function for normalizing options.
+ * @internal
  */
-export { FormKitOptionsList } from './features/options'
+export { normalizeOptions } from './features/options'
 
 /**
  * Composable logic.
  */
 export * from './compose'
+
+/**
+ * Prop types.
+ */
+export * from './props'
 
 /**
  * A single file object in FormKit’s synthetic "FileList".
