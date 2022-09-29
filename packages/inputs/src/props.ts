@@ -67,6 +67,10 @@ export interface FormKitSyntheticPropsExtensions {
   preserveErrors: string | boolean
 }
 
+/**
+ * The synthetic prop types.
+ * @public
+ */
 export type FormKitSyntheticProps = {
   [Property in keyof FormKitSyntheticPropsExtensions]: FormKitSyntheticPropsExtensions[Property]
 }

@@ -19,57 +19,6 @@ type FormKitSyntheticVueProps = {
   }
 }
 
-// {
-//   accept: {
-//     type: PropType<string | undefined>
-//   }
-//   actions: {
-//     type: PropType<boolean | undefined>
-//   }
-//   action: {
-//     type: PropType<string>
-//   }
-//   label: {
-//     type: PropType<string | undefined>
-//   }
-//   method: {
-//     type: PropType<string>
-//   }
-//   ignore: {
-//     type: PropType<string | boolean | undefined>
-//   }
-//   enctype: {
-//     type: PropType<string>
-//   }
-//   options: {
-//     type: PropType<FormKitOptionsProp | undefined>
-//   }
-//   help: {
-//     type: PropType<string | undefined>
-//   }
-//   min: {
-//     type: PropType<string | number | undefined>
-//   }
-//   max: {
-//     type: PropType<string | number | undefined>
-//   }
-//   step: {
-//     type: PropType<string | number | undefined>
-//   }
-//   multiple: {
-//     type: PropType<string | boolean | undefined>
-//   }
-//   disabled: {
-//     type: PropType<string | boolean | undefined>
-//   }
-//   preserve: {
-//     type: PropType<string | boolean | undefined>
-//   }
-//   preserveErrors: {
-//     type: PropType<string | boolean | undefined>
-//   }
-// }
-
 /**
  * All the explicit FormKit props.
  */
