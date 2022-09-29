@@ -311,12 +311,19 @@ export function $if(
 ): FormKitSchemaExtendableSection {
   return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
     const node = then(extensions)
-    if (otherwise) {
-      return {
+    if (
+      otherwise ||
+      (isSchemaObject(node) && 'if' in node) ||
+      isSlotCondition(node)
+    ) {
+      const conditionalNode: FormKitSchemaCondition = {
         if: condition,
         then: node,
-        else: otherwise(extensions),
       }
+      if (otherwise) {
+        conditionalNode.else = otherwise(extensions)
+      }
+      return conditionalNode
     } else if (isSlotCondition(node)) {
       Object.assign(node.else, { if: condition })
     } else if (isSchemaObject(node)) {

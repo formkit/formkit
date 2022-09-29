@@ -371,4 +371,17 @@ describe('non string values for checkboxes', () => {
     ])
     expect(getNode(id)!.value).toEqual([{ zip: '02108' }, null])
   })
+
+  it('renders the help slot a single time', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit type="checkbox" id="${id}" :options="['A', 'B', 'C']">
+        <template #help><span class="should-appear-once">My help text</span></template>
+      </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.find('div').findAll('.should-appear-once').length).toBe(1)
+  })
 })

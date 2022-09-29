@@ -28,16 +28,18 @@ describe('section creator', () => {
 describe('composable helpers', () => {
   it('can apply an if statement to a section using the $if() function', () => {
     expect($if('$: true', createSection('foo', 'div')())({})).toEqual({
-      if: '$slots.foo',
-      then: '$slots.foo',
-      else: {
-        meta: {
-          section: 'foo',
-        },
-        $el: 'div',
-        if: '$: true',
-        attrs: {
-          class: '$classes.foo',
+      if: '$: true',
+      then: {
+        if: '$slots.foo',
+        then: '$slots.foo',
+        else: {
+          meta: {
+            section: 'foo',
+          },
+          $el: 'div',
+          attrs: {
+            class: '$classes.foo',
+          },
         },
       },
     })

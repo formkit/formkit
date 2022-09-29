@@ -49,7 +49,7 @@ const submitHandler = async function (data: { email: string }) {
     <FormKit
       type="select"
     />
-    <!-- <FormKit
+    <FormKit
       type="email"
       name="email"
       label="Email address"
@@ -121,7 +121,9 @@ const submitHandler = async function (data: { email: string }) {
       help="Hello help text!"
       placeholder="Select the best country"
       :options="['Apple', 'Strawberry', 'Banana']"
-    />
+    >
+      <template #help>Some help text</template>
+    </FormKit>
     <FormKit
       v-if="fruit"
       type="checkbox"
@@ -135,7 +137,7 @@ const submitHandler = async function (data: { email: string }) {
       name="planet"
       placeholder="Select the best planet"
       :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
-    /> -->
+    />
   </FormKit>
   <pre>{{ data }}</pre>
 </template>
