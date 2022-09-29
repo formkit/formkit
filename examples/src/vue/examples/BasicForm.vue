@@ -112,6 +112,7 @@ const submitHandler = async function (data: { email: string }) {
     <FormKit
       type="checkbox"
       label="Do you agree to our terms?"
+      help="You need to do this"
     />
     <FormKit
       v-model="fruit"
