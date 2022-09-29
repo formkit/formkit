@@ -1,7 +1,7 @@
 {
   "name": "@formkit/addons",
   "type": "module",
-  "version": "1.0.0-beta.10",
+  "version": "1.0.0-beta.11",
   "description": "Optional features you can add to your FormKit inputs.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -34,8 +34,8 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "latest",
-    "@formkit/core": "1.0.0-beta.10",
-    "@formkit/utils": "1.0.0-beta.10"
+    "@formkit/core": "1.0.0-beta.11",
+    "@formkit/utils": "1.0.0-beta.11"
   },
   "devDependencies": {}
 }
