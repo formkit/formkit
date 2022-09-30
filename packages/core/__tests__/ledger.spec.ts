@@ -1,7 +1,9 @@
 import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
 import { createNode } from '../src/node'
+import { getNode } from '../src/registry'
 import { createMessage } from '../src/store'
 import { jest } from '@jest/globals'
+import { token } from '@formkit/utils'
 
 const nextTick = () => new Promise((r) => setTimeout(r, 0))
 
@@ -276,5 +278,32 @@ describe('ledger tracking on a tree', () => {
       plugins: [(node) => node.store.set(createMessage({ blocking: true }))],
     })
     expect(parent.ledger.value('blocking')).toBe(1)
+  })
+
+  it('reduces the ledger count when a subtree is removed', () => {
+    const child1 = token()
+    const child2 = token()
+
+    const node = createNode({
+      type: 'group',
+      children: [
+        createNode({
+          type: 'group',
+          props: { id: 'firstGroup' },
+          children: [
+            createNode({ type: 'input', props: { id: child1 } }),
+            createNode({ type: 'input', props: { id: child2 } }),
+          ],
+        }),
+      ],
+    })
+
+    node.ledger.count('blocking', (m) => m.blocking)
+
+    getNode(child1)!.store.set(createMessage({ blocking: true }))
+    getNode(child2)!.store.set(createMessage({ blocking: true }))
+    expect(node.ledger.value('blocking')).toBe(2)
+    getNode('firstGroup')?.destroy()
+    expect(node.ledger.value('blocking')).toBe(0)
   })
 })
