@@ -1,4 +1,4 @@
-import execa from 'execa'
+import { execa } from 'execa'
 import { readFile, writeFile, readdir } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
