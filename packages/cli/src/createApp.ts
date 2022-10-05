@@ -79,6 +79,7 @@ export async function createApp(
 
   if (options.framework === 'vite') {
     await execa('npx', [
+      '--yes',
       'create-vite',
       appName,
       '--template',
@@ -100,7 +101,7 @@ export async function createApp(
     )
   } else {
     options.lang = 'ts'
-    await execa('npx', ['nuxi', 'create', appName])
+    await execa('npx', ['--yes', 'nuxi', 'create', appName])
     await writeFile(
       resolve(cwd(), `./${appName}/formkit.config.ts`),
       buildFormKitConfig(options as CreateAppOptions)
