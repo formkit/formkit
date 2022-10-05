@@ -21,7 +21,6 @@
     "dev": "nuxi dev playground"
   },
   "dependencies": {
-    "@formkit/vue": "1.0.0-beta.11",
-    "@nuxt/kit": "latest"
+    "@formkit/vue": "1.0.0-beta.11"
   }
 }
