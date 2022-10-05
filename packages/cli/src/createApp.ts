@@ -1,13 +1,13 @@
 import execa from 'execa'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, readdir } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
 import prompts from 'prompts'
-import { __dirname } from './index'
+import { error, green, __dirname } from './index'
 
 interface CreateAppOptions {
   lang: 'ts' | 'js'
-  tooling: 'nuxt' | 'vite'
+  framework: 'nuxt' | 'vite'
   pro?: string
 }
 
@@ -25,21 +25,26 @@ export async function createApp(
     appName = res.name as string
   }
 
-  if (!options.tooling) {
+  const isEmpty = await isDirEmpty(resolve(cwd(), `./${appName}`))
+  if (!isEmpty) {
+    error('Directory is not empty. Please choose a different name.')
+  }
+
+  if (!options.framework) {
     const res = await prompts({
       type: 'select',
-      name: 'tooling',
-      message: 'What build tooling would you like to use?',
+      name: 'framework',
+      message: 'What framework would you like to use?',
       choices: [
         { title: 'Vite', value: 'vite' },
         { title: 'Nuxt', value: 'nuxt' },
       ],
       initial: 1,
     })
-    options.tooling = res.tooling as 'vite' | 'nuxt'
+    options.framework = res.framework as 'vite' | 'nuxt'
   }
 
-  if (!options.lang && options.tooling === 'vite') {
+  if (!options.lang && options.framework === 'vite') {
     const res = await prompts({
       type: 'select',
       name: 'lang',
@@ -66,13 +71,13 @@ export async function createApp(
       {
         type: (prev) => (prev ? 'text' : null),
         name: 'pro',
-        message: 'Enter a FormKit Pro project key (fk-xxxxxxx):',
+        message: 'Enter a project key from https://pro.formkit.com:',
       },
     ])
     options.pro = res.pro as string
   }
 
-  if (options.tooling === 'vite') {
+  if (options.framework === 'vite') {
     await execa('npx', [
       'create-vite',
       appName,
@@ -80,12 +85,25 @@ export async function createApp(
       `vue${options.lang === 'ts' ? '-ts' : ''}`,
     ])
     await addDependency(appName, '@formkit/vue')
+    await addDependency(appName, '@formkit/icons')
+    if (options.pro) {
+      await addDependency(appName, '@formkit/pro')
+    }
+    await addInitialApp(appName, 'src/App.vue', !!options.pro)
+    await writeFile(
+      resolve(cwd(), `./${appName}/src/formkit.config.${options.lang}`),
+      buildFormKitConfig(options as CreateAppOptions)
+    )
+    await writeFile(
+      resolve(cwd(), `./${appName}/src/main.${options.lang}`),
+      buildMain()
+    )
   } else {
     options.lang = 'ts'
     await execa('npx', ['nuxi', 'create', appName])
     await writeFile(
       resolve(cwd(), `./${appName}/formkit.config.ts`),
-      buildFormKitNuxtConfig(options as CreateAppOptions)
+      buildFormKitConfig(options as CreateAppOptions)
     )
     await addDependency(appName, '@formkit/nuxt')
     await addDependency(appName, '@formkit/icons')
@@ -95,6 +113,14 @@ export async function createApp(
     await addNuxtModule(appName)
     await addInitialApp(appName, 'app.vue', !!options.pro)
   }
+
+  green(`Created ${appName}!
+
+To run your new app:
+📁 cd ${appName}
+✅ npm install
+🚀 npm run dev
+`)
 }
 
 async function addInitialApp(dirName: string, component: string, pro: boolean) {
@@ -144,8 +170,8 @@ async function submit() {
         validation="required|min:2"
       />
       ${
-        pro &&
-        `
+        (pro &&
+          `
       <FormKit
         type="repeater"
         name="invitees"
@@ -158,7 +184,8 @@ async function submit() {
           label="Email"
           validation="required|email"
         />
-      </FormKit>`
+      </FormKit>`) ||
+        ''
       }
       <FormKit
         type="checkbox"
@@ -212,6 +239,18 @@ async function addDependency(dirName: string, dependency: string) {
   await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
 }
 
+function buildMain() {
+  return `import { createApp } from 'vue'
+import { plugin, defaultConfig } from '@formkit/vue'
+import App from './App.vue'
+import formKitConfig from './formkit.config'
+
+const app = createApp(App)
+app.use(plugin, defaultConfig(formKitConfig))
+app.mount('#app')
+`
+}
+
 async function addNuxtModule(dirName: string) {
   const nuxtConfigPath = resolve(cwd(), `./${dirName}/nuxt.config.ts`)
   const raw = await readFile(nuxtConfigPath, 'utf-8')
@@ -227,12 +266,14 @@ async function addNuxtModule(dirName: string) {
  * @param options - Build the formkit.config.ts file for a Nuxt project.
  * @returns
  */
-function buildFormKitNuxtConfig(options: CreateAppOptions): string {
+function buildFormKitConfig(options: CreateAppOptions): string {
   const imports = [
     'import "@formkit/themes/genesis"',
     'import { %icons% } from "@formkit/icons"',
-    'import { DefaultConfigOptions } from "@formkit/vue"',
   ]
+  if (options.lang === 'ts') {
+    imports.push("import { DefaultConfigOptions } from '@formkit/vue'")
+  }
   let icons = ['close', 'down', 'fileDoc', 'check', 'circle']
   const setup = []
   let config = ''
@@ -258,11 +299,20 @@ function buildFormKitNuxtConfig(options: CreateAppOptions): string {
 
   const rawConfig = `${imports.join('\n')}
 ${setup.join('\n')}
-const config: DefaultConfigOptions = {
+const config${options.lang === 'ts' ? ': DefaultConfigOptions' : ''} = {
 ${config}
 }
 
 export default config
 `
   return rawConfig.replace(/%icons%/g, icons.join(', '))
+}
+
+async function isDirEmpty(path: string) {
+  try {
+    const entries = await readdir(path)
+    return entries.length === 0
+  } catch (error) {
+    return true
+  }
 }

@@ -67,6 +67,7 @@ program
     '-l, --lang <ts|js>',
     'Create a TypeScript (ts) or JavaScript (js) app.'
   )
+  .option('-f, --framework <vite|nuxt>', 'Create a new Vite or Nuxt app.')
   .option(
     '--pro <key>',
     'Creates the project with FormKit pro installed if a project key is provided.'
