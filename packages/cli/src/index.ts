@@ -5,6 +5,7 @@ import { exportInput } from './exportInput'
 import { createApp } from './createApp'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { execa } from 'execa'
 
 const __filename = fileURLToPath(import.meta.url)
 
@@ -78,7 +79,12 @@ program
 /**
  * @internal
  */
-export default function main(): void {
+export default async function main(): Promise<void> {
+  const res = await execa('npx', ['--version'])
+  const [major] = res.stdout.trim().split('.')
+  if (Number(major) < 7) {
+    error(`Your npm version must be 7 or higher (found ${res.stdout.trim()}).`)
+  }
   program.parse()
 }
 
