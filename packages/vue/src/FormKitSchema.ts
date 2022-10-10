@@ -195,7 +195,12 @@ function getValue(
     }
     const currentValue: unknown = (obj as Record<string, any>)[key]
     if (Number(i) === path.length - 1 && currentValue !== undefined) {
-      foundValue = currentValue
+      // When the value is a function, we need to bind the `this` value
+      // before providing this back to the compiler.
+      foundValue =
+        typeof currentValue === 'function'
+          ? currentValue.bind(obj)
+          : currentValue
       break
     }
     obj = currentValue

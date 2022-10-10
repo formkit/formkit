@@ -898,6 +898,19 @@ describe('rendering components', () => {
     expect(wrapper.html()).toBe('213')
   })
 
+  it('can use date methods from date objects (#406)', async () => {
+    const data = reactive({
+      date: new Date('2000-01-10T00:12:00'),
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: ['$date.getDate()'],
+      },
+    })
+    expect(wrapper.html()).toBe('10')
+  })
+
   it('can re-parse a schema with components when new object', async () => {
     const schema: FormKitSchemaNode[] = reactive([
       {
