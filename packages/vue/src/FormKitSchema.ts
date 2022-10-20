@@ -582,7 +582,7 @@ function parseSchema(
         if (typeof values !== 'object') return null
         const instanceScope = instanceScopes.get(instanceKey) || []
         for (const key in values) {
-          if (Array.isArray(values) && key === 'length') continue // Fix #299
+          if (Array.isArray(values) && key in Array.prototype) continue // Fix #299
           const iterationData: Record<string, unknown> = Object.defineProperty(
             {
               ...instanceScope.reduce(
