@@ -34,6 +34,9 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
   <a href="https://www.perbyte.com">
     <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
   </a>
+  <a href="https://sharpless.co">
+    <img src="https://cdn.formk.it/web-assets/sponsors/sharpless-logo-small.png" alt="Sharpless logo" style="width: 14%;">
+  </a>
 </p>
 
 ### Backers
