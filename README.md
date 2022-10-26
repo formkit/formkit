@@ -37,7 +37,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 </p>
 <p style="margin-bottom: 1em;">
   <a href="https://sharpless.co">
-    <img src="https://cdn.formk.it/web-assets/sponsors/sharpless-logo-small.png" alt="Sharpless logo" style="width: 11%;">
+    <img src="https://cdn.formk.it/web-assets/sponsors/sharpless-logo-small.png" alt="Sharpless logo" style="width: 10%;">
   </a>
 </p>
 
