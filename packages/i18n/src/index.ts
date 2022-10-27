@@ -18,6 +18,7 @@ import * as it from './locales/it'
 import * as ja from './locales/ja'
 import * as kk from './locales/kk'
 import * as ko from './locales/ko'
+import * as nb from './locales/nb'
 import * as nl from './locales/nl'
 import * as pl from './locales/pl'
 import * as pt from './locales/pt'
@@ -65,6 +66,7 @@ export const locales = {
   ja,
   kk,
   ko,
+  nb,
   nl,
   pl,
   pt,
@@ -108,6 +110,7 @@ export {
   ja,
   ko,
   kk,
+  nb,
   nl,
   pl,
   pt,
