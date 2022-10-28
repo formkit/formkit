@@ -24,7 +24,7 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: '对不起，有些字段未被正确填写',
+  incomplete: '抱歉，有些字段未被正确填写',
   /**
    * Shown in a button inside a form to submit the form.
    */
