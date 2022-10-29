@@ -492,6 +492,26 @@ describe('parsing dom elements', () => {
     )
   })
 
+  it('uses numbers as indexes of arrays during iteration', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          value: ['A', 'B', 'C'],
+        },
+        schema: [
+          {
+            for: ['value', 'index', '$value'],
+            $el: 'div',
+            children: '$index + 1',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(`<div>1</div>
+<div>2</div>
+<div>3</div>`)
+  })
+
   it('can render slots as the only child', () => {
     const wrapper = mount(FormKitSchema, {
       slots: {

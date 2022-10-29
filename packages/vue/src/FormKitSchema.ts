@@ -581,8 +581,9 @@ function parseSchema(
         const fragment = []
         if (typeof values !== 'object') return null
         const instanceScope = instanceScopes.get(instanceKey) || []
+        const isArray = Array.isArray(values)
         for (const key in values) {
-          if (Array.isArray(values) && key in Array.prototype) continue // Fix #299
+          if (isArray && key in Array.prototype) continue // Fix #299
           const iterationData: Record<string, unknown> = Object.defineProperty(
             {
               ...instanceScope.reduce(
@@ -598,7 +599,9 @@ function parseSchema(
                 {} as Record<string, undefined>
               ),
               [valueName]: values[key],
-              ...(keyName !== null ? { [keyName]: key } : {}),
+              ...(keyName !== null
+                ? { [keyName]: isArray ? Number(key) : key }
+                : {}),
             },
             '__idata',
             { enumerable: false, value: true }
