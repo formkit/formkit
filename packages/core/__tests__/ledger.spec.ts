@@ -1,3 +1,4 @@
+import { FormKitPlugin } from './../src/node'
 import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
 import { createNode } from '../src/node'
 import { getNode } from '../src/registry'
@@ -266,6 +267,76 @@ describe('ledger tracking on a tree', () => {
     address.add(subNode)
     tree.add(address)
     expect(tree.ledger.value('blocking')).toBe(5)
+  })
+
+  it('it can remove all subtree counts at the same time when a parent is destroyed', () => {
+    let blocking = 0
+    const countBlocking: FormKitPlugin = (node) => {
+      node.ledger.count('blocking', (m) => m.blocking)
+      node.on('count:blocking', ({ payload }) => {
+        blocking = payload
+      })
+      // Only count at the top of the tree, no inherit:
+      return false
+    }
+    const tree = createNode({
+      type: 'group',
+      name: 'form',
+      plugins: [countBlocking],
+      children: [
+        createNode({
+          type: 'list',
+          name: 'users',
+          children: [
+            createNode({
+              type: 'group',
+              children: [
+                createNode({
+                  name: 'email',
+                }),
+                createNode({
+                  name: 'password',
+                }),
+                createNode({
+                  name: 'location',
+                }),
+              ],
+            }),
+            createNode({
+              type: 'group',
+              children: [
+                createNode({
+                  name: 'email',
+                }),
+                createNode({
+                  name: 'password',
+                }),
+                createNode({
+                  name: 'location',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    const valErr = () =>
+      createMessage({
+        type: 'validation',
+        visible: true,
+        blocking: true,
+        value: 'Invalid',
+      })
+    expect(blocking).toBe(0)
+    tree.at('users.0.email')?.store.set(valErr())
+    tree.at('users.0.password')?.store.set(valErr())
+    tree.at('users.0.location')?.store.set(valErr())
+    tree.at('users.1.email')?.store.set(valErr())
+    tree.at('users.1.password')?.store.set(valErr())
+    tree.at('users.1.location')?.store.set(valErr())
+    expect(blocking).toBe(6)
+    tree.at('users.0')?.destroy()
+    expect(blocking).toBe(3)
   })
 
   it('a plugin can emit a counted message to a parent before complete registration', () => {
