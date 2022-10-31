@@ -553,6 +553,37 @@ describe('form submission', () => {
     expect(wrapper.vm.values).toStrictEqual({ name: 'Jon' })
   })
 
+  it('resets the local value of an input whose key changes', async () => {
+    const id = `a_${token()}`
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            key: 'abc',
+          }
+        },
+        template: `<FormKit type="form" #default="{ value }">
+        <pre>{{ value }}</pre>
+        <FormKit type="text" name="name" id="${id}" :key="key" :delay="0" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find(`#${id}`).setValue('foobar')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('pre').text()).toBe(`{
+  "name": "foobar"
+}`)
+    wrapper.vm.key = 'bar'
+    await nextTick()
+    expect(wrapper.find('pre').text()).toBe(`{}`)
+    expect((wrapper.find(`#${id}`).element as HTMLInputElement).value).toBe('')
+  })
+
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       {

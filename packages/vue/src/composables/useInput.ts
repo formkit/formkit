@@ -28,11 +28,12 @@ import {
   provide,
   watch,
   SetupContext,
-  onUnmounted,
+  // onUnmounted,
   getCurrentInstance,
   computed,
   ref,
   WatchStopHandle,
+  onBeforeUnmount,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
@@ -437,7 +438,8 @@ export function useInput(
   /**
    * When this input shuts down, we need to "delete" the node too.
    */
-  onUnmounted(() => node.destroy())
+  // onUnmounted(() => node.destroy())
+  onBeforeUnmount(() => node.destroy())
 
   return node
 }
