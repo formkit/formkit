@@ -307,8 +307,14 @@ function run(
       // touching the value attribute.
       node.observe()
       node.value
+      // Because this validation rule is skipped when the node's value is empty
+      // so we keep the current value `state.isPassing` to the next rule execution
+      // if we pass null it will be typecasted to false and all following rules 
+      // will be ignored including `required` rule which cause odds behavior
+      next(false, state.isPassing)
+    } else {
+      next(false, null)
     }
-    next(false, null)
   }
 }
 
