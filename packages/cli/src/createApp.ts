@@ -85,8 +85,9 @@ export async function createApp(
       '--template',
       `vue${options.lang === 'ts' ? '-ts' : ''}`,
     ])
-    await addDependency(appName, '@formkit/vue')
-    await addDependency(appName, '@formkit/icons')
+    // TODO: add better version matching here:
+    await addDependency(appName, '@formkit/vue', 'next')
+    await addDependency(appName, '@formkit/icons', 'next')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
@@ -106,8 +107,8 @@ export async function createApp(
       resolve(cwd(), `./${appName}/formkit.config.ts`),
       buildFormKitConfig(options as CreateAppOptions)
     )
-    await addDependency(appName, '@formkit/nuxt')
-    await addDependency(appName, '@formkit/icons')
+    await addDependency(appName, '@formkit/nuxt', 'next')
+    await addDependency(appName, '@formkit/icons', 'next')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
@@ -229,14 +230,18 @@ pre {
  * @param dirName - The directory to find a package.json
  * @param dependency - An npm dependency to add.
  */
-async function addDependency(dirName: string, dependency: string) {
+async function addDependency(
+  dirName: string,
+  dependency: string,
+  version = 'latest'
+) {
   const packageJsonPath = resolve(cwd(), `./${dirName}/package.json`)
   const raw = await readFile(packageJsonPath, 'utf-8')
   const packageJson = JSON.parse(raw)
   if (!('dependencies' in packageJson)) {
     packageJson.dependencies = {}
   }
-  packageJson.dependencies[dependency] = 'latest'
+  packageJson.dependencies[dependency] = version
   await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
 }
 
