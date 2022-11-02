@@ -537,6 +537,24 @@ describe('validation rule sequencing', () => {
     expect(node.store).not.toHaveProperty('rule_contains')
   })
 
+
+  it('shows required validation messages if all rules before it skipped', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'number|required',
+        validationVisibility: "live",
+      },
+      value: 'abcdef',
+    })
+    expect(node.store).toHaveProperty('rule_number')
+    expect(node.store).not.toHaveProperty('rule_required')
+    node.input('', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_number')
+    expect(node.store).toHaveProperty('rule_required')
+  })
+
   it('removes old validations when validation prop changes', () => {
     const node = createNode({
       plugins: [validationPlugin],
