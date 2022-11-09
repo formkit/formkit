@@ -1,35 +1,38 @@
 import type { Preset, Variant } from 'unocss'
 
-const actionsVariants: Variant = (matcher) => {
-  const match = matcher.match(/^formkit-action[:-]/)
-
-  if (!match) return matcher;
-
-  return {
-    matcher: matcher.slice(match[0].length),
-    selector: s => `.formkit-actions ${s}, .formkit-actions${s}`
-  }
-}
+const outerAttributes = [
+  'disabled',
+  'invalid',
+  'errors',
+  'complete',
+  'loading',
+  'submitted',
+  'multiple',
+  'has-prefix-icon',
+  'has-suffix-icon',
+]
 
 const attributesVariants: Variant = (matcher) => {
-  const match = matcher.match(/^formkit-([_\d\w]+)[:-]/)
+  const match = matcher.match(
+    new RegExp(`^formkit-(${outerAttributes.join('|')})(/[_\\d\\w]+)?[:-]`)
+  )
 
-  if (!match) return matcher;
-
-  return {
-    matcher: matcher.slice(match[0].length),
-    selector: s => `${s}[data-${match[1]}], [data-${match[1]}] ${s}, [data-${match[1]}]${s}`
-  }
-}
-
-const messageStatesVariants: Variant = (matcher) => {
-  const match = matcher.match(/^formkit-message-([_\d\w]+)[:-]/)
-
-  if (!match) return matcher;
+  if (!match) return matcher
 
   return {
     matcher: matcher.slice(match[0].length),
-    selector: s => `[data-message-type="${match[1]}"] ${s}, [data-message-type="${match[1]}"]${s}`
+    selector: (s) => {
+      if (match[2]) {
+        return `
+          [data-${match[1]}="true"].group\\${match[2]}${s},
+          [data-${match[1]}="true"].group\\${match[2]} ${s}
+        `
+      }
+      return `
+      	[data-${match[1]}="true"]:not([data-type='repeater'])${s},
+        [data-${match[1]}="true"]:not([data-type='repeater']) ${s}
+      `
+    },
   }
 }
 
@@ -40,11 +43,7 @@ const messageStatesVariants: Variant = (matcher) => {
 const FormKitVariants = (): Preset => {
   return {
     name: 'unocss-preset-formkit',
-    variants: [
-      actionsVariants,
-      attributesVariants,
-      messageStatesVariants
-    ]
+    variants: [attributesVariants],
   }
 }
 
