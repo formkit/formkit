@@ -1,22 +1,40 @@
 import plugin from 'tailwindcss/plugin.js'
 
+const outerAttributes = [
+  'disabled',
+  'invalid',
+  'errors',
+  'complete',
+  'loading',
+  'submitted',
+  'multiple',
+  'has-prefix-icon',
+  'has-suffix-icon',
+]
+
 /**
  * The FormKit plugin for Tailwind
  * @public
  */
-const FormKitVariants = plugin(({ addVariant, theme }) => {
-  const attributes: string[] = theme('formkit.attributes') || []
-  const messageStates: string[] = theme('formkit.messageStates') || []
+// @ts-expect-error matchVariant is not documented or have types
+const FormKitVariants = plugin(function ({ matchVariant }) {
+  const attributes = outerAttributes.reduce((a, v) => ({ ...a, [v]: v }), {})
 
-  addVariant('formkit-action', ['.formkit-actions &', '.formkit-actions&']);
-
-  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', 'has-prefix-icon', 'has-suffix-icon', ...attributes].forEach((attribute) => {
-    addVariant(`formkit-${attribute}`, [`&[data-${attribute}]`, `[data-${attribute}] &`, `[data-${attribute}]&`])
-  });
-
-  ['validation', 'error', ...messageStates].forEach((state) => {
-    addVariant(`formkit-message-${state}`, [`[data-message-type="${state}"] &`, `[data-message-type="${state}"]&`])
-  })
+  matchVariant(
+    'formkit',
+    (value = '', { modifier }: { modifier: string }) => {
+      return modifier
+        ? [
+            `[data-${value}='true']:merge(.group\\/${modifier})&`,
+            `[data-${value}='true']:merge(.group\\/${modifier}) &`,
+          ]
+        : [
+            `[data-${value}='true']:not([data-type='repeater'])&`,
+            `[data-${value}='true']:not([data-type='repeater']) &`,
+          ]
+    },
+    { values: attributes }
+  )
 })
 
 export default FormKitVariants

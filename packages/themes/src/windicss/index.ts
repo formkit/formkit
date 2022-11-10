@@ -1,34 +1,30 @@
 import plugin from 'windicss/plugin'
 
+const outerAttributes = [
+  'disabled',
+  'invalid',
+  'errors',
+  'complete',
+  'loading',
+  'submitted',
+  'multiple',
+  'has-prefix-icon',
+  'has-suffix-icon',
+]
+
 /**
  * The FormKit plugin for WindiCSS
  * @public
  */
-const FormKitVariants = plugin(({ addVariant, theme }) => {
-  const attributes: string[] = (theme('formkit.attributes', []) as string[])
-  const messageStates: string[] = (theme('formkit.messageStates', []) as string[])
-
-  addVariant('formkit-action', ({ modifySelectors }) => {
-    return modifySelectors(({ className }) => {
-      return `.formkit-actions .${className}, .formkit-actions.${className}`
-    })
-  });
-
-  ['disabled', 'invalid', 'errors', 'complete', 'loading', 'submitted', 'multiple', 'has-prefix-icon', 'has-suffix-icon', ...attributes].forEach((attribute) => {
+const FormKitVariants = plugin(({ addVariant }) => {
+  outerAttributes.forEach((attribute) => {
     addVariant(`formkit-${attribute}`, ({ modifySelectors }) => {
       return modifySelectors(({ className }) => {
-        return `.${className}[data-${attribute}], [data-${attribute}] .${className}, [data-${attribute}].${className}`
+        return `[data-${attribute}='true']:not([data-type='repeater']).${className},
+        [data-${attribute}='true']:not([data-type='repeater']) .${className}`
       })
     })
-  });
-
-  ['validation', 'error', ...messageStates].forEach((state) => {
-    addVariant(`formkit-message-${state}`, ({ modifySelectors }) => {
-      return modifySelectors(({ className }) => {
-        return `.${className}[data-message-type="${state}"], [data-message-type="${state}"] .${className}, [data-message-type="${state}"].${className}`
-      })
-    })
-  });
+  })
 })
 
 export default FormKitVariants
