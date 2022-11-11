@@ -1428,7 +1428,7 @@ function walkTree(
 ) {
   context.children.forEach((child) => {
     if (callback(child) !== false || !stopIfFalse) {
-      child.walk(callback)
+      child.walk(callback, stopIfFalse)
     }
   })
 }
