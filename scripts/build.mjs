@@ -17,7 +17,7 @@
 import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
-import execa from 'execa'
+import { execa } from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'

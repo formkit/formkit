@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": "./dist/module.mjs",
       "require": "./dist/module.cjs"
@@ -21,7 +22,6 @@
     "dev": "nuxi dev playground"
   },
   "dependencies": {
-    "@formkit/vue": "1.0.0-beta.11",
-    "@nuxt/kit": "latest"
+    "@formkit/vue": "1.0.0-beta.11"
   }
 }

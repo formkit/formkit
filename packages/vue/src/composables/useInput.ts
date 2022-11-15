@@ -20,6 +20,7 @@ import {
   cloneAny,
   slugify,
   isObject,
+  token,
 } from '@formkit/utils'
 import {
   toRef,
@@ -28,11 +29,12 @@ import {
   provide,
   watch,
   SetupContext,
-  onUnmounted,
+  // onUnmounted,
   getCurrentInstance,
   computed,
   ref,
   WatchStopHandle,
+  onBeforeUnmount,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
@@ -178,6 +180,7 @@ export function useInput(
       ...listeners,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
+    if (!attrs.key) attrs.key = token()
     initialProps.attrs = attrs
     const propValues = only(nodeProps(context.attrs), pseudoProps)
     for (const propName in propValues) {
@@ -437,7 +440,8 @@ export function useInput(
   /**
    * When this input shuts down, we need to "delete" the node too.
    */
-  onUnmounted(() => node.destroy())
+  // onUnmounted(() => node.destroy())
+  onBeforeUnmount(() => node.destroy())
 
   return node
 }

@@ -6,6 +6,7 @@
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",

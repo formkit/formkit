@@ -1,5 +1,6 @@
+import { FormKitOptionsItem } from './../props'
 import { FormKitNode } from '@formkit/core'
-import { undefine } from '@formkit/utils'
+import { undefine, eq } from '@formkit/utils'
 import { shouldSelect, optionValue } from './options'
 import { FormKitOptionsList } from '../props'
 
@@ -10,13 +11,24 @@ import { FormKitOptionsList } from '../props'
  * @returns
  * @public
  */
-function isSelected(node: FormKitNode, option: string) {
+function isSelected(node: FormKitNode, option: FormKitOptionsItem) {
   // Here we trick reactivity (if at play) to watch this function.
   node.context && node.context.value
-  const value = optionValue(node.props.options, option)
+  const optionValue = '__original' in option ? option.__original : option.value
+  function hasNoNullOption() {
+    return !node.props.options.some(
+      (option: FormKitOptionsItem) =>
+        ('__original' in option ? option.__original : option.value) === null
+    )
+  }
   return Array.isArray(node._value)
-    ? node._value.some((optionA) => shouldSelect(optionA, value))
-    : (node.value === undefined && !option) || shouldSelect(value, node._value)
+    ? node._value.some((optionA) => shouldSelect(optionA, optionValue))
+    : (node._value === undefined ||
+        (node._value === null && hasNoNullOption())) &&
+      option.attrs &&
+      option.attrs['data-is-placeholder']
+    ? true
+    : shouldSelect(optionValue, node._value)
 }
 
 /**
@@ -83,6 +95,7 @@ export default function select(node: FormKitNode): void {
   // Set the initial value of a multi-input
   node.on('created', () => {
     const isMultiple = undefine(node.props.attrs?.multiple)
+
     if (
       !isMultiple &&
       node.props.placeholder &&
@@ -121,6 +134,19 @@ export default function select(node: FormKitNode): void {
     }
     if (node.context?.fns) {
       node.context.fns.isSelected = isSelected.bind(null, node)
+      node.context.fns.showPlaceholder = (value: unknown, placeholder) => {
+        if (!Array.isArray(node.props.options)) return false
+        const hasMatchingValue = node.props.options.some(
+          (option: FormKitOptionsItem) => {
+            if (option.attrs && 'data-is-placeholder' in option.attrs)
+              return false
+            const optionValue =
+              '__original' in option ? option.__original : option.value
+            return eq(value, optionValue)
+          }
+        )
+        return placeholder && !hasMatchingValue ? true : undefined
+      }
     }
   })
 

@@ -50,7 +50,7 @@ export function createConfig(
     ...options,
     ...{
       _add: (node: FormKitNode) => nodes.add(node),
-      _rm: (node: FormKitNode) => node.remove(node),
+      _rm: (node: FormKitNode) => nodes.delete(node),
     },
   }
   const rootConfig = new Proxy(target, {

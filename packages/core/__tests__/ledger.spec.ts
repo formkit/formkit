@@ -1,7 +1,10 @@
+import { FormKitPlugin } from './../src/node'
 import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
 import { createNode } from '../src/node'
+import { getNode } from '../src/registry'
 import { createMessage } from '../src/store'
 import { jest } from '@jest/globals'
+import { token } from '@formkit/utils'
 
 const nextTick = () => new Promise((r) => setTimeout(r, 0))
 
@@ -266,6 +269,76 @@ describe('ledger tracking on a tree', () => {
     expect(tree.ledger.value('blocking')).toBe(5)
   })
 
+  it('it can remove all subtree counts at the same time when a parent is destroyed', () => {
+    let blocking = 0
+    const countBlocking: FormKitPlugin = (node) => {
+      node.ledger.count('blocking', (m) => m.blocking)
+      node.on('count:blocking', ({ payload }) => {
+        blocking = payload
+      })
+      // Only count at the top of the tree, no inherit:
+      return false
+    }
+    const tree = createNode({
+      type: 'group',
+      name: 'form',
+      plugins: [countBlocking],
+      children: [
+        createNode({
+          type: 'list',
+          name: 'users',
+          children: [
+            createNode({
+              type: 'group',
+              children: [
+                createNode({
+                  name: 'email',
+                }),
+                createNode({
+                  name: 'password',
+                }),
+                createNode({
+                  name: 'location',
+                }),
+              ],
+            }),
+            createNode({
+              type: 'group',
+              children: [
+                createNode({
+                  name: 'email',
+                }),
+                createNode({
+                  name: 'password',
+                }),
+                createNode({
+                  name: 'location',
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    const valErr = () =>
+      createMessage({
+        type: 'validation',
+        visible: true,
+        blocking: true,
+        value: 'Invalid',
+      })
+    expect(blocking).toBe(0)
+    tree.at('users.0.email')?.store.set(valErr())
+    tree.at('users.0.password')?.store.set(valErr())
+    tree.at('users.0.location')?.store.set(valErr())
+    tree.at('users.1.email')?.store.set(valErr())
+    tree.at('users.1.password')?.store.set(valErr())
+    tree.at('users.1.location')?.store.set(valErr())
+    expect(blocking).toBe(6)
+    tree.at('users.0')?.destroy()
+    expect(blocking).toBe(3)
+  })
+
   it('a plugin can emit a counted message to a parent before complete registration', () => {
     const parent = createNode({
       type: 'group',
@@ -276,5 +349,32 @@ describe('ledger tracking on a tree', () => {
       plugins: [(node) => node.store.set(createMessage({ blocking: true }))],
     })
     expect(parent.ledger.value('blocking')).toBe(1)
+  })
+
+  it('reduces the ledger count when a subtree is removed', () => {
+    const child1 = token()
+    const child2 = token()
+
+    const node = createNode({
+      type: 'group',
+      children: [
+        createNode({
+          type: 'group',
+          props: { id: 'firstGroup' },
+          children: [
+            createNode({ type: 'input', props: { id: child1 } }),
+            createNode({ type: 'input', props: { id: child2 } }),
+          ],
+        }),
+      ],
+    })
+
+    node.ledger.count('blocking', (m) => m.blocking)
+
+    getNode(child1)!.store.set(createMessage({ blocking: true }))
+    getNode(child2)!.store.set(createMessage({ blocking: true }))
+    expect(node.ledger.value('blocking')).toBe(2)
+    getNode('firstGroup')?.destroy()
+    expect(node.ledger.value('blocking')).toBe(0)
   })
 })

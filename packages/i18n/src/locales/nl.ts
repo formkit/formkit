@@ -20,11 +20,11 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when a button to remove items is visible.
    */
-  remove: 'Verwijder',
+  remove: 'Verwijderen',
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Verwijder alles',
+  removeAll: 'Alles verwijderen',
   /**
    * Shown when all fields are not filled out correctly.
    */
@@ -111,7 +111,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
-    return `${s(name)} kunnen alleen letters en spaties bevatten.`
+    return `${s(name)} mag alleen letters en spaties bevatten.`
     /* </i18n> */
   },
 
@@ -126,7 +126,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `${s(name)} moet in het verleden zijn.`
+    return `${s(name)} moet in het verleden liggen.`
     /* </i18n> */
   },
 
@@ -224,6 +224,11 @@ export const validation: FormKitValidationMessages = {
       return `${s(
         name
       )} moet kleiner zijn dan of gelijk zijn aan ${max} tekens.`
+      /* </i18n> */
+    }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} moet ${max} tekens lang zijn.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
@@ -337,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Voeg een geldige url toe.`
+    return `Vul een geldige url in.`
     /* </i18n> */
   },
 }

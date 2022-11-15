@@ -492,6 +492,26 @@ describe('parsing dom elements', () => {
     )
   })
 
+  it('uses numbers as indexes of arrays during iteration', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: {
+          value: ['A', 'B', 'C'],
+        },
+        schema: [
+          {
+            for: ['value', 'index', '$value'],
+            $el: 'div',
+            children: '$index + 1',
+          },
+        ],
+      },
+    })
+    expect(wrapper.html()).toBe(`<div>1</div>
+<div>2</div>
+<div>3</div>`)
+  })
+
   it('can render slots as the only child', () => {
     const wrapper = mount(FormKitSchema, {
       slots: {
@@ -896,6 +916,19 @@ describe('rendering components', () => {
     ctx.price = 200
     await nextTick()
     expect(wrapper.html()).toBe('213')
+  })
+
+  it('can use date methods from date objects (#406)', async () => {
+    const data = reactive({
+      date: new Date('2000-01-10T00:12:00'),
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: ['$date.getDate()'],
+      },
+    })
+    expect(wrapper.html()).toBe('10')
   })
 
   it('can re-parse a schema with components when new object', async () => {

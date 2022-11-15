@@ -6,7 +6,6 @@ import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { nextTick, ref } from 'vue'
-// import { jest } from '@jest/globals'
 
 describe('select', () => {
   it('renders a select list with an array of objects', () => {
@@ -527,6 +526,62 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').element.value).toBe('')
+  })
+
+  it('selects the placeholder when the value is null but there is no matching null value', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        multiple: false,
+        placeholder: 'My placeholder',
+        options: [{ value: 'abc', label: 'abc' }],
+        value: null,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(true)
+    expect(wrapper.find('select').element.value).toBe('')
+  })
+
+  it('selects the correct option when the value is null and there is a matching option', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        multiple: false,
+        placeholder: 'My placeholder',
+        options: [
+          { value: 'abc', label: 'abc' },
+          { label: 'def', value: null },
+        ],
+        value: null,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('__mask_1')
+    expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(false)
+  })
+
+  it('selects the placeholder and adds data-placeholder when it has an empty value', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        placeholder: 'My placeholder',
+        options: [
+          { value: 'abc', label: 'abc' },
+          { label: 'def', value: null },
+        ],
+        value: '',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('')
+    expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(true)
   })
 })
 

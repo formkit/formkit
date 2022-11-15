@@ -14,45 +14,45 @@ import { FormKitLocaleMessages } from '../i18n'
  */
 export const ui: FormKitLocaleMessages = {
   /**
-   * Shown on buttons for adding new items.
+   * Shown on a button for adding additional items.
    */
-  add: 'Добавить',
+  add: 'Προσθήκη',
   /**
    * Shown when a button to remove items is visible.
    */
-  remove: 'Удалить',
+  remove: 'Αφαίρεση',
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Убрать все',
+  removeAll: 'Αφαίρεση όλων',
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Извините, не все поля заполнены верно.',
+  incomplete: 'Λυπούμαστε, υπάρχουν πεδία που δεν έχουν συμπληρωθεί σωστά.',
   /**
    * Shown in a button inside a form to submit the form.
    */
-  submit: 'Отправить',
+  submit: 'Υποβολή',
   /**
    * Shown when no files are selected.
    */
-  noFiles: 'Файл не выбран',
+  noFiles: 'Κανένα αρχείο δεν έχει επιλεγεί',
   /**
    * Shown on buttons that move fields up in a list.
    */
-  moveUp: 'Переместить вверх',
+  moveUp: 'Προς τα επάνω',
   /**
    * Shown on buttons that move fields down in a list.
    */
-  moveDown: 'Переместить вниз',
+  moveDown: 'Προς τα κάτω',
   /**
    * Shown when something is actively loading.
    */
-  isLoading: 'Загрузка...',
+  isLoading: 'Φορτώνει...',
   /**
    * Shown when there is more to load.
    */
-  loadMore: 'Загрузить больше',
+  loadMore: 'Φόρτωση περισσότερων',
 }
 
 /**
@@ -66,7 +66,7 @@ export const validation: FormKitValidationMessages = {
    */
   accepted({ name }): string {
     /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
-    return `Пожалуйста, примите ${name}.`
+    return `Παρακαλώ αποδεχτείτε το ${name}.`
     /* </i18n> */
   },
 
@@ -77,11 +77,11 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `Дата ${s(name)} должна быть позже ${date(args[0])}.`
+      return `${s(name)} πρέπει να είναι μετά της ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
-    return `Дата ${s(name)} должна быть в будущем.`
+    return `${s(name)} πρέπει να είναι στο μέλλον.`
     /* </i18n> */
   },
 
@@ -91,7 +91,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `Поле ${s(name)} может содержать только буквы.`
+    return `${s(name)} μπορεί να περιέχει μόνο αλφαβητικούς χαρακτήρες.`
     /* </i18n> */
   },
 
@@ -101,7 +101,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `Поле ${s(name)} может содержать только буквы и цифры.`
+    return `${s(name)} μπορεί να περιέχει μόνο γράμματα και αριθμούς.`
     /* </i18n> */
   },
 
@@ -111,7 +111,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
-    return `${s(name)} могут содержать только буквы и пробелы.`
+    return `${s(name)} μπορεί να περιέχει μόνο γράμματα και κενά.`
     /* </i18n> */
   },
 
@@ -122,11 +122,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `Дата ${s(name)} должна быть раньше ${date(args[0])}.`
+      return `${s(name)} πρέπει να είναι πριν της ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `Дата ${s(name)} должна быть в прошлом.`
+    return `${s(name)} πρέπει να είναι στο παρελθόν.`
     /* </i18n> */
   },
 
@@ -137,12 +137,12 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `Это поле заполнено неверно и не может быть отправлено.`
+      return `Αυτό το πεδίο έχει ρυθμιστεί λανθασμένα και δεν μπορεί να υποβληθεί.`
       /* </i18n> */
     }
     const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `Поле ${s(name)} должно быть между ${a} и ${b}.`
+    return `${s(name)} πρέπει να είναι μεταξύ ${a} και ${b}.`
     /* </i18n> */
   },
 
@@ -152,7 +152,7 @@ export const validation: FormKitValidationMessages = {
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
-    return `Поле ${s(name)} не совпадает.`
+    return `${s(name)} δεν ταιριάζει.`
     /* </i18n> */
   },
 
@@ -163,13 +163,15 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `Поле ${s(
+      return `${s(
         name
-      )} имеет неверную дату. Пожалуйста, используйте формат ${args[0]}`
+      )} δεν είναι έγυρη ημερομηνία, παρακαλώ ακολουθήστε την διαμόρφωση ${
+        args[0]
+      }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'Это поле заполнено неверно и не может быть отправлено.'
+    return 'Αυτό το πεδίο έχει ρυθμιστεί λανθασμένα και δεν μπορεί να υποβληθεί'
     /* </i18n> */
   },
 
@@ -179,7 +181,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `Дата ${s(name)} должна быть между ${date(args[0])} и ${date(
+    return `${s(name)} πρέπει να είναι μεταξύ ${date(args[0])} και ${date(
       args[1]
     )}`
     /* </i18n> */
@@ -189,7 +191,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'Пожалуйста, введите действительный электронный адрес.',
+  email: 'Παρακαλώ πληκτρολογήστε μια έγκυρη email διεύθυνση. ',
 
   /**
    * Does not end with the specified value
@@ -197,7 +199,7 @@ export const validation: FormKitValidationMessages = {
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
-    return `Поле ${s(name)} не должно заканчиваться на ${list(args)}.`
+    return `${s(name)} δεν καταλήγει με ${list(args)}.`
     /* </i18n> */
   },
 
@@ -207,7 +209,7 @@ export const validation: FormKitValidationMessages = {
    */
   is({ name }) {
     /* <i18n case="Shown when the user-provided value is not one of the values supplied to the rule."> */
-    return `Поле ${s(name)} имеет неподустимое значение.`
+    return `${s(name)} δεν είναι μια επιτρεπτή τιμή.`
     /* </i18n> */
   },
 
@@ -220,30 +222,28 @@ export const validation: FormKitValidationMessages = {
     const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `Поле ${s(name)} должно содержать минимум один символ.`
+      return `${s(name)} πρέπει να είναι τουλάχιστον ενός χαρακτήρα.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `Длина поля ${s(
-        name
-      )} должна быть меньше или равна ${max} символам.`
+      return `${s(name)} πρέπει να είναι λιγότεροι ή ίσοι με ${max} χαρακτήρες.`
       /* </i18n> */
     }
     if (min === max) {
       /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
-      return `Длина ${s(name)} должна составлять ${max} символов.`
+      return `Το ${s(name)} θα πρέπει να έχει μήκος ${max} χαρακτήρες.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `Длина поля ${s(
+      return `${s(
         name
-      )} должна быть больше или равна ${min} символам.`
+      )} πρέπει να είναι περισσότεροι ή ίσοι με ${min} χαρακτήρες.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `Длина поля ${s(name)} должна быть между ${min} и ${max} символами.`
+    return `${s(name)} πρέπει να είναι μεταξύ ${min} και ${max} χαρακτήρες.`
     /* </i18n> */
   },
 
@@ -253,7 +253,7 @@ export const validation: FormKitValidationMessages = {
    */
   matches({ name }) {
     /* <i18n case="Shown when the user-provided value does not match any of the values or RegExp patterns supplied to the rule. "> */
-    return `Поле ${s(name)} имеет недопустимое значение.`
+    return `${s(name)} δεν είναι μια επιτρεπτή τιμή.`
     /* </i18n> */
   },
 
@@ -264,11 +264,11 @@ export const validation: FormKitValidationMessages = {
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is longer than the max supplied to the rule."> */
-      return `Не может быть выбрано больше, чем ${args[0]} ${name}.`
+      return `Δεν μπορεί να έχει παραπάνω από ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `Поле ${s(name)} должно быть меньше или равно ${args[0]}.`
+    return `${s(name)} πρέπει αν είναι λιγότερο ή ίσο με το ${args[0]}.`
     /* </i18n> */
   },
 
@@ -279,11 +279,11 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'Не указаны поддержиавемые форматы файла.'
+      return 'Δεν επιτρέπονται αρχεία.'
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `Формат файла в поле ${s(name)} должен быть: ${args[0]}.`
+    return `${s(name)} πρέπει να είναι τύπου: ${args[0]}`
     /* </i18n> */
   },
 
@@ -294,11 +294,11 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `Не может быть выбрано меньше, чем ${args[0]} ${name}.`
+      return `Δεν μπορεί να είναι λιγότερο από ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `Поле ${s(name)} должно быть не менее, чем ${args[0]}.`
+    return `${s(name)} πρέπει να είναι τουλάχιστον ${args[0]}.`
     /* </i18n> */
   },
 
@@ -308,7 +308,7 @@ export const validation: FormKitValidationMessages = {
    */
   not({ name, node: { value } }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
-    return `“${value}” не поддерживается в поле ${name}.`
+    return `“${value}” δεν είναι μια επιτρεπτή ${name}.`
     /* </i18n> */
   },
 
@@ -318,7 +318,7 @@ export const validation: FormKitValidationMessages = {
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
-    return `Поле ${s(name)} должно быть числом.`
+    return `${s(name)} πρέπει να είναι αριθμός.`
     /* </i18n> */
   },
 
@@ -328,7 +328,7 @@ export const validation: FormKitValidationMessages = {
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
-    return `Поле ${s(name)} обязательно для заполнения.`
+    return `${s(name)} είναι υποχρεωτικό.`
     /* </i18n> */
   },
 
@@ -338,7 +338,7 @@ export const validation: FormKitValidationMessages = {
    */
   starts_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not start with the substring supplied to the rule."> */
-    return `Поле ${s(name)} должно начинаться с ${list(args)}.`
+    return `${s(name)} δεν αρχίζει με ${list(args)}.`
     /* </i18n> */
   },
 
@@ -348,7 +348,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Пожалуйста, введите действительный URL адрес.`
+    return `Παρακαλώ συμπεριλάβετε μια έγκυρη διεύθυνση ιστοσελίδας.`
     /* </i18n> */
   },
 }

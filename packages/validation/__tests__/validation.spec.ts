@@ -298,6 +298,24 @@ describe('validation rule sequencing', () => {
     },
   })
 
+  it('shows required validation messages if all rules before it skipped', async () => {
+    const node = createNode({
+      plugins: [validationPlugin],
+      props: {
+        validation: 'length:7|required',
+      },
+      value: '',
+    })
+    node.input('asdfq', false)
+    await nextTick()
+    expect(node.store).toHaveProperty('rule_length')
+    expect(node.store).not.toHaveProperty('rule_required')
+    node.input('', false)
+    await nextTick()
+    expect(node.store).not.toHaveProperty('rule_length')
+    expect(node.store).toHaveProperty('rule_required')
+  })
+
   it('runs non-async non-debounced rules synchronously with bailing', async () => {
     const node = createNode({
       plugins: [validationPlugin],
@@ -357,7 +375,7 @@ describe('validation rule sequencing', () => {
     })
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
-    await new Promise((r) => setTimeout(r, 105))
+    await new Promise((r) => setTimeout(r, 125))
     expect(node.store).toHaveProperty('rule_exists')
     expect(node.store).toHaveProperty('rule_contains')
     node.input('foobars', false)

@@ -50,6 +50,12 @@ const submitHandler = async function (data: { email: string }) {
       type="select"
     />
     <FormKit
+      type="number"
+      label="Age"
+      validation="between:21,18"
+      validation-visibility="live"
+    />
+    <FormKit
       type="email"
       name="email"
       label="Email address"

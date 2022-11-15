@@ -187,7 +187,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://docs.formkit.com/essentials/validation#email}
    */
-  email: 'Kérjük, érvények email címet adjon meg.',
+  email: 'Kérjük, érvényes email címet adjon meg.',
 
   /**
    * Does not end with the specified value
@@ -224,6 +224,11 @@ export const validation: FormKitValidationMessages = {
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
       return `${s(name)} mezőnek maximum ${max} karakteresnek kell lennie.`
+      /* </i18n> */
+    }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} ${max} karakter hosszúnak kell lennie.`
       /* </i18n> */
     }
     if (min && max === Infinity) {

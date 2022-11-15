@@ -10,6 +10,7 @@
     "formkit": "./bin/formkit.mjs"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
@@ -41,7 +42,8 @@
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
-    "prompts": "^2.4.2"
+    "prompts": "^2.4.2",
+    "execa": "6.1.0"
   },
   "devDependencies": {
     "@types/prompts": "^2.0.14"

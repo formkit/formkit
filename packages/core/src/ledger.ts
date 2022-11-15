@@ -106,7 +106,7 @@ function createCounter(
     }
     ledger[counterName] = counter
     increment = node.store.reduce(
-      (sum, m) => sum + ((counter.condition(m) as unknown) as number) * 1,
+      (sum, m) => sum + (counter.condition(m) as unknown as number) * 1,
       increment
     )
     node.each((child) => {
@@ -176,6 +176,7 @@ function add(ledger: FormKitLedgerStore, delta: number) {
  * @param parent - The parent that is "receiving" the child
  * @param ledger - The ledger object
  * @param child - The child (can be a subtree) that is being attached
+ * @param remove - If the merge is removing instead of adding
  */
 function merge(
   parent: FormKitNode | null,
@@ -187,6 +188,7 @@ function merge(
     const condition = ledger[key].condition
     if (!remove) child.ledger.count(key, condition)
     const increment = child.ledger.value(key) * (remove ? -1 : 1)
+
     if (!parent) continue
     do {
       parent.ledger.count(key, condition, increment)

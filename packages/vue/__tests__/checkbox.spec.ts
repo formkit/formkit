@@ -134,6 +134,50 @@ describe('single checkbox', () => {
     })
     expect(wrapper.find('.formkit-wrapper[data-disabled]').exists()).toBe(true)
   })
+
+  it('renders the label slot even when there is no label prop', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="checkbox">
+          <template #label>
+            <div id="hello-world">Render me anyway</div>
+          </template>
+        </FormKit>
+      `,
+      },
+      global
+    )
+    expect(wrapper.find('#hello-world').exists()).toBe(true)
+  })
+
+  it('renders the label slot even when there is no label prop', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="checkbox" :options="['A', 'B']">
+          <template #label>
+            <div class="my-label">Render me anyway</div>
+          </template>
+        </FormKit>
+      `,
+      },
+      global
+    )
+    expect(wrapper.find('div').findAll('.my-label').length).toBe(2)
+  })
+
+  it('does not render the label when it is not provided', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="checkbox" />
+      `,
+      },
+      global
+    )
+    expect(wrapper.find('.formkit-label').exists()).toBe(false)
+  })
 })
 
 describe('multiple checkboxes', () => {

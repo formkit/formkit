@@ -147,7 +147,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} санаи дуруст нест, лутфан формати ${args[0]}-ро истифода баред`
+      return `${s(name)} санаи дуруст нест, лутфан формати ${
+        args[0]
+      }-ро истифода баред`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -161,7 +163,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} бояд дар байни ${date(args[0])} ва ${date(args[1])} бошад`
+    return `${s(name)} бояд дар байни ${date(args[0])} ва ${date(
+      args[1]
+    )} бошад`
     /* </i18n> */
   },
 
@@ -206,6 +210,11 @@ export const validation: FormKitValidationMessages = {
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
       return `${s(name)} бояд аз ${max} аломат камтар ё баробар бошад.`
+      /* </i18n> */
+    }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} бояд ${max} аломат бошад.`
       /* </i18n> */
     }
     if (min && max === Infinity) {

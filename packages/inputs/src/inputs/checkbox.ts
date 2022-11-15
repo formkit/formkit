@@ -40,7 +40,9 @@ export const checkbox: FormKitTypeDefinition = {
        */
       boxWrapper(
         inner(prefix(), box(), decorator(icon('decorator')), suffix()),
-        $if('$label', boxLabel('$label'))
+        $extend(boxLabel('$label'), {
+          if: '$label',
+        })
       ),
       /**
        * Multi checkbox structure.
@@ -64,7 +66,9 @@ export const checkbox: FormKitTypeDefinition = {
                 decorator(icon('decorator')),
                 suffix()
               ),
-              $if('$option.label', boxLabel('$option.label'))
+              $extend(boxLabel('$option.label'), {
+                if: '$option.label',
+              })
             ),
             boxHelp('$option.help')
           )

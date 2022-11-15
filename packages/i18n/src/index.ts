@@ -4,6 +4,7 @@ import * as bg from './locales/bg'
 import * as cs from './locales/cs'
 import * as da from './locales/da'
 import * as de from './locales/de'
+import * as el from './locales/el'
 import * as en from './locales/en'
 import * as es from './locales/es'
 import * as fa from './locales/fa'
@@ -18,11 +19,13 @@ import * as it from './locales/it'
 import * as ja from './locales/ja'
 import * as kk from './locales/kk'
 import * as ko from './locales/ko'
+import * as nb from './locales/nb'
 import * as nl from './locales/nl'
 import * as pl from './locales/pl'
 import * as pt from './locales/pt'
 import * as ro from './locales/ro'
 import * as ru from './locales/ru'
+import * as sk from './locales/sk'
 import * as sl from './locales/sl'
 import * as sr from './locales/sr'
 import * as sv from './locales/sv'
@@ -50,6 +53,7 @@ export const locales = {
   cs,
   da,
   de,
+  el,
   en,
   es,
   fa,
@@ -64,11 +68,13 @@ export const locales = {
   ja,
   kk,
   ko,
+  nb,
   nl,
   pl,
   pt,
   ro,
   ru,
+  sk,
   sl,
   sr,
   sv,
@@ -92,6 +98,7 @@ export {
   cs,
   da,
   de,
+  el,
   en,
   es,
   fa,
@@ -106,11 +113,13 @@ export {
   ja,
   ko,
   kk,
+  nb,
   nl,
   pl,
   pt,
   ro,
   ru,
+  sk,
   sl,
   sr,
   sv,

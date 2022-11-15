@@ -6,6 +6,7 @@ import defaultConfig from '../src/defaultConfig'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
+import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { jest } from '@jest/globals'
 
@@ -844,6 +845,44 @@ describe('validation', () => {
     wrapper.find('.validity').trigger('click')
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.validity').text()).toBe('true')
+  })
+
+  it('can respond to dynamic validationRules prop', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const list = ref(['a', 'b', 'c'])
+          const foo = (node: FormKitNode) => node.value !== 'foo'
+          const rules = ref<Record<string, FormKitValidationRule>>({ foo })
+          const addRule = () => {
+            rules.value = {
+              ...rules.value,
+              bar: function (node: FormKitNode) {
+                return node.value !== 'bar'
+              },
+            }
+          }
+          return { list, rules, addRule }
+        },
+        template: `
+        <FormKit
+          :validation-rules="rules"
+          validation="foo|bar"
+          validation-visibility="live"
+          value="bar"
+        />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    wrapper.vm.addRule()
+    await new Promise((r) => setTimeout(r, 200))
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
 })
 
