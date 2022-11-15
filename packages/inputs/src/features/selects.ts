@@ -138,12 +138,14 @@ export default function select(node: FormKitNode): void {
         if (!Array.isArray(node.props.options)) return false
         const hasMatchingValue = node.props.options.some(
           (option: FormKitOptionsItem) => {
+            if (option.attrs && 'data-is-placeholder' in option.attrs)
+              return false
             const optionValue =
               '__original' in option ? option.__original : option.value
             return eq(value, optionValue)
           }
         )
-        return (placeholder && !hasMatchingValue) || undefined
+        return placeholder && !hasMatchingValue ? true : undefined
       }
     }
   })

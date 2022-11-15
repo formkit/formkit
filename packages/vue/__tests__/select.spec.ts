@@ -564,6 +564,25 @@ describe('select', () => {
     expect(wrapper.find('select').element.value).toBe('__mask_1')
     expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(false)
   })
+
+  it('selects the placeholder and adds data-placeholder when it has an empty value', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'select',
+        placeholder: 'My placeholder',
+        options: [
+          { value: 'abc', label: 'abc' },
+          { label: 'def', value: null },
+        ],
+        value: '',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('select').element.value).toBe('')
+    expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(true)
+  })
 })
 
 describe('select arbitrary type values', () => {
