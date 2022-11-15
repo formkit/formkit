@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": "./dist/module.mjs",
       "require": "./dist/module.cjs"

@@ -7,6 +7,7 @@
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "exports": {
+    "./package.json": "./package.json",
     "./genesis": "./dist/genesis/theme.css",
     "./windicss": {
       "import": "./dist/windicss/index.mjs",

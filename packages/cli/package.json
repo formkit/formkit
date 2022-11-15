@@ -10,6 +10,7 @@
     "formkit": "./bin/formkit.mjs"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
