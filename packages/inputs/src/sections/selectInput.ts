@@ -8,14 +8,7 @@ export const selectInput = createSection('input', () => ({
   bind: '$attrs',
   attrs: {
     id: '$id',
-    'data-placeholder': {
-      if: '$placeholder',
-      then: {
-        if: '$value',
-        then: undefined,
-        else: 'true',
-      },
-    },
+    'data-placeholder': '$fns.showPlaceholder($_value, $placeholder)',
     disabled: '$disabled',
     class: '$classes.input',
     name: '$node.name',

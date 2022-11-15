@@ -10,6 +10,6 @@ export const option = createSection('option', () => ({
   attrs: {
     class: '$classes.option',
     value: '$option.value',
-    selected: '$fns.isSelected($option.value)',
+    selected: '$fns.isSelected($option)',
   },
 }))

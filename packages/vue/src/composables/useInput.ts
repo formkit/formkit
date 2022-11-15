@@ -20,6 +20,7 @@ import {
   cloneAny,
   slugify,
   isObject,
+  token,
 } from '@formkit/utils'
 import {
   toRef,
@@ -179,6 +180,7 @@ export function useInput(
       ...listeners,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
+    if (!attrs.key) attrs.key = token()
     initialProps.attrs = attrs
     const propValues = only(nodeProps(context.attrs), pseudoProps)
     for (const propName in propValues) {

@@ -375,7 +375,7 @@ describe('validation rule sequencing', () => {
     })
     expect(node.store).not.toHaveProperty('rule_exists')
     expect(node.store).not.toHaveProperty('rule_contains')
-    await new Promise((r) => setTimeout(r, 105))
+    await new Promise((r) => setTimeout(r, 125))
     expect(node.store).toHaveProperty('rule_exists')
     expect(node.store).toHaveProperty('rule_contains')
     node.input('foobars', false)
