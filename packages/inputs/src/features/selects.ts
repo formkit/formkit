@@ -143,7 +143,7 @@ export default function select(node: FormKitNode): void {
             return eq(value, optionValue)
           }
         )
-        return placeholder && !hasMatchingValue
+        return (placeholder && !hasMatchingValue) || undefined
       }
     }
   })
