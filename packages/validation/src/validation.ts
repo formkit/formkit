@@ -161,28 +161,42 @@ const validatingMessage = createMessage({
  */
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
   return function validationPlugin(node: FormKitNode): void {
-    const availableRules = Object.assign(
-      {},
-      baseRules,
-      node.props.validationRules as FormKitValidationRules
-    )
+    let availableRules = {
+      ...baseRules,
+      ...cloneAny(node.props.validationRules),
+    }
     // create an observed node
     let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
     let validation = cloneAny(node.props.validation)
-    // If the node's validation prop changes, update the rules:
-    node.on('prop:validation', ({ payload: value }) => {
-      if (eq(validation, value)) return
-      validation = cloneAny(value)
+    // If the node's validation props change, reboot:
+    node.on('prop:validation', ({ payload }) => reboot(payload, availableRules))
+    node.on('prop:validationRules', ({ payload }) =>
+      reboot(validation, payload)
+    )
+    /**
+     * Reboots the validation using new rules or declarations/intents.
+     * @param newValidation - New validation declaration to use
+     * @param newRules - New validation rules to use
+     * @returns
+     */
+    function reboot(
+      newValidation: undefined | string | FormKitValidationIntent[],
+      newRules: FormKitValidationRules
+    ) {
+      if (eq(availableRules, newRules) && eq(validation, newValidation)) return
+      validation = cloneAny(newValidation)
+      availableRules = { ...baseRules, ...cloneAny(node.props.validationRules) }
       // Destroy all observers that may re-trigger validation on an old stack
       removeListeners(observedNode.receipts)
       // Remove all existing messages before re-validating
       node.store.filter(() => false, 'validation')
-      node.props.parsedRules = parseRules(value, availableRules)
+      node.props.parsedRules = parseRules(newValidation, availableRules)
       observedNode.kill()
       observedNode = createObserver(node)
       validate(observedNode, node.props.parsedRules, state)
-    })
+    }
+
     // Validate the field when this plugin is initialized
     node.props.parsedRules = parseRules(validation, availableRules)
     validate(observedNode, node.props.parsedRules, state)
@@ -309,7 +323,7 @@ function run(
       node.value
       // Because this validation rule is skipped when the node's value is empty
       // so we keep the current value `state.isPassing` to the next rule execution
-      // if we pass null it will be typecasted to false and all following rules 
+      // if we pass null it will be typecasted to false and all following rules
       // will be ignored including `required` rule which cause odds behavior
       next(false, state.isPassing)
     } else {
@@ -650,6 +664,7 @@ function fnHints(
  * Extracts all validation messages from the given node and all its descendants.
  * This is not reactive and must be re called each time the messages change.
  * @param node - The FormKit node to extract validation rules from — as well as its descendants.
+ * @public
  */
 export function getValidationMessages(
   node: FormKitNode
