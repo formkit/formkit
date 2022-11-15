@@ -163,7 +163,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} er ikke en gyldig dato, vennligst bruk formatet ${args[0]}`
+      return `${s(name)} er ikke en gyldig dato, vennligst bruk formatet ${
+        args[0]
+      }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -222,6 +224,11 @@ export const validation: FormKitValidationMessages = {
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
       return `${s(name)} må ha mindre enn eller nøyaktig ${max} tegn.`
+      /* </i18n> */
+    }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} skal være ${max} tegn langt.`
       /* </i18n> */
     }
     if (min && max === Infinity) {

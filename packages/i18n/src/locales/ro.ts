@@ -226,6 +226,11 @@ export const validation: FormKitValidationMessages = {
       return `${s(name)} trebuie sa aibă cel mult ${max} caractere.`
       /* </i18n> */
     }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} ar trebui să aibă ${max} caractere lungi.`
+      /* </i18n> */
+    }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
       return `${s(name)} trebuie să aibă cel puțin ${min} caractere.`

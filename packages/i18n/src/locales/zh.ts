@@ -215,6 +215,11 @@ export const validation: FormKitValidationMessages = {
       return `${s(name)}必须少于或等于${max}个字符`
       /* </i18n> */
     }
+    if (min === max) {
+      /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
+      return `${s(name)} 的长度应为 ${max} 个字符。`
+      /* </i18n> */
+    }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
       return `${s(name)}必须多于或等于${min}个字符`
