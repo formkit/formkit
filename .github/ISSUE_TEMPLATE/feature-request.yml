@@ -1,6 +1,6 @@
 name: Feature request
 description: Use this to request new features.
-labels: ["🪄 enhancement"]
+labels: ["🪄 enhancement", "⛑ Needs triage"]
 body:
   - type: markdown
     attributes:
