@@ -17,6 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
+    "importsNotUsedAsValues": "error",
     "paths": {
       "@components": [
         "packages/vue/src/components/*"

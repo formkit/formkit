@@ -13,6 +13,12 @@ module.exports = {
     '@typescript-eslint/no-extra-semi': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        'disallowTypeAnnotations': false
+      }
+    ],
     'tsdoc/syntax': 'warn',
   },
   ignorePatterns: ['dist.*'],
