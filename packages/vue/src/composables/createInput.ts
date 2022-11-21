@@ -1,7 +1,9 @@
-import { FormKitTypeDefinition, FormKitSchemaNode } from '@formkit/core'
+import type { FormKitTypeDefinition, FormKitSchemaNode } from '@formkit/core'
 import { cloneAny } from '@formkit/utils'
-import { createSection, FormKitSection, useSchema } from '@formkit/inputs'
-import { Component, markRaw } from 'vue'
+import type { FormKitSection} from '@formkit/inputs';
+import { createSection, useSchema } from '@formkit/inputs'
+import type { Component} from 'vue';
+import { markRaw } from 'vue'
 
 let totalCreated = 1
 

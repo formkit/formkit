@@ -1,4 +1,4 @@
-import { FormKitPlugin } from './../src/node'
+import type { FormKitPlugin } from './../src/node'
 import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
 import { createNode } from '../src/node'
 import { getNode } from '../src/registry'

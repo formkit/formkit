@@ -1,8 +1,10 @@
-import {
-  createNode,
+import type {
   FormKitGroupValue,
   FormKitPlugin,
-  FormKitNode,
+  FormKitNode
+} from '../src/node';
+import {
+  createNode,
   bfs,
   resetCount,
 } from '../src/node'
@@ -16,7 +18,7 @@ import {
 } from '../../../.jest/helpers'
 import { generateClassList } from '../src/classes'
 import { jest } from '@jest/globals'
-import { FormKitMiddleware } from '../src/dispatcher'
+import type { FormKitMiddleware } from '../src/dispatcher'
 import { has, clone } from '@formkit/utils'
 
 describe('node', () => {

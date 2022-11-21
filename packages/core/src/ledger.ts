@@ -1,6 +1,6 @@
-import { FormKitNode } from './node'
-import { FormKitEvent } from './events'
-import { FormKitMessage } from './store'
+import type { FormKitNode } from './node'
+import type { FormKitEvent } from './events'
+import type { FormKitMessage } from './store'
 import { has } from '@formkit/utils'
 
 /**

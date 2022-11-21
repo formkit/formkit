@@ -1,4 +1,4 @@
-import {
+import type {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
   FormKitSchemaNode,
@@ -6,7 +6,9 @@ import {
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
   FormKitSchemaCondition,
-  FormKitSchemaComposable,
+  FormKitSchemaComposable
+} from '@formkit/core';
+import {
   isComponent,
   isDOM,
   isConditional,

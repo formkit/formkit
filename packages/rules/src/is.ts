@@ -1,5 +1,5 @@
 import { eq } from '@formkit/utils'
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 
 /**
  * Determine if the given input's value is in a set of possible values.

@@ -1,10 +1,12 @@
+import type {
+  FormKitHandlerPayload,
+  FormKitNode
+} from '@formkit/core';
 import {
   warningHandler,
-  errorHandler,
-  FormKitHandlerPayload,
-  FormKitNode,
+  errorHandler
 } from '@formkit/core'
-import { FormKitMiddleware } from 'packages/core/src'
+import type { FormKitMiddleware } from 'packages/core/src'
 
 let registered = false
 

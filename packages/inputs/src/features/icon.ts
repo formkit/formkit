@@ -1,4 +1,4 @@
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 
 /**
  * @param sectionKey - the location the icon should be loaded

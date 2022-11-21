@@ -1,5 +1,5 @@
-import { FormKitSyntheticProps } from '@formkit/inputs'
-import {
+import type { FormKitSyntheticProps } from '@formkit/inputs'
+import type {
   FormKitNode,
   FormKitPlugin,
   FormKitClasses,
@@ -7,7 +7,7 @@ import {
   FormKitSchemaCondition,
   FormKitTypeDefinition,
 } from '@formkit/core'
-import { PropType } from 'vue'
+import type { PropType } from 'vue'
 
 /**
  * Synthetic props are props that are not explicitly declared as props, but

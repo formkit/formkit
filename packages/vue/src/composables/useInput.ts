@@ -1,14 +1,16 @@
 import { parentSymbol } from '../FormKit'
-import {
-  error,
-  createNode,
+import type {
   FormKitNode,
   FormKitClasses,
   FormKitOptions,
   FormKitPlugin,
   FormKitMessage,
-  createMessage,
-  FormKitTypeDefinition,
+  FormKitTypeDefinition
+} from '@formkit/core';
+import {
+  error,
+  createNode,
+  createMessage
 } from '@formkit/core'
 import {
   nodeProps,
@@ -22,22 +24,21 @@ import {
   isObject,
   token,
 } from '@formkit/utils'
+import type { SetupContext, WatchStopHandle } from 'vue';
 import {
   toRef,
   watchEffect,
   inject,
   provide,
   watch,
-  SetupContext,
   // onUnmounted,
   getCurrentInstance,
   computed,
   ref,
-  WatchStopHandle,
   onBeforeUnmount,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
-import { FormKitGroupValue } from 'packages/core/src'
+import type { FormKitGroupValue } from 'packages/core/src'
 import watchVerbose from './watchVerbose'
 import useRaw from './useRaw'
 // import { observe, isObserver } from './mutationObserver'

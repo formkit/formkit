@@ -1,9 +1,9 @@
 import { empty } from '@formkit/utils'
+import type { FormKitValidationRule } from '../src/validation';
 import {
   parseRules,
   defaultHints,
   createValidationPlugin,
-  FormKitValidationRule,
   getValidationMessages,
 } from '../src/validation'
 import { createNode } from '@formkit/core'

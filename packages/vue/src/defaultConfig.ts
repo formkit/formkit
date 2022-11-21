@@ -1,18 +1,13 @@
-import { FormKitOptions, FormKitLibrary } from '@formkit/core'
+import type { FormKitOptions, FormKitLibrary } from '@formkit/core'
 import { extend } from '@formkit/utils'
 import * as defaultRules from '@formkit/rules'
-import {
-  createValidationPlugin,
-  FormKitValidationRule,
-} from '@formkit/validation'
-import {
-  createI18nPlugin,
-  FormKitLocale,
-  FormKitLocaleRegistry,
-  en,
-} from '@formkit/i18n'
+import type { FormKitValidationRule } from '@formkit/validation';
+import { createValidationPlugin } from '@formkit/validation'
+import type { FormKitLocale, FormKitLocaleRegistry } from '@formkit/i18n';
+import { createI18nPlugin, en } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
-import { createThemePlugin, FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes'
+import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes';
+import { createThemePlugin } from '@formkit/themes'
 import bindings from './bindings'
 import '@formkit/dev'
 

@@ -1,6 +1,6 @@
 import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { FormKitSchemaNode } from '@formkit/core'
+import type { FormKitSchemaNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'

@@ -1,10 +1,11 @@
-import {
-  error,
+import type {
   FormKitNode,
   FormKitSchemaCondition,
-  FormKitSchemaNode,
-} from '@formkit/core'
-import { h, ref, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
+  FormKitSchemaNode
+} from '@formkit/core';
+import { error } from '@formkit/core'
+import type { InjectionKey, ConcreteComponent } from 'vue';
+import { h, ref, defineComponent } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'

@@ -1,4 +1,4 @@
-import { FormKitMiddleware, FormKitNode } from '@formkit/core'
+import type { FormKitMiddleware, FormKitNode } from '@formkit/core'
 import { extend, kebab } from '@formkit/utils'
 
 /**

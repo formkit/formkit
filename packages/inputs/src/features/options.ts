@@ -1,5 +1,5 @@
-import { FormKitNode } from '@formkit/core'
-import { FormKitOptionsProp, FormKitOptionsList } from '../props'
+import type { FormKitNode } from '@formkit/core'
+import type { FormKitOptionsProp, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**

@@ -1,5 +1,6 @@
 import { isPojo } from '@formkit/utils'
-import { Ref, watch, isRef, WatchStopHandle } from 'vue'
+import type { Ref, WatchStopHandle } from 'vue';
+import { watch, isRef } from 'vue'
 
 type ObjectPath = string[] & {
   __str: string

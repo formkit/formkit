@@ -1,7 +1,7 @@
 import { createNode } from '../src/node'
 import { createShippingTree } from '../../../.jest/helpers'
 import { jest } from '@jest/globals'
-import { FormKitEvent } from '../src/events'
+import type { FormKitEvent } from '../src/events'
 
 describe('emitting and listening to events', () => {
   it('can emit an arbitrary event', () => {

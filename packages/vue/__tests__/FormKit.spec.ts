@@ -3,10 +3,11 @@ import { flushPromises, mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
-import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
+import type { FormKitNode, FormKitEvent} from '@formkit/core';
+import { setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { jest } from '@jest/globals'
 

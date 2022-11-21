@@ -1,7 +1,9 @@
-import { FormKitNode, FormKitPlugin, isConditional, isDOM } from '@formkit/core'
-import autoAnimate, { AutoAnimateOptions } from '@formkit/auto-animate'
+import type { FormKitNode, FormKitPlugin} from '@formkit/core';
+import { isConditional, isDOM } from '@formkit/core'
+import type { AutoAnimateOptions } from '@formkit/auto-animate';
+import autoAnimate from '@formkit/auto-animate'
 import { extend } from '@formkit/utils'
-import { FormKitSchemaDOMNode } from 'packages/core/src'
+import type { FormKitSchemaDOMNode } from 'packages/core/src'
 
 const pendingIds: Map<string, AutoAnimateOptions | undefined> = new Map()
 

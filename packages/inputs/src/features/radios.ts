@@ -1,4 +1,5 @@
-import { FormKitNode, warn } from '@formkit/core'
+import type { FormKitNode} from '@formkit/core';
+import { warn } from '@formkit/core'
 import normalizeBoxes from './normalizeBoxes'
 import { optionValue, shouldSelect } from './options'
 

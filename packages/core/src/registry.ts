@@ -1,5 +1,6 @@
-import { FormKitNode } from './node'
-import { createEmitter, FormKitEventListener } from './events'
+import type { FormKitNode } from './node'
+import type { FormKitEventListener } from './events';
+import { createEmitter } from './events'
 
 /**
  * A global registry of nodes by their alias or name (if root).

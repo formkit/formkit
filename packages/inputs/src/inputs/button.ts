@@ -1,4 +1,4 @@
-import { FormKitTypeDefinition } from '@formkit/core'
+import type { FormKitTypeDefinition } from '@formkit/core'
 import {
   outer,
   wrapper,

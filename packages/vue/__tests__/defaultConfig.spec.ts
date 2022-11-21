@@ -2,8 +2,9 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
-import { FormKitValidationRule } from '@formkit/validation'
-import { getNode, FormKitPlugin } from '@formkit/core'
+import type { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitPlugin } from '@formkit/core';
+import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { jest } from '@jest/globals'
 

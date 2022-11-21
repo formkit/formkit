@@ -1,4 +1,4 @@
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 
 const hasConfirm = /(_confirm(?:ed)?)$/
 

@@ -1,9 +1,8 @@
-import {
-  FORMKIT_VERSION,
+import type {
   FormKitNode,
   FormKitClasses,
-  FormKitEvent,
-} from '@formkit/core'
+  FormKitEvent} from '@formkit/core';
+import { FORMKIT_VERSION } from '@formkit/core'
 
 /**
  * A function that returns a class list string

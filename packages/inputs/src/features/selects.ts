@@ -1,8 +1,8 @@
-import { FormKitOptionsItem } from './../props'
-import { FormKitNode } from '@formkit/core'
+import type { FormKitOptionsItem } from './../props'
+import type { FormKitNode } from '@formkit/core'
 import { undefine, eq } from '@formkit/utils'
 import { shouldSelect, optionValue } from './options'
-import { FormKitOptionsList } from '../props'
+import type { FormKitOptionsList } from '../props'
 
 /**
  * Checks if a the given option should have the selected attribute.

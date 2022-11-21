@@ -1,5 +1,6 @@
-import { FormKitMiddleware } from './../../core/src/dispatcher'
-import { FormKitNode, getNode } from '@formkit/core'
+import type { FormKitMiddleware } from './../../core/src/dispatcher'
+import type { FormKitNode} from '@formkit/core';
+import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'

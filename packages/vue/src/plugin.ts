@@ -1,7 +1,9 @@
-import {
+import type {
   FormKitOptions,
   FormKitNode,
-  FormKitConfig,
+  FormKitConfig
+} from '@formkit/core';
+import {
   getNode,
   createConfig,
   setErrors,

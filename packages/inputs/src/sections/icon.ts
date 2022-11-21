@@ -1,4 +1,5 @@
-import { createSection, FormKitSchemaExtendableSection } from '../compose'
+import type { FormKitSchemaExtendableSection } from '../compose';
+import { createSection } from '../compose'
 
 /**
  * @public

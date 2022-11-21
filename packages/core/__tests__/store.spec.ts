@@ -1,5 +1,5 @@
 import { createNode } from '../src/node'
-import { FormKitEvent } from '../src/events'
+import type { FormKitEvent } from '../src/events'
 import { createMessage } from '../src/store'
 import { jest } from '@jest/globals'
 

@@ -1,11 +1,11 @@
-import { FormKitNode, FormKitMessage, createMessage } from '@formkit/core'
+import type { FormKitNode, FormKitMessage} from '@formkit/core';
+import { createMessage } from '@formkit/core'
+import type { FormKitObservedNode, FormKitDependencies } from '@formkit/observer';
 import {
-  FormKitObservedNode,
   createObserver,
   applyListeners,
   diffDeps,
   removeListeners,
-  FormKitDependencies,
   isKilled,
 } from '@formkit/observer'
 import { has, empty, token, clone, cloneAny, eq } from '@formkit/utils'

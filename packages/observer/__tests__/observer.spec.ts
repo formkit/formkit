@@ -1,5 +1,6 @@
 import { createNode, createMessage } from '@formkit/core'
-import { createObserver, FormKitWatchable, isKilled } from '../src'
+import type { FormKitWatchable} from '../src';
+import { createObserver, isKilled } from '../src'
 import { jest } from '@jest/globals'
 
 describe('observer', () => {

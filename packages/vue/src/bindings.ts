@@ -9,14 +9,16 @@ import {
   isRef,
   isReactive,
 } from 'vue'
-import {
+import type {
   FormKitPlugin,
   FormKitFrameworkContext,
   FormKitMessage,
+  FormKitTypeDefinition
+} from '@formkit/core';
+import {
   createClasses,
   createMessage,
-  generateClassList,
-  FormKitTypeDefinition,
+  generateClassList
 } from '@formkit/core'
 import {
   eq,
