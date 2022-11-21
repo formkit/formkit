@@ -342,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Zadajte, prosím, platnú URL adresu.`
+    return `Zadajte platnú adresu URL.`
     /* </i18n> */
   },
 }

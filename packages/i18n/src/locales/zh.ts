@@ -331,7 +331,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `请包含一个合法的url`
+    return `请输入有效的 URL。`
     /* </i18n> */
   },
 }
