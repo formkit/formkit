@@ -342,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `유효한 URL을 입력하십시오.`
+    return `올바른 URL을 입력해주세요`
     /* </i18n> */
   },
 }
