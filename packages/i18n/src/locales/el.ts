@@ -348,7 +348,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Παρακαλώ συμπεριλάβετε μια έγκυρη διεύθυνση ιστοσελίδας.`
+    return `Παρακαλώ εισάγετε ένα έγκυρο URL.`
     /* </i18n> */
   },
 }
