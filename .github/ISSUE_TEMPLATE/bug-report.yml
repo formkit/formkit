@@ -1,6 +1,6 @@
 name: Bug Report
 description: Use this to report a bug.
-labels: ["🐛 bug-report"]
+labels: ["🐛 bug-report", "⛑ Needs triage"]
 body:
   - type: markdown
     attributes:
