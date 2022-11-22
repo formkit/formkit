@@ -16,13 +16,12 @@ const outerAttributes = [
  * The FormKit plugin for Tailwind
  * @public
  */
-// @ts-expect-error matchVariant is not documented or have types
 const FormKitVariants = plugin(function ({ matchVariant }) {
   const attributes = outerAttributes.reduce((a, v) => ({ ...a, [v]: v }), {})
 
   matchVariant(
     'formkit',
-    (value = '', { modifier }: { modifier: string }) => {
+    (value = '', { modifier }) => {
       return modifier
         ? [
             `[data-${value}='true']:merge(.group\\/${modifier})&`,
