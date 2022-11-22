@@ -346,7 +346,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Vui lòng nhập một URL hợp lệ.`
+    return `Hãy nhập một URL hợp lệ.`
     /* </i18n> */
   },
 }

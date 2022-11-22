@@ -344,7 +344,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Wprowadź prawidłowy adres URL.`
+    return `Proszę podać prawidłowy adres url.`
     /* </i18n> */
   },
 }

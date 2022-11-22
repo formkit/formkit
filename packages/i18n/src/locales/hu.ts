@@ -342,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Kérjük, adjon meg egy érvényes URL-t.`
+    return `Kérjük, érvényes URL-t adjon meg.`
     /* </i18n> */
   },
 }

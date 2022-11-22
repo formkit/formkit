@@ -340,7 +340,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `يرجى إدخال عنوان URL صالح.`
+    return `الرجاء تضمين عنوان رابط صحيح.`
     /* </i18n> */
   },
 }
