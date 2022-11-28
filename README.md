@@ -43,7 +43,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 ### Backers
 
-[uscreen](https://uscreen.de)
+[uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic)
 
 <table style="width: 100%;">
 	<tr>
