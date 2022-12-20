@@ -36,8 +36,30 @@ function observeIds() {
 }
 
 /**
- * Adds auto-animate to each input automatically.
- * @param node - A formkit node
+ * Adds auto-animate to each input automatically:
+ *
+ * @example Adding to FormKit
+ *
+ * ```javascript
+ * import { createApp } from 'vue'
+ * import App from 'App.vue'
+ * import { createAutoAnimatePlugin } from '@formkit/addons'
+ * import { plugin, defaultConfig } from '@formkit/vue'
+ *
+ * createApp(app).use(plugin, defaultPlugin({
+ *   plugins: [
+ *     createAutoAnimatePlugin({
+ *       // optional config
+ *     })
+ *   ]
+ * }))
+ * ```
+ *
+ * @param options - {@link https://github.com/formkit/auto-animate/blob/master/src/index.ts#L596 | AutoAnimateOptions }
+ *
+ * @returns
+ * {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export function createAutoAnimatePlugin(
