@@ -38,7 +38,7 @@ function observeIds() {
 /**
  * Adds auto-animate to each input automatically:
  *
- * @example Adding to FormKit
+ * @example Adding to FormKit:
  *
  * ```javascript
  * import { createApp } from 'vue'
