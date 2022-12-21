@@ -2,4 +2,4 @@
 
 # @formkit/nuxt
 
-The official nuxt module of FormKit. Read the [installation documentation](https://www.formkit.com/essentials/installation#nuxt) for usage instructions.
+The official nuxt module of FormKit. Read the [installation documentation](https://formkit.com/getting-started/installation#with-nuxt) for usage instructions.
