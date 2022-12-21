@@ -54,7 +54,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 	<tr>
     <td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em;">☝️ Comprehensive package</h4>
-			<p>FormKit is an all-in-one form-authoring framework with <a href="https://formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://formkit.com/essentials/validation">validation</a>, form <a href="https://formkit.com/essentials/styling">UI & styling</a>, <a href="https://formkit.com/input/form">error handling</a>,   <a href="https://formkit.com/essentials/schema">generation</a>, a11y, <a href="https://formkit.com/essentials/internationalization">i18n</a>, and more! </p>
+			<p>FormKit is an all-in-one form-authoring framework with <a href="https://formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://formkit.com/essentials/validation">validation</a>, form <a href="https://formkit.com/essentials/styling">UI & styling</a>, <a href="https://formkit.com/inputs/form#error-handling">error handling</a>,   <a href="https://formkit.com/essentials/schema">generation</a>, a11y, <a href="https://formkit.com/essentials/internationalization">i18n</a>, and more! </p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4>
