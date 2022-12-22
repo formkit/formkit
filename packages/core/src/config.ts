@@ -40,7 +40,7 @@ export type FormKitRootConfig = Partial<FormKitConfig> & {
  * FormKitConfig's proxy and retain event "emitting".
  *
  * @param options - FormKit node options to be used globally.
- * @public
+ * @internal
  */
 export function createConfig(
   options: Partial<FormKitConfig> = {}

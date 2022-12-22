@@ -2,7 +2,7 @@ import { has } from '@formkit/utils'
 
 /**
  * The value being listed out. Can be an array, an object, or a number.
- * @public
+ * @internal
  */
 export type FormKitListValue =
   | string
@@ -12,7 +12,7 @@ export type FormKitListValue =
 
 /**
  * A full loop statement in tuple syntax. Can be read like "foreach value, key? in list"
- * @public
+ * @internal
  */
 export type FormKitListStatement =
   | [value: any, key: number | string, list: FormKitListValue]
@@ -35,7 +35,7 @@ export type FormKitSchemaMeta = {
 
 /**
  * Properties available in all schema nodes.
- * @public
+ * @internal
  */
 export interface FormKitSchemaProps {
   children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
@@ -48,7 +48,7 @@ export interface FormKitSchemaProps {
 
 /**
  * Properties available when using a DOM node.
- * @public
+ * @internal
  */
 export type FormKitSchemaDOMNode = {
   $el: string | null
@@ -57,13 +57,13 @@ export type FormKitSchemaDOMNode = {
 
 /**
  * A simple text node.
- * @public
+ * @internal
  */
 export type FormKitSchemaTextNode = string
 
 /**
  * The possible value types of attributes (in the schema)
- * @public
+ * @internal
  */
 export type FormKitAttributeValue =
   | string
@@ -75,7 +75,7 @@ export type FormKitAttributeValue =
 
 /**
  * Conditions nested inside attribute declarations
- * @public
+ * @internal
  */
 export interface FormKitSchemaAttributesCondition {
   if: string
@@ -85,7 +85,7 @@ export interface FormKitSchemaAttributesCondition {
 
 /**
  * DOM attributes are simple string dictionaries.
- * @public
+ * @internal
  */
 export type FormKitSchemaAttributes =
   | {
@@ -96,7 +96,7 @@ export type FormKitSchemaAttributes =
 
 /**
  * Properties available when defining a generic non-formkit component.
- * @public
+ * @internal
  */
 export type FormKitSchemaComponent = {
   $cmp: string
@@ -105,7 +105,7 @@ export type FormKitSchemaComponent = {
 
 /**
  * Syntactic sugar for a FormKitSchemaComponent node that uses formkit.
- * @public
+ * @internal
  */
 export type FormKitSchemaFormKit = {
   $formkit: string
@@ -114,7 +114,7 @@ export type FormKitSchemaFormKit = {
 
 /**
  * A schema node that determines _which_ content to render.
- * @public
+ * @internal
  */
 export type FormKitSchemaCondition = {
   if: string
@@ -124,7 +124,7 @@ export type FormKitSchemaCondition = {
 
 /**
  * The context that is passed from one schema render to the next.
- * @public
+ * @internal
  */
 export interface FormKitSchemaContext {
   [index: string]: any
@@ -133,7 +133,7 @@ export interface FormKitSchemaContext {
 
 /**
  * Properties available then defining a schema node.
- * @public
+ * @internal
  */
 export type FormKitSchemaNode =
   | FormKitSchemaDOMNode
@@ -144,7 +144,7 @@ export type FormKitSchemaNode =
 
 /**
  * Definition for a function that can extend a given schema node.
- * @public
+ * @internal
  */
 export interface FormKitSchemaComposable {
   (
@@ -156,7 +156,7 @@ export interface FormKitSchemaComposable {
 
 /**
  * Defines a function that allows selectively overriding a given schema.
- * @public
+ * @internal
  */
 export interface FormKitExtendableSchemaRoot {
   (
@@ -171,7 +171,7 @@ export interface FormKitExtendableSchemaRoot {
  * Type narrow that a node is a DOM node.
  * @param node - A schema node to check
  * @returns
- * @public
+ * @internal
  */
 export function isDOM(
   node: string | Record<PropertyKey, any>
@@ -183,7 +183,7 @@ export function isDOM(
  * Type narrow that a node is a DOM node.
  * @param node - A schema node to check
  * @returns
- * @public
+ * @internal
  */
 export function isComponent(
   node: string | Record<PropertyKey, any>
@@ -195,7 +195,7 @@ export function isComponent(
  * Determines if a node is conditionally rendered or not.
  * @param node - A schema node to check
  * @returns
- * @public
+ * @internal
  */
 export function isConditional(
   node: FormKitSchemaNode
@@ -204,7 +204,7 @@ export function isConditional(
  * Determines if an attribute is a conditional.
  * @param node - A schema node to check
  * @returns
- * @public
+ * @internal
  */
 export function isConditional(
   node: FormKitSchemaAttributesCondition | FormKitSchemaAttributes
@@ -213,7 +213,7 @@ export function isConditional(
  * Root declaration.
  * @param node - An object to check
  * @returns
- * @public
+ * @internal
  */
 export function isConditional(
   node:
@@ -229,7 +229,7 @@ export function isConditional(
  * Determines if the node is syntactic sugar or not.
  * @param node - Node
  * @returns
- * @public
+ * @internal
  */
 export function isSugar(node: FormKitSchemaNode): node is FormKitSchemaFormKit {
   return typeof node !== 'string' && '$formkit' in node
@@ -239,7 +239,7 @@ export function isSugar(node: FormKitSchemaNode): node is FormKitSchemaFormKit {
  * Converts syntactic sugar nodes to standard nodes.
  * @param node - A node to covert
  * @returns
- * @public
+ * @internal
  */
 export function sugar<T extends FormKitSchemaNode>(
   node: T

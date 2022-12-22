@@ -5,7 +5,7 @@ import { has, token, slugify } from '@formkit/utils'
 /**
  * The structure of an core FormKitMessage. These messages are used to store
  * information about the state of a node.
- * @public
+ * @internal
  */
 export interface FormKitMessageProps {
   blocking: boolean
@@ -18,7 +18,7 @@ export interface FormKitMessageProps {
 
 /**
  * A FormKit message is immutable, so all properties should be readonly.
- * @public
+ * @internal
  */
 export type FormKitMessage = Readonly<FormKitMessageProps>
 
@@ -46,7 +46,7 @@ type MessageClearer = string | ((message: FormKitMessage) => boolean)
 
 /**
  * Messages have can have any arbitrary meta data attached to them.
- * @public
+ * @internal
  */
 export interface FormKitMessageMeta {
   [index: string]: any
@@ -65,7 +65,7 @@ export interface FormKitMessageMeta {
 
 /**
  * Defines the actual store of messages (private).
- * @public
+ * @internal
  */
 export interface FormKitMessageStore {
   [index: string]: FormKitMessage
@@ -73,7 +73,7 @@ export interface FormKitMessageStore {
 
 /**
  * The message store contains all of the messages that pertain to a given node.
- * @public
+ * @internal
  */
 export type FormKitStore = FormKitMessageStore & {
   // owner node
@@ -114,7 +114,7 @@ export interface FormKitStoreTraps {
  * Creates a new FormKitMessage object.
  * @param conf - The message configuration
  * @returns FormKitMessage
- * @public
+ * @internal
  */
 export function createMessage(
   conf: Partial<FormKitMessage>,

@@ -2,7 +2,7 @@ import { FormKitNode } from './node'
 
 /**
  * Definition for a function that produces CSS classes
- * @public
+ * @internal
  */
 export interface FormKitClasses {
   (node: FormKitNode, sectionKey: string): string | Record<string, boolean>
@@ -14,7 +14,7 @@ export interface FormKitClasses {
  * @param node - FormKit node
  * @param sectionClassList - Things to turn into classes
  * @returns
- * @public
+ * @internal
  */
 export function createClasses(
   propertyKey: string,
@@ -44,7 +44,7 @@ export function createClasses(
  * @param property - The property key to which the class list will be applied
  * @param args - CSS class list(s)
  * @returns
- * @public
+ * @internal
  */
 export function generateClassList(
   node: FormKitNode,

@@ -2,7 +2,7 @@
  * All FormKitMiddleware conform to the pattern of accepting a payload and a
  * `next()` function. They can either pass the payload to the next middleware
  * explicitly (as an argument of next), or implicitly (no argument for next).
- * @public
+ * @internal
  */
 export type FormKitMiddleware<T = unknown> = (
   payload: T,
@@ -11,7 +11,7 @@ export type FormKitMiddleware<T = unknown> = (
 
 /**
  * The FormKitDispatcher interface is responsible creating/running "hooks".
- * @public
+ * @internal
  */
 export interface FormKitDispatcher<T> {
   (dispatchable: FormKitMiddleware<T>): number

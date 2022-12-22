@@ -29,7 +29,7 @@ function clearState(node: FormKitNode) {
  * resets all the children as well.
  * @param id - The id of an input to reset
  * @returns
- * @public
+ * @internal
  */
 export function reset(
   id: string | FormKitNode,

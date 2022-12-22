@@ -7,7 +7,7 @@ import { warn } from './errors'
  * @param formId - The id of a form
  * @param localErrors - The errors to set on the form or the form’s inputs
  * @param childErrors - (optional) The errors to set on the form or the form’s inputs
- * @public
+ * @internal
  */
 export function setErrors(
   id: string,
@@ -26,7 +26,7 @@ export function setErrors(
  * Clears child errors.
  * @param id - The id of the node you want to clear errors for
  * @param clearChildren - Determines if the the children of this node should have their errors cleared.
- * @public
+ * @internal
  */
 export function clearErrors(id: string, clearChildren = true): void {
   const node = getNode(id)

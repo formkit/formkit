@@ -10,7 +10,7 @@ interface FormKitTokens {
 }
 /**
  * The compiler output, a function that adds the required tokens.
- * @public
+ * @internal
  */
 export interface FormKitCompilerOutput {
   (tokens?: Record<string, any>): boolean | number | string
@@ -20,7 +20,7 @@ export interface FormKitCompilerOutput {
 /**
  * A function that accepts a callback with a token as the only argument, and
  * must return a function that provides the true value of the token.
- * @public
+ * @internal
  */
 export type FormKitCompilerProvider = (
   callback: (requirements: string[]) => Record<string, () => any>
@@ -70,7 +70,7 @@ type OperatorRegistry = LogicOperators[]
  * ```
  * @param expr - A string to compile
  * @returns
- * @public
+ * @internal
  */
 export function compile(expr: string): FormKitCompilerOutput {
   /**

@@ -6,7 +6,7 @@ import { has } from '@formkit/utils'
 /**
  * The FormKit ledger, a general-purpose message counting service provided by
  * FormKit core for counting messages throughout a tree.
- * @public
+ * @internal
  */
 export interface FormKitLedger {
   count: (
@@ -24,7 +24,7 @@ export interface FormKitLedger {
 /**
  * Ledger counters require a condition function that determines if a given
  * message applies to it or not.
- * @public
+ * @internal
  */
 export interface FormKitCounterCondition {
   (message: FormKitMessage): boolean
@@ -33,7 +33,7 @@ export interface FormKitCounterCondition {
 /**
  * The counter object used to perform instance counting within
  * a tree.
- * @public
+ * @internal
  */
 export interface FormKitCounter {
   condition: FormKitCounterCondition

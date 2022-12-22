@@ -3,7 +3,7 @@ import { FormKitContext, FormKitNode, isNode } from './node'
 
 /**
  * Event listener functions definition.
- * @public
+ * @internal
  */
 export interface FormKitEventListener {
   (event: FormKitEvent): void
@@ -12,7 +12,7 @@ export interface FormKitEventListener {
 
 /**
  * The internal structure of a FormKitEvent
- * @public
+ * @internal
  */
 export interface FormKitEvent {
   payload: any
@@ -34,7 +34,7 @@ export interface FormKitEventListenerWrapper {
 
 /**
  * The FormKitEventEmitter definition.
- * @public
+ * @internal
  */
 export interface FormKitEventEmitter {
   (node: FormKitNode, event: FormKitEvent): void
