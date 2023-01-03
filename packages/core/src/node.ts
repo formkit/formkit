@@ -90,7 +90,8 @@ export type FormKitTypeDefinition = {
 
 /**
  * A library of inputs, keyed by the name of the type.
- * @internal
+ *
+ * @public
  */
 export interface FormKitLibrary {
   [index: string]: FormKitTypeDefinition
@@ -99,7 +100,8 @@ export interface FormKitLibrary {
 /**
  * The base interface definition for a FormKitPlugin — it's just a function that
  * accepts a node argument.
- * @internal
+ *
+ * @public
  */
 export interface FormKitPlugin {
   (node: FormKitNode): false | any | void
