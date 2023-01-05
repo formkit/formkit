@@ -44,6 +44,7 @@ export * from './i18n'
 
 /**
  * Export all the available locales at once.
+ *
  * @public
  */
 export const locales = {
@@ -90,7 +91,6 @@ export const locales = {
 /**
  * Export each locale individually for people who want to cherry pick.
  */
-
 export {
   ar,
   az,

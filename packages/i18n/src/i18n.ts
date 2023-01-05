@@ -19,6 +19,7 @@ import { has } from '@formkit/utils'
  * A registry of locale messages — this is simply a keyed/value object with
  * string keys (message name) and either string values (for simple returns) or
  * functions that receive a context object.
+ *
  * @public
  */
 export interface FormKitLocaleMessages {
@@ -29,6 +30,7 @@ export interface FormKitLocaleMessages {
  * A locale is just a collection of locale message registries, they are keyed
  * by the type (like a namespace) ex: "validation" or "ui". Plugin authors
  * can declare their own types too.
+ *
  * @public
  */
 export interface FormKitLocale {
@@ -39,6 +41,7 @@ export interface FormKitLocale {
 /**
  * The locale registry is just a key-value pair of locales to their respective
  * registries.
+ *
  * @public
  */
 export interface FormKitLocaleRegistry {
@@ -47,7 +50,11 @@ export interface FormKitLocaleRegistry {
 
 /**
  * Create a new internationalization plugin for FormKit.
+ *
  * @param locales - Creates the i18n plugin.
+ *
+ * @returns {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export function createI18nPlugin(
@@ -88,14 +95,18 @@ export function createI18nPlugin(
 }
 
 /**
- * @param locale - An ISO 639-1 and (optionally) ISO 639-2 language tag. For
- * example these are valid locale keys:
+ * Parse ISO 639-1 and 639-2 to a valid locale key.
+ *
+ * @param locale - An ISO 639-1 and (optionally) ISO 639-2 language tag. For these are valid locale keys:
  * zh
  * zh-CN
  * zh-HK
  * en
  * en-GB
+ *
  * @param availableLocales - An array of locales that may be valid.
+ *
+ * @public
  */
 function parseLocale(
   locale: string,
