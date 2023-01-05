@@ -43,7 +43,8 @@ import { reset } from './reset'
 /**
  * Definition of a library item — when registering a new library item, these
  * are the required and available properties.
- * @internal
+ *
+ * @public
  */
 export type FormKitTypeDefinition = {
   /**
@@ -112,7 +113,8 @@ export interface FormKitPlugin {
  * Text fragments are small pieces of text used for things like interface
  * validation messages, or errors that may be exposed for modification or
  * even translation.
- * @internal
+ *
+ * @public
  */
 export type FormKitTextFragment = Partial<FormKitMessageProps> & {
   key: string
@@ -122,7 +124,8 @@ export type FormKitTextFragment = Partial<FormKitMessageProps> & {
 
 /**
  * The available hooks for middleware.
- * @internal
+ *
+ * @public
  */
 export interface FormKitHooks {
   classes: FormKitDispatcher<{
@@ -151,7 +154,8 @@ export interface FormKitHooks {
  * The definition of a FormKitTrap — these are somewhat like methods on each
  * FormKitNode — they are always symmetrical (get/set), although it's acceptable
  * for either to throw an Exception.
- * @internal
+ *
+ * @public
  */
 export interface FormKitTrap {
   get: TrapGetter
@@ -160,20 +164,23 @@ export interface FormKitTrap {
 
 /**
  * Describes the path to a particular node from the top of the tree.
- * @internal
+ *
+ * @public
  */
 export type FormKitAddress = Array<string | number>
 
 /**
  * These are the type of nodes that can be created — these are different from
  * the type of inputs available and rather describe their purpose in the tree.
- * @internal
+ *
+ * @public
  */
 export type FormKitNodeType = 'input' | 'list' | 'group'
 
 /**
  * FormKit inputs of type 'group' must have keyed values by default.
- * @internal
+ *
+ * @public
  */
 export interface FormKitGroupValue {
   [index: string]: unknown
@@ -182,13 +189,15 @@ export interface FormKitGroupValue {
 
 /**
  * FormKit inputs of type 'list' must have array values by default.
- * @internal
+ *
+ * @public
  */
 export type FormKitListValue<T = any> = Array<T>
 
 /**
  * Arbitrary data that has properties, could be a pojo, could be an array.
- * @internal
+ *
+ * @public
  */
 export interface KeyedValue {
   [index: number]: any
@@ -198,7 +207,8 @@ export interface KeyedValue {
 /**
  * Define the most basic shape of a context object for type guards trying to
  * reason about a context's value.
- * @internal
+ *
+ * @public
  */
 export interface FormKitContextShape {
   type: FormKitNodeType
@@ -208,7 +218,8 @@ export interface FormKitContextShape {
 
 /**
  * The simplest definition for a context of type "list".
- * @internal
+ *
+ * @public
  */
 export interface FormKitListContext {
   type: 'list'
@@ -220,7 +231,8 @@ export interface FormKitListContext {
  * Signature for any of the node's getter traps. Keep in mind that because these
  * are traps and not class methods, their response types are declared explicitly
  * in the FormKitNode interface.
- * @internal
+ *
+ * @public
  */
 export type TrapGetter =
   | ((node: FormKitNode, context: FormKitContext, ...args: any[]) => unknown)
@@ -230,7 +242,8 @@ export type TrapGetter =
  * The signature for a node's trap setter — these are more rare than getter
  * traps, but can be really useful for blocking access to certain context
  * properties or modifying the behavior of an assignment (ex. see setParent)
- * @internal
+ *
+ * @public
  */
 export type TrapSetter =
   | ((
@@ -243,14 +256,16 @@ export type TrapSetter =
 
 /**
  * The map signature for a node's traps Map.
- * @internal
+ *
+ * @public
  */
 export type FormKitTraps = Map<string | symbol, FormKitTrap>
 
 /**
  * General "app" like configuration options, these are automatically inherited
  * by all children — they are not reactive.
- * @internal
+ *
+ * @public
  */
 export interface FormKitConfig {
   delimiter: string
@@ -266,7 +281,8 @@ export interface FormKitConfig {
 /**
  * The user-land per-instance "props", which are generally akin to the props
  * passed into components on the front end.
- * @internal
+ *
+ * @public
  */
 export type FormKitProps = {
   delay: number
@@ -287,7 +303,8 @@ export type FormKitProps = {
 /**
  * The interface of the a FormKit node's context object. A FormKit node is a
  * proxy of this object.
- * @internal
+ *
+ * @public
  */
 export interface FormKitContext {
   /**
@@ -381,7 +398,8 @@ export interface FormKitContext {
  * Context object to be created by and used by each respective UI framework. No
  * values are created or output by FormKitCore, but this interface
  * should be followed by each respective plugin.
- * @internal
+ *
+ * @public
  */
 export interface FormKitFrameworkContext {
   [index: string]: unknown
@@ -458,7 +476,8 @@ export interface FormKitFrameworkContext {
 /**
  * The state inside a node’s framework context. Usually used to track things
  * like blurred, and validity states.
- * @internal
+ *
+ * @public
  */
 export interface FormKitFrameworkContextState {
   /**
@@ -524,7 +543,8 @@ export interface FormKitFrameworkContextState {
 
 /**
  * Options that can be used to instantiate a new node via createNode()
- * @internal
+ *
+ * @public
  */
 export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
@@ -540,7 +560,8 @@ export type FormKitOptions = Partial<
 
 /**
  * The callback type for node.each()
- * @internal
+ *
+ * @public
  */
 export interface FormKitChildCallback {
   (child: FormKitNode): any
@@ -548,7 +569,8 @@ export interface FormKitChildCallback {
 
 /**
  * A descriptor of a child value, generally passed up a node tree.
- * @internal
+ *
+ * @public
  */
 export interface FormKitChildValue {
   name: string | number | symbol
@@ -559,7 +581,8 @@ export interface FormKitChildValue {
 /**
  * FormKit's Node object produced by createNode(). All inputs, forms, and groups
  * are instances of nodes.
- * @internal
+ *
+ * @public
  */
 export type FormKitNode = {
   /**
@@ -745,7 +768,8 @@ export type FormKitNode = {
 
 /**
  * Breadth and Depth first searches can use a callback of this notation.
- * @internal
+ *
+ * @public
  */
 export type FormKitSearchFunction = (
   node: FormKitNode,
@@ -765,24 +789,32 @@ const defaultConfig: Partial<FormKitConfig> = {
 /**
  * If a node’s name is set to useIndex, it replaces the node’s name with the
  * index of the node relative to its parent’s children.
+ *
+ * @internal
  */
 export const useIndex = Symbol('index')
 
 /**
  * When propagating values up a tree, this value indicates the child should be
  * removed.
+ *
+ * @internal
  */
 export const valueRemoved = Symbol('removed')
 
 /**
  * When propagating values up a tree, this value indicates the child should be
  * moved.
+ *
+ * @internal
  */
 export const valueMoved = Symbol('moved')
 
 /**
  * When creating a new node and having its value injected directly at a specific
  * location.
+ *
+ * @internal
  */
 export const valueInserted = Symbol('inserted')
 
