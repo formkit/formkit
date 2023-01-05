@@ -22,7 +22,8 @@ const receipts: string[] = []
  * then no node is registered (idempotent).
  *
  * @param node - A node to register
- * @internal
+ *
+ * @public
  */
 export function register(node: FormKitNode): void {
   if (node.props.id) {
@@ -39,8 +40,10 @@ export function register(node: FormKitNode): void {
 
 /**
  * Deregister a node from the registry.
+ *
  * @param node - A node to remove
- * @internal
+ *
+ * @public
  */
 export function deregister(node: FormKitNode): void {
   if (reflected.has(node)) {
@@ -58,8 +61,10 @@ export function deregister(node: FormKitNode): void {
 
 /**
  * Get a node by a particular id.
+ *
  * @param node - Get a node by a given id
- * @internal
+ *
+ * @public
  */
 export function getNode(id: string): FormKitNode | undefined {
   return registry.get(id)
@@ -67,7 +72,8 @@ export function getNode(id: string): FormKitNode | undefined {
 
 /**
  * Reset the entire registry.
- * @internal
+ *
+ * @public
  */
 export function resetRegistry(): void {
   registry.forEach((node) => {
@@ -77,10 +83,10 @@ export function resetRegistry(): void {
 }
 
 /**
- *
  * @param id - An id to watch
  * @param callback - A callback to notify when the node is set or removed.
- * @internal
+ *
+ * @public
  */
 export function watchRegistry(
   id: string,
