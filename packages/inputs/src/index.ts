@@ -5,7 +5,6 @@ export { createLibraryPlugin } from './plugin'
 
 /**
  * Helper function for normalizing options.
- * @internal
  */
 export { normalizeOptions } from './features/options'
 
@@ -21,6 +20,7 @@ export * from './props'
 
 /**
  * A single file object in FormKit’s synthetic "FileList".
+ *
  * @public
  */
 export interface FormKitFile {
@@ -30,6 +30,7 @@ export interface FormKitFile {
 
 /**
  * A synthetic array-based "FileList".
+ *
  * @public
  */
 export type FormKitFileValue = FormKitFile[]

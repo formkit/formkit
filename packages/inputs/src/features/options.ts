@@ -5,7 +5,11 @@ import { eq, isPojo } from '@formkit/utils'
 /**
  * Accepts an array of objects, array of strings, or object of key-value pairs.
  * and returns an array of objects with value and label properties.
- * @param options - Options to normalize
+ *
+ * @param options - Options to
+ *
+ * @returns {@link FormKitOptionsList | FormKitOptionsList}
+ *
  * @public
  */
 export function normalizeOptions(
@@ -41,9 +45,13 @@ export function normalizeOptions(
 
 /**
  * Given an option list, find the "true" value in the options.
+ *
  * @param options - The options to check for a given value
  * @param value - The value to return
- * @returns
+ *
+ * @returns `unknown`
+ *
+ * @public
  */
 export function optionValue(
   options: FormKitOptionsList,
@@ -61,8 +69,13 @@ export function optionValue(
 
 /**
  * Determines if the value should be selected.
+ *
  * @param valueA - Any type of value
  * @param valueB - Any type of value
+ *
+ * @returns `boolean`
+ *
+ * @public
  */
 export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
   if (valueA == valueB) return true
@@ -72,7 +85,9 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
 
 /**
  * Converts the options prop to usable values.
+ *
  * @param node - A formkit node.
+ *
  * @public
  */
 export default function options(node: FormKitNode): void {

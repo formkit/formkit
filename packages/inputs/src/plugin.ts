@@ -4,7 +4,9 @@ import { FormKitLibrary, FormKitPlugin, FormKitNode } from '@formkit/core'
 /**
  *
  * @param libraries - One or many formkit urls.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export function createLibraryPlugin(
