@@ -4,10 +4,12 @@ import { warn } from './errors'
 
 /**
  * Sets errors on a form, group, or input.
+ *
  * @param formId - The id of a form
  * @param localErrors - The errors to set on the form or the form’s inputs
  * @param childErrors - (optional) The errors to set on the form or the form’s inputs
- * @internal
+ *
+ * @public
  */
 export function setErrors(
   id: string,
