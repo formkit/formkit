@@ -5,6 +5,8 @@ import { getNode } from './registry'
 
 /**
  * Clear all state and error messages.
+ *
+ * @internal
  */
 function clearState(node: FormKitNode) {
   const clear = (n: FormKitNode) => {
@@ -27,9 +29,12 @@ function clearState(node: FormKitNode) {
 /**
  * Resets an input to it’s "initial" value — if the input is a group or list it
  * resets all the children as well.
+ *
  * @param id - The id of an input to reset
- * @returns
- * @internal
+ *
+ * @returns {@link @formkit/core#FormKitNode | FormKitNode} | undefined
+ *
+ * @public
  */
 export function reset(
   id: string | FormKitNode,
