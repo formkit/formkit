@@ -3,6 +3,7 @@ import { warn, error } from './errors'
 
 /**
  * Tokens are strings that map to functions.
+ *
  * @internal
  */
 interface FormKitTokens {
@@ -10,7 +11,8 @@ interface FormKitTokens {
 }
 /**
  * The compiler output, a function that adds the required tokens.
- * @internal
+ *
+ * @public
  */
 export interface FormKitCompilerOutput {
   (tokens?: Record<string, any>): boolean | number | string
@@ -20,7 +22,8 @@ export interface FormKitCompilerOutput {
 /**
  * A function that accepts a callback with a token as the only argument, and
  * must return a function that provides the true value of the token.
- * @internal
+ *
+ * @public
  */
 export type FormKitCompilerProvider = (
   callback: (requirements: string[]) => Record<string, () => any>
@@ -28,6 +31,7 @@ export type FormKitCompilerProvider = (
 
 /**
  * Logical operations are always a left/right fn
+ *
  * @internal
  */
 type LogicOperator = (
@@ -39,6 +43,7 @@ type LogicOperator = (
 
 /**
  * A set of logical operators used for parsing string logic.
+ *
  * @internal
  */
 interface LogicOperators {
@@ -51,6 +56,8 @@ interface LogicOperators {
  * 0: Boolean
  * 1: Comparison
  * 2: Arithmetic
+ *
+ * @internal
  */
 type OperatorRegistry = LogicOperators[]
 
@@ -58,6 +65,9 @@ type OperatorRegistry = LogicOperators[]
  * Compiles a logical string like "a != z || b == c" into a single function.
  * The return value is an object with a "provide" method that iterates over all
  * requirement tokens to use as replacements.
+ *
+ * @example
+ *
  * ```typescript
  * let name = {
  *   value: 'jon'
@@ -68,9 +78,12 @@ type OperatorRegistry = LogicOperators[]
  *
  * condition() // false
  * ```
+ *
  * @param expr - A string to compile
- * @returns
- * @internal
+ *
+ * @returns {@link @formkit/core#FormKitCompilerOutput | FormKitCompilerOutput}
+ *
+ * @public
  */
 export function compile(expr: string): FormKitCompilerOutput {
   /**
