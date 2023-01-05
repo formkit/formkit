@@ -2,7 +2,8 @@ import createDispatcher from './dispatcher'
 
 /**
  * Describes the data passing through the error and warning handlers.
- * @internal
+ *
+ * @public
  */
 export interface FormKitHandlerPayload {
   code: number
@@ -12,7 +13,8 @@ export interface FormKitHandlerPayload {
 
 /**
  * FormKit's global error handler.
- * @internal
+ *
+ * @public
  */
 export const errorHandler = createDispatcher<FormKitHandlerPayload>()
 /**
@@ -25,7 +27,8 @@ errorHandler((error, next) => {
 
 /**
  * FormKit's global warning handler.
- * @internal
+ *
+ * @public
  */
 export const warningHandler = createDispatcher<FormKitHandlerPayload>()
 warningHandler((warning, next) => {
@@ -38,9 +41,11 @@ warningHandler((warning, next) => {
 
 /**
  * Globally emits a warning.
+ *
  * @param code - The integer error code.
  * @param data - Usually an object of information to include.
- * @internal
+ *
+ * @public
  */
 export function warn(code: number, data: any = {}): void {
   warningHandler.dispatch({ code, data })
@@ -48,9 +53,11 @@ export function warn(code: number, data: any = {}): void {
 
 /**
  * Emits an error, generally should result in an exception.
+ *
  * @param code - The integer error code.
  * @param data - Usually an object of information to include.
- * @internal
+ *
+ * @public
  */
 export function error(code: number, data: any = {}): never {
   throw Error(errorHandler.dispatch({ code, data }).message)
