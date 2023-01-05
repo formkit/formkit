@@ -10,6 +10,8 @@
 /**
  * The current version of FormKit at the time the package is published. Is replaced
  * as part of the publishing script.
+ *
+ * @internal
  */
 export const FORMKIT_VERSION = '__FKV__'
 
