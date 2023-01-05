@@ -29,6 +29,7 @@ interface PluginConfigs {
 
 /**
  * The allowed options for defaultConfig.
+ *
  * @public
  */
 export type DefaultConfigOptions = FormKitOptions &
@@ -38,6 +39,7 @@ export type DefaultConfigOptions = FormKitOptions &
 /**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
+ *
  * @public
  */
 const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {

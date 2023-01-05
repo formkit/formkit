@@ -126,9 +126,12 @@ function onlyListeners(
 
 /**
  * A composable for creating a new FormKit node.
+ *
  * @param type - The type of node (input, group, list)
  * @param attrs - The FormKit "props" — which is really the attrs list.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitNode | FormKitNode}
+ *
  * @public
  */
 export function useInput(

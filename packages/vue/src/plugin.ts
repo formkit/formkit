@@ -15,6 +15,7 @@ import FormKitSchema from './FormKitSchema'
 
 /**
  * The global instance of the FormKit plugin.
+ *
  * @public
  */
 export interface FormKitVuePlugin {
@@ -32,8 +33,11 @@ export interface FormKitVuePlugin {
 
 /**
  * The Create a new instance of the FormKit plugin for Vue.
+ *
  * @param app - A Vue application
  * @param config - FormKit Vue plugin configuration options
+ *
+ * @internal
  */
 function createPlugin(
   app: App<any>,
@@ -58,6 +62,7 @@ function createPlugin(
 
 /**
  * The symbol key for accessing the FormKit node options.
+ *
  * @public
  */
 export const optionsSymbol: InjectionKey<FormKitOptions> =
@@ -65,6 +70,7 @@ export const optionsSymbol: InjectionKey<FormKitOptions> =
 
 /**
  * The symbol key for accessing FormKit root configuration.
+ *
  * @public
  */
 export const configSymbol: InjectionKey<FormKitConfig> =
@@ -72,6 +78,7 @@ export const configSymbol: InjectionKey<FormKitConfig> =
 
 /**
  * Create the FormKit plugin.
+ *
  * @public
  */
 export const plugin: Plugin = {

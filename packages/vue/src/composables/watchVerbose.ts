@@ -12,9 +12,11 @@ type ObjectPath = string[] & {
 const invalidGet = Symbol()
 
 /**
+ * A special watcher for Vue that reports the location of a deep mutation.
  *
  * @param obj - An object to observe at depth
  * @param callback - A callback that
+ *
  * @public
  */
 export default function watchVerbose<

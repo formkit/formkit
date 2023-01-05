@@ -29,6 +29,9 @@ function isComponent(obj: any): obj is Component {
  * class support.
  *
  * @param schemaOrComponent - The actual schema of the input.
+ *
+ * @returns {@link @formkit/core#FormKitTypeDefinition | FormKitTypeDefinition}
+ *
  * @public
  */
 export function createInput(
