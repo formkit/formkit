@@ -2,8 +2,10 @@ import { warn } from './errors'
 
 /**
  * Submits a FormKit form programmatically.
+ *
  * @param id - The id of the form
- * @internal
+ *
+ * @public
  */
 export function submitForm(id: string): void {
   const formElement = document.getElementById(id)
