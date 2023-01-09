@@ -61,7 +61,7 @@ function isChecked(node: FormKitNode, value: any) {
 }
 
 /**
- * Adds checkbox selection support
+ * Adds checkbox selection support.
  * @param node - Node the feature is added to
  * @public
  */
