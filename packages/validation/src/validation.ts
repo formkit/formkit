@@ -84,9 +84,9 @@ export type FormKitValidation = {
 export type FormKitValidationIntent = [string | FormKitValidationRule, ...any[]]
 
 /**
- * Signature for a generic validation rule. It accepts an input, often a string
- * but validation rules should be able to accept any input type, and returns a
- * boolean indicating whether or not it passed validation.
+ * Signature for a generic validation rule. It accepts an input — often a string
+ * — but should be able to accept any input type, and returns a boolean
+ * indicating whether or not it passed validation.
  * @public
  */
 export type FormKitValidationRule = {
@@ -155,8 +155,10 @@ const validatingMessage = createMessage({
 })
 
 /**
- * The actual validation plugin function, everything must be bootstrapped here.
- * @param node - The node to bind validation to.
+ * The actual validation plugin function. Everything must be bootstrapped here.
+ * @param baseRules - Base validation rules to include in the plugin. By default,
+ * FormKit makes all rules in the @formkit/rules package available via the
+ * defaultConfig.
  * @public
  */
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
@@ -662,7 +664,7 @@ function fnHints(
 
 /**
  * Extracts all validation messages from the given node and all its descendants.
- * This is not reactive and must be re called each time the messages change.
+ * This is not reactive and must be re-called each time the messages change.
  * @param node - The FormKit node to extract validation rules from — as well as its descendants.
  * @public
  */

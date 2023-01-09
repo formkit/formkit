@@ -14,8 +14,8 @@ const invalidGet = Symbol()
 /**
  * A special watcher for Vue that reports the location of a deep mutation.
  *
- * @param obj - An object to observe at depth
- * @param callback - A callback that
+ * @param obj - An object to observe at depth.
+ * @param callback - A callback to call when a change is detected.
  *
  * @public
  */
