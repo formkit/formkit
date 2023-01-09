@@ -39,8 +39,8 @@ export interface FormKitLocale {
 }
 
 /**
- * The locale registry is just a key-value pair of locales to their respective
- * registries.
+ * The locale registry is just a key-value pair of locale indexes ('ar', 'en',
+ * 'it', etc.) to their respective locales.
  *
  * @public
  */
@@ -51,7 +51,7 @@ export interface FormKitLocaleRegistry {
 /**
  * Create a new internationalization plugin for FormKit.
  *
- * @param locales - Creates the i18n plugin.
+ * @param registry - The registry of FormKitLocales.
  *
  * @returns {@link @formkit/core#FormKitPlugin | FormKitPlugin}
  *

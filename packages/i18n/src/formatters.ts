@@ -1,7 +1,7 @@
 /**
  * Given a string, convert it to sentence case.
  *
- * @param item - The string to sentence case
+ * @param str - The string to sentence case.
  *
  * @returns `string`
  *
@@ -14,8 +14,9 @@ export function sentence(str: string): string {
 /**
  * Creates an oxford-comma separated list of items.
  *
- * @param args - items to list out
- * @param conjunction - in: x, y, and z "and" is the conjunction to use
+ * @param items - the items to list out.
+ * @param conjunction - in the list "x, y, and z", "and" is the conjunction.
+ * Defaults to "or".
  *
  * @returns `string`
  *
@@ -35,7 +36,7 @@ export function list(items: string[], conjunction = 'or'): string {
 }
 
 /**
- * Given a string or a date return a nice human-readable version.
+ * Given a string or a date, return a nice human-readable version.
  *
  * @param date - A string or a date.
  *
@@ -54,10 +55,10 @@ export function date(date: string | Date): string {
 }
 
 /**
- * Orders two variables smallest to largest.
+ * Orders two variables from smallest to largest.
  *
- * @param first - first argument
- * @param second - Second argument
+ * @param first - The first number or string.
+ * @param second - The second number or string.
  *
  * @returns `[smaller: number | string, larger: number | string]`
  *
