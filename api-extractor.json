@@ -172,7 +172,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
      */
-    "apiJsonFilePath": "<projectFolder>/reviews/<unscopedPackageName>.api.json"
+    "apiJsonFilePath": "<projectFolder>/temp/<unscopedPackageName>.api.json"
   },
 
   /**
