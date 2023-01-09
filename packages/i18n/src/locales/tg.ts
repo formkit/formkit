@@ -46,7 +46,7 @@ export const ui: FormKitLocaleMessages = {
 export const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
-   * @see {@link https://docs.formkit.com/essentials/validation#accepted}
+   * @see {@link https://formkit.com/essentials/validation#accepted}
    */
   accepted({ name }): string {
     /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
@@ -56,7 +56,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The date is not after
-   * @see {@link https://docs.formkit.com/essentials/validation#date-after}
+   * @see {@link https://formkit.com/essentials/validation#date-after}
    */
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -71,7 +71,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not a letter.
-   * @see {@link https://docs.formkit.com/essentials/validation#alpha}
+   * @see {@link https://formkit.com/essentials/validation#alpha}
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
@@ -81,7 +81,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not alphanumeric
-   * @see {@link https://docs.formkit.com/essentials/validation#alphanumeric}
+   * @see {@link https://formkit.com/essentials/validation#alphanumeric}
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
@@ -91,7 +91,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not letter and/or spaces
-   * @see {@link https://docs.formkit.com/essentials/validation#alpha-spaces}
+   * @see {@link https://formkit.com/essentials/validation#alpha-spaces}
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
@@ -101,7 +101,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The date is not before
-   * @see {@link https://docs.formkit.com/essentials/validation#date-before}
+   * @see {@link https://formkit.com/essentials/validation#date-before}
    */
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -116,7 +116,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not between two numbers
-   * @see {@link https://docs.formkit.com/essentials/validation#between}
+   * @see {@link https://formkit.com/essentials/validation#between}
    */
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
@@ -132,7 +132,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The confirmation field does not match
-   * @see {@link https://docs.formkit.com/essentials/validation#confirm}
+   * @see {@link https://formkit.com/essentials/validation#confirm}
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
@@ -142,7 +142,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value is not a valid date
-   * @see {@link https://docs.formkit.com/essentials/validation#date-format}
+   * @see {@link https://formkit.com/essentials/validation#date-format}
    */
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
@@ -159,7 +159,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not within expected date range
-   * @see {@link https://docs.formkit.com/essentials/validation#date-between}
+   * @see {@link https://formkit.com/essentials/validation#date-between}
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
@@ -171,13 +171,13 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Shown when the user-provided value is not a valid email address.
-   * @see {@link https://docs.formkit.com/essentials/validation#email}
+   * @see {@link https://formkit.com/essentials/validation#email}
    */
   email: 'Лутфан нишонаи имейли амалкунандаро ворид намоед.',
 
   /**
    * Does not end with the specified value
-   * @see {@link https://docs.formkit.com/essentials/validation#ends-with}
+   * @see {@link https://formkit.com/essentials/validation#ends-with}
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
@@ -187,7 +187,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not an allowed value
-   * @see {@link https://docs.formkit.com/essentials/validation#is}
+   * @see {@link https://formkit.com/essentials/validation#is}
    */
   is({ name }) {
     /* <i18n case="Shown when the user-provided value is not one of the values supplied to the rule."> */
@@ -197,7 +197,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not match specified length
-   * @see {@link https://docs.formkit.com/essentials/validation#length}
+   * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
     const min = Number(first) <= Number(second) ? first : second
@@ -229,7 +229,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Value is not a match
-   * @see {@link https://docs.formkit.com/essentials/validation#matches}
+   * @see {@link https://formkit.com/essentials/validation#matches}
    */
   matches({ name }) {
     /* <i18n case="Shown when the user-provided value does not match any of the values or RegExp patterns supplied to the rule. "> */
@@ -239,7 +239,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Exceeds maximum allowed value
-   * @see {@link https://docs.formkit.com/essentials/validation#max}
+   * @see {@link https://formkit.com/essentials/validation#max}
    */
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -254,7 +254,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The (field-level) value does not match specified mime type
-   * @see {@link https://docs.formkit.com/essentials/validation#mime}
+   * @see {@link https://formkit.com/essentials/validation#mime}
    */
   mime({ name, args }) {
     if (!args[0]) {
@@ -269,7 +269,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not fulfill minimum allowed value
-   * @see {@link https://docs.formkit.com/essentials/validation#min}
+   * @see {@link https://formkit.com/essentials/validation#min}
    */
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
@@ -284,7 +284,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not an allowed value
-   * @see {@link https://docs.formkit.com/essentials/validation#not}
+   * @see {@link https://formkit.com/essentials/validation#not}
    */
   not({ name, node: { value } }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
@@ -294,7 +294,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    *  Is not a number
-   * @see {@link https://docs.formkit.com/essentials/validation#number}
+   * @see {@link https://formkit.com/essentials/validation#number}
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
@@ -304,7 +304,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Required field.
-   * @see {@link https://docs.formkit.com/essentials/validation#required}
+   * @see {@link https://formkit.com/essentials/validation#required}
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
@@ -314,7 +314,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Does not start with specified value
-   * @see {@link https://docs.formkit.com/essentials/validation#starts-with}
+   * @see {@link https://formkit.com/essentials/validation#starts-with}
    */
   starts_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not start with the substring supplied to the rule."> */
@@ -324,7 +324,7 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * Is not a url
-   * @see {@link https://docs.formkit.com/essentials/validation#url}
+   * @see {@link https://formkit.com/essentials/validation#url}
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */

@@ -2,4 +2,4 @@
 
 # @formkit/themes
 
-This package contains the official themes for FormKit. To use these themes you should import the theme file directly. Read the [installation documentation](https://formkit.com/essentials/installation) for more information
+This package contains the official themes for FormKit. To use these themes you should import the theme file directly. Read the [installation documentation](https://formkit.com/getting-started/installation) for more information

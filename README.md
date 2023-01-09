@@ -35,15 +35,10 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
     <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
   </a>
 </p>
-<p style="margin-bottom: 1em;">
-  <a href="https://sharpless.co">
-    <img src="https://cdn.formk.it/web-assets/sponsors/sharpless-logo-small.png" alt="Sharpless logo" style="width: 10%;">
-  </a>
-</p>
 
 ### Backers
 
-[uscreen](https://uscreen.de)
+[uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic)
 
 <table style="width: 100%;">
 	<tr>
@@ -54,17 +49,17 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 	<tr>
     <td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em;">☝️ Comprehensive package</h4>
-			<p>FormKit is an all-in-one form-authoring framework with <a href="https://docs.formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://docs.formkit.com/essentials/validation">validation</a>, form <a href="https://docs.formkit.com/essentials/styling">UI & styling</a>, <a href="https://docs.formkit.com/essentials/forms">error handling</a>,   <a href="https://docs.formkit.com/essentials/generation">generation</a>, a11y, <a href="https://docs.formkit.com/essentials/internationalization">i18n</a>, and more! </p>
+			<p>FormKit is an all-in-one form-authoring framework with <a href="https://formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://formkit.com/essentials/validation">validation</a>, form <a href="https://formkit.com/essentials/styling">UI & styling</a>, <a href="https://formkit.com/inputs/form#error-handling">error handling</a>,   <a href="https://formkit.com/essentials/schema">generation</a>, a11y, <a href="https://formkit.com/essentials/internationalization">i18n</a>, and more! </p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4>
-			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. FormKit provides a <a href="https://docs.formkit.com/essentials/inputs#props--attributes">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
+			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. FormKit provides a <a href="https://formkit.com/essentials/inputs#props--attributes">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
 		</td>
 	</tr>
 	<tr>
     <td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em;">🎯 Validation built in</h4>
-			<p>Ridiculously easy <a href="https://docs.formkit.com/essentials/validation">validation</a> out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add <a href="https://docs.formkit.com/essentials/validation#custom-rules">custom validation rules</a> too.</p>
+			<p>Ridiculously easy <a href="https://formkit.com/essentials/validation">validation</a> out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add <a href="https://formkit.com/essentials/validation#custom-rules">custom validation rules</a> too.</p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">⚡️ Blazing-fast Performance</h4>
@@ -74,21 +69,21 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 	<tr>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4>
-			<p>Extend FormKit's functionality or reuse custom inputs, validation rules and messages across projects by tapping into the <a href="https://docs.formkit.com/advanced/core#plugins">plugin system</a>. Make your plugin open source to share with others!</p>
+			<p>Extend FormKit's functionality or reuse custom inputs, validation rules and messages across projects by tapping into the <a href="https://formkit.com/advanced/core#plugins">plugin system</a>. Make your plugin open source to share with others!</p>
 		</td>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em;">✨ Generate forms</h4>
-			<p><a href="https://docs.formkit.com/essentials/generation">Generate an entire form</a> from a JSON-compatible schema. Schema allows you to render complex forms from JSON with conditional rendering, logic, dynamic data, groups, wrappers, HTML elements, and custom components.</p>
+			<p><a href="https://formkit.com/essentials/schema">Generate an entire form</a> from a JSON-compatible schema. Schema allows you to render complex forms from JSON with conditional rendering, logic, dynamic data, groups, wrappers, HTML elements, and custom components.</p>
 		</td>
 	</tr>
   <tr>
 		<td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">🎨 Robust Theming</h4>
-			<p>FormKit works easily alongside your favorite UI frameworks like Bootstrap and utility-class tools like Tailwind. With numerous ways to <a href="https://docs.formkit.com/essentials/styling#custom-classes">modify classes</a> and <a href="https://docs.formkit.com/essentials/inputs#schema-overrides">DOM structure</a>, integrating FormKit plays nicely with any frontend.</p>
+			<p>FormKit works easily alongside your favorite UI frameworks like Bootstrap and utility-class tools like Tailwind. With numerous ways to <a href="https://formkit.com/essentials/styling#custom-classes">modify classes</a> and <a href="https://formkit.com/essentials/inputs#schema-overrides">DOM structure</a>, integrating FormKit plays nicely with any frontend.</p>
 		</td>
     <td style="width: 50%; vertical-align: top;">
 			<h4 style="margin-top: 0.25em">🌐 Internationalization</h4>
-			<p>FormKit is made for all! Thanks to the FormKit community, FormKit ships with support for <a href="https://docs.formkit.com/essentials/internationalization">many languages</a>. Don't see your language? Contribute one with our <a href="https://i18n.formkit.com">locale builder.</a></p>
+			<p>FormKit is made for all! Thanks to the FormKit community, FormKit ships with support for <a href="https://formkit.com/essentials/internationalization">many languages</a>. Don't see your language? Contribute one with our <a href="https://i18n.formkit.com">locale builder.</a></p>
 		</td>
 	</tr>
 
