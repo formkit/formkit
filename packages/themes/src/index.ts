@@ -12,7 +12,7 @@ import {
 type ClassFunction = (node: FormKitNode, sectionKey: string) => string
 
 /**
- * A function that returns an icon SVG string
+ * A function that returns an icon SVG string.
  * @public
  */
 export interface FormKitIconLoader {
@@ -20,7 +20,7 @@ export interface FormKitIconLoader {
 }
 
 /**
- * A function that returns a remote url for retrieving an SVG icon by name
+ * A function that returns a remote URL for retrieving an SVG icon by name.
  * @public
  */
 export interface FormKitIconLoaderUrl {
@@ -28,9 +28,9 @@ export interface FormKitIconLoaderUrl {
 }
 
 /**
- * A function to generate FormKit class functions from a javascript object
- * @param classes - An object of input types with nested objects of sectionKeys and class lists
- * @returns FormKitClassFunctions
+ * A function to generate FormKit class functions from a JavaScript object.
+ * @param classes - An object of input types with nested objects of sectionKeys and class lists.
+ * @returns An object of sectionKeys with class functions.
  * @public
  */
 export function generateClasses(
@@ -130,10 +130,13 @@ export const iconRegistry: Record<string, string | undefined> = {}
 const iconRequests: Record<string, any> = {}
 
 /**
- * Creates the theme plugin based on a given theme name
- * @param theme - The name or id of the theme to apply
- * @param icons - Icons you want to add to the global icon registry
- * @param iconLoader - A function that handles loading an icon when it is not found in the registry
+ * Creates the theme plugin based on a given theme name.
+ * @param theme - The name or id of the theme to apply.
+ * @param icons - Icons you want to add to the global icon registry.
+ * @param iconLoaderUrl - A function that returns a remote url for retrieving an
+ * SVG icon by name.
+ * @param iconLoader - A function that handles loading an icon when it is not
+ * found in the registry.
  * @public
  */
 export function createThemePlugin(
@@ -249,8 +252,11 @@ function loadTheme(theme: string) {
 }
 
 /**
- * Returns a function responsible for loading an icon by name
- * @param iconLoader - a function for loading an icon when it's not found in the iconRegistry
+ * Returns a function responsible for loading an icon by name.
+ * @param iconLoader - a function for loading an icon when it's not found in the
+ * iconRegistry.
+ * @param iconLoaderUrl - a function that returns a remote URL for retrieving an
+ * SVG icon by name.
  * @public
  */
 export function createIconHandler(
