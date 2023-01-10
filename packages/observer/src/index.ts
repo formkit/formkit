@@ -174,8 +174,8 @@ export function createObserver(
 }
 
 /**
- * Given two maps (toAdd and toRemove) apply the dependencies as event listeners
- * on the underlying nodes.
+ * Given two maps (toAdd and toRemove), apply the dependencies as event
+ * listeners on the underlying nodes.
  * @param node - The node to apply dependencies to
  * @param delta - The toAdd and toRemove dependency Maps
  * @public

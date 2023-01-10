@@ -51,7 +51,7 @@ export interface FormKitLocaleRegistry {
 /**
  * Create a new internationalization plugin for FormKit.
  *
- * @param registry - The registry of FormKitLocales.
+ * @param registry - The registry of {@link @formkit/i18n#FormKitLocaleRegistry | FormKitLocales}.
  *
  * @returns {@link @formkit/core#FormKitPlugin | FormKitPlugin}
  *
