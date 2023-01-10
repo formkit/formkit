@@ -220,7 +220,7 @@ export function applyListeners(
 
 /**
  * Remove all the receipts from the observed node and subtree.
- * @param receipts - The formkit observer receipts to remove
+ * @param receipts - The FormKit observer receipts to remove.
  * @public
  */
 export function removeListeners(receipts: FormKitObserverReceipts): void {
@@ -292,9 +292,9 @@ export function diffDeps(
 }
 
 /**
- * Checks if the given noe is revoked.
+ * Checks if the given node is revoked.
  * @param node - Any observed node to check.
- * @returns
+ * @returns A `boolean` indicating if the node is revoked.
  * @public
  */
 export function isKilled(node: FormKitObservedNode): boolean {

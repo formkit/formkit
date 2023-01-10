@@ -206,17 +206,39 @@ export interface FormKitSection<T = FormKitSchemaExtendableSection> {
   (...children: Array<FormKitSchemaExtendableSection | string>): T
 }
 
+/**
+ * Creates a new reusable section.
+ *
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @param root - When true, returns an extendable root schema node.
+ * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
   root: true
 ): FormKitSection<FormKitExtendableSchemaRoot>
 
+/**
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @returns {@link @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode)
 ): FormKitSection<FormKitSchemaExtendableSection>
 
+/**
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @param root - When false, returns a FormKitSchemaExtendableSection.
+ * @returns {@link @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ * @public
+ */
 export function createSection(
   section: string,
   el: string | (() => FormKitSchemaNode),
@@ -228,7 +250,7 @@ export function createSection(
  *
  * @param section - A single section of schema
  * @param el - The element or a function that returns a schema node.
- * @param root - When true returns an extendable root schema node.
+ * @param root - When true, returns an extendable root schema node.
  *
  * @public
  */
