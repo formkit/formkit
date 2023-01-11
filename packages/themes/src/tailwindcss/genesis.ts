@@ -97,6 +97,10 @@ export default {
         option: 'grow text-ellipsis',
         selection: 'static flex left-0 top-0 right-0 bottom-0 mt-0 mb-2 rounded bg-gray-100',
     },
+    mask: { 
+        inner: 'flex items-center max-w-md ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>label:first-child]:focus-within:text-blue-500 rounded mb-1',
+        input: 'w-full px-3 py-2 border-none text-base text-gray-700 placeholder-gray-400',
+    },
     rating: {
         inner: 'relative flex items-center w-[8em] formkit-disabled:bg-transparent',
         itemsWrapper: 'w-full',
