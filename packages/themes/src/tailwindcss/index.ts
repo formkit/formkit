@@ -1,4 +1,5 @@
 import plugin from 'tailwindcss/plugin.js'
+import Genesis from './genesis'
 
 const outerAttributes = [
   'disabled',
@@ -36,4 +37,7 @@ const FormKitVariants = plugin(function ({ matchVariant }) {
   )
 })
 
-export default FormKitVariants
+export {
+  FormKitVariants,
+  Genesis
+}
