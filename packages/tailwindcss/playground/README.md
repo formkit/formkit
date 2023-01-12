@@ -6,7 +6,7 @@ to learn more.
 
 ## Installation from Github
 
-Please follow the [instructions in the FormKit documentation](https://docs.formkit.com/essentials/installation) to install from Github.
+Please follow the [instructions in the FormKit documentation](https://formkit.com/getting-started/installation) to install from Github.
 ## Local Development
 
 Once FormKit is installed, your setup is complete you can install and start your dev! The

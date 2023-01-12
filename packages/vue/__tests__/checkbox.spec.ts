@@ -25,6 +25,26 @@ describe('single checkbox', () => {
     )
   })
 
+  it('can render a single checkbox with an extended label', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        label: '<h1>Hello world</h1>',
+        sectionsSchema: {
+          label: {
+            attrs: {
+              innerHTML: '$label',
+            },
+          },
+        },
+      },
+      ...global,
+    })
+    expect(wrapper.html()).toContain(
+      '<span class="formkit-label"><h1>Hello world</h1></span>'
+    )
+  })
+
   it('Single checkboxes render help text', () => {
     const wrapper = mount(FormKit, {
       props: {

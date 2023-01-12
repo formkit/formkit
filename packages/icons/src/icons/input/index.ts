@@ -14,7 +14,6 @@ import password from './Password'
 import radio from './Radio'
 import range from './Range'
 import repeater from './Repeater'
-import search from './Search'
 import select from './Select'
 import submit from './Submit'
 import telephone from './Telephone'
@@ -41,7 +40,6 @@ export {
   radio,
   range,
   repeater,
-  search,
   select,
   submit,
   telephone,
@@ -49,5 +47,5 @@ export {
   textarea,
   time,
   url,
-  week
+  week,
 }
