@@ -581,6 +581,101 @@ export interface FormKitChildValue {
  * FormKit's Node object produced by createNode(). All inputs, forms, and groups
  * are instances of nodes.
  *
+ * @param add -
+ * Add a child to a node, the node must be a group or list.
+ *
+ * @param addProps -
+ * Adds props to the given node by removing them from node.props.attrs and moving them to the top-level node.props object.
+ *
+ * @param at -
+ * Gets a node at another address. Addresses are dot-syntax paths (or arrays) of node names.
+ * For example: `form.users.0.first_name`. There are a few "special" traversal tokens as well:
+ *
+ * * $root - Selects the root node
+ * * $parent - Selects the parent node
+ * * $self — Selects the current node
+ *
+ * @param address -
+ * The address of the current node, from the root of the tree.
+ *
+ * @param clearErrors -
+ * Clears the errors of the node, and optionally all the children.
+ *
+ * @param config -
+ * An object of {@link FormKitConfig | FormKitConfig} that is shared tree-wide with various configuration options that should be applied to the entire tree.
+ *
+ * @param define -
+ * Defines the current input's library type definition including node type, schema, and props.
+ *
+ * @param destroy -
+ * Removes the node from the global registry, removes it from its parent, and emits the 'destroying' event.
+ *
+ * @param each -
+ * Perform given callback on each of the given node's children.
+ *
+ * @param emit -
+ * Emit an event from the node so it can be listened by {@link on | on}.
+ *
+ * @param find -
+ * Within a given tree, find a node matching a given selector. Selectors can be simple strings or a function.
+ *
+ * @param index -
+ * The index of a node compared to its siblings. This is only applicable in cases where a node is a child of a list.
+ *
+ * @param input -
+ * The function used to set the value of a node. All changes to a node's value
+ * should use this function as it ensures the tree's state is always fully tracked.
+ *
+ * @param name -
+ * The name of the input in the node tree. When a node is a child of a list this automatically becomes its index.
+ *
+ * @param on -
+ * Adds an event listener for a given event, and returns a "receipt" which is a random string token.
+ * This token should be used to remove the listener in the future.
+ * Alternatively you can assign a "receipt" property to the listener function and that receipt will be used instead.
+ * This allows multiple listeners to all be de-registered with a single off() call if they share the same receipt.
+ *
+ * @param off -
+ * Removes an event listener by its token.
+ * Receipts can be shared among many event listeners by explicitly declaring the "receipt" property of the listener function.
+ *
+ * @param remove -
+ * Removes a child from the node
+ *
+ * @param resetConfig -
+ * Resets the configuration of a node.
+ *
+ * @param reset -
+ * Resets the node’s value back to its original value.
+ *
+ * @param setErrors -
+ * Sets errors on the input, and optionally to child inputs.
+ *
+ * @param settled -
+ * A promise that resolves when a node and its entire subtree is settled.
+ * In other words — all the inputs are done committing their values.
+ *
+ * @param submit -
+ * Triggers a submit event on the nearest form.
+ *
+ * @param t -
+ * A text or translation function that exposes a given string to the "text"
+ * hook — all text shown to users should be passed through this function
+ * before being displayed — especially for core and plugin authors.
+ *
+ * @param isSettled -
+ * Boolean reflecting the settlement state of the node and its subtree.
+ *
+ * @param use -
+ * Registers a new plugin on the node and its subtree.
+ *
+ * * run = should the plugin be executed or not
+ * * library = should the plugin's library function be executed (if there)
+ *
+ * @param walk -
+ * Performs a function on the node and every node in the subtree.
+ * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
+ *
  * @public
  */
 export type FormKitNode = {

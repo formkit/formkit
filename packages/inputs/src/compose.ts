@@ -118,9 +118,7 @@ export function extendSchema(
 }
 
 /**
- * ================================================================
  * @deprecated This function is deprecated. Use `createSection` instead!
- * ================================================================
  *
  * @param key - A new section key name.
  * @param schema - The default schema in this composable slot.
