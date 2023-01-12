@@ -171,9 +171,9 @@ export function createThemePlugin(
       node.props?.iconLoader ? node.props.iconLoader : iconLoader,
       node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl
     )
-    loadIconPropIcons(node, node.props.iconHandler)
 
     node.on('created', () => {
+      loadIconPropIcons(node, node.props.iconHandler)
       // set up the `-icon` click handlers
       if (node?.context?.handlers) {
         node.context.handlers.iconClick = (
