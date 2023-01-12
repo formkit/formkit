@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Input section
+ *
  * @public
  */
 export const textInput = createSection('input', () => ({

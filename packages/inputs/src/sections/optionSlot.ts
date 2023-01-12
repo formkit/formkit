@@ -1,6 +1,8 @@
 import { FormKitSchemaExtendableSection } from '../compose'
 
 /**
+ * Options slot section that displays options when used with slots
+ *
  * @public
  */
 export const optionSlot: FormKitSchemaExtendableSection = () => ({

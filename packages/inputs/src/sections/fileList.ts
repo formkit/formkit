@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * File list section to show all file names
+ *
  * @public
  */
 export const fileList = createSection('fileList', () => ({

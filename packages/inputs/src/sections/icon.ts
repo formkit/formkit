@@ -1,6 +1,8 @@
 import { createSection, FormKitSchemaExtendableSection } from '../compose'
 
 /**
+ * Icon section used by all icons
+ *
  * @public
  */
 export const icon = (

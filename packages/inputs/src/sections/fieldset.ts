@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Fieldset section, used to describe help
+ *
  * @public
  */
 export const fieldset = createSection('fieldset', () => ({

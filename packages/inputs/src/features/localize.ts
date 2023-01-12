@@ -6,7 +6,9 @@ import { FormKitNode, createMessage } from '@formkit/core'
  *
  * @param key - The key of the message
  * @param value - The value of the message
- * @returns
+ *
+ * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export default function localize(

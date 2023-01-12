@@ -4,8 +4,10 @@ import { optionValue, shouldSelect } from './options'
 
 /**
  * Sets the value of a radio button when checked.
- * @param node - FormKitNode
- * @param value - Value
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ * @param event - Event
+ *
  * @public
  */
 function toggleChecked(node: FormKitNode, event: Event) {
@@ -16,9 +18,13 @@ function toggleChecked(node: FormKitNode, event: Event) {
 
 /**
  * Checks if the value being checked is the current value.
- * @param node - The node to check against.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
  * @param value - The value to check
- * @returns
+ *
+ * @returns `boolean`
+ *
+ * @public
  */
 function isChecked(node: FormKitNode, value: string) {
   // We need to force vue’s reactivity to respond when the value is run:
@@ -28,8 +34,10 @@ function isChecked(node: FormKitNode, value: string) {
 }
 
 /**
- * Determines if a given radio input is being evaluated.
- * @param node - The radio input group.
+ * A feature to check if the value being checked is the current value.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function radios(node: FormKitNode): void {

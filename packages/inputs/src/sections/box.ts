@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Box section used for grouping options
+ *
  * @public
  */
 export const box = createSection('input', () => ({

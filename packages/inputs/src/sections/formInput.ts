@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Form section
+ *
  * @public
  */
 export const formInput = createSection(

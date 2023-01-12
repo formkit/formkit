@@ -61,6 +61,7 @@ export function isSchemaObject(
  * Checks if the current schema node is a slot condition like:
  *
  * @example
+ *
  * ```js
  * {
  *  if: '$slot.name',
@@ -69,7 +70,7 @@ export function isSchemaObject(
  * }
  * ```
  *
- * @param node - a schema node
+ * @param node - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}
  *
  * @returns `boolean`
  *
@@ -210,7 +211,9 @@ export interface FormKitSection<T = FormKitSchemaExtendableSection> {
  * @param section - A single section of schema
  * @param el - The element or a function that returns a schema node.
  * @param root - When true, returns an extendable root schema node.
+ *
  * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
+ *
  * @public
  */
 export function createSection(
@@ -222,7 +225,7 @@ export function createSection(
 /**
  * @param section - A single section of schema
  * @param el - The element or a function that returns a schema node.
- * @returns {@link @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function createSection(
@@ -234,7 +237,7 @@ export function createSection(
  * @param section - A single section of schema
  * @param el - The element or a function that returns a schema node.
  * @param root - When false, returns a FormKitSchemaExtendableSection.
- * @returns {@link @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function createSection(
@@ -243,15 +246,6 @@ export function createSection(
   root: false
 ): FormKitSection<FormKitSchemaExtendableSection>
 
-/**
- * Creates a new reusable section.
- *
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- * @param root - When true, returns an extendable root schema node.
- *
- * @public
- */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
@@ -346,7 +340,7 @@ export function $attrs(
 }
 
 /**
- *  Applies a condition to a given schema section.
+ * Applies a condition to a given schema section.
  *
  * @param condition - A schema condition to apply to a section.
  * @param then - The section that applies if the condition is true.

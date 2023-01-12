@@ -3,8 +3,10 @@ import { has, clone } from '@formkit/utils'
 
 /**
  * Handle the submit event.
+ *
  * @param e - The event
- * @public
+ *
+ * @internal
  */
 async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   submitEvent.preventDefault()
@@ -77,8 +79,10 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
 }
 
 /**
- * Converts the options prop to usable values.
- * @param node - A formkit node.
+ * A feature to add submiting handler and actions section
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function form(node: FormKitNode): void {
