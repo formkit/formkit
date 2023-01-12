@@ -153,7 +153,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
       const [target, property] = args
-      let className = Reflect.get(...args)
+      let className: string | null = Reflect.get(...args)
       if (!className && typeof property === 'string') {
         if (!has(target, property) && !property.startsWith('__v')) {
           const observedNode = createObserver(node)
@@ -183,7 +183,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
               classesPropClasses,
               sectionPropClasses
             )
-            target[property] = className
+            target[property] = className ?? ''
           })
         }
       }
