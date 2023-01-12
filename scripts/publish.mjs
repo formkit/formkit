@@ -64,15 +64,28 @@ async function publishPackages(force = false) {
     return
   }
   if (!checkGitIsMasterBranch()) {
-    tag = 'next'
-    const { confirmBuild } = await prompts({
-      type: 'confirm',
-      name: 'confirmBuild',
-      message: `⚠️  Not on master brach! Publishing under the @next tag. Proceed?`,
-      initial: true,
+    const { confirmTag } = await prompts({
+      type: 'select',
+      name: 'confirmTag',
+      message: `⚠️  Not on master brach! Which tag would you like to publish?`,
+      choices: [
+        {
+          title: '@dev',
+          value: 'dev',
+        },
+        {
+          title: '@next',
+          value: 'next'
+        },
+        {
+          title: 'CANCEL',
+          value: false
+        }
+      ]
     })
-    if (confirmBuild) {
-      msg.info('Setting tag to @next')
+    tag = confirmTag
+    if (tag) {
+      msg.info(`Setting tag to @${confirmTag}`)
     } else {
       msg.error('✋ Will not publish')
       return
