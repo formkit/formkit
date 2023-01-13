@@ -59,8 +59,6 @@ interface FormKitLedgerStore {
 /**
  * Creates a new ledger for use on a single node's context.
  *
- * @returns
- *
  * @internal
  */
 export function createLedger(): FormKitLedger {
@@ -89,12 +87,11 @@ export function createLedger(): FormKitLedger {
 /**
  * Creates a new counter object in the counting ledger.
  *
+ * @param node - FormKitNode
  * @param ledger - The actual ledger storage object
  * @param counterName - The name of the counter, can be arbitrary
  * @param condition - The condition function (or string) that filters messages
- * @param initialValue - The initial counter value
- *
- * @returns
+ * @param increment - The increment value
  *
  * @internal
  */
@@ -133,8 +130,6 @@ function createCounter(
  *
  * @param condition - The condition that, if true, allows a message to change a counter's value
  *
- * @returns
- *
  * @internal
  */
 function parseCondition(
@@ -151,8 +146,6 @@ function parseCondition(
  *
  * @param counter - A counter object
  * @param increment - The amount by which we are changing the count value
- *
- * @returns
  *
  * @internal
  */
@@ -176,8 +169,6 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
  *
  * @param ledger - A ledger to operate on
  * @param delta - The amount to add or subtract
- *
- * @returns
  *
  * @internal
  */
