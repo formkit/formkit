@@ -8,8 +8,8 @@ const outerAttributes = [
   'loading',
   'submitted',
   'multiple',
-  'has-prefix-icon',
-  'has-suffix-icon',
+  'prefix-icon',
+  'suffix-icon',
 ]
 
 /**
