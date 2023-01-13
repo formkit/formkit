@@ -17,9 +17,6 @@ export interface FormKitHandlerPayload {
  * @public
  */
 export const errorHandler = createDispatcher<FormKitHandlerPayload>()
-/**
- * The default error handler just sets the error as the message.
- */
 errorHandler((error, next) => {
   if (!error.message) error.message = String(`E${error.code}`)
   return next(error)
@@ -42,7 +39,7 @@ warningHandler((warning, next) => {
 /**
  * Globally emits a warning.
  *
- * @param code - The integer error code.
+ * @param code - The integer warning code.
  * @param data - Usually an object of information to include.
  *
  * @public
