@@ -125,8 +125,11 @@ export interface FormKitStoreTraps {
 
 /**
  * Creates a new FormKitMessage object.
- * @param conf - The message configuration
- * @returns FormKitMessage
+ *
+ * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}
+ * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}
+ *
+ * @returns A {@link FormKitMessageProps | FormKitMessageProps}
  *
  * @public
  */
@@ -168,8 +171,6 @@ const storeTraps: {
 
 /**
  * Creates a new FormKit message store.
- *
- * @returns FormKitStore
  *
  * @internal
  */
@@ -222,12 +223,10 @@ export function createStore(_buffer = false): FormKitStore {
 /**
  * Adds a new value to a FormKit message bag.
  *
- * @param store - The store itself
+ * @param messageStore - The message store itself
  * @param store - The store interface
  * @param node - The node this store belongs to
  * @param message - The message object
- *
- * @returns FormKitStore
  *
  * @internal
  */
@@ -278,7 +277,7 @@ function touchMessages(
 /**
  * Remove a message from the store.
  *
- * @param store - The store itself
+ * @param messageStore - The message store
  * @param store - The store interface
  * @param node - The node this store belongs to
  * @param key - The message key
@@ -420,9 +419,8 @@ export type ErrorMessages =
 /**
  * Creates an array of message arrays from strings.
  *
+ * @param node - FormKitNode
  * @param errors - Arrays or objects of form errors or input errors
- *
- * @returns
  *
  * @internal
  */
@@ -488,8 +486,6 @@ function missed(
  * bubble to this point, and any stored applications will be applied serially.
  *
  * @param store - The store object.
- *
- * @returns
  *
  * @internal
  */
