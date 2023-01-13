@@ -221,7 +221,7 @@ export function isComponent(
  *
  * @returns `boolean`
  *
- * @internal
+ * @public
  */
 export function isConditional(
   node: FormKitSchemaNode
@@ -234,7 +234,7 @@ export function isConditional(
  *
  * @returns `boolean`
  *
- * @internal
+ * @public
  */
 export function isConditional(
   node: FormKitSchemaAttributesCondition | FormKitSchemaAttributes
@@ -244,10 +244,6 @@ export function isConditional(
  * Root declaration.
  *
  * @param node - An object to check
- *
- * @returns `boolean`
- *
- * @public
  */
 export function isConditional(
   node:
@@ -276,6 +272,8 @@ export function isSugar(node: FormKitSchemaNode): node is FormKitSchemaFormKit {
  * Converts syntactic sugar nodes to standard nodes.
  *
  * @param node - A node to covert
+ *
+ * @returns A {@link FormKitSchemaNode | FormKitSchemaNode} without the properties of {@link FormKitSchemaFormKit | FormKitSchemaFormKit}
  *
  * @public
  */
