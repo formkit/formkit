@@ -836,6 +836,24 @@ describe('form submission', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.html()).toContain('Woops your phone battery is low')
   })
+
+  it('can unignore the default action with submit-attrs', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          setLabel(node: FormKitNode) {
+            node.on('created', () => {
+              node.props.label = 'Plugin did run'
+            })
+          },
+        },
+        template: `<FormKit type="form" :plugins="[setLabel]" :submit-attrs="{ ignore: false }">
+      </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.html()).toContain('Plugin did run')
+  })
 })
 
 describe('programmatic submission', () => {
