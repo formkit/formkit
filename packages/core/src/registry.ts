@@ -21,7 +21,7 @@ const receipts: string[] = []
  * node has an explicit node.props.alias. If these two things are not true
  * then no node is registered (idempotent).
  *
- * @param node - A node to register
+ * @param node - A {@link FormKitNode | FormKitNode}
  *
  * @public
  */
@@ -41,7 +41,7 @@ export function register(node: FormKitNode): void {
 /**
  * Deregister a node from the registry.
  *
- * @param node - A node to remove
+ * @param node - A {@link FormKitNode | FormKitNode}
  *
  * @public
  */
@@ -62,7 +62,7 @@ export function deregister(node: FormKitNode): void {
 /**
  * Get a node by a particular id.
  *
- * @param node - Get a node by a given id
+ * @param id - Get a node by a given id
  *
  * @public
  */
@@ -83,8 +83,10 @@ export function resetRegistry(): void {
 }
 
 /**
+ * A way of watching changes in the global registry
+ *
  * @param id - An id to watch
- * @param callback - A callback to notify when the node is set or removed.
+ * @param callback - A callback in the format of {@link FormKitEventListener | FormKitEventListener} to notify when the node is set or removed.
  *
  * @public
  */

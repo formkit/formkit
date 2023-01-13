@@ -42,7 +42,9 @@ export type FormKitRootConfig = Partial<FormKitConfig> & {
  * essentially just a FormKitOption object, but it can be used as the root for
  * FormKitConfig's proxy and retain event "emitting".
  *
- * @param options - FormKit node options to be used globally.
+ * @param options - An object of optional properties of {@link FormKitConfig | FormKitConfig}.
+ *
+ * @returns A {@link FormKitRootConfig | FormKitRootConfig}
  *
  * @public
  */

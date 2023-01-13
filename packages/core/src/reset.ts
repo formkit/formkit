@@ -31,8 +31,9 @@ function clearState(node: FormKitNode) {
  * resets all the children as well.
  *
  * @param id - The id of an input to reset
+ * @param resetTo - A value to reset the node to
  *
- * @returns {@link @formkit/core#FormKitNode | FormKitNode} | undefined
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`
  *
  * @public
  */

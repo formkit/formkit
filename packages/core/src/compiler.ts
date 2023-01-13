@@ -81,7 +81,7 @@ type OperatorRegistry = LogicOperators[]
  *
  * @param expr - A string to compile
  *
- * @returns {@link @formkit/core#FormKitCompilerOutput | FormKitCompilerOutput}
+ * @returns A {@link FormKitCompilerOutput | FormKitCompilerOutput}
  *
  * @public
  */
