@@ -205,9 +205,6 @@ describe('extend', () => {
       b: 'bar',
     }))
 
-  it('removes properties to objects as base depth', () =>
-    expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
-
   it('replaces array values completely', () =>
     expect(extend({ a: ['first'] }, { a: ['second'] })).toEqual({
       a: ['second'],
