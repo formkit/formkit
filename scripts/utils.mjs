@@ -66,7 +66,7 @@ export function getPackages() {
 }
 
 /**
- * Get the available packages from the packages directory.
+ * Get the available locales from the packages directory.
  */
 export function getLocales() {
   const availableLocales = fs.readdirSync(`${packagesDir}/i18n/src/locales`)
