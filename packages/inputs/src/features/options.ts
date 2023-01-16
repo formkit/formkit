@@ -3,12 +3,12 @@ import { FormKitOptionsProp, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
- * A function to normalize an array of objects, array of strings, or object of key-value
- * to use an array of objects with value and label properties.
+ * A function to normalize an array of objects, array of strings, or object of
+ * key-values to use an array of objects with value and label properties.
  *
- * @param options - An unnormalized {@link FormKitOptionsProp | FormKitOptionsProp}
+ * @param options - An un-normalized {@link FormKitOptionsProp | FormKitOptionsProp}.
  *
- * @returns A list of {@link FormKitOptionsList | FormKitOptionsList}
+ * @returns A list of {@link FormKitOptionsList | FormKitOptionsList}.
  *
  * @public
  */

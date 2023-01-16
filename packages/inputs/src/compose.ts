@@ -39,7 +39,8 @@ export type FormKitInputSchema =
 /**
  * Type guard for schema objects.
  *
- * @param schema - returns true if the node is a schema node but not a string or conditional.
+ * @param schema - returns `true` if the node is a schema node but not a string
+ * or conditional.
  *
  * @returns `boolean`
  *
@@ -58,7 +59,7 @@ export function isSchemaObject(
 }
 
 /**
- * Checks if the current schema node is a slot condition like:
+ * Checks if the current schema node is a slot condition.
  *
  * @example
  *
@@ -67,10 +68,10 @@ export function isSchemaObject(
  *  if: '$slot.name',
  *  then: '$slot.name',
  *  else: []
- * }
+ * } // this schema node would return true.
  * ```
  *
- * @param node - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}
+ * @param node - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}.
  *
  * @returns `boolean`
  *
@@ -95,9 +96,10 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 }
 
 /**
- * Extends a single schema node with an extension. The extension can be any partial node including strings.
+ * Extends a single schema node with an extension. The extension can be any
+ * partial node including strings.
  *
- * @param schema - Extend a base schema node.
+ * @param schema - The base schema node.
  * @param extension - The values to extend on the base schema node.
  *
  * @returns {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}
@@ -166,7 +168,7 @@ export function composable(
 /**
  * Creates an input schema with all of the wrapping base schema.
  *
- * @param inputSchema - Content to store in the input section key location.
+ * @param inputSection - Content to store in the input section key location.
  *
  * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
  *
