@@ -451,11 +451,14 @@ function createI18nArgs(
 }
 
 /**
- * The name used in validation messages.
+ * Given a node, this returns the name that should be used in validation
+ * messages. This is either the `validationLabel` prop, the `label` prop, or
+ * the name of the input (in that order).
  * @param node - The node to display
  * @returns
+ * @public
  */
-function createMessageName(node: FormKitNode): string {
+export function createMessageName(node: FormKitNode): string {
   if (typeof node.props.validationLabel === 'function') {
     return node.props.validationLabel(node)
   }
