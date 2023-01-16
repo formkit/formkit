@@ -65,6 +65,7 @@ function setNode(n: FormKitNode) {
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
+      outer-class="my-class !formkit-outer"
       @node="setNode"
     />
     <FormKit
