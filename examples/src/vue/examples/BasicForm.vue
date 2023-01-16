@@ -63,6 +63,7 @@ const submitHandler = async function (data: { email: string }) {
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
+      outer-class="my-class !formkit-outer"
     />
     <FormKit
       type="file"

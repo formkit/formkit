@@ -1040,6 +1040,24 @@ describe('classes', () => {
     )
   })
 
+  it.only('can can remove existing classes if class name string is prefixed with a ! operator', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        classes: {
+          outer: '!formkit-outer test-class-string1',
+        },
+        outerClass: '!test-class-string1 should-be-only-me',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('[data-type="text"]').html()).toContain(
+      'class="should-be-only-me'
+    )
+  })
+
   it('can apply new classes from functions', () => {
     const wrapper = mount(FormKit, {
       props: {
