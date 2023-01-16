@@ -18,10 +18,10 @@ const receipts: string[] = []
 
 /**
  * Registers a node to the registry _if_ the node is a root node, _or_ if the
- * node has an explicit node.props.alias. If these two things are not true
+ * node has an explicit node.props.alias. If these two things are not true,
  * then no node is registered (idempotent).
  *
- * @param node - A {@link FormKitNode | FormKitNode}
+ * @param node - A {@link FormKitNode | FormKitNode}.
  *
  * @public
  */
@@ -41,7 +41,7 @@ export function register(node: FormKitNode): void {
 /**
  * Deregister a node from the registry.
  *
- * @param node - A {@link FormKitNode | FormKitNode}
+ * @param node - A {@link FormKitNode | FormKitNode}.
  *
  * @public
  */
@@ -62,7 +62,9 @@ export function deregister(node: FormKitNode): void {
 /**
  * Get a node by a particular id.
  *
- * @param id - Get a node by a given id
+ * @param id - Get a node by a given id.
+ *
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`.
  *
  * @public
  */
@@ -71,7 +73,7 @@ export function getNode(id: string): FormKitNode | undefined {
 }
 
 /**
- * Reset the entire registry.
+ * Resets the entire registry. Deregisters all nodes and removes all listeners.
  *
  * @public
  */
@@ -83,9 +85,9 @@ export function resetRegistry(): void {
 }
 
 /**
- * A way of watching changes in the global registry
+ * A way of watching changes in the global registry.
  *
- * @param id - An id to watch
+ * @param id - A dot-syntax id where the node is located.
  * @param callback - A callback in the format of {@link FormKitEventListener | FormKitEventListener} to notify when the node is set or removed.
  *
  * @public

@@ -5,9 +5,11 @@ import { warn } from './errors'
 /**
  * Sets errors on a form, group, or input.
  *
- * @param id - The id of a form
- * @param localErrors - The errors to set on the form or the form’s inputs in the format of {@link ErrorMessages | ErrorMessages}
- * @param childErrors - (optional) The errors to set on the form or the form’s inputs in the format of {@link ErrorMessages | ErrorMessages}
+ * @param id - The id of a form.
+ * @param localErrors - The errors to set on the form or the form’s inputs in
+ * the format of {@link ErrorMessages | ErrorMessages}.
+ * @param childErrors - (optional) The errors to set on the form or the form’s
+ * inputs in the format of {@link ErrorMessages | ErrorMessages}.
  *
  * @public
  */
@@ -25,10 +27,11 @@ export function setErrors(
 }
 
 /**
- * Clears child errors.
+ * Clears errors on the node and optionally its children.
  *
- * @param id - The id of the node you want to clear errors for
- * @param clearChildren - Determines if the the children of this node should have their errors cleared.
+ * @param id - The id of the node you want to clear errors for.
+ * @param clearChildren - Determines if the children of this node should have
+ * their errors cleared.
  *
  * @public
  */

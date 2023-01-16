@@ -62,7 +62,7 @@ interface LogicOperators {
 type OperatorRegistry = LogicOperators[]
 
 /**
- * Compiles a logical string like "a != z || b == c" into a single function.
+ * Compiles a logical string like `"a != z || b == c"` into a single function.
  * The return value is an object with a "provide" method that iterates over all
  * requirement tokens to use as replacements.
  *
@@ -79,9 +79,9 @@ type OperatorRegistry = LogicOperators[]
  * condition() // false
  * ```
  *
- * @param expr - A string to compile
+ * @param expr - A string to compile.
  *
- * @returns A {@link FormKitCompilerOutput | FormKitCompilerOutput}
+ * @returns A {@link FormKitCompilerOutput | FormKitCompilerOutput}.
  *
  * @public
  */

@@ -49,7 +49,7 @@ export function warn(code: number, data: any = {}): void {
 }
 
 /**
- * Emits an error, generally should result in an exception.
+ * Emits an error. Generally should result in an exception.
  *
  * @param code - The integer error code.
  * @param data - Usually an object of information to include.

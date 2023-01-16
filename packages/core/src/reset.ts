@@ -27,13 +27,13 @@ function clearState(node: FormKitNode) {
 }
 
 /**
- * Resets an input to it’s "initial" value — if the input is a group or list it
+ * Resets an input to its "initial" value. If the input is a group or list it
  * resets all the children as well.
  *
- * @param id - The id of an input to reset
- * @param resetTo - A value to reset the node to
+ * @param id - The id of an input to reset.
+ * @param resetTo - A value to reset the node to.
  *
- * @returns A {@link FormKitNode | FormKitNode} or `undefined`
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`.
  *
  * @public
  */

@@ -12,7 +12,7 @@ export type FormKitListValue =
   | number
 
 /**
- * A full loop statement in tuple syntax. Can be read like "foreach value, key? in list"
+ * A full loop statement in tuple syntax. Can be read like "foreach value, key? in list".
  *
  * @public
  */
@@ -69,7 +69,7 @@ export type FormKitSchemaDOMNode = {
 export type FormKitSchemaTextNode = string
 
 /**
- * The possible value types of attributes (in the schema)
+ * The possible value types of attributes (in the schema).
  *
  * @public
  */
@@ -82,7 +82,7 @@ export type FormKitAttributeValue =
   | FormKitSchemaAttributesCondition
 
 /**
- * Conditions nested inside attribute declarations
+ * Conditions nested inside attribute declarations.
  *
  * @public
  */
@@ -105,7 +105,7 @@ export type FormKitSchemaAttributes =
   | FormKitSchemaAttributesCondition
 
 /**
- * Properties available when defining a generic non-formkit component.
+ * Properties available when defining a generic non-FormKit component.
  *
  * @public
  */
@@ -115,7 +115,7 @@ export type FormKitSchemaComponent = {
 } & FormKitSchemaProps
 
 /**
- * Syntactic sugar for a FormKitSchemaComponent node that uses formkit.
+ * Syntactic sugar for a FormKitSchemaComponent node that uses FormKit.
  *
  * @public
  */
@@ -202,7 +202,7 @@ export function isDOM(
 /**
  * Type narrow that a node is a DOM node.
  *
- * @param node - A schema node to check
+ * @param node - A schema node to check.
  *
  * @returns `boolean`
  *
@@ -217,7 +217,7 @@ export function isComponent(
 /**
  * Determines if a node is conditionally rendered or not.
  *
- * @param node - A schema node to check
+ * @param node - A schema node to check.
  *
  * @returns `boolean`
  *
@@ -230,7 +230,7 @@ export function isConditional(
 /**
  * Determines if an attribute is a conditional.
  *
- * @param node - A schema node to check
+ * @param node - A schema node to check.
  *
  * @returns `boolean`
  *
@@ -243,7 +243,7 @@ export function isConditional(
 /**
  * Root declaration.
  *
- * @param node - An object to check
+ * @param node - An object to check.
  */
 export function isConditional(
   node:
@@ -258,9 +258,9 @@ export function isConditional(
 /**
  * Determines if the node is syntactic sugar or not.
  *
- * @param node - Node
+ * @param node - A schema node to check.
  *
- * @returns `booleana`
+ * @returns `boolean`
  *
  * @public
  */
@@ -271,9 +271,9 @@ export function isSugar(node: FormKitSchemaNode): node is FormKitSchemaFormKit {
 /**
  * Converts syntactic sugar nodes to standard nodes.
  *
- * @param node - A node to covert
+ * @param node - A node to covert.
  *
- * @returns A {@link FormKitSchemaNode | FormKitSchemaNode} without the properties of {@link FormKitSchemaFormKit | FormKitSchemaFormKit}
+ * @returns A {@link FormKitSchemaNode | FormKitSchemaNode} without the properties of {@link FormKitSchemaFormKit | FormKitSchemaFormKit}.
  *
  * @public
  */

@@ -1,7 +1,7 @@
 import { FormKitNode } from './node'
 
 /**
- * Definition for a function that produces CSS classes
+ * Definition for a function that produces CSS classes.
  *
  * @public
  */
@@ -10,11 +10,11 @@ export interface FormKitClasses {
 }
 
 /**
- * Function that produces a standardized object representation of CSS classes
+ * Function that produces a standardized object representation of CSS classes.
  *
- * @param propertyKey - section key
- * @param node - A {@link FormKitNode | FormKitNode}
- * @param sectionClassList - A `string | Record<string, boolean>` or a {@link FormKitClasses | FormKitClasses}
+ * @param propertyKey - the section key.
+ * @param node - A {@link FormKitNode | FormKitNode}.
+ * @param sectionClassList - A `string | Record<string, boolean>` or a {@link FormKitClasses | FormKitClasses}.
  *
  * @returns `Record<string, boolean>`
  *
@@ -43,11 +43,11 @@ export function createClasses(
 }
 
 /**
- * Combines multiple class lists into a single list
+ * Combines multiple class lists into a single list.
  *
- * @param node - A {@link FormKitNode | FormKitNode}
- * @param property - The property key to which the class list will be applied
- * @param args - And array of `Record<string, boolean>` of CSS class list(s)
+ * @param node - A {@link FormKitNode | FormKitNode}.
+ * @param property - The property key to which the class list will be applied.
+ * @param args - And array of `Record<string, boolean>` of CSS class list(s).
  *
  * @returns `string | null`
  *

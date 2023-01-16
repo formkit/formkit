@@ -12,7 +12,7 @@ export interface FormKitEventListener {
 }
 
 /**
- * The internal structure of a FormKitEvent
+ * The internal structure of a FormKitEvent.
  *
  * @public
  */

@@ -44,7 +44,7 @@ export type FormKitRootConfig = Partial<FormKitConfig> & {
  *
  * @param options - An object of optional properties of {@link FormKitConfig | FormKitConfig}.
  *
- * @returns A {@link FormKitRootConfig | FormKitRootConfig}
+ * @returns A {@link FormKitRootConfig | FormKitRootConfig}.
  *
  * @public
  */

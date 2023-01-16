@@ -99,7 +99,7 @@ export interface FormKitLibrary {
 }
 
 /**
- * The base interface definition for a FormKitPlugin — it's just a function that
+ * The base interface definition for a FormKitPlugin. It's just a function that
  * accepts a node argument.
  *
  * @public
@@ -151,8 +151,8 @@ export interface FormKitHooks {
 }
 
 /**
- * The definition of a FormKitTrap — these are somewhat like methods on each
- * FormKitNode — they are always symmetrical (get/set), although it's acceptable
+ * The definition of a FormKitTrap. These are somewhat like methods on each
+ * FormKitNode. They are always symmetrical (get/set) — although it's acceptable
  * for either to throw an Exception.
  *
  * @public
@@ -195,7 +195,7 @@ export interface FormKitGroupValue {
 export type FormKitListValue<T = any> = Array<T>
 
 /**
- * Arbitrary data that has properties, could be a POJO, could be an array.
+ * Arbitrary data that has properties. Could be a POJO, could be an array.
  *
  * @public
  */
@@ -475,7 +475,7 @@ export interface FormKitFrameworkContext {
 
 /**
  * The state inside a node’s framework context. Usually used to track things
- * like blurred, and validity states.
+ * like blurred and validity states.
  *
  * @public
  */
@@ -583,33 +583,40 @@ export interface FormKitChildValue {
  * are instances of nodes.
  *
  * @param add -
- * Add a child to a node, the node must be a group or list.
+ * Add a child to a node. The node must be a group or list.
  *
  * @param addProps -
- * Adds props to the given node by removing them from node.props.attrs and moving them to the top-level node.props object.
+ * Adds props to the given node by removing them from node.props.attrs and
+ * moving them to the top-level node.props object.
  *
  * @param at -
  * Gets a node at another address. Addresses are dot-syntax paths (or arrays) of node names.
  * For example: `form.users.0.first_name`. There are a few "special" traversal tokens as well:
  *
- * * $root - Selects the root node
- * * $parent - Selects the parent node
- * * $self — Selects the current node
+ * - `$root` - Selects the root node.
+ *
+ * - `$parent` - Selects the parent node.
+ *
+ * - `$self` — Selects the current node.
  *
  * @param address -
- * The address of the current node, from the root of the tree.
+ * The address of the current node from the root of the tree.
+ *
  *
  * @param clearErrors -
  * Clears the errors of the node, and optionally all the children.
  *
  * @param config -
- * An object of {@link FormKitConfig | FormKitConfig} that is shared tree-wide with various configuration options that should be applied to the entire tree.
+ * An object of {@link FormKitConfig | FormKitConfig} that is shared tree-wide
+ * with various configuration options that should be applied to the entire tree.
  *
  * @param define -
- * Defines the current input's library type definition including node type, schema, and props.
+ * Defines the current input's library type definition including node type,
+ * schema, and props.
  *
  * @param destroy -
- * Removes the node from the global registry, removes it from its parent, and emits the 'destroying' event.
+ * Removes the node from the global registry, its parent, and emits the
+ * 'destroying' event.
  *
  * @param each -
  * Perform given callback on each of the given node's children.
@@ -628,7 +635,8 @@ export interface FormKitChildValue {
  * should use this function as it ensures the tree's state is always fully tracked.
  *
  * @param name -
- * The name of the input in the node tree. When a node is a child of a list this automatically becomes its index.
+ * The name of the input in the node tree. When a node is a child of a list,
+ * this automatically becomes its index.
  *
  * @param on -
  * Adds an event listener for a given event, and returns a "receipt" which is a random string token.
@@ -641,7 +649,7 @@ export interface FormKitChildValue {
  * Receipts can be shared among many event listeners by explicitly declaring the "receipt" property of the listener function.
  *
  * @param remove -
- * Removes a child from the node
+ * Removes a child from the node.
  *
  * @param resetConfig -
  * Resets the configuration of a node.
@@ -661,7 +669,7 @@ export interface FormKitChildValue {
  *
  * @param t -
  * A text or translation function that exposes a given string to the "text"
- * hook — all text shown to users should be passed through this function
+ * hook. All text shown to users should be passed through this function
  * before being displayed — especially for core and plugin authors.
  *
  * @param isSettled -
@@ -670,11 +678,11 @@ export interface FormKitChildValue {
  * @param use -
  * Registers a new plugin on the node and its subtree.
  *
- * * run = should the plugin be executed or not
- * * library = should the plugin's library function be executed (if there)
+ * - run = should the plugin be executed or not.
+ * - library = should the plugin's library function be executed (if there).
  *
  * @param walk -
- * Performs a function on the node and every node in the subtree.
+ * Performs a function on the node and every node in its subtree.
  * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
  *
  * @public
@@ -706,15 +714,15 @@ export type FormKitNode = {
   addProps: (props: string[]) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
-   * of node names. For example: form.users.0.first_name There are a few
+   * of node names. For example: form.users.0.first_name. There are a few
    * "special" traversal tokens as well:
-   * $root - Selects the root node
-   * $parent - Selects the parent node
-   * $self — Selects the current node
+   * - $root - Selects the root node
+   * - $parent - Selects the parent node
+   * - $self — Selects the current node
    */
   at: (address: FormKitAddress | string) => FormKitNode | undefined
   /**
-   * The address of the current node, from the root of the tree.
+   * The address of the current node from the root of the tree.
    */
   address: FormKitAddress
   /**
@@ -736,7 +744,7 @@ export type FormKitNode = {
    */
   config: FormKitConfig
   /**
-   * Defines the current input's library type definition including node type,
+   * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
   define: (definition: FormKitTypeDefinition) => void
@@ -748,8 +756,8 @@ export type FormKitNode = {
    */
   disturb: () => FormKitNode
   /**
-   * Removes the node from the global registry, removes it from its parent, and
-   * emits the 'destroying' event.
+   * Removes the node from the global registry, its parent, and emits the
+   * 'destroying' event.
    */
   destroy: () => void
   /**
@@ -784,7 +792,7 @@ export type FormKitNode = {
    */
   input: (value: unknown, async?: boolean) => Promise<unknown>
   /**
-   * The name of the input in the node tree. When a node is a child of a list
+   * The name of the input in the node tree. When a node is a child of a list,
    * this automatically becomes its index.
    */
   name: string
@@ -813,7 +821,7 @@ export type FormKitNode = {
    */
   root: FormKitNode
   /**
-   * Sets the configuration of a node.
+   * Resets the configuration of a node.
    */
   resetConfig: () => void
   /**
@@ -821,7 +829,7 @@ export type FormKitNode = {
    */
   reset: () => FormKitNode
   /**
-   * Sets errors on the input, and optionally, and child inputs.
+   * Sets errors on the input, and optionally to child inputs.
    */
   setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
   /**
@@ -835,7 +843,7 @@ export type FormKitNode = {
   submit: () => void
   /**
    * A text or translation function that exposes a given string to the "text"
-   * hook — all text shown to users should be passed through this function
+   * hook. All text shown to users should be passed through this function
    * before being displayed — especially for core and plugin authors.
    */
   t: (key: string | FormKitTextFragment) => string
@@ -917,7 +925,7 @@ export const valueInserted = Symbol('inserted')
  * A simple type guard to determine if the context being evaluated is a list
  * type.
  *
- * @param arg - A {@link FormKitContextShape | FormKitContextShape}
+ * @param arg - A {@link FormKitContextShape | FormKitContextShape}.
  *
  * @returns Returns a `boolean`.
  *
@@ -928,7 +936,7 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
 }
 
 /**
- * Determine if a given object is a node:
+ * Determine if a given object is a node.
  *
  * @example
  *
@@ -949,7 +957,7 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
  * // true
  * ```
  *
- * @param node - Any value
+ * @param node - Any value.
  *
  * @returns Returns a `boolean`.
  *
@@ -1065,7 +1073,7 @@ let nameCount = 0
 let idCount = 0
 
 /**
- * Reports the global number of node registrations, useful for deterministic
+ * Resets the global number of node registrations, useful for deterministic
  * node naming.
  *
  * @public
@@ -1076,11 +1084,11 @@ export function resetCount(): void {
 }
 
 /**
- * Create a name based dictionary of all children in an array.
+ * Create a name-based dictionary of all children in an array.
  *
- * @param children - An array of {@link FormKitNode | FormKitNode}
+ * @param children - An array of {@link FormKitNode | FormKitNode}.
  *
- * @returns A dictionary of named {@link FormKitNode | FormKitNode}
+ * @returns A dictionary of named {@link FormKitNode | FormKitNode}.
  *
  * @public
  */
@@ -1113,9 +1121,9 @@ function createName(options: FormKitOptions): string | symbol {
  * Creates the initial value for a node based on the options passed in and the
  * type of the input.
  *
- * @param options - A {@link FormKitOptions | FormKitOptions}
+ * @param options - A {@link FormKitOptions | FormKitOptions}.
  *
- * @returns 'unknown'
+ * @returns `unknown`
  *
  * @public
  */
@@ -1909,9 +1917,9 @@ function find(
  * Perform a breadth-first search on a node subtree and locate the first
  * instance of a match.
  *
- * @param tree - A {@link FormKitNode | FormKitNode}
- * @param searchValue - A value to be searched
- * @param searchGoal - A goal value
+ * @param tree - A {@link FormKitNode | FormKitNode} to start from.
+ * @param searchValue - A value to be searched.
+ * @param searchGoal - A goal value.
  *
  * @returns A {@link FormKitNode | FormKitNode } or `undefined`.
  *
@@ -2308,7 +2316,7 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
 }
 
 /**
- * Creates a new instance of a FormKit Node. Nodes are the atomic unit of a FormKit graph:
+ * Creates a new instance of a FormKit Node. Nodes are the atomic unit of a FormKit graph.
  *
  * @example
  *

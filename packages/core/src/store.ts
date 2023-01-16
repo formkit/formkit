@@ -3,7 +3,7 @@ import { error } from './errors'
 import { has, token, slugify } from '@formkit/utils'
 
 /**
- * The structure of an core FormKitMessage. These messages are used to store
+ * The structure of a core FormKitMessage. These messages are used to store
  * information about the state of a node.
  *
  * @public
@@ -73,7 +73,7 @@ export interface FormKitMessageMeta {
 }
 
 /**
- * Defines the actual store of messages (private).
+ * Defines the actual store of messages.
  *
  * @public
  */
@@ -126,10 +126,10 @@ export interface FormKitStoreTraps {
 /**
  * Creates a new FormKitMessage object.
  *
- * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}
- * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}
+ * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}.
+ * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}.
  *
- * @returns A {@link FormKitMessageProps | FormKitMessageProps}
+ * @returns A {@link FormKitMessageProps | FormKitMessageProps}.
  *
  * @public
  */
