@@ -279,6 +279,7 @@ export type FormKitProps = {
     ((ctx: { name: string; args: any[]; node: FormKitNode }) => string) | string
   >
   definition?: FormKitTypeDefinition
+  context?: FormKitFrameworkContext
   [index: string]: any
 } & FormKitConfig
 
@@ -437,6 +438,10 @@ export interface FormKitFrameworkContext {
    * this will be populated with a properly structured list of options.
    */
   options?: Array<Record<string, any> & { label: string; value: any }>
+  /**
+   * Whether or not to render messages in the standard location.
+   */
+  defaultMessagePlacement: boolean
   /**
    * A collection of state trackers/details about the input.
    */

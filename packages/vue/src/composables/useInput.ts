@@ -21,6 +21,7 @@ import {
   slugify,
   isObject,
   token,
+  undefine,
 } from '@formkit/utils'
 import {
   toRef,
@@ -319,6 +320,9 @@ export function useInput(
    */
   watchEffect(() => {
     const attrs = except(nodeProps(context.attrs), pseudoPropNames.value)
+    // An explicit exception to ensure naked "multiple" attributes appear on the
+    // outer wrapper as data-multiple="true"
+    if ('multiple' in attrs) attrs.multiple = undefine(attrs.multiple)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

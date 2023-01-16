@@ -242,6 +242,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     messages,
     node: markRaw(node),
     options: node.props.options,
+    defaultMessagePlacement: true,
     state: {
       blurred: false,
       complete: isComplete,
