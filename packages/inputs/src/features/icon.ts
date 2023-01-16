@@ -3,10 +3,10 @@ import { FormKitNode } from '@formkit/core'
 /**
  * Adds icon props definition.
  *
- * @param sectionKey - the location the icon should be loaded
- * @param defaultIcon - the icon that should be loaded if a match is found in the user's CSS
+ * @param sectionKey - the location the icon should be loaded.
+ * @param defaultIcon - the icon that should be loaded if a match is found in the user's CSS.
  *
- * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}.
  *
  * @public
  */

@@ -2,11 +2,11 @@ import { FormKitMiddleware, FormKitNode } from '@formkit/core'
 import { extend, kebab } from '@formkit/utils'
 
 /**
- * A feature that ormalize the boxes.
+ * A feature that normalizes box types (checkboxes, radios).
  *
  * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
  *
- * @returns A {@link @formkit/node#FormKitMiddleware | FormKitMiddleware}
+ * @returns A {@link @formkit/node#FormKitMiddleware | FormKitMiddleware}.
  *
  * @public
  */

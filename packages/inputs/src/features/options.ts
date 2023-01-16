@@ -84,7 +84,8 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
 }
 
 /**
- * A feature that converts the options prop to usable values, to used as a feature or a plugin.
+ * A feature that converts the options prop to usable values, to be used by a
+ * feature or a plugin.
  *
  * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
  *

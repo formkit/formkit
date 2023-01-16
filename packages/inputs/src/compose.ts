@@ -210,9 +210,12 @@ export interface FormKitSection<T = FormKitSchemaExtendableSection> {
  *
  * @param section - A single section of schema
  * @param el - The element or a function that returns a schema node.
- * @param root - When true, returns an extendable root schema node.
+ * @param root - When true, returns a FormKitExtendableSchemaRoot. When false,
+ * returns a FormKitSchemaExtendableSection.
  *
- * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
+ * @returns Returns a {@link @formkit/core#FormKitExtendableSchemaRoot
+ * | FormKitExtendableSchemaRoot} or a {@link
+ * @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}.
  *
  * @public
  */
@@ -311,8 +314,9 @@ function createRoot(
  * Applies attributes to a given schema section by applying a higher order
  * function that merges a given set of attributes into the node.
  *
- * @param attrs - Apply attributes to a FormKitSchemaExtendableSection
- * @param section - A section to apply attributes to
+ * @param attrs - Attributes to apply to a {@link FormKitSchemaExtendableSection
+ * | FormKitSchemaExtendableSection}.
+ * @param section - A section to apply attributes to.
  *
  * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
  *
@@ -388,7 +392,7 @@ export function $if(
  *
  * @param varName - The name of the variable that holds the current instance.
  * @param inName - The variable we are iterating over.
- * @param section - A section to repeat
+ * @param section - A section to repeat.
  *
  * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
  *

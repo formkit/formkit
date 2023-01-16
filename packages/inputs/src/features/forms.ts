@@ -79,7 +79,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
 }
 
 /**
- * A feature to add submiting handler and actions section
+ * A feature to add a submit handler and actions section.
  *
  * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
  *
