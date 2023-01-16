@@ -1,5 +1,5 @@
 import { FormKitMiddleware, FormKitNode } from '@formkit/core'
-import { extend, kebab } from '@formkit/utils'
+import { extend, slugify } from '@formkit/utils'
 
 /**
  * Normalize the boxes.
@@ -15,7 +15,7 @@ export default function normalizeBoxes(
       prop.value = prop.value.map((option) => {
         if (!option.attrs?.id) {
           return extend(option, {
-            attrs: { id: `${node.name}-option-${kebab(String(option.value))}` },
+            attrs: { id: `${node.name}-option-${slugify(String(option.value))}` },
           })
         }
         return option
