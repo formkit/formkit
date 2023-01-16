@@ -342,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Syötä validi url-osoite.`
+    return `Anna kelvollinen URL-osoite.`
     /* </i18n> */
   },
 }
