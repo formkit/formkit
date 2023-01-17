@@ -873,7 +873,7 @@ describe('programmatic submission', () => {
           @submit="submitHandler"
         >
           <FormKit name="foo" type="number" :delay="0" validation="required" />
-          <FormKit name="bar" type="select" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
+          <FormKit name="bar" type="select" :delay="0" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
         </FormKit>
       `,
         methods: {
