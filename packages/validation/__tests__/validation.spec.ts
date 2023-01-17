@@ -6,7 +6,7 @@ import {
   FormKitValidationRule,
   getValidationMessages,
 } from '../src/validation'
-import { createNode } from '@formkit/core'
+import { createNode, FormKitNode } from '@formkit/core'
 import { jest } from '@jest/globals'
 
 const defaultValidation = {
@@ -684,5 +684,26 @@ describe('getValidationMessages', () => {
         [node.at('form.bam'), [node.at('form.bam')?.store.rule_required]],
       ])
     )
+  })
+
+  it('does not reboot when the validation rules are the same (#514)', () => {
+    // Let's pretend this is an expensive API call.
+    const username_exists = jest.fn(function ({ value }: FormKitNode) {
+      return new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(value === 'formkit-4-life'), 200)
+      })
+    })
+
+    const node = createNode({
+      value: 'foobar',
+      plugins: [validationPlugin],
+      props: {
+        validation: 'username_exists',
+        validationRules: { username_exists },
+      },
+    })
+    expect(username_exists).toHaveBeenCalledTimes(1)
+    node.props.validationRules = { username_exists }
+    expect(username_exists).toHaveBeenCalledTimes(1)
   })
 })

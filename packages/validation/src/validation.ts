@@ -161,10 +161,8 @@ const validatingMessage = createMessage({
  */
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
   return function validationPlugin(node: FormKitNode): void {
-    let availableRules = {
-      ...baseRules,
-      ...cloneAny(node.props.validationRules),
-    }
+    let propRules = cloneAny(node.props.validationRules || {})
+    let availableRules = { ...baseRules, ...propRules }
     // create an observed node
     let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
@@ -184,9 +182,14 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       newValidation: undefined | string | FormKitValidationIntent[],
       newRules: FormKitValidationRules
     ) {
-      if (eq(availableRules, newRules) && eq(validation, newValidation)) return
+      if (
+        eq(Object.keys(propRules || {}), Object.keys(newRules || {})) &&
+        eq(validation, newValidation)
+      )
+        return
+      propRules = cloneAny(newRules)
       validation = cloneAny(newValidation)
-      availableRules = { ...baseRules, ...cloneAny(node.props.validationRules) }
+      availableRules = { ...baseRules, ...propRules }
       // Destroy all observers that may re-trigger validation on an old stack
       removeListeners(observedNode.receipts)
       // Remove all existing messages before re-validating
