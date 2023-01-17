@@ -585,6 +585,21 @@ export interface FormKitChildValue {
  * @param add -
  * Add a child to a node. The node must be a group or list.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * add: (node: FormKitNode, index?: number) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `node` — A {@link FormKitNode | FormKitNode}
+ * - `index` *optional* — A index to where it will added to
+ *
+ * #### Returns
+ *
+ * The added {@link FormKitNode | FormKitNode}
+ *
  * @param addProps -
  * Adds props to the given node by removing them from node.props.attrs and
  * moving them to the top-level node.props object.
