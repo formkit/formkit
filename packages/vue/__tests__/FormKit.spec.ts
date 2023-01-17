@@ -323,6 +323,32 @@ describe('v-model', () => {
     await nextTick()
     expect(wrapper.find('.formkit-help').text()).toBe('false')
   })
+
+  it('can v-model using undefined refs', async () => {
+    const formData = ref<undefined | { username: string }>()
+    const wrapper = mount(
+      {
+        setup() {
+          return {
+            formData,
+          }
+        },
+        template: `<FormKit type="form" v-model="formData">
+          <FormKit type="text" name="username" />
+          <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
+    formData.value = { username: 'foo' }
+    await nextTick()
+    expect(wrapper.find('input').element.value).toBe('foo')
+  })
 })
 
 describe('events', () => {
@@ -1040,7 +1066,7 @@ describe('classes', () => {
     )
   })
 
-  it.only('can can remove existing classes if class name string is prefixed with a ! operator', () => {
+  it('can can remove existing classes if class name string is prefixed with a ! operator', () => {
     const wrapper = mount(FormKit, {
       props: {
         name: 'classTest',

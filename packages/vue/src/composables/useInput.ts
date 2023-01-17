@@ -154,9 +154,11 @@ export function useInput(
   const listeners = onlyListeners(instance?.vnode.props)
 
   /**
-   * Determines if the prop is v-modeled.
+   * Determines if the prop is v-modeled. Credit to:
+   * {@link https://github.com/LinusBorg | Thorsten Lünborg}
+   * for coming up with this solution.
    */
-  const isVModeled = props.modelValue !== undefined
+  const isVModeled = 'modelValue' in (instance?.vnode.props ?? {})
 
   /**
    * Determines if the object being passed as a v-model is reactive.
