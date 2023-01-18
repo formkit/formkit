@@ -593,16 +593,43 @@ export interface FormKitChildValue {
  *
  * #### Parameters
  *
- * - `node` — A {@link FormKitNode | FormKitNode}
- * - `index` *optional* — A index to where it will added to
+ * - `node` — A {@link FormKitNode | FormKitNode}.
+ * - `index` *optional* — A index to where it will added to.
  *
  * #### Returns
  *
- * The added {@link FormKitNode | FormKitNode}
+ * The added {@link FormKitNode | FormKitNode}.
+ *
+ * @param address -
+ * The address of the current node from the root of the tree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * address: FormKitAddress
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitAddress | FormKitAddress}.
  *
  * @param addProps -
  * Adds props to the given node by removing them from node.props.attrs and
  * moving them to the top-level node.props object.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * addProps: (props: string[]) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `props` — An array of strings to be added as keys for props.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
  *
  * @param at -
  * Gets a node at another address. Addresses are dot-syntax paths (or arrays) of node names.
@@ -612,44 +639,257 @@ export interface FormKitChildValue {
  * - $parent — Selects the parent node.
  * - $self — Selects the current node.
  *
- * @param address -
- * The address of the current node from the root of the tree.
+ * #### Signature
  *
+ * ```typescript
+ * at: (address: FormKitAddress | string) => FormKitNode | undefined
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `address` — An valid string or {@link FormKitAddress | FormKitAddress}.
+ *
+ * #### Returns
+ *
+ * The found {@link FormKitNode | FormKitNode} or `undefined`.
+ *
+ * @param children -
+ * An array of child nodes (groups and lists).
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * children: Array<FormKitNode>
+ * ```
+ *
+ * #### Returns
+ *
+ * An array of {@link FormKitNode | FormKitNode}.
  *
  * @param clearErrors -
  * Clears the errors of the node, and optionally all the children.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * clearErrors: (clearChildren?: boolean, sourceKey?: string) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `clearChildren` *optional* — If it should clear the children.
+ * - `sourceKey` *optional* — A source key to use for reset.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
  *
  * @param config -
  * An object of {@link FormKitConfig | FormKitConfig} that is shared tree-wide
  * with various configuration options that should be applied to the entire tree.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * config: FormKitConfig
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitConfig | FormKitConfig}.
+ *
  * @param define -
  * Defines the current input's library type definition including node type,
  * schema, and props.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * define: (definition: FormKitTypeDefinition) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `definition` — A {@link FormKitTypeDefinition | FormKitTypeDefinition}.
  *
  * @param destroy -
  * Removes the node from the global registry, its parent, and emits the
  * 'destroying' event.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * destroy: () => void
+ * ```
+ *
  * @param each -
  * Perform given callback on each of the given node's children.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * each: (callback: FormKitChildCallback) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `callback` — A {@link FormKitChildCallback | FormKitChildCallback} to be called for each child.
  *
  * @param emit -
  * Emit an event from the node so it can be listened by {@link on | on}.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `event` — The event name to be emitted.
+ * - `payload` *optional* — A value to be passed together with the event.
+ * - `bubble` *optional* — If the event should bubble to the parent.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
  * @param find -
  * Within a given tree, find a node matching a given selector. Selectors can be simple strings or a function.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * find: (
+ *  selector: string,
+ *  searcher?: keyof FormKitNode | FormKitSearchFunction
+ * ) => FormKitNode | undefined
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `selector` — A selector string.
+ * - `searcher` *optional* — A keyof {@link FormKitNode | FormKitNode} or {@link FormKitSearchFunction | FormKitSearchFunction}.
+ *
+ * #### Returns
+ *
+ * The found {@link FormKitNode | FormKitNode} or `undefined`.
+ *
+ * @param hook -
+ * Set of hooks
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * hook: FormKitHooks
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitHooks | FormKitHooks}.
+ *
  * @param index -
  * The index of a node compared to its siblings. This is only applicable in cases where a node is a child of a list.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * index: number
+ * ```
+ *
+ * #### Returns
+ *
+ * A `number`
  *
  * @param input -
  * The function used to set the value of a node. All changes to a node's value
  * should use this function as it ensures the tree's state is always fully tracked.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * input: (value: unknown, async?: boolean) => Promise<unknown>
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `value` — Any value to used for the node.
+ * - `async` *optional* — If the input should happen asynchronously.
+ *
+ * #### Returns
+ *
+ * A `Promise<unknown>`.
+ *
+ * @param isCreated -
+ * Begins as false, set to true when the node is finished being created.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * isCreated: boolean
+ * ```
+ *
+ * #### Returns
+ *
+ * A `boolean`.
+ *
+ * @param isSettled -
+ * Boolean reflecting the settlement state of the node and its subtree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * isSettled: boolean
+ * ```
+ *
+ * #### Returns
+ *
+ * A `boolean`.
+ *
+ * @param ledger -
+ * A counting ledger for arbitrary message counters.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * ledger: FormKitLedger
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitLedger | FormKitLedger}.
+ *
  * @param name -
  * The name of the input in the node tree. When a node is a child of a list,
  * this automatically becomes its index.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * name: string
+ * ```
+ *
+ * #### Returns
+ *
+ * A `string`.
+ *
+ * @param off -
+ * Removes an event listener by its token.
+ * Receipts can be shared among many event listeners by explicitly declaring the "receipt" property of the listener function.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * off: (receipt: string) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `receipt` — A receipt generated by the `on` function.
+ *
+ * #### Returns
+ *
+ * A receipt `string`.
  *
  * @param on -
  * Adds an event listener for a given event, and returns a "receipt" which is a random string token.
@@ -657,46 +897,221 @@ export interface FormKitChildValue {
  * Alternatively you can assign a "receipt" property to the listener function and that receipt will be used instead.
  * This allows multiple listeners to all be de-registered with a single off() call if they share the same receipt.
  *
- * @param off -
- * Removes an event listener by its token.
- * Receipts can be shared among many event listeners by explicitly declaring the "receipt" property of the listener function.
+ * #### Signature
+ *
+ * ```typescript
+ * on: (eventName: string, listener: FormKitEventListener) => string
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `eventName` — The event name to listen to.
+ * - `listener` — A {@link FormKitEventListener | FormKitEventListener} to run when the event happens.
+ *
+ * #### Returns
+ *
+ * A receipt `string`.
+ *
+ * @param parent -
+ * The parent of a node.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * parent: FormKitNode | null
+ * ```
+ *
+ * #### Returns
+ *
+ * If found a {@link FormKitNode | FormKitNode} or `null`.
+ *
+ * @param props -
+ * An proxied object of props. These are typically provided by the adapter
+ * of choice.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * props: Partial<FormKitProps>
+ * ```
+ *
+ * #### Returns
+ *
+ * An optional list of {@link FormKitProps | FormKitProps}.
  *
  * @param remove -
  * Removes a child from the node.
  *
- * @param resetConfig -
- * Resets the configuration of a node.
+ * #### Signature
+ *
+ * ```typescript
+ * remove: (node: FormKitNode) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `node` — A {@link FormKitNode | FormKitNode} to be removed.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
  *
  * @param reset -
  * Resets the node’s value back to its original value.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * reset: () => FormKitNode
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param root -
+ * Retrieves the root node of a tree. This is accomplished via tree-traversal
+ * on-request, and as such should not be used in frequently called functions.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * root: FormKitNode
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
  * @param setErrors -
  * Sets errors on the input, and optionally to child inputs.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `localErrors` — A {@link ErrorMessages | ErrorMessages} to be used.
+ * - `childErrors` *optional* — A {@link ErrorMessages | ErrorMessages} to be used for children.
  *
  * @param settled -
  * A promise that resolves when a node and its entire subtree is settled.
  * In other words — all the inputs are done committing their values.
  *
+ * #### Signature
+ *
+ * ```typescript
+ * settled: Promise<unknown>
+ * ```
+ *
+ * #### Returns
+ *
+ * A `Promise<unknown>`.
+ *
+ * @param store -
+ * The internal node store.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * store: FormKitStore
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitStore | FormKitStore}.
+ *
  * @param submit -
  * Triggers a submit event on the nearest form.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * submit: () => void
+ * ```
  *
  * @param t -
  * A text or translation function that exposes a given string to the "text"
  * hook. All text shown to users should be passed through this function
  * before being displayed — especially for core and plugin authors.
  *
- * @param isSettled -
- * Boolean reflecting the settlement state of the node and its subtree.
+ * #### Signature
+ *
+ * ```typescript
+ * t: (key: string | FormKitTextFragment) => string
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `key` — A key or a {@link FormKitTextFragment | FormKitTextFragment} to find the translation for.
+ *
+ * #### Returns
+ *
+ * The translated `string`.
+ *
+ * @param type -
+ * The type of node, should only be 'input', 'list', or 'group'.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * type: FormKitNodeType
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitNodeType | FormKitNodeType}.
  *
  * @param use -
  * Registers a new plugin on the node and its subtree.
  *
- * - run = should the plugin be executed or not.
- * - library = should the plugin's library function be executed (if there).
+ * #### Signature
+ *
+ * ```typescript
+ * use: (
+ *  plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>,
+ *  run?: boolean,
+ *  library?: boolean
+ * ) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `plugin` — A {@link FormKitPlugin | FormKitPlugin} or an Array or Set of {@link FormKitPlugin | FormKitPlugin}.
+ * - `run` *optional* — Should the plugin be executed on creation.
+ * - `library` *optional* — Should the plugin's library function be executed on creation.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param value -
+ * The value of the input. This should never be directly modified. Any
+ * desired mutations should be made through {@link input | input}.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * readonly value: unknown
+ * ```
  *
  * @param walk -
  * Performs a function on the node and every node in its subtree.
  * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `callback` — A {@link FormKitChildCallback | FormKitChildCallback} to be executed for each child.
+ * - `stopOnFalse` *optional* — If it should stop when the return is false.
  *
  * @public
  */
