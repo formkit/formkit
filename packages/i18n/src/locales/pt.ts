@@ -5,7 +5,7 @@ import { FormKitValidationMessages } from '@formkit/validation'
  * language. Feel free to add additional helper methods to libs/formats if it
  * assists in creating good validation messages for your locale.
  */
-import { sentence as s, list, date } from '../formatters'
+import { sentence as s, list, date, order } from '../formatters'
 import { FormKitLocaleMessages } from '../i18n'
 
 /**
@@ -16,7 +16,7 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons for adding new items.
    */
-  add: 'Adicionar',
+  add: 'Incluir',
   /**
    * Shown when a button to remove items is visible.
    */
@@ -24,11 +24,11 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when there are multiple items to remove at the same time.
    */
-  removeAll: 'Deletar tudo',
+  removeAll: 'Remover todos',
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Desculpe, nem todos os campos foram preenchidos corretamente.',
+  incomplete: 'Desculpe, alguns campos não foram preenchidos corretamente.',
   /**
    * Shown in a button inside a form to submit the form.
    */
@@ -36,15 +36,15 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when no files are selected.
    */
-  noFiles: 'Nenhum arquivo',
+  noFiles: 'Nenhum arquivo selecionado.',
   /**
    * Shown on buttons that move fields up in a list.
    */
-  moveUp: 'Mova-se para cima',
+  moveUp: 'Mover para cima',
   /**
    * Shown on buttons that move fields down in a list.
    */
-  moveDown: 'Mova-se para baixo',
+  moveDown: 'Mover para baixo',
   /**
    * Shown when something is actively loading.
    */
@@ -52,7 +52,7 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown when there is more to load.
    */
-  loadMore: 'Carregue mais',
+  loadMore: 'Carregar mais',
 }
 
 /**
@@ -77,11 +77,11 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `${s(name)} deve ser posterior a ${date(args[0])}.`
+      return `${s(name)} precisa ser depois de ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
-    return `${s(name)} deve ser no futuro.`
+    return `${s(name)} precisa ser no futuro.`
     /* </i18n> */
   },
 
@@ -91,7 +91,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `${s(name)} só pode conter caracteres do alfabeto.`
+    return `${s(name)} precisa conter apenas letras.`
     /* </i18n> */
   },
 
@@ -101,7 +101,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `${s(name)} só pode ter letras e números.`
+    return `${s(name)} pode conter apenas letras e números.`
     /* </i18n> */
   },
 
@@ -111,7 +111,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
-    return `${s(name)} só podem conter letras e espaços.`
+    return `${s(name)} pode conter apenas números e espaços.`
     /* </i18n> */
   },
 
@@ -122,11 +122,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `${s(name)} deve ser anterior a ${date(args[0])}.`
+      return `${s(name)} precisa ser antes de ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `${s(name)} deve ser anterior a data atual.`
+    return `${s(name)} precisa ser no passado.`
     /* </i18n> */
   },
 
@@ -137,11 +137,12 @@ export const validation: FormKitValidationMessages = {
   between({ name, args }) {
     if (isNaN(args[0]) || isNaN(args[1])) {
       /* <i18n case="Shown when any of the arguments supplied to the rule were not a number."> */
-      return `O campo foi configurado incorretamente e não pode ser enviado.`
+      return `Este campo não foi configurado corretamente e não pode ser submetido.`
       /* </i18n> */
     }
+    const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${s(name)} deve estar entre ${args[0]} e ${args[1]}.`
+    return `${s(name)} precisa ser entre ${a} e ${b}.`
     /* </i18n> */
   },
 
@@ -151,7 +152,7 @@ export const validation: FormKitValidationMessages = {
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
-    return `${s(name)} não confere.`
+    return `${s(name)} não é igual.`
     /* </i18n> */
   },
 
@@ -162,13 +163,13 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} não é uma data válida, por favor use o formato ${
+      return `${s(name)} não é uma data válida, por favor use este formato ${
         args[0]
       }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
-    return 'O campo foi configurado incorretamente e não pode ser enviado.'
+    return 'Este campo não foi configurado corretamente e não pode ser submetido.'
     /* </i18n> */
   },
 
@@ -178,7 +179,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} deve ser entre ${date(args[0])} e ${date(args[1])}`
+    return `${s(name)} precisa ser entre ${date(args[0])} e ${date(args[1])}`
     /* </i18n> */
   },
 
@@ -186,7 +187,7 @@ export const validation: FormKitValidationMessages = {
    * Shown when the user-provided value is not a valid email address.
    * @see {@link https://formkit.com/essentials/validation#email}
    */
-  email: 'Por favor informe um e-mail válido.',
+  email: 'Por favor, insira um endereço de email válido.',
 
   /**
    * Does not end with the specified value
@@ -217,26 +218,26 @@ export const validation: FormKitValidationMessages = {
     const max = second >= first ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `${s(name)} deve ter ao menos um caractere.`
+      return `${s(name)} precisa conter ao menos um caractere.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} não pode ter mais que ${max} caracteres.`
+      return `${s(name)} precisa ser menor ou igual a ${max} caracteres.`
       /* </i18n> */
     }
     if (min === max) {
       /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
-      return `${s(name)} deve ter ${max} caracteres.`
+      return `${s(name)} precisa conter ${max} caracteres.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} deve ter no mínimo ${min} caracteres.`
+      return `${s(name)} precisa ser maior ou igual a ${min} caracteres.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${s(name)} deve ter entre ${min} e ${max} caracteres.`
+    return `${s(name)} precisa ter entre ${min} e ${max} caracteres.`
     /* </i18n> */
   },
 
@@ -257,11 +258,11 @@ export const validation: FormKitValidationMessages = {
   max({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is longer than the max supplied to the rule."> */
-      return `Não pode ter mais que ${args[0]} ${name}.`
+      return `Não pode ter mais de ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} deve ser igual ou menor que ${args[0]}.`
+    return `${s(name)} precisa ser menor ou igual a ${args[0]}.`
     /* </i18n> */
   },
 
@@ -272,11 +273,11 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'Nenhum formato de arquivo permitido.'
+      return 'Não há formatos de arquivos permitidos.'
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
-    return `${s(name)} deve ser do tipo: ${args[0]}`
+    return `${s(name)} precisa ser do tipo: ${args[0]}`
     /* </i18n> */
   },
 
@@ -287,11 +288,11 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `Não pode ter menos que ${args[0]} ${name}.`
+      return `Não pode ter menos de ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `${s(name)} deve ter pelo menos ${args[0]}.`
+    return `${s(name)} precisa ser pelo menos ${args[0]}.`
     /* </i18n> */
   },
 
@@ -301,7 +302,7 @@ export const validation: FormKitValidationMessages = {
    */
   not({ name, node: { value } }) {
     /* <i18n case="Shown when the user-provided value matches one of the values supplied to (and thus disallowed by) the rule."> */
-    return `“${value}” não permite ${name}.`
+    return `“${value}” não é um(a) ${name} permitido(a).`
     /* </i18n> */
   },
 
@@ -311,7 +312,7 @@ export const validation: FormKitValidationMessages = {
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
-    return `${s(name)} deve ser um número.`
+    return `${s(name)} precisa ser um número.`
     /* </i18n> */
   },
 
@@ -341,7 +342,7 @@ export const validation: FormKitValidationMessages = {
    */
   url() {
     /* <i18n case="Shown when the user-provided value is not a valid url."> */
-    return `Por favor informe um url válido.`
+    return `Por favor, insira uma url válida.`
     /* </i18n> */
   },
 }

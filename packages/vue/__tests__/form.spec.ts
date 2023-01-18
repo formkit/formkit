@@ -1,13 +1,13 @@
 import FormKit from '../src/FormKit'
+import { FormKitMessages } from '../src/FormKitMessages'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
-import { h, nextTick } from 'vue'
 import { jest } from '@jest/globals'
-import { ref, reactive } from 'vue'
+import { ref, reactive, h, nextTick } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -836,6 +836,24 @@ describe('form submission', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.html()).toContain('Woops your phone battery is low')
   })
+
+  it('can unignore the default action with submit-attrs', async () => {
+    const wrapper = mount(
+      {
+        methods: {
+          setLabel(node: FormKitNode) {
+            node.on('created', () => {
+              node.props.label = 'Plugin did run'
+            })
+          },
+        },
+        template: `<FormKit type="form" :plugins="[setLabel]" :submit-attrs="{ ignore: false }">
+      </FormKit>`,
+      },
+      global
+    )
+    expect(wrapper.html()).toContain('Plugin did run')
+  })
 })
 
 describe('programmatic submission', () => {
@@ -855,7 +873,7 @@ describe('programmatic submission', () => {
           @submit="submitHandler"
         >
           <FormKit name="foo" type="number" :delay="0" validation="required" />
-          <FormKit name="bar" type="select" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
+          <FormKit name="bar" type="select" :delay="0" :options="{abc: 'def', xyz: 'bem'}" value="xyz" />
         </FormKit>
       `,
         methods: {
@@ -1139,5 +1157,179 @@ describe('submit-invalid', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 20))
     expect(invalidHandler).toBeCalledTimes(1)
+  })
+})
+
+describe('FormKitMessages', () => {
+  it('can render messages in a new location', async () => {
+    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+      node?.setErrors(['Oops, an error occurred.'])
+    })
+    const wrapper = mount(
+      {
+        methods: {
+          handler,
+        },
+        components: {
+          FormKitMessages,
+        },
+        template: `
+        <FormKit type="form" @submit="handler">
+          <div><FormKitMessages /></div>
+          <FormKit
+            type="text"
+            label="Some field"
+            name="myInput"
+            :delay="0"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.formkit-outer .formkit-messages').exists()).toBe(
+      false
+    )
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+  it('can render messages in a new location', async () => {
+    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+      node?.setErrors(['Oops, an error occurred.'])
+    })
+    const wrapper = mount(
+      {
+        methods: {
+          handler,
+          setNode(node: FormKitNode) {
+            this.node = node
+          },
+        },
+        components: {
+          FormKitMessages,
+        },
+        data() {
+          return {
+            node: null as FormKitNode | null,
+          }
+        },
+        template: `
+        <FormKitMessages :node="node" />
+        <FormKit type="form" @submit="handler" @node="setNode">
+          <FormKit
+            type="text"
+            label="Some field"
+            name="myInput"
+            :delay="0"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('form .formkit-messages').exists()).toBe(false)
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+  it('can render messages in both locations including the original', async () => {
+    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+      node?.setErrors(['Oops, an error occurred.'])
+    })
+    const wrapper = mount(
+      {
+        methods: {
+          handler,
+          setNode(node: FormKitNode) {
+            this.node = node
+          },
+        },
+        components: {
+          FormKitMessages,
+        },
+        data() {
+          return {
+            node: null as FormKitNode | null,
+          }
+        },
+        template: `
+        <div id="container">
+          <FormKitMessages :node="node" :default-position="true" />
+          <FormKit type="form" @submit="handler" @node="setNode">
+            <FormKit
+              type="text"
+              label="Some field"
+              name="myInput"
+              :delay="0"
+            />
+          </FormKit>
+        </div>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(handler).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('form > .formkit-messages').exists()).toBe(true)
+    expect(wrapper.get('#container').findAll('.formkit-messages').length).toBe(
+      2
+    )
+  })
+
+  it('can override the schema of FormKitMessages', async () => {
+    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+      node?.setErrors(['Oops, an error occurred.'])
+    })
+    const wrapper = mount(
+      {
+        methods: {
+          handler,
+        },
+        components: {
+          FormKitMessages,
+        },
+        template: `
+        <FormKit type="form" @submit="handler">
+          <FormKitMessages
+            :sections-schema="{
+              messages: {
+                $el: 'div',
+              }
+            }"
+          />
+          <FormKit
+            type="text"
+            label="Some field"
+            name="myInput"
+            :delay="0"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.find('form > div.formkit-messages').exists()).toBe(true)
   })
 })

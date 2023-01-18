@@ -22,6 +22,7 @@ import {
   $if,
   $extend,
   defaultIcon,
+  disablesChildren as disables,
 } from '../compose'
 
 /**
@@ -91,5 +92,10 @@ export const radio: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [options, radios, defaultIcon('decorator', 'radioDecorator')],
+  features: [
+    disables,
+    options,
+    radios,
+    defaultIcon('decorator', 'radioDecorator'),
+  ],
 }

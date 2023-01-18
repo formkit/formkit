@@ -323,6 +323,32 @@ describe('v-model', () => {
     await nextTick()
     expect(wrapper.find('.formkit-help').text()).toBe('false')
   })
+
+  it('can v-model using undefined refs', async () => {
+    const formData = ref<undefined | { username: string }>()
+    const wrapper = mount(
+      {
+        setup() {
+          return {
+            formData,
+          }
+        },
+        template: `<FormKit type="form" v-model="formData">
+          <FormKit type="text" name="username" />
+          <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-help').text()).toBe('false')
+    formData.value = { username: 'foo' }
+    await nextTick()
+    expect(wrapper.find('input').element.value).toBe('foo')
+  })
 })
 
 describe('events', () => {
@@ -414,6 +440,35 @@ describe('validation', () => {
     expect(wrapper.html()).toContain(
       `<li class="formkit-message" id="${id}-rule_required" data-message-type="validation">Bar is required.</li>`
     )
+  })
+
+  it('can change a label used in the error message', async () => {
+    const id = token()
+    const label = ref('FizBuz')
+    const wrapper = mount(
+      {
+        setup() {
+          return { label }
+        },
+        template: `
+          <FormKit
+            id="${id}"
+            :label="label"
+            validation="required"
+            validation-visibility="live"
+          />
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(`FizBuz is required`)
+    label.value = 'Apple Pie'
+    await nextTick()
+    expect(wrapper.html()).toContain(`Apple Pie is required`)
   })
 
   it('can override the validation label strategy', async () => {
@@ -1037,6 +1092,24 @@ describe('classes', () => {
     })
     expect(wrapper.find('.formkit-outer').html()).toContain(
       'class="formkit-outer test-class-string1 test-class-string2'
+    )
+  })
+
+  it('can can remove existing classes if class name string is prefixed with a ! operator', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        name: 'classTest',
+        classes: {
+          outer: '!formkit-outer test-class-string1',
+        },
+        outerClass: '!test-class-string1 should-be-only-me',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.find('[data-type="text"]').html()).toContain(
+      'class="should-be-only-me'
     )
   })
 

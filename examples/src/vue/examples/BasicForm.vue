@@ -1,6 +1,7 @@
 
 <script setup lang="ts">
-import { setErrors } from '@formkit/vue'
+import { FormKitNode } from '@formkit/core'
+import { setErrors, FormKitMessages } from '@formkit/vue'
 import { ref } from 'vue'
 const data = ref({})
 
@@ -37,6 +38,10 @@ const submitHandler = async function (data: { email: string }) {
   console.log(data)
   setErrors('form', ['This isn’t setup to actually do anything.'])
 }
+const node = ref<FormKitNode | undefined>()
+function setNode(n: FormKitNode) {
+  node.value = n
+}
 </script>
 
 <template>
@@ -46,9 +51,6 @@ const submitHandler = async function (data: { email: string }) {
     type="form"
     @submit="submitHandler"
   >
-    <FormKit
-      type="select"
-    />
     <FormKit
       type="number"
       label="Age"
@@ -63,12 +65,13 @@ const submitHandler = async function (data: { email: string }) {
       placeholder="jon@foo.com"
       validation="required|email|length:16,9"
       validation-visibility="live"
+      outer-class="my-class !formkit-outer"
+      @node="setNode"
     />
     <FormKit
       type="file"
       name="file"
       label="Your file"
-      no-files-icon="upload"
       placeholder="jon@foo.com"
       validation="required"
       validation-visibility="live"
@@ -136,7 +139,6 @@ const submitHandler = async function (data: { email: string }) {
       type="checkbox"
       :label="`Please confirm that you meant to select ${fruit}?`"
     />
-
     <FormKit
       label="What's your favorite plant?"
       multiple
@@ -146,6 +148,5 @@ const submitHandler = async function (data: { email: string }) {
       :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
     />
   </FormKit>
-  <pre>{{ data }}</pre>
 </template>
 

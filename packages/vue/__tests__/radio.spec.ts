@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import { jest } from '@jest/globals'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
+import { ref } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -213,5 +214,35 @@ describe('radios', () => {
       radios.map((radio) => (radio.element as HTMLInputElement).checked)
     ).toEqual([true, false, false])
     expect(getNode(id)!.value).toEqual(null)
+  })
+
+  it('applies undefined to a "false" disabled prop', async () => {
+    const disabled = ref('false')
+    const wrapper = mount(
+      {
+        setup() {
+          return { disabled }
+        },
+        template: `<FormKit
+          type="radio"
+          :disabled="disabled"
+          :options="[
+            { value: null, label: 'foobar' },
+            { value: false, label: 'fruit' },
+            { value: true, label: 'todd' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
+      undefined
+    )
+    disabled.value = 'true'
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
+      'true'
+    )
   })
 })

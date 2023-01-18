@@ -21,6 +21,7 @@ import {
   slugify,
   isObject,
   token,
+  undefine,
 } from '@formkit/utils'
 import {
   toRef,
@@ -153,9 +154,11 @@ export function useInput(
   const listeners = onlyListeners(instance?.vnode.props)
 
   /**
-   * Determines if the prop is v-modeled.
+   * Determines if the prop is v-modeled. Credit to:
+   * {@link https://github.com/LinusBorg | Thorsten Lünborg}
+   * for coming up with this solution.
    */
-  const isVModeled = props.modelValue !== undefined
+  const isVModeled = 'modelValue' in (instance?.vnode.props ?? {})
 
   /**
    * Determines if the object being passed as a v-model is reactive.
@@ -319,6 +322,9 @@ export function useInput(
    */
   watchEffect(() => {
     const attrs = except(nodeProps(context.attrs), pseudoPropNames.value)
+    // An explicit exception to ensure naked "multiple" attributes appear on the
+    // outer wrapper as data-multiple="true"
+    if ('multiple' in attrs) attrs.multiple = undefine(attrs.multiple)
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

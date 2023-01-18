@@ -163,7 +163,7 @@ export interface FormKitTrap {
 export type FormKitAddress = Array<string | number>
 
 /**
- * These are the type of nodes that can be created — these are different from
+ * These are the types of nodes that can be created. These are different from
  * the type of inputs available and rather describe their purpose in the tree.
  * @public
  */
@@ -185,7 +185,7 @@ export interface FormKitGroupValue {
 export type FormKitListValue<T = any> = Array<T>
 
 /**
- * Arbitrary data that has properties, could be a pojo, could be an array.
+ * Arbitrary data that has properties, could be a POJO, could be an array.
  * @public
  */
 export interface KeyedValue {
@@ -226,8 +226,8 @@ export type TrapGetter =
 
 /**
  * The signature for a node's trap setter — these are more rare than getter
- * traps, but can be really useful for blocking access to certain context
- * properties or modifying the behavior of an assignment (ex. see setParent)
+ * traps, but can be useful for blocking access to certain context properties
+ * or modifying the behavior of an assignment (ex. see setParent).
  * @public
  */
 export type TrapSetter =
@@ -279,11 +279,12 @@ export type FormKitProps = {
     ((ctx: { name: string; args: any[]; node: FormKitNode }) => string) | string
   >
   definition?: FormKitTypeDefinition
+  context?: FormKitFrameworkContext
   [index: string]: any
 } & FormKitConfig
 
 /**
- * The interface of the a FormKit node's context object. A FormKit node is a
+ * The interface of a FormKit node's context object. A FormKit node is a
  * proxy of this object.
  * @public
  */
@@ -438,6 +439,10 @@ export interface FormKitFrameworkContext {
    */
   options?: Array<Record<string, any> & { label: string; value: any }>
   /**
+   * Whether or not to render messages in the standard location.
+   */
+  defaultMessagePlacement: boolean
+  /**
    * A collection of state trackers/details about the input.
    */
   state: FormKitFrameworkContextState
@@ -521,7 +526,7 @@ export interface FormKitFrameworkContextState {
 }
 
 /**
- * Options that can be used to instantiate a new node via createNode()
+ * Options that can be used to instantiate a new node via createNode().
  * @public
  */
 export type FormKitOptions = Partial<
@@ -537,7 +542,7 @@ export type FormKitOptions = Partial<
 >
 
 /**
- * The callback type for node.each()
+ * The callback type for node.each().
  * @public
  */
 export interface FormKitChildCallback {
@@ -742,7 +747,7 @@ export type FormKitNode = {
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
 /**
- * Breadth and Depth first searches can use a callback of this notation.
+ * Breadth and depth-first searches can use a callback of this notation.
  * @public
  */
 export type FormKitSearchFunction = (
@@ -800,7 +805,7 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
 }
 
 /**
- * Determine if a given object is a node
+ * Determine if a given object is a node.
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -1447,7 +1452,7 @@ function resetConfig(node: FormKitNode, context: FormKitContext) {
 }
 
 /**
- * Adds a plugin to the node, it’s children, and executes it.
+ * Adds a plugin to the node, its children, and executes it.
  * @param context -
  * @param node -
  * @param plugin -
@@ -1648,7 +1653,7 @@ function find(
 }
 
 /**
- * Perform a breadth-first-search on a node subtree and locate the first
+ * Perform a breadth-first search on a node subtree and locate the first
  * instance of a match.
  * @param node -
  * @param name -
