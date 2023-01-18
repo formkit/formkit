@@ -1,3 +1,11 @@
+/**
+ * This package contains the official themes for FormKit. Read the
+ * {@link https://formkit.com/getting-started/installation |
+ * installation documentation} for more information.
+ *
+ * @packageDocumentation
+ */
+
 import {
   FORMKIT_VERSION,
   FormKitNode,

@@ -1,3 +1,12 @@
+/**
+ * The official FormKit internationalization (i18n) plugin. This package
+ * contains the locales and the plugin that integrates FormKit with these
+ * locales. Read the {@link https://formkit.com/essentials/internationalization
+ * | internationalization documentation} for usage instructions.
+ *
+ * @packageDocumentation
+ */
+
 import * as ar from './locales/ar'
 import * as az from './locales/az'
 import * as bg from './locales/bg'

@@ -1,5 +1,7 @@
 /**
- * The first-party validation package/plugin for FormKit.
+ * The first-party validation package/plugin for FormKit. Read the
+ * {@link https://formkit.com/essentials/validation |
+ * validation documentation} for usage instructions.
  *
  * @packageDocumentation
  */

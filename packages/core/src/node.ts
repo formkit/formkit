@@ -579,8 +579,11 @@ export interface FormKitChildValue {
 }
 
 /**
- * FormKit's Node object produced by createNode(). All inputs, forms, and groups
- * are instances of nodes.
+ * FormKit's Node object produced by createNode(). Every `<FormKit />` input has
+ * 1 FormKitNode ("core node") associated with it. All inputs, forms, and groups
+ * are instances of nodes. Read more about core nodes in the
+ * {@link https://formkit.com/essentials/architecture#node | architecture
+ * documentation.}
  *
  * @param add -
  * Add a child to a node. The node must be a group or list.
@@ -593,8 +596,8 @@ export interface FormKitChildValue {
  *
  * #### Parameters
  *
- * - `node` — A {@link FormKitNode | FormKitNode}.
- * - `index` *optional* — A index to where it will added to.
+ * - node — A {@link FormKitNode | FormKitNode}.
+ * - index *optional* — A index to where it will added to.
  *
  * #### Returns
  *
@@ -776,7 +779,7 @@ export interface FormKitChildValue {
  * The found {@link FormKitNode | FormKitNode} or `undefined`.
  *
  * @param hook -
- * Set of hooks
+ * Set of hooks.
  *
  * #### Signature
  *

@@ -1,6 +1,10 @@
 /**
- * The official FormKit inputs plugin. This package contains the source code for all native HTML input types.
- * Read the inputs documentation for usage instructions.
+ * The official FormKit Inputs plugin. This package contains the source code for
+ * all native HTML input types. Read the
+ * {@link https://formkit.com/essentials/inputs | inputs documentation} for
+ * usage instructions.
+ *
+ * @packageDocumentation
  */
 
 /**

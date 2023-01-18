@@ -1,4 +1,12 @@
 /**
+ * The official FormKit/Vue integration. This package is responsible for
+ * integrating Vue with FormKit core and other first-party packages.
+ *
+ *
+ * @packageDocumentation
+ */
+
+/**
  * The useInput composable.
  */
 export { useInput } from './composables/useInput'
