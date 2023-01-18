@@ -442,6 +442,35 @@ describe('validation', () => {
     )
   })
 
+  it('can change a label used in the error message', async () => {
+    const id = token()
+    const label = ref('FizBuz')
+    const wrapper = mount(
+      {
+        setup() {
+          return { label }
+        },
+        template: `
+          <FormKit
+            id="${id}"
+            :label="label"
+            validation="required"
+            validation-visibility="live"
+          />
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(`FizBuz is required`)
+    label.value = 'Apple Pie'
+    await nextTick()
+    expect(wrapper.html()).toContain(`Apple Pie is required`)
+  })
+
   it('can override the validation label strategy', async () => {
     const id = token()
     const wrapper = mount(FormKit, {
