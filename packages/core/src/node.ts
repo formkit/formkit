@@ -635,9 +635,9 @@ export interface FormKitChildValue {
  * Gets a node at another address. Addresses are dot-syntax paths (or arrays) of node names.
  * For example: `form.users.0.first_name`. There are a few "special" traversal tokens as well:
  *
- * - $root — Selects the root node.
- * - $parent — Selects the parent node.
- * - $self — Selects the current node.
+ * - `$root` — Selects the root node.
+ * - `$parent` — Selects the parent node.
+ * - `$self` — Selects the current node.
  *
  * #### Signature
  *
