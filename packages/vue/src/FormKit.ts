@@ -11,12 +11,14 @@ import { props } from './props'
 
 /**
  * The symbol that represents the formkit parent injection value.
+ *
  * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
  * The root FormKit component.
+ *
  * @public
  */
 export const FormKit = defineComponent({

@@ -43,6 +43,7 @@ import { reset } from './reset'
 /**
  * Definition of a library item — when registering a new library item, these
  * are the required and available properties.
+ *
  * @public
  */
 export type FormKitTypeDefinition = {
@@ -90,6 +91,7 @@ export type FormKitTypeDefinition = {
 
 /**
  * A library of inputs, keyed by the name of the type.
+ *
  * @public
  */
 export interface FormKitLibrary {
@@ -97,8 +99,9 @@ export interface FormKitLibrary {
 }
 
 /**
- * The base interface definition for a FormKitPlugin — it's just a function that
+ * The base interface definition for a FormKitPlugin. It's just a function that
  * accepts a node argument.
+ *
  * @public
  */
 export interface FormKitPlugin {
@@ -110,6 +113,7 @@ export interface FormKitPlugin {
  * Text fragments are small pieces of text used for things like interface
  * validation messages, or errors that may be exposed for modification or
  * even translation.
+ *
  * @public
  */
 export type FormKitTextFragment = Partial<FormKitMessageProps> & {
@@ -120,6 +124,7 @@ export type FormKitTextFragment = Partial<FormKitMessageProps> & {
 
 /**
  * The available hooks for middleware.
+ *
  * @public
  */
 export interface FormKitHooks {
@@ -146,9 +151,10 @@ export interface FormKitHooks {
 }
 
 /**
- * The definition of a FormKitTrap — these are somewhat like methods on each
- * FormKitNode — they are always symmetrical (get/set), although it's acceptable
+ * The definition of a FormKitTrap. These are somewhat like methods on each
+ * FormKitNode. They are always symmetrical (get/set) — although it's acceptable
  * for either to throw an Exception.
+ *
  * @public
  */
 export interface FormKitTrap {
@@ -158,6 +164,7 @@ export interface FormKitTrap {
 
 /**
  * Describes the path to a particular node from the top of the tree.
+ *
  * @public
  */
 export type FormKitAddress = Array<string | number>
@@ -165,12 +172,14 @@ export type FormKitAddress = Array<string | number>
 /**
  * These are the types of nodes that can be created. These are different from
  * the type of inputs available and rather describe their purpose in the tree.
+ *
  * @public
  */
 export type FormKitNodeType = 'input' | 'list' | 'group'
 
 /**
  * FormKit inputs of type 'group' must have keyed values by default.
+ *
  * @public
  */
 export interface FormKitGroupValue {
@@ -180,12 +189,14 @@ export interface FormKitGroupValue {
 
 /**
  * FormKit inputs of type 'list' must have array values by default.
+ *
  * @public
  */
 export type FormKitListValue<T = any> = Array<T>
 
 /**
- * Arbitrary data that has properties, could be a POJO, could be an array.
+ * Arbitrary data that has properties. Could be a POJO, could be an array.
+ *
  * @public
  */
 export interface KeyedValue {
@@ -196,6 +207,7 @@ export interface KeyedValue {
 /**
  * Define the most basic shape of a context object for type guards trying to
  * reason about a context's value.
+ *
  * @public
  */
 export interface FormKitContextShape {
@@ -206,6 +218,7 @@ export interface FormKitContextShape {
 
 /**
  * The simplest definition for a context of type "list".
+ *
  * @public
  */
 export interface FormKitListContext {
@@ -218,6 +231,7 @@ export interface FormKitListContext {
  * Signature for any of the node's getter traps. Keep in mind that because these
  * are traps and not class methods, their response types are declared explicitly
  * in the FormKitNode interface.
+ *
  * @public
  */
 export type TrapGetter =
@@ -228,6 +242,7 @@ export type TrapGetter =
  * The signature for a node's trap setter — these are more rare than getter
  * traps, but can be useful for blocking access to certain context properties
  * or modifying the behavior of an assignment (ex. see setParent).
+ *
  * @public
  */
 export type TrapSetter =
@@ -241,6 +256,7 @@ export type TrapSetter =
 
 /**
  * The map signature for a node's traps Map.
+ *
  * @public
  */
 export type FormKitTraps = Map<string | symbol, FormKitTrap>
@@ -248,6 +264,7 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
 /**
  * General "app" like configuration options, these are automatically inherited
  * by all children — they are not reactive.
+ *
  * @public
  */
 export interface FormKitConfig {
@@ -264,6 +281,7 @@ export interface FormKitConfig {
 /**
  * The user-land per-instance "props", which are generally akin to the props
  * passed into components on the front end.
+ *
  * @public
  */
 export type FormKitProps = {
@@ -286,6 +304,7 @@ export type FormKitProps = {
 /**
  * The interface of a FormKit node's context object. A FormKit node is a
  * proxy of this object.
+ *
  * @public
  */
 export interface FormKitContext {
@@ -380,6 +399,7 @@ export interface FormKitContext {
  * Context object to be created by and used by each respective UI framework. No
  * values are created or output by FormKitCore, but this interface
  * should be followed by each respective plugin.
+ *
  * @public
  */
 export interface FormKitFrameworkContext {
@@ -460,7 +480,8 @@ export interface FormKitFrameworkContext {
 
 /**
  * The state inside a node’s framework context. Usually used to track things
- * like blurred, and validity states.
+ * like blurred and validity states.
+ *
  * @public
  */
 export interface FormKitFrameworkContextState {
@@ -527,6 +548,7 @@ export interface FormKitFrameworkContextState {
 
 /**
  * Options that can be used to instantiate a new node via createNode().
+ *
  * @public
  */
 export type FormKitOptions = Partial<
@@ -543,6 +565,7 @@ export type FormKitOptions = Partial<
 
 /**
  * The callback type for node.each().
+ *
  * @public
  */
 export interface FormKitChildCallback {
@@ -551,6 +574,7 @@ export interface FormKitChildCallback {
 
 /**
  * A descriptor of a child value, generally passed up a node tree.
+ *
  * @public
  */
 export interface FormKitChildValue {
@@ -560,8 +584,543 @@ export interface FormKitChildValue {
 }
 
 /**
- * FormKit's Node object produced by createNode(). All inputs, forms, and groups
- * are instances of nodes.
+ * FormKit's Node object produced by createNode(). Every `<FormKit />` input has
+ * 1 FormKitNode ("core node") associated with it. All inputs, forms, and groups
+ * are instances of nodes. Read more about core nodes in the
+ * {@link https://formkit.com/essentials/architecture#node | architecture
+ * documentation.}
+ *
+ * @param add -
+ * Add a child to a node. The node must be a group or list.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * add: (node: FormKitNode, index?: number) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - node — A {@link FormKitNode | FormKitNode}.
+ * - index *optional* — A index to where it will added to.
+ *
+ * #### Returns
+ *
+ * The added {@link FormKitNode | FormKitNode}.
+ *
+ * @param address -
+ * The address of the current node from the root of the tree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * address: FormKitAddress
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitAddress | FormKitAddress}.
+ *
+ * @param addProps -
+ * Adds props to the given node by removing them from node.props.attrs and
+ * moving them to the top-level node.props object.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * addProps: (props: string[]) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `props` — An array of strings to be added as keys for props.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param at -
+ * Gets a node at another address. Addresses are dot-syntax paths (or arrays) of node names.
+ * For example: `form.users.0.first_name`. There are a few "special" traversal tokens as well:
+ *
+ * - `$root` — Selects the root node.
+ * - `$parent` — Selects the parent node.
+ * - `$self` — Selects the current node.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * at: (address: FormKitAddress | string) => FormKitNode | undefined
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `address` — An valid string or {@link FormKitAddress | FormKitAddress}.
+ *
+ * #### Returns
+ *
+ * The found {@link FormKitNode | FormKitNode} or `undefined`.
+ *
+ * @param children -
+ * An array of child nodes (groups and lists).
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * children: Array<FormKitNode>
+ * ```
+ *
+ * #### Returns
+ *
+ * An array of {@link FormKitNode | FormKitNode}.
+ *
+ * @param clearErrors -
+ * Clears the errors of the node, and optionally all the children.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * clearErrors: (clearChildren?: boolean, sourceKey?: string) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `clearChildren` *optional* — If it should clear the children.
+ * - `sourceKey` *optional* — A source key to use for reset.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param config -
+ * An object of {@link FormKitConfig | FormKitConfig} that is shared tree-wide
+ * with various configuration options that should be applied to the entire tree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * config: FormKitConfig
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitConfig | FormKitConfig}.
+ *
+ * @param define -
+ * Defines the current input's library type definition including node type,
+ * schema, and props.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * define: (definition: FormKitTypeDefinition) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `definition` — A {@link FormKitTypeDefinition | FormKitTypeDefinition}.
+ *
+ * @param destroy -
+ * Removes the node from the global registry, its parent, and emits the
+ * 'destroying' event.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * destroy: () => void
+ * ```
+ *
+ * @param each -
+ * Perform given callback on each of the given node's children.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * each: (callback: FormKitChildCallback) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `callback` — A {@link FormKitChildCallback | FormKitChildCallback} to be called for each child.
+ *
+ * @param emit -
+ * Emit an event from the node so it can be listened by {@link on | on}.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `event` — The event name to be emitted.
+ * - `payload` *optional* — A value to be passed together with the event.
+ * - `bubble` *optional* — If the event should bubble to the parent.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param find -
+ * Within a given tree, find a node matching a given selector. Selectors can be simple strings or a function.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * find: (
+ *  selector: string,
+ *  searcher?: keyof FormKitNode | FormKitSearchFunction
+ * ) => FormKitNode | undefined
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `selector` — A selector string.
+ * - `searcher` *optional* — A keyof {@link FormKitNode | FormKitNode} or {@link FormKitSearchFunction | FormKitSearchFunction}.
+ *
+ * #### Returns
+ *
+ * The found {@link FormKitNode | FormKitNode} or `undefined`.
+ *
+ * @param hook -
+ * Set of hooks.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * hook: FormKitHooks
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitHooks | FormKitHooks}.
+ *
+ * @param index -
+ * The index of a node compared to its siblings. This is only applicable in cases where a node is a child of a list.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * index: number
+ * ```
+ *
+ * #### Returns
+ *
+ * A `number`.
+ *
+ * @param input -
+ * The function used to set the value of a node. All changes to a node's value
+ * should use this function as it ensures the tree's state is always fully tracked.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * input: (value: unknown, async?: boolean) => Promise<unknown>
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `value` — Any value to used for the node.
+ * - `async` *optional* — If the input should happen asynchronously.
+ *
+ * #### Returns
+ *
+ * A `Promise<unknown>`.
+ *
+ * @param isCreated -
+ * Begins as false, set to true when the node is finished being created.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * isCreated: boolean
+ * ```
+ *
+ * #### Returns
+ *
+ * A `boolean`.
+ *
+ * @param isSettled -
+ * Boolean reflecting the settlement state of the node and its subtree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * isSettled: boolean
+ * ```
+ *
+ * #### Returns
+ *
+ * A `boolean`.
+ *
+ * @param ledger -
+ * A counting ledger for arbitrary message counters.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * ledger: FormKitLedger
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitLedger | FormKitLedger}.
+ *
+ * @param name -
+ * The name of the input in the node tree. When a node is a child of a list,
+ * this automatically becomes its index.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * name: string
+ * ```
+ *
+ * #### Returns
+ *
+ * A `string`.
+ *
+ * @param off -
+ * Removes an event listener by its token.
+ * Receipts can be shared among many event listeners by explicitly declaring the "receipt" property of the listener function.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * off: (receipt: string) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `receipt` — A receipt generated by the `on` function.
+ *
+ * #### Returns
+ *
+ * A receipt `string`.
+ *
+ * @param on -
+ * Adds an event listener for a given event, and returns a "receipt" which is a random string token.
+ * This token should be used to remove the listener in the future.
+ * Alternatively you can assign a "receipt" property to the listener function and that receipt will be used instead.
+ * This allows multiple listeners to all be de-registered with a single off() call if they share the same receipt.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * on: (eventName: string, listener: FormKitEventListener) => string
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `eventName` — The event name to listen to.
+ * - `listener` — A {@link FormKitEventListener | FormKitEventListener} to run when the event happens.
+ *
+ * #### Returns
+ *
+ * A receipt `string`.
+ *
+ * @param parent -
+ * The parent of a node.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * parent: FormKitNode | null
+ * ```
+ *
+ * #### Returns
+ *
+ * If found a {@link FormKitNode | FormKitNode} or `null`.
+ *
+ * @param props -
+ * An proxied object of props. These are typically provided by the adapter
+ * of choice.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * props: Partial<FormKitProps>
+ * ```
+ *
+ * #### Returns
+ *
+ * An optional list of {@link FormKitProps | FormKitProps}.
+ *
+ * @param remove -
+ * Removes a child from the node.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * remove: (node: FormKitNode) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `node` — A {@link FormKitNode | FormKitNode} to be removed.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param reset -
+ * Resets the node’s value back to its original value.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * reset: () => FormKitNode
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param root -
+ * Retrieves the root node of a tree. This is accomplished via tree-traversal
+ * on-request, and as such should not be used in frequently called functions.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * root: FormKitNode
+ * ```
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param setErrors -
+ * Sets errors on the input, and optionally to child inputs.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `localErrors` — A {@link ErrorMessages | ErrorMessages} to be used.
+ * - `childErrors` *optional* — A {@link ErrorMessages | ErrorMessages} to be used for children.
+ *
+ * @param settled -
+ * A promise that resolves when a node and its entire subtree is settled.
+ * In other words — all the inputs are done committing their values.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * settled: Promise<unknown>
+ * ```
+ *
+ * #### Returns
+ *
+ * A `Promise<unknown>`.
+ *
+ * @param store -
+ * The internal node store.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * store: FormKitStore
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitStore | FormKitStore}.
+ *
+ * @param submit -
+ * Triggers a submit event on the nearest form.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * submit: () => void
+ * ```
+ *
+ * @param t -
+ * A text or translation function that exposes a given string to the "text"
+ * hook. All text shown to users should be passed through this function
+ * before being displayed — especially for core and plugin authors.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * t: (key: string | FormKitTextFragment) => string
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `key` — A key or a {@link FormKitTextFragment | FormKitTextFragment} to find the translation for.
+ *
+ * #### Returns
+ *
+ * The translated `string`.
+ *
+ * @param type -
+ * The type of node, should only be 'input', 'list', or 'group'.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * type: FormKitNodeType
+ * ```
+ *
+ * #### Returns
+ *
+ * A {@link FormKitNodeType | FormKitNodeType}.
+ *
+ * @param use -
+ * Registers a new plugin on the node and its subtree.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * use: (
+ *  plugin: FormKitPlugin | FormKitPlugin[] | Set<FormKitPlugin>,
+ *  run?: boolean,
+ *  library?: boolean
+ * ) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `plugin` — A {@link FormKitPlugin | FormKitPlugin} or an Array or Set of {@link FormKitPlugin | FormKitPlugin}.
+ * - `run` *optional* — Should the plugin be executed on creation.
+ * - `library` *optional* — Should the plugin's library function be executed on creation.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param value -
+ * The value of the input. This should never be directly modified. Any
+ * desired mutations should be made through {@link input | input}.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * readonly value: unknown
+ * ```
+ *
+ * @param walk -
+ * Performs a function on the node and every node in its subtree.
+ * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `callback` — A {@link FormKitChildCallback | FormKitChildCallback} to be executed for each child.
+ * - `stopOnFalse` *optional* — If it should stop when the return is false.
+ *
  * @public
  */
 export type FormKitNode = {
@@ -591,15 +1150,15 @@ export type FormKitNode = {
   addProps: (props: string[]) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
-   * of node names. For example: form.users.0.first_name There are a few
+   * of node names. For example: form.users.0.first_name. There are a few
    * "special" traversal tokens as well:
-   * $root - Selects the root node
-   * $parent - Selects the parent node
-   * $self — Selects the current node
+   * - $root - Selects the root node
+   * - $parent - Selects the parent node
+   * - $self — Selects the current node
    */
   at: (address: FormKitAddress | string) => FormKitNode | undefined
   /**
-   * The address of the current node, from the root of the tree.
+   * The address of the current node from the root of the tree.
    */
   address: FormKitAddress
   /**
@@ -621,7 +1180,7 @@ export type FormKitNode = {
    */
   config: FormKitConfig
   /**
-   * Defines the current input's library type definition including node type,
+   * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
   define: (definition: FormKitTypeDefinition) => void
@@ -633,8 +1192,8 @@ export type FormKitNode = {
    */
   disturb: () => FormKitNode
   /**
-   * Removes the node from the global registry, removes it from its parent, and
-   * emits the 'destroying' event.
+   * Removes the node from the global registry, its parent, and emits the
+   * 'destroying' event.
    */
   destroy: () => void
   /**
@@ -669,7 +1228,7 @@ export type FormKitNode = {
    */
   input: (value: unknown, async?: boolean) => Promise<unknown>
   /**
-   * The name of the input in the node tree. When a node is a child of a list
+   * The name of the input in the node tree. When a node is a child of a list,
    * this automatically becomes its index.
    */
   name: string
@@ -698,7 +1257,7 @@ export type FormKitNode = {
    */
   root: FormKitNode
   /**
-   * Sets the configuration of a node.
+   * Resets the configuration of a node.
    */
   resetConfig: () => void
   /**
@@ -706,7 +1265,7 @@ export type FormKitNode = {
    */
   reset: () => FormKitNode
   /**
-   * Sets errors on the input, and optionally, and child inputs.
+   * Sets errors on the input, and optionally to child inputs.
    */
   setErrors: (localErrors: ErrorMessages, childErrors?: ErrorMessages) => void
   /**
@@ -720,7 +1279,7 @@ export type FormKitNode = {
   submit: () => void
   /**
    * A text or translation function that exposes a given string to the "text"
-   * hook — all text shown to users should be passed through this function
+   * hook. All text shown to users should be passed through this function
    * before being displayed — especially for core and plugin authors.
    */
   t: (key: string | FormKitTextFragment) => string
@@ -748,6 +1307,7 @@ export type FormKitNode = {
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
+ *
  * @public
  */
 export type FormKitSearchFunction = (
@@ -768,36 +1328,43 @@ const defaultConfig: Partial<FormKitConfig> = {
 /**
  * If a node’s name is set to useIndex, it replaces the node’s name with the
  * index of the node relative to its parent’s children.
- * @public
+ *
+ * @internal
  */
 export const useIndex = Symbol('index')
 
 /**
  * When propagating values up a tree, this value indicates the child should be
  * removed.
- * @public
+ *
+ * @internal
  */
 export const valueRemoved = Symbol('removed')
 
 /**
  * When propagating values up a tree, this value indicates the child should be
  * moved.
- * @public
+ *
+ * @internal
  */
 export const valueMoved = Symbol('moved')
 
 /**
  * When creating a new node and having its value injected directly at a specific
  * location.
- * @public
+ *
+ * @internal
  */
 export const valueInserted = Symbol('inserted')
 
 /**
  * A simple type guard to determine if the context being evaluated is a list
  * type.
- * @param arg -
- * @returns arg is FormKitListContext
+ *
+ * @param arg - A {@link FormKitContextShape | FormKitContextShape}.
+ *
+ * @returns Returns a `boolean`.
+ *
  * @public
  */
 export function isList(arg: FormKitContextShape): arg is FormKitListContext {
@@ -806,6 +1373,30 @@ export function isList(arg: FormKitContextShape): arg is FormKitListContext {
 
 /**
  * Determine if a given object is a node.
+ *
+ * @example
+ *
+ * ```javascript
+ * import { isNode, createNode } from '@formkit/core'
+ *
+ * const input = createNode({
+ *   type: 'input', // defaults to 'input' if not specified
+ *   value: 'hello node world',
+ * })
+ *
+ * const obj = {};
+ *
+ * isNode(obj)
+ * // false
+ *
+ * isNode(input)
+ * // true
+ * ```
+ *
+ * @param node - Any value.
+ *
+ * @returns Returns a `boolean`.
+ *
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -869,10 +1460,12 @@ function createTraps(): FormKitTraps {
 
 /**
  * Creates a getter/setter trap and curries the context/node pair
+ *
  * @param getter - The getter function
  * @param setter - The setter function
  * @param curryGetter - Indicates if the getter should be curried or not
- * @returns
+ *
+ * @returns A {@link FormKitTrap | FormKitTrap}
  */
 function trap(
   getter?: TrapGetter,
@@ -916,8 +1509,9 @@ let nameCount = 0
 let idCount = 0
 
 /**
- * Reports the global number of node registrations, useful for deterministic
+ * Resets the global number of node registrations, useful for deterministic
  * node naming.
+ *
  * @public
  */
 export function resetCount(): void {
@@ -926,8 +1520,12 @@ export function resetCount(): void {
 }
 
 /**
- * Create a name based dictionary of all children in an array.
- * @param children -
+ * Create a name-based dictionary of all children in an array.
+ *
+ * @param children - An array of {@link FormKitNode | FormKitNode}.
+ *
+ * @returns A dictionary of named {@link FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export function names(children: FormKitNode[]): {
@@ -944,8 +1542,11 @@ export function names(children: FormKitNode[]): {
  * node. This cannot just be a random id, it _must_ be deterministic to ensure
  * re-hydration of the form (like post-SSR) produces the same names/ids.
  *
- * @param options -
- * @returns string
+ * @param options - A {@link FormKitOptions | FormKitOptions}
+ *
+ * @returns `string | symbol`
+ *
+ * @internal
  */
 function createName(options: FormKitOptions): string | symbol {
   if (options.parent?.type === 'list') return useIndex
@@ -955,10 +1556,12 @@ function createName(options: FormKitOptions): string | symbol {
 /**
  * Creates the initial value for a node based on the options passed in and the
  * type of the input.
- * @param options -
- * @param type -
- * @returns
- * @internal
+ *
+ * @param options - A {@link FormKitOptions | FormKitOptions}.
+ *
+ * @returns `unknown`
+ *
+ * @public
  */
 export function createValue(options: FormKitOptions): unknown {
   if (options.type === 'group') {
@@ -976,10 +1579,15 @@ export function createValue(options: FormKitOptions): unknown {
 }
 /**
  * Sets the internal value of the node.
- * @param node -
- * @param context -
- * @param value -
- * @returns T
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param value - A input value to the node
+ * @param async - If its an async call
+ *
+ * @returns `Promise<unknown>`
+ *
+ * @internal
  */
 function input(
   node: FormKitNode,
@@ -1006,8 +1614,13 @@ function input(
 
 /**
  * Validate that the current input is allowed.
- * @param type - The type of node (input, list, group)
- * @param value - The value that is being set
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param value - The value that is being validated
+ *
+ * @returns `T`
+ *
+ * @internal
  */
 function validateInput<T>(node: FormKitNode, value: T): T {
   switch (node.type) {
@@ -1026,10 +1639,13 @@ function validateInput<T>(node: FormKitNode, value: T): T {
 
 /**
  * Commits the working value to the node graph as the value of this node.
- * @param node -
- * @param context -
- * @param calm -
- * @param hydrate -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param calm - If it calms the node
+ * @param hydrate - If it hydrates the node
+ *
+ * @internal
  */
 function commit(
   node: FormKitNode,
@@ -1047,9 +1663,10 @@ function commit(
  * Perform a modification to a single element of a parent aggregate value. This
  * is only performed on the pre-committed value (_value), although typically
  * the value and _value are both linked in memory.
- * @param context -
- * @param name -
- * @param value -
+ *
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function partial(
   context: FormKitContext,
@@ -1080,9 +1697,14 @@ function partial(
 }
 
 /**
- * Pass values down to children by calling hydrate on them.
- * @param parent -
- * @param child -
+ * Hydrate node and its children
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   const _value = context._value as KeyedValue
@@ -1122,8 +1744,13 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
 /**
  * Disturbs the state of a node from settled to unsettled — creating appropriate
  * promises and resolutions.
- * @param node -
- * @param context -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function disturb(node: FormKitNode, context: FormKitContext): FormKitNode {
   if (context._d <= 0) {
@@ -1140,8 +1767,12 @@ function disturb(node: FormKitNode, context: FormKitContext): FormKitNode {
 
 /**
  * Calms the given node's disturbed state by one.
- * @param node -
- * @param context -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param value - A {@link FormKitChildValue | FormKitChildValue}
+ *
+ * @internal
  */
 function calm(
   node: FormKitNode,
@@ -1165,8 +1796,11 @@ function calm(
 
 /**
  * This node is being removed and needs to be cleaned up.
- * @param node - The node to shut down
- * @param context - The context to clean up
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function destroy(node: FormKitNode, context: FormKitContext) {
   node.emit('destroying', node)
@@ -1182,7 +1816,12 @@ function destroy(node: FormKitNode, context: FormKitContext) {
 
 /**
  * Defines the current input type concretely.
- * @param definition - The definition of the current input type.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param definition - A {@link FormKitTypeDefinition | FormKitTypeDefinition}
+ *
+ * @internal
  */
 function define(
   node: FormKitNode,
@@ -1228,9 +1867,13 @@ function define(
  * Adds props to a given node by stripping them out of the node.props.attrs and
  * then adding them to the nodes.
  *
- * @param node - The node to add props to
- * @param context - The internal context object
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
  * @param props - An array of prop strings (in camelCase!)
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function addProps(
   node: FormKitNode,
@@ -1267,10 +1910,14 @@ function addProps(
 }
 
 /**
- * (node.add) Adds a child to the node.
- * @param context -
- * @param node -
- * @param child -
+ * Adds a child to the node.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A parent {@link FormKitContext | FormKitContext}
+ * @param child - A {@link FormKitNode | FormKitNode}
+ * @param listIndex - A index number to be added at
+ *
+ * @internal
  */
 function addChild(
   parent: FormKitNode,
@@ -1336,11 +1983,14 @@ function addChild(
 
 /**
  * The setter for node.parent = FormKitNode
- * @param _context -
- * @param node -
- * @param _property -
- * @param parent -
- * @returns boolean
+ * @param child - A child {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param _property - A property to be setted
+ * @param parent - A parent {@link FormKitNode | FormKitNode}
+ *
+ * @returns `boolean`
+ *
+ * @internal
  */
 function setParent(
   child: FormKitNode,
@@ -1367,10 +2017,13 @@ function setParent(
 }
 
 /**
- * (node.remove) Removes a child from the node.
- * @param context -
- * @param node -
- * @param child -
+ * Removes a child from the node.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param child - A child {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function removeChild(
   node: FormKitNode,
@@ -1407,9 +2060,12 @@ function removeChild(
 
 /**
  * Iterate over each immediate child and perform a callback.
- * @param context -
- * @param _node -
- * @param callback -
+ *
+ * @param _node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param callback - A {@link FormKitChildCallback | FormKitChildCallback}
+ *
+ * @internal
  */
 function eachChild(
   _node: FormKitNode,
@@ -1421,9 +2077,13 @@ function eachChild(
 
 /**
  * Walk all nodes below this one and execute a callback.
- * @param _node -
- * @param context -
- * @param callback -
+ *
+ * @param _node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param callback - A {@link FormKitChildCallback | FormKitChildCallback}
+ * @param stopIfFalse - Boolean to stop running on children
+ *
+ * @internal
  */
 function walkTree(
   _node: FormKitNode,
@@ -1440,10 +2100,11 @@ function walkTree(
 
 /**
  * Set the configuration options of the node and it's subtree.
- * @param node -
- * @param context -
- * @param _property -
- * @param config -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function resetConfig(node: FormKitNode, context: FormKitContext) {
   const parent = node.parent || undefined
@@ -1453,10 +2114,19 @@ function resetConfig(node: FormKitNode, context: FormKitContext) {
 
 /**
  * Adds a plugin to the node, its children, and executes it.
- * @param context -
- * @param node -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
  * @param plugin -
- * @public
+ * {@link FormKitPlugin | FormKitPlugin}
+ * {@link FormKitPlugin | FormKitPlugin[]}
+ * {@link FormKitPlugin | Set<FormKitPlugin>}
+ * @param run - If it will run on creation
+ * @param library - If it will run on library creation
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 export function use(
   node: FormKitNode,
@@ -1483,10 +2153,13 @@ export function use(
 
 /**
  * Moves a node in the parent’s children to the given index.
- * @param node -
- * @param _context -
- * @param _property -
- * @param setIndex -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param _property - A property to add
+ * @param setIndex - The index to move the node
+ *
+ * @internal
  */
 function setIndex(
   node: FormKitNode,
@@ -1518,7 +2191,10 @@ function setIndex(
 
 /**
  * Retrieves the index of a node from the parent’s children.
- * @param node -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function getIndex(node: FormKitNode) {
   if (node.parent) {
@@ -1533,8 +2209,11 @@ function getIndex(node: FormKitNode) {
 /**
  * Retrieves the context object of a given node. This is intended to be a
  * private trap and should absolutely not be used in plugins or user-land code.
- * @param _node -
- * @param context -
+ *
+ * @param _node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function getContext(_node: FormKitNode, context: FormKitContext) {
   return context
@@ -1542,8 +2221,11 @@ function getContext(_node: FormKitNode, context: FormKitContext) {
 
 /**
  * Get the name of the current node, allowing for slight mutations.
- * @param node -
- * @param context -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function getName(node: FormKitNode, context: FormKitContext) {
   if (node.parent?.type === 'list') return node.index
@@ -1552,8 +2234,11 @@ function getName(node: FormKitNode, context: FormKitContext) {
 
 /**
  * Returns the address of the current node.
- * @param node -
- * @param context -
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function getAddress(
   node: FormKitNode,
@@ -1566,10 +2251,14 @@ function getAddress(
 
 /**
  * Fetches a node from the tree by its address.
- * @param context -
- * @param node -
- * @param location -
- * @returns FormKitNode
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param locator - A string or {@link FormKitAddress | FormKitAddress} to find in the tree.
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function getNode(
   node: FormKitNode,
@@ -1612,9 +2301,13 @@ function getNode(
 
 /**
  * Perform selections on a subtree using the address "selector" methods.
- * @param node -
- * @param selector -
- * @returns FormKitNode | undefined
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param selector - A `string | number` to find in the node
+ *
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`
+ *
+ * @internal
  */
 function select(
   node: FormKitNode,
@@ -1637,11 +2330,15 @@ function select(
 /**
  * Perform a breadth first search and return the first instance of a node that
  * is found in the subtree or undefined.
- * @param node - The node to start the search on/under
- * @param _context - The context object
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
  * @param searchTerm - The term we are searching for
- * @param searcher - Either a key to search on, or a function
- * @returns
+ * @param searcher - Either a key of {@link FormKitNode | FormKitNode}, or a {@link FormKitSearchFunction | FormKitSearchFunction}
+ *
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`
+ *
+ * @internal
  */
 function find(
   node: FormKitNode,
@@ -1655,9 +2352,13 @@ function find(
 /**
  * Perform a breadth-first search on a node subtree and locate the first
  * instance of a match.
- * @param node -
- * @param name -
- * @returns FormKitNode
+ *
+ * @param tree - A {@link FormKitNode | FormKitNode} to start from.
+ * @param searchValue - A value to be searched.
+ * @param searchGoal - A goal value.
+ *
+ * @returns A {@link FormKitNode | FormKitNode } or `undefined`.
+ *
  * @public
  */
 export function bfs(
@@ -1680,6 +2381,10 @@ export function bfs(
 
 /**
  * Get the root node of the tree.
+ *
+ * @param n - A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function getRoot(n: FormKitNode) {
   let node = n
@@ -1691,9 +2396,13 @@ function getRoot(n: FormKitNode) {
 
 /**
  * Creates a new configuration option.
- * @param parent -
- * @param configOptions -
- * @returns FormKitConfig
+ *
+ * @param target - An object of optional properties of {@link FormKitConfig | FormKitConfig}
+ * @param parent - A parent {@link FormKitNode | FormKitNode}
+ *
+ * @returns {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function createConfig(
   target: Partial<FormKitConfig> = {},
@@ -1752,8 +2461,15 @@ function createConfig(
 /**
  * Given a string of text, expose it for modification, translation, or full
  * replacement.
- * @param key - A message key, or generic string of text
- * @returns
+
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param key - A {@link FormKitTextFragment | FormKitTextFragment}, or generic string of text
+ * @param type - A string to represent the text type
+ *
+ * @returns `string`
+ *
+ * @internal
  */
 function text(
   node: FormKitNode,
@@ -1770,7 +2486,10 @@ function text(
 /**
  * Submits the nearest ancestor that is a FormKit "form". It determines which
  * node is a form by locating an ancestor where node.props.isForm = true.
- * @param node - The node to initiate the submit
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function submit(node: FormKitNode): void {
   const name = node.name
@@ -1786,9 +2505,12 @@ function submit(node: FormKitNode): void {
 
 /**
  * Reset to the original value.
- * @param node - The node to reset
- * @param _context - The context
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
  * @param value - The value to reset to
+ *
+ * @internal
  */
 function resetValue(
   node: FormKitNode,
@@ -1800,10 +2522,13 @@ function resetValue(
 
 /**
  * Sets errors on the node and optionally its children.
- * @param node - The node to set errors on
- * @param _context - Not used
- * @param localErrors - An array of errors to set on this node
- * @param childErrors - An object of name to errors to set on children.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param localErrors - An array of {@link ErrorMessages | ErrorMessages} to set on this node
+ * @param childErrors - An object of name of {@link ErrorMessages | ErrorMessages} to set on children.
+ *
+ * @internal
  */
 function setErrors(
   node: FormKitNode,
@@ -1823,10 +2548,13 @@ function setErrors(
 
 /**
  * Clears errors on the node and optionally its children.
- * @param node - The node to set errors on
- * @param _context - Not used
- * @param localErrors - An array of errors to set on this node
- * @param childErrors - An object of name to errors to set on children.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param clearChildErrors - A boolean to clear children error or not.
+ * @param sourceKey - The source key string to reset.
+ *
+ * @internal
  */
 function clearErrors(
   node: FormKitNode,
@@ -1852,9 +2580,12 @@ function clearErrors(
 
 /**
  * Middleware to assign default prop values as issued by core.
- * @param node - The node being registered
- * @param next - Calls the next middleware.
- * @returns
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function defaultProps(node: FormKitNode): FormKitNode {
   if (!has(node.props, 'id')) node.props.id = `input_${idCount++}`
@@ -1862,8 +2593,11 @@ function defaultProps(node: FormKitNode): FormKitNode {
 }
 
 /**
- * @param options -
- * @param config -
+ * Create props based on initial values
+ *
+ * @param initial - An initial value to be transformed
+ *
+ * @internal
  */
 function createProps(initial: unknown) {
   const props: Record<PropertyKey, any> = {
@@ -1912,9 +2646,11 @@ function createProps(initial: unknown) {
 /**
  * A cheap function that iterates over all plugins and stops once node.define
  * is called.
- * @param node - A formkit node
- * @param plugins - An array of plugins
- * @returns
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param plugins - An array of {@link FormKitPlugin | FormKitPlugin}
+ *
+ * @internal
  */
 function findDefinition(node: FormKitNode, plugins: Set<FormKitPlugin>): void {
   // If the definition is already there, force call to define.
@@ -1929,8 +2665,12 @@ function findDefinition(node: FormKitNode, plugins: Set<FormKitPlugin>): void {
 
 /**
  * Create a new context object for our a FormKit node, given default information
- * @param options - An options object to override the defaults.
- * @returns FormKitContext
+ *
+ * @param options - An options object of {@link FormKitOptions | FormKitOptions} to override the defaults.
+ *
+ * @returns A {@link FormKitContext | FormKitContext}
+ *
+ * @internal
  */
 function createContext(options: FormKitOptions): FormKitContext {
   const value = createValue(options)
@@ -1961,8 +2701,13 @@ function createContext(options: FormKitOptions): FormKitContext {
 
 /**
  * Initialize a node object's internal properties.
- * @param node - The node to initialize
- * @returns FormKitNode
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param options - An options object of {@link FormKitOptions | FormKitOptions} to override the defaults.
+ *
+ * @returns A {@link FormKitNode | FormKitNode}
+ *
+ * @internal
  */
 function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Set the internal node on the props, config, ledger and store
@@ -2007,11 +2752,26 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
 }
 
 /**
- * Creates a new instance of a FormKit Node. Nodes are the atomic unit of
- * a FormKit graph.
+ * Creates a new instance of a FormKit Node. Nodes are the atomic unit of a FormKit graph.
  *
- * @param options - An object of options to define the node.
- * @returns FormKitNode
+ * @example
+ *
+ * ```javascript
+ * import { createNode } from '@formkit/core'
+ *
+ * const input = createNode({
+ *   type: 'input', // defaults to 'input' if not specified
+ *   value: 'hello node world',
+ * })
+ *
+ * console.log(input.value)
+ * // 'hello node world'
+ * ```
+ *
+ * @param options - An options object of {@link FormKitOptions | FormKitOptions} to override the defaults.
+ *
+ * @returns A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export function createNode(options?: FormKitOptions): FormKitNode {

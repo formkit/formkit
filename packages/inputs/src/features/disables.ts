@@ -2,8 +2,10 @@ import { FormKitNode } from '@formkit/core'
 import { undefine } from '@formkit/utils'
 
 /**
- * Allows disabling children of this.
- * @param node - The FormKitNode of the form/group/list
+ * A feature that allows disabling children of this node.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function disables(node: FormKitNode): void {

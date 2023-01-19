@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Decorator section
+ *
  * @public
  */
 export const decorator = createSection('decorator', () => ({

@@ -2,9 +2,12 @@ import { FormKitMiddleware, FormKitNode } from '@formkit/core'
 import { extend, slugify } from '@formkit/utils'
 
 /**
- * Normalize the boxes.
- * @param node - The node
- * @returns
+ * A feature that normalizes box types (checkboxes, radios).
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
+ * @returns A {@link @formkit/node#FormKitMiddleware | FormKitMiddleware}.
+ *
  * @public
  */
 export default function normalizeBoxes(

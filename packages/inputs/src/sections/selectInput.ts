@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Input section used by selects
+ *
  * @public
  */
 export const selectInput = createSection('input', () => ({

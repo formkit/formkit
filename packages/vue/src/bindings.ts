@@ -31,7 +31,9 @@ import { createObserver } from '@formkit/observer'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
+ *
  * @param node - FormKitNode to create the context on.
+ *
  * @public
  */
 const vueBindings: FormKitPlugin = function vueBindings(node) {

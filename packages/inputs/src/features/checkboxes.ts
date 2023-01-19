@@ -5,8 +5,10 @@ import { shouldSelect, optionValue } from './options'
 
 /**
  * Event handler when an input is toggled.
- * @param node - The node being toggled
- * @param e - The input even related to the toggling
+ *
+ * @param node - The {@link @formkit/node#FormKitNode | FormKitNode} being toggled.
+ * @param e - The input event related to the toggling.
+ *
  * @public
  */
 function toggleChecked(node: FormKitNode, e: Event) {
@@ -44,9 +46,13 @@ function toggleChecked(node: FormKitNode, e: Event) {
 
 /**
  * Checks if a given option is present in the node value.
- * @param node - The node being checked
- * @param value - The value of any option
- * @returns
+ *
+ * @param node - The The {@link @formkit/node#FormKitNode | FormKitNode} being checked.
+ * @param value - The value of any option.
+ *
+ * @returns `boolean`
+ *
+ * @public
  */
 function isChecked(node: FormKitNode, value: any) {
   // We need to force vue’s reactivity to respond when the value is run:
@@ -61,8 +67,10 @@ function isChecked(node: FormKitNode, value: any) {
 }
 
 /**
- * Adds checkbox selection support
- * @param node - Node the feature is added to
+ * A feature that adds checkbox selection support.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function checkboxes(node: FormKitNode): void {

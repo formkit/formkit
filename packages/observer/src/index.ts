@@ -1,3 +1,9 @@
+/**
+ * FormKit Observer is a utility to wrap a FormKitNode in a dependency tracking observer proxy.
+ *
+ * @packageDocumentation
+ */
+
 import { has } from '@formkit/utils'
 import {
   FormKitNode,
@@ -8,7 +14,7 @@ import {
 } from '@formkit/core'
 
 /**
- * An API compatible FormKitNode that is able to determine the full dependency
+ * An API-compatible FormKitNode that is able to determine the full dependency
  * tree of nodes and their values.
  * @public
  */
@@ -53,9 +59,11 @@ export interface FormKitWatchable<T = unknown> {
 const revokedObservers = new WeakSet()
 
 /**
- * The FormKitNode to observe.
- * @param node - Any formkit node to observe.
- * @returns
+ * Creates the observer.
+ * @param node - The {@link @formkit/core#FormKitNode | FormKitNode} to observe.
+ * @param dependencies - The dependent nodes and the events that are required to
+ * watch for changes.
+ * @returns Returns a {@link @formkit/observer#FormKitObservedNode | FormKitObservedNode}.
  * @public
  */
 export function createObserver(
@@ -183,11 +191,11 @@ export function createObserver(
 }
 
 /**
- * Given two maps (toAdd and toRemove) apply the dependencies as event listeners
- * on the underlying nodes.
- * @param node - The node to apply dependencies to
- * @param delta - The toAdd and toRemove dependency Maps
- * @public
+ * Given two maps (`toAdd` and `toRemove`), apply the dependencies as event
+ * listeners on the underlying nodes.
+ * @param node - The node to apply dependencies to.
+ * @param callback - The callback to add or remove.
+ * @internal
  */
 export function applyListeners(
   node: FormKitObservedNode,
@@ -221,7 +229,7 @@ export function applyListeners(
 
 /**
  * Remove all the receipts from the observed node and subtree.
- * @param receipts - The formkit observer receipts to remove
+ * @param receipts - The FormKit observer receipts to remove.
  * @public
  */
 export function removeListeners(receipts: FormKitObserverReceipts): void {
@@ -261,9 +269,9 @@ function watch<T extends FormKitWatchable>(
 /**
  * Determines which nodes should be added as dependencies and which should be
  * removed.
- * @param previous - The previous watcher dependencies
- * @param current - The new/current watcher dependencies
- * @returns
+ * @param previous - The previous watcher dependencies.
+ * @param current - The new/current watcher dependencies.
+ * @returns A tuple of maps: `toAdd` and `toRemove`.
  * @public
  */
 export function diffDeps(
@@ -300,9 +308,9 @@ export function diffDeps(
 }
 
 /**
- * Checks if the given noe is revoked.
+ * Checks if the given node is revoked.
  * @param node - Any observed node to check.
- * @returns
+ * @returns A `boolean` indicating if the node is revoked.
  * @public
  */
 export function isKilled(node: FormKitObservedNode): boolean {

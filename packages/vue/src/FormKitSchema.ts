@@ -761,6 +761,7 @@ let i = 0
 
 /**
  * The FormKitSchema vue component:
+ *
  * @public
  */
 export const FormKitSchema = defineComponent({

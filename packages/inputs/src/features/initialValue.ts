@@ -1,8 +1,10 @@
 import { FormKitNode } from '@formkit/core'
 
 /**
- * Ensures the input has an `initialValue` prop.
- * @param node - The node being given an initial value
+ * A feature that ensures the input has an `initialValue` prop.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function initialValue(node: FormKitNode): void {
