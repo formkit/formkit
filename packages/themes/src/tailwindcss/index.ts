@@ -8,6 +8,7 @@ const outerAttributes = [
   'complete',
   'loading',
   'submitted',
+  'checked',
   'multiple',
   'prefix-icon',
   'suffix-icon',
@@ -38,7 +39,4 @@ const FormKitVariants = plugin(function ({ matchVariant }) {
 })
 
 export default FormKitVariants
-export {
-  FormKitVariants,
-  genesis
-}
+export { FormKitVariants, genesis }
