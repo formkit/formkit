@@ -1863,4 +1863,64 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.html()).toBe('<h1 id="new-schema">changed schema</h1>')
   })
+
+  it('can use a dynamic default slot. #489', async () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          const first = ref('yes')
+          return { first }
+        },
+        template: `
+        <FormKit type="text">
+          <template v-if="first === 'yes'" #label><h1>click me</h1></template>
+          <template v-else #label><h2>otherwise click me</h2></template>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<h1>click me</h1>')
+    wrapper.vm.first = 'no'
+    await nextTick()
+    expect(wrapper.html()).toContain('<h2>otherwise click me</h2>')
+  })
+
+  it('can use a conditional default slot. #489', async () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          const first = ref('yes')
+          return { first }
+        },
+        template: `
+        <FormKit type="text" label="default">
+          <template v-if="first === 'yes'" #label><h1>click me</h1></template>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<h1>click me</h1>')
+    wrapper.vm.first = 'no'
+    await nextTick()
+    expect(wrapper.find('.formkit-label').exists()).toBe(true)
+    wrapper.vm.first = 'yes'
+    await nextTick()
+    expect(wrapper.html()).toContain('<h1>click me</h1>')
+  })
 })

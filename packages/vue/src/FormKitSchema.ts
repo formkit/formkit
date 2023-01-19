@@ -736,16 +736,21 @@ function createRenderFn(
           const hasSlot = data.slots && has(data.slots, slot)
           if (hints.if) {
             // If statement — dont render the slot, check if it exists
-            tokens[token] = () => hasSlot
+            tokens[token] = () => {
+              return data.slots && typeof data.slots[slot] === 'function'
+            }
           } else if (data.slots && hasSlot) {
             // Render the slot with current scope data
             const scopedData = slotData(data, instanceKey)
-            tokens[token] = () => data.slots[slot](scopedData)
-            return tokens
+            tokens[token] = () =>
+              typeof data.slots[slot] === 'function'
+                ? data.slots[slot](scopedData)
+                : null
           }
+        } else {
+          const value = getRef(token, data)
+          tokens[token] = () => useScope(token, value.value)
         }
-        const value = getRef(token, data)
-        tokens[token] = () => useScope(token, value.value)
         return tokens
       }, {} as Record<string, any>)
     },

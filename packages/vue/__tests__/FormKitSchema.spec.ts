@@ -529,6 +529,61 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<button>click me</button>')
   })
 
+  it('can render variable slots', async () => {
+    const wrapper = mount({
+      components: {
+        FormKitSchema,
+      },
+      setup() {
+        const first = ref('yes')
+        const schema = [
+          {
+            $el: 'button',
+            children: '$slots.default',
+          },
+        ]
+        return { schema, first }
+      },
+      template: `
+        <FormKitSchema :schema="schema">
+          <template v-if="first === 'yes'" #default>click me</template>
+          <template v-else #default>otherwise click me</template>
+        </FormKitSchema>
+      `,
+    })
+    expect(wrapper.html()).toBe('<button>click me</button>')
+    wrapper.vm.first = 'no'
+    await nextTick()
+    expect(wrapper.html()).toBe('<button>otherwise click me</button>')
+  })
+
+  it('can render conditional slots', async () => {
+    const wrapper = mount({
+      components: {
+        FormKitSchema,
+      },
+      setup() {
+        const first = ref('yes')
+        const schema = [
+          {
+            $el: 'button',
+            children: '$slots.default',
+          },
+        ]
+        return { schema, first }
+      },
+      template: `
+        <FormKitSchema :schema="schema">
+          <template v-if="first === 'yes'" #default>click me</template>
+        </FormKitSchema>
+      `,
+    })
+    expect(wrapper.html()).toBe('<button>click me</button>')
+    wrapper.vm.first = 'no'
+    await nextTick()
+    expect(wrapper.html()).toBe('<button></button>')
+  })
+
   it('can render slots as one of many children', () => {
     const wrapper = mount(FormKitSchema, {
       slots: {
