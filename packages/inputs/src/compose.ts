@@ -23,10 +23,11 @@ import {
   message,
   help,
 } from './sections'
-import { clone, extend, isObject } from '@formkit/utils'
+import { clone, extend, isObject, token } from '@formkit/utils'
 
 /**
  * Either a schema node, or a function that returns a schema node.
+ *
  * @public
  */
 export type FormKitInputSchema =
@@ -37,7 +38,12 @@ export type FormKitInputSchema =
 
 /**
  * Type guard for schema objects.
- * @param schema - returns true if the node is a schema node but not a string or conditional.
+ *
+ * @param schema - returns `true` if the node is a schema node but not a string
+ * or conditional.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function isSchemaObject(
@@ -53,16 +59,22 @@ export function isSchemaObject(
 }
 
 /**
- * Checks if the current schema node is a slot condition like:
+ * Checks if the current schema node is a slot condition.
+ *
+ * @example
+ *
  * ```js
  * {
  *  if: '$slot.name',
  *  then: '$slot.name',
  *  else: []
- * }
+ * } // this schema node would return true.
  * ```
- * @param node - a schema node
- * @returns
+ *
+ * @param node - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function isSlotCondition(node: FormKitSchemaNode): node is {
@@ -84,10 +96,14 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 }
 
 /**
- * Extends a single schema node with an extension. The extension can be any partial node including strings.
- * @param schema - Extend a base schema node.
+ * Extends a single schema node with an extension. The extension can be any
+ * partial node including strings.
+ *
+ * @param schema - The base schema node.
  * @param extension - The values to extend on the base schema node.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}
+ *
  * @public
  */
 export function extendSchema(
@@ -105,13 +121,13 @@ export function extendSchema(
 }
 
 /**
- * ================================================================
- * NOTE: This function is deprecated. Use `createSection` instead!
- * ================================================================
+ * @deprecated This function is deprecated. Use `createSection` instead!
  *
  * @param key - A new section key name.
  * @param schema - The default schema in this composable slot.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitSchemaComposable | FormKitSchemaComposable}
+ *
  * @public
  */
 export function composable(
@@ -151,7 +167,11 @@ export function composable(
 
 /**
  * Creates an input schema with all of the wrapping base schema.
- * @param inputSchema - Content to store in the input section key location.
+ *
+ * @param inputSection - Content to store in the input section key location.
+ *
+ * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
+ *
  * @public
  */
 export function useSchema(
@@ -169,15 +189,18 @@ export function useSchema(
 /**
  * A function that is called with an extensions argument and returns a valid
  * schema node.
+ *
  * @public
  */
 export interface FormKitSchemaExtendableSection {
   (extensions: Record<string, Partial<FormKitSchemaNode>>): FormKitSchemaNode
+  _s?: string
 }
 
 /**
  * A function that when called, returns a function that can in turn be called
  * with an extension parameter.
+ *
  * @public
  */
 export interface FormKitSection<T = FormKitSchemaExtendableSection> {
@@ -185,6 +208,17 @@ export interface FormKitSection<T = FormKitSchemaExtendableSection> {
 }
 
 /**
+ * Creates a new reusable section.
+ *
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @param root - When true, returns a FormKitExtendableSchemaRoot. When false,
+ * returns a FormKitSchemaExtendableSection.
+ *
+ * @returns Returns a {@link @formkit/core#FormKitExtendableSchemaRoot
+ * | FormKitExtendableSchemaRoot} or a {@link
+ * @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}.
+ *
  * @public
  */
 export function createSection(
@@ -192,14 +226,23 @@ export function createSection(
   el: string | null | (() => FormKitSchemaNode),
   root: true
 ): FormKitSection<FormKitExtendableSchemaRoot>
+
 /**
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ *
  * @public
  */
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode)
 ): FormKitSection<FormKitSchemaExtendableSection>
+
 /**
+ * @param section - A single section of schema
+ * @param el - The element or a function that returns a schema node.
+ * @param root - When false, returns a FormKitSchemaExtendableSection.
+ *
  * @public
  */
 export function createSection(
@@ -207,14 +250,7 @@ export function createSection(
   el: string | (() => FormKitSchemaNode),
   root: false
 ): FormKitSection<FormKitSchemaExtendableSection>
-/**
- * Creates a new reusable section.
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- * @param root - When true returns an extendable root schema node.
- * @returns
- * @public
- */
+
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
@@ -254,14 +290,19 @@ export function createSection(
             : node,
       }
     }
+    extendable._s = section
     return root ? createRoot(extendable) : extendable
   }
 }
 
 /**
  * Returns an extendable schema root node.
+ *
  * @param rootSection - Creates the root node.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
+ *
+ * @internal
  */
 function createRoot(
   rootSection: FormKitSchemaExtendableSection
@@ -274,16 +315,22 @@ function createRoot(
 /**
  * Applies attributes to a given schema section by applying a higher order
  * function that merges a given set of attributes into the node.
- * @param attrs - Apply attributes to a FormKitSchemaExtendableSection
- * @param section - A section to apply attributes to
- * @returns
+ *
+ * @param attrs - Attributes to apply to a {@link FormKitSchemaExtendableSection
+ * | FormKitSchemaExtendableSection}.
+ * @param section - A section to apply attributes to.
+ *
+ * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function $attrs(
   attrs: FormKitSchemaAttributes | (() => FormKitSchemaAttributes),
   section: FormKitSchemaExtendableSection
 ): FormKitSchemaExtendableSection {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+  const extendable = (
+    extensions: Record<string, Partial<FormKitSchemaNode>>
+  ) => {
     const node = section(extensions)
     const attributes = typeof attrs === 'function' ? attrs() : attrs
     if (!isObject(attributes)) return node
@@ -294,14 +341,19 @@ export function $attrs(
     }
     return node
   }
+  extendable._s = section._s
+  return extendable
 }
 
 /**
+ * Applies a condition to a given schema section.
  *
  * @param condition - A schema condition to apply to a section.
  * @param then - The section that applies if the condition is true.
  * @param otherwise - (else) The section that applies if the condition is false.
- * @returns
+ *
+ * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function $if(
@@ -309,7 +361,9 @@ export function $if(
   then: FormKitSchemaExtendableSection,
   otherwise?: FormKitSchemaExtendableSection
 ): FormKitSchemaExtendableSection {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+  const extendable = (
+    extensions: Record<string, Partial<FormKitSchemaNode>>
+  ) => {
     const node = then(extensions)
     if (
       otherwise ||
@@ -331,14 +385,19 @@ export function $if(
     }
     return node
   }
+  extendable._s = token()
+  return extendable
 }
 
 /**
  * Applies a condition to a given schema section.
+ *
  * @param varName - The name of the variable that holds the current instance.
  * @param inName - The variable we are iterating over.
- * @param section - A section to repeat
- * @returns
+ * @param section - A section to repeat.
+ *
+ * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function $for(
@@ -361,30 +420,46 @@ export function $for(
 
 /**
  * Extends a schema node with a given set of extensions.
+ *
  * @param section - A section to apply an extension to.
  * @param extendWith - A partial schema snippet to apply to the section.
- * @returns
+ *
+ * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function $extend(
   section: FormKitSchemaExtendableSection,
   extendWith: Partial<FormKitSchemaNode>
 ): FormKitSchemaExtendableSection {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+  const extendable = (
+    extensions: Record<string, Partial<FormKitSchemaNode>>
+  ) => {
     const node = section({})
     if (isSlotCondition(node)) {
       if (Array.isArray(node.else)) return node
-      node.else = extendSchema(extendSchema(node.else, extendWith), extensions)
+      node.else = extendSchema(
+        extendSchema(node.else, extendWith),
+        section._s ? extensions[section._s] : {}
+      )
       return node
     }
-    return extendSchema(extendSchema(node, extendWith), extensions)
+    return extendSchema(
+      extendSchema(node, extendWith),
+      section._s ? extensions[section._s] : {}
+    )
   }
+  extendable._s = section._s
+  return extendable
 }
 
 /**
  * Creates a root schema section.
+ *
  * @param section - A section to make a root from.
- * @returns
+ *
+ * @returns {@link FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}
+ *
  * @public
  */
 export function $root(

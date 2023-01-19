@@ -3,9 +3,13 @@ import { FormKitOptionsProp, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
- * Accepts an array of objects, array of strings, or object of key-value pairs.
- * and returns an array of objects with value and label properties.
- * @param options - Options to normalize
+ * A function to normalize an array of objects, array of strings, or object of
+ * key-values to use an array of objects with value and label properties.
+ *
+ * @param options - An un-normalized {@link FormKitOptionsProp | FormKitOptionsProp}.
+ *
+ * @returns A list of {@link FormKitOptionsList | FormKitOptionsList}.
+ *
  * @public
  */
 export function normalizeOptions(
@@ -40,10 +44,14 @@ export function normalizeOptions(
 }
 
 /**
- * Given an option list, find the "true" value in the options.
- * @param options - The options to check for a given value
+ * Given an {@link FormKitOptionsList | FormKitOptionsList}, find the real value in the options.
+ *
+ * @param options - The {@link FormKitOptionsList | FormKitOptionsList} to check for a given value
  * @param value - The value to return
- * @returns
+ *
+ * @returns `unknown`
+ *
+ * @public
  */
 export function optionValue(
   options: FormKitOptionsList,
@@ -61,8 +69,13 @@ export function optionValue(
 
 /**
  * Determines if the value should be selected.
+ *
  * @param valueA - Any type of value
  * @param valueB - Any type of value
+ *
+ * @returns `boolean`
+ *
+ * @public
  */
 export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
   if (valueA == valueB) return true
@@ -71,8 +84,11 @@ export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
 }
 
 /**
- * Converts the options prop to usable values.
- * @param node - A formkit node.
+ * A feature that converts the options prop to usable values, to be used by a
+ * feature or a plugin.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function options(node: FormKitNode): void {

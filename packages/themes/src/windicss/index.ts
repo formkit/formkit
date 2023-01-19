@@ -7,9 +7,10 @@ const outerAttributes = [
   'complete',
   'loading',
   'submitted',
+  'checked',
   'multiple',
-  'has-prefix-icon',
-  'has-suffix-icon',
+  'prefix-icon',
+  'suffix-icon',
 ]
 
 /**

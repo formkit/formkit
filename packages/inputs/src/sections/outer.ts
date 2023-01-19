@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Outer section where most data attributes are assigned.
+ *
  * @public
  */
 export const outer = createSection(

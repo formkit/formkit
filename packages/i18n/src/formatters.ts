@@ -1,7 +1,10 @@
 /**
  * Given a string, convert it to sentence case.
- * @param item - The string to sentence case
- * @returns
+ *
+ * @param str - The string to sentence case.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function sentence(str: string): string {
@@ -10,9 +13,13 @@ export function sentence(str: string): string {
 
 /**
  * Creates an oxford-comma separated list of items.
- * @param args - items to list out
- * @param conjunction - in: x, y, and z "and" is the conjunction to use
- * @returns
+ *
+ * @param items - the items to list out.
+ * @param conjunction - in the list "x, y, and z", "and" is the conjunction.
+ * Defaults to "or".
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function list(items: string[], conjunction = 'or'): string {
@@ -29,8 +36,12 @@ export function list(items: string[], conjunction = 'or'): string {
 }
 
 /**
- * Given a string or a date return a nice human-readable version.
+ * Given a string or a date, return a nice human-readable version.
+ *
  * @param date - A string or a date.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function date(date: string | Date): string {
@@ -40,14 +51,18 @@ export function date(date: string | Date): string {
   }
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
+    timeZone: 'UTC'
   } as any).format(dateTime)
 }
 
 /**
- * Orders two variables smallest to largest.
- * @param first - first argument
- * @param second - Second argument
- * @returns
+ * Orders two variables from smallest to largest.
+ *
+ * @param first - The first number or string.
+ * @param second - The second number or string.
+ *
+ * @returns `[smaller: number | string, larger: number | string]`
+ *
  * @public
  */
 export function order(

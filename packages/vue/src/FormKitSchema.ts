@@ -733,19 +733,23 @@ function createRenderFn(
       return requirements.reduce((tokens, token) => {
         if (token.startsWith('slots.')) {
           const slot = token.substring(6)
-          const hasSlot = data.slots && has(data.slots, slot)
+          const hasSlot = () =>
+            data.slots &&
+            has(data.slots, slot) &&
+            typeof data.slots[slot] === 'function'
           if (hints.if) {
             // If statement — dont render the slot, check if it exists
-            tokens[token] = () => hasSlot
-          } else if (data.slots && hasSlot) {
+            tokens[token] = hasSlot
+          } else if (data.slots) {
             // Render the slot with current scope data
             const scopedData = slotData(data, instanceKey)
-            tokens[token] = () => data.slots[slot](scopedData)
-            return tokens
+            tokens[token] = () =>
+              hasSlot() ? data.slots[slot](scopedData) : null
           }
+        } else {
+          const value = getRef(token, data)
+          tokens[token] = () => useScope(token, value.value)
         }
-        const value = getRef(token, data)
-        tokens[token] = () => useScope(token, value.value)
         return tokens
       }, {} as Record<string, any>)
     },
@@ -757,6 +761,7 @@ let i = 0
 
 /**
  * The FormKitSchema vue component:
+ *
  * @public
  */
 export const FormKitSchema = defineComponent({

@@ -1,3 +1,9 @@
+/**
+ * FormKit Observer is a utility to wrap a FormKitNode in a dependency tracking observer proxy.
+ *
+ * @packageDocumentation
+ */
+
 import { has } from '@formkit/utils'
 import {
   FormKitNode,
@@ -8,17 +14,21 @@ import {
 } from '@formkit/core'
 
 /**
- * An API compatible FormKitNode that is able to determine the full dependency
+ * An API-compatible FormKitNode that is able to determine the full dependency
  * tree of nodes and their values.
  * @public
  */
 export interface FormKitObservedNode extends FormKitNode {
+  _node: FormKitNode
   deps: FormKitDependencies
-  kill: () => void
+  kill: () => undefined
   observe: () => void
   receipts: FormKitObserverReceipts
   stopObserve: () => FormKitDependencies
-  watch: (block: FormKitWatchable) => void
+  watch: <T extends FormKitWatchable>(
+    block: T,
+    after?: (value: ReturnType<T>) => void
+  ) => void
 }
 
 /**
@@ -39,8 +49,8 @@ type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
  * A callback to watch for nodes.
  * @public
  */
-export interface FormKitWatchable {
-  (node: FormKitObservedNode): any
+export interface FormKitWatchable<T = unknown> {
+  (node: FormKitObservedNode): T
 }
 
 /**
@@ -49,9 +59,11 @@ export interface FormKitWatchable {
 const revokedObservers = new WeakSet()
 
 /**
- * The FormKitNode to observe.
- * @param node - Any formkit node to observe.
- * @returns
+ * Creates the observer.
+ * @param node - The {@link @formkit/core#FormKitNode | FormKitNode} to observe.
+ * @param dependencies - The dependent nodes and the events that are required to
+ * watch for changes.
+ * @returns Returns a {@link @formkit/observer#FormKitObservedNode | FormKitObservedNode}.
  * @public
  */
 export function createObserver(
@@ -131,11 +143,15 @@ export function createObserver(
   }: { proxy: FormKitNode; revoke: () => void } = Proxy.revocable(node, {
     get(...args) {
       switch (args[1]) {
+        case '_node':
+          return node
         case 'deps':
           return deps
         case 'watch':
-          return (block: FormKitWatchable) =>
-            watch(observed as FormKitObservedNode, block)
+          return <T extends FormKitWatchable>(
+            block: T,
+            after?: (value: unknown) => void
+          ) => watch(observed as FormKitObservedNode, block, after)
         case 'observe':
           return () => {
             const old = new Map(deps)
@@ -152,10 +168,11 @@ export function createObserver(
         case 'receipts':
           return receipts
         case 'kill':
-          return () => {
+          return (): undefined => {
             removeListeners(receipts)
             revokedObservers.add(args[2])
             revoke()
+            return undefined
           }
       }
       const value = Reflect.get(...args)
@@ -174,11 +191,11 @@ export function createObserver(
 }
 
 /**
- * Given two maps (toAdd and toRemove) apply the dependencies as event listeners
- * on the underlying nodes.
- * @param node - The node to apply dependencies to
- * @param delta - The toAdd and toRemove dependency Maps
- * @public
+ * Given two maps (`toAdd` and `toRemove`), apply the dependencies as event
+ * listeners on the underlying nodes.
+ * @param node - The node to apply dependencies to.
+ * @param callback - The callback to add or remove.
+ * @internal
  */
 export function applyListeners(
   node: FormKitObservedNode,
@@ -190,7 +207,7 @@ export function applyListeners(
       node.receipts.has(depNode) || node.receipts.set(depNode, {})
       node.receipts.set(
         depNode,
-        Object.assign(node.receipts.get(depNode), {
+        Object.assign(node.receipts.get(depNode) ?? {}, {
           [event]: depNode.on(event, callback),
         })
       )
@@ -212,7 +229,7 @@ export function applyListeners(
 
 /**
  * Remove all the receipts from the observed node and subtree.
- * @param receipts - The formkit observer receipts to remove
+ * @param receipts - The FormKit observer receipts to remove.
  * @public
  */
 export function removeListeners(receipts: FormKitObserverReceipts): void {
@@ -230,24 +247,31 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
  * @param block - The block of code to observe
  * @public
  */
-async function watch(
+function watch<T extends FormKitWatchable>(
   node: FormKitObservedNode,
-  block: FormKitWatchable
-): Promise<void> {
+  block: T,
+  after?: (value: unknown) => void
+): void {
+  const doAfterObservation = (res: unknown) => {
+    const newDeps = node.stopObserve()
+    applyListeners(node, diffDeps(oldDeps, newDeps), () =>
+      watch(node, block, after)
+    )
+    if (after) after(res)
+  }
   const oldDeps = new Map(node.deps)
   node.observe()
   const res = block(node)
-  if (res instanceof Promise) await res
-  const newDeps = node.stopObserve()
-  applyListeners(node, diffDeps(oldDeps, newDeps), () => watch(node, block))
+  if (res instanceof Promise) res.then((val) => doAfterObservation(val))
+  else doAfterObservation(res)
 }
 
 /**
  * Determines which nodes should be added as dependencies and which should be
  * removed.
- * @param previous - The previous watcher dependencies
- * @param current - The new/current watcher dependencies
- * @returns
+ * @param previous - The previous watcher dependencies.
+ * @param current - The new/current watcher dependencies.
+ * @returns A tuple of maps: `toAdd` and `toRemove`.
  * @public
  */
 export function diffDeps(
@@ -284,9 +308,9 @@ export function diffDeps(
 }
 
 /**
- * Checks if the given noe is revoked.
+ * Checks if the given node is revoked.
  * @param node - Any observed node to check.
- * @returns
+ * @returns A `boolean` indicating if the node is revoked.
  * @public
  */
 export function isKilled(node: FormKitObservedNode): boolean {

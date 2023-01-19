@@ -1,7 +1,8 @@
 import { FormKitNode } from './node'
 
 /**
- * Definition for a function that produces CSS classes
+ * Definition for a function that produces CSS classes.
+ *
  * @public
  */
 export interface FormKitClasses {
@@ -9,11 +10,14 @@ export interface FormKitClasses {
 }
 
 /**
- * Function that produces a standardized object representation of CSS classes
- * @param propertyKey - section key
- * @param node - FormKit node
- * @param sectionClassList - Things to turn into classes
- * @returns
+ * Function that produces a standardized object representation of CSS classes.
+ *
+ * @param propertyKey - the section key.
+ * @param node - A {@link FormKitNode | FormKitNode}.
+ * @param sectionClassList - A `string | Record<string, boolean>` or a {@link FormKitClasses | FormKitClasses}.
+ *
+ * @returns `Record<string, boolean>`
+ *
  * @public
  */
 export function createClasses(
@@ -39,11 +43,14 @@ export function createClasses(
 }
 
 /**
- * Combines multiple class lists into a single list
- * @param node - the FormKit node being operated on
- * @param property - The property key to which the class list will be applied
- * @param args - CSS class list(s)
- * @returns
+ * Combines multiple class lists into a single list.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}.
+ * @param property - The property key to which the class list will be applied.
+ * @param args - And array of `Record<string, boolean>` of CSS class list(s).
+ *
+ * @returns `string | null`
+ *
  * @public
  */
 export function generateClassList(
@@ -52,20 +59,37 @@ export function generateClassList(
   ...args: Record<string, boolean>[]
 ): string | null {
   const combinedClassList = args.reduce((finalClassList, currentClassList) => {
-    if (!currentClassList) return finalClassList
+    if (!currentClassList) return handleNegativeClasses(finalClassList)
     const { $reset, ...classList } = currentClassList
     if ($reset) {
-      return classList
+      return handleNegativeClasses(classList)
     }
-    return Object.assign(finalClassList, classList)
+    return handleNegativeClasses(Object.assign(finalClassList, classList))
   }, {})
 
-  return (
-    Object.keys(
-      node.hook.classes.dispatch({ property, classes: combinedClassList })
-        .classes
-    )
-      .filter((key) => combinedClassList[key])
-      .join(' ') || null
+  return Object.keys(
+    node.hook.classes.dispatch({ property, classes: combinedClassList })
+      .classes
   )
+    .filter((key) => combinedClassList[key])
+    .join(' ') || null
+}
+
+function handleNegativeClasses(classList: Record<string, boolean>): Record<string, boolean> {
+  let hasNegativeClassValue = false
+  const applicableClasses = Object.keys(classList).filter((className) => {
+    if (classList[className] && className.startsWith('!')) {
+      hasNegativeClassValue = true
+    }
+    return classList[className]
+  })
+  if (applicableClasses.length > 1 && hasNegativeClassValue) {
+    const negativeClasses = applicableClasses.filter(className => className.startsWith('!'))
+    negativeClasses.map((negativeClass) => {
+      const targetClass = negativeClass.substring(1)
+      classList[targetClass] = false
+      classList[negativeClass] = false
+    })
+  }
+  return classList
 }

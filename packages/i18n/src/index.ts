@@ -1,6 +1,16 @@
+/**
+ * The official FormKit internationalization (i18n) plugin. This package
+ * contains the locales and the plugin that integrates FormKit with these
+ * locales. Read the {@link https://formkit.com/essentials/internationalization
+ * | internationalization documentation} for usage instructions.
+ *
+ * @packageDocumentation
+ */
+
 import * as ar from './locales/ar'
 import * as az from './locales/az'
 import * as bg from './locales/bg'
+import * as ca from './locales/ca'
 import * as cs from './locales/cs'
 import * as da from './locales/da'
 import * as de from './locales/de'
@@ -44,12 +54,14 @@ export * from './i18n'
 
 /**
  * Export all the available locales at once.
+ *
  * @public
  */
 export const locales = {
   ar,
   az,
   bg,
+  ca,
   cs,
   da,
   de,
@@ -90,11 +102,11 @@ export const locales = {
 /**
  * Export each locale individually for people who want to cherry pick.
  */
-
 export {
   ar,
   az,
   bg,
+  ca,
   cs,
   da,
   de,
@@ -111,8 +123,8 @@ export {
   id,
   it,
   ja,
-  ko,
   kk,
+  ko,
   nb,
   nl,
   pl,

@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Input section for a file input
+ *
  * @public
  */
 export const fileInput = createSection('input', () => ({

@@ -1,5 +1,10 @@
 import { createNode, createMessage } from '@formkit/core'
-import { createObserver, FormKitWatchable, isKilled } from '../src'
+import {
+  createObserver,
+  FormKitWatchable,
+  isKilled,
+  FormKitObservedNode,
+} from '../src'
 import { jest } from '@jest/globals'
 
 describe('observer', () => {
@@ -35,6 +40,28 @@ describe('observer', () => {
     expect(validation).toHaveBeenCalledTimes(1)
     node.input(400, false)
     expect(validation).toHaveBeenCalledTimes(2)
+  })
+
+  it('can watch a block and then pass the result to an after function that does not track', () => {
+    const node = createObserver(
+      createNode({ value: 1, props: { multiplier: 3, equals: 9 } })
+    )
+    const watchable = jest.fn(
+      (node: FormKitObservedNode) =>
+        node.props.multiplier * (node.value as number)
+    )
+    const after = jest.fn((value: number) => node.props.equals === value)
+    node.watch(watchable, after)
+    expect(watchable).toHaveBeenCalledTimes(1)
+    expect(after).toHaveBeenCalledTimes(1)
+    expect(after).toHaveBeenLastCalledWith(3)
+    node.input(2, false)
+    expect(watchable).toHaveBeenCalledTimes(2)
+    expect(after).toHaveBeenCalledTimes(2)
+    expect(after).toHaveBeenLastCalledWith(6)
+    node.props.equals = 12
+    expect(watchable).toHaveBeenCalledTimes(2)
+    expect(after).toHaveBeenCalledTimes(2)
   })
 
   it('can watch a node accessing its child', async () => {
@@ -170,5 +197,16 @@ describe('observer', () => {
     node.store.set(createMessage({ blocking: true }))
     expect(watcher).toHaveBeenCalledTimes(2)
     expect(watcher).toHaveReturnedWith(1)
+  })
+
+  it('stops watching when killed', () => {
+    const node = createNode()
+    const observed = createObserver(node)
+    const watcher = jest.fn((node: FormKitObservedNode) => node.value)
+    observed.watch(watcher)
+    expect(watcher).toHaveBeenCalledTimes(1)
+    observed.kill()
+    node.input('fizbuz')
+    expect(watcher).toHaveBeenCalledTimes(1)
   })
 })

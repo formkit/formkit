@@ -1,6 +1,8 @@
 import { createSection } from '../compose'
 
 /**
+ * Option help section
+ *
  * @public
  */
 export const boxHelp = createSection('optionHelp', () => ({

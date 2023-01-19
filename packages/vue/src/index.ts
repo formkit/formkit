@@ -1,6 +1,13 @@
 /**
+ * The official FormKit/Vue integration. This package is responsible for
+ * integrating Vue with FormKit core and other first-party packages.
+ *
+ *
+ * @packageDocumentation
+ */
+
+/**
  * The useInput composable.
- * @public
  */
 export { useInput } from './composables/useInput'
 
@@ -16,38 +23,38 @@ export { default as watchVerbose } from './composables/watchVerbose'
 
 /**
  * The plugin and plugin types.
- * @public
  */
 export * from './plugin'
 
 /**
  * The root FormKit component.
- * @public
  */
 export { default as FormKit, parentSymbol } from './FormKit'
 
 /**
- * The FormKitSchema component.
+ * The FormKitMessages component.
  * @public
+ */
+export { FormKitMessages } from './FormKitMessages'
+
+/**
+ * The FormKitSchema component.
  */
 export { FormKitSchema } from './FormKitSchema'
 
 /**
  * The default configuration.
- * @public
  */
 export { default as defaultConfig, DefaultConfigOptions } from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all
  * vue based FormKit configurations.
- * @public
  */
 export { default as bindings } from './bindings'
 
 /**
  * A vue component for rendering icons from the FormKit icon registry
- * @public
  */
 export { FormKitIcon } from './FormKitIcon'
 

@@ -2,9 +2,12 @@ import { camel, extend, has } from '@formkit/utils'
 import { FormKitLibrary, FormKitPlugin, FormKitNode } from '@formkit/core'
 
 /**
+ * Creates a plugin based on a list of {@link @formkit/core#FormKitLibrary | FormKitLibrary}.
  *
- * @param libraries - One or many formkit urls.
- * @returns
+ * @param libraries - One or many {@link @formkit/core#FormKitLibrary | FormKitLibrary}.
+ *
+ * @returns {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export function createLibraryPlugin(

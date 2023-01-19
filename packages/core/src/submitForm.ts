@@ -2,7 +2,9 @@ import { warn } from './errors'
 
 /**
  * Submits a FormKit form programmatically.
- * @param id - The id of the form
+ *
+ * @param id - The id of the form.
+ *
  * @public
  */
 export function submitForm(id: string): void {

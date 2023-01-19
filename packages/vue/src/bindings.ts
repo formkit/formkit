@@ -31,7 +31,9 @@ import { createObserver } from '@formkit/observer'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
+ *
  * @param node - FormKitNode to create the context on.
+ *
  * @public
  */
 const vueBindings: FormKitPlugin = function vueBindings(node) {
@@ -153,7 +155,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
       const [target, property] = args
-      let className = Reflect.get(...args)
+      let className: string | null = Reflect.get(...args)
       if (!className && typeof property === 'string') {
         if (!has(target, property) && !property.startsWith('__v')) {
           const observedNode = createObserver(node)
@@ -183,7 +185,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
               classesPropClasses,
               sectionPropClasses
             )
-            target[property] = className
+            target[property] = className ?? ''
           })
         }
       }
@@ -242,6 +244,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     messages,
     node: markRaw(node),
     options: node.props.options,
+    defaultMessagePlacement: true,
     state: {
       blurred: false,
       complete: isComplete,

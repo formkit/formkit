@@ -1,10 +1,13 @@
 import { FormKitMiddleware, FormKitNode } from '@formkit/core'
-import { extend, kebab } from '@formkit/utils'
+import { extend, slugify } from '@formkit/utils'
 
 /**
- * Normalize the boxes.
- * @param node - The node
- * @returns
+ * A feature that normalizes box types (checkboxes, radios).
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
+ * @returns A {@link @formkit/node#FormKitMiddleware | FormKitMiddleware}.
+ *
  * @public
  */
 export default function normalizeBoxes(
@@ -15,7 +18,7 @@ export default function normalizeBoxes(
       prop.value = prop.value.map((option) => {
         if (!option.attrs?.id) {
           return extend(option, {
-            attrs: { id: `${node.name}-option-${kebab(String(option.value))}` },
+            attrs: { id: `${node.name}-option-${slugify(String(option.value))}` },
           })
         }
         return option

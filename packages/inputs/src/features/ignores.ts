@@ -1,8 +1,10 @@
 import { FormKitNode } from '@formkit/core'
 
 /**
- * Applies ignore="true" by default.
- * @param node - The node
+ * A feature that applies `ignore="true"` by default.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function ignore(node: FormKitNode): void {

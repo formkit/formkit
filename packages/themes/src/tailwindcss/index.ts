@@ -1,4 +1,5 @@
 import plugin from 'tailwindcss/plugin.js'
+import genesis from './genesis'
 
 const outerAttributes = [
   'disabled',
@@ -7,22 +8,22 @@ const outerAttributes = [
   'complete',
   'loading',
   'submitted',
+  'checked',
   'multiple',
-  'has-prefix-icon',
-  'has-suffix-icon',
+  'prefix-icon',
+  'suffix-icon',
 ]
 
 /**
  * The FormKit plugin for Tailwind
  * @public
  */
-// @ts-expect-error matchVariant is not documented or have types
 const FormKitVariants = plugin(function ({ matchVariant }) {
   const attributes = outerAttributes.reduce((a, v) => ({ ...a, [v]: v }), {})
 
   matchVariant(
     'formkit',
-    (value = '', { modifier }: { modifier: string }) => {
+    (value = '', { modifier }) => {
       return modifier
         ? [
             `[data-${value}='true']:merge(.group\\/${modifier})&`,
@@ -38,3 +39,4 @@ const FormKitVariants = plugin(function ({ matchVariant }) {
 })
 
 export default FormKitVariants
+export { FormKitVariants, genesis }

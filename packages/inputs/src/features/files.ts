@@ -12,7 +12,10 @@ const isBrowser = typeof window !== 'undefined'
 
 /**
  * Remove the data-file-hover attribute from the target.
+ *
  * @param e - Event
+ *
+ * @internal
  */
 function removeHover(e: Event) {
   if (
@@ -25,8 +28,10 @@ function removeHover(e: Event) {
 
 /**
  * Prevent stray drag/drop events from navigating the window.
+ *
  * @param e - Event
- * @public
+ *
+ * @internal
  */
 function preventStrayDrop(type: string, e: Event) {
   if (!(e.target instanceof HTMLInputElement)) {
@@ -40,8 +45,10 @@ function preventStrayDrop(type: string, e: Event) {
 }
 
 /**
- * Feature to add file handling support to an input.
- * @param node - The node being checked
+ * A feature to add file handling support to an input.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function files(node: FormKitNode): void {

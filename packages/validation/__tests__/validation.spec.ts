@@ -6,7 +6,12 @@ import {
   FormKitValidationRule,
   getValidationMessages,
 } from '../src/validation'
-import { createNode } from '@formkit/core'
+import {
+  createNode,
+  FormKitNode,
+  FormKitMiddleware,
+  FormKitTextFragment,
+} from '@formkit/core'
 import { jest } from '@jest/globals'
 
 const defaultValidation = {
@@ -16,6 +21,7 @@ const defaultValidation = {
   state: null,
   deps: new Map(),
 }
+
 const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
 
 describe('validation rule parsing', () => {
@@ -527,6 +533,7 @@ describe('validation rule sequencing', () => {
       plugins: [validationPlugin],
       props: {
         validation: 'required|exists',
+        delay: 0,
       },
       value: 'abcdef',
     })
@@ -684,5 +691,61 @@ describe('getValidationMessages', () => {
         [node.at('form.bam'), [node.at('form.bam')?.store.rule_required]],
       ])
     )
+  })
+
+  it('does not reboot when the validation rules are the same (#514)', () => {
+    // Let's pretend this is an expensive API call.
+    const username_exists = jest.fn(function ({ value }: FormKitNode) {
+      return new Promise<boolean>((resolve) => {
+        setTimeout(() => resolve(value === 'formkit-4-life'), 200)
+      })
+    })
+
+    const node = createNode({
+      value: 'foobar',
+      plugins: [validationPlugin],
+      props: {
+        validation: 'username_exists',
+        validationRules: { username_exists },
+      },
+    })
+    expect(username_exists).toHaveBeenCalledTimes(1)
+    node.props.validationRules = { username_exists }
+    expect(username_exists).toHaveBeenCalledTimes(1)
+  })
+
+  it('changes the label when the prop changes', async () => {
+    const length: FormKitValidationRule = jest.fn(
+      ({ value }, length) => ('' + value).length >= parseInt(length)
+    )
+    const required: FormKitValidationRule = jest.fn(({ value }) => !!value)
+    required.skipEmpty = false
+    const validationPlugin = createValidationPlugin({
+      length,
+      required,
+    })
+    const hook: FormKitMiddleware<FormKitTextFragment> = (t, next) => next(t)
+    const textMiddleware = jest.fn(hook)
+    const node = createNode({
+      value: '',
+      plugins: [validationPlugin, (node) => node.hook.text(textMiddleware)],
+      props: {
+        label: 'Foo',
+        validation: 'required',
+        delay: 0,
+      },
+    })
+    expect(node.store).toHaveProperty('rule_required')
+    expect(textMiddleware).toHaveBeenCalledTimes(1)
+    node.props.label = 'Bar'
+    expect(textMiddleware).toHaveBeenCalledTimes(2)
+    node.props.validation = 'length:7'
+    expect(node.store).not.toHaveProperty('rule_required')
+    node.input('123')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(length).toHaveBeenCalledTimes(1)
+    node.props.label = 'Bam'
+    expect(node.store).not.toHaveProperty('rule_required')
+    expect(textMiddleware).toHaveBeenCalledTimes(4)
   })
 })

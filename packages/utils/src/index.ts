@@ -1,4 +1,12 @@
 /**
+ * Commonly shared utility functions between official FormKit packages.
+ *
+ * You can add this package by using `npm install @formkit/utils` or `yarn add @formkit/utils`.
+ *
+ * @packageDocumentation
+ */
+
+/**
  * Explicit keys that should always be cloned.
  */
 const explicitKeys = [
@@ -12,17 +20,41 @@ const explicitKeys = [
 
 /**
  * Generates a random string.
+ *
+ * @example
+ *
+ * ```javascript
+ * import { token } from '@formkit/utils'
+ *
+ * const tk = token()
+ * // 'jkbyqnphqm'
+ * ```
+ *
  * @returns string
+ *
  * @public
  */
 export function token(): string {
   return Math.random().toString(36).substring(2, 15)
 }
+
 /**
  * Creates a new set of the specified type and uses the values from an Array or
  * an existing Set.
- * @param items -
- * @returns Set
+ *
+ * @example
+ *
+ * ```javascript
+ * import { setify } from '@formkit/utils'
+ *
+ * const tk = setify(['a', 'b'])
+ * // Set(2) {'a', 'b'}
+ * ```
+ *
+ * @param items - An array or a Set.
+ *
+ * @returns `Set<T>`
+ *
  * @public
  */
 export function setify<T>(items: Set<T> | T[] | null | undefined): Set<T> {
@@ -31,9 +63,12 @@ export function setify<T>(items: Set<T> | T[] | null | undefined): Set<T> {
 
 /**
  * Given 2 arrays, return them as a combined array with no duplicates.
- * @param arr1 -
- * @param arr2 -
- * @returns any[]
+ *
+ * @param arr1 - First array.
+ * @param arr2 - Second array.
+ *
+ * @returns `any[]`
+ *
  * @public
  */
 export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
@@ -47,24 +82,34 @@ export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
 
 /**
  * Checks if the given property exists on the given object.
- * @param obj -
- * @param property -
+ *
+ * @param obj - An object to check.
+ * @param property - The property to check.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function has(
-  obj: { [index: string]: any; [index: number]: any },
+  obj: {
+    [index: string]: any;
+    [index: number]: any;
+  },
   property: string | symbol | number
 ): boolean {
   return Object.prototype.hasOwnProperty.call(obj, property)
 }
 
 /**
- * Compare two values for equality optionally at depth.
- * @param valA - Any type of input
- * @param valB - Any type of output
- * @param deep - Indicate if we should recurse into the object
- * @param explicit - Explicit keys
- * @returns boolean
+ * Compare two values for equality, optionally at depth.
+ *
+ * @param valA - First value.
+ * @param valB - Second value.
+ * @param deep - If it will compare deeply if it's an object.
+ * @param explicit - An array of keys to explicity check.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function eq(
@@ -95,7 +140,11 @@ export function eq(
 
 /**
  * Determines if a value is empty or not.
- * @param value - any type of value that could be returned by an input.
+ *
+ * @param value - The value to check if it's empty.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function empty(
@@ -119,7 +168,11 @@ export function empty(
 
 /**
  * Escape a string for use in regular expressions.
- * @param string - The string to escape.
+ *
+ * @param string - String to be escaped.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function escapeExp(string: string): string {
@@ -129,14 +182,24 @@ export function escapeExp(string: string): string {
 
 /**
  * The date token strings that can be used for date formatting.
+ *
  * @public
  */
 export type FormKitDateTokens = 'MM' | 'M' | 'DD' | 'D' | 'YYYY' | 'YY'
 
 /**
- * Given a string format (date) return a regex to match against.
- * @param format - The format of the string
- * @returns
+ * Given a string date format, return a regex to match against.
+ *
+ * @param format - String to be transformed to RegExp.
+ *
+ * @example
+ *
+ * ```javascript
+ * regexForFormat('MM') // returns '(0[1-9]|1[012])'
+ * ```
+ *
+ * @returns `RegExp`
+ *
  * @public
  */
 export function regexForFormat(format: string): RegExp {
@@ -158,8 +221,12 @@ export function regexForFormat(format: string): RegExp {
 }
 
 /**
- * Given a FormKit input type
- * @param type - Any FormKit input type
+ * Given a FormKit input type, returns the correct lowerCased() type.
+ *
+ * @param type - String to return to check for correct type
+ *
+ * @returns `'list' | 'group' | 'input'`
+ *
  * @public
  */
 export function nodeType(type: string): 'list' | 'group' | 'input' {
@@ -170,9 +237,12 @@ export function nodeType(type: string): 'list' | 'group' | 'input' {
 }
 
 /**
- * Determines if an object is an object or not.
- * @param o - any value
- * @returns
+ * Determines if an object is an object.
+ *
+ * @param o - The value to be checked.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -182,8 +252,11 @@ export function isRecord(o: unknown): o is Record<PropertyKey, unknown> {
 
 /**
  * Checks if an object is a simple array or record.
- * @param o - A value to check
- * @returns
+ *
+ * @param o - Value to be checked.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function isObject(
@@ -193,11 +266,14 @@ export function isObject(
 }
 
 /**
- * Attempts to determine if an object is a plain object. Mostly lifted from
- * is-plain-object: https://github.com/jonschlinkert/is-plain-object
+ * Attempts to determine if an object is a POJO (Plain Old JavaScript Object).
+ * Mostly lifted from is-plain-object: https://github.com/jonschlinkert/is-plain-object
  * Copyright (c) 2014-2017, Jon Schlinkert.
- * @param o - any value
- * @returns
+ *
+ * @param o - The value to be checked.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -216,10 +292,16 @@ export function isPojo(o: any): o is Record<string, any> {
 
 /**
  * Recursively merge data from additional into original returning a new object.
- * @param original - An object to extend
- * @param additional - An object to modify the original object with.
- * @param arrays - By default replaces arrays, but can also append to them.
- * @param ignoreUndefined - when true it treats undefined values as if they dont exist
+ *
+ * @param original - The original array.
+ * @param additional - The array to merge.
+ * @param extendArrays - If it will extend/concatenate array values instead of
+ * replacing them.
+ * @param ignoreUndefined - If it will preserve values from the original object
+ * even if the additional object has those values set to undefined.
+ *
+ * @returns `Record<string, any> | string | null`
+ *
  * @public
  */
 export function extend(
@@ -270,7 +352,11 @@ export function extend(
 }
 
 /**
- * Determine if the given string is fully quoted. Examples:
+ * Determine if the given string is fully quoted.
+ *
+ * @example
+ *
+ * ```javascript
  * hello - false
  * "hello" - true
  * 'world' - true
@@ -279,7 +365,12 @@ export function extend(
  * "hello"'there' - false
  * "hello""there" - false
  * 'hello === world' - true
- * @param str - A string to check.
+ * ```
+ *
+ * @param str - The string to check.
+ *
+ * @returns `boolean`
+ *
  * @public
  */
 export function isQuotedString(str: string): boolean {
@@ -301,7 +392,11 @@ export function isQuotedString(str: string): boolean {
 
 /**
  * Remove extra escape characters.
- * @param str - A string to remove escape characters from.
+ *
+ * @param str - String to remove extra escape characters from.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function rmEscapes(str: string): string {
@@ -319,9 +414,13 @@ export function rmEscapes(str: string): string {
 }
 
 /**
- * Performs a recursive Object.assign like operation.
- * @param a - An object to be extended by object b
- * @param b - An object to copy values from
+ * Performs a recursive `Object.assign`-like operation.
+ *
+ * @param a - An object to be assigned.
+ * @param b - An object to get values from.
+ *
+ * @returns `A & B`
+ *
  * @public
  */
 export function assignDeep<
@@ -350,7 +449,11 @@ export function assignDeep<
 /**
  * Filters out values from an object that should not be considered "props" of
  * a core node, like "value" and "name".
- * @param attrs - An object to extract core node config from.
+ *
+ * @param sets - The arrays to get values filtered out of.
+ *
+ * @returns `Record<string, any>`
+ *
  * @public
  */
 export function nodeProps(
@@ -363,8 +466,12 @@ export function nodeProps(
 }
 
 /**
- * Parse a string for comma-separated arguments
- * @param str - A string to parse
+ * Parse a string for comma-separated arguments.
+ *
+ * @param str - String to parse arguments from.
+ *
+ * @returns `string[]`
+ *
  * @public
  */
 export function parseArgs(str: string): string[] {
@@ -399,10 +506,14 @@ export function parseArgs(str: string): string[] {
 }
 
 /**
- * Return a new (shallow) object with all properties from a given object
- * that are present in the array.
- * @param obj - An object to clone
- * @param toRemove - An array of keys to remove
+ * Return a new (shallow) object with any desired props removed.
+ *
+ * @param obj - The starting object.
+ * @param toRemove - The array of properties to remove. Accepts strings or
+ * regular expressions.
+ *
+ * @returns `Record<string, any>`
+ *
  * @public
  */
 export function except(
@@ -422,11 +533,14 @@ export function except(
 
 /**
  * Extracts a set of keys from a given object. Importantly, this will extract
- * values even if they are not set on the original object they will just have an
- * undefined value.
- * @param obj - An object to extract values from
- * @param include - A set of keys to extract
- * @returns
+ * values even if they are not set on the original object — they will just have
+ * an undefined value.
+ *
+ * @param obj - The object to get values from.
+ * @param include - The array of items to get.
+ *
+ * @returns `Record<string, any>`
+ *
  * @public
  */
 export function only(
@@ -449,9 +563,12 @@ export function only(
 }
 
 /**
- * This converts kebab-case to camelCase. It ONLY converts from kebab for
- * efficiency stake.
- * @param str - String to convert.
+ * This converts kebab-case to camelCase. It ONLY converts from kebab to camel.
+ *
+ * @param str - String to be camel cased.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function camel(str: string): string {
@@ -462,8 +579,11 @@ export function camel(str: string): string {
 
 /**
  * This converts camel-case to kebab case. It ONLY converts from camel to kebab.
- * @param str - Converts camel to kebab
- * @returns
+ *
+ * @param str - String to be kebabed.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function kebab(str: string): string {
@@ -478,9 +598,13 @@ export function kebab(str: string): string {
 }
 
 /**
- * Very shallowly clones the given object.
- * @param obj - The object to shallow clone
- * @returns
+ * Shallowly clones the given object.
+ *
+ * @param obj - Object to be shallowly cloned.
+ * @param explicit - The array of keys to be explicity cloned.
+ *
+ * @returns `T`
+ *
  * @public
  */
 export function shallowClone<T>(obj: T, explicit: string[] = explicitKeys): T {
@@ -497,9 +621,14 @@ export function shallowClone<T>(obj: T, explicit: string[] = explicitKeys): T {
 }
 
 /**
- * Perform a recursive clone on a given object. This only intended to be used
- * for simple objects like arrays and pojos.
- * @param obj - Object to clone
+ * Perform a recursive clone on a given object. Only intended to be used
+ * for simple objects like arrays and POJOs.
+ *
+ * @param obj - Object to be cloned.
+ * @param explicit - Array of items to be explicity cloned.
+ *
+ * @returns `T`
+ *
  * @public
  */
 export function clone<T extends Record<string, unknown> | unknown[] | null>(
@@ -542,9 +671,13 @@ export function clone<T extends Record<string, unknown> | unknown[] | null>(
 }
 
 /**
- * Clones anything. If the item is scalar, no worries, it passes it back. if it
+ * Clones anything. If the item is scalar, no worries, it passes it back. If it
  * is an object, it performs a (fast/loose) clone operation.
- * @param obj - The object to clone
+ *
+ * @param obj - The value to be cloned.
+ *
+ * @returns `T`
+ *
  * @public
  */
 export function cloneAny<T>(obj: T): T {
@@ -555,8 +688,12 @@ export function cloneAny<T>(obj: T): T {
 
 /**
  * Get a specific value via dot notation.
- * @param obj - An object to fetch data from
- * @param addr - An "address" in dot notation
+ *
+ * @param obj - An object to fetch data from.
+ * @param addr - An "address" in dot notation.
+ *
+ * @returns `unknown`
+ *
  * @public
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -577,11 +714,14 @@ export function getAt(obj: any, addr: string): unknown {
 
 /**
  * Determines if the value of a prop that is either present (true) or not
- * present (undefined). For example the prop disabled should disable
+ * present (undefined). For example, the prop disabled should disable
  * by just existing, but what if it is set to the string "false" — then it
  * should not be disabled.
- * @param value - value to be checked
- * @returns
+ *
+ * @param value - Value to check for undefined.
+ *
+ * @returns `true | undefined`
+ *
  * @public
  */
 export function undefine(value: unknown): true | undefined {
@@ -592,8 +732,11 @@ export function undefine(value: unknown): true | undefined {
 
 /**
  * Defines an object as an initial value.
- * @param obj - Object
- * @returns
+ *
+ * @param obj - Object to be added an initial value.
+ *
+ * @returns `T & { __init?: true }`
+ *
  * @public
  */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
@@ -607,7 +750,12 @@ export function init<T extends object>(obj: T): T & { __init?: true } {
 }
 
 /**
- * Turn any string into a URL/DOM safe string.
+ * Turn any string into a URL/DOM-safe string.
+ *
+ * @param str - String to be slugified to a URL-safe string.
+ *
+ * @returns `string`
+ *
  * @public
  */
 export function slugify(str: string): string {
@@ -622,7 +770,12 @@ export function slugify(str: string): string {
 
 /**
  * Spreads an object or an array, otherwise returns the same value.
- * @param obj - Any value, but will spread objects and arrays
+ *
+ * @param obj - The object to be spread.
+ * @param explicit - The array of items to be explicity spread.
+ *
+ * @returns `T`
+ *
  * @public
  */
 export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
@@ -648,9 +801,14 @@ export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
 
 /**
  * Apply non enumerable properties to an object.
- * @param obj - The object to apply non-enumerable properties to
- * @param explicit - An array of non-enumerable properties to apply
- * @internal
+ *
+ * @param original - Original object
+ * @param obj - Objecto to aplly the values
+ * @param explicit - Array of items to be explicity added.
+ *
+ * @returns `T`
+ *
+ * @public
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 function applyExplicit<T extends object | any[]>(
