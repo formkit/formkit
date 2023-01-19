@@ -11,5 +11,10 @@ export const boxWrapper = createSection('wrapper', () => ({
       then: undefined,
       else: '$disabled || undefined',
     },
+    'data-is-checked': {
+      if: '$options == undefined',
+      then: '$fns.eq($_value, $onValue) || undefined',
+      else: '$fns.isChecked($option.value) || undefined',
+    },
   },
 }))
