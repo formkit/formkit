@@ -802,7 +802,7 @@ export interface FormKitChildValue {
  *
  * #### Returns
  *
- * A `number`
+ * A `number`.
  *
  * @param input -
  * The function used to set the value of a node. All changes to a node's value
