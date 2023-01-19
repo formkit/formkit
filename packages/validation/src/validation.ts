@@ -74,6 +74,11 @@ export type FormKitValidation = {
    * Dependencies this validation rule is observing.
    */
   deps: FormKitDependencies
+  /**
+   * An observer that updates validation messages when it’s dependencies change,
+   * for example, the label of the input.
+   */
+  messageObserver?: FormKitObservedNode
 } & FormKitValidationHints
 
 /**
@@ -163,10 +168,8 @@ const validatingMessage = createMessage({
  */
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
   return function validationPlugin(node: FormKitNode): void {
-    let availableRules = {
-      ...baseRules,
-      ...cloneAny(node.props.validationRules),
-    }
+    let propRules = cloneAny(node.props.validationRules || {})
+    let availableRules = { ...baseRules, ...propRules }
     // create an observed node
     let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
@@ -186,11 +189,20 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       newValidation: undefined | string | FormKitValidationIntent[],
       newRules: FormKitValidationRules
     ) {
-      if (eq(availableRules, newRules) && eq(validation, newValidation)) return
+      if (
+        eq(Object.keys(propRules || {}), Object.keys(newRules || {})) &&
+        eq(validation, newValidation)
+      )
+        return
+      propRules = cloneAny(newRules)
       validation = cloneAny(newValidation)
-      availableRules = { ...baseRules, ...cloneAny(node.props.validationRules) }
+      availableRules = { ...baseRules, ...propRules }
       // Destroy all observers that may re-trigger validation on an old stack
       removeListeners(observedNode.receipts)
+      // Clear existing message observers
+      node.props.parsedRules?.forEach((validation: FormKitValidation) => {
+        validation.messageObserver = validation.messageObserver?.kill()
+      })
       // Remove all existing messages before re-validating
       node.store.filter(() => false, 'validation')
       node.props.parsedRules = parseRules(newValidation, availableRules)
@@ -363,6 +375,9 @@ function runRule(
  */
 function removeMessage(node: FormKitNode, validation: FormKitValidation) {
   const key = `rule_${validation.name}`
+  if (validation.messageObserver) {
+    validation.messageObserver = validation.messageObserver.kill()
+  }
   if (has(node.store, key)) {
     node.store.remove(key)
   }
@@ -374,42 +389,56 @@ function removeMessage(node: FormKitNode, validation: FormKitValidation) {
  * @param validation - The validation object
  */
 function createFailedMessage(
-  node: FormKitNode,
+  node: FormKitObservedNode,
   validation: FormKitValidation,
   removeImmediately: boolean
-): FormKitMessage {
-  const i18nArgs: FormKitValidationI18NArgs = createI18nArgs(node, validation)
-  const customMessage = createCustomMessage(node, validation, i18nArgs)
-  // Here we short circuit the i18n system to force the output.
-  const message = createMessage({
-    blocking: validation.blocking,
-    key: `rule_${validation.name}`,
-    meta: {
-      /**
-       * Use this key instead of the message root key to produce i18n validation
-       * messages.
-       */
-      messageKey: validation.name,
-      /**
-       * For messages that were created *by or after* a debounced or async
-       * validation rule — we make note of it so we can immediately remove them
-       * as soon as the next commit happens.
-       */
-      removeImmediately,
-      /**
-       * Determines if this message should be passed to localization.
-       */
-      localize: !customMessage,
-      /**
-       * The arguments that will be passed to the validation rules
-       */
-      i18nArgs,
+): void {
+  if (isKilled(node)) return
+
+  if (!validation.messageObserver) {
+    validation.messageObserver = createObserver(node._node)
+  }
+  validation.messageObserver.watch(
+    (node) => {
+      const i18nArgs: FormKitValidationI18NArgs = createI18nArgs(
+        node,
+        validation
+      )
+      return i18nArgs
     },
-    type: 'validation',
-    value: customMessage || 'This field is not valid.',
-  })
-  node.store.set(message)
-  return message
+    (i18nArgs) => {
+      const customMessage = createCustomMessage(node, validation, i18nArgs)
+      // Here we short circuit the i18n system to force the output.
+      const message = createMessage({
+        blocking: validation.blocking,
+        key: `rule_${validation.name}`,
+        meta: {
+          /**
+           * Use this key instead of the message root key to produce i18n validation
+           * messages.
+           */
+          messageKey: validation.name,
+          /**
+           * For messages that were created *by or after* a debounced or async
+           * validation rule — we make note of it so we can immediately remove them
+           * as soon as the next commit happens.
+           */
+          removeImmediately,
+          /**
+           * Determines if this message should be passed to localization.
+           */
+          localize: !customMessage,
+          /**
+           * The arguments that will be passed to the validation rules
+           */
+          i18nArgs,
+        },
+        type: 'validation',
+        value: customMessage || 'This field is not valid.',
+      })
+      node.store.set(message)
+    }
+  )
 }
 
 /**
@@ -453,11 +482,14 @@ function createI18nArgs(
 }
 
 /**
- * The name used in validation messages.
+ * Given a node, this returns the name that should be used in validation
+ * messages. This is either the `validationLabel` prop, the `label` prop, or
+ * the name of the input (in that order).
  * @param node - The node to display
  * @returns
+ * @public
  */
-function createMessageName(node: FormKitNode): string {
+export function createMessageName(node: FormKitNode): string {
   if (typeof node.props.validationLabel === 'function') {
     return node.props.validationLabel(node)
   }

@@ -120,4 +120,25 @@ describe('file inputs', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
   })
+  it('always renders data-multiple="true" when the multiple attribute exists and is not false', () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit
+            type="file"
+            name="file"
+            multiple
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('data-multiple')).toBe(
+      'true'
+    )
+  })
 })

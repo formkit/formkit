@@ -51,6 +51,7 @@ export function date(date: string | Date): string {
   }
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
+    timeZone: 'UTC'
   } as any).format(dateTime)
 }
 

@@ -59,20 +59,37 @@ export function generateClassList(
   ...args: Record<string, boolean>[]
 ): string | null {
   const combinedClassList = args.reduce((finalClassList, currentClassList) => {
-    if (!currentClassList) return finalClassList
+    if (!currentClassList) return handleNegativeClasses(finalClassList)
     const { $reset, ...classList } = currentClassList
     if ($reset) {
-      return classList
+      return handleNegativeClasses(classList)
     }
-    return Object.assign(finalClassList, classList)
+    return handleNegativeClasses(Object.assign(finalClassList, classList))
   }, {})
 
-  return (
-    Object.keys(
-      node.hook.classes.dispatch({ property, classes: combinedClassList })
-        .classes
-    )
-      .filter((key) => combinedClassList[key])
-      .join(' ') || null
+  return Object.keys(
+    node.hook.classes.dispatch({ property, classes: combinedClassList })
+      .classes
   )
+    .filter((key) => combinedClassList[key])
+    .join(' ') || null
+}
+
+function handleNegativeClasses(classList: Record<string, boolean>): Record<string, boolean> {
+  let hasNegativeClassValue = false
+  const applicableClasses = Object.keys(classList).filter((className) => {
+    if (classList[className] && className.startsWith('!')) {
+      hasNegativeClassValue = true
+    }
+    return classList[className]
+  })
+  if (applicableClasses.length > 1 && hasNegativeClassValue) {
+    const negativeClasses = applicableClasses.filter(className => className.startsWith('!'))
+    negativeClasses.map((negativeClass) => {
+      const targetClass = negativeClass.substring(1)
+      classList[targetClass] = false
+      classList[negativeClass] = false
+    })
+  }
+  return classList
 }

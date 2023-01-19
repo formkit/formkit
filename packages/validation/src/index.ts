@@ -13,6 +13,7 @@
 export {
   createValidationPlugin,
   getValidationMessages,
+  createMessageName,
   FormKitValidation,
   FormKitValidationIntent,
   FormKitValidationRule,

@@ -1,4 +1,4 @@
-import { h, ref, defineComponent, inject, PropType } from 'vue'
+import { h, ref, watch, defineComponent, inject, PropType } from 'vue'
 import { optionsSymbol } from './plugin'
 import { parentSymbol } from './FormKit'
 import { FormKitPlugin } from '@formkit/core'
@@ -31,6 +31,18 @@ export const FormKitIcon = defineComponent({
     const parent = inject(parentSymbol, null)
     let iconHandler: FormKitIconLoader | undefined = undefined
 
+    function loadIcon () {
+      if (!iconHandler || typeof iconHandler !== 'function') return
+      const iconOrPromise = iconHandler(props.icon)
+      if (iconOrPromise instanceof Promise) {
+        iconOrPromise.then((iconValue) => {
+          icon.value = iconValue
+        })
+      } else {
+        icon.value = iconOrPromise
+      }
+    }
+
     if (props.iconLoader && typeof props.iconLoader === 'function') {
       // if we have a locally supplied loader, then use it
       iconHandler = createIconHandler(props.iconLoader)
@@ -48,18 +60,13 @@ export const FormKitIcon = defineComponent({
         iconHandler = iconPlugin.iconHandler
       }
     }
-    if (iconHandler && typeof iconHandler === 'function') {
-      const iconOrPromise = iconHandler(props.icon)
-      if (iconOrPromise instanceof Promise) {
-        iconOrPromise.then((iconValue) => {
-          icon.value = iconValue
-        })
-      } else {
-        icon.value = iconOrPromise
-      }
-    }
+    
+    watch(() => props.icon, () => {
+      loadIcon()
+    }, { immediate: true })
+
     return () => {
-      if (icon.value) {
+      if (props.icon && icon.value) {
         return h(
           'span',
           {

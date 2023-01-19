@@ -19,12 +19,16 @@ import {
  * @public
  */
 export interface FormKitObservedNode extends FormKitNode {
+  _node: FormKitNode
   deps: FormKitDependencies
-  kill: () => void
+  kill: () => undefined
   observe: () => void
   receipts: FormKitObserverReceipts
   stopObserve: () => FormKitDependencies
-  watch: (block: FormKitWatchable) => void
+  watch: <T extends FormKitWatchable>(
+    block: T,
+    after?: (value: ReturnType<T>) => void
+  ) => void
 }
 
 /**
@@ -45,8 +49,8 @@ type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
  * A callback to watch for nodes.
  * @public
  */
-export interface FormKitWatchable {
-  (node: FormKitObservedNode): any
+export interface FormKitWatchable<T = unknown> {
+  (node: FormKitObservedNode): T
 }
 
 /**
@@ -139,11 +143,15 @@ export function createObserver(
   }: { proxy: FormKitNode; revoke: () => void } = Proxy.revocable(node, {
     get(...args) {
       switch (args[1]) {
+        case '_node':
+          return node
         case 'deps':
           return deps
         case 'watch':
-          return (block: FormKitWatchable) =>
-            watch(observed as FormKitObservedNode, block)
+          return <T extends FormKitWatchable>(
+            block: T,
+            after?: (value: unknown) => void
+          ) => watch(observed as FormKitObservedNode, block, after)
         case 'observe':
           return () => {
             const old = new Map(deps)
@@ -160,10 +168,11 @@ export function createObserver(
         case 'receipts':
           return receipts
         case 'kill':
-          return () => {
+          return (): undefined => {
             removeListeners(receipts)
             revokedObservers.add(args[2])
             revoke()
+            return undefined
           }
       }
       const value = Reflect.get(...args)
@@ -198,7 +207,7 @@ export function applyListeners(
       node.receipts.has(depNode) || node.receipts.set(depNode, {})
       node.receipts.set(
         depNode,
-        Object.assign(node.receipts.get(depNode), {
+        Object.assign(node.receipts.get(depNode) ?? {}, {
           [event]: depNode.on(event, callback),
         })
       )
@@ -238,16 +247,23 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
  * @param block - The block of code to observe
  * @public
  */
-async function watch(
+function watch<T extends FormKitWatchable>(
   node: FormKitObservedNode,
-  block: FormKitWatchable
-): Promise<void> {
+  block: T,
+  after?: (value: unknown) => void
+): void {
+  const doAfterObservation = (res: unknown) => {
+    const newDeps = node.stopObserve()
+    applyListeners(node, diffDeps(oldDeps, newDeps), () =>
+      watch(node, block, after)
+    )
+    if (after) after(res)
+  }
   const oldDeps = new Map(node.deps)
   node.observe()
   const res = block(node)
-  if (res instanceof Promise) await res
-  const newDeps = node.stopObserve()
-  applyListeners(node, diffDeps(oldDeps, newDeps), () => watch(node, block))
+  if (res instanceof Promise) res.then((val) => doAfterObservation(val))
+  else doAfterObservation(res)
 }
 
 /**

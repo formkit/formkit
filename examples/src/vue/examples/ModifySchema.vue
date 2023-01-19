@@ -1,26 +1,8 @@
-<template>
-  <h2>Tell us a little about yourself</h2>
-  <FormKit
-    type="form"
-    :plugins="[pluginRemoveInnerWrapper]"
-  >
-    <FormKit
-      label="I like sports"
-      type="checkbox"
-    />
-    <FormKit
-      label="I like music"
-      type="checkbox"
-    />
-    <FormKit
-      label="Your Email"
-      type="email"
-    />
-  </FormKit>
-</template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
 import { FormKitPlugin, FormKitExtendableSchemaRoot } from '@formkit/core'
+import formKitVariants from 'packages/tailwindcss/dist';
 
 const pluginRemoveInnerWrapper: FormKitPlugin = (inputNode) => {
   inputNode.on('created', ({ payload: node }) => {
@@ -56,4 +38,33 @@ const pluginRemoveInnerWrapper: FormKitPlugin = (inputNode) => {
     }
   })
 }
+const activateSuffix = ref(false)
+setInterval(() => activateSuffix.value = !activateSuffix.value, 1000)
 </script>
+
+<template>
+  <h2>Tell us a little about yourself</h2>
+  <FormKit
+    type="form"
+    :plugins="[pluginRemoveInnerWrapper]"
+  >
+    <FormKit
+      label="I like sports"
+      type="checkbox"
+    />
+    <FormKit
+      label="I like music"
+      type="checkbox"
+    />
+    <FormKit
+      label="Your Email"
+      type="email"
+    />
+  </FormKit>
+
+  <FormKit type="text" label="default">
+    <template v-if="activateSuffix" #label><label class="expo-label">my label <span style="color: blue">with blue suffix</span></label></template>
+  </FormKit>
+  {{ activateSuffix }}
+</template>
+

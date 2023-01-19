@@ -32,6 +32,12 @@ export * from './plugin'
 export { default as FormKit, parentSymbol } from './FormKit'
 
 /**
+ * The FormKitMessages component.
+ * @public
+ */
+export { FormKitMessages } from './FormKitMessages'
+
+/**
  * The FormKitSchema component.
  */
 export { FormKitSchema } from './FormKitSchema'

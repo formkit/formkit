@@ -2,7 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { nextTick, ref } from 'vue'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 
@@ -198,6 +198,18 @@ describe('single checkbox', () => {
     )
     expect(wrapper.find('.formkit-label').exists()).toBe(false)
   })
+
+  it('adds data-is-checked to single checkbox when checked', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="checkbox" :value="true" />
+      `,
+      },
+      global
+    )
+    expect(wrapper.find('[data-is-checked]').exists()).toBe(true)
+  })
 })
 
 describe('multiple checkboxes', () => {
@@ -366,6 +378,26 @@ describe('multiple checkboxes', () => {
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     expect(wrapper.get('fieldset').findAll('label').length).toBe(3)
     expect(wrapper.html()).toContain('<span class="formkit-label">A</span>')
+  })
+
+  it('adds data-is-checked to box wrappers', async () => {
+    const value = ref(['B'])
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'checkbox',
+        options: ['A', 'B', 'C'],
+        modelValue: value,
+      },
+      ...global,
+    })
+    // TODO - Remove the .get() here when @vue/test-utils > rc.19
+    expect(wrapper.get('fieldset').findAll('[data-is-checked]').length).toBe(1)
+    value.value = ['A', 'B']
+    await nextTick()
+    expect(wrapper.get('fieldset').findAll('[data-is-checked]').length).toBe(2)
+    value.value = []
+    await nextTick()
+    expect(wrapper.get('fieldset').findAll('[data-is-checked]').length).toBe(0)
   })
 })
 

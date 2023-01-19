@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Discord community
+  - name: 💡 Feature Requests
+    url: https://github.com/formkit/formkit/discussions
+    about: Have a feature request? Start a Github community discussion here.
+  - name: 🛟 Support
     url: https://discord.gg/Vhu97pAC76
-    about: Please ask and answer questions here.
+    about: Need support? Join our vibrant Discord community.
