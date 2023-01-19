@@ -1923,4 +1923,37 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.html()).toContain('<h1>click me</h1>')
   })
+
+  it('can use a conditional default slot that starts as false. #489', async () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          const first = ref('no')
+          return { first }
+        },
+        template: `
+        <FormKit type="text" label="default">
+          <template v-if="first === 'yes'" #label><h1>click me</h1></template>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-label').exists()).toBe(true)
+    wrapper.vm.first = 'yes'
+    await nextTick()
+    expect(wrapper.html()).toContain('<h1>click me</h1>')
+    expect(wrapper.find('.formkit-label').exists()).toBe(false)
+    wrapper.vm.first = 'no'
+    await nextTick()
+    expect(wrapper.find('.formkit-label').exists()).toBe(true)
+    expect(wrapper.html()).not.toContain('<h1>click me</h1>')
+  })
 })
