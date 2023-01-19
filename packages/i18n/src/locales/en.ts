@@ -286,11 +286,11 @@ export const validation: FormKitValidationMessages = {
   min({ name, node: { value }, args }) {
     if (Array.isArray(value)) {
       /* <i18n case="Shown when the length of the array of user-provided values is shorter than the min supplied to the rule."> */
-      return `Cannot have less than ${args[0]} ${name}.`
+      return `Cannot have fewer than ${args[0]} ${name}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `${s(name)} must be at least ${args[0]}.`
+    return `Must be at least ${args[0]} ${name} .`
     /* </i18n> */
   },
 
