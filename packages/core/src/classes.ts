@@ -76,17 +76,18 @@ export function generateClassList(
 }
 
 function handleNegativeClasses(classList: Record<string, boolean>): Record<string, boolean> {
+  const removalToken = '$remove:'
   let hasNegativeClassValue = false
   const applicableClasses = Object.keys(classList).filter((className) => {
-    if (classList[className] && className.startsWith('!')) {
+    if (classList[className] && className.startsWith(removalToken)) {
       hasNegativeClassValue = true
     }
     return classList[className]
   })
   if (applicableClasses.length > 1 && hasNegativeClassValue) {
-    const negativeClasses = applicableClasses.filter(className => className.startsWith('!'))
+    const negativeClasses = applicableClasses.filter(className => className.startsWith(removalToken))
     negativeClasses.map((negativeClass) => {
-      const targetClass = negativeClass.substring(1)
+      const targetClass = negativeClass.substring(removalToken.length)
       classList[targetClass] = false
       classList[negativeClass] = false
     })
