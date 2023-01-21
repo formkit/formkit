@@ -209,6 +209,16 @@ async function themesBuildExtras() {
       ])
     )
   )
+  const nestedTailwindPlugins = getPlugins('/themes/src/tailwindcss')
+  await Promise.all(
+    nestedTailwindPlugins.map((plugin) =>
+      Promise.all([
+        bundle('themes', 'esm', ['plugin', `tailwindcss/${plugin}`]),
+        bundle('themes', 'cjs', ['plugin', `tailwindcss/${plugin}`]),
+        declarations('themes', `tailwindcss/${plugin}`),
+      ])
+    )
+  )
 }
 
 /**
