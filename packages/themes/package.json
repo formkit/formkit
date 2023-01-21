@@ -1,6 +1,6 @@
 {
   "name": "@formkit/themes",
-  "version": "1.0.0-beta.13",
+  "version": "1.0.0-beta.14",
   "type": "module",
   "description": "FormKit base themes",
   "types": "dist/index.d.ts",
@@ -67,7 +67,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.0.0-beta.13"
+    "@formkit/core": "1.0.0-beta.14"
   },
   "peerDependencies": {
     "tailwindcss": "^3.2.0",

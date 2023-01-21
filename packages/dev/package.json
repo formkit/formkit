@@ -1,6 +1,6 @@
 {
   "name": "@formkit/dev",
-  "version": "1.0.0-beta.13",
+  "version": "1.0.0-beta.14",
   "type": "module",
   "description": "Development tools for FormKit.",
   "main": "dist/index.cjs",
@@ -34,8 +34,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.0.0-beta.13",
-    "@formkit/utils": "1.0.0-beta.13"
+    "@formkit/core": "1.0.0-beta.14",
+    "@formkit/utils": "1.0.0-beta.14"
   },
   "devDependencies": {}
 }
