@@ -99,10 +99,10 @@ export function getIcons() {
 }
 
 /**
- * Get all the plugin directories in the themes package
+ * Get all the plugin directories in the themes package at provided path
  */
-export function getPlugins() {
-  const possiblePlugins = fs.readdirSync(packagesDir + '/themes/src', {
+export function getPlugins(path = '/themes/src') {
+  const possiblePlugins = fs.readdirSync(packagesDir + path, {
     withFileTypes: true,
   })
   return possiblePlugins
