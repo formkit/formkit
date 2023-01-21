@@ -10,6 +10,11 @@ import {
 import { arrowDown, arrowUp, down } from './icons/directional'
 import { fileDoc } from './icons/file'
 
+/**
+ * The collection of icons required by the Genesis theme.
+ *
+ * @public
+ */
 const genesisIcons = {
   add,
   arrowDown,

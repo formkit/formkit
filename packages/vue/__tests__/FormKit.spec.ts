@@ -1095,14 +1095,14 @@ describe('classes', () => {
     )
   })
 
-  it('can can remove existing classes if class name string is prefixed with a ! operator', () => {
+  it('can can remove existing classes if class name string is prefixed with the $remove: operator', () => {
     const wrapper = mount(FormKit, {
       props: {
         name: 'classTest',
         classes: {
-          outer: '!formkit-outer test-class-string1',
+          outer: '$remove:formkit-outer test-class-string1',
         },
-        outerClass: '!test-class-string1 should-be-only-me',
+        outerClass: '$remove:test-class-string1 should-be-only-me',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
