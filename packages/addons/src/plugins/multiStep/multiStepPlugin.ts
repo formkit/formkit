@@ -5,6 +5,13 @@ interface MultiStepOptions {
   flattenSteps?: boolean
 }
 
+function setNodePositionProps(steps: FormKitNode[]) {
+  steps.forEach((step: FormKitNode, index: number) => {
+    step.props.isFirstStep = index === 0
+    step.props.isLastStep = index === steps.length - 1
+  })
+}
+
 export function createMultiStepPlugin(
   options?: MultiStepOptions
 ): FormKitPlugin {
@@ -41,7 +48,13 @@ export function createMultiStepPlugin(
       node.props.type === 'step' &&
       node.parent?.props.type === 'multi-step'
     ) {
-      node.addProps(['isActiveStep'])
+      node.addProps([
+        'isActiveStep',
+        'isFirstStep',
+        'isLastStep',
+        'nextLabel',
+        'prevLabel',
+      ])
       node.on('created', () => {
         if (!node.context) return
         if (node.parent && node.parent.context) {
@@ -49,6 +62,8 @@ export function createMultiStepPlugin(
           parentNode.props.steps = Array.isArray(parentNode.props.steps)
             ? [...parentNode.props.steps, node]
             : [node]
+
+          setNodePositionProps(parentNode.props.steps)
 
           parentNode.props.activeStep = parentNode.props.activeStep
             ? parentNode.props.activeStep

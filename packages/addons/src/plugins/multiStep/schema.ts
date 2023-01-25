@@ -5,7 +5,7 @@ export const multiStepSchema: FormKitSchemaNode[] = [
     $el: 'div',
     attrs: {
       'data-type': 'multi-step',
-      class: '$classes.multiStep',
+      class: '$classes.outer',
     },
     children: [
       {
@@ -28,9 +28,17 @@ export const multiStepSchema: FormKitSchemaNode[] = [
       {
         $el: 'div',
         attrs: {
-          class: '$classes.multiStepInner',
+          class: '$classes.wrapper',
         },
-        children: ['$slots.default'],
+        children: [
+          {
+            $el: 'div',
+            attrs: {
+              class: '$classes.inner',
+            },
+            children: '$slots.default',
+          },
+        ],
       },
     ],
   },
@@ -48,6 +56,55 @@ export const stepSchema: FormKitSchemaNode[] = [
         else: 'display: none;',
       },
     },
-    children: ['$slots.default'],
+    children: [
+      {
+        $el: 'div',
+        attrs: {
+          class: '$classes.stepInner',
+        },
+        children: '$slots.default',
+      },
+      {
+        $el: 'div',
+        attrs: {
+          class: '$classes.stepActions',
+        },
+        children: [
+          {
+            $el: 'div',
+            if: '$: !$isFirstStep',
+            attrs: {
+              class: '$classes.actionPrevious',
+            },
+            children: [
+              {
+                $formkit: 'button',
+                label: {
+                  if: '$prevLabel',
+                  then: '$prevLabel',
+                  else: 'Previous',
+                },
+              },
+            ],
+          },
+          {
+            $el: 'div',
+            attrs: {
+              class: '$classes.actionNext',
+            },
+            children: [
+              {
+                $formkit: 'button',
+                label: {
+                  if: '$nextLabel',
+                  then: '$nextLabel',
+                  else: 'Next',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 ]
