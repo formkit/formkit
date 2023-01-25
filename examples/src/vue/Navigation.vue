@@ -46,6 +46,11 @@
           Modify schema with plugin
         </router-link>
       </li>
+      <li>
+        <router-link to="/multi-step">
+          Multi-Step Plugin
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>

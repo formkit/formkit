@@ -7,3 +7,4 @@
  */
 
 export * from './plugins/autoAnimatePlugin'
+export * from './plugins/multiStep/multiStepPlugin'
