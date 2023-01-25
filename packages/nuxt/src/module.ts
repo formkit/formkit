@@ -1,6 +1,11 @@
 import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
-import { defineNuxtModule, addPluginTemplate, createResolver } from '@nuxt/kit'
+import {
+  defineNuxtModule,
+  addPluginTemplate,
+  addComponent,
+  createResolver,
+} from '@nuxt/kit'
 
 export interface ModuleOptions {
   defaultConfig: boolean
