@@ -68,5 +68,15 @@ export default defineNuxtModule<ModuleOptions>({
       export: 'FormKitSchema',
       filePath: '@formkit/vue',
     })
+    addComponent({
+      name: 'FormKitMessages',
+      export: 'FormKitMessages',
+      filePath: '@formkit/vue',
+    })
+    addComponent({
+      name: 'FormKitIcon',
+      export: 'FormKitIcon',
+      filePath: '@formkit/vue',
+    })
   },
 })
