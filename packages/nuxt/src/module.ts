@@ -52,5 +52,16 @@ export default defineNuxtModule<ModuleOptions>({
       filename: 'formkitPlugin.mjs',
       options: { importStatement, config },
     })
+
+    addComponent({
+      name: 'FormKit',
+      export: 'FormKit',
+      filePath: '@formkit/vue',
+    })
+    addComponent({
+      name: 'FormKitSchema',
+      export: 'FormKitSchema',
+      filePath: '@formkit/vue',
+    })
   },
 })

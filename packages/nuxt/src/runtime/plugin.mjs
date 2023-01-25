@@ -1,4 +1,5 @@
 import { defineNuxtPlugin } from '#app'
+// defaultConfig is required because it may be called by options.config below
 import { plugin, defaultConfig } from '@formkit/vue'
 import { resetCount } from '@formkit/core'
 <%= options.importStatement %>
