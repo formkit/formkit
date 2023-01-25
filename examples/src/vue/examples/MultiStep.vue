@@ -14,41 +14,36 @@ const thirdStep = ref(false)
       type="checkbox"
       label="Add third step"
     />
-    
-    <FormKit
-      type="multi-step"
-      name="defaultMultiStep"
-    >
+
+    <FormKit type="multi-step">
       <FormKit
         type="step"
-        name="defaultStepOne"
+        name="firstStep"
       >
         <FormKit
           type="text"
           name="name"
-          value="yo"
         />
       </FormKit>
+
       <FormKit
         type="step"
-        name="defaultStepTwo"
+        name="secondStep"
       >
         <FormKit
           type="range"
           name="age"
-          value="25"
         />
       </FormKit>
+
       <FormKit
         v-if="thirdStep"
+        name="thirdStep"
         type="step"
-        name="defaultStepThree"
-        :preserve="true"
       >
         <FormKit
           type="textarea"
           name="story"
-          value="Once upon a time..."
         />
       </FormKit>
     </FormKit>

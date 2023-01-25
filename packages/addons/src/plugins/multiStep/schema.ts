@@ -39,10 +39,14 @@ export const multiStepSchema: FormKitSchemaNode[] = [
 export const stepSchema: FormKitSchemaNode[] = [
   {
     $el: 'div',
-    if: '$isActiveStep',
     attrs: {
       'data-type': 'step',
       class: '$classes.step',
+      style: {
+        if: '$isActiveStep',
+        then: '',
+        else: 'display: none;',
+      },
     },
     children: ['$slots.default'],
   },
