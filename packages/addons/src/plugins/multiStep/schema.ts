@@ -19,7 +19,7 @@ export const multiStepSchema: FormKitSchemaNode[] = [
             for: ['step', 'key', '$steps'],
             attrs: {
               class: '$classes.tab',
-              onClick: '$handlers.setActiveStep($step)',
+              onClick: '$handlers.setActiveStep',
             },
             children: ['$step.name'],
           },
@@ -72,18 +72,19 @@ export const stepSchema: FormKitSchemaNode[] = [
         children: [
           {
             $el: 'div',
-            if: '$: !$isFirstStep',
             attrs: {
               class: '$classes.actionPrevious',
             },
             children: [
               {
                 $formkit: 'button',
+                if: '$: $isFirstStep === false',
                 label: {
                   if: '$prevLabel',
                   then: '$prevLabel',
                   else: 'Previous',
                 },
+                onClick: '$handlers.prevStep',
               },
             ],
           },
@@ -95,11 +96,13 @@ export const stepSchema: FormKitSchemaNode[] = [
             children: [
               {
                 $formkit: 'button',
+                if: '$: $isLastStep === false',
                 label: {
                   if: '$nextLabel',
                   then: '$nextLabel',
                   else: 'Next',
                 },
+                onClick: '$handlers.nextStep',
               },
             ],
           },

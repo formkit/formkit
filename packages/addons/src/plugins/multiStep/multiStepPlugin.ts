@@ -9,7 +9,35 @@ function setNodePositionProps(steps: FormKitNode[]) {
   steps.forEach((step: FormKitNode, index: number) => {
     step.props.isFirstStep = index === 0
     step.props.isLastStep = index === steps.length - 1
+    step.props.stepIndex = index
+    step.props.steps = steps
   })
+}
+
+function setActiveStep(step: FormKitNode) {
+  if (step && step.name && step.parent) {
+    step.parent.props.activeStep = step.name
+  }
+}
+
+function prevStep(step: FormKitNode) {
+  if (step && step.name && step.parent) {
+    const { steps, stepIndex } = step.props
+    const prevStep = steps[stepIndex - 1]
+    if (prevStep) {
+      step.parent.props.activeStep = prevStep.name
+    }
+  }
+}
+
+function nextStep(step: FormKitNode) {
+  if (step && step.name && step.parent) {
+    const { steps, stepIndex } = step.props
+    const nextStep = steps[stepIndex + 1]
+    if (nextStep) {
+      step.parent.props.activeStep = nextStep.name
+    }
+  }
 }
 
 export function createMultiStepPlugin(
@@ -71,13 +99,13 @@ export function createMultiStepPlugin(
             ? parentNode.props.steps[0].name
             : ''
 
-          console.log(parentNode.props.activeStep)
-
           if (parentNode.context) {
-            parentNode.context.handlers.setActiveStep =
-              (step: FormKitNode) => () => {
-                parentNode.props.activeStep = step.name
-              }
+            parentNode.context.handlers.setActiveStep = setActiveStep.bind(
+              null,
+              node
+            )
+            node.context.handlers.nextStep = nextStep.bind(null, node)
+            node.context.handlers.prevStep = prevStep.bind(null, node)
           }
         }
       })
