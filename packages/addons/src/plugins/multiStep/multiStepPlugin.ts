@@ -121,14 +121,10 @@ export function createMultiStepPlugin(
           !node.parent || node.parent.props.type !== 'multi-step'
         if (isInvalid) {
           console.warn(
-            'Invalid use of <FormKit type="step">. <FormKit type="step"> should be an immediate child of a <FormKit type="multi-step"> element.'
+            'Invalid use of <FormKit type="step">. <FormKit type="step"> must be an immediate child of a <FormKit type="multi-step"> component.'
           )
         }
         return node.define(step)
-      // return node.define({
-      //   type: 'group',
-      //   schema: isInvalid ? [] : stepSchema,
-      // })
     }
   }
 

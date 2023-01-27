@@ -1,6 +1,8 @@
 export { stepActions } from './stepActions'
+export { stepInner } from './stepInner'
 export { stepNext } from './stepNext'
 export { stepOuter } from './stepOuter'
 export { stepPrevious } from './stepPrevious'
+export { steps } from './steps'
 export { tab } from './tab'
 export { tabs } from './tabs'

@@ -6,8 +6,16 @@ const thirdStep = ref(false)
 
 <template>
   <FormKit
+    type="step"
+    name="invalidStep"
+  >
+    <h1>I should throw a warning and not render because I am not an immediate child of a type="multi-step"</h1>
+  </FormKit>
+
+  <FormKit
     v-model="formData"
     type="form"
+    :actions="false"
   >
     <FormKit
       v-model="thirdStep"
@@ -65,5 +73,11 @@ const thirdStep = ref(false)
 </template>
 
 <style>
-
+.formkit-step-actions {
+  display: flex;
+  justify-content: space-between;
+}
+.formkit-step-actions .formkit-step-next {
+  margin-left: auto;
+}
 </style>

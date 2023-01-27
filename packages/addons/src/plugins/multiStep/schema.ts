@@ -1,19 +1,21 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { $if, outer, wrapper, inner } from '@formkit/inputs'
+import { $if, outer, wrapper } from '@formkit/inputs'
 import {
   stepPrevious,
   stepNext,
   stepOuter,
   tabs,
   tab,
+  steps,
   stepActions,
+  stepInner,
 } from './sections'
 
 export const multiStep: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: outer(tabs(tab('$step.name')), wrapper(inner('$slots.default'))),
+  schema: outer(wrapper(tabs(tab('$step.name')), steps('$slots.default'))),
   /**
    * The type of node, can be a list, group, or input.
    */
@@ -38,7 +40,7 @@ export const step: FormKitTypeDefinition = {
    * The actual schema of the input, or a function that returns the schema.
    */
   schema: stepOuter(
-    wrapper(inner('$slots.default')),
+    stepInner('$slots.default'),
     stepActions(
       $if('$isFirstStep === false', stepPrevious()),
       $if('$isLastStep === false', stepNext())
