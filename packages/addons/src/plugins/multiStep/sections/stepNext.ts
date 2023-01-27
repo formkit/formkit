@@ -16,7 +16,7 @@ export const stepNext = createSection('stepNext', () => ({
         then: '$nextLabel',
         else: 'Next',
       },
-      onClick: '$handlers.changeStep(1, $node)',
+      onClick: '$handlers.incrementStep(1, $node.context)',
     },
   ],
 }))

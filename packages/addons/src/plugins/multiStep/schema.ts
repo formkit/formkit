@@ -1,11 +1,12 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import { $if, outer, wrapper } from '@formkit/inputs'
 import {
+  badge,
   stepPrevious,
   stepNext,
   stepOuter,
-  tabs,
   tab,
+  tabs,
   steps,
   stepActions,
   stepInner,
@@ -15,7 +16,20 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: outer(wrapper(tabs(tab('$step.name')), steps('$slots.default'))),
+  schema: outer(
+    wrapper(
+      tabs(
+        tab(
+          '$step.stepName',
+          $if(
+            '($step.totalErrorCount > 0) && $step.showStepErrors',
+            badge('$step.totalErrorCount')
+          )
+        )
+      ),
+      steps('$slots.default')
+    )
+  ),
   /**
    * The type of node, can be a list, group, or input.
    */
@@ -41,7 +55,10 @@ export const step: FormKitTypeDefinition = {
    */
   schema: stepOuter(
     stepInner('$slots.default'),
-    stepActions($if('$isFirstStep === false', stepPrevious()), stepNext())
+    stepActions(
+      $if('$isFirstStep === false', stepPrevious()),
+      $if('$isLastStep === false', stepNext())
+    )
   ),
   /**
    * The type of node, can be a list, group, or input.
@@ -55,7 +72,7 @@ export const step: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['prevLabel', 'nextLabel'],
+  props: ['label', 'prevLabel', 'nextLabel'],
   /**
    * Additional features that should be added to your input
    */

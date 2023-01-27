@@ -1,3 +1,4 @@
+export { badge } from './badge'
 export { stepActions } from './stepActions'
 export { stepInner } from './stepInner'
 export { stepNext } from './stepNext'

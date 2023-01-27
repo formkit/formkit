@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 const formData = ref({})
-const thirdStep = ref(false)
+const thirdStep = ref(true)
 </script>
 
 <template>
@@ -20,26 +20,20 @@ const thirdStep = ref(false)
     <FormKit
       v-model="thirdStep"
       type="checkbox"
-      label="Add third step"
+      label="toggle third step"
     />
 
     <FormKit type="multi-step">
       <FormKit
         key="firstStep"
         type="step"
-        name="firstStep"
+        label="I have a custom title"
       >
         <FormKit
           type="text"
           label="Your Name"
           name="name"
           validation="required"
-        />
-        <FormKit
-          type="email"
-          label="Your email"
-          name="email"
-          validation="required|email"
         />
       </FormKit>
 
@@ -61,14 +55,27 @@ const thirdStep = ref(false)
         name="thirdStep"
         type="step"
       >
+        <FormKit
+          type="textarea"
+          name="story"
+          label="Your Story"
+          validation="required"
+        />
+      </FormKit>
+
+      <FormKit
+        key="fourthStep"
+        name="fourthStep"
+        type="step"
+      >
         <template #stepNext>
           <FormKit type="submit" />
         </template>
 
         <FormKit
           type="textarea"
-          name="story"
-          label="Your Story"
+          name="closingThoughts"
+          label="Your Closing Thoughts"
         />
       </FormKit>
     </FormKit>
