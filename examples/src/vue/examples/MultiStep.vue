@@ -25,22 +25,28 @@ const thirdStep = ref(false)
 
     <FormKit type="multi-step">
       <FormKit
+        key="firstStep"
         type="step"
         name="firstStep"
-        next-label="Continue to Age"
       >
         <FormKit
           type="text"
           label="Your Name"
           name="name"
+          validation="required"
+        />
+        <FormKit
+          type="email"
+          label="Your email"
+          name="email"
+          validation="required|email"
         />
       </FormKit>
 
       <FormKit
+        key="secondStep"
         type="step"
         name="secondStep"
-        prev-label="Back to Name"
-        next-label="Continue to Story"
       >
         <FormKit
           type="range"
@@ -51,11 +57,12 @@ const thirdStep = ref(false)
 
       <FormKit
         v-if="thirdStep"
+        key="thirdStep"
         name="thirdStep"
         type="step"
       >
-        <template #actionPrevious>
-          <h1>test</h1>
+        <template #stepNext>
+          <FormKit type="submit" />
         </template>
 
         <FormKit
@@ -73,6 +80,16 @@ const thirdStep = ref(false)
 </template>
 
 <style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
 .formkit-step-actions {
   display: flex;
   justify-content: space-between;

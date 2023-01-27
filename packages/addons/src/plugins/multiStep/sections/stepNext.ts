@@ -7,6 +7,7 @@ import { createSection } from '@formkit/inputs'
  */
 export const stepNext = createSection('stepNext', () => ({
   $el: 'div',
+  if: '$isLastStep === false',
   children: [
     {
       $formkit: 'button',
@@ -15,7 +16,7 @@ export const stepNext = createSection('stepNext', () => ({
         then: '$nextLabel',
         else: 'Next',
       },
-      onClick: '$handlers.nextStep',
+      onClick: '$handlers.changeStep(1, $node)',
     },
   ],
 }))

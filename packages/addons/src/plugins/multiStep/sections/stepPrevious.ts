@@ -15,7 +15,7 @@ export const stepPrevious = createSection('stepPrevious', () => ({
         then: '$prevLabel',
         else: 'Back',
       },
-      onClick: '$handlers.prevStep',
+      onClick: '$handlers.changeStep(-1, $node)',
     },
   ],
 }))

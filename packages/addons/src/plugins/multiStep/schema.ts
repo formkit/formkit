@@ -28,7 +28,7 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['flattenValues', 'allowIncompleteAdvance'],
+  props: ['flattenValues', 'allowIncomplete'],
   /**
    * Additional features that should be added to your input
    */
@@ -41,10 +41,7 @@ export const step: FormKitTypeDefinition = {
    */
   schema: stepOuter(
     stepInner('$slots.default'),
-    stepActions(
-      $if('$isFirstStep === false', stepPrevious()),
-      $if('$isLastStep === false', stepNext())
-    )
+    stepActions($if('$isFirstStep === false', stepPrevious()), stepNext())
   ),
   /**
    * The type of node, can be a list, group, or input.

@@ -1,8 +1,9 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
 import { multiStep, step } from './schema'
 
 interface MultiStepOptions {
   flattenSteps?: boolean
+  allowIncomplete?: boolean
 }
 
 function setNodePositionProps(steps: FormKitNode[]) {
@@ -14,30 +15,42 @@ function setNodePositionProps(steps: FormKitNode[]) {
   })
 }
 
-function setActiveStep(step: FormKitNode) {
-  if (step && step.name && step.parent) {
-    step.parent.props.activeStep = step.name
-  }
-}
+function setActiveStep(targetStep: FormKitNode) {
+  if (targetStep && targetStep.name && targetStep.parent) {
+    const currentStep = targetStep.parent.props.steps.find(
+      (step: FormKitNode) => step.name === targetStep.parent?.props.activeStep
+    )
+    const stepIsValid = validateStep(currentStep)
 
-function prevStep(step: FormKitNode) {
-  if (step && step.name && step.parent) {
-    const { steps, stepIndex } = step.props
-    const prevStep = steps[stepIndex - 1]
-    if (prevStep) {
-      step.parent.props.activeStep = prevStep.name
+    if (stepIsValid) {
+      targetStep.parent.props.activeStep = targetStep.name
     }
   }
 }
 
-function nextStep(step: FormKitNode) {
+function changeStep(delta: number, step: FormKitNode) {
   if (step && step.name && step.parent) {
     const { steps, stepIndex } = step.props
-    const nextStep = steps[stepIndex + 1]
-    if (nextStep) {
+    const nextStep = steps[stepIndex + delta]
+    const stepIsValid = validateStep(step)
+
+    if (nextStep && stepIsValid) {
       step.parent.props.activeStep = nextStep.name
     }
   }
+}
+
+function validateStep(step: FormKitNode) {
+  step.walk((n) => {
+    n.store.set(
+      createMessage({
+        key: 'submitted',
+        value: true,
+        visible: false,
+      })
+    )
+  })
+  return step.context?.state.valid || step.parent?.props.allowIncomplete
 }
 
 export function createMultiStepPlugin(
@@ -49,7 +62,14 @@ export function createMultiStepPlugin(
     if (!['multi-step', 'step'].includes(node.props.type)) return
 
     if (node.props.type === 'multi-step') {
-      node.addProps(['steps', 'activeStep'])
+      node.addProps(['steps', 'activeStep', 'flattenValues', 'allowIncomplete'])
+
+      node.on('created', () => {
+        if (!node.context) return
+        node.context.handlers.validateStep = validateStep
+        node.props.flattenValues = options?.flattenSteps || false
+        node.props.allowIncomplete = options?.allowIncomplete || false
+      })
 
       node.on('childRemoved', ({ payload: childNode }) => {
         let removedStepIndex = -1
@@ -100,8 +120,8 @@ export function createMultiStepPlugin(
             parentNode.context.handlers.setActiveStep = (
               stepNode: FormKitNode
             ) => setActiveStep.bind(null, stepNode)
-            node.context.handlers.nextStep = nextStep.bind(null, node)
-            node.context.handlers.prevStep = prevStep.bind(null, node)
+            node.context.handlers.changeStep = (delta, stepNode: FormKitNode) =>
+              changeStep.bind(null, delta, stepNode)
           }
         }
       })
