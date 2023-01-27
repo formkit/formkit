@@ -1,5 +1,5 @@
 import { FormKitNode, FormKitPlugin } from '@formkit/core'
-import { multiStepSchema, stepSchema } from './schema'
+import { multiStep, step } from './schema'
 
 interface MultiStepOptions {
   flattenSteps?: boolean
@@ -70,19 +70,16 @@ export function createMultiStepPlugin(
             ? node.props.steps[targetIndex].name
             : ''
         }
+
+        // recompute step positions
+        setNodePositionProps(node.props.steps)
       })
     }
     if (
       node.props.type === 'step' &&
       node.parent?.props.type === 'multi-step'
     ) {
-      node.addProps([
-        'isActiveStep',
-        'isFirstStep',
-        'isLastStep',
-        'nextLabel',
-        'prevLabel',
-      ])
+      node.addProps(['isActiveStep', 'isFirstStep', 'isLastStep'])
       node.on('created', () => {
         if (!node.context) return
         if (node.parent && node.parent.context) {
@@ -100,10 +97,9 @@ export function createMultiStepPlugin(
             : ''
 
           if (parentNode.context) {
-            parentNode.context.handlers.setActiveStep = setActiveStep.bind(
-              null,
-              node
-            )
+            parentNode.context.handlers.setActiveStep = (
+              stepNode: FormKitNode
+            ) => setActiveStep.bind(null, stepNode)
             node.context.handlers.nextStep = nextStep.bind(null, node)
             node.context.handlers.prevStep = prevStep.bind(null, node)
           }
@@ -119,11 +115,7 @@ export function createMultiStepPlugin(
   multiStepPlugin.library = (node: FormKitNode) => {
     switch (node.props.type) {
       case 'multi-step':
-        return node.define({
-          type: 'group',
-          schema: multiStepSchema,
-          props: ['flattenValues', 'allowIncompleteAdvance'],
-        })
+        return node.define(multiStep)
       case 'step':
         const isInvalid =
           !node.parent || node.parent.props.type !== 'multi-step'
@@ -132,10 +124,11 @@ export function createMultiStepPlugin(
             'Invalid use of <FormKit type="step">. <FormKit type="step"> should be an immediate child of a <FormKit type="multi-step"> element.'
           )
         }
-        return node.define({
-          type: 'group',
-          schema: isInvalid ? [] : stepSchema,
-        })
+        return node.define(step)
+      // return node.define({
+      //   type: 'group',
+      //   schema: isInvalid ? [] : stepSchema,
+      // })
     }
   }
 

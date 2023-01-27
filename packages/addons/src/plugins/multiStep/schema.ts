@@ -1,113 +1,64 @@
-import { FormKitSchemaNode } from '@formkit/core'
+import { FormKitTypeDefinition } from '@formkit/core'
+import { $if, outer, wrapper, inner } from '@formkit/inputs'
+import {
+  stepPrevious,
+  stepNext,
+  stepOuter,
+  tabs,
+  tab,
+  stepActions,
+} from './sections'
 
-export const multiStepSchema: FormKitSchemaNode[] = [
-  {
-    $el: 'div',
-    attrs: {
-      'data-type': 'multi-step',
-      class: '$classes.outer',
-    },
-    children: [
-      {
-        $el: 'ul',
-        attrs: {
-          class: '$classes.tabs',
-        },
-        children: [
-          {
-            $el: 'li',
-            for: ['step', 'key', '$steps'],
-            attrs: {
-              class: '$classes.tab',
-              onClick: '$handlers.setActiveStep',
-            },
-            children: ['$step.name'],
-          },
-        ],
-      },
-      {
-        $el: 'div',
-        attrs: {
-          class: '$classes.wrapper',
-        },
-        children: [
-          {
-            $el: 'div',
-            attrs: {
-              class: '$classes.inner',
-            },
-            children: '$slots.default',
-          },
-        ],
-      },
-    ],
-  },
-]
+export const multiStep: FormKitTypeDefinition = {
+  /**
+   * The actual schema of the input, or a function that returns the schema.
+   */
+  schema: outer(tabs(tab('$step.name')), wrapper(inner('$slots.default'))),
+  /**
+   * The type of node, can be a list, group, or input.
+   */
+  type: 'group',
+  /**
+   * The family of inputs this one belongs too. For example "text" and "email"
+   * are both part of the "text" family. This is primary used for styling.
+   */
+  family: '',
+  /**
+   * An array of extra props to accept for this input.
+   */
+  props: ['flattenValues', 'allowIncompleteAdvance'],
+  /**
+   * Additional features that should be added to your input
+   */
+  features: [],
+}
 
-export const stepSchema: FormKitSchemaNode[] = [
-  {
-    $el: 'div',
-    attrs: {
-      'data-type': 'step',
-      class: '$classes.step',
-      style: {
-        if: '$isActiveStep',
-        then: '',
-        else: 'display: none;',
-      },
-    },
-    children: [
-      {
-        $el: 'div',
-        attrs: {
-          class: '$classes.stepInner',
-        },
-        children: '$slots.default',
-      },
-      {
-        $el: 'div',
-        attrs: {
-          class: '$classes.stepActions',
-        },
-        children: [
-          {
-            $el: 'div',
-            attrs: {
-              class: '$classes.actionPrevious',
-            },
-            children: [
-              {
-                $formkit: 'button',
-                if: '$: $isFirstStep === false',
-                label: {
-                  if: '$prevLabel',
-                  then: '$prevLabel',
-                  else: 'Previous',
-                },
-                onClick: '$handlers.prevStep',
-              },
-            ],
-          },
-          {
-            $el: 'div',
-            attrs: {
-              class: '$classes.actionNext',
-            },
-            children: [
-              {
-                $formkit: 'button',
-                if: '$: $isLastStep === false',
-                label: {
-                  if: '$nextLabel',
-                  then: '$nextLabel',
-                  else: 'Next',
-                },
-                onClick: '$handlers.nextStep',
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]
+export const step: FormKitTypeDefinition = {
+  /**
+   * The actual schema of the input, or a function that returns the schema.
+   */
+  schema: stepOuter(
+    wrapper(inner('$slots.default')),
+    stepActions(
+      $if('$isFirstStep === false', stepPrevious()),
+      $if('$isLastStep === false', stepNext())
+    )
+  ),
+  /**
+   * The type of node, can be a list, group, or input.
+   */
+  type: 'group',
+  /**
+   * The family of inputs this one belongs too. For example "text" and "email"
+   * are both part of the "text" family. This is primary used for styling.
+   */
+  family: '',
+  /**
+   * An array of extra props to accept for this input.
+   */
+  props: ['prevLabel', 'nextLabel'],
+  /**
+   * Additional features that should be added to your input
+   */
+  features: [],
+}

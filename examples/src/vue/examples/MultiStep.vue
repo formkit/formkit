@@ -46,100 +46,17 @@ const thirdStep = ref(false)
         name="thirdStep"
         type="step"
       >
+        <template #actionPrevious>
+          <h1>test</h1>
+        </template>
+
         <FormKit
           type="textarea"
           name="story"
           label="Your Story"
-          prev-label="Back to Age"
-        />
-
-        <!-- <FormKit
-          type="multi-step"
-          name="nestedMultiStep"
-        >
-          <FormKit
-            type="step"
-            name="firesNested"
-          >
-            <FormKit
-              type="text"
-              name="name"
-            />
-          </FormKit>
-
-          <FormKit
-            type="step"
-            name="secondNested"
-          >
-            <FormKit
-              type="range"
-              name="age"
-            />
-          </FormKit>
-
-          <FormKit
-            v-if="thirdStep"
-            name="thirdNested"
-            type="step"
-          >
-            <FormKit
-              type="textarea"
-              name="story"
-            />
-          </FormKit>
-        </FormKit> -->
-      </FormKit>
-    </FormKit>
-
-    <!-- <FormKit
-      type="multi-step"
-      name="flattenMultiStep"
-      :flatten-values="true"
-    >
-      <FormKit
-        type="step"
-        name="flattenStepOne"
-      >
-        <FormKit
-          type="text"
-          value="yo"
-        />
-      </FormKit>
-      <FormKit
-        type="step"
-        name="flattenStepTwo"
-      >
-        <FormKit
-          type="range"
-          value="25"
         />
       </FormKit>
     </FormKit>
-
-    <FormKit
-      type="multi-step"
-      name="incompleteAdvanceMultiStep"
-      :flatten-values="true"
-    >
-      <FormKit
-        type="step"
-        name="incompleteAdvanceStepOne"
-      >
-        <FormKit
-          type="text"
-          value="yo"
-        />
-      </FormKit>
-      <FormKit
-        type="step"
-        name="incompleteAdvanceStepTwo"
-      >
-        <FormKit
-          type="range"
-          value="25"
-        />
-      </FormKit>
-    </FormKit> -->
   </FormKit>
 
   <pre>
