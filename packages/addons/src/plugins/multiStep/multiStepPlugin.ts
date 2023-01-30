@@ -7,8 +7,9 @@ import {
 import { multiStep, step } from './schema'
 
 interface MultiStepOptions {
-  flattenSteps?: boolean
+  flattenValues?: boolean
   allowIncomplete?: boolean
+  tabStyle?: 'tab' | 'progress'
 }
 
 type FormKitFrameworkContextWithSteps = FormKitFrameworkContext & {
@@ -168,14 +169,21 @@ export function createMultiStepPlugin(
 ): FormKitPlugin {
   const multiStepPlugin = (node: FormKitNode) => {
     if (node.props.type === 'multi-step') {
-      node.addProps(['steps', 'activeStep', 'flattenValues', 'allowIncomplete'])
+      node.addProps([
+        'steps',
+        'activeStep',
+        'flattenValues',
+        'allowIncomplete',
+        'tabStyle',
+      ])
 
       node.on('created', () => {
         if (!node.context) return
         node.context.handlers.triggerStepValidations = triggerStepValidations
         node.context.handlers.showStepErrors = showStepErrors
-        node.props.flattenValues = options?.flattenSteps || false
+        node.props.flattenValues = options?.flattenValues || false
         node.props.allowIncomplete = options?.allowIncomplete || false
+        node.props.tabStyle = options?.tabStyle || 'tab'
       })
 
       node.on('childRemoved', ({ payload: childNode }) => {

@@ -1,4 +1,20 @@
+<script setup>
+  import { ref } from 'vue'
+
+  const icon = ref('ethereum')
+
+  function updateIcon () {
+    icon.value = icon.value === 'check' ? 'ethereum' : 'check'
+  }
+</script>
+
 <template>
+  <FormKit
+    type="button"
+    label="change icon"
+    @click="updateIcon"
+  />
+
   <FormKit
     v-slot="{ value }"
     type="form"
@@ -17,7 +33,7 @@
       >
         <FormKit
           type="text"
-          label="Your Name"
+          label="Your name"
           name="name"
           validation="required"
         />
@@ -26,7 +42,6 @@
       <FormKit
         key="secondStep"
         type="step"
-        label="Details"
         name="secondStep"
       >
         <FormKit
@@ -86,12 +101,18 @@
   --multistep-color-danger: #ea0000;
   --multistep-color-tab-active-text: #000000
   --multistep-color-tab-text: #767676;
+  --multistep-radius: 0.4em;
+  --multistep-shadow: 0.25em 0.25em 1em 0 rgb(0 0 0 / 10%);
 }
 
 .formkit-outer[data-type="multi-step"] > .formkit-wrapper {
   max-width: 32em;
-  box-shadow: 0.25em 0.25em 1em 0 rgb(0 0 0 / 10%);
-  border-radius: 0.4em;
+  box-shadow: var(--multistep-shadow);
+  border-radius: var(--multistep-radius);
+}
+
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper[data-tab-style="progress"] {
+  box-shadow: none;
 }
 
 .formkit-outer[data-type="multi-step"] > .formkit-wrapper .formkit-wrapper {
@@ -99,39 +120,20 @@
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-tabs {
-  list-style-type: none;
-  margin: 0;
   display: flex;
-  padding-left: 0;
-  background: var(--multistep-color-tab);
   overflow: auto;
-  border-radius: 0.4em 0.4em 0 0;
-  border: 1px solid var(--multistep-color-border);
+  align-items: center;
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-tab {
   appearance: none;
-  font-size: 0.875rem;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: var(--multistep-color-tab);
   border: none;
-  border-right: 1px solid var(--multistep-color-border);
-  color: var(--multistep-color-tab-text);
-  flex-grow: 1;
-  flex-shrink: 1;
-  max-width: 33.333%;
-  position: relative;
+  background: none;
   cursor: pointer;
-  user-select: none;
-  text-align: center;
+  height: 100%;
 }
-.formkit-outer[data-type="multi-step"] .formkit-tab:last-child {
-  margin-right: -1px;
-}
+
 .formkit-outer[data-type="multi-step"] .formkit-tab[data-active="true"] {
-  background: var(--multistep-color-tab-active);
-  color: var(--multistep-color-tab-active-text);
   font-weight: bold;
 }
 
@@ -147,24 +149,127 @@
   justify-content: center;
   text-align: center;
   position: absolute;
-  line-height: 0;
-  top: 0.25rem;
-  right: 0.25rem;
   text-indent: -0.15em;
 }
+
 .formkit-outer[data-type="multi-step"] .formkit-tab[data-valid="true"] .formkit-badge {
   background: var(--multistep-color-success);
 }
+
 .formkit-outer[data-type="multi-step"] .formkit-badge .formkit-icon {
+  max-width: 100%;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tabs {
+  background: var(--multistep-color-tab);
+  border-radius: var(--multistep-radius) var(--multistep-radius) 0 0;
+  border: 1px solid var(--multistep-color-border);
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab {
+  font-size: 0.875rem;
+  padding: 1rem 1.5rem;
+  background: var(--multistep-color-tab);
+  box-shadow: -1px 0 0 0 var(--multistep-color-border);
+  color: var(--multistep-color-tab-text);
+  flex-grow: 1;
+  flex-shrink: 1;
+  position: relative;
+  user-select: none;
+  text-align: center;
+}
+.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab:last-child {
+  box-shadow: -1px 0 0 0 var(--multistep-color-border), 1px 0 0 0 var(--multistep-color-border);
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab[data-active="true"] {
+  background: var(--multistep-color-tab-active);
+  color: var(--multistep-color-tab-active-text);
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-badge {
+  line-height: 0;
+  top: 0.25rem;
+  right: 0.25rem;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tabs {
+  margin-bottom: 2em;
+  margin-top: 2em;
+  justify-content: space-around;
+  overflow: visible;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-grow: 1;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab-label {
+  position: absolute;
+  top: 100%;
   width: 100%;
-  height: 100%;
+  white-space: nowrap;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab::before {
+  content: '';
+  display: block;
+  width: 1.5em;
+  height: 1.5em;
+  border: 5px solid var(--multistep-color-border);
+  border-radius: 999em;
+  margin-bottom: 0.5em;
+  background: #ffffff;
+  z-index: 2;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab[data-active="true"]::before {
+  border-color: var(--multistep-color-success);
+  background: var(--multistep-color-success);
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab::after {
+  content: '';
+  display: block;
+  height: 0.25rem;
+  width: 100%;
+  position: absolute;
+  top: 0.66em;
+  left: calc(50% + 0.5em);
+  background: var(--multistep-color-border)
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab:last-child::after {
+  display: none;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab[data-valid="true"][data-visited="true"]::after {
+  background: var(--multistep-color-success);
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab .formkit-badge {
+  width: 1.5rem;
+  height: 1.5rem;
+  top: -1px;
+  z-index: 3;
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-steps {
   border: 1px solid var(--multistep-color-border);
   border-top: none;
-  border-radius: 0 0 0.4em 0.4em;
+  border-radius: 0 0 var(--multistep-radius) var(--multistep-radius);
   padding: 2em;
+}
+
+.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-steps {
+  border: 1px solid var(--multistep-color-border);
+  border-radius: var(--multistep-radius);
+  box-shadow: var(--multistep-shadow);
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-step-actions {

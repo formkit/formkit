@@ -1,15 +1,17 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { $if, outer, wrapper, icon, defaultIcon } from '@formkit/inputs'
+import { $if, outer, wrapper, defaultIcon, $extend } from '@formkit/inputs'
 import {
   badge,
   stepPrevious,
   stepNext,
   stepOuter,
   tab,
+  tabLabel,
   tabs,
   steps,
   stepActions,
   stepInner,
+  stepIcon,
 } from './sections'
 
 export const multiStep: FormKitTypeDefinition = {
@@ -17,18 +19,28 @@ export const multiStep: FormKitTypeDefinition = {
    * The actual schema of the input, or a function that returns the schema.
    */
   schema: outer(
-    wrapper(
-      tabs(
-        tab(
-          '$step.stepName',
-          $if(
-            '($step.totalErrorCount > 0) && $step.showStepErrors',
-            badge('$step.totalErrorCount')
-          ),
-          $if('$step.isValid && $step.hasBeenVisited', badge(icon('validStep')))
-        )
+    $extend(
+      wrapper(
+        tabs(
+          tab(
+            tabLabel('$step.stepName'),
+            $if(
+              '($step.totalErrorCount > 0) && $step.showStepErrors',
+              badge('$step.totalErrorCount')
+            ),
+            $if(
+              '$step.isValid && $step.hasBeenVisited',
+              badge(stepIcon('validStep'))
+            )
+          )
+        ),
+        steps('$slots.default')
       ),
-      steps('$slots.default')
+      {
+        attrs: {
+          'data-tab-style': '$tabStyle',
+        },
+      }
     )
   ),
   /**
@@ -47,7 +59,7 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [defaultIcon('validStep', 'check')],
+  features: [],
 }
 
 export const step: FormKitTypeDefinition = {
@@ -74,5 +86,5 @@ export const step: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [defaultIcon('validStep', 'check')],
 }

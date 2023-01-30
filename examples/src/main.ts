@@ -36,6 +36,7 @@ const config = defaultConfig({
     createAutoAnimatePlugin(),
     createMultiStepPlugin({
       allowIncomplete: false,
+      tabStyle: 'tab',
     }),
   ],
 })
