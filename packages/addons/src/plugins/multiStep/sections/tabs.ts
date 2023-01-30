@@ -6,5 +6,5 @@ import { createSection } from '@formkit/inputs'
  * @public
  */
 export const tabs = createSection('tabs', () => ({
-  $el: 'ul',
+  $el: 'div',
 }))

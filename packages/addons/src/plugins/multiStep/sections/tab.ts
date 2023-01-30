@@ -6,9 +6,13 @@ import { createSection } from '@formkit/inputs'
  * @public
  */
 export const tab = createSection('tab', () => ({
-  $el: 'li',
+  $el: 'button',
   for: ['step', 'index', '$steps'],
   attrs: {
     onClick: '$handlers.setActiveStep($step)',
+    'data-active': '$step.isActiveStep',
+    'data-valid': '$step.isValid',
+    role: 'button',
+    'aria-pressed': '$step.isActiveStep || false',
   },
 }))

@@ -97,7 +97,8 @@ function isTargetStepAllowed(
  *
  * @param targetStep - The target step
  */
-function setActiveStep(targetStep: FormKitFrameworkContext) {
+function setActiveStep(targetStep: FormKitFrameworkContext, e: Event) {
+  e.preventDefault()
   if (targetStep && targetStep.node.name && targetStep.node.parent) {
     const currentStep = targetStep.node.parent.props.steps.find(
       (step: FormKitFrameworkContext) =>
@@ -166,8 +167,6 @@ export function createMultiStepPlugin(
   options?: MultiStepOptions
 ): FormKitPlugin {
   const multiStepPlugin = (node: FormKitNode) => {
-    if (!['multi-step', 'step'].includes(node.props.type)) return
-
     if (node.props.type === 'multi-step') {
       node.addProps(['steps', 'activeStep', 'flattenValues', 'allowIncomplete'])
 
@@ -214,7 +213,10 @@ export function createMultiStepPlugin(
         'stepName',
         'errorCount',
         'blockingCount',
+        'totalErrorCount',
         'showStepErrors',
+        'isValid',
+        'hasBeenVisited',
       ])
       node.on('created', () => {
         if (!node.context) return
@@ -262,10 +264,22 @@ export function createMultiStepPlugin(
         node.props.totalErrorCount =
           node.props.errorCount + node.props.blockingCount
       })
+      node.on('prop:totalErrorCount', () => {
+        node.props.isValid = node.props.totalErrorCount <= 0
+      })
 
       node.parent.on('prop:activeStep', ({ payload }) => {
         node.props.isActiveStep = node.name === payload
       })
+      node.on('prop:isActiveStep', () => {
+        if (!node.props.hasBeenVisited && node.props.isActiveStep) {
+          node.props.hasBeenVisited = true
+        }
+      })
+    } else if (node.parent?.props.type === 'multi-step') {
+      console.warn(
+        'Invalid FormKit input location. <FormKit type="multi-step"> should only have <FormKit type="step"> inputs as immediate children. Failure to wrap child inputs in <FormKit type="step"> can lead to undesired behaviors.'
+      )
     }
   }
 

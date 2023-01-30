@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { $if, outer, wrapper } from '@formkit/inputs'
+import { $if, outer, wrapper, icon, defaultIcon } from '@formkit/inputs'
 import {
   badge,
   stepPrevious,
@@ -24,7 +24,8 @@ export const multiStep: FormKitTypeDefinition = {
           $if(
             '($step.totalErrorCount > 0) && $step.showStepErrors',
             badge('$step.totalErrorCount')
-          )
+          ),
+          $if('$step.isValid && $step.hasBeenVisited', badge(icon('validStep')))
         )
       ),
       steps('$slots.default')
@@ -46,7 +47,7 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [defaultIcon('validStep', 'check')],
 }
 
 export const step: FormKitTypeDefinition = {
@@ -55,10 +56,7 @@ export const step: FormKitTypeDefinition = {
    */
   schema: stepOuter(
     stepInner('$slots.default'),
-    stepActions(
-      $if('$isFirstStep === false', stepPrevious()),
-      $if('$isLastStep === false', stepNext())
-    )
+    stepActions(stepPrevious(), stepNext())
   ),
   /**
    * The type of node, can be a list, group, or input.
