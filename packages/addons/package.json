@@ -36,6 +36,7 @@
   "dependencies": {
     "@formkit/auto-animate": "latest",
     "@formkit/core": "1.0.0-beta.14",
+    "@formkit/inputs": "1.0.0-beta.14",
     "@formkit/utils": "1.0.0-beta.14"
   },
   "devDependencies": {}
