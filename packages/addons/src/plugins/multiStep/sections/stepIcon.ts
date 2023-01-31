@@ -15,12 +15,26 @@ export const stepIcon = (
       .toUpperCase()}${sectionKey.slice(1)}Icon`
     return {
       if: `$step.${sectionKey}Icon && $step.${rawIconProp}`,
-      $el: `${el ? el : 'span'}`,
-      attrs: {
-        class: `$classes.${sectionKey}Icon + " formkit-icon"`,
-        innerHTML: `$step.${rawIconProp}`,
-        role: 'presentation',
-        onClick: `$handlers.iconClick(${sectionKey})`,
+      then: {
+        $el: `${el ? el : 'span'}`,
+        attrs: {
+          class: `$classes.${sectionKey}Icon + " formkit-icon"`,
+          innerHTML: `$step.${rawIconProp}`,
+          role: 'presentation',
+          onClick: `$handlers.iconClick(${sectionKey})`,
+        },
+      },
+      else: {
+        if: `$${sectionKey}Icon && $${rawIconProp}`,
+        then: {
+          $el: `${el ? el : 'span'}`,
+          attrs: {
+            class: `$classes.${sectionKey}Icon + " formkit-icon"`,
+            innerHTML: `$${rawIconProp}`,
+            role: 'presentation',
+            onClick: `$handlers.iconClick(${sectionKey})`,
+          },
+        },
       },
     }
   })()

@@ -1,92 +1,103 @@
 <script setup>
-  import { ref } from 'vue'
+import { FormKitSchema } from '@formkit/vue'
 
-  const icon = ref('ethereum')
-
-  function updateIcon () {
-    icon.value = icon.value === 'check' ? 'ethereum' : 'check'
-  }
+const multiStepFormSchema = [
+{
+    $formkit: 'multi-step',
+    children: [
+      {
+        $formkit: 'step',
+        name: 'stepOne',
+        children: [
+          {
+            $formkit: 'text',
+            validation: 'required',
+          },
+        ],
+      },
+      {
+        $formkit: 'step',
+        name: 'stepTwo',
+      },
+      {
+        $formkit: 'step',
+        name: 'stepThree',
+      },
+    ],
+  },
+]
 </script>
 
 <template>
-  <FormKit
-    type="button"
-    label="change icon"
-    @click="updateIcon"
-  />
+  <FormKitSchema :schema="multiStepFormSchema" />
 
   <FormKit
     v-slot="{ value }"
     type="form"
-    :actions="false"
   >
-    <FormKit
-      type="text"
-      label="A standard input"
-    />
+    <FormKit type="step" />
 
-    <FormKit type="multi-step">
+    <FormKit
+      type="multi-step"
+      tab-style="progress"
+      valid-step-icon="star"
+    >
       <FormKit
-        key="firstStep"
         type="step"
-        name="firstStep"
+        name="personalInfo"
+        valid-step-icon="bitcoin"
       >
         <FormKit
           type="text"
-          label="Your name"
-          name="name"
+          label="My Name"
+          prefix-icon="avatarMan"
+          validation="required"
+        />
+        <FormKit
+          type="tel"
+          label="Phone"
+          prefix-icon="telephone"
           validation="required"
         />
       </FormKit>
-
+    
       <FormKit
-        key="secondStep"
         type="step"
-        name="secondStep"
-      >
-        <FormKit
-          type="range"
-          label="Your Age"
-          name="age"
-        />
-      </FormKit>
-
-      <FormKit
-        key="thirdStep"
-        name="thirdStep"
-        label="Application"
-        type="step"
+        name="references"
       >
         <FormKit
           type="textarea"
-          name="story"
-          label="Your Story"
+          label="Please supply 2 references"
           validation="required"
         />
       </FormKit>
 
       <FormKit
-        key="fourthStep"
-        name="fourthStep"
-        label="Sources"
         type="step"
+        name="Supplemental"
       >
+        <FormKit
+          type="textarea"
+          label="Why do you want to work here?"
+          validation="required"
+        />
+        <FormKit
+          type="radio"
+          label="How did you hear about us"
+          validation="required"
+          :options="[
+            { label: 'Google', value: 'google' },
+            { label: 'Facebook', value: 'facebook' },
+            { label: 'Twitter', value: 'twitter' },
+            { label: 'Friend', value: 'friend' },
+          ]"
+        />
+
         <template #stepNext>
           <FormKit type="submit" />
         </template>
-
-        <FormKit
-          type="textarea"
-          name="closingThoughts"
-          label="Your Closing Thoughts"
-        />
       </FormKit>
     </FormKit>
-
-    <FormKit
-      type="textarea"
-      label="A standard input"
-    />
 
     <pre>{{ value }}</pre>
   </FormKit>
@@ -115,17 +126,18 @@
   box-shadow: none;
 }
 
-.formkit-outer[data-type="multi-step"] > .formkit-wrapper .formkit-wrapper {
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper .formkit-wrapper,
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper .formkit-fieldset {
   max-width: none;
 }
 
-.formkit-outer[data-type="multi-step"] .formkit-tabs {
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper > .formkit-tabs {
   display: flex;
   overflow: auto;
   align-items: center;
 }
 
-.formkit-outer[data-type="multi-step"] .formkit-tab {
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper > .formkit-tabs .formkit-tab {
   appearance: none;
   border: none;
   background: none;
@@ -133,23 +145,23 @@
   height: 100%;
 }
 
-.formkit-outer[data-type="multi-step"] .formkit-tab[data-active="true"] {
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper > .formkit-tabs .formkit-tab[data-active="true"] {
   font-weight: bold;
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-badge {
   background: var(--multistep-color-danger);
   color: #fff;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0.25rem;
   display: flex;
-  font-size: 0.6rem;
+  font-size: 0.66rem;
   border-radius: 999em;
   flex-direction: column;
   justify-content: center;
   text-align: center;
   position: absolute;
-  text-indent: -0.15em;
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-tab[data-valid="true"] .formkit-badge {
@@ -157,16 +169,21 @@
 }
 
 .formkit-outer[data-type="multi-step"] .formkit-badge .formkit-icon {
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
+}
+.formkit-outer[data-type="multi-step"] .formkit-badge .formkit-icon svg {
+  max-width: 0.75rem;
+  max-height: 0.75rem;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tabs {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="tab"] > .formkit-tabs {
   background: var(--multistep-color-tab);
   border-radius: var(--multistep-radius) var(--multistep-radius) 0 0;
   border: 1px solid var(--multistep-color-border);
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="tab"] > .formkit-tabs .formkit-tab {
   font-size: 0.875rem;
   padding: 1rem 1.5rem;
   background: var(--multistep-color-tab);
@@ -178,11 +195,11 @@
   user-select: none;
   text-align: center;
 }
-.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab:last-child {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="tab"] > .formkit-tabs .formkit-tab:last-child {
   box-shadow: -1px 0 0 0 var(--multistep-color-border), 1px 0 0 0 var(--multistep-color-border);
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="tab"] .formkit-tab[data-active="true"] {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="tab"] > .formkit-tabs .formkit-tab[data-active="true"] {
   background: var(--multistep-color-tab-active);
   color: var(--multistep-color-tab-active-text);
 }
@@ -193,14 +210,17 @@
   right: 0.25rem;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tabs {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs {
   margin-bottom: 2em;
   margin-top: 2em;
   justify-content: space-around;
   overflow: visible;
 }
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"][data-hide-labels="true"] > .formkit-tabs {
+  margin-bottom: 1em;
+}
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs > .formkit-tab {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -209,14 +229,14 @@
   position: relative;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab-label {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab-label {
   position: absolute;
   top: 100%;
   width: 100%;
   white-space: nowrap;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab::before {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab::before {
   content: '';
   display: block;
   width: 1.5em;
@@ -228,12 +248,11 @@
   z-index: 2;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab[data-active="true"]::before {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] .formkit-tab[data-active="true"]::before {
   border-color: var(--multistep-color-success);
-  background: var(--multistep-color-success);
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab::after {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab::after {
   content: '';
   display: block;
   height: 0.25rem;
@@ -244,29 +263,29 @@
   background: var(--multistep-color-border)
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab:last-child::after {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab:last-child::after {
   display: none;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab[data-valid="true"][data-visited="true"]::after {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab[data-valid="true"][data-visited="true"]::after {
   background: var(--multistep-color-success);
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-tab .formkit-badge {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab .formkit-badge {
   width: 1.5rem;
   height: 1.5rem;
   top: -1px;
   z-index: 3;
 }
 
-.formkit-outer[data-type="multi-step"] .formkit-steps {
+.formkit-outer[data-type="multi-step"] > .formkit-wrapper > .formkit-steps {
   border: 1px solid var(--multistep-color-border);
   border-top: none;
   border-radius: 0 0 var(--multistep-radius) var(--multistep-radius);
   padding: 2em;
 }
 
-.formkit-outer[data-type="multi-step"] [data-tab-style="progress"] .formkit-steps {
+.formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-steps {
   border: 1px solid var(--multistep-color-border);
   border-radius: var(--multistep-radius);
   box-shadow: var(--multistep-shadow);

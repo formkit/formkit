@@ -7,8 +7,9 @@ import {
 import { multiStep, step } from './schema'
 
 interface MultiStepOptions {
-  flattenValues?: boolean
+  // flattenValues?: boolean
   allowIncomplete?: boolean
+  hideProgressLabels?: boolean
   tabStyle?: 'tab' | 'progress'
 }
 
@@ -174,16 +175,29 @@ export function createMultiStepPlugin(
         'activeStep',
         'flattenValues',
         'allowIncomplete',
+        'hideProgressLabels',
         'tabStyle',
       ])
+
+      // determine correct default prop values
+      // node.props.flattenValues =
+      //   typeof node.props.flattenValues === 'boolean'
+      //     ? node.props.flattenValues
+      //     : options?.flattenValues || false
+      node.props.allowIncomplete =
+        typeof node.props.allowIncomplete === 'boolean'
+          ? node.props.allowIncomplete
+          : options?.allowIncomplete || false
+      node.props.hideProgressLabels =
+        typeof node.props.hideProgressLabels === 'boolean'
+          ? node.props.hideProgressLabels
+          : options?.hideProgressLabels || false
+      node.props.tabStyle = node.props.tabStyle || options?.tabStyle || 'tab'
 
       node.on('created', () => {
         if (!node.context) return
         node.context.handlers.triggerStepValidations = triggerStepValidations
         node.context.handlers.showStepErrors = showStepErrors
-        node.props.flattenValues = options?.flattenValues || false
-        node.props.allowIncomplete = options?.allowIncomplete || false
-        node.props.tabStyle = options?.tabStyle || 'tab'
       })
 
       node.on('childRemoved', ({ payload: childNode }) => {
@@ -264,16 +278,25 @@ export function createMultiStepPlugin(
       node.on('count:blocking', ({ payload: count }) => {
         node.props.blockingCount = count
       })
-      node.on('prop:errorCount', () => {
+
+      function updateTotalErrorCount(node: FormKitNode) {
         node.props.totalErrorCount =
           node.props.errorCount + node.props.blockingCount
-      })
-      node.on('prop:blockingCount', () => {
-        node.props.totalErrorCount =
-          node.props.errorCount + node.props.blockingCount
-      })
+      }
+      node.on('prop:errorCount', () => updateTotalErrorCount(node))
+      node.on('prop:blockingCount', () => updateTotalErrorCount(node))
       node.on('prop:totalErrorCount', () => {
         node.props.isValid = node.props.totalErrorCount <= 0
+      })
+
+      node.on('message-added', ({ payload }) => {
+        if (payload.key === 'submitted') {
+          updateTotalErrorCount(node)
+          if (node.context) {
+            triggerStepValidations(node.context)
+            node.props.showStepErrors = true
+          }
+        }
       })
 
       node.parent.on('prop:activeStep', ({ payload }) => {

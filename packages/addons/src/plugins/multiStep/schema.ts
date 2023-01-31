@@ -23,7 +23,10 @@ export const multiStep: FormKitTypeDefinition = {
       wrapper(
         tabs(
           tab(
-            tabLabel('$step.stepName'),
+            $if(
+              '$tabStyle === "tab" || ($tabStyle === "progress" && $hideProgressLabels === false)',
+              tabLabel('$step.stepName')
+            ),
             $if(
               '($step.totalErrorCount > 0) && $step.showStepErrors',
               badge('$step.totalErrorCount')
@@ -39,6 +42,7 @@ export const multiStep: FormKitTypeDefinition = {
       {
         attrs: {
           'data-tab-style': '$tabStyle',
+          'data-hide-labels': '$hideProgressLabels',
         },
       }
     )
@@ -59,7 +63,7 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [defaultIcon('validStep', 'check')],
 }
 
 export const step: FormKitTypeDefinition = {
@@ -86,5 +90,5 @@ export const step: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [defaultIcon('validStep', 'check')],
+  features: [],
 }
