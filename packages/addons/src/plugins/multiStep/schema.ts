@@ -1,5 +1,12 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { $if, outer, wrapper, defaultIcon, $extend } from '@formkit/inputs'
+import {
+  $if,
+  outer,
+  wrapper,
+  defaultIcon,
+  $extend,
+  localize,
+} from '@formkit/inputs'
 import {
   badge,
   stepPrevious,
@@ -90,5 +97,5 @@ export const step: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [localize('next'), localize('prev')],
 }
