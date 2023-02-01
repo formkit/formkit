@@ -6,6 +6,12 @@ import {
 } from '@formkit/core'
 import { multiStep, step } from './schema'
 
+/**
+ * TODO:
+ * - Add support for "flattenValues" option
+ * - allow prevAttrs and nextAttrs binding to default buttons
+ */
+
 interface MultiStepOptions {
   // flattenValues?: boolean
   allowIncomplete?: boolean

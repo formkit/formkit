@@ -53,6 +53,14 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Load more',
+  /**
+   * Show on buttons that navigate state forward
+   */
+  next: 'Next',
+  /**
+   * Show on buttons that navigate state backward
+   */
+  prev: 'Previous',
 }
 
 /**

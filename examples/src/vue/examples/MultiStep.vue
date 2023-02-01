@@ -18,10 +18,22 @@ const multiStepFormSchema = [
       {
         $formkit: 'step',
         name: 'stepTwo',
+        children: [
+          {
+            $formkit: 'text',
+            validation: 'required',
+          },
+        ]
       },
       {
         $formkit: 'step',
         name: 'stepThree',
+        children: [
+          {
+            $formkit: 'text',
+            validation: 'required',
+          },
+        ]
       },
     ],
   },

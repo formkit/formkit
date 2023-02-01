@@ -14,7 +14,7 @@ export const stepPrevious = createSection('stepPrevious', () => ({
       label: {
         if: '$prevLabel',
         then: '$prevLabel',
-        else: 'Back',
+        else: '$ui.prev.value',
       },
       onClick: '$handlers.incrementStep(-1, $node.context)',
     },
