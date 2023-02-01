@@ -6,7 +6,12 @@ import {
 } from '@formkit/core'
 import { multiStep, step } from './schema'
 
-interface MultiStepOptions {
+/**
+ * The options to be passed to {@link createMultiStepPlugin | createMultiStepPlugin}
+ *
+ * @public
+ */
+export interface MultiStepOptions {
   // flattenValues?: boolean
   allowIncomplete?: boolean
   hideProgressLabels?: boolean
@@ -49,7 +54,7 @@ function showStepErrors(step: FormKitFrameworkContext) {
   if (!step.showStepErrors) return
   return (
     parseInt(step.blockingCount as string) +
-      parseInt(step.errorCount as string) >
+    parseInt(step.errorCount as string) >
     0
   )
 }
@@ -133,7 +138,22 @@ function incrementStep(
     const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
 
     if (targetStep && stepIsAllowed) {
+      const beforeAction = currentStep.node.props[`before${delta === 1 ? 'Next' : 'Previous'}`]
+        || currentStep.node.parent.props[`before${delta === 1 ? 'Next' : 'Previous'}`]
+
+      if (beforeAction && typeof beforeAction === 'function') {
+        const result = beforeAction(currentStep);
+        if (typeof result === 'boolean' && !result) return;
+      }
+
       currentStep.node.parent.props.activeStep = targetStep.node.name
+
+      const afterAction = currentStep.node.props[`after${delta === 1 ? 'Next' : 'Previous'}`]
+        || currentStep.node.parent.props[`after${delta === 1 ? 'Next' : 'Previous'}`]
+
+      if (afterAction && typeof afterAction === 'function') {
+        afterAction(currentStep);
+      }
     }
   }
 }
@@ -162,8 +182,11 @@ function triggerStepValidations(step: FormKitFrameworkContext) {
 /**
  * Creates a new multi-step plugin.
  *
- * @param options - The options to pass to the plugin
- * @returns function
+ * @param options - The options of {@link MultiStepOptions | MultiStepOptions} to pass to the plugin
+ *
+ * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
+ * @public
  */
 export function createMultiStepPlugin(
   options?: MultiStepOptions
@@ -173,6 +196,10 @@ export function createMultiStepPlugin(
       node.addProps([
         'steps',
         'activeStep',
+        'beforeNext',
+        'afterNext',
+        'beforePrevious',
+        'afterPrevious',
         'flattenValues',
         'allowIncomplete',
         'hideProgressLabels',
@@ -232,6 +259,10 @@ export function createMultiStepPlugin(
         'isActiveStep',
         'isFirstStep',
         'isLastStep',
+        'beforeNext',
+        'afterNext',
+        'beforePrevious',
+        'afterPrevious',
         'stepName',
         'errorCount',
         'blockingCount',
@@ -257,8 +288,8 @@ export function createMultiStepPlugin(
           parentNode.props.activeStep = parentNode.props.activeStep
             ? parentNode.props.activeStep
             : parentNode.props.steps[0]
-            ? parentNode.props.steps[0].node.name
-            : ''
+              ? parentNode.props.steps[0].node.name
+              : ''
 
           if (parentNode.context) {
             parentNode.context.handlers.setActiveStep = (

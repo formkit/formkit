@@ -26,6 +26,8 @@ const multiStepFormSchema = [
     ],
   },
 ]
+
+const log = console.log
 </script>
 
 <template>
@@ -41,6 +43,7 @@ const multiStepFormSchema = [
       type="multi-step"
       tab-style="progress"
       valid-step-icon="star"
+      :before-next="log"
     >
       <FormKit
         type="step"
@@ -64,9 +67,16 @@ const multiStepFormSchema = [
       <FormKit
         type="step"
         name="references"
+        :before-next="(node) => {
+          if (node.value.supply === '1') {
+            log('stops next')
+            return false
+          }
+        }"
       >
         <FormKit
           type="textarea"
+          name="supply"
           label="Please supply 2 references"
           validation="required"
         />
