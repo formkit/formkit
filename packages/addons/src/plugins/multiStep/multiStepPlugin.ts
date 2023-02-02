@@ -54,7 +54,7 @@ function showStepErrors(step: FormKitFrameworkContext) {
   if (!step.showStepErrors) return
   return (
     parseInt(step.blockingCount as string) +
-    parseInt(step.errorCount as string) >
+      parseInt(step.errorCount as string) >
     0
   )
 }
@@ -76,17 +76,23 @@ function isTargetStepAllowed(
   const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
 
   // check if there is a function for the stepChange guard
-  const beforeStepChange = currentStep.node.props.beforeStepChange
-    || currentStep.node.parent?.props.beforeStepChange
+  const beforeStepChange =
+    currentStep.node.props.beforeStepChange ||
+    currentStep.node.parent?.props.beforeStepChange
 
   if (beforeStepChange && typeof beforeStepChange === 'function') {
     const result = beforeStepChange({
       currentStep,
       targetStep,
-      delta: targetStepIndex - currentStepIndex
-    });
-    if (typeof result === 'boolean' && !result) return false;
+      delta: targetStepIndex - currentStepIndex,
+    })
+    if (typeof result === 'boolean' && !result) return false
   }
+
+  // show the current step errors because this step has
+  // been visited.
+  triggerStepValidations(currentStep)
+  currentStep.showStepErrors = true
 
   if (targetStepIndex < currentStepIndex) {
     // we can always step backwards
@@ -98,11 +104,6 @@ function isTargetStepAllowed(
   const delta = targetStepIndex - currentStepIndex
   for (let i = 0; i < delta; i++) {
     const intermediateStep = parentNode?.props.steps[currentStepIndex + i]
-    if (i === 0) {
-      // trigger any applicable validation errors on the first intermediate step
-      triggerStepValidations(intermediateStep)
-      intermediateStep.showStepErrors = true
-    }
     const stepIsAllowed = allowIncomplete || intermediateStep.state?.valid
     if (!stepIsAllowed) {
       return false
@@ -280,8 +281,8 @@ export function createMultiStepPlugin(
           parentNode.props.activeStep = parentNode.props.activeStep
             ? parentNode.props.activeStep
             : parentNode.props.steps[0]
-              ? parentNode.props.steps[0].node.name
-              : ''
+            ? parentNode.props.steps[0].node.name
+            : ''
 
           if (parentNode.context) {
             parentNode.context.handlers.setActiveStep = (
