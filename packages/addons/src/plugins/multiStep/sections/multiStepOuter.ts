@@ -1,29 +1,28 @@
 import { createSection } from '@formkit/inputs'
 
 /**
- * Outer section of a multi-step step. Has conditinal styling
- * depending on if it's the $activeStep.
+ * Outer section of the multi-step where most data attributes are assigned.
  *
  * @public
  */
-export const stepOuter = createSection(
-  'stepOuter',
+export const multiStepOuter = createSection(
+  'multiStepOuter',
   () => ({
     $el: 'div',
     attrs: {
       key: '$id',
-      'data-type': 'step',
+      id: '$id',
+      class: '$classes.outer',
+      'data-family': '$family || undefined',
+      'data-type': '$type',
+      'data-multiple':
+        '$attrs.multiple || ($type != "select" && $options != undefined) || undefined',
       'data-disabled': '$disabled || undefined',
       'data-complete': '$state.complete || undefined',
       'data-invalid':
         '$state.valid === false && $state.validationVisible || undefined',
       'data-errors': '$state.errors || undefined',
       'data-submitted': '$state.submitted || undefined',
-      id: '$id',
-      role: 'tabpanel',
-      'aria-labelledby': '$node.parent.props.id + "_tab_" + $stepIndex',
-      class: '$classes.step',
-      hidden: '$isActiveStep === false || undefined',
     },
   }),
   true

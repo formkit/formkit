@@ -19,6 +19,7 @@ export const stepNext = createSection('stepNext', () => ({
           then: '$nextLabel',
           else: '$ui.next.value',
         },
+        'data-next': '$isLastStep === false',
         onClick: '$handlers.incrementStep(1, $node.context)',
       },
     },

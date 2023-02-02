@@ -5,6 +5,7 @@ const multiStepFormSchema = [
 {
     $formkit: 'multi-step',
     beforeStepChange: '$log',
+    allowIncomplete: false,
     children: [
       {
         $formkit: 'step',
@@ -12,6 +13,7 @@ const multiStepFormSchema = [
         children: [
           {
             $formkit: 'text',
+            label: 'name',
             validation: 'required',
           },
         ],
@@ -22,6 +24,7 @@ const multiStepFormSchema = [
         children: [
           {
             $formkit: 'text',
+            label: 'favorie color',
             validation: 'required',
           },
         ]
@@ -32,6 +35,7 @@ const multiStepFormSchema = [
         children: [
           {
             $formkit: 'text',
+            label: 'favorite memory',
             validation: 'required',
           },
         ]

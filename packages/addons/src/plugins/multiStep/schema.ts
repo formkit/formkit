@@ -1,12 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import {
-  $if,
-  outer,
-  wrapper,
-  defaultIcon,
-  $extend,
-  localize,
-} from '@formkit/inputs'
+import { $if, wrapper, defaultIcon, $extend, localize } from '@formkit/inputs'
 import {
   badge,
   stepPrevious,
@@ -19,13 +12,14 @@ import {
   stepActions,
   stepInner,
   stepIcon,
+  multiStepOuter,
 } from './sections'
 
 export const multiStep: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: outer(
+  schema: multiStepOuter(
     $extend(
       wrapper(
         tabs(
@@ -62,7 +56,7 @@ export const multiStep: FormKitTypeDefinition = {
    * The family of inputs this one belongs too. For example "text" and "email"
    * are both part of the "text" family. This is primary used for styling.
    */
-  family: '',
+  family: 'multi-step',
   /**
    * An array of extra props to accept for this input.
    */

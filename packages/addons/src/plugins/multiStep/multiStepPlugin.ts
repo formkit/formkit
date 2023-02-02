@@ -4,7 +4,10 @@ import {
   createMessage,
   FormKitFrameworkContext,
 } from '@formkit/core'
+import { whenAvailable } from '@formkit/utils'
 import { multiStep, step } from './schema'
+
+const isBrowser = typeof window !== 'undefined'
 
 /**
  * The options to be passed to {@link createMultiStepPlugin | createMultiStepPlugin}
@@ -178,6 +181,31 @@ function triggerStepValidations(step: FormKitFrameworkContext) {
   )
 }
 
+function initEvents(node: FormKitNode, el: Element) {
+  if (!(el instanceof HTMLElement)) return
+  el.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.target instanceof HTMLButtonElement) {
+      if (
+        event.key === 'Tab' &&
+        'data-next' in event.target?.attributes &&
+        !event.shiftKey
+      ) {
+        event.preventDefault()
+        const activeStepContext = node.children.find(
+          (step) => step.name === node.props.activeStep
+        )
+        if (activeStepContext && activeStepContext.context) {
+          console.log('incrementing step', activeStepContext)
+          incrementStep(
+            1,
+            activeStepContext.context as FormKitFrameworkContextWithSteps
+          )
+        }
+      }
+    }
+  })
+}
+
 /**
  * Creates a new multi-step plugin.
  *
@@ -197,7 +225,9 @@ export function createMultiStepPlugin(
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete
-          : options?.allowIncomplete || false
+          : typeof options?.allowIncomplete === 'boolean'
+          ? options?.allowIncomplete
+          : true
       node.props.hideProgressLabels =
         typeof node.props.hideProgressLabels === 'boolean'
           ? node.props.hideProgressLabels
@@ -208,6 +238,24 @@ export function createMultiStepPlugin(
         if (!node.context) return
         node.context.handlers.triggerStepValidations = triggerStepValidations
         node.context.handlers.showStepErrors = showStepErrors
+
+        whenAvailable(`${node.props.id}`, (el) => {
+          initEvents(node, el)
+        })
+      })
+
+      node.on('prop:activeStep', ({ payload }) => {
+        node.children.forEach((child) => {
+          child.props.isActiveStep = child.name === payload
+          if (isBrowser && child.name === payload) {
+            const el = document.querySelector(
+              `[aria-controls="${child.props.id}"]`
+            )
+            if (el instanceof HTMLButtonElement) {
+              el.focus()
+            }
+          }
+        })
       })
 
       node.on('childRemoved', ({ payload: childNode }) => {
@@ -310,9 +358,6 @@ export function createMultiStepPlugin(
         }
       })
 
-      node.parent.on('prop:activeStep', ({ payload }) => {
-        node.props.isActiveStep = node.name === payload
-      })
       node.on('prop:isActiveStep', () => {
         if (!node.props.hasBeenVisited && node.props.isActiveStep) {
           node.props.hasBeenVisited = true

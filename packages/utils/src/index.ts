@@ -6,6 +6,8 @@
  * @packageDocumentation
  */
 
+const isBrowser = typeof window !== 'undefined'
+
 /**
  * Explicit keys that should always be cloned.
  */
@@ -92,8 +94,8 @@ export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
  */
 export function has(
   obj: {
-    [index: string]: any;
-    [index: number]: any;
+    [index: string]: any
+    [index: number]: any
   },
   property: string | symbol | number
 ): boolean {
@@ -825,4 +827,30 @@ function applyExplicit<T extends object | any[]>(
     }
   }
   return obj
+}
+
+/**
+ * Uses a global mutation observer to wait for a given element to appear in the
+ * DOM.
+ * @param childId - The id of the child node.
+ * @param callback - The callback to call when the child node is found.
+ *
+ * @public
+ */
+export function whenAvailable(
+  childId: string,
+  callback: (el: Element) => void
+) {
+  if (isBrowser) {
+    const el = document.getElementById(childId)
+    if (el) return callback(el)
+    const observer = new MutationObserver(() => {
+      const el = document.getElementById(childId)
+      if (el) {
+        observer.disconnect()
+        callback(el)
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+  }
 }
