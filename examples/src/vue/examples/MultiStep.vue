@@ -55,7 +55,7 @@ const log = console.log
       type="multi-step"
       tab-style="progress"
       valid-step-icon="star"
-      :before-next="log"
+      :before-step-change="log"
     >
       <FormKit
         type="step"
@@ -79,10 +79,12 @@ const log = console.log
       <FormKit
         type="step"
         name="references"
-        :before-next="(node) => {
-          if (node.value.supply === '1') {
-            log('stops next')
-            return false
+        :before-step-change="({ currentStep, targetStep, direction }) => {
+          if (direction === 'forwards') {
+            if (currentStep.value.supply === '1') {
+              log('stops next')
+              return false
+            }
           }
         }"
       >

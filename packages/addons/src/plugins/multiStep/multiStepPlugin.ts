@@ -75,6 +75,19 @@ function isTargetStepAllowed(
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
   const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
 
+  // check if there is a function for the stepChange guard
+  const beforeStepChange = currentStep.node.props.beforeStepChange
+    || currentStep.node.parent?.props.beforeStepChange
+
+  if (beforeStepChange && typeof beforeStepChange === 'function') {
+    const result = beforeStepChange({
+      currentStep,
+      targetStep,
+      direction: targetStepIndex < currentStepIndex ? 'backwards' : 'forwards'
+    });
+    if (typeof result === 'boolean' && !result) return false;
+  }
+
   if (targetStepIndex < currentStepIndex) {
     // we can always step backwards
     return true
@@ -138,22 +151,7 @@ function incrementStep(
     const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
 
     if (targetStep && stepIsAllowed) {
-      const beforeAction = currentStep.node.props[`before${delta === 1 ? 'Next' : 'Previous'}`]
-        || currentStep.node.parent.props[`before${delta === 1 ? 'Next' : 'Previous'}`]
-
-      if (beforeAction && typeof beforeAction === 'function') {
-        const result = beforeAction(currentStep);
-        if (typeof result === 'boolean' && !result) return;
-      }
-
       currentStep.node.parent.props.activeStep = targetStep.node.name
-
-      const afterAction = currentStep.node.props[`after${delta === 1 ? 'Next' : 'Previous'}`]
-        || currentStep.node.parent.props[`after${delta === 1 ? 'Next' : 'Previous'}`]
-
-      if (afterAction && typeof afterAction === 'function') {
-        afterAction(currentStep);
-      }
     }
   }
 }
@@ -196,10 +194,7 @@ export function createMultiStepPlugin(
       node.addProps([
         'steps',
         'activeStep',
-        'beforeNext',
-        'afterNext',
-        'beforePrevious',
-        'afterPrevious',
+        'beforeStepChange',
         'flattenValues',
         'allowIncomplete',
         'hideProgressLabels',
@@ -259,10 +254,7 @@ export function createMultiStepPlugin(
         'isActiveStep',
         'isFirstStep',
         'isLastStep',
-        'beforeNext',
-        'afterNext',
-        'beforePrevious',
-        'afterPrevious',
+        'beforeStepChange',
         'stepName',
         'errorCount',
         'blockingCount',
