@@ -79,8 +79,8 @@ const log = console.log
       <FormKit
         type="step"
         name="references"
-        :before-step-change="({ currentStep, targetStep, direction }) => {
-          if (direction === 'forwards') {
+        :before-step-change="({ currentStep, targetStep, delta }) => {
+          if (delta > 0) {
             if (currentStep.value.supply === '1') {
               log('stops next')
               return false

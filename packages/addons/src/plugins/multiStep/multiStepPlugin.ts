@@ -83,7 +83,7 @@ function isTargetStepAllowed(
     const result = beforeStepChange({
       currentStep,
       targetStep,
-      direction: targetStepIndex < currentStepIndex ? 'backwards' : 'forwards'
+      delta: targetStepIndex - currentStepIndex
     });
     if (typeof result === 'boolean' && !result) return false;
   }
