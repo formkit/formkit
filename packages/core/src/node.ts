@@ -1807,6 +1807,7 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   // flush all messages out
   node.store.filter(() => false)
   if (node.parent) {
+    node.parent.emit('childRemoved', node)
     node.parent.remove(node)
   }
   deregister(node)

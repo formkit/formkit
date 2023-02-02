@@ -122,6 +122,8 @@ export async function buildPackage(p) {
 
   if (p === 'inputs') await inputsBuildExtras()
 
+  if (p === 'addons') await addonsBuildExtras()
+
   // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
@@ -219,6 +221,23 @@ async function themesBuildExtras() {
       ])
     )
   )
+}
+
+/**
+ * Special considerations for building the addons package.
+ */
+async function addonsBuildExtras() {
+  const addonsCSS = await fs.readdir(packagesDir + '/addons/src/css')
+  fs.mkdir(packagesDir + '/addons/dist/css/', { recursive: true }, (err) => {
+    if (err) throw err
+  })
+  await addonsCSS.forEach(async (css) => {
+    console.log(packagesDir + '/addons/src/css/' + css)
+    await fs.copyFile(
+      packagesDir + '/addons/src/css/' + css,
+      packagesDir + '/addons/dist/css/' + css
+    )
+  })
 }
 
 /**
