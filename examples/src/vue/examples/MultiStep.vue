@@ -87,6 +87,10 @@ const log = console.log
             }
           }
         }"
+        :prev-attrs="{
+          label: 'hey there',
+          'data-something': 'some data'
+        }"
       >
         <FormKit
           type="textarea"

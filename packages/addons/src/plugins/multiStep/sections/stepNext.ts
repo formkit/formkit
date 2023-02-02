@@ -10,13 +10,17 @@ export const stepNext = createSection('stepNext', () => ({
   if: '$isLastStep === false',
   children: [
     {
-      $formkit: 'button',
-      label: {
-        if: '$nextLabel',
-        then: '$nextLabel',
-        else: '$ui.next.value',
+      $cmp: 'FormKit',
+      bind: '$nextAttrs',
+      props: {
+        type: 'button',
+        label: {
+          if: '$nextLabel',
+          then: '$nextLabel',
+          else: '$ui.next.value',
+        },
+        onClick: '$handlers.incrementStep(1, $node.context)',
       },
-      onClick: '$handlers.incrementStep(1, $node.context)',
     },
   ],
 }))

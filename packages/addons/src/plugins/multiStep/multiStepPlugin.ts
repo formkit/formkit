@@ -263,6 +263,8 @@ export function createMultiStepPlugin(
         'showStepErrors',
         'isValid',
         'hasBeenVisited',
+        'prevAttrs',
+        'nextAttrs',
       ])
       node.on('created', () => {
         if (!node.context) return
