@@ -256,6 +256,7 @@ export function createMultiStepPlugin(
           node.props.stepName = node.props.label || camel2title(node.name)
           node.props.errorCount = 0
           node.props.blockingCount = 0
+          node.props.isActiveStep = false
 
           const parentNode = node.parent
           parentNode.props.steps = Array.isArray(parentNode.props.steps)

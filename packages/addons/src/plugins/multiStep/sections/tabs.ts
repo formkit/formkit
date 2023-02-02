@@ -7,4 +7,7 @@ import { createSection } from '@formkit/inputs'
  */
 export const tabs = createSection('tabs', () => ({
   $el: 'div',
+  attrs: {
+    role: 'tablist',
+  },
 }))

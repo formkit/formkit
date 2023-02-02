@@ -19,12 +19,12 @@ export const stepOuter = createSection(
         '$state.valid === false && $state.validationVisible || undefined',
       'data-errors': '$state.errors || undefined',
       'data-submitted': '$state.submitted || undefined',
+      id: '$id',
+      role: 'tabpanel',
+      tabindex: '0',
+      'aria-labelledby': '$node.parent.props.id + "_tab_" + $stepIndex',
       class: '$classes.step',
-      style: {
-        if: '$isActiveStep',
-        then: '',
-        else: 'display: none;',
-      },
+      hidden: '$isActiveStep === false || undefined',
     },
   }),
   true

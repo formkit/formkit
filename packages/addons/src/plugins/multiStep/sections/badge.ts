@@ -7,4 +7,7 @@ import { createSection } from '@formkit/inputs'
  */
 export const badge = createSection('badge', () => ({
   $el: 'span',
+  attrs: {
+    role: 'presentation',
+  },
 }))
