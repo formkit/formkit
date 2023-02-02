@@ -10,6 +10,12 @@
   --multistep-shadow: 0.25em 0.25em 1em 0 rgb(0 0 0 / 10%);
 }
 
+.formkit-outer[data-type="multi-step"][data-disabled],
+.formkit-step[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 .formkit-outer[data-type="multi-step"] > .formkit-wrapper {
   max-width: 32em;
   box-shadow: var(--multistep-shadow);

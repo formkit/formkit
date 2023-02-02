@@ -192,21 +192,8 @@ export function createMultiStepPlugin(
 ): FormKitPlugin {
   const multiStepPlugin = (node: FormKitNode) => {
     if (node.props.type === 'multi-step') {
-      node.addProps([
-        'steps',
-        'activeStep',
-        'beforeStepChange',
-        'flattenValues',
-        'allowIncomplete',
-        'hideProgressLabels',
-        'tabStyle',
-      ])
+      node.addProps(['steps', 'activeStep'])
 
-      // determine correct default prop values
-      // node.props.flattenValues =
-      //   typeof node.props.flattenValues === 'boolean'
-      //     ? node.props.flattenValues
-      //     : options?.flattenValues || false
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete
@@ -255,7 +242,6 @@ export function createMultiStepPlugin(
         'isActiveStep',
         'isFirstStep',
         'isLastStep',
-        'beforeStepChange',
         'stepName',
         'errorCount',
         'blockingCount',
@@ -263,8 +249,6 @@ export function createMultiStepPlugin(
         'showStepErrors',
         'isValid',
         'hasBeenVisited',
-        'prevAttrs',
-        'nextAttrs',
       ])
       node.on('created', () => {
         if (!node.context) return

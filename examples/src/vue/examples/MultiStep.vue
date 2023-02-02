@@ -4,6 +4,7 @@ import { FormKitSchema } from '@formkit/vue'
 const multiStepFormSchema = [
 {
     $formkit: 'multi-step',
+    beforeStepChange: '$log',
     children: [
       {
         $formkit: 'step',
@@ -40,10 +41,15 @@ const multiStepFormSchema = [
 ]
 
 const log = console.log
+
+const data = { log }
 </script>
 
 <template>
-  <FormKitSchema :schema="multiStepFormSchema" />
+  <FormKitSchema
+    :schema="multiStepFormSchema"
+    :data="data"
+  />
 
   <FormKit
     v-slot="{ value }"
@@ -103,6 +109,7 @@ const log = console.log
       <FormKit
         type="step"
         name="Supplemental"
+        label="A custom label"
       >
         <FormKit
           type="textarea"

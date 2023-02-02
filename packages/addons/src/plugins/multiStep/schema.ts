@@ -66,7 +66,13 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['flattenValues', 'allowIncomplete'],
+  props: [
+    'allowIncomplete',
+    'hideProgressLabels',
+    'tabStyle',
+    'beforeStepChange',
+    'validStepIcon',
+  ],
   /**
    * Additional features that should be added to your input
    */
@@ -93,7 +99,14 @@ export const step: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: ['label', 'prevLabel', 'nextLabel'],
+  props: [
+    'prevLabel',
+    'nextLabel',
+    'beforeStepChange',
+    'prevAttrs',
+    'nextAttrs',
+    'validStepIcon',
+  ],
   /**
    * Additional features that should be added to your input
    */
