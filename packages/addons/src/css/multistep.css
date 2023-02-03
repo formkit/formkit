@@ -10,6 +10,14 @@
   --multistep-shadow: 0.25em 0.25em 1em 0 rgb(0 0 0 / 10%);
 }
 
+.formkit-outer[data-type="multi-step"] * {
+  box-sizing: border-box;
+}
+.formkit-outer[data-type="multi-step"] *::before,
+.formkit-outer[data-type="multi-step"] *::after {
+  box-sizing: inherit;
+}
+
 .formkit-outer[data-type="multi-step"][data-disabled],
 .formkit-step[data-disabled] {
   pointer-events: none;
@@ -53,8 +61,8 @@
 .formkit-outer[data-type="multi-step"] .formkit-badge {
   background: var(--multistep-color-danger);
   color: #fff;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.33rem;
+  height: 1.33rem;
   padding: 0.25rem;
   display: flex;
   font-size: 0.66rem;
@@ -74,8 +82,8 @@
   height: 100%;
 }
 .formkit-outer[data-type="multi-step"] .formkit-badge .formkit-icon svg {
-  max-width: 0.75rem;
-  max-height: 0.75rem;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .formkit-outer[data-type="multi-step"] > [data-tab-style="tab"] > .formkit-tabs {
@@ -135,16 +143,17 @@
   top: 100%;
   width: 100%;
   white-space: nowrap;
+  font-size: 0.8rem;
 }
 
 .formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab::before {
   content: '';
   display: block;
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.25rem;
+  height: 1.25rem;
   border: 5px solid var(--multistep-color-border);
   border-radius: 999em;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.5rem;
   background: #ffffff;
   z-index: 2;
 }
@@ -159,7 +168,7 @@
   height: 0.25rem;
   width: 100%;
   position: absolute;
-  top: 0.66em;
+  top: 0.75em;
   left: calc(50% + 0.5em);
   background: var(--multistep-color-border)
 }
@@ -173,9 +182,6 @@
 }
 
 .formkit-outer[data-type="multi-step"] > [data-tab-style="progress"] > .formkit-tabs .formkit-tab .formkit-badge {
-  width: 1.5rem;
-  height: 1.5rem;
-  top: -1px;
   z-index: 3;
 }
 
