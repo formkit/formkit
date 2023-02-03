@@ -13,6 +13,7 @@
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     },
+    "./css/multistep": "./dist/css/multistep.css",
     "./*": "./dist/*"
   },
   "keywords": [
@@ -27,7 +28,8 @@
     "directory": "packages/addons"
   },
   "contributors": [
-    "Justin Schroeder <justin@formkit.com>"
+    "Justin Schroeder <justin@formkit.com>",
+    "Andrew Boyd <andrew@formkit.com>"
   ],
   "license": "MIT",
   "scripts": {

@@ -17,7 +17,7 @@ import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
 import { createAutoAnimatePlugin, createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
-import '@formkit/addons/css/multistep.css'
+import '@formkit/addons/css/multistep'
 
 const myInput = createInput(CurrencyInput)
 
