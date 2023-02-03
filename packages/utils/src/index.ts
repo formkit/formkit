@@ -840,7 +840,7 @@ function applyExplicit<T extends object | any[]>(
 export function whenAvailable(
   childId: string,
   callback: (el: Element) => void
-) {
+): void {
   if (isBrowser) {
     const el = document.getElementById(childId)
     if (el) return callback(el)
