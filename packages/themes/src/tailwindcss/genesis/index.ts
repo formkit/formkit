@@ -14,7 +14,7 @@ export default {
     prefixIcon: 'w-10 flex self-stretch grow-0 shrink-0 rounded-tl rounded-bl border-r border-gray-400 bg-white bg-gradient-to-b from-transparent to-gray-200 [&>svg]:w-full [&>svg]:max-w-[1em] [&>svg]:max-h-[1em] [&>svg]:m-auto',
     suffixIcon: 'w-7 pr-3 flex self-stretch grow-0 shrink-0 [&>svg]:w-full [&>svg]:max-w-[1em] [&>svg]:max-h-[1em] [&>svg]:m-auto'
   },
-  
+
   // Family styles apply to all inputs that share a common family
   'family:box': {
     decorator: 'block relative h-5 w-5 mr-2 rounded bg-white bg-gradient-to-b from-transparent to-gray-200 ring-1 ring-gray-400 peer-checked:ring-blue-500 text-transparent peer-checked:text-blue-500',
@@ -25,7 +25,7 @@ export default {
     wrapper: 'flex items-center mb-1',
   },
   'family:button': {
-    input: '$reset inline-flex items-center bg-blue-600 text-white text-sm font-normal py-3 px-6 rounded',
+    input: '$reset inline-flex items-center bg-blue-600 text-white text-sm font-normal py-3 px-6 rounded focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2 formkit-disabled:bg-gray-400 formkit-loading:before:w-4 formkit-loading:before:h-4 formkit-loading:before:mr-2 formkit-loading:before:border formkit-loading:before:border-2 formkit-loading:before:border-r-transparent formkit-loading:before:rounded-3xl formkit-loading:before:border-white formkit-loading:before:animate-spin',
     wrapper: 'mb-1',
     prefixIcon: '$reset block w-4 -ml-2 mr-2 stretch',
     suffixIcon: '$reset block w-4 ml-2 stretch',
@@ -51,7 +51,7 @@ export default {
     inner: 'flex items-center max-w-md ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>label:first-child]:focus-within:text-blue-500 rounded mb-1',
     input: 'w-full px-3 py-2 border-none text-base text-gray-700 placeholder-gray-400',
   },
-  
+
   // Specific styles apply only to a given input type
   color: {
     inner: 'flex max-w-[5.5em] w-full formkit-prefix-icon:max-w-[7.5em] formkit-suffix-icon:formkit-prefix-icon:max-w-[10em]',
@@ -90,7 +90,7 @@ export default {
     inner: 'flex max-w-md rounded mb-1 ring-1 ring-gray-400 focus-within:ring-blue-500 [&>label:first-child]:focus-within:text-blue-500',
     input: 'block w-full h-32 px-3 py-3 border-none text-base text-gray-700 placeholder-gray-400 focus:shadow-outline',
   },
-  
+
   // PRO input styles
   autocomplete: {
     closeIcon: 'block grow-0 shrink-0 w-3 mr-3.5',
