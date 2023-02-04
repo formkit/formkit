@@ -243,7 +243,11 @@ describe('multistep', () => {
           [
             plugin,
             defaultConfig({
-              plugins: [createMultiStepPlugin()],
+              plugins: [
+                createMultiStepPlugin({
+                  allowIncomplete: false,
+                }),
+              ],
             }),
           ],
         ],
@@ -254,7 +258,7 @@ describe('multistep', () => {
     wrapper.find('.formkit-step-next button').trigger('click')
     await new Promise((r) => setTimeout(r, 15))
     expect(wrapper.html()).toContain(
-      '<div class="formkit-tabs"><button class="formkit-tab" data-active="true" data-valid="false" data-visited="true" role="button" aria-pressed="true"><span class="formkit-tab-label">Step One</span><span class="formkit-badge">1</span>'
+      '<div class="formkit-tabs" role="tablist"><button class="formkit-tab" data-active="true" data-valid="false" data-visited="true" role="tab" id="input_33_tab_0" aria-selected="true" aria-controls="input_34" tabindex="0"><span class="formkit-tab-label">Step One</span><span class="formkit-badge" role="presentation">1</span>'
     )
   })
 
@@ -268,7 +272,11 @@ describe('multistep', () => {
           [
             plugin,
             defaultConfig({
-              plugins: [createMultiStepPlugin()],
+              plugins: [
+                createMultiStepPlugin({
+                  allowIncomplete: true,
+                }),
+              ],
             }),
           ],
         ],
@@ -280,12 +288,12 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
     expect(wrapper.html()).toContain(
-      '</button><button class="formkit-tab" data-valid="true" role="button" aria-pressed="true" data-active="true" data-visited="true">'
+      '</button><button class="formkit-tab" data-active="true" data-valid="true" role="tab" id="input_42_tab_1" aria-selected="true" aria-controls="input_45" tabindex="0" data-visited="true">'
     )
     // 2nd step is visible
     expect(wrapper.html()).toContain(
       `</div>
-      <div class=\"formkit-step\" data-type=\"step\" style=\"\">`
+      <div class=\"formkit-step\" data-type=\"step\" id=\"input_45\" role=\"tabpanel\" aria-labelledby=\"input_42_tab_1\">`
     )
   })
 })
