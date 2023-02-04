@@ -14,6 +14,7 @@
       "types": "./dist/index.d.ts"
     },
     "./css/multistep": "./dist/css/multistep.css",
+    "./css/floatingLabels": "./dist/css/floatingLabels.css",
     "./*": "./dist/*"
   },
   "keywords": [
