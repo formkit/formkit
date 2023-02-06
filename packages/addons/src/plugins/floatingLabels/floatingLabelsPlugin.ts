@@ -1,5 +1,11 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
-import { floatingLabelTextInput, floatingLabelTextAreaInput } from './schema'
+import {
+  FormKitNode,
+  FormKitPlugin,
+  FormKitSchemaNode,
+  FormKitSchemaCondition,
+} from '@formkit/core'
+import { clone } from '@formkit/utils'
+import { findSection } from '@formkit/inputs'
 
 export interface FloatingLabelsOptions {
   useAsDefault?: boolean
@@ -10,6 +16,7 @@ export function createFloatingLabelsPlugin(
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
     node.addProps(['floatingLabel'])
+
     const useFloatingLabels =
       typeof node.props.floatingLabel === 'boolean'
         ? node.props.floatingLabel
@@ -18,28 +25,49 @@ export function createFloatingLabelsPlugin(
         : false
 
     if (useFloatingLabels) {
-      if (
-        [
-          'text',
-          'color',
-          'date',
-          'datetimeLocal',
-          'email',
-          'month',
-          'number',
-          'password',
-          'search',
-          'tel',
-          'time',
-          'url',
-          'week',
-        ].includes(node.props.type)
-      ) {
-        node.define(floatingLabelTextInput)
-      }
-      if (node.props.type === 'textarea') {
-        node.define(floatingLabelTextAreaInput)
-      }
+      node.on('created', () => {
+        if (!node.props || !node.props.definition) return
+        const inputDefinition = clone(node.props.definition)
+        if (
+          ['text'].includes(node.props.family) ||
+          ['textarea'].includes(node.props.type)
+        ) {
+          const originalSchema = inputDefinition.schema
+          if (typeof originalSchema !== 'function') return
+          const higherOrderSchema = (
+            extensions: Record<
+              string,
+              Partial<FormKitSchemaNode> | FormKitSchemaCondition
+            >
+          ) => {
+            extensions.outer = {
+              attrs: {
+                'data-floating-label': 'true',
+              },
+            }
+
+            const inputSchema = originalSchema(extensions)
+            const [labelParentChildren, labelSection] = findSection(
+              inputSchema,
+              'label'
+            )
+            const [inputParentChildren] = findSection(inputSchema, 'input')
+
+            if (labelParentChildren && labelSection && inputParentChildren) {
+              labelParentChildren.splice(
+                labelParentChildren.indexOf(labelSection),
+                1
+              )
+              inputParentChildren.push(labelSection)
+            }
+
+            return inputSchema
+          }
+
+          inputDefinition.schema = higherOrderSchema
+          node.props.definition = inputDefinition
+        }
+      })
     }
   }
   return floatingLabelsPlugin

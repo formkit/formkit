@@ -10,8 +10,12 @@ import '@formkit/addons/css/floatingLabels.css'
   >
     <FormKit
       type="text"
-      label="Floating Text Label"
+      label="Forced standard label"
       :floating-label="false"
+    />
+    <FormKit
+      type="number"
+      label="Floating Text Label"
     />
     <FormKit
       type="email"
