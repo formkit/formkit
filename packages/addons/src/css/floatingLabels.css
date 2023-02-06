@@ -17,7 +17,8 @@
 
 [data-floating-label="true"] input:focus ~ .formkit-label,
 [data-floating-label="true"] textarea:focus ~ .formkit-label,
-[data-floating-label="true"] .formkit-label[data-has-value="true"] {
+[data-floating-label="true"] .formkit-label[data-has-value="true"]
+[data-floating-label="true"][data-complete="true"] .formkit-label {
   font-size: .7rem;
   transform: translateY(50%);
   background-color: white;

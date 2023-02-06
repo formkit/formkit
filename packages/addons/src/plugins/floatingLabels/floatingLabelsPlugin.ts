@@ -45,6 +45,11 @@ export function createFloatingLabelsPlugin(
                 'data-floating-label': 'true',
               },
             }
+            extensions.label = {
+              attrs: {
+                'data-has-value': '$_value !== "" && $_value !== undefined',
+              },
+            }
 
             const inputSchema = originalSchema(extensions)
             const [labelParentChildren, labelSection] = findSection(
