@@ -7,3 +7,5 @@
  */
 
 export * from './plugins/autoAnimatePlugin'
+export * from './plugins/multiStep/multiStepPlugin'
+export * from './plugins/floatingLabels/floatingLabelsPlugin'

@@ -19,6 +19,11 @@
       "require": "./dist/tailwindcss/index.cjs",
       "types": "./dist/tailwindcss/index.d.ts"
     },
+    "./tailwindcss/genesis": {
+      "import": "./dist/tailwindcss/genesis/index.mjs",
+      "require": "./dist/tailwindcss/genesis/index.cjs",
+      "types": "./dist/tailwindcss/genesis/index.d.ts"
+    },
     "./unocss": {
       "import": "./dist/unocss/index.mjs",
       "require": "./dist/unocss/index.cjs",
