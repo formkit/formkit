@@ -1,0 +1,26 @@
+[data-floating-label="true"] .formkit-inner {
+  position: relative;
+}
+
+[data-floating-label="true"] .formkit-label {
+  position: absolute;
+  left: .5em;
+  color: grey;
+  font-weight: normal;
+  font-size: 1rem;
+  transition: all .25s;
+  bottom: calc(100% - .5em);
+  transform: translateY(100%);
+  padding: .25em;
+  box-sizing: border-box;
+}
+
+[data-floating-label="true"] input:focus ~ .formkit-label,
+[data-floating-label="true"] textarea:focus ~ .formkit-label,
+[data-floating-label="true"] .formkit-label[data-has-value="true"]
+[data-floating-label="true"][data-complete="true"] .formkit-label {
+  font-size: .7rem;
+  transform: translateY(50%);
+  background-color: white;
+  bottom: 100%;
+}

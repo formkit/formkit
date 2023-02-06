@@ -15,6 +15,7 @@ import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
+import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import { createAutoAnimatePlugin, createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
@@ -86,6 +87,10 @@ const router = createRouter({
     {
       path: '/multi-step',
       component: MultiStep,
+    },
+    {
+      path: '/floating-labels',
+      component: FloatingLabels,
     },
   ],
 })

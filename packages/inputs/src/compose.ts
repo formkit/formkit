@@ -96,6 +96,42 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 }
 
 /**
+ * Finds a seciton by name in a schema.
+ *
+ * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param target - The name of the section to find.
+ *
+ * @returns a tuple of the schema and the section or a tuple of `false` and `false` if not found.
+ *
+ * @public
+ */
+export function findSection(
+  schema: FormKitSchemaNode[],
+  target: string
+): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] {
+  for (let index = 0; index < schema.length; index++) {
+    const section = schema[index]
+    if (isSlotCondition(section)) {
+      if (isComponent(section.else) || isDOM(section.else)) {
+        if (section.else.meta?.section === target) {
+          return [schema, section]
+        } else if (
+          section.else.children &&
+          Array.isArray(section.else.children) &&
+          section.else.children.length
+        ) {
+          const found = findSection(section.else.children, target)
+          if (found[0]) {
+            return found
+          }
+        }
+      }
+    }
+  }
+  return [false, false]
+}
+
+/**
  * Extends a single schema node with an extension. The extension can be any
  * partial node including strings.
  *
