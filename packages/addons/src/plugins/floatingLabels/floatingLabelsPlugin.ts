@@ -7,10 +7,24 @@ import {
 import { clone } from '@formkit/utils'
 import { findSection } from '@formkit/inputs'
 
+/**
+ * The options to be passed to {@link createFloatingLabelsPlugin | createFloatingLabelsPlugin}
+ *
+ * @public
+ */
 export interface FloatingLabelsOptions {
   useAsDefault?: boolean
 }
 
+/**
+ * Creates a new floating label plugin.
+ *
+ * @param options - The options of {@link FloatingLabelsOptions | FloatingLabelsOptions} to pass to the plugin
+ *
+ * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
+ * @public
+ */
 export function createFloatingLabelsPlugin(
   FloatingLabelsOptions?: FloatingLabelsOptions
 ): FormKitPlugin {
@@ -21,8 +35,8 @@ export function createFloatingLabelsPlugin(
       typeof node.props.floatingLabel === 'boolean'
         ? node.props.floatingLabel
         : typeof FloatingLabelsOptions?.useAsDefault === 'boolean'
-        ? FloatingLabelsOptions?.useAsDefault
-        : false
+          ? FloatingLabelsOptions?.useAsDefault
+          : false
 
     if (useFloatingLabels) {
       node.on('created', () => {
