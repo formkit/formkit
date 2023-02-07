@@ -19,7 +19,7 @@ export interface FloatingLabelsOptions {
 /**
  * Creates a new floating label plugin.
  *
- * @param options - The options of {@link FloatingLabelsOptions | FloatingLabelsOptions} to pass to the plugin
+ * @param FloatingLabelsOptions - The options of {@link FloatingLabelsOptions | FloatingLabelsOptions} to pass to the plugin
  *
  * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
  *
