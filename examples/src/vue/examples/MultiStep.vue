@@ -96,10 +96,6 @@ const data = { log }
             }
           }
         }"
-        :prev-attrs="{
-          label: 'hey there',
-          'data-something': 'some data'
-        }"
       >
         <FormKit
           type="textarea"
@@ -130,6 +126,10 @@ const data = { log }
         type="step"
         name="Supplemental"
         label="A custom label"
+        previous-label="Go back"
+        :previous-attrs="{
+          'data-something': 'some data'
+        }"
       >
         <FormKit
           type="textarea"
