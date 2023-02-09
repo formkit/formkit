@@ -121,8 +121,10 @@ function isTargetStepAllowed(
  *
  * @param targetStep - The target step
  */
-function setActiveStep(targetStep: FormKitFrameworkContext, e: Event) {
-  e.preventDefault()
+function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
+  if (e) {
+    e.preventDefault()
+  }
   if (targetStep && targetStep.node.name && targetStep.node.parent) {
     const currentStep = targetStep.node.parent.props.steps.find(
       (step: FormKitFrameworkContext) =>
@@ -326,6 +328,16 @@ export function createMultiStepPlugin(
               delta: number,
               stepNode: FormKitFrameworkContextWithSteps
             ) => incrementStep.bind(null, delta, stepNode)
+            node.context.makeActive = () => {
+              setActiveStep(node.context as FormKitFrameworkContext)
+            }
+            node.context.handlers.next = () =>
+              incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
+            node.context.handlers.previous = () =>
+              incrementStep(
+                -1,
+                node.context as FormKitFrameworkContextWithSteps
+              )
           }
         }
       })
