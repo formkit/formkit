@@ -94,10 +94,10 @@ export const step: FormKitTypeDefinition = {
    * An array of extra props to accept for this input.
    */
   props: [
-    'prevLabel',
+    'previousLabel',
     'nextLabel',
     'beforeStepChange',
-    'prevAttrs',
+    'previousAttrs',
     'nextAttrs',
     'validStepIcon',
   ],

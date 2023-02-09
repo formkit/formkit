@@ -326,6 +326,13 @@ export function createMultiStepPlugin(
               delta: number,
               stepNode: FormKitFrameworkContextWithSteps
             ) => incrementStep.bind(null, delta, stepNode)
+            node.context.handlers.next = () =>
+              incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
+            node.context.handlers.previous = () =>
+              incrementStep(
+                -1,
+                node.context as FormKitFrameworkContextWithSteps
+              )
           }
         }
       })

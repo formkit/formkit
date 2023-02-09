@@ -11,16 +11,16 @@ export const stepPrevious = createSection('stepPrevious', () => ({
   children: [
     {
       $cmp: 'FormKit',
-      bind: '$prevAttrs',
+      bind: '$previousAttrs',
       props: {
         type: 'button',
         label: {
-          if: '$prevLabel',
-          then: '$prevLabel',
+          if: '$previousLabel',
+          then: '$previousLabel',
           else: '$ui.prev.value',
         },
         'data-prev': '$isFirstStep === false',
-        onClick: '$handlers.incrementStep(-1, $node.context)',
+        onClick: '$handlers.previous',
       },
     },
   ],
