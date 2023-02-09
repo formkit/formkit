@@ -195,7 +195,6 @@ function initEvents(node: FormKitNode, el: Element) {
           (step) => step.name === node.props.activeStep
         )
         if (activeStepContext && activeStepContext.context) {
-          console.log('incrementing step', activeStepContext)
           incrementStep(
             1,
             activeStepContext.context as FormKitFrameworkContextWithSteps

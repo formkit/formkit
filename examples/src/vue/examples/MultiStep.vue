@@ -65,7 +65,6 @@ const data = { log }
       type="multi-step"
       tab-style="progress"
       valid-step-icon="star"
-      :before-step-change="log"
     >
       <FormKit
         type="step"
