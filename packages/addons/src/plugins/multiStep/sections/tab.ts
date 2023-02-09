@@ -9,7 +9,8 @@ export const tab = createSection('tab', () => ({
   $el: 'button',
   for: ['step', 'index', '$steps'],
   attrs: {
-    onClick: '$handlers.setActiveStep($step)',
+    type: 'button',
+    onClick: '$step.makeActive',
     'data-active': '$step.isActiveStep',
     'data-valid': '$step.isValid',
     'data-visited': '$step.hasBeenVisited',
