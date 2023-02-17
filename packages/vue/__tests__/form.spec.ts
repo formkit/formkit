@@ -1,6 +1,6 @@
 import FormKit from '../src/FormKit'
 import { FormKitMessages } from '../src/FormKitMessages'
-import { plugin } from '../src/plugin'
+import { plugin, FormKitVuePlugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
@@ -13,6 +13,18 @@ const global: Record<string, Record<string, any>> = {
   global: {
     plugins: [[plugin, defaultConfig]],
   },
+}
+
+/**
+ * For some reason this is necessary for the tests to be aware of the $formkit
+ * plugin. This is not the case, however, when using the plugin in a real
+ * application. This change was needed after:
+ * https://github.com/formkit/formkit/pull/581
+ */
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $formkit: FormKitVuePlugin
+  }
 }
 
 describe('form structure', () => {

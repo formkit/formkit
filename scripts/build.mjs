@@ -47,8 +47,7 @@ declare module 'vue' {
     FormKitSchema: typeof FormKitSchema
   }
 }
-
-export { }`,
+`,
 }
 
 const __filename = fileURLToPath(import.meta.url)
