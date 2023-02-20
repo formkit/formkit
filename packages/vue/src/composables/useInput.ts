@@ -43,7 +43,12 @@ import watchVerbose from './watchVerbose'
 import useRaw from './useRaw'
 // import { observe, isObserver } from './mutationObserver'
 
-interface FormKitComponentProps {
+/**
+ * FormKit props of a component
+ *
+ * @public
+ */
+export interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
   name?: string
   validation?: any

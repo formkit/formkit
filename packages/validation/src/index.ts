@@ -19,4 +19,6 @@ export {
   FormKitValidationRule,
   FormKitValidationRules,
   FormKitValidationMessages,
+  FormKitValidationHints,
+  FormKitValidationI18NArgs,
 } from './validation'

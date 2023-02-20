@@ -25,11 +25,16 @@ export * from './node'
  */
 export {
   createMessage,
+  ChildMessageBuffer,
+  FormKitInputMessages,
   FormKitMessage,
   FormKitMessageMeta,
   FormKitMessageStore,
   FormKitMessageProps,
   FormKitStore,
+  ErrorMessages,
+  FormKitStoreTraps,
+  MessageClearer,
 } from './store'
 
 /**
@@ -82,6 +87,7 @@ export {
   FormKitSchemaContext,
   FormKitSchemaDOMNode,
   FormKitSchemaFormKit,
+  FormKitSchemaMeta,
   FormKitSchemaNode,
   FormKitSchemaProps,
   FormKitSchemaTextNode,
@@ -114,7 +120,7 @@ export * from './registry'
 /**
  * The root configuration creator.
  */
-export { createConfig } from './config'
+export { createConfig, FormKitRootConfig } from './config'
 
 /**
  * Sets error store messages on inputs.
