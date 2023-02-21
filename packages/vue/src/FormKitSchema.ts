@@ -38,8 +38,10 @@ import {
 /**
  * A library of components available to the schema (in addition to globally
  * registered ones)
+ *
+ * @public
  */
-interface FormKitComponentLibrary {
+export interface FormKitComponentLibrary {
   [index: string]: Component
 }
 
@@ -53,41 +55,51 @@ type RenderContent = [
   children: RenderChildren | null,
   alternate: RenderChildren | null,
   iterator:
-    | null
-    | [
-        getNodeValues: () =>
-          | number
-          | string
-          | boolean
-          | any[]
-          | Record<string, any>,
-        valueName: string,
-        keyName: string | null
-      ],
+  | null
+  | [
+    getNodeValues: () =>
+      | number
+      | string
+      | boolean
+      | any[]
+      | Record<string, any>,
+    valueName: string,
+    keyName: string | null
+  ],
   resolve: boolean
 ]
 /**
  * The actual signature of a VNode in Vue.
+ *
+ * @public
  */
-type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
+export type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
 /**
  * The types of values that can be rendered by Vue.
+ *
+ * @public
  */
-type Renderable = null | string | number | boolean | VirtualNode
+export type Renderable = null | string | number | boolean | VirtualNode
 /**
  * A list of renderable items.
+ *
+ * @public
  */
-type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
+export type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
 
 /**
  * An object of slots
+ *
+ * @public
  */
-type RenderableSlots = Record<string, RenderableSlot>
+export type RenderableSlots = Record<string, RenderableSlot>
 
 /**
  * A slot function that can be rendered.
+ *
+ * @public
  */
-type RenderableSlot = (
+export type RenderableSlot = (
   data?: Record<string, any>,
   key?: symbol
 ) => RenderableList
@@ -575,8 +587,8 @@ function parseSchema(
         const _v = getValues()
         const values = !isNaN(_v as number)
           ? Array(Number(_v))
-              .fill(0)
-              .map((_, i) => i)
+            .fill(0)
+            .map((_, i) => i)
           : _v
         const fragment = []
         if (typeof values !== 'object') return null
@@ -802,7 +814,7 @@ export const FormKitSchema = defineComponent({
           // referenced in the render function it technically isnt a dependency
           // and we need to force a re-render since we swapped out the render
           // function completely.
-          ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
+          ; (instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
         }
       },
       { deep: true }
