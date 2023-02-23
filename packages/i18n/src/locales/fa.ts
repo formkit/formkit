@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'بارگذاری بیشتر',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'بعدی',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'قبلی',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'تمام مقادیر را اضافه کنید',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'مقادیر انتخاب شده را اضافه کنید',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'تمام مقادیر را حذف کنید',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'حذف مقادیر انتخاب شده',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'تاریخ را انتخاب کنید',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'تغییر تاریخ',
 }
 
 /**

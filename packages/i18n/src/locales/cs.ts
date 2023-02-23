@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Načíst více',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Další',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Předchozí',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Přidat všechny hodnoty',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Přidání vybraných hodnot',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Odstraňte všechny hodnoty',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Odstranění vybraných hodnot',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Zvolte datum',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Změnit datum',
 }
 
 /**

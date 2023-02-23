@@ -37,6 +37,54 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Gjin bestân keazen',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Gean omheech',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Nei ûnderen',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Lade…',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Mear lade',
+  /**
+   * Show on buttons that navigate state forward
+   */
+  next: 'Folgende',
+  /**
+   * Show on buttons that navigate state backward
+   */
+  prev: 'Foarige',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Foegje alle wearden ta',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Foegje selektearre wearden ta',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Fuortsmite alle wearden',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Fuortsmite selektearre wearden',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Kies datum',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Feroarje datum',
 }
 
 /**

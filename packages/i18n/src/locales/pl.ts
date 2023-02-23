@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Załaduj więcej',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Kolejny',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Poprzednia',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Dodaj wszystkie wartości',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Dodaj wybrane wartości',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Usuń wszystkie wartości',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Usuń wybrane wartości',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Wybierz datę',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Zmień datę',
 }
 
 /**
