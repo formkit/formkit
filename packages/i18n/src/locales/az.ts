@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Daha çox yüklə',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Növbəti',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Əvvəlki',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Bütün dəyərləri əlavə edin',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Seçilmiş dəyərləri əlavə edin',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Bütün dəyərləri sil',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Seçilmiş dəyərləri sil',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Tarixi seçin',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Tarixi dəyişdirin',
 }
 
 /**

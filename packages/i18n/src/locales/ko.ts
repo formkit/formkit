@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: '더 불러오기',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: '다음',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: '이전',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: '모든 값 추가',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: '선택한 값 추가',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: '모든 값 제거',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: '선택한 값 제거',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: '날짜 선택',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: '날짜 변경',
 }
 
 /**

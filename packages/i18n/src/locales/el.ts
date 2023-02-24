@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Φόρτωση περισσότερων',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Επόμενη',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Προηγούμενο',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Προσθήκη όλων των τιμών',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Προσθήκη επιλεγμένων τιμών',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Κατάργηση όλων των τιμών',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Αφαίρεση επιλεγμένων τιμών',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Επιλέξτε ημερομηνία',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Αλλαγή ημερομηνίας',
 }
 
 /**

@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'טען יותר',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'הבא',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'הקודם',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'הוסף את כל הערכים',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'הוספת ערכים נבחרים',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'הסר את כל הערכים',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'הסר ערכים נבחרים',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'בחר תאריך',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'שינוי תאריך',
 }
 
 /**

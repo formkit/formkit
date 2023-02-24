@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Tải thêm',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Tiếp',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Trước',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Thêm tất cả các giá trị',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Thêm các giá trị đã chọn',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Loại bỏ tất cả các giá trị',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Loại bỏ các giá trị đã chọn',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Chọn ngày',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Thay đổi ngày',
 }
 
 /**

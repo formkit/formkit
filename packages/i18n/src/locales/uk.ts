@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Завантажте більше',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Наступний',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Попередній',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Додати всі значення',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Додати вибрані значення',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Вилучити всі значення',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Вилучити вибрані значення',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Виберіть дату',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Змінити дату',
 }
 
 /**

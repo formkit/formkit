@@ -50,6 +50,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Ladda mer',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Nästa',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Föregående',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Lägg till alla värden',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Lägg till valda värden',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Ta bort alla värden',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Ta bort valda värden',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Välj datum',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Ändra datum',
 }
 
 /**

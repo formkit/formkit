@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Last mer',
+  /**
+   * Show on buttons that navigate state forward
+   */
+  next: 'Neste',
+  /**
+   * Show on buttons that navigate state backward
+   */
+  prev: 'Forrige',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Legg til alle verdier',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Legg til valgte verdier',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Fjern alle verdier',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Fjern valgte verdier',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Velg dato',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Endre dato',
 }
 
 /**

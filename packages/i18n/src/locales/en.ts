@@ -61,6 +61,30 @@ export const ui: FormKitLocaleMessages = {
    * Show on buttons that navigate state backward
    */
   prev: 'Previous',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Add all values',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Add selected values',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Remove all values',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Remove selected values',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Choose date',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Change date',
 }
 
 /**

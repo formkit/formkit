@@ -53,6 +53,38 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'โหลดเพิ่มเติม',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'ถัดไป',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'ก่อนหน้า',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'เพิ่มค่าทั้งหมด',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'เพิ่มค่าที่เลือก',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'ลบค่าทั้งหมด',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'ลบค่าที่เลือก',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'เลือกวันที่',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'เปลี่ยนวันที่',
 }
 
 /**
