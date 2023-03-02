@@ -1385,6 +1385,37 @@ describe('plugins', () => {
     })
     expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')
   })
+
+  it('can use input props in a plugin’s immediate body', () => {
+    const lib = () => {}
+    lib.library = function (node: FormKitNode) {
+      if (node.props.type === 'fooBar') {
+        node.define({
+          type: 'input',
+          props: ['fooBarBaz'],
+          schema: [
+            {
+              $el: 'input',
+            },
+          ],
+        })
+      }
+    }
+    const testPlugin = jest.fn(function testPlugin(node: FormKitNode) {
+      expect(node.props.fooBarBaz).toBe('hello world')
+    })
+    mount(FormKit, {
+      props: {
+        type: 'fooBar',
+        'foo-bar-baz': 'hello world',
+        plugins: [testPlugin],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ plugins: [lib] })]],
+      },
+    })
+    expect(testPlugin).toHaveBeenCalled()
+  })
 })
 
 describe('icons', () => {
