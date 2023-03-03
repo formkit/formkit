@@ -6,8 +6,10 @@ import {
   spinner,
   star,
   trash,
+  fastForward,
+  rewind
 } from './icons/application'
-import { arrowDown, arrowUp, down } from './icons/directional'
+import { arrowDown, arrowUp, down, right, left } from './icons/directional'
 import { fileDoc } from './icons/file'
 
 /**
@@ -30,6 +32,10 @@ const genesisIcons = {
   spinner,
   star,
   trash,
+  fastForward,
+  right,
+  left,
+  rewind
 }
 
 export default genesisIcons
