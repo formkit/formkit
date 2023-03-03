@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Canviar data',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'La data seleccionada no és vàlida.',
 }
 
 /**

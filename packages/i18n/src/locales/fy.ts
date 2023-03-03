@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Feroarje datum',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'De selektearre datum is ûnjildich.',
 }
 
 /**

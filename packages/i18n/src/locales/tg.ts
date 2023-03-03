@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Тағйир додани сана',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
 
 /**

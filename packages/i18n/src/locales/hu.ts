@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Dátum módosítása',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'A kiválasztott dátum érvénytelen.',
 }
 
 /**

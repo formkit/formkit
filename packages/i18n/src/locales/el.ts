@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Αλλαγή ημερομηνίας',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Η επιλεγμένη ημερομηνία δεν είναι έγκυρη.',
 }
 
 /**

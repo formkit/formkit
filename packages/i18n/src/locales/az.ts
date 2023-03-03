@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Tarixi dəyişdirin',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Seçilmiş tarix etibarsızdır.',
 }
 
 /**

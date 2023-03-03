@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Promenite datum',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Izabrani datum je nevažeći.',
 }
 
 /**

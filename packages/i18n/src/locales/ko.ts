@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: '날짜 변경',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '선택한 날짜가 잘못되었습니다.',
 }
 
 /**

@@ -85,6 +85,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Modifier la date',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: `La date sélectionnée n'est pas valide.`,
 }
 
 /**
