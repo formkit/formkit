@@ -56,6 +56,11 @@
           Floating Labels Plugin
         </router-link>
       </li>
+      <li>
+        <router-link to="/playground">
+          Playground
+        </router-link>
+      </li>
     </ul>
   </nav>
 </template>
