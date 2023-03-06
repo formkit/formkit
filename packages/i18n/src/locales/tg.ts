@@ -303,6 +303,27 @@ export const validation: FormKitValidationMessages = {
   },
 
   /**
+   * Require one field.
+   * @see {@link https://formkit.com/essentials/validation#require-one}
+   */
+  require_one: ({ name, node, args: inputNames }) => {
+    const labels = inputNames.map(name => {
+      const dependentNode = node.at(name)
+      if (dependentNode) {
+        return dependentNode.props.validationLabel ||
+        dependentNode.props.label ||
+        dependentNode.props.name ||
+        String(dependentNode.name)
+      }
+      return false
+    }).filter(name => !!name)
+    labels.unshift(name)
+    /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
+    return `${labels.join(' or ')} is required.`
+    /* </i18n> */
+  },
+
+  /**
    * Required field.
    * @see {@link https://formkit.com/essentials/validation#required}
    */
