@@ -1402,12 +1402,15 @@ describe('plugins', () => {
       }
     }
     const testPlugin = jest.fn(function testPlugin(node: FormKitNode) {
+      node.addProps(['bimBam'])
       expect(node.props.fooBarBaz).toBe('hello world')
+      expect(node.props.bimBam).toBe('working')
     })
     mount(FormKit, {
       props: {
         type: 'fooBar',
         'foo-bar-baz': 'hello world',
+        'bim-bam': 'working',
         plugins: [testPlugin],
       },
       global: {

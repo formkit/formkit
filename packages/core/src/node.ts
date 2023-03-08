@@ -71,9 +71,9 @@ export type FormKitTypeDefinition = {
    * required.
    */
   schema?:
-  | FormKitExtendableSchemaRoot
-  | FormKitSchemaNode[]
-  | FormKitSchemaCondition
+    | FormKitExtendableSchemaRoot
+    | FormKitSchemaNode[]
+    | FormKitSchemaCondition
   /**
    * A component to use to render the input. Either this or the schema is
    * required.
@@ -247,11 +247,11 @@ export type TrapGetter =
  */
 export type TrapSetter =
   | ((
-    node: FormKitNode,
-    context: FormKitContext,
-    property: string | number | symbol,
-    value: any
-  ) => boolean | never)
+      node: FormKitNode,
+      context: FormKitContext,
+      property: string | number | symbol,
+      value: any
+    ) => boolean | never)
   | false
 
 /**
@@ -1475,9 +1475,9 @@ function trap(
   return {
     get: getter
       ? (node, context) =>
-        curryGetter
-          ? (...args: any[]) => getter(node, context, ...args)
-          : getter(node, context)
+          curryGetter
+            ? (...args: any[]) => getter(node, context, ...args)
+            : getter(node, context)
       : false,
     set: setter !== undefined ? setter : invalidSetter.bind(null),
   }
@@ -1678,8 +1678,8 @@ function partial(
       value === valueRemoved
         ? []
         : value === valueMoved && typeof from === 'number'
-          ? context._value.splice(from, 1)
-          : [value]
+        ? context._value.splice(from, 1)
+        : [value]
     context._value.splice(
       name as number,
       value === valueMoved || from === valueInserted ? 0 : 1,
@@ -1690,7 +1690,7 @@ function partial(
   // In this case we know for sure we're dealing with a group, TS doesn't
   // know that however, so we use some unpleasant casting here
   if (value !== valueRemoved) {
-    ; (context._value as unknown as FormKitGroupValue)[name as string] = value
+    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
   } else {
     delete (context._value as unknown as FormKitGroupValue)[name as string]
   }
@@ -1717,7 +1717,7 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // and then ultimately back up.
       const childValue =
         child.type !== 'input' ||
-          (_value[child.name] && typeof _value[child.name] === 'object')
+        (_value[child.name] && typeof _value[child.name] === 'object')
           ? init(_value[child.name])
           : _value[child.name]
       child.input(childValue, false)
@@ -1855,12 +1855,12 @@ function define(
   if (definition.features) {
     definition.features.forEach((feature) => feature(node))
   }
-
   // Its possible that input-defined "props" have ended up in the context attrs
   // these should be moved back out of the attrs object.
   if (definition.props) {
     node.addProps(definition.props)
   }
+
   node.emit('defined', definition)
 }
 
@@ -2174,8 +2174,8 @@ function setIndex(
       setIndex >= children.length
         ? children.length - 1
         : setIndex < 0
-          ? 0
-          : setIndex
+        ? 0
+        : setIndex
     const oldIndex = children.indexOf(node)
     if (oldIndex === -1) return false
     children.splice(oldIndex, 1)
