@@ -1776,6 +1776,35 @@ describe('state', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('pre').text()).toBe('false')
   })
+
+  it('can change the dirty-behavior to be compare', async () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        template: `
+        <FormKit type="form" name="form" dirty-behavior="compare" #default="{ state: { dirty } }">
+          <FormKit name="a" value="foo" :delay="0" />
+          <pre>{{ dirty }}</pre>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.find('pre').text()).toBe('false')
+    wrapper.find('input').setValue('bar')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('true')
+    wrapper.find('input').setValue('foo')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
+  })
 })
 
 describe('exposures', () => {
