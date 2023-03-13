@@ -1107,7 +1107,7 @@ export interface FormKitChildValue {
  * ```
  *
  * @param walk -
- * Performs a function on the node and every node in its subtree.
+ * Performs a function on every node in its subtree (but not the node itself).
  * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
  *
  * #### Signature
@@ -1298,7 +1298,7 @@ export type FormKitNode = {
     library?: boolean
   ) => FormKitNode
   /**
-   * Performs a function on the node and every node in the subtree. This is an
+   * Performs a function on every node in the subtree (not itself). This is an
    * expensive operation so it should be done very rarely and only lifecycle
    * events that are relatively rare like boot up and shut down.
    */
@@ -2092,7 +2092,7 @@ function walkTree(
   callback: FormKitChildCallback,
   stopIfFalse = false
 ) {
-  context.children.forEach((child) => {
+  context.children.forEach((child: FormKitNode) => {
     if (callback(child) !== false || !stopIfFalse) {
       child.walk(callback, stopIfFalse)
     }
