@@ -35,16 +35,16 @@ export function createFloatingLabelsPlugin(
       typeof node.props.floatingLabel === 'boolean'
         ? node.props.floatingLabel
         : typeof FloatingLabelsOptions?.useAsDefault === 'boolean'
-          ? FloatingLabelsOptions?.useAsDefault
-          : false
+        ? FloatingLabelsOptions?.useAsDefault
+        : false
 
     if (useFloatingLabels) {
       node.on('created', () => {
         if (!node.props || !node.props.definition) return
         const inputDefinition = clone(node.props.definition)
         if (
-          ['text'].includes(node.props.family) ||
-          ['textarea'].includes(node.props.type)
+          ['text', 'dropdown'].includes(node.props.family) ||
+          ['datepicker', 'textarea'].includes(node.props.type)
         ) {
           const originalSchema = inputDefinition.schema
           if (typeof originalSchema !== 'function') return

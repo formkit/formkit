@@ -8,6 +8,7 @@
     "@aws-sdk/client-cloudfront": "^3.45.0",
     "@aws-sdk/client-s3": "^3.45.0",
     "@aws-sdk/client-translate": "^3.56.0",
+    "@formkit/pro": "^1.0.0-alpha.105",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@microsoft/api-extractor": "^7.18.4",

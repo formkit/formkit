@@ -2119,6 +2119,20 @@
   resolved "https://registry.yarnpkg.com/@formkit/auto-animate/-/auto-animate-1.0.0-beta.1.tgz#aec5fd2ea5e499ceb7eb117c7fd1217a7f100748"
   integrity sha512-I3OWOBaPZKSJL4bsooXI8kC3q7bcgibD2oML0P/Lir6MnbvUe/0/7EH8br024juvM/Ulm9C9xGx9CJUQYrOWSA==
 
+"@formkit/inputs@latest":
+  version "1.0.0-beta.15"
+  resolved "https://registry.yarnpkg.com/@formkit/inputs/-/inputs-1.0.0-beta.15.tgz#80531ed03adfb7774c38229151ca2da70ff82f05"
+  integrity sha512-wGLfq87HXSwU4yzW0GNkP7I7Dsjlh8Mx5yaVP3waocBm3p4azrayUfLrtTSBktVhDDPzk4qFhmIO+oYlBz0LJQ==
+  dependencies:
+    "@formkit/core" "1.0.0-beta.15"
+
+"@formkit/pro@^1.0.0-alpha.105":
+  version "1.0.0-alpha.105"
+  resolved "https://registry.yarnpkg.com/@formkit/pro/-/pro-1.0.0-alpha.105.tgz#968fa7289c828d3a1f218b901409710a4a50ae24"
+  integrity sha512-8W91c9gUonV4iOxl/NLJ1NHua0LJ6M95/tPWCHpvSZA87BIW2ixI/K/DBk1Y2lmqs8tUb0u0bJyEofriWuzNfw==
+  dependencies:
+    "@formkit/inputs" latest
+
 "@fortawesome/fontawesome-common-types@6.1.1":
   version "6.1.1"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-6.1.1.tgz#7dc996042d21fc1ae850e3173b5c67b0549f9105"
