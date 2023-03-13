@@ -1578,7 +1578,7 @@ describe('prefix and suffix', () => {
   })
 })
 
-describe('state attributes', () => {
+describe('state', () => {
   it('does not initialize with the complete attribute', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -1741,6 +1741,40 @@ describe('state attributes', () => {
     })
     const outer = wrapper.find('.formkit-outer')
     expect(outer.html()).not.toContain('data-disabled')
+  })
+
+  it('does not set the dirty state of a group if an unrelated mutation is made', async () => {
+    const showSecond = ref(false)
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          return { showSecond }
+        },
+        template: `
+        <FormKit type="form">
+          <FormKit type="group" name="groupA" #default="{ state: { dirty }}">
+            <FormKit name="a" value="foo" />
+            <pre>{{ dirty }}</pre>
+          </FormKit>
+          <FormKit type="group" name="groupB" v-if="showSecond">
+            <FormKit name="b" value="foo" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('pre').text()).toBe('false')
+    showSecond.value = true
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('pre').text()).toBe('false')
   })
 })
 

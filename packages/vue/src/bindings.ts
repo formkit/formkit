@@ -273,7 +273,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       triggerRef(value)
       triggerRef(_value)
     }
-    node.props._init = cloneAny(node.value)
+    ;(async () => {
+      await node.settled
+      node.props._init = cloneAny(node.value)
+    })()
   })
 
   /**
