@@ -221,7 +221,7 @@ describe('form submission', () => {
         methods: {
           submitHandler,
         },
-        template: `<FormKit type="form" @submit="submitHandler">
+        template: `<FormKit type="form" id="form" @submit="submitHandler">
         <FormKit id="email" validation="required|email" />
       </FormKit>`,
       },
@@ -230,7 +230,9 @@ describe('form submission', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
     const node = getNode('email')
+    const form = getNode('form')
     expect(node?.context?.state?.submitted).toBe(true)
+    expect(form?.context?.state?.submitted).toBe(true)
     expect(wrapper.find('.formkit-message').exists()).toBe(true)
   })
 
