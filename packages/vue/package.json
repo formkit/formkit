@@ -44,9 +44,7 @@
     "@formkit/utils": "1.0.0-beta.15",
     "@formkit/validation": "1.0.0-beta.15"
   },
-  "devDependencies": {
-    "@vue/test-utils": "^2.0.0-rc.14"
-  },
+  "devDependencies": {},
   "peerDependencies": {
     "vue": "^3.2.1"
   }

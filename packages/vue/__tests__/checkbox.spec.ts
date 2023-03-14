@@ -390,8 +390,7 @@ describe('multiple checkboxes', () => {
       },
       ...global,
     })
-    // TODO - Remove the .get() here when @vue/test-utils > rc.19
-    expect(wrapper.get('fieldset').findAll('[data-checked]').length).toBe(1)
+    expect(wrapper.findAll('[data-checked]').length).toBe(1)
     value.value = ['A', 'B']
     await nextTick()
     expect(wrapper.get('fieldset').findAll('[data-checked]').length).toBe(2)
