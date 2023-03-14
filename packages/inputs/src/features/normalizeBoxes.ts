@@ -18,7 +18,9 @@ export default function normalizeBoxes(
       prop.value = prop.value.map((option) => {
         if (!option.attrs?.id) {
           return extend(option, {
-            attrs: { id: `${node.name}-option-${slugify(String(option.value))}` },
+            attrs: {
+              id: `${node.name}-option-${slugify(String(option.value))}`,
+            },
           })
         }
         return option
