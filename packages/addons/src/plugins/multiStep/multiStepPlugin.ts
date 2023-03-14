@@ -39,6 +39,20 @@ const camel2title = (str: string) =>
     .trim()
 
 /**
+ * Compares steps to DOM order and reorders steps if needed
+ */
+function orderSteps(steps: FormKitFrameworkContext[]) {
+  const orderedSteps = steps.sort((a, b) => {
+    const aEl = document.getElementById(a.id)
+    const bEl = document.getElementById(b.id)
+    if (!aEl || !bEl) return 0
+    return aEl.compareDocumentPosition(bEl) & 2 ? 1 : -1
+  })
+  steps.map((step) => (step.ordered = true))
+  return orderedSteps
+}
+
+/**
  * Iterates through each step and sets props to help
  * determine step poisitioning within the multi-step.
  *
@@ -280,6 +294,7 @@ export function createMultiStepPlugin(
         }
 
         // recompute step positions
+        orderSteps(node.props.steps)
         setNodePositionProps(node.props.steps)
       })
     }
@@ -298,6 +313,7 @@ export function createMultiStepPlugin(
         'showStepErrors',
         'isValid',
         'hasBeenVisited',
+        'ordered',
       ])
       node.on('created', () => {
         if (!node.context) return
@@ -308,19 +324,23 @@ export function createMultiStepPlugin(
           node.props.isActiveStep = false
 
           const parentNode = node.parent
+
           parentNode.props.steps = Array.isArray(parentNode.props.steps)
             ? [...parentNode.props.steps, node.context]
             : [node.context]
 
-          setNodePositionProps(parentNode.props.steps)
+          whenAvailable(`${node.props.id}`, () => {
+            parentNode.props.steps = orderSteps(parentNode.props.steps)
+            setNodePositionProps(parentNode.props.steps)
 
-          parentNode.props.activeStep = parentNode.props.activeStep
-            ? parentNode.props.activeStep
-            : parentNode.props.steps[0]
-            ? parentNode.props.steps[0].node.name
-            : ''
+            parentNode.props.activeStep = parentNode.props.activeStep
+              ? parentNode.props.activeStep
+              : parentNode.props.steps[0]
+              ? parentNode.props.steps[0].node.name
+              : ''
+          })
 
-          if (parentNode.context) {
+          if (node.context && parentNode.context) {
             parentNode.context.handlers.setActiveStep = (
               stepNode: FormKitFrameworkContext
             ) => setActiveStep.bind(null, stepNode)

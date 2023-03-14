@@ -23,5 +23,10 @@ export const tab = createSection('tab', () => ({
       then: '0',
       else: '-1',
     },
+    style: {
+      if: '$step.ordered',
+      then: '',
+      else: 'display: none',
+    },
   },
 }))
