@@ -46,7 +46,7 @@ function orderSteps(steps: FormKitFrameworkContext[]) {
     const aEl = document.getElementById(a.id)
     const bEl = document.getElementById(b.id)
     if (!aEl || !bEl) return 0
-    return aEl.compareDocumentPosition(bEl) & 2 ? 1 : -1
+    return aEl.compareDocumentPosition(bEl) === 2 ? 1 : -1
   })
   steps.map((step) => (step.ordered = true))
   return orderedSteps
@@ -54,7 +54,7 @@ function orderSteps(steps: FormKitFrameworkContext[]) {
 
 /**
  * Iterates through each step and sets props to help
- * determine step poisitioning within the multi-step.
+ * determine step positioning within the multi-step.
  *
  * @param steps - The steps to iterate through
  */
