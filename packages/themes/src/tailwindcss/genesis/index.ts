@@ -21,6 +21,7 @@ export default {
     decoratorIcon: 'flex p-[3px] w-full h-full absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2',
     help: 'mb-2 mt-1.5',
     input: 'absolute w-0 h-0 overflow-hidden opacity-0 pointer-events-none peer',
+    inner: '$remove:formkit-disabled:bg-gray-200',
     label: '$reset text-sm text-gray-700 mt-1 select-none',
     wrapper: 'flex items-center mb-1',
   },
