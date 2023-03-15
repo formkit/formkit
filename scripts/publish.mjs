@@ -37,7 +37,7 @@ import {
   isAlphaNumericVersion,
   msg,
   getCurrentHash,
-  updateFKCoreVersionExport
+  updateFKCoreVersionExport,
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
 import axios from 'axios'
@@ -75,13 +75,13 @@ async function publishPackages(force = false) {
         },
         {
           title: '@next',
-          value: 'next'
+          value: 'next',
         },
         {
           title: 'CANCEL',
-          value: false
-        }
-      ]
+          value: false,
+        },
+      ],
     })
     tag = confirmTag
     if (tag) {
@@ -215,7 +215,9 @@ Any dependent packages will also require publishing to include dependency change
         `/npm/@formkit/themes@${tag || 'latest'}/dist/genesis/theme.css`,
         `/npm/@formkit/themes@${tag || 'latest'}/dist/genesis/theme.min.css`,
         `/npm/@formkit/themes@${tag || 'latest'}/dist/tailwindcss/index.mjs`,
-        `/npm/@formkit/themes@${tag || 'latest'}/dist/tailwindcss/index.min.mjs`,
+        `/npm/@formkit/themes@${
+          tag || 'latest'
+        }/dist/tailwindcss/index.min.mjs`,
         `/npm/@formkit/themes@${tag || 'latest'}/dist/unocss/index.mjs`,
         `/npm/@formkit/themes@${tag || 'latest'}/dist/unocss/index.min.mjs`,
         `/npm/@formkit/themes@${tag || 'latest'}/dist/windicss/index.mjs`,
@@ -243,10 +245,7 @@ async function promptForTaggedVersion() {
   msg.info('Tagged versions should include the commit hash!')
   const hash = getCurrentHash()
   const packageJSON = getPackageJSON('core')
-  const guessVersion = suggestVersionIncrement(
-    packageJSON.version,
-    'alphaNumeric'
-  )
+  const guessVersion = suggestVersionIncrement(packageJSON.version, 'minor')
   const { version } = await prompts({
     type: 'text',
     name: 'version',
