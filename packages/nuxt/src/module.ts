@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { defineNuxtModule, addPluginTemplate, createResolver } from '@nuxt/kit'
-import { addCustomTab } from '@nuxt/devtools/kit'
+// import { addCustomTab } from '@nuxt/devtools/kit'
 
 export interface ModuleOptions {
   defaultConfig: boolean
@@ -53,15 +53,15 @@ export default defineNuxtModule<ModuleOptions>({
       )
     }
 
-    addCustomTab({
-      name: 'formkit',
-      title: 'FormKit',
-      icon: 'vscode-icons:file-type-formkit',
-      view: {
-        type: 'iframe',
-        src: 'https://formkit.com/getting-started/what-is-formkit',
-      },
-    })
+    // addCustomTab({
+    //   name: 'formkit',
+    //   title: 'FormKit',
+    //   icon: 'vscode-icons:file-type-formkit',
+    //   view: {
+    //     type: 'iframe',
+    //     src: 'https://formkit.com/getting-started/what-is-formkit',
+    //   },
+    // })
 
     addPluginTemplate({
       src: await resolver.resolve('runtime/plugin.mjs'),
