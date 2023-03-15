@@ -1,6 +1,12 @@
 import { h, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
-import { FormKit, FormKitSchema, plugin, defaultConfig } from '@formkit/vue'
+import {
+  FormKit,
+  FormKitSchema,
+  plugin,
+  defaultConfig,
+  resetCount,
+} from '@formkit/vue'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { jest } from '@jest/globals'
 
@@ -60,6 +66,9 @@ const multiStepSchemaBasicWithProps = [
 ]
 
 describe('multistep', () => {
+  beforeEach(() => {
+    resetCount()
+  })
   afterEach(() => {
     // restore the spy created with spyOn
     jest.restoreAllMocks()
@@ -70,6 +79,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -90,6 +100,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -118,6 +129,7 @@ describe('multistep', () => {
       props: {
         type: 'step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -142,6 +154,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -171,6 +184,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasic,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -194,6 +208,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasic,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -216,6 +231,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasicWithProps,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
