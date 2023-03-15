@@ -9,11 +9,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./*": "./dist/*"
+      "browser": "./dist/formkit-vue.js"
+    }
   },
   "keywords": [
     "vue",
