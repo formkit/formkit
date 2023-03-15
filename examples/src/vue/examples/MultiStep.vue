@@ -1,4 +1,5 @@
 <script setup>
+import { reactive } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
 
 const multiStepFormSchema = [
@@ -20,6 +21,7 @@ const multiStepFormSchema = [
       },
       {
         $formkit: 'step',
+        if: '$showStepTwo',
         name: 'stepTwo',
         children: [
           {
@@ -46,19 +48,23 @@ const multiStepFormSchema = [
 
 const log = console.log
 
-const data = { log }
+const schemaData = reactive({
+  showStepTwo: true,
+  log
+})
 </script>
 
 <template>
   <FormKitSchema
     :schema="multiStepFormSchema"
-    :data="data"
+    :data="schemaData"
   />
 
   <FormKit
     v-slot="{ value }"
     type="form"
   >
+    <!-- should not render as it is not inside a multi-step -->
     <FormKit type="step" />
 
     <FormKit
@@ -69,6 +75,7 @@ const data = { log }
       <FormKit
         type="step"
         name="personalInfo"
+        label="1. Info"
         valid-step-icon="bitcoin"
       >
         <FormKit
@@ -86,7 +93,9 @@ const data = { log }
       </FormKit>
     
       <FormKit
+        v-if="schemaData.showStepTwo"
         type="step"
+        label="2. References"
         name="references"
         :before-step-change="({ currentStep, targetStep, delta }) => {
           if (delta > 0) {
@@ -125,14 +134,14 @@ const data = { log }
       <FormKit
         type="step"
         name="Supplemental"
-        label="A custom label"
+        label="3. Supplemental"
         previous-label="Go back"
         :previous-attrs="{
           'data-something': 'some data'
         }"
       >
         <FormKit
-          type="textarea"
+          type="text"
           label="Why do you want to work here?"
           validation="required"
         />
@@ -153,6 +162,13 @@ const data = { log }
         </template>
       </FormKit>
     </FormKit>
+
+    <button
+      type="button"
+      @click="schemaData.showStepTwo = !schemaData.showStepTwo"
+    >
+      {{ schemaData.showStepTwo ? 'Hide' : 'Show' }} Step Two
+    </button>
 
     <pre>{{ value }}</pre>
   </FormKit>

@@ -1,6 +1,12 @@
-import { h } from 'vue'
+import { h, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
-import { FormKit, FormKitSchema, plugin, defaultConfig } from '@formkit/vue'
+import {
+  FormKit,
+  FormKitSchema,
+  plugin,
+  defaultConfig,
+  resetCount,
+} from '@formkit/vue'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { jest } from '@jest/globals'
 
@@ -60,6 +66,9 @@ const multiStepSchemaBasicWithProps = [
 ]
 
 describe('multistep', () => {
+  beforeEach(() => {
+    resetCount()
+  })
   afterEach(() => {
     // restore the spy created with spyOn
     jest.restoreAllMocks()
@@ -70,6 +79,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -90,6 +100,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -118,6 +129,7 @@ describe('multistep', () => {
       props: {
         type: 'step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -142,6 +154,7 @@ describe('multistep', () => {
       props: {
         type: 'multi-step',
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -171,6 +184,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasic,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -194,6 +208,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasic,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -216,6 +231,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasicWithProps,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -238,6 +254,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasic,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -254,12 +271,10 @@ describe('multistep', () => {
       },
     })
 
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 15))
     wrapper.find('.formkit-step-next button').trigger('click')
     await new Promise((r) => setTimeout(r, 15))
-    expect(wrapper.html()).toContain(
-      '<div class="formkit-tabs" role="tablist"><button class="formkit-tab" type="button" data-active="true" data-valid="false" data-visited="true" role="tab" id="input_33_tab_0" aria-selected="true" aria-controls="input_34" tabindex="0"><span class="formkit-tab-label">Step One</span><span class="formkit-badge" role="presentation">1</span>'
-    )
+    expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('Allows step advancment when current step is invalid but allowIncomplete is true', async () => {
@@ -267,6 +282,7 @@ describe('multistep', () => {
       props: {
         schema: multiStepSchemaBasicWithProps,
       },
+      attachTo: document.body,
       global: {
         plugins: [
           [
@@ -287,13 +303,64 @@ describe('multistep', () => {
     wrapper.find('.formkit-step-next button').trigger('click')
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
-    expect(wrapper.html()).toContain(
-      '</button><button class="formkit-tab" type="button" data-active="true" data-valid="true" role="tab" id="input_42_tab_1" aria-selected="true" aria-controls="input_45" tabindex="0" data-visited="true">'
-    )
-    // 2nd step is visible
-    expect(wrapper.html()).toContain(
-      `</div>
-      <div class=\"formkit-step\" data-type=\"step\" id=\"input_45\" role=\"tabpanel\" aria-labelledby=\"input_42_tab_1\">`
-    )
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('preserves the order of steps even when a step is conditionally rendered', async () => {
+    const data = reactive({
+      showStepTwo: true,
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'multi-step',
+            children: [
+              {
+                $formkit: 'step',
+                name: 'stepOne',
+                key: 'stepOne',
+              },
+              {
+                $formkit: 'step',
+                if: '$showStepTwo',
+                name: 'stepTwo',
+                key: 'stepTwo',
+              },
+              {
+                $formkit: 'step',
+                name: 'stepThree',
+                key: 'stepThree',
+              },
+            ],
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    const stepNameRegex = /Step (.*)?</gm
+    await new Promise((r) => setTimeout(r, 5))
+    const stepMatches = wrapper.html().match(stepNameRegex)
+    expect(stepMatches).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
+    data.showStepTwo = false
+    await new Promise((r) => setTimeout(r, 5))
+    const stepMatchesAfter = wrapper.html().match(stepNameRegex)
+    expect(stepMatchesAfter).toEqual(['Step One<', 'Step Three<'])
+    data.showStepTwo = true
+    await new Promise((r) => setTimeout(r, 5))
+    const stepMatchesAfter2 = wrapper.html().match(stepNameRegex)
+    expect(stepMatchesAfter2).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
   })
 })
