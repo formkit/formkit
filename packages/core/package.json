@@ -1,6 +1,6 @@
 {
   "name": "@formkit/core",
-  "version": "1.0.0-beta.15",
+  "version": "0.16.0",
   "type": "module",
   "description": "The framework agnostic core of FormKit",
   "main": "dist/index.cjs",
@@ -8,9 +8,9 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./*": "./dist/*"
   },
@@ -34,7 +34,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/utils": "1.0.0-beta.15"
+    "@formkit/utils": "0.16.0"
   },
   "devDependencies": {}
 }

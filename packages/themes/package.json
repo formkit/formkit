@@ -1,6 +1,6 @@
 {
   "name": "@formkit/themes",
-  "version": "1.0.0-beta.15",
+  "version": "0.16.0",
   "type": "module",
   "description": "FormKit base themes",
   "types": "dist/index.d.ts",
@@ -10,29 +10,29 @@
     "./package.json": "./package.json",
     "./genesis": "./dist/genesis/theme.css",
     "./windicss": {
+      "types": "./dist/windicss/index.d.ts",
       "import": "./dist/windicss/index.mjs",
-      "require": "./dist/windicss/index.cjs",
-      "types": "./dist/windicss/index.d.ts"
+      "require": "./dist/windicss/index.cjs"
     },
     "./tailwindcss": {
+      "types": "./dist/tailwindcss/index.d.ts",
       "import": "./dist/tailwindcss/index.mjs",
-      "require": "./dist/tailwindcss/index.cjs",
-      "types": "./dist/tailwindcss/index.d.ts"
+      "require": "./dist/tailwindcss/index.cjs"
     },
     "./tailwindcss/genesis": {
+      "types": "./dist/tailwindcss/genesis/index.d.ts",
       "import": "./dist/tailwindcss/genesis/index.mjs",
-      "require": "./dist/tailwindcss/genesis/index.cjs",
-      "types": "./dist/tailwindcss/genesis/index.d.ts"
+      "require": "./dist/tailwindcss/genesis/index.cjs"
     },
     "./unocss": {
+      "types": "./dist/unocss/index.d.ts",
       "import": "./dist/unocss/index.mjs",
-      "require": "./dist/unocss/index.cjs",
-      "types": "./dist/unocss/index.d.ts"
+      "require": "./dist/unocss/index.cjs"
     },
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "typesVersions": {
@@ -72,7 +72,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.0.0-beta.15"
+    "@formkit/core": "0.16.0"
   },
   "peerDependencies": {
     "tailwindcss": "^3.2.0",

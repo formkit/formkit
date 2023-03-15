@@ -4,7 +4,14 @@ import {
   FormKitSchemaCondition,
   FormKitSchemaNode,
 } from '@formkit/core'
-import { h, ref, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
+import {
+  h,
+  ref,
+  defineComponent,
+  InjectionKey,
+  ConcreteComponent,
+  SetupContext,
+} from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
@@ -36,7 +43,7 @@ export const FormKit = defineComponent({
   },
   inheritAttrs: false,
   setup(props, context) {
-    const node = useInput(props, context)
+    const node = useInput(props, context as SetupContext<any>)
     if (!node.props.definition) error(600, node)
     if (node.props.definition.component) {
       return () =>
