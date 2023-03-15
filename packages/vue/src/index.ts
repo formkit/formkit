@@ -9,7 +9,7 @@
 /**
  * The useInput composable.
  */
-export { useInput } from './composables/useInput'
+export { useInput, FormKitComponentProps } from './composables/useInput'
 
 /**
  * Shorthand for creating inputs with standard FormKit features.
@@ -40,12 +40,12 @@ export { FormKitMessages } from './FormKitMessages'
 /**
  * The FormKitSchema component.
  */
-export { FormKitSchema } from './FormKitSchema'
+export { FormKitSchema, Renderable, RenderableList, RenderableSlot, RenderableSlots, FormKitComponentLibrary, VirtualNode } from './FormKitSchema'
 
 /**
  * The default configuration.
  */
-export { default as defaultConfig, DefaultConfigOptions } from './defaultConfig'
+export { default as defaultConfig, DefaultConfigOptions, PluginConfigs } from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all

@@ -22,6 +22,11 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
 
+    // Add FormKit typescript types explicitly.
+    nuxt.hook('prepare:types', (opts) => {
+      opts.references.push({ types: '@formkit/vue' })
+    })
+
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir)
     nuxt.options.build.transpile.push('@formkit/vue')

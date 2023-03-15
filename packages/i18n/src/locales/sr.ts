@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Učitaj više',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Sledeća',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Prethodna',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Dodajte sve vrednosti',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Dodajte izabrane vrednosti',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Uklonite sve vrednosti',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Uklonite izabrane vrednosti',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Izaberite datum',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Promenite datum',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Izabrani datum je nevažeći.',
 }
 
 /**

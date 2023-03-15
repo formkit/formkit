@@ -37,6 +37,58 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Ягон файл интихоб нашудааст',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Ба боло ҳаракат кунед',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Ба поён ҳаракат кунед',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Дар ҳоли боргузорӣ',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Бештар бор кунед',
+  /**
+   * Show on buttons that navigate state forward
+   */
+  next: 'Баъдӣ',
+  /**
+   * Show on buttons that navigate state backward
+   */
+  prev: 'Гузашта',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Ҳама арзишҳоро илова кунед',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Илова кардани арзишҳои интихобшуда',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Ҳама арзишҳоро хориҷ кунед',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Арзишҳои интихобшударо хориҷ кунед',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Сана интихоб кунед',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Тағйир додани сана',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
 
 /**

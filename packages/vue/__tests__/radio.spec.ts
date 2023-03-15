@@ -245,4 +245,35 @@ describe('radios', () => {
       'true'
     )
   })
+
+  it('can differentiate between undefined and null option values', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: undefined,
+          }
+        },
+        template: `<FormKit
+          id="${id}"
+          :delay="0"
+          type="radio"
+          :value="value"
+          :options="[
+            { value: true, label: 'Yes' },
+            { value: false, label: 'No' },
+            { value: null, label: 'N/A' }
+          ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+    const radios = wrapper.get('div').findAll('input')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toEqual([false, false, false])
+    radios[1].element.checked = true
+  })
 })

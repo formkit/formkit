@@ -8,6 +8,7 @@ import {
   defineComponent,
   h,
   ref,
+  isRef,
   reactive,
   resolveComponent,
   watchEffect,
@@ -38,8 +39,10 @@ import {
 /**
  * A library of components available to the schema (in addition to globally
  * registered ones)
+ *
+ * @public
  */
-interface FormKitComponentLibrary {
+export interface FormKitComponentLibrary {
   [index: string]: Component
 }
 
@@ -68,26 +71,43 @@ type RenderContent = [
 ]
 /**
  * The actual signature of a VNode in Vue.
+ *
+ * @public
  */
-type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
+export type VirtualNode = VNode<
+  RendererNode,
+  RendererElement,
+  { [key: string]: any }
+>
 /**
  * The types of values that can be rendered by Vue.
+ *
+ * @public
  */
-type Renderable = null | string | number | boolean | VirtualNode
+export type Renderable = null | string | number | boolean | VirtualNode
 /**
  * A list of renderable items.
+ *
+ * @public
  */
-type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
+export type RenderableList =
+  | Renderable
+  | Renderable[]
+  | (Renderable | Renderable[])[]
 
 /**
  * An object of slots
+ *
+ * @public
  */
-type RenderableSlots = Record<string, RenderableSlot>
+export type RenderableSlots = Record<string, RenderableSlot>
 
 /**
  * A slot function that can be rendered.
+ *
+ * @public
  */
-type RenderableSlot = (
+export type RenderableSlot = (
   data?: Record<string, any>,
   key?: symbol
 ) => RenderableList
@@ -155,7 +175,10 @@ const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
  * @param token - A dot-syntax string representing the object path
  * @returns
  */
-function getRef(token: string, data: Record<string, any>): Ref<unknown> {
+function getRef(
+  token: string,
+  data: Record<string, any> | Ref<Record<string, any>>
+): Ref<unknown> {
   const value = ref<any>(null)
   if (token === 'get') {
     const nodeRefs: Record<string, Ref<unknown>> = {}
@@ -163,7 +186,12 @@ function getRef(token: string, data: Record<string, any>): Ref<unknown> {
     return value
   }
   const path = token.split('.')
-  watchEffect(() => (value.value = getValue(data, path)))
+  watchEffect(() => {
+    value.value = getValue(
+      isRef<Record<string, any>>(data) ? data.value : data,
+      path
+    )
+  })
   return value
 }
 

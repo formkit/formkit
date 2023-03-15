@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Töltsön be többet',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Következő',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Előző',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Adja hozzá az összes értéket',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Kiválasztott értékek hozzáadása',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Távolítsa el az összes értéket',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'A kiválasztott értékek eltávolítása',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Válassza ki a dátumot',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Dátum módosítása',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'A kiválasztott dátum érvénytelen.',
 }
 
 /**

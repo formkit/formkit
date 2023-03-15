@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: '加载更多',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: '下一步',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: '以前',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: '将所有值相加',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: '添加所选值',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: '移除所有值',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: '移除所选值',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: '选择日期',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: '更改日期',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '所选日期无效。',
 }
 
 /**

@@ -16,7 +16,12 @@ import { createThemePlugin, FormKitIconLoader, FormKitIconLoaderUrl } from '@for
 import bindings from './bindings'
 import '@formkit/dev'
 
-interface PluginConfigs {
+/**
+ * Configuration for plugins
+ *
+ * @public
+ */
+export interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
   locales: FormKitLocaleRegistry
   inputs: FormKitLibrary
@@ -24,7 +29,7 @@ interface PluginConfigs {
   theme: string
   iconLoaderUrl: FormKitIconLoaderUrl
   iconLoader: FormKitIconLoader
-  icons: Record<string,string|undefined>
+  icons: Record<string, string | undefined>
 }
 
 /**

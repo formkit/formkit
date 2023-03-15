@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Carregar més',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Següent',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Anterior',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Afegir tots els valors',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Afegeix els valors seleccionats',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Eliminar tots els valors',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Elimina els valors seleccionats',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Trieu la data',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Canviar data',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'La data seleccionada no és vàlida.',
 }
 
 /**

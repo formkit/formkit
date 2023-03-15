@@ -78,6 +78,11 @@ export function optionValue(
  * @public
  */
 export function shouldSelect(valueA: unknown, valueB: unknown): boolean {
+  if (
+    (valueA === null && valueB === undefined) ||
+    (valueA === undefined && valueB === null)
+  )
+    return false
   if (valueA == valueB) return true
   if (isPojo(valueA) && isPojo(valueB)) return eq(valueA, valueB)
   return false

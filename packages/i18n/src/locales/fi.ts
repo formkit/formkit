@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Lataa lisää',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Seuraava',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Edellinen',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Lisää kaikki arvot',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Lisää valitut arvot',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Poista kaikki arvot',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Poista valitut arvot',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Valitse päivämäärä',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Vaihda päivämäärä',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Valittu päivämäärä on virheellinen.',
 }
 
 /**

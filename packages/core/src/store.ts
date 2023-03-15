@@ -29,7 +29,7 @@ export type FormKitMessage = Readonly<FormKitMessageProps>
  * they are passed to — where the string key of the object is the address of
  * the node to apply the messages on and the value is the message itself.
  *
- * @internal
+ * @public
  */
 export interface FormKitInputMessages {
   [address: string]: FormKitMessage[]
@@ -38,9 +38,9 @@ export interface FormKitInputMessages {
 /**
  * Child messages that were not immediately applied due to the child not existing.
  *
- * @internal
+ * @public
  */
-type ChildMessageBuffer = Map<
+export type ChildMessageBuffer = Map<
   string,
   Array<[FormKitMessage[], MessageClearer | undefined]>
 >
@@ -48,9 +48,9 @@ type ChildMessageBuffer = Map<
 /**
  * A string or function that allows clearing messages.
  *
- * @internal
+ * @public
  */
-type MessageClearer = string | ((message: FormKitMessage) => boolean)
+export type MessageClearer = string | ((message: FormKitMessage) => boolean)
 
 /**
  * Messages have can have any arbitrary meta data attached to them.
@@ -102,7 +102,7 @@ export type FormKitStore = FormKitMessageStore & {
 /**
  * The available traps on the FormKit store.
  *
- * @internal
+ * @public
  */
 export interface FormKitStoreTraps {
   apply: (
@@ -409,7 +409,7 @@ export function applyMessages(
 /**
  * Error messages.
  *
- * @internal
+ * @public
  */
 export type ErrorMessages =
   | string

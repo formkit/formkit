@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Încărcați mai mult',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Urmatorul',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Precedent',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Adăugați toate valorile',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Adăugarea valorilor selectate',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Eliminați toate valorile',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Eliminați valorile selectate',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Alege data',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Modificați data',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Data selectată este nevalidă.',
 }
 
 /**

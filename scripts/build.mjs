@@ -38,17 +38,16 @@ const augmentations = {
  * Augment Vue’s globalProperties.
  * @public
  */
-declare module '@vue/runtime-core' {
-  export interface ComponentCustomProperties {
+declare module 'vue' {
+  interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
   }
-  export interface GlobalComponents {
+  interface GlobalComponents {
     FormKit: typeof FormKit
     FormKitSchema: typeof FormKitSchema
   }
 }
-
-export { }`,
+`,
 }
 
 const __filename = fileURLToPath(import.meta.url)

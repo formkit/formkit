@@ -33,7 +33,8 @@ export interface FormKitObservedNode extends FormKitNode {
 
 /**
  * The dependent nodes and the events that are required to watch for changes.
- * @internal
+ *
+ * @public
  */
 export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
   active?: boolean
@@ -41,9 +42,10 @@ export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
 
 /**
  * A Map of nodes with the values being Maps of eventsName: receipt
- * @internal
+ *
+ * @public
  */
-type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
+export type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
 
 /**
  * A callback to watch for nodes.

@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Cargar más',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Próximo',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Anterior',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Añadir todos los valores',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Añadir valores seleccionados',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Eliminar todos los valores',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Eliminar los valores seleccionados',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Elige fecha',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Cambiar fecha',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'La fecha seleccionada no es válida.',
 }
 
 /**

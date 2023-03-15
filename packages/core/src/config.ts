@@ -30,7 +30,7 @@ export function configChange(
 /**
  * Global configuration options.
  *
- * @internal
+ * @public
  */
 export type FormKitRootConfig = Partial<FormKitConfig> & {
   _add: (node: FormKitNode) => void

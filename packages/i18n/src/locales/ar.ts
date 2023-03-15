@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'تحميل المزيد',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'التالي',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'السابق',
+  /**
+   * Shown when transferring items between lists.
+   */
+  addAllValues: 'أضف جميع القيم',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'إضافة قيم محددة',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'قم بإزالة جميع القيم',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'إزالة القيم المحددة',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'اختر التاريخ',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'تاريخ التغيير',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'التاريخ المحدد غير صالح.',
 }
 
 /**

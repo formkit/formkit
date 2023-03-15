@@ -21,6 +21,7 @@ export default {
     decoratorIcon: 'flex p-[3px] w-full h-full absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2',
     help: 'mb-2 mt-1.5',
     input: 'absolute w-0 h-0 overflow-hidden opacity-0 pointer-events-none peer',
+    inner: '$remove:formkit-disabled:bg-gray-200',
     label: '$reset text-sm text-gray-700 mt-1 select-none',
     wrapper: 'flex items-center mb-1',
   },
@@ -137,5 +138,40 @@ export default {
     track: 'p-0.5 min-w-[3em] relative rounded-full transition-all bg-gray-400 peer-checked:bg-blue-500 peer-checked:[&>div:last-child]:left-full peer-checked:[&>div:last-child]:-translate-x-full peer-checked:[&>div:first-child:not(:last-child)]:left-0 peer-checked:[&>div:first-child:not(:last-child)]:translate-x-0',
     valueLabel: 'font-bold text-sm',
     wrapper: 'flex flex-wrap items-center mb-1'
+  },
+  transferlist: {
+    outer: `
+      [&_.dnd-placeholder]:bg-blue-500 [&_.dnd-placeholder]:text-white
+      [&_.dnd-placeholder_svg]:text-white
+      [&_.dnd-children-hidden]:w-full [&_.dnd-children-hidden]:p-0 [&_.dnd-children-hidden]:flex [&_.dnd-children-hidden]:flex-col [&_.dnd-children-hidden]:border-none
+      [&_.dnd-children-hidden_span]:hidden
+      [&_.dnd-children-hidden_.formkit-transferlist-option]:hidden
+      [&_.dnd-multiple-selections_span]:inline-block
+      [&_.dnd-multiple-selections_.formkit-transferlist-option]:inline-block
+    `,
+    fieldset: '$reset max-w-2xl',
+    wrapper: 'flex max-h-[350px] flex-col sm:flex-row justify-between w-full max-w-none',
+    help: 'pb-2',
+    transferlist: 'sm:w-3/5 shadow-md flex flex-col min-h-[350px] max-h-[350px] border rounded overflow-hidden select-none bg-gray-50',
+    transferlistHeader: 'flex bg-gray-100 justify-between items-center border-b p-3',
+    transferlistHeaderItemCount: 'ml-auto text-sm',
+    transferlistListItems: 'list-none bg-gray-50 h-full sm:max-w-xs overflow-x-hidden overflow-y-auto',
+    transferlistListItem: 'pl-8 relative aria-selected:bg-blue-600 aria-selected:data-[is-active=true]:bg-blue-600 aria-selected:text-white aria-selected:data-[is-active=true]:text-white first:-mt-px first:border-t py-2 px-3 flex relative border-b bg-white data-[is-active=true]:text-blue-500 data-[is-active=true]:bg-gray-100 cursor-pointer group-data-[is-max=true]:cursor-not-allowed items-center',
+    transferlistOption: 'text-sm',
+    transferControls: 'flex sm:flex-col justify-center mx-auto my-2 sm:mx-2 sm:my-auto border rounded',
+    transferlistButton: 'text-sm disabled:cursor-not-allowed disabled:bg-gray-200 disabled:opacity-50 first:rounded-l last:rounded-r sm:first:rounded-t sm:last:rounded-b appearance-none p-2 m-0 cursor-pointer h-10 border-none rounded-none bg-gray-50 hover:outline disabled:hover:outline-none hover:outline-1 hover:outline-black hover:text-blue-500 disabled:hover:text-current hover:z-10',
+    sourceEmptyMessage: 'appearance-none border-none w-full p-0 m-0 text-center text-gray-500 italic',
+    sourceListItems: 'group-data-[is-max=true]:opacity-50',
+    targetEmptyMessage: 'appearance-none border-none w-full p-0 m-0 text-center text-gray-500 italic',
+    emptyMessageInner: 'flex items-center justify-center p-2 text-sm',
+    transferlistControls: 'bg-white px-3 py-2 border-b',
+    transferlistSearch: 'flex border rounded items-center',
+    transferlistSearchInput: 'border-none p-1 w-full bg-transparent outline-none text-sm',
+    controlLabel: 'hidden',
+    selectedIcon: 'w-3 absolute left-3 select-none',
+    fastForwardIcon: 'w-10 flex select-none [&>svg]:m-auto [&>svg]:w-full [&>svg]:max-w-[1rem] [&>svg]:max-h-[1rem] rotate-90 sm:rotate-0',
+    moveRightIcon: 'w-10 flex select-none [&>svg]:m-auto [&>svg]:w-full [&>svg]:max-w-[1rem] [&>svg]:max-h-[1rem] rotate-90 sm:rotate-0',
+    moveLeftIcon: 'w-10 flex select-none [&>svg]:m-auto [&>svg]:w-full [&>svg]:max-w-[1rem] [&>svg]:max-h-[1rem] rotate-90 sm:rotate-0',
+    rewindIcon: 'w-10 flex select-none [&>svg]:m-auto [&>svg]:w-full [&>svg]:max-w-[1rem] [&>svg]:max-h-[1rem] rotate-90 sm:rotate-0',
   }
 }

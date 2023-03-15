@@ -9,11 +9,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./*": "./dist/*"
+      "browser": "./dist/formkit-vue.js"
+    }
   },
   "keywords": [
     "vue",
@@ -44,9 +44,7 @@
     "@formkit/utils": "1.0.0-beta.15",
     "@formkit/validation": "1.0.0-beta.15"
   },
-  "devDependencies": {
-    "@vue/test-utils": "^2.0.0-rc.14"
-  },
+  "devDependencies": {},
   "peerDependencies": {
     "vue": "^3.2.1"
   }

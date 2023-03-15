@@ -65,7 +65,6 @@ const data = { log }
       type="multi-step"
       tab-style="progress"
       valid-step-icon="star"
-      :before-step-change="log"
     >
       <FormKit
         type="step"
@@ -97,10 +96,6 @@ const data = { log }
             }
           }
         }"
-        :prev-attrs="{
-          label: 'hey there',
-          'data-something': 'some data'
-        }"
       >
         <FormKit
           type="textarea"
@@ -108,12 +103,33 @@ const data = { log }
           label="Please supply 2 references"
           validation="required"
         />
+
+        <template #stepNext="{ handlers }">
+          <div
+            class="custom-next"
+            @click="handlers.next"
+          >
+            My Custom Step Next
+          </div>
+        </template>
+        <template #stepPrevious="{ handlers }">
+          <div
+            class="custom-next"
+            @click="handlers.previous"
+          >
+            My Custom Step Previous
+          </div>
+        </template>
       </FormKit>
 
       <FormKit
         type="step"
         name="Supplemental"
         label="A custom label"
+        previous-label="Go back"
+        :previous-attrs="{
+          'data-something': 'some data'
+        }"
       >
         <FormKit
           type="textarea"
@@ -141,3 +157,14 @@ const data = { log }
     <pre>{{ value }}</pre>
   </FormKit>
 </template>
+
+
+<style scoped>
+.custom-next {
+  padding: 1em;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+</style>

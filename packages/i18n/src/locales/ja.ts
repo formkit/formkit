@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'さらに読み込む',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: '[次へ]',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: '前へ',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'すべての値を追加',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: '選択した値を追加',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'すべての値を削除',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: '選択した値を削除',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: '日付を選択',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: '日付を変更',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '選択した日付は無効です。',
 }
 
 /**

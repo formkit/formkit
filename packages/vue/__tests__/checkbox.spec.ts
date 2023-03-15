@@ -382,18 +382,20 @@ describe('multiple checkboxes', () => {
 
   it('adds data-checked to box wrappers', async () => {
     const value = ref(['B'])
-    const wrapper = mount(FormKit, {
-      props: {
-        type: 'checkbox',
-        options: ['A', 'B', 'C'],
-        modelValue: value,
+    const wrapper = mount(
+      {
+        setup() {
+          return { value }
+        },
+        template: `<FormKit type="checkbox" :delay="0" :options="['A', 'B', 'C']" :modelValue="value" />`,
       },
-      ...global,
-    })
-    // TODO - Remove the .get() here when @vue/test-utils > rc.19
-    expect(wrapper.get('fieldset').findAll('[data-checked]').length).toBe(1)
+      {
+        ...global,
+      }
+    )
+    expect(wrapper.findAll('[data-checked]').length).toBe(1)
     value.value = ['A', 'B']
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 25))
     expect(wrapper.get('fieldset').findAll('[data-checked]').length).toBe(2)
     value.value = []
     await nextTick()

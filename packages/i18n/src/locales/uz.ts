@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Ko’proq yuklang',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Keyingi',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Oldingi',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: `Barcha qiymatlarni qo'shish`,
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: `Tanlangan qiymatlarni qoʻshish`,
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Barcha qiymatlarni olib tashlang',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Tanlangan qiymatlarni olib tashlash',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Sanani tanlang',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: `O'zgartirish sanasi`,
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Tanlangan sana yaroqsiz.',
 }
 
 /**

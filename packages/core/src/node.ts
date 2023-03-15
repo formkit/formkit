@@ -192,7 +192,7 @@ export interface FormKitGroupValue {
  *
  * @public
  */
-export type FormKitListValue<T = any> = Array<T>
+export type FormKitListContextValue<T = any> = Array<T>
 
 /**
  * Arbitrary data that has properties. Could be a POJO, could be an array.
@@ -223,8 +223,8 @@ export interface FormKitContextShape {
  */
 export interface FormKitListContext {
   type: 'list'
-  value: FormKitListValue
-  _value: FormKitListValue
+  value: FormKitListContextValue
+  _value: FormKitListContextValue
 }
 
 /**
@@ -744,7 +744,7 @@ export interface FormKitChildValue {
  * - `callback` — A {@link FormKitChildCallback | FormKitChildCallback} to be called for each child.
  *
  * @param emit -
- * Emit an event from the node so it can be listened by {@link on | on}.
+ * Emit an event from the node so it can be listened by {@link FormKitNode | on}.
  *
  * #### Signature
  *
@@ -1098,7 +1098,7 @@ export interface FormKitChildValue {
  *
  * @param value -
  * The value of the input. This should never be directly modified. Any
- * desired mutations should be made through {@link input | input}.
+ * desired mutations should be made through {@link FormKitNode | input}.
  *
  * #### Signature
  *
@@ -1107,7 +1107,7 @@ export interface FormKitChildValue {
  * ```
  *
  * @param walk -
- * Performs a function on the node and every node in its subtree.
+ * Performs a function on every node in its subtree (but not the node itself).
  * This is an expensive operation so it should be done very rarely and only lifecycle events that are relatively rare like boot up and shut down.
  *
  * #### Signature
@@ -1298,7 +1298,7 @@ export type FormKitNode = {
     library?: boolean
   ) => FormKitNode
   /**
-   * Performs a function on the node and every node in the subtree. This is an
+   * Performs a function on every node in the subtree (not itself). This is an
    * expensive operation so it should be done very rarely and only lifecycle
    * events that are relatively rare like boot up and shut down.
    */
@@ -1855,12 +1855,12 @@ function define(
   if (definition.features) {
     definition.features.forEach((feature) => feature(node))
   }
-
   // Its possible that input-defined "props" have ended up in the context attrs
   // these should be moved back out of the attrs object.
   if (definition.props) {
     node.addProps(definition.props)
   }
+
   node.emit('defined', definition)
 }
 
@@ -2092,7 +2092,7 @@ function walkTree(
   callback: FormKitChildCallback,
   stopIfFalse = false
 ) {
-  context.children.forEach((child) => {
+  context.children.forEach((child: FormKitNode) => {
     if (callback(child) !== false || !stopIfFalse) {
       child.walk(callback, stopIfFalse)
     }
