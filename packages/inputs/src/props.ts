@@ -70,7 +70,7 @@ export interface FormKitSyntheticPropsExtensions {
   disabled: string | boolean
   preserve: string | boolean
   preserveErrors: string | boolean
-  dirtyBehavior: 'touched' | 'dirty'
+  dirtyBehavior: 'touched' | 'compare'
 }
 
 /**
