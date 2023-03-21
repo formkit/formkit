@@ -2,7 +2,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { FormKitPlugin, FormKitExtendableSchemaRoot } from '@formkit/core'
-import formKitVariants from 'packages/tailwindcss/dist';
 
 const pluginRemoveInnerWrapper: FormKitPlugin = (inputNode) => {
   inputNode.on('created', ({ payload: node }) => {

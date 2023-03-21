@@ -33,6 +33,10 @@
   }
 }
 
+[data-family="text"] .formkit-input::selection {
+  background-color: var(--fk-color-input-selection);
+}
+
 .formkit-help,
 .formkit-option-help {
   color: var(--fk-color-help);
