@@ -876,7 +876,7 @@ describe('parsing dom elements', () => {
     })
     expect(wrapper.html()).toBe('undefined')
     data.value.myObject = { foo: 'bar' }
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.html()).toBe('bar')
   })
 })

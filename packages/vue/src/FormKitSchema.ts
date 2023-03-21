@@ -8,6 +8,7 @@ import {
   defineComponent,
   h,
   ref,
+  isRef,
   reactive,
   resolveComponent,
   watchEffect,
@@ -55,17 +56,17 @@ type RenderContent = [
   children: RenderChildren | null,
   alternate: RenderChildren | null,
   iterator:
-  | null
-  | [
-    getNodeValues: () =>
-      | number
-      | string
-      | boolean
-      | any[]
-      | Record<string, any>,
-    valueName: string,
-    keyName: string | null
-  ],
+    | null
+    | [
+        getNodeValues: () =>
+          | number
+          | string
+          | boolean
+          | any[]
+          | Record<string, any>,
+        valueName: string,
+        keyName: string | null
+      ],
   resolve: boolean
 ]
 /**
@@ -73,7 +74,11 @@ type RenderContent = [
  *
  * @public
  */
-export type VirtualNode = VNode<RendererNode, RendererElement, { [key: string]: any }>
+export type VirtualNode = VNode<
+  RendererNode,
+  RendererElement,
+  { [key: string]: any }
+>
 /**
  * The types of values that can be rendered by Vue.
  *
@@ -85,7 +90,10 @@ export type Renderable = null | string | number | boolean | VirtualNode
  *
  * @public
  */
-export type RenderableList = Renderable | Renderable[] | (Renderable | Renderable[])[]
+export type RenderableList =
+  | Renderable
+  | Renderable[]
+  | (Renderable | Renderable[])[]
 
 /**
  * An object of slots
@@ -167,7 +175,10 @@ const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
  * @param token - A dot-syntax string representing the object path
  * @returns
  */
-function getRef(token: string, data: Record<string, any>): Ref<unknown> {
+function getRef(
+  token: string,
+  data: Record<string, any> | Ref<Record<string, any>>
+): Ref<unknown> {
   const value = ref<any>(null)
   if (token === 'get') {
     const nodeRefs: Record<string, Ref<unknown>> = {}
@@ -175,7 +186,12 @@ function getRef(token: string, data: Record<string, any>): Ref<unknown> {
     return value
   }
   const path = token.split('.')
-  watchEffect(() => (value.value = getValue(data, path)))
+  watchEffect(() => {
+    value.value = getValue(
+      isRef<Record<string, any>>(data) ? data.value : data,
+      path
+    )
+  })
   return value
 }
 
@@ -587,8 +603,8 @@ function parseSchema(
         const _v = getValues()
         const values = !isNaN(_v as number)
           ? Array(Number(_v))
-            .fill(0)
-            .map((_, i) => i)
+              .fill(0)
+              .map((_, i) => i)
           : _v
         const fragment = []
         if (typeof values !== 'object') return null
@@ -814,7 +830,7 @@ export const FormKitSchema = defineComponent({
           // referenced in the render function it technically isnt a dependency
           // and we need to force a re-render since we swapped out the render
           // function completely.
-          ; (instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
+          ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
         }
       },
       { deep: true }

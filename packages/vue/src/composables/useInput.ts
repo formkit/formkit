@@ -80,7 +80,7 @@ const pseudoProps = [
   'disabled',
   'preserve',
   /^preserve(-e|E)rrors/,
-  /^[a-z]+(?:-visibility|Visibility)$/,
+  /^[a-z]+(?:-visibility|Visibility|-behavior|Behavior)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
   'prefixIcon',
   'suffixIcon',

@@ -11,6 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@microsoft/api-extractor": "^7.18.4",
+    "@nuxt/devtools": "^0.2.5",
     "@nuxt/kit": "^3.0.0",
     "@nuxt/module-builder": "^0.1.7",
     "@nuxt/vite-builder": "^3.0.0",

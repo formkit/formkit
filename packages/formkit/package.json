@@ -1,6 +1,6 @@
 {
   "name": "formkit",
-  "version": "1.0.0-beta.15",
+  "version": "0.16.3",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
@@ -12,9 +12,9 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./*": "./dist/*"
   },
@@ -38,6 +38,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/cli": "1.0.0-beta.15"
+    "@formkit/cli": "0.16.3"
   }
 }

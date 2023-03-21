@@ -1,7 +1,7 @@
 {
   "name": "@formkit/inputs",
   "type": "module",
-  "version": "1.0.0-beta.15",
+  "version": "0.16.3",
   "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -9,9 +9,9 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./*": "./dist/*"
   },
@@ -34,7 +34,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.0.0-beta.15"
+    "@formkit/core": "0.16.3"
   },
   "devDependencies": {}
 }

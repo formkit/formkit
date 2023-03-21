@@ -1,6 +1,6 @@
 {
   "name": "@formkit/i18n",
-  "version": "1.0.0-beta.15",
+  "version": "0.16.3",
   "type": "module",
   "description": "Internationalization layer for FormKit.",
   "main": "dist/index.cjs",
@@ -9,9 +9,9 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./*": "./dist/*"
   },
@@ -35,9 +35,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.0.0-beta.15",
-    "@formkit/utils": "1.0.0-beta.15",
-    "@formkit/validation": "1.0.0-beta.15"
+    "@formkit/core": "0.16.3",
+    "@formkit/utils": "0.16.3",
+    "@formkit/validation": "0.16.3"
   },
   "devDependencies": {}
 }

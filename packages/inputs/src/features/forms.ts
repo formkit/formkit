@@ -12,7 +12,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   submitEvent.preventDefault()
   await node.settled
   // Set the submitted state on all children
-  node.walk((n) => {
+  const setSubmitted = (n: FormKitNode) =>
     n.store.set(
       createMessage({
         key: 'submitted',
@@ -20,7 +20,8 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
         visible: false,
       })
     )
-  })
+  node.walk(setSubmitted)
+  setSubmitted(node)
 
   if (typeof node.props.onSubmitRaw === 'function') {
     node.props.onSubmitRaw(submitEvent, node)
