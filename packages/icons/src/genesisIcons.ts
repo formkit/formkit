@@ -10,6 +10,7 @@ import {
   rewind
 } from './icons/application'
 import { arrowDown, arrowUp, down, right, left } from './icons/directional'
+import { date } from './icons/input'
 import { fileDoc } from './icons/file'
 
 /**
@@ -24,6 +25,7 @@ const genesisIcons = {
   check,
   close,
   checkboxDecorator: check,
+  date,
   fileItem: fileDoc,
   fileRemove: close,
   noFiles: fileDoc,
@@ -35,7 +37,7 @@ const genesisIcons = {
   fastForward,
   right,
   left,
-  rewind
+  rewind,
 }
 
 export default genesisIcons

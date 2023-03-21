@@ -51,6 +51,10 @@ export default {
     inner: 'flex items-center max-w-md ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>label:first-child]:focus-within:text-blue-500 rounded mb-1',
     input: 'w-full px-3 py-2 border-none text-base text-gray-700 placeholder-gray-400',
   },
+  'family:date': {
+    inner: 'flex items-center max-w-md ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>label:first-child]:focus-within:text-blue-500 rounded mb-1',
+    input: 'w-full px-3 py-2 border-none text-gray-700 placeholder-gray-400',
+  },
 
   // Specific styles apply only to a given input type
   color: {
@@ -97,6 +101,64 @@ export default {
     inner: '[&>div>[data-value]]:absolute [&>div>[data-value]]:mb-0',
     option: 'grow text-ellipsis',
     selection: 'static flex left-0 top-0 right-0 bottom-0 mt-0 mb-2 rounded bg-gray-100',
+  },
+  datepicker: {
+    inner: 'relative',
+    panelWrapper: 'absolute top-[calc(100%_+_0.5em)] drop-shadow-[0_0_1.25em_rgba(0,0,0,.25)] rounded-md p-5 bg-white z-10',
+    panelHeader: 'grid grid-cols-[2.5em_1fr_2.5em] justify-center items-center border-b-2 mb-4 pb-4',
+    input: 'selection:bg-blue-400',
+    monthsHeader: 'flex items-center justify-center col-start-2 col-end-2',
+    timeHeader: 'flex items-center justify-center col-start-2 col-end-2',
+    overlayPlaceholder: 'text-gray-400',
+    months: 'flex flex-wrap',
+    month: `
+      flex items-center justify-center
+      w-[calc(33%_-_1em)] m-2 p-2 rounded-md
+      bg-gray-200
+      aria-selected:bg-blue-500 aria-selected:text-white
+      focus:outline focus:outline-2 focus:outline-blue-500 focus:outline-offset-2 focus:bg-white focus:text-black
+      data-[is-extra=true]:opacity-25
+      formkit-disabled:opacity-50 formkit-disabled:cursor-default formkit-disabled:pointer-events-none
+    `,
+    yearsHeader: 'flex items-center justify-center col-start-2 col-end-2',
+    years: 'flex flex-wrap max-w-[35em]',
+    year: `
+      flex items-center justify-center
+      w-[calc(20%_-_1em)] m-2 p-2 rounded-md
+      bg-gray-200
+      aria-selected:bg-blue-500 aria-selected:text-white
+      focus:outline focus:outline-2 focus:outline-blue-500 focus:outline-offset-2 focus:bg-white focus:text-black
+      data-[is-extra=true]:opacity-25
+      formkit-disabled:opacity-50 formkit-disabled:cursor-default formkit-disabled:pointer-events-none
+    `,
+    weekDays: 'flex',
+    weekDay: 'flex w-[2.25em] h-[1em] m-1 items-center justify-center rounded-md font-medium lowercase',
+    week: 'flex formkit-disabled:opacity-50 formkit-disabled:cursor-default formkit-disabled:pointer-events-none',
+    day: `
+      flex items-center justify-center
+      w-[2.25em] h-[2.25em] m-1 p-2 rounded-md
+      bg-gray-200
+      aria-selected:bg-blue-500 aria-selected:text-white
+      focus:outline focus:outline-2 focus:outline-blue-500 focus:outline-offset-2 focus:bg-white focus:text-black
+      data-[is-extra=true]:opacity-25
+      formkit-disabled:opacity-50 formkit-disabled:cursor-default formkit-disabled:pointer-events-none
+    `,
+    timeInput: 'w-full border-2 border-gray-300 rounded-md p-2 my-[2em] focus-visible:outline-blue-500',
+    daysHeader: 'flex items-center justify-center',
+    prev: 'mr-auto px-3 py-1 hover:bg-gray-100 hover:rounded-lg col-start-1 col-end-1',
+    prevLabel: 'hidden',
+    prevIcon: 'flex w-3 select-none [&>svg]:w-full',
+    dayButton: 'appearance-none cursor-pointer px-3 py-1 border-2 rounded-lg mx-1 hover:border-blue-500',
+    monthButton: 'appearance-none cursor-pointer px-3 py-1 border-2 rounded-lg mx-1 hover:border-blue-500',
+    yearButton: 'appearance-none cursor-pointer px-3 py-1 border-2 rounded-lg mx-1 hover:border-blue-500',
+    next: 'ml-auto px-3 py-1 hover:bg-gray-100 hover:rounded col-start-3 col-end-3',
+    nextLabel: 'hidden',
+    nextIcon: 'flex w-3 select-none [&>svg]:w-full',
+    openButton: `
+      appearance-none border-0 bg-transparent flex p-0 self-stretch cursor-pointer
+      focus-visible:outline-none focus-visible:text-white focus-visible:bg-blue-500
+    `,
+    calendarIcon: 'flex w-8 grow-0 shrink-0 self-stretch select-none [&>svg]:w-full [&>svg]:m-auto [&>svg]:max-h-[1em] [&>svg]:max-w-[1em]',
   },
   rating: {
     inner: 'relative flex items-center w-[8em] formkit-disabled:bg-transparent',
