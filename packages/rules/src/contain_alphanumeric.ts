@@ -6,16 +6,16 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const alphanumeric: FormKitValidationRule = function (
+const contain_alphanumeric: FormKitValidationRule = function (
   { value },
   set = 'default'
 ) {
   const sets = {
-    default: /^[0-9[\p{Lu}\p{L}]]+$/,
-    latin: /^[0-9\p{Latin}]+$/,
+    default: /[0-9[\p{Lu}\p{L}]]/,
+    latin: /[0-9\p{Latin}]/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))
 }
 
-export default alphanumeric
+export default contain_alphanumeric

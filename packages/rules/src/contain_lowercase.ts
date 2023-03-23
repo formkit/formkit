@@ -6,16 +6,13 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const alpha_spaces: FormKitValidationRule = function (
-  { value },
-  set = 'default'
-) {
+const contain_lowercase: FormKitValidationRule = function ({ value }, set = 'default') {
   const sets = {
-    default: /^[\p{Lu}\p{L} ]+$/,
-    latin: /^[a-zA-Z ]+$/,
+    default: /^[a-zA-ZÀ-ÖØ-öø-ÿĄąĆćČčĎďĘęĚěŁłŃńŇňŘřŚśŠšŤťŮůŹźŻŽžż]+$/,
+    latin: /^[a-zA-Z]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))
 }
 
-export default alpha_spaces
+export default contain_lowercase
