@@ -2,20 +2,20 @@ import { has } from '@formkit/utils'
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value contain alpha or numeric characters.
+ * Determine if the given input's value contain alpha characters or space.
  * @param context - The FormKitValidationContext
  * @public
  */
-const contain_alphanumeric: FormKitValidationRule = function (
+const alpha_spaces: FormKitValidationRule = function (
   { value },
   set = 'default'
 ) {
   const sets = {
-    default: /[0-9[\p{Lu}\p{L}]/u,
-    latin: /[0-9\p{Latin}]/,
+    default: /[\p{Lu}\p{L} ]/u,
+    latin: /[a-zA-Z ]/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))
 }
 
-export default contain_alphanumeric
+export default alpha_spaces

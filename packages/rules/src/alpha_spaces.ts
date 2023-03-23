@@ -2,7 +2,7 @@ import { has } from '@formkit/utils'
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value is only alpha characters.
+ * Determine if the given input's value is only alpha characters or space.
  * @param context - The FormKitValidationContext
  * @public
  */
