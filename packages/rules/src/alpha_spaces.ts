@@ -11,7 +11,7 @@ const alpha_spaces: FormKitValidationRule = function (
   set = 'default'
 ) {
   const sets = {
-    default: /^[\p{Lu}\p{L} ]+$/,
+    default: /^[\p{Lu}\p{L} ]+$/u,
     latin: /^[a-zA-Z ]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'

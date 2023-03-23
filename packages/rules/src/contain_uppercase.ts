@@ -8,8 +8,8 @@ import { FormKitValidationRule } from '@formkit/validation'
  */
 const contain_uppercase: FormKitValidationRule = function ({ value }, set = 'default') {
   const sets = {
-    default: /^[\p{Lu}]+$/,
-    latin: /^[A-Z]+$/,
+    default: /[\p{Lu}]/u,
+    latin: /[A-Z]/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))

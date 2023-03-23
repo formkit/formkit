@@ -11,7 +11,7 @@ const contain_alphanumeric: FormKitValidationRule = function (
   set = 'default'
 ) {
   const sets = {
-    default: /[0-9[\p{Lu}\p{L}]]/,
+    default: /[0-9[\p{Lu}\p{L}]/u,
     latin: /[0-9\p{Latin}]/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
