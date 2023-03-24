@@ -310,6 +310,9 @@
         "logLevel": "warning"
         // "addToApiReportFile": false
       },
+      "ae-wrong-input-file-type": {
+        "logLevel": "none"
+      },
       "ae-internal-missing-underscore": {
         "logLevel": "none"
       }
