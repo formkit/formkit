@@ -4,7 +4,7 @@ import { token } from '@formkit/utils'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { defaultConfig, FormKit, plugin } from '../src'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('plugins', () => {
   it('can define props in a standard plugin', () => {
@@ -81,7 +81,7 @@ describe('plugins', () => {
   })
 
   it('can change a v-model value via plugin hook on init. #391', async () => {
-    const inputHook: FormKitMiddleware = jest.fn((_value, next) => {
+    const inputHook: FormKitMiddleware = vi.fn((_value, next) => {
       return next('5')
     })
     const id = token()

@@ -8,7 +8,7 @@ import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -835,8 +835,8 @@ describe('validation', () => {
   })
 
   it('avoids recursive updates when using state.valid and array computed array rules (#255)', async () => {
-    const warning = jest.fn()
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn()
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(
       {
         setup() {
@@ -1401,7 +1401,7 @@ describe('plugins', () => {
         })
       }
     }
-    const testPlugin = jest.fn(function testPlugin(node: FormKitNode) {
+    const testPlugin = vi.fn(function testPlugin(node: FormKitNode) {
       node.addProps(['bimBam'])
       expect(node.props.fooBarBaz).toBe('hello world')
       expect(node.props.bimBam).toBe('working')
@@ -1475,7 +1475,7 @@ describe('icons', () => {
   })
 
   it('can register click handlers on icons', async () => {
-    const iconClick = jest.fn()
+    const iconClick = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
         prefixIcon: 'heart',
@@ -1859,7 +1859,7 @@ describe('exposures', () => {
       }
     )
     const node = getNode(id)
-    const callback = jest.fn()
+    const callback = vi.fn()
     node?.on('dom-input-event', callback)
     wrapper.find('input').setValue('foo bar')
     expect(callback).toHaveBeenCalledTimes(1)

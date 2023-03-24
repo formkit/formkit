@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import number from '../src/number'
+import { describe, expect, it } from 'vitest'
 
 describe('number', () => {
   it('passes with simple number string', () =>

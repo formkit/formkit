@@ -3,6 +3,7 @@ import { plugin } from '../src/plugin'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 /**
  * Unfortunately we cannot fully test file inputs due to JSDom limitations.

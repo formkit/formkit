@@ -2,10 +2,11 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
 import { ref } from 'vue'
+import { describe, expect, it } from 'vitest'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -66,8 +67,8 @@ describe('radios', () => {
   })
 
   it('throws a warning if no options are provided', () => {
-    const warning = jest.fn(() => {})
-    const consoleWarnMock = jest
+    const warning = vi.fn(() => {})
+    const consoleWarnMock = vi
       .spyOn(console, 'warn')
       .mockImplementation(warning)
     mount(FormKit, {

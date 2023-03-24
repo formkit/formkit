@@ -1,5 +1,6 @@
 import max from '../src/max'
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 
 describe('max', () => {
   it('passes when a number string', () =>

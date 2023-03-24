@@ -1,5 +1,6 @@
 import { deregister, getNode, resetRegistry } from '../src/registry'
 import { createNode } from '../src/node'
+import { afterEach, describe, expect, it } from 'vitest'
 
 describe('registry', () => {
   afterEach(() => resetRegistry())

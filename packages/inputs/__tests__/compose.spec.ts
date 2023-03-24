@@ -6,6 +6,7 @@ import {
   $extend,
   $root,
 } from '../src/compose'
+import { describe, expect, it } from 'vitest'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {

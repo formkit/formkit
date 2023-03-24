@@ -19,6 +19,7 @@ import {
   shallowClone,
   spread,
 } from '../src/index'
+import { describe, expect, it } from 'vitest'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
