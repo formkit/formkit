@@ -1,4 +1,4 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
  * Input section for a file input

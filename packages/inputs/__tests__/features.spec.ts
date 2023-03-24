@@ -1,6 +1,6 @@
 import { createNode } from '@formkit/core'
-import formatsOptions from '../src/features/options'
 import { createLibraryPlugin } from '../src/index'
+import formatsOptions from '../src/features/options'
 import { describe, expect, it } from 'vitest'
 
 describe('options', () => {

@@ -1,4 +1,4 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
  * Messages section where all messages will be displayed.

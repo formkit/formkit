@@ -1,4 +1,4 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
  * Option section used to show an option

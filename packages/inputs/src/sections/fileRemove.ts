@@ -1,4 +1,4 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
  * File remove section to show a remove button for files

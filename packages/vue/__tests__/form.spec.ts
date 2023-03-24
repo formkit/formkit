@@ -759,7 +759,7 @@ describe('form submission', () => {
       }
     )
     const button = wrapper.find('button')
-    wrapper.find('form').element.submit()
+    wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
     expect(button.element.disabled).toBe(true)
@@ -784,7 +784,7 @@ describe('form submission', () => {
       }
     )
     const button = wrapper.find('button')
-    wrapper.find('form').element.submit()
+    wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 15))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
     expect(button.element.disabled).toBe(false)

@@ -1,9 +1,9 @@
-import { deregister, getNode, resetRegistry } from '../src/registry'
 import { createNode } from '../src/node'
-import { afterEach, describe, expect, it } from 'vitest'
+import { resetRegistry, getNode, deregister } from '../src/registry'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('registry', () => {
-  afterEach(() => resetRegistry())
+  beforeEach(() => resetRegistry())
   it('automatically registers nodes in the global registry by id', () => {
     const node = createNode({ props: { id: 'foobar' } })
     expect(getNode('foobar')).toBe(node)
