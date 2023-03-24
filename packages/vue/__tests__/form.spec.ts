@@ -21,7 +21,7 @@ const global: Record<string, Record<string, any>> = {
  * application. This change was needed after:
  * https://github.com/formkit/formkit/pull/581
  */
-declare module '@vue/runtime-core' {
+declare module 'vue' {
   interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
   }
