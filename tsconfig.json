@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2019",
-    "lib": ["dom"],
+    "lib": ["ES2015", "dom"],
     "allowJs": false,
     "strict": true,
     "moduleResolution": "node",
@@ -24,8 +24,7 @@
     },
     "types": [
       "node",
-      "vite/client",
-      "jest"
+      "vite/client"
     ]
   },
   "exclude": [

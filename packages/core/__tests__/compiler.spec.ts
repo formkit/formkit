@@ -1,4 +1,5 @@
 import { compile } from '../src/compiler'
+import { describe, expect, it } from 'vitest'
 
 describe('logic compiler', () => {
   // AND operators only:

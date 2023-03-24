@@ -1,5 +1,6 @@
 import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
+import { NuxtModule } from '@nuxt/schema'
 import { defineNuxtModule, addPluginTemplate, createResolver } from '@nuxt/kit'
 // import { addCustomTab } from '@nuxt/devtools/kit'
 
@@ -8,7 +9,7 @@ export interface ModuleOptions {
   configFile?: string
 }
 
-export default defineNuxtModule<ModuleOptions>({
+const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'FormKit',
     configKey: 'formkit',
@@ -70,3 +71,5 @@ export default defineNuxtModule<ModuleOptions>({
     })
   },
 })
+
+export default module

@@ -1,5 +1,6 @@
 import matches from '../src/matches'
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 
 describe('matches', () => {
   it('simple strings fail if they aren’t equal', () => {

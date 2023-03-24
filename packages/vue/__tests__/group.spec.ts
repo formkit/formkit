@@ -4,7 +4,7 @@ import defaultConfig from '../src/defaultConfig'
 import { nextTick } from 'vue'
 import { token } from '@formkit/utils'
 import { getNode, reset } from '@formkit/core'
-// import { jest } from '@jest/globals'
+import { describe, expect, it } from 'vitest'
 
 describe('group', () => {
   it('can pass values down to children', () => {
@@ -127,7 +127,7 @@ describe('group', () => {
         },
       }
     )
-    // const consoleMock = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    // const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => {})
     // TODO - Remove the .get() here when @vue/test-utils > rc.19
     const inputs = wrapper.get('div').findAll('input')
     expect(inputs[0].element.value).toBe('bob')

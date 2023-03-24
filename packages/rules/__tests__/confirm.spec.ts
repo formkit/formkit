@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import confirm from '../src/confirm'
+import { describe, expect, it } from 'vitest'
 
 describe('confirm rule', () => {
   it('can confirm a sibling address', () => {

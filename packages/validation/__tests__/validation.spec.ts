@@ -12,7 +12,7 @@ import {
   FormKitMiddleware,
   FormKitTextFragment,
 } from '@formkit/core'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 const defaultValidation = {
   ...defaultHints,
@@ -483,13 +483,13 @@ describe('validation rule sequencing', () => {
   })
 
   it('tracks dependencies on other inputs', async () => {
-    const confirm: FormKitValidationRule = jest.fn((node, address) => {
+    const confirm: FormKitValidationRule = vi.fn((node, address) => {
       return node.value === node.at(address)!.value
     })
-    const length: FormKitValidationRule = jest.fn(
+    const length: FormKitValidationRule = vi.fn(
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
-    const required: FormKitValidationRule = jest.fn(({ value }) => !!value)
+    const required: FormKitValidationRule = vi.fn(({ value }) => !!value)
     required.skipEmpty = false
     const validation = createValidationPlugin({
       confirm,
@@ -695,7 +695,7 @@ describe('getValidationMessages', () => {
 
   it('does not reboot when the validation rules are the same (#514)', () => {
     // Let's pretend this is an expensive API call.
-    const username_exists = jest.fn(function ({ value }: FormKitNode) {
+    const username_exists = vi.fn(function ({ value }: FormKitNode) {
       return new Promise<boolean>((resolve) => {
         setTimeout(() => resolve(value === 'formkit-4-life'), 200)
       })
@@ -715,17 +715,17 @@ describe('getValidationMessages', () => {
   })
 
   it('changes the label when the prop changes', async () => {
-    const length: FormKitValidationRule = jest.fn(
+    const length: FormKitValidationRule = vi.fn(
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
-    const required: FormKitValidationRule = jest.fn(({ value }) => !!value)
+    const required: FormKitValidationRule = vi.fn(({ value }) => !!value)
     required.skipEmpty = false
     const validationPlugin = createValidationPlugin({
       length,
       required,
     })
     const hook: FormKitMiddleware<FormKitTextFragment> = (t, next) => next(t)
-    const textMiddleware = jest.fn(hook)
+    const textMiddleware = vi.fn(hook)
     const node = createNode({
       value: '',
       plugins: [validationPlugin, (node) => node.hook.text(textMiddleware)],

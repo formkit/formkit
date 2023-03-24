@@ -1,7 +1,7 @@
 import { createNode } from '../src/node'
 import { FormKitEvent } from '../src/events'
 import { createMessage } from '../src/store'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('setting store messages', () => {
   it('can set a message', () => {
@@ -40,7 +40,7 @@ describe('setting store messages', () => {
 
   it('does not emit an event if the same message is already set', () => {
     const node = createNode()
-    const listener = jest.fn()
+    const listener = vi.fn()
     node.on('message-added', listener)
     node.on('message-updated', listener)
     const message = createMessage({ key: 'robot', value: 'beep' })
@@ -65,7 +65,7 @@ describe('setting store messages', () => {
     const message = createMessage({
       key: 'mortar',
     })
-    const listener = jest.fn()
+    const listener = vi.fn()
     node.on('message-added.deep', listener)
     node.at('buildings.wall.0')?.store.set(message)
     expect(listener).toHaveBeenCalledTimes(1)
@@ -74,8 +74,8 @@ describe('setting store messages', () => {
 
   it('emits message-updated for changed messages', () => {
     const node = createNode()
-    const addedListener = jest.fn()
-    const updatedListener = jest.fn()
+    const addedListener = vi.fn()
+    const updatedListener = vi.fn()
     node.on('message-added', addedListener)
     node.on('message-updated', updatedListener)
     const message = createMessage({ key: 'robot', value: 'beep' })
@@ -100,7 +100,7 @@ describe('removing store messages', () => {
 
   it('emits a message-removed event existing keys', () => {
     const node = createNode()
-    const listener = jest.fn()
+    const listener = vi.fn()
     node.on('message-removed', listener)
     const message = createMessage({ key: 'sky', value: 'cloud' })
     node.store.set(message)
@@ -123,7 +123,7 @@ describe('removing store messages', () => {
     node.store.set(createMessage({ key: 'chocolate', type: 'foo' }))
     node.store.set(createMessage({ key: 'apple', type: 'bar' }))
     node.store.set(createMessage({ key: 'vanilla', type: 'bar' }))
-    const filter = jest.fn(() => false)
+    const filter = vi.fn(() => false)
     node.store.filter(filter, 'bar')
     expect(Object.keys(node.store)).toEqual(['chocolate'])
   })
@@ -158,7 +158,7 @@ describe('removing store messages', () => {
   })
 
   it('can buffer messages', () => {
-    const listener = jest.fn()
+    const listener = vi.fn()
     const node = createNode()
     node.on('message-added', listener)
     node.store.buffer = true
@@ -174,8 +174,8 @@ describe('removing store messages', () => {
   })
 
   it('can remove a buffered message', () => {
-    const addedListener = jest.fn()
-    const removedListener = jest.fn()
+    const addedListener = vi.fn()
+    const removedListener = vi.fn()
     const node = createNode()
     node.on('message-added', addedListener)
     node.on('message-removed', removedListener)

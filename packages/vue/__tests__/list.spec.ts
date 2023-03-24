@@ -3,7 +3,7 @@ import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('numeric lists', () => {
   it('uses list index as key', () => {
@@ -155,7 +155,7 @@ describe('numeric lists', () => {
       return next(value.map((childValue: any) => childValue))
       // return next(value)
     }
-    const hookCallback = jest.fn(middleware)
+    const hookCallback = vi.fn(middleware)
     mount(
       {
         data() {

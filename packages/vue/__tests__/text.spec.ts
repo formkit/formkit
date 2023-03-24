@@ -4,8 +4,9 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 import { nextTick } from 'vue'
+import { describe, expect, it } from 'vitest'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -54,7 +55,7 @@ describe('text classification', () => {
   })
 
   it('throws an error when provided input type is not in library', () => {
-    const consoleWarnMock = jest
+    const consoleWarnMock = vi
       .spyOn(console, 'warn')
       .mockImplementation(() => {})
     expect(() =>
@@ -159,7 +160,7 @@ describe('text classification', () => {
   })
 
   it('can add a blur handler to a text input', async () => {
-    const onBlur = jest.fn()
+    const onBlur = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
         type: 'text',
