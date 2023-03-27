@@ -1813,6 +1813,7 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   deregister(node)
   context._value = context.value = undefined
   node.emit('destroyed', node)
+  context._e.flush()
 }
 
 /**
