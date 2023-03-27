@@ -60,11 +60,11 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons that navigate state backward
    */
-  prev: '以前',
+  prev: '上一步',
   /**
    * Shown when adding all values.
    */
-  addAllValues: '将所有值相加',
+  addAllValues: '添加所有值',
   /**
    * Shown when adding selected values.
    */
