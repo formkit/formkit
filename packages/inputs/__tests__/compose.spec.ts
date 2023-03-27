@@ -1,11 +1,6 @@
-import {
-  createSection,
-  $if,
-  $for,
-  $attrs,
-  $extend,
-  $root,
-} from '../src/compose'
+import { createSection } from '../src/createSection'
+import { $if, $for, $attrs, $extend, $root } from '../src/compose'
+import { describe, expect, it } from 'vitest'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {

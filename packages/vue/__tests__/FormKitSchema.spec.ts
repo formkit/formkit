@@ -6,6 +6,7 @@ import { createNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('parsing dom elements', () => {
   it('can render a single simple dom element', () => {

@@ -1,5 +1,6 @@
 import { createNode } from '../src/node'
 import { generateClassList } from '../src/classes'
+import { describe, expect, it } from 'vitest'
 
 describe('class list generation', () => {
   it('returns null if generateClassList() is called without a user supplied class list', () => {

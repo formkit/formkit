@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import not from '../src/not'
+import { describe, expect, it } from 'vitest'
 
 describe('not rule', () => {
   it('passes when a number string', () =>

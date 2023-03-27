@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import ends_with from '../src/ends_with'
+import { describe, expect, it } from 'vitest'
 
 describe('endsWith', () => {
   it('fails when value ending is not in stack of single value', () => {

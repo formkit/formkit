@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils'
 import { FormKitValidationRule } from '@formkit/validation'
 import { getNode, FormKitPlugin } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('defaultConfig', () => {
   it('allows rule augmentation', async () => {
@@ -28,7 +28,7 @@ describe('defaultConfig', () => {
   })
 
   it('allows plugin augmentation', async () => {
-    const newPlugin: FormKitPlugin = jest.fn((node) =>
+    const newPlugin: FormKitPlugin = vi.fn((node) =>
       node.hook.input((value) => value + '.')
     )
     mount(FormKit, {

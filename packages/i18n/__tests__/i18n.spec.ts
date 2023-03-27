@@ -1,5 +1,6 @@
 import { createNode, createMessage } from '@formkit/core'
 import { locales, createI18nPlugin } from '../src/index'
+import { describe, expect, it } from 'vitest'
 
 describe('i18n plugin', () => {
   const i18n = createI18nPlugin(locales)
