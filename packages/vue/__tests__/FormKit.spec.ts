@@ -1777,7 +1777,7 @@ describe('state', () => {
     expect(wrapper.find('pre').text()).toBe('false')
   })
 
-  it('can change the dirty-behavior to be compare', async () => {
+  it.only('can change the dirty-behavior to be compare', async () => {
     const wrapper = mount(
       {
         components: {
@@ -1799,9 +1799,11 @@ describe('state', () => {
     await nextTick()
     expect(wrapper.find('pre').text()).toBe('false')
     wrapper.find('input').setValue('bar')
+    await nextTick()
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('pre').text()).toBe('true')
     wrapper.find('input').setValue('foo')
+    await nextTick()
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('pre').text()).toBe('false')
   })
