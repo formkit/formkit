@@ -1777,7 +1777,7 @@ describe('state', () => {
     expect(wrapper.find('pre').text()).toBe('false')
   })
 
-  it.only('can change the dirty-behavior to be compare', async () => {
+  it('can change the dirty-behavior to be compare', async () => {
     const wrapper = mount(
       {
         components: {
