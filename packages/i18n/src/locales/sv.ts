@@ -214,7 +214,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_numeric({ name }) {
     /* <i18n case="Shown when the user-provided value have no numeric."> */
-    return `${s(name)} must contain number.`
+    return `${s(name)} måste innehålla siffror.`
     /* </i18n> */
   },
 

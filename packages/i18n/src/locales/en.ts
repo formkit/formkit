@@ -187,7 +187,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_symbol({ name }) {
     /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
-    return `${s(name)} must contain symbol.`
+    return `${s(name)} must contain a symbol.`
     /* </i18n> */
   },
 
@@ -197,7 +197,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_uppercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
-    return `${s(name)} must contain uppercase.`
+    return `${s(name)} must contain an uppercase letter.`
     /* </i18n> */
   },
 
@@ -207,7 +207,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_lowercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
-    return `${s(name)} must contain lowercase.`
+    return `${s(name)} must contain a lowercase letter.`
     /* </i18n> */
   },
 
@@ -217,7 +217,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_numeric({ name }) {
     /* <i18n case="Shown when the user-provided value have no numeric."> */
-    return `${s(name)} must contain number.`
+    return `${s(name)} must contain numbers.`
     /* </i18n> */
   },
 
