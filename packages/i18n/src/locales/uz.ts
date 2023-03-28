@@ -209,7 +209,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_lowercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
-    return `${s(name)} must contain lowercase.`
+    return `${s(name)} kichik harflarni o'z ichiga olishi kerak.`
     /* </i18n> */
   },
 
