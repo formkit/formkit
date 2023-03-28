@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr, tr } from '@formkit/i18n'
+import { createMultiStepPlugin } from '@formkit/addons'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
@@ -17,7 +18,6 @@ import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
-import { createAutoAnimatePlugin, createMultiStepPlugin } from '@formkit/addons'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -43,7 +43,7 @@ const config = defaultConfig({
   inputs: { foo: myInput },
   plugins: [
     // proPlugin,
-    createAutoAnimatePlugin(),
+    // createAutoAnimatePlugin(),
     createMultiStepPlugin(),
   ],
 })
@@ -106,6 +106,19 @@ const router = createRouter({
     {
       path: '/playground',
       component: Playground,
+    },
+    {
+      path: '/e2e',
+      children: [
+        {
+          path: 'memory-control',
+          component: () => import('./vue/e2e/MemoryTestControl.vue'),
+        },
+        {
+          path: 'memory',
+          component: () => import('./vue/e2e/MemoryTest.vue'),
+        },
+      ],
     },
   ],
 })
