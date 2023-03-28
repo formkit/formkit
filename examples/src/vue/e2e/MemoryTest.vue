@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router';
 const show = ref(false)
 const wrapper = ref<HTMLElement>()
 
@@ -10,6 +11,9 @@ const registry = new FinalizationRegistry(() => {
   collectedCount.value++
 })
 
+const route = useRoute()
+const type = (route.query.type ?? 'text') as string
+
 const elements = new WeakSet<HTMLElement>()
 
 const observer = new MutationObserver((mutationList) => {
@@ -18,8 +22,8 @@ const observer = new MutationObserver((mutationList) => {
       if (!(node instanceof Element)) {
         return
       }
-      const input = (node as Element).querySelector('input')
-      if (input instanceof HTMLInputElement) {
+      const input = (node as Element).querySelector(type === 'select' ? 'select' : 'input')
+      if (input instanceof HTMLInputElement || input instanceof HTMLSelectElement) {
         if (elements.has(input)) {
           return
         }
@@ -31,6 +35,14 @@ const observer = new MutationObserver((mutationList) => {
   }
 })
 
+
+const options = {
+  label: 'Memory test',
+  help: 'This is some help text',
+  type,
+  options: route.query.options ? JSON.parse(route.query.options as string) : undefined,
+  validation: "required",
+}
 onMounted(() => {
   if (wrapper.value) {
     observer.observe(wrapper.value, { childList: true, subtree: true })
@@ -40,7 +52,7 @@ onMounted(() => {
     show.value = false
     setTimeout(() => {
       if (typeof gc === 'function') gc()
-    }, 2000)
+    }, 6000)
   }, 1000)
 })
 </script>
@@ -50,8 +62,7 @@ onMounted(() => {
     <pre data-testid="collectionData">{{ collectedCount }}/{{ observedCount }}</pre>
     <FormKit
       v-if="show"
-      id="singleTest"
-      type="text"
+      v-bind="options"
     />
   </div>
 </template>
