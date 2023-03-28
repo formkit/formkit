@@ -1,13 +1,28 @@
-name: Vitest
+name: Vitest & Playwright
 on: [push, workflow_dispatch]
 jobs:
   jest-run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - uses: pnpm/action-setup@v2
         with:
           version: 7
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm ci
       - run: pnpm build all
-      - run: pnpm test
+      - name: Run Vitest
+        run: pnpm test
+      - name: Install Playwright Browsers
+        run: pnpx playwright install --with-deps
+      - name: Run Playwright tests
+        run: pnpm run playwright
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
