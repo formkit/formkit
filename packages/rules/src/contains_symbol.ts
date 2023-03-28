@@ -5,8 +5,8 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const contain_symbol: FormKitValidationRule = function ({ value }) {
-  return /[#?!@$%^&*-]/.test(String(value))
+const contains_symbol: FormKitValidationRule = function ({ value }) {
+  return /[!-/:-@[-`{-~]/.test(String(value))
 }
 
-export default contain_symbol
+export default contains_symbol

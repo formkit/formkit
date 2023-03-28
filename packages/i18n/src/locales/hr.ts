@@ -145,9 +145,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no letter.
-   * @see {@link https://formkit.com/essentials/validation#contain_alpha}
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
    */
-  contain_alpha({ name }) {
+  contains_alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
     return `${s(name)} mora sadržavati abecedne znakove.`
     /* </i18n> */
@@ -155,9 +155,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no alphanumeric
-   * @see {@link https://formkit.com/essentials/validation#contain_alphanumeric}
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
    */
-  contain_alphanumeric({ name }) {
+  contains_alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
     return `${s(name)} mora sadržavati slova i brojeve.`
     /* </i18n> */
@@ -165,9 +165,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no letter and/or spaces
-   * @see {@link https://formkit.com/essentials/validation#contain_alpha-spaces}
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
    */
-  contain_alpha_spaces({ name }) {
+  contains_alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
     return `${s(name)} mora sadržavati slova i razmake.`
     /* </i18n> */
@@ -175,9 +175,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no symbol
-   * @see {@link https://formkit.com/essentials/validation#contain_symbol}
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
    */
-  contain_symbol({ name }) {
+  contains_symbol({ name }) {
     /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
     return `${s(name)} mora sadržavati simbol.`
     /* </i18n> */
@@ -185,9 +185,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no uppercase
-   * @see {@link https://formkit.com/essentials/validation#contain_uppercase}
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
    */
-  contain_uppercase({ name }) {
+  contains_uppercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
     return `${s(name)} mora sadržavati velika slova.`
     /* </i18n> */
@@ -195,9 +195,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    * The value have no lowercase
-   * @see {@link https://formkit.com/essentials/validation#contain_lowercase}
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
    */
-  contain_lowercase({ name }) {
+  contains_lowercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
     return `${s(name)} mora sadržavati mala slova.`
     /* </i18n> */
@@ -205,9 +205,9 @@ export const validation: FormKitValidationMessages = {
 
   /**
    *  The value have no numeric
-   * @see {@link https://formkit.com/essentials/validation#contain_numeric}
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
    */
-  contain_numeric({ name }) {
+  contains_numeric({ name }) {
     /* <i18n case="Shown when the user-provided value have no numeric."> */
     return `${s(name)} mora sadržavati brojeve.`
     /* </i18n> */

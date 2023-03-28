@@ -5,9 +5,8 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const contain_numeric: FormKitValidationRule = function number({ value }) {
+const contains_numeric: FormKitValidationRule = function number({ value }) {
   return /[0-9]/.test(String(value))
-
 }
 
-export default contain_numeric
+export default contains_numeric

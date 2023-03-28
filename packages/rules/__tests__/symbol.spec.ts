@@ -1,30 +1,29 @@
 import { createNode } from '@formkit/core'
-import lowercase from '../src/lowercase'
+import symbol from '../src/symbol'
+import { describe, it, expect } from 'vitest'
 
-describe('lowercase', () => {
+describe('symbol', () => {
   it('passes with simple string', () =>
-    expect(lowercase(createNode({ value: '#$%' }))).toBe(true))
+    expect(symbol(createNode({ value: '#$%' }))).toBe(true))
 
   it('passes with long string', () =>
-    expect(
-      lowercase(createNode({ value: '#$%^&*((&^((&^$@!:"><?' }))
-    ).toBe(true))
+    expect(symbol(createNode({ value: '#$%^&*((&^((&^$@!:"><?' }))).toBe(true))
 
   it('passes with single character', () =>
-    expect(lowercase(createNode({ value: '$' }))).toBe(true))
+    expect(symbol(createNode({ value: '$' }))).toBe(true))
 
   it('fails with accented character', () =>
-    expect(lowercase(createNode({ value: '$ü^&%$' }))).toBe(false))
+    expect(symbol(createNode({ value: '$ü^&%$' }))).toBe(false))
 
   it('fails with alpha only', () =>
-    expect(lowercase(createNode({ value: 'martin' }))).toBe(false))
+    expect(symbol(createNode({ value: 'martin' }))).toBe(false))
 
   it('fails with number only', () =>
-    expect(lowercase(createNode({ value: '345654' }))).toBe(false))
+    expect(symbol(createNode({ value: '345654' }))).toBe(false))
 
   it('fails with one alpha', () =>
-    expect(lowercase(createNode({ value: '%^&*(r(&^((&' }))).toBe(false))
+    expect(symbol(createNode({ value: '%^&*(r(&^((&' }))).toBe(false))
 
   it('fails with one number', () =>
-    expect(lowercase(createNode({ value: '%^&*(6(&^((&' }))).toBe(false))
+    expect(symbol(createNode({ value: '%^&*(6(&^((&' }))).toBe(false))
 })

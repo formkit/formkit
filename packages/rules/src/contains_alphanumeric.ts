@@ -6,7 +6,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const contain_alphanumeric: FormKitValidationRule = function (
+const contains_alphanumeric: FormKitValidationRule = function (
   { value },
   set = 'default'
 ) {
@@ -18,4 +18,4 @@ const contain_alphanumeric: FormKitValidationRule = function (
   return sets[selectedSet].test(String(value))
 }
 
-export default contain_alphanumeric
+export default contains_alphanumeric

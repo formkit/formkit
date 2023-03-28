@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import uppercase from '../src/uppercase'
+import { describe, it, expect } from 'vitest'
 
 describe('uppercase', () => {
   it('passes with simple string', () =>
@@ -23,10 +24,14 @@ describe('uppercase', () => {
     expect(uppercase(createNode({ value: 'ÀÁÂÄÃÅĀÎÏÍÔÖÒ' }))).toBe(true))
 
   it('passes with lots of accented characters if invalid set', () =>
-    expect(uppercase(createNode({ value: 'ÀÁÂÄÃÅĀÎÏÍÔÖÒ' }), 'russian')).toBe(true))
+    expect(uppercase(createNode({ value: 'ÀÁÂÄÃÅĀÎÏÍÔÖÒ' }), 'russian')).toBe(
+      true
+    ))
 
   it('fails with lots of accented characters if latin', () =>
-    expect(uppercase(createNode({ value: 'ÀÁÂÄÃÅĀÎÏÍÔÖÒ' }), 'latin')).toBe(false))
+    expect(uppercase(createNode({ value: 'ÀÁÂÄÃÅĀÎÏÍÔÖÒ' }), 'latin')).toBe(
+      false
+    ))
 
   it('fails with lowercase only', () =>
     expect(uppercase(createNode({ value: 'martin' }))).toBe(false))
