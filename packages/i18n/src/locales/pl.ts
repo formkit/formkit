@@ -237,7 +237,7 @@ export const validation: FormKitValidationMessages = {
    */
   uppercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
-    return `${s(name)} can only contain uppercase.`
+    return `${s(name)} może zawierać tylko wielkie litery.`
     /* </i18n> */
   },
 
@@ -247,7 +247,7 @@ export const validation: FormKitValidationMessages = {
    */
   lowercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
-    return `${s(name)} can only contain lowercase.`
+    return `${s(name)} może zawierać tylko małe litery.`
     /* </i18n> */
   },
 
