@@ -179,7 +179,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_symbol({ name }) {
     /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
-    return `${s(name)} must contain symbol.`
+    return `${s(name)} mora sadržavati simbol.`
     /* </i18n> */
   },
 
