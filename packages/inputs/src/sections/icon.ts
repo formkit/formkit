@@ -1,4 +1,4 @@
-import { createSection, FormKitSchemaExtendableSection } from '../compose'
+import { createSection, FormKitSchemaExtendableSection } from '../createSection'
 
 /**
  * Icon section used by all icons

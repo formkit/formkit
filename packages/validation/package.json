@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@formkit/core": "0.16.4",
-    "@formkit/observer": "0.16.4"
-  },
-  "devDependencies": {}
+    "@formkit/observer": "0.16.4",
+    "@formkit/utils": "0.16.4"
+  }
 }

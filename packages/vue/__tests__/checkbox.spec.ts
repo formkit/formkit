@@ -5,6 +5,7 @@ import { mount } from '@vue/test-utils'
 import { nextTick, ref } from 'vue'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
+import { describe, expect, it } from 'vitest'
 
 const global: Record<string, Record<string, any>> = {
   global: {

@@ -8,7 +8,7 @@ import {
   resetCount,
 } from '@formkit/vue'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
-import { jest } from '@jest/globals'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const multiStepSchemaBasic = [
   {
@@ -71,7 +71,7 @@ describe('multistep', () => {
   })
   afterEach(() => {
     // restore the spy created with spyOn
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('it can mount a multi-step input', () => {
@@ -123,7 +123,7 @@ describe('multistep', () => {
   })
 
   it('it throws a warning when using a step input outside of a multi-step', () => {
-    jest.spyOn(global.console, 'warn').mockImplementation(() => {})
+    vi.spyOn(global.console, 'warn').mockImplementation(() => {})
 
     mount(FormKit, {
       props: {
@@ -148,7 +148,7 @@ describe('multistep', () => {
   })
 
   it('it throws a warning when using a non-step input as a direct child of a multi-step', () => {
-    jest.spyOn(global.console, 'warn').mockImplementation(() => {})
+    vi.spyOn(global.console, 'warn').mockImplementation(() => {})
 
     mount(FormKit, {
       props: {

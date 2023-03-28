@@ -8,7 +8,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { nextTick } from 'vue'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('schema based inputs', () => {
   it('automatically has labels and help text', () => {
@@ -171,8 +171,8 @@ describe('vue component inputs', () => {
 
 describe('custom input behaviors', () => {
   it('does not emit prop:{property} events for input props', async () => {
-    const pseudoPropEvent = jest.fn()
-    const nativePropEvent = jest.fn()
+    const pseudoPropEvent = vi.fn()
+    const nativePropEvent = vi.fn()
     const input = createInput('test input', {
       props: ['bizBaz'],
       features: [

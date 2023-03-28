@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import createDispatcher, { FormKitMiddleware } from '../src/dispatcher'
 
 describe('dispatcher', () => {
@@ -55,7 +55,7 @@ describe('dispatcher', () => {
   it('can entire short circuit some middleware by returning a value', () => {
     const dispatcher = createDispatcher<number>()
     const callback: FormKitMiddleware<number> = (value, next) => next(value + 1)
-    const aMiddleware = jest.fn(callback)
+    const aMiddleware = vi.fn(callback)
     dispatcher((value, next) => next(value + 1))
     dispatcher((value, next) => next(value + 1))
     dispatcher(aMiddleware)

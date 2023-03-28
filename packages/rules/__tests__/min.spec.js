@@ -1,5 +1,6 @@
 import min from '../src/min'
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 
 describe('min rule', () => {
   it('passes when a number string', () =>
