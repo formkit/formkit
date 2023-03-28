@@ -1,13 +1,13 @@
-name: Tests
+name: Vitest
 on: [push, workflow_dispatch]
 jobs:
   jest-run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
         with:
           version: 7
-      - run: pnpm install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm build all
       - run: pnpm test
