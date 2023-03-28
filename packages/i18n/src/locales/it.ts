@@ -177,7 +177,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
-    return `${s(name)} must contain letters and spaces.`
+    return `${s(name)} deve contenere lettere e spazi.`
     /* </i18n> */
   },
 
