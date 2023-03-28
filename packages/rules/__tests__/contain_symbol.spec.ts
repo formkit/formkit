@@ -1,4 +1,5 @@
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 import lowercase from '../src/lowercase'
 
 describe('lowercase', () => {
@@ -6,9 +7,9 @@ describe('lowercase', () => {
     expect(lowercase(createNode({ value: '#$%' }))).toBe(true))
 
   it('passes with long string', () =>
-    expect(
-      lowercase(createNode({ value: '#$%^&*((&^((&^$@!:"><?' }))
-    ).toBe(true))
+    expect(lowercase(createNode({ value: '#$%^&*((&^((&^$@!:"><?' }))).toBe(
+      true
+    ))
 
   it('passes with single character', () =>
     expect(lowercase(createNode({ value: '$' }))).toBe(true))
@@ -30,5 +31,4 @@ describe('lowercase', () => {
 
   it('fails with number only', () =>
     expect(lowercase(createNode({ value: '345654' }))).toBe(false))
-
 })

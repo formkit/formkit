@@ -1,4 +1,5 @@
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 import alphanumeric from '../src/alphanumeric'
 
 describe('alphanumeric', () => {
@@ -44,6 +45,4 @@ describe('alphanumeric', () => {
     expect(
       alphanumeric(createNode({ value: 'àáâäï123123íôöÆ' }), 'latin')
     ).toBe(false))
-
-
 })

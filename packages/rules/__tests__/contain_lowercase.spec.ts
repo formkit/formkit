@@ -1,4 +1,5 @@
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 import lowercase from '../src/lowercase'
 
 describe('lowercase', () => {
@@ -7,7 +8,9 @@ describe('lowercase', () => {
 
   it('passes with long string', () =>
     expect(
-      lowercase(createNode({ value: 'lkashdflaosuihdfaisudgflakjsdbflasidufg' }))
+      lowercase(
+        createNode({ value: 'lkashdflaosuihdfaisudgflakjsdbflasidufg' })
+      )
     ).toBe(true))
 
   it('passes with single character', () =>
