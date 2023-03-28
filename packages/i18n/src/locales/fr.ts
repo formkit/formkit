@@ -157,7 +157,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
-    return `${s(name)} doit contenir au moins un characteres alphabetique.`
+    return `${s(name)} doit contenir des caractères alphabétiques.`
     /* </i18n> */
   },
 
