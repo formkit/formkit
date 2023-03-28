@@ -197,7 +197,7 @@ export const validation: FormKitValidationMessages = {
    */
   contain_uppercase({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
-    return `${s(name)} must contain uppercase.`
+    return `${s(name)} には大文字を含める必要があります。`
     /* </i18n> */
   },
 
