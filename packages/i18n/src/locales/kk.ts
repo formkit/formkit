@@ -167,7 +167,7 @@ export const validation: FormKitValidationMessages = {
    */
   contains_alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
-    return `${s(name)} құрамында әріптер мен сандар болуы керек.`
+    return `${s(name)} құрамында әріптер немесе сандар болуы керек.`
     /* </i18n> */
   },
 
@@ -177,7 +177,7 @@ export const validation: FormKitValidationMessages = {
    */
   contains_alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
-    return `${s(name)} құрамында әріптер мен бос орындар болуы керек.`
+    return `${s(name)} құрамында әріптер немесе бос орындар болуы керек.`
     /* </i18n> */
   },
 

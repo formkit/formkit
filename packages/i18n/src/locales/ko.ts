@@ -167,7 +167,7 @@ export const validation: FormKitValidationMessages = {
    */
   contains_alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
-    return `${s(name)} 에는 문자와 숫자가 포함되어야 합니다.`
+    return `${s(name)} 에는 문자나 숫자가 포함되어야 합니다.`
     /* </i18n> */
   },
 
@@ -177,7 +177,7 @@ export const validation: FormKitValidationMessages = {
    */
   contains_alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
-    return `${s(name)} 에는 문자와 공백이 포함되어야 합니다.`
+    return `${s(name)} 에는 문자나 공백이 포함되어야 합니다.`
     /* </i18n> */
   },
 
