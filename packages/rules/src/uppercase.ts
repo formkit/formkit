@@ -6,13 +6,13 @@ import { FormKitValidationRule } from '@formkit/validation'
  * @param context - The FormKitValidationContext
  * @public
  */
-const alpha: FormKitValidationRule = function ({ value }, set = 'default') {
+const uppercase: FormKitValidationRule = function ({ value }, set = 'default') {
   const sets = {
-    default: /^[\p{Lu}\p{L}]+$/u,
-    latin: /^[a-zA-Z]+$/,
+    default: /^[\p{Lu}]+$/u,
+    latin: /^[A-Z]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))
 }
 
-export default alpha
+export default uppercase
