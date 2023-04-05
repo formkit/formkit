@@ -2093,10 +2093,10 @@ function walkTree(
   callback: FormKitChildCallback,
   stopIfFalse = false
 ) {
-  context.children.forEach((child: FormKitNode) => {
-    if (callback(child) !== false || !stopIfFalse) {
-      child.walk(callback, stopIfFalse)
-    }
+  context.children.some((child: FormKitNode) => {
+    const val = callback(child)
+    if (stopIfFalse && val === false) return true
+    return child.walk(callback, stopIfFalse)
   })
 }
 

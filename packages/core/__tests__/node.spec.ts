@@ -223,6 +223,20 @@ describe('node', () => {
     expect(callback).toHaveBeenCalledTimes(5)
   })
 
+  it('stops traversing nodes when node.walk callback returns false', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'a' }),
+        createNode({ name: 'b' }),
+        createNode({ name: 'c' }),
+      ],
+    })
+    const callback = vi.fn().mockReturnValue(false)
+    tree.walk(callback, true)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
   it('does not allow nodes of type input to be created with children', () => {
     expect(() => {
       createNode({ children: [createNode()] })
