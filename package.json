@@ -40,7 +40,6 @@
     "jsdom": "^21.1.1",
     "nuxt": "^3.0.0",
     "ora": "^5.4.1",
-    "playwright": "^1.32.1",
     "postcss": "^8.3.11",
     "postcss-import": "^14.0.2",
     "postcss-nesting": "^10.1.6",
