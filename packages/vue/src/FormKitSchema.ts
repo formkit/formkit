@@ -35,6 +35,7 @@ import {
   isNode,
   sugar,
 } from '@formkit/core'
+import { onUnmounted } from 'vue'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -146,6 +147,12 @@ type ProviderRegistry = ((
  * and provider registry.
  */
 const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
+
+/**
+ * A map of memoized keys to how many instances of that memo are currently in
+ * use.
+ */
+const memoKeys: Record<string, number> = {}
 
 /**
  * This symbol represents the current component instance during render. It is
@@ -698,6 +705,8 @@ function parseSchema(
     key
   ) {
     const memoKey = JSON.stringify(schema)
+    memoKeys[memoKey] ??= 0
+    memoKeys[memoKey]++
     const [render, compiledProviders] = has(memo, memoKey)
       ? memo[memoKey]
       : [createElements(library, schema), providers]
@@ -706,6 +715,7 @@ function parseSchema(
       compiledProvider(providerCallback, key)
     })
     return () => {
+      // Set the instance key for this pass of rendering.
       instanceKey = key
       return render()
     }
@@ -788,6 +798,24 @@ function createRenderFn(
 let i = 0
 
 /**
+ * Removes the schema from the memo and cleans up the instance scope.
+ * @param schema - The schema to remove from memo.
+ * @param instanceKey - The instance key to remove.
+ */
+function clean(
+  schema: FormKitSchemaNode[] | FormKitSchemaCondition,
+  instanceKey: symbol
+) {
+  const memoKey = JSON.stringify(schema)
+  memoKeys[memoKey]--
+  if (memoKeys[memoKey] === 0) {
+    delete memoKeys[memoKey]
+    delete memo[memoKey]
+  }
+  instanceScopes.delete(instanceKey)
+}
+
+/**
  * The FormKitSchema vue component:
  *
  * @public
@@ -821,6 +849,7 @@ export const FormKitSchema = defineComponent({
     watch(
       () => props.schema,
       (newSchema, oldSchema) => {
+        const oldKey = instanceKey
         instanceKey = Symbol(String(i++))
         provider = parseSchema(props.library, props.schema)
         render = createRenderFn(provider, data, instanceKey)
@@ -832,6 +861,7 @@ export const FormKitSchema = defineComponent({
           // function completely.
           ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
         }
+        clean(oldSchema, oldKey)
       },
       { deep: true }
     )
@@ -843,6 +873,9 @@ export const FormKitSchema = defineComponent({
       })
       render = createRenderFn(provider, data, instanceKey)
     })
+
+    onUnmounted(() => clean(props.schema, instanceKey))
+
     return () => render()
   },
 })

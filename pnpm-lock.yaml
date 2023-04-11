@@ -24,6 +24,7 @@ importers:
       '@vitejs/plugin-vue-jsx': ^1.3.3
       '@vue/compiler-sfc': ^3.2.1
       '@vue/eslint-config-typescript': ^11.0.2
+      '@vue/server-renderer': ^3.2.47
       '@vue/test-utils': ^2.2.10
       add: ^2.0.6
       autoprefixer: ^10.4.0
@@ -83,6 +84,7 @@ importers:
       '@vitejs/plugin-vue-jsx': 1.3.10
       '@vue/compiler-sfc': 3.2.47
       '@vue/eslint-config-typescript': 11.0.2_cpkh5hspj3552nhgrcgc7z4gha
+      '@vue/server-renderer': 3.2.47_vue@3.2.47
       '@vue/test-utils': 2.3.2_vue@3.2.47
       add: 2.0.6
       autoprefixer: 10.4.14_postcss@8.4.21
