@@ -23,7 +23,7 @@ test('standard vue source app gets garbage collected (control)', async ({
   await page.goto('http://localhost:8585/')
   await cycle(page, 2) // Warm up
   const initialMemory = await getMemory(page)
-  await cycle(page, 10)
+  await cycle(page, 20)
   const finalMemory = await getMemory(page)
   expect(finalMemory).toBeLessThan(initialMemory + 5)
 })
@@ -32,7 +32,7 @@ test('formkit app gets garbage collected', async ({ page }) => {
   await page.goto('http://localhost:8686/')
   await cycle(page, 2) // Warm up
   const initialMemory = await getMemory(page)
-  await cycle(page, 10)
+  await cycle(page, 20)
   const finalMemory = await getMemory(page)
   expect(finalMemory).toBeLessThan(initialMemory + 5)
 })
