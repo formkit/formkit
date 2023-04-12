@@ -443,6 +443,26 @@ describe('parsing dom elements', () => {
 <span>ted</span>`)
   })
 
+  it('does not iterate over the value of a single digit array (#635)', async () => {
+    const data = reactive({
+      cities: [10],
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'div',
+            for: ['item', '$cities'],
+            children: '$item',
+          },
+        ],
+      },
+    })
+    await nextTick()
+    expect(wrapper.html()).toBe(`<div>10</div>`)
+  })
+
   it('can shadow nested loop scoped variables', async () => {
     const data = reactive({
       users: ['fred', 'ted'],

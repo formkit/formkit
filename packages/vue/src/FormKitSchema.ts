@@ -613,7 +613,7 @@ function parseSchema(
       const [getValues, valueName, keyName] = iterator
       createNodes = (() => {
         const _v = getValues()
-        const values = !isNaN(_v as number)
+        const values = Number.isFinite(_v)
           ? Array(Number(_v))
               .fill(0)
               .map((_, i) => i)
