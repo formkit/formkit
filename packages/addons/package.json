@@ -43,6 +43,6 @@
     "@formkit/utils": "0.16.4"
   },
   "devDependencies": {
-    "@formkit/vue": "workspace:0.16.4"
+    "@formkit/vue": "0.16.4"
   }
 }

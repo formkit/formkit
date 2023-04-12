@@ -11,6 +11,11 @@ const template = `<div>
 </div>`
 
 const server = http.createServer((req, res) => {
+  if (req.url === '/favicon.ico') {
+    res.statusCode = 404
+    res.end()
+    return
+  }
   let app = createSSRApp({
     template,
   })

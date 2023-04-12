@@ -169,7 +169,7 @@ importers:
       '@formkit/core': 0.16.4
       '@formkit/inputs': 0.16.4
       '@formkit/utils': 0.16.4
-      '@formkit/vue': workspace:0.16.4
+      '@formkit/vue': 0.16.4
     dependencies:
       '@formkit/auto-animate': 1.0.0-beta.6
       '@formkit/core': link:../core
@@ -209,7 +209,7 @@ importers:
     specifiers:
       '@formkit/core': 0.16.4
       '@formkit/utils': 0.16.4
-      '@formkit/vue': workspace:^0.16.4
+      '@formkit/vue': ^0.16.4
     dependencies:
       '@formkit/core': link:../core
       '@formkit/utils': link:../utils
