@@ -4,7 +4,6 @@
   "description": "End to end tests for FormKit",
   "main": "memoryDOM.spec.ts",
   "private": true,
-  "type": "module",
   "dependencies": {
     "@formkit/vue": "workspace:^0.16.4"
   }

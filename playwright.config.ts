@@ -41,13 +41,13 @@ export default defineConfig({
     },
     {
       command: 'node --expose-gc e2e/servers/formKitMemoryServer.mjs',
-      url: 'http://127.0.0.1:8686',
+      url: 'http://localhost:8686',
       reuseExistingServer: false,
       // reuseExistingServer: !process.env.CI,
     },
     {
       command: 'node --expose-gc e2e/servers/vueMemoryServer.mjs',
-      url: 'http://127.0.0.1:8585',
+      url: 'http://localhost:8585',
       reuseExistingServer: false,
       // reuseExistingServer: !process.env.CI,
     },
