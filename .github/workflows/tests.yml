@@ -16,7 +16,7 @@ jobs:
       - name: Run Vitest
         run: pnpm test
       - name: Install Playwright Browsers
-        run: pnpx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
       - name: Run Playwright tests
         run: pnpm run playwright
       - uses: actions/upload-artifact@v3

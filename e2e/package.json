@@ -1,0 +1,10 @@
+{
+  "name": "e2e",
+  "version": "0.0.1",
+  "description": "End to end tests for FormKit",
+  "main": "memoryDOM.spec.ts",
+  "private": true,
+  "dependencies": {
+    "@formkit/vue": "workspace:^0.16.4"
+  }
+}

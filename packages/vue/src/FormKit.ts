@@ -66,7 +66,7 @@ export const FormKit = defineComponent({
     }
     generateSchema()
 
-    // If someone emits the schema event, we re-generate the schema
+    // // If someone emits the schema event, we re-generate the schema
     node.on('schema', generateSchema)
 
     context.emit('node', node)
@@ -74,9 +74,8 @@ export const FormKit = defineComponent({
       | Record<string, ConcreteComponent>
       | undefined
 
-    // Expose the FormKitNode to template refs.
+    // // Expose the FormKitNode to template refs.
     context.expose({ node })
-
     return () =>
       h(
         FormKitSchema,
