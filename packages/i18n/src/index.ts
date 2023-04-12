@@ -46,6 +46,7 @@ import * as uk from './locales/uk'
 import * as uz from './locales/uz'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
+import * as zhTW from './locales/zh-TW'
 
 /**
  * Export all of the plugin logic
@@ -97,6 +98,7 @@ export const locales = {
   uz,
   vi,
   zh,
+  'zh-TW': zhTW,
 }
 
 /**
@@ -142,6 +144,7 @@ export {
   uz,
   vi,
   zh,
+  zhTW,
 }
 
 /**
