@@ -11,7 +11,7 @@ const template = `<div>
 </div>`
 
 const server = http.createServer((req, res) => {
-  const app = createSSRApp({
+  let app = createSSRApp({
     template,
   })
 
@@ -30,6 +30,8 @@ const server = http.createServer((req, res) => {
       <div id="app">${html}</div>
     </html>`)
   })
+
+  app = null
 })
 
 server.listen(8686, 'localhost', () => {

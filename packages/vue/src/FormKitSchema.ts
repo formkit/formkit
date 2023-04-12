@@ -16,6 +16,7 @@ import {
   Ref,
   getCurrentInstance,
   ConcreteComponent,
+  onUnmounted,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -35,7 +36,6 @@ import {
   isNode,
   sugar,
 } from '@formkit/core'
-import { onUnmounted } from 'vue'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -710,7 +710,9 @@ function parseSchema(
     const [render, compiledProviders] = has(memo, memoKey)
       ? memo[memoKey]
       : [createElements(library, schema), providers]
-    memo[memoKey] = [render, compiledProviders]
+    if (typeof window !== undefined) {
+      memo[memoKey] = [render, compiledProviders]
+    }
     compiledProviders.forEach((compiledProvider) => {
       compiledProvider(providerCallback, key)
     })

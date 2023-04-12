@@ -94,15 +94,17 @@ const pseudoProps = [
  */
 function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
   if (props.classes) {
-    Object.keys(props.classes).forEach((key: keyof typeof props['classes']) => {
-      if (typeof key === 'string') {
-        node.props[`_${key}Class`] = props.classes[key]
-        // We need to ensure Vue is aware that we want to actually observe the
-        // child values too, so we touch them here.
-        if (isObject(props.classes[key]) && key === 'inner')
-          Object.values(props.classes[key])
+    Object.keys(props.classes).forEach(
+      (key: keyof (typeof props)['classes']) => {
+        if (typeof key === 'string') {
+          node.props[`_${key}Class`] = props.classes[key]
+          // We need to ensure Vue is aware that we want to actually observe the
+          // child values too, so we touch them here.
+          if (isObject(props.classes[key]) && key === 'inner')
+            Object.values(props.classes[key])
+        }
       }
-    })
+    )
   }
 }
 

@@ -1,6 +1,5 @@
 import { createSSRApp } from 'vue'
 import { renderToString } from '@vue/server-renderer'
-import { plugin, defaultConfig } from '@formkit/vue'
 import http from 'http'
 
 const template = `<div>
@@ -30,9 +29,6 @@ const server = http.createServer((req, res) => {
   const app = createSSRApp({
     template,
   })
-
-  app.use(plugin, defaultConfig)
-
   renderToString(app).then((html) => {
     globalThis.gc() // eslint-disable-line no-undef
     res.statusCode = 200

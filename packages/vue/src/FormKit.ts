@@ -1,20 +1,21 @@
 import {
-  error,
+  // error,
   FormKitNode,
-  FormKitSchemaCondition,
-  FormKitSchemaNode,
+  // FormKitSchemaCondition,
+  // FormKitSchemaNode,
 } from '@formkit/core'
 import {
-  h,
-  ref,
+  // h,
+  // ref,
   defineComponent,
   InjectionKey,
-  ConcreteComponent,
+  // ConcreteComponent,
   SetupContext,
 } from 'vue'
 import { useInput } from './composables/useInput'
-import { FormKitSchema } from './FormKitSchema'
+// import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
+import { getCurrentInstance } from 'vue'
 
 /**
  * The symbol that represents the formkit parent injection value.
@@ -22,6 +23,10 @@ import { props } from './props'
  * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
+
+const cleanup = new FinalizationRegistry<unknown>(() => {
+  console.log('Did finalize')
+})
 
 /**
  * The root FormKit component.
@@ -43,46 +48,47 @@ export const FormKit = defineComponent({
   },
   inheritAttrs: false,
   setup(props, context) {
+    cleanup.register(getCurrentInstance()!, 'id')
     const node = useInput(props, context as SetupContext<any>)
-    if (!node.props.definition) error(600, node)
-    if (node.props.definition.component) {
-      return () =>
-        h(
-          node.props.definition?.component as any,
-          {
-            context: node.context,
-          },
-          { ...context.slots }
-        )
-    }
-    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
-    const generateSchema = () => {
-      const schemaDefinition = node.props?.definition?.schema
-      if (!schemaDefinition) error(601, node)
-      schema.value =
-        typeof schemaDefinition === 'function'
-          ? schemaDefinition({ ...props.sectionsSchema })
-          : schemaDefinition
-    }
-    generateSchema()
+    // if (!node.props.definition) error(600, node)
+    // if (node.props.definition.component) {
+    //   return () =>
+    //     h(
+    //       node.props.definition?.component as any,
+    //       {
+    //         context: node.context,
+    //       },
+    //       { ...context.slots }
+    //     )
+    // }
+    // const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    // const generateSchema = () => {
+    //   const schemaDefinition = node.props?.definition?.schema
+    //   if (!schemaDefinition) error(601, node)
+    //   schema.value =
+    //     typeof schemaDefinition === 'function'
+    //       ? schemaDefinition({ ...props.sectionsSchema })
+    //       : schemaDefinition
+    // }
+    // generateSchema()
 
-    // If someone emits the schema event, we re-generate the schema
-    node.on('schema', generateSchema)
+    // // If someone emits the schema event, we re-generate the schema
+    // node.on('schema', generateSchema)
 
-    context.emit('node', node)
-    const library = node.props.definition.library as
-      | Record<string, ConcreteComponent>
-      | undefined
+    // context.emit('node', node)
+    // const library = node.props.definition.library as
+    //   | Record<string, ConcreteComponent>
+    //   | undefined
 
-    // Expose the FormKitNode to template refs.
-    context.expose({ node })
-
-    return () =>
-      h(
-        FormKitSchema,
-        { schema: schema.value, data: node.context, library },
-        { ...context.slots }
-      )
+    // // Expose the FormKitNode to template refs.
+    // context.expose({ node })
+    return () => node.name
+    // return () =>
+    //   h(
+    //     FormKitSchema,
+    //     { schema: schema.value, data: node.context, library },
+    //     { ...context.slots }
+    //   )
   },
 })
 

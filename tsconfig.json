@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "esnext",
     "target": "es2019",
-    "lib": ["ES2015", "dom"],
+    "lib": ["ES2021", "dom"],
     "allowJs": false,
     "strict": true,
     "moduleResolution": "node",
