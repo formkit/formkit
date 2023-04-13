@@ -50,18 +50,16 @@ export function reset(
     // pause all events in this tree.
     node._e.pause(node)
     // Set it back to basics
-    node.input(cloneAny(resetTo) || initial(node), false)
+    if (resetTo) {
+      const resetValue = cloneAny(resetTo)
+      node.props.initial = init(resetValue)
+    }
+    node.input(initial(node), false)
     // Set children back to basics in case they were additive (had their own value for example)
     node.walk((child) => child.input(initial(child), false))
     // Finally we need to lay any values back on top (if it is a group/list) since group values
     // take precedence over child values.
-    const finalInit = initial(node)
-    node.input(
-      typeof finalInit === 'object'
-        ? cloneAny(resetTo) || init(finalInit)
-        : finalInit,
-      false
-    )
+    node.input(initial(node), false)
     // release the events.
     node._e.play(node)
     clearState(node)

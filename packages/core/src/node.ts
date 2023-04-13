@@ -1263,7 +1263,7 @@ export type FormKitNode = {
   /**
    * Reset a node’s value back to its original value.
    */
-  reset: () => FormKitNode
+  reset: (value?: unknown) => FormKitNode
   /**
    * Sets errors on the input, and optionally to child inputs.
    */

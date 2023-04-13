@@ -1467,6 +1467,18 @@ describe('resetting', () => {
     node.reset()
     expect(resetEvent).toHaveBeenCalledTimes(1)
   })
+  it('can reset group to new values which then become the initials', async () => {
+    const node = createNode({
+      type: 'group',
+      value: { foo: 'bar', bim: 'bam' },
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bim' })],
+    })
+    node.reset({ foo: 'abc', bim: 'xyz' })
+    node.input({ foo: 'baz', bim: 'bop' }, false)
+    node.reset()
+    expect(node.at('foo')?.value).toBe('abc')
+    expect(node.at('bim')?.value).toBe('xyz')
+  })
 })
 
 describe('errors', () => {
