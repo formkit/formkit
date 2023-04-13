@@ -1,4 +1,4 @@
-import { cloneAny, init } from '@formkit/utils'
+import { cloneAny, init, isObject } from '@formkit/utils'
 import { FormKitNode } from './node'
 import { warn } from './errors'
 import { getNode } from './registry'
@@ -52,7 +52,7 @@ export function reset(
     // Set it back to basics
     if (resetTo) {
       const resetValue = cloneAny(resetTo)
-      node.props.initial = init(resetValue)
+      node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
     }
     node.input(initial(node), false)
     // Set children back to basics in case they were additive (had their own value for example)
