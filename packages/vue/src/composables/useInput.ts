@@ -22,6 +22,7 @@ import {
   isObject,
   token,
   undefine,
+  oncePerTick,
 } from '@formkit/utils'
 import {
   toRef,
@@ -335,6 +336,9 @@ export function useInput(
     // An explicit exception to ensure naked "multiple" attributes appear on the
     // outer wrapper as data-multiple="true"
     if ('multiple' in attrs) attrs.multiple = undefine(attrs.multiple)
+    if (typeof attrs.onBlur === 'function') {
+      attrs.onBlur = oncePerTick(attrs.onBlur)
+    }
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

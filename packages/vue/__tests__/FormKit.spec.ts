@@ -1,14 +1,16 @@
-import { nextTick, h, reactive, ref } from 'vue'
-import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick, h, reactive, ref, PropType, mergeProps } from 'vue'
+import { mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { getNode, createNode } from '@formkit/core'
+import { getNode, createNode, FormKitTypeDefinition } from '@formkit/core'
 import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
+import { FormKitFrameworkContext } from '@formkit/core'
+import { createInput } from '../src'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -2054,5 +2056,45 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.find('.formkit-label').exists()).toBe(true)
     expect(wrapper.html()).not.toContain('<h1>click me</h1>')
+  })
+
+  it('does not trigger blur twice #413', async () => {
+    const custom = createInput({
+      props: {
+        context: {
+          type: Object as PropType<FormKitFrameworkContext>,
+        },
+      },
+      render(props: { context: FormKitFrameworkContext }) {
+        return h(
+          'input',
+          mergeProps(
+            {
+              onBlur: props.context.handlers.blur,
+            },
+            props.context.attrs
+          )
+        )
+      },
+    })
+    const blur = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: custom,
+        value: 'foo',
+      },
+      attrs: {
+        onBlur: blur,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(1)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(2)
   })
 })

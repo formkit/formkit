@@ -1035,6 +1035,7 @@ describe('resetting', () => {
         zip: undefined,
       },
     })
+    expect(form.vm.values.propertyIsEnumerable('__init')).toBe(false)
     expect(form.find('.formkit-message').exists()).toBe(false)
   })
 

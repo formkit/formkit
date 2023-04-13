@@ -1467,6 +1467,7 @@ describe('resetting', () => {
     node.reset()
     expect(resetEvent).toHaveBeenCalledTimes(1)
   })
+
   it('can reset group to new values which then become the initials', async () => {
     const node = createNode({
       type: 'group',

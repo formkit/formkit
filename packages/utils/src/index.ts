@@ -854,3 +854,20 @@ export function whenAvailable(
     observer.observe(document.body, { childList: true, subtree: true })
   }
 }
+
+/**
+ * Given a function only 1 call will be made per call stack. All others will
+ * be discarded.
+ * @param fn - The function to be called once per tick.
+ * @returns
+ * @public
+ */
+export function oncePerTick<T extends CallableFunction>(fn: T): T {
+  let called = false
+  return ((...args: any[]) => {
+    if (called) return
+    called = true
+    queueMicrotask(() => (called = false))
+    return fn(...args)
+  }) as unknown as T
+}

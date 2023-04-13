@@ -1,4 +1,4 @@
-import { cloneAny, init, isObject } from '@formkit/utils'
+import { cloneAny, init, isObject, empty } from '@formkit/utils'
 import { FormKitNode } from './node'
 import { warn } from './errors'
 import { getNode } from './registry'
@@ -50,8 +50,9 @@ export function reset(
     // pause all events in this tree.
     node._e.pause(node)
     // Set it back to basics
-    if (resetTo) {
-      const resetValue = cloneAny(resetTo)
+    const resetValue = cloneAny(resetTo)
+
+    if (resetTo && !empty(resetTo)) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
     }
     node.input(initial(node), false)
@@ -59,7 +60,10 @@ export function reset(
     node.walk((child) => child.input(initial(child), false))
     // Finally we need to lay any values back on top (if it is a group/list) since group values
     // take precedence over child values.
-    node.input(initial(node), false)
+    node.input(
+      empty(resetValue) && resetValue ? resetValue : initial(node),
+      false
+    )
     // release the events.
     node._e.play(node)
     clearState(node)
