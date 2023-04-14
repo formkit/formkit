@@ -108,6 +108,18 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe('<h1>c</h1>')
   })
 
+  it('can render non-fragment as a root node #474', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: {
+          $el: 'h1',
+          children: 'Hello world',
+        },
+      },
+    })
+    expect(wrapper.html()).toBe('<h1>Hello world</h1>')
+  })
+
   it('can render different children with if/then/else at root', async () => {
     const data = reactive({ value: 100 })
     const wrapper = mount(FormKitSchema, {
