@@ -47,7 +47,7 @@ export interface FormKitSection<T = FormKitSchemaExtendableSection> {
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
-  root: true
+  fragment: true
 ): FormKitSection<FormKitExtendableSchemaRoot>
 
 /**
@@ -71,13 +71,13 @@ export function createSection(
 export function createSection(
   section: string,
   el: string | (() => FormKitSchemaNode),
-  root: false
+  fragment: false
 ): FormKitSection<FormKitSchemaExtendableSection>
 
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
-  root = false
+  fragment = false
 ): FormKitSection<
   FormKitExtendableSchemaRoot | FormKitSchemaExtendableSection
 > {
@@ -114,7 +114,7 @@ export function createSection(
       }
     }
     extendable._s = section
-    return root ? createRoot(extendable) : extendable
+    return fragment ? createRoot(extendable) : extendable
   }
 }
 

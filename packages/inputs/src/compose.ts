@@ -1,13 +1,10 @@
-import { clone, isObject, token } from '@formkit/utils'
+import { isObject, token } from '@formkit/utils'
 import {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
   FormKitSchemaNode,
-  FormKitSchemaDOMNode,
-  FormKitSchemaComponent,
-  FormKitSchemaFormKit,
   FormKitSchemaCondition,
-  FormKitSchemaComposable,
+  FormKitSchemaDefinition,
   isComponent,
   isDOM,
   isConditional,
@@ -38,9 +35,7 @@ import {
  * @public
  */
 export type FormKitInputSchema =
-  | ((
-      children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
-    ) => FormKitSchemaNode)
+  | ((children?: FormKitSchemaDefinition) => FormKitSchemaNode)
   | FormKitSchemaNode
 
 /**
@@ -81,6 +76,36 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 }
 
 /**
+ * Searches a given section for a specific section name in the meta.
+ * @param target - The name of the section to find.
+ * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param section - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @returns
+ */
+function checkSection(
+  target: string,
+  schema: FormKitSchemaNode[],
+  section: FormKitSchemaNode | FormKitSchemaCondition
+): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] | void {
+  if (isSlotCondition(section)) {
+    if (isComponent(section.else) || isDOM(section.else)) {
+      if (section.else.meta?.section === target) {
+        return [schema, section]
+      } else if (
+        section.else.children &&
+        Array.isArray(section.else.children) &&
+        section.else.children.length
+      ) {
+        const found = findSection(section.else.children, target)
+        if (found[0]) {
+          return found
+        }
+      }
+    }
+  }
+}
+
+/**
  * Finds a seciton by name in a schema.
  *
  * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
@@ -91,74 +116,19 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
  * @public
  */
 export function findSection(
-  schema: FormKitSchemaNode[],
+  schema: FormKitSchemaDefinition,
   target: string
 ): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] {
+  if (!Array.isArray(schema)) {
+    const val = checkSection(target, [schema], schema)
+    if (val) return val
+    return [false, false]
+  }
   for (let index = 0; index < schema.length; index++) {
-    const section = schema[index]
-    if (isSlotCondition(section)) {
-      if (isComponent(section.else) || isDOM(section.else)) {
-        if (section.else.meta?.section === target) {
-          return [schema, section]
-        } else if (
-          section.else.children &&
-          Array.isArray(section.else.children) &&
-          section.else.children.length
-        ) {
-          const found = findSection(section.else.children, target)
-          if (found[0]) {
-            return found
-          }
-        }
-      }
-    }
+    const val = checkSection(target, schema, schema[index])
+    if (val) return val
   }
   return [false, false]
-}
-
-/**
- * @deprecated This function is deprecated. Use `createSection` instead!
- *
- * @param key - A new section key name.
- * @param schema - The default schema in this composable slot.
- *
- * @returns {@link @formkit/core#FormKitSchemaComposable | FormKitSchemaComposable}
- *
- * @public
- */
-export function composable(
-  key: string,
-  schema: FormKitInputSchema
-): FormKitSchemaComposable {
-  warn(800, 'composable function')
-  return (extendWith = {}, children = undefined) => {
-    const root =
-      typeof schema === 'function'
-        ? schema(children)
-        : typeof schema === 'object'
-        ? (clone(schema as Record<string, unknown>) as
-            | FormKitSchemaDOMNode
-            | FormKitSchemaComponent
-            | FormKitSchemaFormKit
-            | FormKitSchemaCondition)
-        : schema
-    const isObj = isSchemaObject(root)
-    if (isObj && !('children' in root) && children) {
-      if (Array.isArray(children)) {
-        if (children.length) {
-          root.children = children
-        }
-      } else {
-        root.children = [children]
-      }
-    }
-    const extended = extendSchema(root, extendWith)
-    return {
-      if: `$slots.${key}`,
-      then: `$slots.${key}`,
-      else: Array.isArray(extended) ? extended : [extended],
-    }
-  }
 }
 
 /**
@@ -172,7 +142,7 @@ export function composable(
  */
 export function useSchema(
   inputSection: FormKitSection
-): FormKitExtendableSchemaRoot {
+): FormKitSchemaExtendableSection {
   return outer(
     wrapper(label('$label'), inner(prefix(), inputSection(), suffix())),
     help('$help'),
@@ -335,6 +305,7 @@ export function $extend(
 export function $root(
   section: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
+  warn(800, '$root')
   return createRoot(section)
 }
 

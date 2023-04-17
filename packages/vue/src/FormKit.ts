@@ -1,9 +1,4 @@
-import {
-  error,
-  FormKitNode,
-  FormKitSchemaCondition,
-  FormKitSchemaNode,
-} from '@formkit/core'
+import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
   h,
   ref,
@@ -55,7 +50,7 @@ export const FormKit = defineComponent({
           { ...context.slots }
         )
     }
-    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    const schema = ref<FormKitSchemaDefinition>([])
     const generateSchema = () => {
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)

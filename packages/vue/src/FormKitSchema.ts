@@ -30,6 +30,7 @@ import {
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
   FormKitCompilerOutput,
+  FormKitSchemaDefinition,
   getNode,
   warn,
   watchRegistry,
@@ -638,7 +639,7 @@ function parseSchema(
                 },
                 {} as Record<string, undefined>
               ),
-              [valueName]: values[key],
+              [valueName]: (values as Record<string, any>)[key],
               ...(keyName !== null
                 ? { [keyName]: isArray ? Number(key) : key }
                 : {}),
@@ -809,10 +810,7 @@ function createRenderFn(
  * @param schema - The schema to remove from memo.
  * @param instanceKey - The instance key to remove.
  */
-function clean(
-  schema: FormKitSchemaNode[] | FormKitSchemaCondition,
-  instanceKey: object
-) {
+function clean(schema: FormKitSchemaDefinition, instanceKey: object) {
   const memoKey = JSON.stringify(schema)
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
@@ -831,9 +829,7 @@ export const FormKitSchema = defineComponent({
   name: 'FormKitSchema',
   props: {
     schema: {
-      type: [Array, Object] as PropType<
-        FormKitSchemaNode[] | FormKitSchemaCondition
-      >,
+      type: [Array, Object] as PropType<FormKitSchemaDefinition>,
       required: true,
     },
     data: {
