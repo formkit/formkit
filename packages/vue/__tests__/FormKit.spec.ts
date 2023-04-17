@@ -2097,4 +2097,30 @@ describe('schema changed', () => {
     await nextTick()
     expect(blur).toHaveBeenCalledTimes(2)
   })
+
+  it('can use v-show to hide a field, tests root node (#528)', async () => {
+    const show = ref(true)
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          return { show }
+        },
+        template: `
+        <FormKit type="text" label="hi there" v-show="show" />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input').exists()).toBe(true)
+    show.value = false
+    await nextTick()
+    expect(wrapper.find('input').exists()).toBe(false)
+  })
 })
