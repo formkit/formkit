@@ -17,6 +17,7 @@ import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
+import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
@@ -106,6 +107,10 @@ const router = createRouter({
     {
       path: '/playground',
       component: Playground,
+    },
+    {
+      path: '/performance',
+      component: Performance,
     },
     {
       path: '/e2e',
