@@ -12,14 +12,10 @@ import { undefine } from '@formkit/utils'
 /**
  * @internal
  */
-const messages = createSection(
-  'messages',
-  () => ({
-    $el: 'ul',
-    if: '$fns.length($messages)',
-  }),
-  true
-)
+const messages = createSection('messages', () => ({
+  $el: 'ul',
+  if: '$fns.length($messages)',
+}))
 
 /**
  * @internal

@@ -5,7 +5,7 @@ import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { getNode, createNode, FormKitTypeDefinition } from '@formkit/core'
+import { getNode, createNode } from '@formkit/core'
 import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
@@ -2118,9 +2118,11 @@ describe('schema changed', () => {
         },
       }
     )
-    expect(wrapper.find('input').exists()).toBe(true)
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(undefined)
     show.value = false
-    await nextTick()
-    expect(wrapper.find('input').exists()).toBe(false)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(
+      'display: none;'
+    )
   })
 })

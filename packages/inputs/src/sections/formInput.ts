@@ -5,17 +5,13 @@ import { createSection } from '../createSection'
  *
  * @public
  */
-export const formInput = createSection(
-  'form',
-  () => ({
-    $el: 'form',
-    bind: '$attrs',
-    attrs: {
-      id: '$id',
-      name: '$node.name',
-      onSubmit: '$handlers.submit',
-      'data-loading': '$state.loading || undefined',
-    },
-  }),
-  true
-)
+export const formInput = createSection('form', () => ({
+  $el: 'form',
+  bind: '$attrs',
+  attrs: {
+    id: '$id',
+    name: '$node.name',
+    onSubmit: '$handlers.submit',
+    'data-loading': '$state.loading || undefined',
+  },
+}))

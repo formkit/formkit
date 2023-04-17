@@ -1,6 +1,6 @@
 import { createSection } from '../src/createSection'
 import { $if, $for, $attrs, $extend, $root } from '../src/compose'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {
@@ -100,6 +100,7 @@ describe('composable helpers', () => {
   })
 
   it('can transform a section into a root section using the $root() function', () => {
+    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     expect($root(createSection('foo', 'div')())({})).toEqual([
       {
         if: '$slots.foo',
@@ -115,5 +116,8 @@ describe('composable helpers', () => {
         },
       },
     ])
+    // Should warn about the $root deprecation.
+    expect(consoleSpy).toHaveBeenCalledTimes(1)
+    consoleSpy.mockRestore()
   })
 })

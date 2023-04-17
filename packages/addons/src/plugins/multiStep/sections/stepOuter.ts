@@ -6,25 +6,21 @@ import { createSection } from '@formkit/inputs'
  *
  * @public
  */
-export const stepOuter = createSection(
-  'stepOuter',
-  () => ({
-    $el: 'div',
-    attrs: {
-      key: '$id',
-      'data-type': 'step',
-      'data-disabled': '$disabled || undefined',
-      'data-complete': '$state.complete || undefined',
-      'data-invalid':
-        '$state.valid === false && $state.validationVisible || undefined',
-      'data-errors': '$state.errors || undefined',
-      'data-submitted': '$state.submitted || undefined',
-      id: '$id',
-      role: 'tabpanel',
-      'aria-labelledby': '$node.parent.props.id + "_tab_" + $stepIndex',
-      class: '$classes.step',
-      hidden: '$isActiveStep === false || undefined',
-    },
-  }),
-  true
-)
+export const stepOuter = createSection('stepOuter', () => ({
+  $el: 'div',
+  attrs: {
+    key: '$id',
+    'data-type': 'step',
+    'data-disabled': '$disabled || undefined',
+    'data-complete': '$state.complete || undefined',
+    'data-invalid':
+      '$state.valid === false && $state.validationVisible || undefined',
+    'data-errors': '$state.errors || undefined',
+    'data-submitted': '$state.submitted || undefined',
+    id: '$id',
+    role: 'tabpanel',
+    'aria-labelledby': '$node.parent.props.id + "_tab_" + $stepIndex',
+    class: '$classes.step',
+    hidden: '$isActiveStep === false || undefined',
+  },
+}))
