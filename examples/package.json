@@ -15,8 +15,6 @@
     "@formkit/vue": "workspace:^0.16.4",
     "@types/react-dom": "^17.0.9",
     "@vitejs/plugin-vue": "^1.4.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "vite": "^2.4.4",
     "vue-router": "4"
   },

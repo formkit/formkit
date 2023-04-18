@@ -64,6 +64,20 @@ describe('observer', () => {
     expect(after).toHaveBeenCalledTimes(2)
   })
 
+  it('does not call an observer if the value has not changed', () => {
+    const node = createNode({ name: 'username', value: 'foo' })
+    const observed = createObserver(node)
+    const callback = vi.fn((n: FormKitObservedNode) => {
+      if (n.value === 'bar') {
+        // do things
+      }
+    })
+    observed.watch(callback)
+    expect(callback).toHaveBeenCalledTimes(1)
+    node.input('foo', false)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
   it('can watch a node accessing its child', async () => {
     const child = createNode({ name: 'username', value: 'foo' })
     const node = createNode({

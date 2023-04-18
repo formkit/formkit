@@ -37,6 +37,7 @@ import {
   ref,
   WatchStopHandle,
   onBeforeUnmount,
+  onMounted,
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
@@ -170,6 +171,12 @@ export function useInput(
    * for coming up with this solution.
    */
   const isVModeled = 'modelValue' in (instance?.vnode.props ?? {})
+
+  // Track if the input has mounted or not.
+  let isMounted = false
+  onMounted(() => {
+    isMounted = true
+  })
 
   /**
    * Determines if the object being passed as a v-model is reactive.
@@ -414,15 +421,16 @@ export function useInput(
   node.on('modelUpdated', () => {
     // Emit the values after commit
     context.emit('inputRaw', node.context?.value, node)
-    clearTimeout(inputTimeout)
-    inputTimeout = setTimeout(
-      context.emit,
-      20,
-      'input',
-      node.context?.value,
-      node
-    ) as unknown as number
-
+    if (isMounted) {
+      clearTimeout(inputTimeout)
+      inputTimeout = setTimeout(
+        context.emit,
+        20,
+        'input',
+        node.context?.value,
+        node
+      ) as unknown as number
+    }
     if (isVModeled && node.context) {
       const newValue = useRaw(node.context.value)
       if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {

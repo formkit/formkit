@@ -51,13 +51,24 @@ export const FormKit = defineComponent({
         )
     }
     const schema = ref<FormKitSchemaDefinition>([])
+    let memoKey: string | undefined = node.props.definition.schemaMemoKey
     const generateSchema = () => {
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)
-      schema.value =
-        typeof schemaDefinition === 'function'
-          ? schemaDefinition({ ...props.sectionsSchema })
-          : schemaDefinition
+      if (typeof schemaDefinition === 'function') {
+        schema.value = schemaDefinition({ ...props.sectionsSchema })
+        if (
+          (memoKey && props.sectionsSchema) ||
+          ('memoKey' in schemaDefinition &&
+            typeof schemaDefinition.memoKey === 'string')
+        ) {
+          memoKey =
+            (memoKey ?? schemaDefinition?.memoKey) +
+            JSON.stringify(props.sectionsSchema)
+        }
+      } else {
+        schema.value = schemaDefinition
+      }
     }
     generateSchema()
 
@@ -74,7 +85,7 @@ export const FormKit = defineComponent({
     return () =>
       h(
         FormKitSchema,
-        { schema: schema.value, data: node.context, library },
+        { schema: schema.value, data: node.context, library, memoKey },
         { ...context.slots }
       )
   },
