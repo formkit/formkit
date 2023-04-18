@@ -2,6 +2,7 @@ import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
 import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('hidden input', () => {
   it('renders a hidden input without any of the cruft', () => {

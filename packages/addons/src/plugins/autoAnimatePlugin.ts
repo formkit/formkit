@@ -36,8 +36,30 @@ function observeIds() {
 }
 
 /**
- * Adds auto-animate to each input automatically.
- * @param node - A formkit node
+ * Adds auto-animate to each input automatically:
+ *
+ * @example
+ *
+ * ```javascript
+ * import { createApp } from 'vue'
+ * import App from 'App.vue'
+ * import { createAutoAnimatePlugin } from '@formkit/addons'
+ * import { plugin, defaultConfig } from '@formkit/vue'
+ *
+ * createApp(app).use(plugin, defaultPlugin({
+ *   plugins: [
+ *     createAutoAnimatePlugin({
+ *       // optional config
+ *     })
+ *   ]
+ * }))
+ * ```
+ *
+ * @param options - {@link https://github.com/formkit/auto-animate/blob/master/src/index.ts#L596 | AutoAnimateOptions }
+ *
+ * @returns
+ * {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ *
  * @public
  */
 export function createAutoAnimatePlugin(
@@ -54,12 +76,13 @@ export function createAutoAnimatePlugin(
             { attrs: { id: `outer-${node.props.id}` } },
             extensions.outer || {}
           ) as Partial<FormKitSchemaDOMNode>
-          const finalSchema = original(extensions)
-          const outermostSchema = isConditional(finalSchema[0])
-            ? Array.isArray(finalSchema[0].else)
-              ? finalSchema[0].else[0]
-              : finalSchema[0].else
-            : finalSchema[0]
+          const s = original(extensions)
+          const finalSchema = Array.isArray(s) ? s[0] : s
+          const outermostSchema = isConditional(finalSchema)
+            ? Array.isArray(finalSchema.else)
+              ? finalSchema.else[0]
+              : finalSchema.else
+            : finalSchema
           if (
             outermostSchema &&
             isDOM(outermostSchema) &&

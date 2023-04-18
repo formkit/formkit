@@ -2,13 +2,15 @@ import { FormKitNode } from '@formkit/core'
 
 /**
  * The icon plugin function, everything must be bootstrapped here.
+ *
  * @param node - The node to apply icons to.
+ *
  * @public
  */
 export function createIconPlugin(
   icons: Record<any, string>
 ): (node: FormKitNode) => void {
-  icons = wrapIcons(icons)
+  wrapIcons(icons)
 
   return function iconPlugin(node: FormKitNode): void {
     const iconSchemaProps = getIconPropsFromNode(node)
@@ -25,8 +27,10 @@ export function createIconPlugin(
 
 /**
  * Given an object of icons, wraps all the markup in a FormKit provided <div>
+ *
  * @param icons - an object of icon names to svg definitions
- * @returns
+ *
+ * @returns `Record<any, string>`
  */
 function wrapIcons(icons: Record<any, string>): Record<any, string> {
   const wrappedIcons: Record<any, string> = {}
@@ -40,8 +44,10 @@ function wrapIcons(icons: Record<any, string>): Record<any, string> {
 
 /**
  * Inspects a node for applicable icon props and returns any matches
+ *
  * @param node - the node currently being operated on
- * @returns
+ *
+ * @returns `Record<any, any>`
  */
 function getIconPropsFromNode(node: FormKitNode): Record<any, any> {
   const attrs = node && node.context ? node.context.attrs : {}

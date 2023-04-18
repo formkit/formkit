@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'โหลดเพิ่มเติม',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'ถัดไป',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'ก่อนหน้า',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'เพิ่มค่าทั้งหมด',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'เพิ่มค่าที่เลือก',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'ลบค่าทั้งหมด',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'ลบค่าที่เลือก',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'เลือกวันที่',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'เปลี่ยนวันที่',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'วันที่ที่เลือกไม่ถูกต้อง',
 }
 
 /**
@@ -112,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} สามารถเป็นได้แค่ตัวอักษรและเว้นวรรคเท่านั้น`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} ต้องมีตัวอักษรตัวอักษร`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} ต้องมีตัวอักษรหรือตัวเลข`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} ต้องมีตัวอักษรหรือช่องว่าง`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} ต้องมีสัญลักษณ์`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} ต้องมีตัวพิมพ์ใหญ่`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} ต้องมีตัวพิมพ์เล็ก`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} ต้องมีตัวเลข`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} จะต้องเป็นสัญลักษณ์`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} เท่านั้นที่สามารถมีตัวอักษรตัวพิมพ์ใหญ่`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} เท่านั้นที่สามารถมีตัวอักษรตัวพิมพ์เล็ก`
     /* </i18n> */
   },
 

@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { textInput, $root } from '../compose'
+import { textInput } from '../compose'
 
 /**
  * Input definition for a hidden input.
@@ -9,7 +9,7 @@ export const hidden: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: $root(textInput()),
+  schema: textInput(),
   /**
    * The type of node, can be a list, group, or input.
    */

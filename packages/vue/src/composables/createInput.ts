@@ -28,7 +28,12 @@ function isComponent(obj: any): obj is Component {
  * FormKit features in place such as labels, help text, validation messages, and
  * class support.
  *
- * @param schemaOrComponent - The actual schema of the input.
+ * @param schemaOrComponent - The actual schema of the input or the component.
+ * @param definitionOptions - Any options in the FormKitTypeDefinition you want
+ * to define.
+ *
+ * @returns {@link @formkit/core#FormKitTypeDefinition | FormKitTypeDefinition}
+ *
  * @public
  */
 export function createInput(

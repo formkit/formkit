@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * No file section that shows when there is no files
+ *
  * @public
  */
 export const noFiles = createSection('noFiles', () => ({

@@ -1,4 +1,5 @@
 import { sentence, list } from '../src/formatters'
+import { describe, expect, it } from 'vitest'
 
 describe('sentence case', () => {
   it('caps the first word', () =>

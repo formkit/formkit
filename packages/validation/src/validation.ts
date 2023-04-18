@@ -12,8 +12,10 @@ import { has, empty, token, clone, cloneAny, eq } from '@formkit/utils'
 
 /**
  * Special validation properties that affect the way validations are applied.
+ *
+ * @public
  */
-interface FormKitValidationHints {
+export interface FormKitValidationHints {
   /**
    * If this validation fails, should it block the form from being submitted or
    * considered "valid"? There are some cases where it is acceptable to allow
@@ -89,9 +91,9 @@ export type FormKitValidation = {
 export type FormKitValidationIntent = [string | FormKitValidationRule, ...any[]]
 
 /**
- * Signature for a generic validation rule. It accepts an input, often a string
- * but validation rules should be able to accept any input type, and returns a
- * boolean indicating whether or not it passed validation.
+ * Signature for a generic validation rule. It accepts an input — often a string
+ * — but should be able to accept any input type, and returns a boolean
+ * indicating whether or not it passed validation.
  * @public
  */
 export type FormKitValidationRule = {
@@ -137,9 +139,10 @@ interface FormKitValidationState {
 
 /**
  * The arguments that are passed to the validation messages in the i18n plugin.
+ *
  * @public
  */
-type FormKitValidationI18NArgs = [
+export type FormKitValidationI18NArgs = [
   {
     node: FormKitNode
     name: string
@@ -160,8 +163,12 @@ const validatingMessage = createMessage({
 })
 
 /**
- * The actual validation plugin function, everything must be bootstrapped here.
- * @param node - The node to bind validation to.
+ * The actual validation plugin function. Everything must be bootstrapped here.
+ *
+ * @param baseRules - Base validation rules to include in the plugin. By default,
+ * FormKit makes all rules in the \@formkit/rules package available via the
+ * defaultConfig.
+ *
  * @public
  */
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
@@ -451,7 +458,7 @@ function createCustomMessage(
 ): string | undefined {
   const customMessage =
     node.props.validationMessages &&
-    has(node.props.validationMessages, validation.name)
+      has(node.props.validationMessages, validation.name)
       ? node.props.validationMessages[validation.name]
       : undefined
   if (typeof customMessage === 'function') {
@@ -694,7 +701,7 @@ function fnHints(
 
 /**
  * Extracts all validation messages from the given node and all its descendants.
- * This is not reactive and must be re called each time the messages change.
+ * This is not reactive and must be re-called each time the messages change.
  * @param node - The FormKit node to extract validation rules from — as well as its descendants.
  * @public
  */

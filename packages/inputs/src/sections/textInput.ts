@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Input section
+ *
  * @public
  */
 export const textInput = createSection('input', () => ({

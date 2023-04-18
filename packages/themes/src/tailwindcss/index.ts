@@ -7,6 +7,7 @@ const outerAttributes = [
   'complete',
   'loading',
   'submitted',
+  'checked',
   'multiple',
   'prefix-icon',
   'suffix-icon',

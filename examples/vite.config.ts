@@ -5,6 +5,9 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 export default defineConfig({
   root: './examples',
   plugins: [vue(), vueJsx()],
+  build: {
+    minify: false,
+  },
   css: {
     preprocessorOptions: {
       scss: {

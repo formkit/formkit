@@ -22,6 +22,7 @@ import {
   isObject,
   token,
   undefine,
+  oncePerTick,
 } from '@formkit/utils'
 import {
   toRef,
@@ -43,7 +44,12 @@ import watchVerbose from './watchVerbose'
 import useRaw from './useRaw'
 // import { observe, isObserver } from './mutationObserver'
 
-interface FormKitComponentProps {
+/**
+ * FormKit props of a component
+ *
+ * @public
+ */
+export interface FormKitComponentProps {
   type?: string | FormKitTypeDefinition
   name?: string
   validation?: any
@@ -75,7 +81,7 @@ const pseudoProps = [
   'disabled',
   'preserve',
   /^preserve(-e|E)rrors/,
-  /^[a-z]+(?:-visibility|Visibility)$/,
+  /^[a-z]+(?:-visibility|Visibility|-behavior|Behavior)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
   'prefixIcon',
   'suffixIcon',
@@ -89,15 +95,17 @@ const pseudoProps = [
  */
 function classesToNodeProps(node: FormKitNode, props: Record<string, any>) {
   if (props.classes) {
-    Object.keys(props.classes).forEach((key: keyof typeof props['classes']) => {
-      if (typeof key === 'string') {
-        node.props[`_${key}Class`] = props.classes[key]
-        // We need to ensure Vue is aware that we want to actually observe the
-        // child values too, so we touch them here.
-        if (isObject(props.classes[key]) && key === 'inner')
-          Object.values(props.classes[key])
+    Object.keys(props.classes).forEach(
+      (key: keyof (typeof props)['classes']) => {
+        if (typeof key === 'string') {
+          node.props[`_${key}Class`] = props.classes[key]
+          // We need to ensure Vue is aware that we want to actually observe the
+          // child values too, so we touch them here.
+          if (isObject(props.classes[key]) && key === 'inner')
+            Object.values(props.classes[key])
+        }
       }
-    })
+    )
   }
 }
 
@@ -127,9 +135,12 @@ function onlyListeners(
 
 /**
  * A composable for creating a new FormKit node.
+ *
  * @param type - The type of node (input, group, list)
  * @param attrs - The FormKit "props" — which is really the attrs list.
- * @returns
+ *
+ * @returns {@link @formkit/core#FormKitNode | FormKitNode}
+ *
  * @public
  */
 export function useInput(
@@ -325,6 +336,9 @@ export function useInput(
     // An explicit exception to ensure naked "multiple" attributes appear on the
     // outer wrapper as data-multiple="true"
     if ('multiple' in attrs) attrs.multiple = undefine(attrs.multiple)
+    if (typeof attrs.onBlur === 'function') {
+      attrs.onBlur = oncePerTick(attrs.onBlur)
+    }
     node.props.attrs = Object.assign({}, node.props.attrs || {}, attrs)
   })
 

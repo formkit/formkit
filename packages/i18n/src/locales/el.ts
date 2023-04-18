@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Φόρτωση περισσότερων',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Επόμενη',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Προηγούμενο',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Προσθήκη όλων των τιμών',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Προσθήκη επιλεγμένων τιμών',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Κατάργηση όλων των τιμών',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Αφαίρεση επιλεγμένων τιμών',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Επιλέξτε ημερομηνία',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Αλλαγή ημερομηνίας',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Η επιλεγμένη ημερομηνία δεν είναι έγκυρη.',
 }
 
 /**
@@ -112,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} μπορεί να περιέχει μόνο γράμματα και κενά.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `Το ${s(name)} πρέπει να περιέχει αλφαβητικούς χαρακτήρες.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `Το ${s(name)} πρέπει να περιέχει γράμματα ή αριθμούς.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} πρέπει να περιέχει γράμματα ή κενά.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `Το ${s(name)} πρέπει να περιέχει το σύμβολο.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `Το ${s(name)} πρέπει να περιέχει κεφαλαία γράμματα.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `Το ${s(name)} πρέπει να περιέχει πεζά γράμματα.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `Το ${s(name)} πρέπει να περιέχει αριθμούς.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `Το ${s(name)} πρέπει να είναι ένα σύμβολο.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `Το ${s(name)} μπορεί να περιέχει μόνο κεφαλαία γράμματα.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `Το ${s(name)} μπορεί να περιέχει μόνο πεζά γράμματα.`
     /* </i18n> */
   },
 

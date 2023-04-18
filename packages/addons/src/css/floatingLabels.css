@@ -1,0 +1,66 @@
+[data-floating-label="true"] .formkit-inner {
+  position: relative;
+}
+
+[data-floating-label="true"] .formkit-label {
+  position: absolute;
+  left: .5em;
+  color: grey;
+  font-weight: normal;
+  font-size: 1rem;
+  transition: all 0.2s ease-out;
+  transition-delay: 0.1s;
+  bottom: calc(100% - .5em);
+  transform: translateY(100%);
+  padding: .25em;
+  box-sizing: border-box;
+}
+
+[data-floating-label="true"] input:focus ~ .formkit-label,
+[data-floating-label="true"] textarea:focus ~ .formkit-label,
+[data-floating-label="true"] .formkit-label[data-has-value="true"],
+[data-floating-label="true"][data-expanded="true"] .formkit-label {
+  font-size: .7rem;
+  transform: translateY(50%);
+  background-color: white;
+  bottom: 100%;
+  z-index: 2;
+  transition-delay: 0s;
+  transition-duration: 0.25s;
+}
+
+/* special considerations for placeholders and overlays */
+[data-floating-label="true"] .formkit-input:not(:focus)::placeholder,
+[data-floating-label="true"]:not([data-expanded="true"]) .formkit-placeholder,
+[data-floating-label="true"]:not(:focus-within) .formkit-overlay,
+[data-floating-label="true"][data-type="datepicker"] .formkit-overlay {
+  transition-duration: 0.2s;
+  transition-delay: 0.1s;
+  opacity: 0;
+}
+[data-floating-label="true"] .formkit-input::placeholder,
+[data-floating-label="true"] .formkit-placeholder,
+[data-floating-label="true"][data-complete="true"] .formkit-overlay,
+[data-floating-label="true"][data-type="datepicker"][data-complete="true"] .formkit-overlay,
+[data-floating-label="true"][data-type="datepicker"][data-focused="true"] .formkit-overlay,
+[data-floating-label="true"][data-type="datepicker"][data-expanded="true"] .formkit-overlay,
+[data-floating-label="true"][data-type="datepicker"][data-complete="true"] .formkit-overlay {
+  opacity: 1;
+  transition: opacity 0.25s ease-out;
+}
+
+/* mask & datepicker - hide the actual input value until the field is complete */
+[data-floating-label="true"][data-type="mask"]:not(:focus-within) input,
+[data-floating-label="true"][data-type="datepicker"] input {
+  transition-duration: 0.2s;
+  transition-delay: 0.1s;
+  color: transparent;
+}
+[data-floating-label="true"][data-type="mask"][data-complete="true"] input,
+[data-floating-label="true"][data-type="datepicker"][data-complete="true"] input,
+[data-floating-label="true"][data-type="datepicker"][data-focused="true"] input,
+[data-floating-label="true"][data-type="datepicker"][data-expanded="true"] input,
+[data-floating-label="true"][data-type="datepicker"][data-complete="true"] input {
+  color: inherit;
+  transition: opacity 0.25s ease-out;
+}

@@ -50,6 +50,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Ladda mer',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Nästa',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Föregående',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Lägg till alla värden',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Lägg till valda värden',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Ta bort alla värden',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Ta bort valda värden',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Välj datum',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Ändra datum',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Det valda datumet är ogiltigt.',
 }
 
 /**
@@ -109,6 +145,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} kan bara innehålla bokstäver och blanksteg.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} måste innehålla alfabetiska tecken.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} måste innehålla bokstäver eller siffror.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} måste innehålla bokstäver eller mellanslag.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} måste innehålla symbol.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} måste innehålla versaler.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} måste innehålla gemener.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} måste innehålla siffror.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} måste vara en symbol.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} kan bara innehålla versaler.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} kan bara innehålla små bokstäver.`
     /* </i18n> */
   },
 

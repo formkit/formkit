@@ -3,6 +3,7 @@ import { FormKitContext, FormKitNode, isNode } from './node'
 
 /**
  * Event listener functions definition.
+ *
  * @public
  */
 export interface FormKitEventListener {
@@ -11,7 +12,8 @@ export interface FormKitEventListener {
 }
 
 /**
- * The internal structure of a FormKitEvent
+ * The internal structure of a FormKitEvent.
+ *
  * @public
  */
 export interface FormKitEvent {
@@ -23,6 +25,7 @@ export interface FormKitEvent {
 
 /**
  * Event listeners are wrapped in this object before being stored.
+ *
  * @internal
  */
 export interface FormKitEventListenerWrapper {
@@ -34,6 +37,7 @@ export interface FormKitEventListenerWrapper {
 
 /**
  * The FormKitEventEmitter definition.
+ *
  * @public
  */
 export interface FormKitEventEmitter {
@@ -42,12 +46,16 @@ export interface FormKitEventEmitter {
   off: (receipt: string) => void
   pause: (node?: FormKitNode) => void
   play: (node?: FormKitNode) => void
+  flush: () => void
 }
 
 /**
  * Creates a new event emitter, each node uses one of these to allow it to emit
  * events to local listeners and tree listeners.
+ *
  * @returns FormKitEventEmitter
+ *
+ * @internal
  */
 export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
@@ -73,10 +81,23 @@ export function createEmitter(): FormKitEventEmitter {
   }
 
   /**
+   * Completely remove all listeners and receipts and buffers from the emitter.
+   */
+  emitter.flush = () => {
+    listeners.clear()
+    receipts.clear()
+    buffer?.clear()
+  }
+
+  /**
    * Add an event listener
+   *
    * @param eventName - The name of the event to listen to
    * @param listener - The callback
+   *
    * @returns string
+   *
+   * @internal
    */
   emitter.on = (eventName: string, listener: FormKitEventListener) => {
     const [event, ...modifiers] = eventName.split('.')
@@ -100,7 +121,10 @@ export function createEmitter(): FormKitEventEmitter {
 
   /**
    * Remove an event listener
+   *
    * @param listenerOrReceipt - Either a receipt or the callback function.
+   *
+   * @internal
    */
   emitter.off = (receipt: string) => {
     if (receipts.has(receipt)) {
@@ -131,7 +155,10 @@ export function createEmitter(): FormKitEventEmitter {
    * emit('foo', 2)
    * emit('bar', 4)
    * Optionally pauses all children as well.
+   *
    * @param node - A node to pause all children on.
+   *
+   * @internal
    */
   emitter.pause = (node?: FormKitNode) => {
     if (!buffer) buffer = new Map()
@@ -142,7 +169,10 @@ export function createEmitter(): FormKitEventEmitter {
 
   /**
    * Release the current event buffer.
+   *
    * @param node - A node to unpause all children on.
+   *
+   * @internal
    */
   emitter.play = (node?: FormKitNode) => {
     if (!buffer) return
@@ -159,11 +189,15 @@ export function createEmitter(): FormKitEventEmitter {
 
 /**
  * Emit an event from this node.
+ *
  * @param node - The node that is emitting
  * @param context - The context of that node
  * @param name - The name of the event
  * @param payload - The payload to emit
+ *
  * @returns FormKitNode
+ *
+ * @internal
  */
 export function emit(
   node: FormKitNode,
@@ -183,9 +217,12 @@ export function emit(
 
 /**
  * Send an event from the given node up it's ancestor tree.
+ *
  * @param node -
  * @param _context -
  * @param event -
+ *
+ * @internal
  */
 export function bubble(
   node: FormKitNode,
@@ -202,11 +239,15 @@ export function bubble(
  * Adds an event listener to the node for a specific event. The event name is a
  * simple string matching the name of the event to listen to. It can optionally
  * include modifiers like eventName.deep
+ *
  * @param node -
  * @param context -
  * @param name -
  * @param listener -
+ *
  * @returns FormKitNode
+ *
+ * @internal
  */
 export function on(
   _node: FormKitNode,
@@ -219,10 +260,14 @@ export function on(
 
 /**
  * Removes an event listener from a node by the returned receipt from .on().
+ *
  * @param node - The node to remote the listener from
  * @param context - The context to remove
  * @param receipt - The receipt returned by .on()
+ *
  * @returns FormKitNode
+ *
+ * @internal
  */
 export function off(
   node: FormKitNode,

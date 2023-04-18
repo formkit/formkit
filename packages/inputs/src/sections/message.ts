@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Message section, shows a group of messages.
+ *
  * @public
  */
 export const message = createSection('message', () => ({

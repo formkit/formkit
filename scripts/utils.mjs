@@ -66,7 +66,7 @@ export function getPackages() {
 }
 
 /**
- * Get the available packages from the packages directory.
+ * Get the available locales from the packages directory.
  */
 export function getLocales() {
   const availableLocales = fs.readdirSync(`${packagesDir}/i18n/src/locales`)
@@ -99,10 +99,10 @@ export function getIcons() {
 }
 
 /**
- * Get all the plugin directories in the themes package
+ * Get all the plugin directories in the themes package at provided path
  */
-export function getPlugins() {
-  const possiblePlugins = fs.readdirSync(packagesDir + '/themes/src', {
+export function getPlugins(path = '/themes/src') {
+  const possiblePlugins = fs.readdirSync(packagesDir + path, {
     withFileTypes: true,
   })
   return possiblePlugins
@@ -272,12 +272,13 @@ export function writePackageJSON(pkg, json) {
 export function getPackageDependencies(pkg) {
   const packageJSON = getPackageJSON(pkg)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
-  const devDependencies = packageJSON.devDependencies
-    ? packageJSON.devDependencies
-    : []
+  // lets not include dev deps for now:
+  // const devDependencies = packageJSON.devDependencies
+  //   ? packageJSON.devDependencies
+  //   : []
   return [
     ...getFKDependenciesFromObj(dependencies),
-    ...getFKDependenciesFromObj(devDependencies),
+    // ...getFKDependenciesFromObj(devDependencies),
   ]
 }
 

@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Tải thêm',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Tiếp',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Trước',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Thêm tất cả các giá trị',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Thêm các giá trị đã chọn',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Loại bỏ tất cả các giá trị',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Loại bỏ các giá trị đã chọn',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Chọn ngày',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Thay đổi ngày',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Ngày đã chọn không hợp lệ.',
 }
 
 /**
@@ -112,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} chỉ có thể chứa các chữ cái và khoảng trắng.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} phải chứa các ký tự chữ cái.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} phải chứa chữ cái hoặc số.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} phải chứa chữ cái hoặc dấu cách.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} phải chứa ký hiệu.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} phải chứa chữ hoa.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} phải chứa chữ thường.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} phải chứa số.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} phải là một ký hiệu.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} chỉ có thể chứa chữ hoa.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} chỉ có thể chứa chữ thường.`
     /* </i18n> */
   },
 

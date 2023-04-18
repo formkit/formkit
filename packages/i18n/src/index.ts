@@ -1,3 +1,12 @@
+/**
+ * The official FormKit internationalization (i18n) plugin. This package
+ * contains the locales and the plugin that integrates FormKit with these
+ * locales. Read the {@link https://formkit.com/essentials/internationalization
+ * | internationalization documentation} for usage instructions.
+ *
+ * @packageDocumentation
+ */
+
 import * as ar from './locales/ar'
 import * as az from './locales/az'
 import * as bg from './locales/bg'
@@ -37,6 +46,7 @@ import * as uk from './locales/uk'
 import * as uz from './locales/uz'
 import * as vi from './locales/vi'
 import * as zh from './locales/zh'
+import * as zhTW from './locales/zh-TW'
 
 /**
  * Export all of the plugin logic
@@ -45,6 +55,7 @@ export * from './i18n'
 
 /**
  * Export all the available locales at once.
+ *
  * @public
  */
 export const locales = {
@@ -87,12 +98,12 @@ export const locales = {
   uz,
   vi,
   zh,
+  'zh-TW': zhTW,
 }
 
 /**
  * Export each locale individually for people who want to cherry pick.
  */
-
 export {
   ar,
   az,
@@ -133,6 +144,7 @@ export {
   uz,
   vi,
   zh,
+  zhTW,
 }
 
 /**

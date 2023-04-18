@@ -1,22 +1,26 @@
+import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
-  error,
-  FormKitNode,
-  FormKitSchemaCondition,
-  FormKitSchemaNode,
-} from '@formkit/core'
-import { h, ref, defineComponent, InjectionKey, ConcreteComponent } from 'vue'
+  h,
+  ref,
+  defineComponent,
+  InjectionKey,
+  ConcreteComponent,
+  SetupContext,
+} from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
 
 /**
  * The symbol that represents the formkit parent injection value.
+ *
  * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
  * The root FormKit component.
+ *
  * @public
  */
 export const FormKit = defineComponent({
@@ -34,7 +38,7 @@ export const FormKit = defineComponent({
   },
   inheritAttrs: false,
   setup(props, context) {
-    const node = useInput(props, context)
+    const node = useInput(props, context as SetupContext<any>)
     if (!node.props.definition) error(600, node)
     if (node.props.definition.component) {
       return () =>
@@ -46,7 +50,7 @@ export const FormKit = defineComponent({
           { ...context.slots }
         )
     }
-    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    const schema = ref<FormKitSchemaDefinition>([])
     const generateSchema = () => {
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)
@@ -57,7 +61,7 @@ export const FormKit = defineComponent({
     }
     generateSchema()
 
-    // If someone emits the schema event, we re-generate the schema
+    // // If someone emits the schema event, we re-generate the schema
     node.on('schema', generateSchema)
 
     context.emit('node', node)
@@ -65,9 +69,8 @@ export const FormKit = defineComponent({
       | Record<string, ConcreteComponent>
       | undefined
 
-    // Expose the FormKitNode to template refs.
+    // // Expose the FormKitNode to template refs.
     context.expose({ node })
-
     return () =>
       h(
         FormKitSchema,

@@ -1,12 +1,12 @@
 import { createNode } from '../src/node'
 import { createShippingTree } from '../../../.jest/helpers'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { FormKitEvent } from '../src/events'
 
 describe('emitting and listening to events', () => {
   it('can emit an arbitrary event', () => {
     const name = createNode()
-    const listener = jest.fn()
+    const listener = vi.fn()
     name.on('blur', listener)
     name.emit('blur', 'hello')
     expect(listener).toHaveBeenCalledTimes(1)
@@ -20,8 +20,8 @@ describe('emitting and listening to events', () => {
 
   it('emits multiple input events for each submit', async () => {
     const node = createNode({ value: 123 })
-    const listener = jest.fn()
-    const listener2 = jest.fn()
+    const listener = vi.fn()
+    const listener2 = vi.fn()
     node.on('input', listener)
     node.on('commit', listener2)
     node.input(456)
@@ -33,7 +33,7 @@ describe('emitting and listening to events', () => {
 
   it('can listen to deep events in the tree', () => {
     const tree = createShippingTree()
-    const listener = jest.fn()
+    const listener = vi.fn()
     tree.on('input.deep', listener)
     const product = tree.at('form.products.0.product')!
     product.input('Sweater')
@@ -48,9 +48,9 @@ describe('emitting and listening to events', () => {
 
   it('can prevent propagation', () => {
     const tree = createShippingTree()
-    const listener = jest.fn()
+    const listener = vi.fn()
     tree.on('input.deep', listener)
-    const bubblePreventer = jest.fn((e: FormKitEvent) => {
+    const bubblePreventer = vi.fn((e: FormKitEvent) => {
       e.bubble = false
     })
     tree.at('form.products.0')!.on('input.deep', bubblePreventer)
@@ -62,7 +62,7 @@ describe('emitting and listening to events', () => {
 
   it('can remove an event listener by the receipt', () => {
     const node = createNode()
-    const listener = jest.fn()
+    const listener = vi.fn()
     const receipt = node.on('dothings', listener)
     node.emit('dothings')
     expect(listener).toHaveBeenCalledTimes(1)
@@ -72,7 +72,7 @@ describe('emitting and listening to events', () => {
   })
 
   it('can add an event listener with it’s own receipt to multiple events', () => {
-    const listener = jest.fn()
+    const listener = vi.fn()
     const greeting = () => listener()
     greeting.receipt = 'foobar'
     const node = createNode()
@@ -89,8 +89,8 @@ describe('emitting and listening to events', () => {
 
   it('emits a non-bubbling prop event for the compound prop and prop name', () => {
     const tree = createShippingTree()
-    const topListener = jest.fn()
-    const innerListener = jest.fn()
+    const topListener = vi.fn()
+    const innerListener = vi.fn()
     tree.on('prop:label', topListener)
     tree.at('name')!.on('prop:label', innerListener)
     tree.at('name')!.props.label = 'hello world'
@@ -100,8 +100,8 @@ describe('emitting and listening to events', () => {
 
   it('can pause events', () => {
     const node = createNode()
-    const foo = jest.fn()
-    const bar = jest.fn()
+    const foo = vi.fn()
+    const bar = vi.fn()
     node.on('foo', foo)
     node.on('bar', bar)
     node._e.pause()

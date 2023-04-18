@@ -1,13 +1,15 @@
 import { existsSync } from 'fs'
 import { fileURLToPath } from 'url'
+import { NuxtModule } from '@nuxt/schema'
 import { defineNuxtModule, addPluginTemplate, createResolver } from '@nuxt/kit'
+// import { addCustomTab } from '@nuxt/devtools/kit'
 
 export interface ModuleOptions {
   defaultConfig: boolean
   configFile?: string
 }
 
-export default defineNuxtModule<ModuleOptions>({
+const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
     name: 'FormKit',
     configKey: 'formkit',
@@ -21,6 +23,11 @@ export default defineNuxtModule<ModuleOptions>({
   },
   async setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)
+
+    // Add FormKit typescript types explicitly.
+    nuxt.hook('prepare:types', (opts) => {
+      opts.references.push({ types: '@formkit/vue' })
+    })
 
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir)
@@ -47,6 +54,16 @@ export default defineNuxtModule<ModuleOptions>({
       )
     }
 
+    // addCustomTab({
+    //   name: 'formkit',
+    //   title: 'FormKit',
+    //   icon: 'vscode-icons:file-type-formkit',
+    //   view: {
+    //     type: 'iframe',
+    //     src: 'https://formkit.com/getting-started/what-is-formkit',
+    //   },
+    // })
+
     addPluginTemplate({
       src: await resolver.resolve('runtime/plugin.mjs'),
       filename: 'formkitPlugin.mjs',
@@ -54,3 +71,5 @@ export default defineNuxtModule<ModuleOptions>({
     })
   },
 })
+
+export default module

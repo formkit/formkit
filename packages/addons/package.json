@@ -1,7 +1,7 @@
 {
   "name": "@formkit/addons",
   "type": "module",
-  "version": "1.0.0-beta.12",
+  "version": "0.16.4",
   "description": "Optional features you can add to your FormKit inputs.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -9,10 +9,12 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
+    "./css/multistep": "./dist/css/multistep.css",
+    "./css/floatingLabels": "./dist/css/floatingLabels.css",
     "./*": "./dist/*"
   },
   "keywords": [
@@ -27,7 +29,8 @@
     "directory": "packages/addons"
   },
   "contributors": [
-    "Justin Schroeder <justin@formkit.com>"
+    "Justin Schroeder <justin@formkit.com>",
+    "Andrew Boyd <andrew@formkit.com>"
   ],
   "license": "MIT",
   "scripts": {
@@ -35,8 +38,11 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "latest",
-    "@formkit/core": "1.0.0-beta.12",
-    "@formkit/utils": "1.0.0-beta.12"
+    "@formkit/core": "0.16.4",
+    "@formkit/inputs": "0.16.4",
+    "@formkit/utils": "0.16.4"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@formkit/vue": "0.16.4"
+  }
 }

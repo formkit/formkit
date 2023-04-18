@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Input section used by textarea inputs
+ *
  * @public
  */
 export const textareaInput = createSection('input', () => ({

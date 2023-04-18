@@ -14,9 +14,9 @@
     border: 1px solid transparent;
     line-height: var(--fk-line-height-button);
 
-    &:focus-visible,
-    &:focus-within {
-      border-color: var(--fk-color-border-focus);
+    &:focus-visible {
+      outline: var(--fk-color-border-focus) solid 2px;
+      outline-offset: 2px;
     }
   }
 

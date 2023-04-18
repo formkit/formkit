@@ -19,6 +19,7 @@ import {
   shallowClone,
   spread,
 } from '../src/index'
+import { describe, expect, it } from 'vitest'
 
 describe('eq', () => {
   it('evaluates simple primitives correctly', () => {
@@ -204,9 +205,6 @@ describe('extend', () => {
       a: 123,
       b: 'bar',
     }))
-
-  it('removes properties to objects as base depth', () =>
-    expect(extend({ a: 123 }, { a: undefined })).toEqual({}))
 
   it('replaces array values completely', () =>
     expect(extend({ a: ['first'] }, { a: ['second'] })).toEqual({

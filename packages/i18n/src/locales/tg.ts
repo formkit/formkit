@@ -37,6 +37,58 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Ягон файл интихоб нашудааст',
+  /**
+   * Shown on buttons that move fields up in a list.
+   */
+  moveUp: 'Ба боло ҳаракат кунед',
+  /**
+   * Shown on buttons that move fields down in a list.
+   */
+  moveDown: 'Ба поён ҳаракат кунед',
+  /**
+   * Shown when something is actively loading.
+   */
+  isLoading: 'Дар ҳоли боргузорӣ',
+  /**
+   * Shown when there is more to load.
+   */
+  loadMore: 'Бештар бор кунед',
+  /**
+   * Show on buttons that navigate state forward
+   */
+  next: 'Баъдӣ',
+  /**
+   * Show on buttons that navigate state backward
+   */
+  prev: 'Гузашта',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: 'Ҳама арзишҳоро илова кунед',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'Илова кардани арзишҳои интихобшуда',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Ҳама арзишҳоро хориҷ кунед',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Арзишҳои интихобшударо хориҷ кунед',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Сана интихоб кунед',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'Тағйир додани сана',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
 
 /**
@@ -96,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} метавонад танҳо ҳарфҳо ва фосилаҳоро дар бар гирад.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} must contain alphabetical characters.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} must contain letters and numbers.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} must contain letters and spaces.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} must contain symbol.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} must contain uppercase.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} must contain lowercase.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} must contain number.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} can only contain symbol.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} can only contain uppercase.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} can only contain lowercase.`
     /* </i18n> */
   },
 

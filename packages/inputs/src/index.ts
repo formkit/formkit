@@ -1,13 +1,32 @@
 /**
+ * The official FormKit Inputs plugin. This package contains the source code for
+ * all native HTML input types. Read the
+ * {@link https://formkit.com/essentials/inputs | inputs documentation} for
+ * usage instructions.
+ *
+ * @packageDocumentation
+ */
+
+/**
  * Export the plugin.
  */
 export { createLibraryPlugin } from './plugin'
 
 /**
  * Helper function for normalizing options.
- * @internal
  */
 export { normalizeOptions } from './features/options'
+
+/**
+ * createSection() and related utilities.
+ */
+export {
+  FormKitSchemaExtendableSection,
+  FormKitSection,
+  createSection,
+  isSchemaObject,
+  extendSchema,
+} from './createSection'
 
 /**
  * Composable logic.
@@ -21,6 +40,7 @@ export * from './props'
 
 /**
  * A single file object in FormKit’s synthetic "FileList".
+ *
  * @public
  */
 export interface FormKitFile {
@@ -30,6 +50,7 @@ export interface FormKitFile {
 
 /**
  * A synthetic array-based "FileList".
+ *
  * @public
  */
 export type FormKitFileValue = FormKitFile[]

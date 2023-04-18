@@ -16,7 +16,12 @@ import { createThemePlugin, FormKitIconLoader, FormKitIconLoaderUrl } from '@for
 import bindings from './bindings'
 import '@formkit/dev'
 
-interface PluginConfigs {
+/**
+ * Configuration for plugins
+ *
+ * @public
+ */
+export interface PluginConfigs {
   rules: Record<string, FormKitValidationRule>
   locales: FormKitLocaleRegistry
   inputs: FormKitLibrary
@@ -24,11 +29,12 @@ interface PluginConfigs {
   theme: string
   iconLoaderUrl: FormKitIconLoaderUrl
   iconLoader: FormKitIconLoader
-  icons: Record<string,string|undefined>
+  icons: Record<string, string | undefined>
 }
 
 /**
  * The allowed options for defaultConfig.
+ *
  * @public
  */
 export type DefaultConfigOptions = FormKitOptions &
@@ -38,6 +44,7 @@ export type DefaultConfigOptions = FormKitOptions &
 /**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
+ *
  * @public
  */
 const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {

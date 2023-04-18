@@ -6,6 +6,7 @@ import { createNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('parsing dom elements', () => {
   it('can render a single simple dom element', () => {
@@ -105,6 +106,18 @@ describe('parsing dom elements', () => {
     data.a.b = 'c'
     await nextTick()
     expect(wrapper.html()).toBe('<h1>c</h1>')
+  })
+
+  it('can render non-fragment as a root node #474', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: {
+          $el: 'h1',
+          children: 'Hello world',
+        },
+      },
+    })
+    expect(wrapper.html()).toBe('<h1>Hello world</h1>')
   })
 
   it('can render different children with if/then/else at root', async () => {
@@ -440,6 +453,26 @@ describe('parsing dom elements', () => {
     expect(wrapper.html()).toBe(`<span>fred</span>
 <span>bob</span>
 <span>ted</span>`)
+  })
+
+  it('does not iterate over the value of a single digit array (#635)', async () => {
+    const data = reactive({
+      cities: [10],
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $el: 'div',
+            for: ['item', '$cities'],
+            children: '$item',
+          },
+        ],
+      },
+    })
+    await nextTick()
+    expect(wrapper.html()).toBe(`<div>10</div>`)
   })
 
   it('can shadow nested loop scoped variables', async () => {
@@ -876,7 +909,7 @@ describe('parsing dom elements', () => {
     })
     expect(wrapper.html()).toBe('undefined')
     data.value.myObject = { foo: 'bar' }
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.html()).toBe('bar')
   })
 })

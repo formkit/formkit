@@ -36,6 +36,12 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
   </a>
 </p>
 
+<p style="margin-bottom: 1em;">
+  <a href="https://zammad.com">
+    <img src="https://cdn.formk.it/web-assets/sponsors/zammad_logo-transparent.png" alt="Zammad logo" style="width: 14%;">
+  </a>
+</p>
+
 ### Backers
 
 [uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic)

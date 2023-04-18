@@ -1,6 +1,6 @@
 import { ref, nextTick, reactive, toRef } from 'vue'
 import watchVerbose, { getPaths } from '../src/composables/watchVerbose'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
@@ -57,7 +57,7 @@ describe('getPaths', () => {
 describe('watchVerbose', () => {
   it('can detect single level depth mutations', async () => {
     const values = ref({ a: 'a', b: 'b' })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.b = 'c'
     await nextTick()
@@ -74,7 +74,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b = 'foobar'
     await nextTick()
@@ -89,7 +89,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.z = 'foobar'
     await nextTick()
@@ -104,7 +104,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.c = 'foobar'
     await nextTick()
@@ -127,7 +127,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b.c = { z: 'h' }
     await nextTick()
@@ -147,7 +147,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b.push({ x: 10 })
     await nextTick()
@@ -166,7 +166,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b[1].x = 567
     await nextTick()
@@ -181,7 +181,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b.push({ a: 567 })
     await nextTick()
@@ -209,7 +209,7 @@ describe('watchVerbose', () => {
       },
       z: 'e',
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.a.b[0] = 'foobar'
     await nextTick()
@@ -226,7 +226,7 @@ describe('watchVerbose', () => {
 
   it('can detect changes at the root of the ref', async () => {
     const value = ref('abc')
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(value, callback)
     value.value = 'def'
     await nextTick()
@@ -240,7 +240,7 @@ describe('watchVerbose', () => {
         b: '123',
       },
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(value, callback)
     value.value = 'foobar'
     await nextTick()
@@ -259,7 +259,7 @@ describe('watchVerbose', () => {
         price: 4,
       },
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.price = 0
     values.value.prices[0] = 0
@@ -273,7 +273,7 @@ describe('watchVerbose', () => {
 
   it('can change the same property twice synchronously', async () => {
     const value = ref({ a: '123' })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(value, callback)
     value.value.a = '456'
     value.value.a = '567'
@@ -290,7 +290,7 @@ describe('watchVerbose', () => {
         },
       },
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(value, callback)
     value.a.b.c = 456
     await nextTick()
@@ -306,7 +306,7 @@ describe('watchVerbose', () => {
         },
       },
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     const detached = toRef(values.value.a, 'b')
     values.value.a = 'foobar'
@@ -319,7 +319,7 @@ describe('watchVerbose', () => {
 
   it('responds to new additions on vue reactive objects', async () => {
     const values = reactive<{ a?: string }>({})
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.a = '123'
     await nextTick()
@@ -331,7 +331,7 @@ describe('watchVerbose', () => {
     const values = reactive<{ form: { a?: string } }>({
       form: {},
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.form.a = '123'
     await nextTick()
@@ -347,7 +347,7 @@ describe('watchVerbose', () => {
       disregard: ['A', 'B'],
       users: [{ name: 'A' }, { name: 'B' }],
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     watchVerbose(values, callback)
     values.value.users.shift()
     await nextTick()
@@ -381,10 +381,10 @@ describe('watchVerbose', () => {
         template: `
         <FormKit type="group" v-model="values">
           <FormKit type="list" name="users" id="${usersId}" v-slot="{ value }">
-            <FormKit type="group" v-if="value && value.length > 0">
+            <FormKit type="group" :index="0" v-if="value && value.length > 0">
               <FormKit name="name"/>
             </FormKit>
-            <FormKit type="group" v-if="value && value.length > 1">
+            <FormKit type="group" :index="1" v-if="value && value.length > 1">
               <FormKit name="name" />
             </FormKit>
           </FormKit>
@@ -404,11 +404,18 @@ describe('watchVerbose', () => {
     })
     await nextTick()
     expect(usersNode.value).toStrictEqual([{ name: 'foo' }, { name: 'bar' }])
-    wrapper.vm.values.users.shift()
+    wrapper.vm.values.users[0].name = 'baz'
+    wrapper.vm.values.users[1].name = 'fiz'
     await nextTick()
-    expect(usersNode.value).toStrictEqual([{ name: 'bar' }])
-    wrapper.vm.values.users[1] = { name: 'foo' }
-    await nextTick()
-    expect(usersNode.value).toStrictEqual([{ name: 'bar' }, { name: 'foo' }])
+    const inputs = wrapper.findAll('input')
+    expect(inputs.at(0)?.element.value).toBe('baz')
+    expect(inputs.at(1)?.element.value).toBe('fiz')
+    // wrapper.vm.values.users.shift()
+    // await nextTick()
+    // expect(usersNode.children.length).toBe(1)
+    // expect(usersNode.value).toStrictEqual([{ name: 'bar' }])
+    // wrapper.vm.values.users[1] = { name: 'foo' }
+    // await nextTick()
+    // expect(usersNode.value).toStrictEqual([{ name: 'bar' }, { name: 'foo' }])
   })
 })

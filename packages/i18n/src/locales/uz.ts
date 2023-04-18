@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'Ko’proq yuklang',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'Keyingi',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'Oldingi',
+  /**
+   * Shown when adding all values.
+   */
+  addAllValues: `Barcha qiymatlarni qo'shish`,
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: `Tanlangan qiymatlarni qoʻshish`,
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'Barcha qiymatlarni olib tashlang',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'Tanlangan qiymatlarni olib tashlash',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'Sanani tanlang',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: `O'zgartirish sanasi`,
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Tanlangan sana yaroqsiz.',
 }
 
 /**
@@ -114,6 +150,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)} faqat harf va bo'shliqlardan iborat bo'lishi mumkin.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} alfavit belgilarini o'z ichiga olishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} harflar yoki raqamlarni o'z ichiga olishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} harflar yoki bo'shliqlar bo'lishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} belgisi bo'lishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} katta harfni o'z ichiga olishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} kichik harflarni o'z ichiga olishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} raqamlarini o'z ichiga olishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} belgisi bo'lishi kerak.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} faqat katta harflarni o'z ichiga olishi mumkin.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} faqat kichik harflarni o'z ichiga olishi mumkin.`
     /* </i18n> */
   },
 

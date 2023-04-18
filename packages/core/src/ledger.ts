@@ -6,6 +6,7 @@ import { has } from '@formkit/utils'
 /**
  * The FormKit ledger, a general-purpose message counting service provided by
  * FormKit core for counting messages throughout a tree.
+ *
  * @public
  */
 export interface FormKitLedger {
@@ -24,6 +25,7 @@ export interface FormKitLedger {
 /**
  * Ledger counters require a condition function that determines if a given
  * message applies to it or not.
+ *
  * @public
  */
 export interface FormKitCounterCondition {
@@ -33,6 +35,7 @@ export interface FormKitCounterCondition {
 /**
  * The counter object used to perform instance counting within
  * a tree.
+ *
  * @public
  */
 export interface FormKitCounter {
@@ -46,6 +49,7 @@ export interface FormKitCounter {
 
 /**
  * The internal ledger store structure.
+ *
  * @internal
  */
 interface FormKitLedgerStore {
@@ -54,7 +58,8 @@ interface FormKitLedgerStore {
 
 /**
  * Creates a new ledger for use on a single node's context.
- * @returns
+ *
+ * @internal
  */
 export function createLedger(): FormKitLedger {
   const ledger: FormKitLedgerStore = {}
@@ -81,11 +86,14 @@ export function createLedger(): FormKitLedger {
 
 /**
  * Creates a new counter object in the counting ledger.
+ *
+ * @param node - FormKitNode
  * @param ledger - The actual ledger storage object
  * @param counterName - The name of the counter, can be arbitrary
  * @param condition - The condition function (or string) that filters messages
- * @param initialValue - The initial counter value
- * @returns
+ * @param increment - The increment value
+ *
+ * @internal
  */
 function createCounter(
   node: FormKitNode,
@@ -119,8 +127,10 @@ function createCounter(
 
 /**
  * We parse the condition to allow flexibility in how counters are specified.
+ *
  * @param condition - The condition that, if true, allows a message to change a counter's value
- * @returns
+ *
+ * @internal
  */
 function parseCondition(
   condition: string | FormKitCounterCondition
@@ -133,9 +143,11 @@ function parseCondition(
 
 /**
  * Perform a counting action on the a given counter object of the ledger.
+ *
  * @param counter - A counter object
  * @param increment - The amount by which we are changing the count value
- * @returns
+ *
+ * @internal
  */
 function count(counter: FormKitCounter, increment: number): FormKitCounter {
   const initial = counter.count
@@ -154,9 +166,11 @@ function count(counter: FormKitCounter, increment: number): FormKitCounter {
 
 /**
  * Returns a function to be used as an event listener for message events.
+ *
  * @param ledger - A ledger to operate on
  * @param delta - The amount to add or subtract
- * @returns
+ *
+ * @internal
  */
 function add(ledger: FormKitLedgerStore, delta: number) {
   return (e: FormKitEvent) => {
@@ -173,10 +187,13 @@ function add(ledger: FormKitLedgerStore, delta: number) {
  * Given a child node, add the parent node's counters to the child and then
  * rectify the upstream ledger counts. Generally used when attaching a child
  * to an already counted tree.
+ *
  * @param parent - The parent that is "receiving" the child
  * @param ledger - The ledger object
  * @param child - The child (can be a subtree) that is being attached
  * @param remove - If the merge is removing instead of adding
+ *
+ * @internal
  */
 function merge(
   parent: FormKitNode | null,

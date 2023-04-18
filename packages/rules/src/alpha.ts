@@ -8,7 +8,7 @@ import { FormKitValidationRule } from '@formkit/validation'
  */
 const alpha: FormKitValidationRule = function ({ value }, set = 'default') {
   const sets = {
-    default: /^[a-zA-ZÀ-ÖØ-öø-ÿĄąĆćČčĎďĘęĚěŁłŃńŇňŘřŚśŠšŤťŮůŹźŻŽžż]+$/,
+    default: /^[\p{Lu}\p{L}]+$/u,
     latin: /^[a-zA-Z]+$/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'

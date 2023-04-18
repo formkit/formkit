@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Input section for a button
+ *
  * @public
  */
 export const buttonInput = createSection('input', () => ({

@@ -3,14 +3,16 @@ import { has, clone } from '@formkit/utils'
 
 /**
  * Handle the submit event.
+ *
  * @param e - The event
- * @public
+ *
+ * @internal
  */
 async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   submitEvent.preventDefault()
   await node.settled
   // Set the submitted state on all children
-  node.walk((n) => {
+  const setSubmitted = (n: FormKitNode) =>
     n.store.set(
       createMessage({
         key: 'submitted',
@@ -18,7 +20,8 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
         visible: false,
       })
     )
-  })
+  node.walk(setSubmitted)
+  setSubmitted(node)
 
   if (typeof node.props.onSubmitRaw === 'function') {
     node.props.onSubmitRaw(submitEvent, node)
@@ -77,8 +80,10 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
 }
 
 /**
- * Converts the options prop to usable values.
- * @param node - A formkit node.
+ * A feature to add a submit handler and actions section.
+ *
+ * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
+ *
  * @public
  */
 export default function form(node: FormKitNode): void {

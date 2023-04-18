@@ -3,8 +3,9 @@ import { error } from './errors'
 import { has, token, slugify } from '@formkit/utils'
 
 /**
- * The structure of an core FormKitMessage. These messages are used to store
+ * The structure of a core FormKitMessage. These messages are used to store
  * information about the state of a node.
+ *
  * @public
  */
 export interface FormKitMessageProps {
@@ -18,6 +19,7 @@ export interface FormKitMessageProps {
 
 /**
  * A FormKit message is immutable, so all properties should be readonly.
+ *
  * @public
  */
 export type FormKitMessage = Readonly<FormKitMessageProps>
@@ -26,6 +28,8 @@ export type FormKitMessage = Readonly<FormKitMessageProps>
  * A registry of input messages that should be applied to children of the node
  * they are passed to — where the string key of the object is the address of
  * the node to apply the messages on and the value is the message itself.
+ *
+ * @public
  */
 export interface FormKitInputMessages {
   [address: string]: FormKitMessage[]
@@ -33,19 +37,24 @@ export interface FormKitInputMessages {
 
 /**
  * Child messages that were not immediately applied due to the child not existing.
+ *
+ * @public
  */
-type ChildMessageBuffer = Map<
+export type ChildMessageBuffer = Map<
   string,
   Array<[FormKitMessage[], MessageClearer | undefined]>
 >
 
 /**
  * A string or function that allows clearing messages.
+ *
+ * @public
  */
-type MessageClearer = string | ((message: FormKitMessage) => boolean)
+export type MessageClearer = string | ((message: FormKitMessage) => boolean)
 
 /**
  * Messages have can have any arbitrary meta data attached to them.
+ *
  * @public
  */
 export interface FormKitMessageMeta {
@@ -64,7 +73,8 @@ export interface FormKitMessageMeta {
 }
 
 /**
- * Defines the actual store of messages (private).
+ * Defines the actual store of messages.
+ *
  * @public
  */
 export interface FormKitMessageStore {
@@ -73,6 +83,7 @@ export interface FormKitMessageStore {
 
 /**
  * The message store contains all of the messages that pertain to a given node.
+ *
  * @public
  */
 export type FormKitStore = FormKitMessageStore & {
@@ -90,6 +101,8 @@ export type FormKitStore = FormKitMessageStore & {
 
 /**
  * The available traps on the FormKit store.
+ *
+ * @public
  */
 export interface FormKitStoreTraps {
   apply: (
@@ -112,8 +125,12 @@ export interface FormKitStoreTraps {
 
 /**
  * Creates a new FormKitMessage object.
- * @param conf - The message configuration
- * @returns FormKitMessage
+ *
+ * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}.
+ * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}.
+ *
+ * @returns A {@link FormKitMessageProps | FormKitMessageProps}.
+ *
  * @public
  */
 export function createMessage(
@@ -137,6 +154,8 @@ export function createMessage(
 
 /**
  * The available traps on the node's store.
+ *
+ * @internal
  */
 const storeTraps: {
   [k in keyof FormKitStoreTraps]: (...args: any[]) => unknown
@@ -152,7 +171,8 @@ const storeTraps: {
 
 /**
  * Creates a new FormKit message store.
- * @returns FormKitStore
+ *
+ * @internal
  */
 export function createStore(_buffer = false): FormKitStore {
   const messages: FormKitMessageStore = {}
@@ -202,11 +222,13 @@ export function createStore(_buffer = false): FormKitStore {
 
 /**
  * Adds a new value to a FormKit message bag.
- * @param store - The store itself
+ *
+ * @param messageStore - The message store itself
  * @param store - The store interface
  * @param node - The node this store belongs to
  * @param message - The message object
- * @returns FormKitStore
+ *
+ * @internal
  */
 function setMessage(
   messageStore: FormKitMessageStore,
@@ -239,6 +261,8 @@ function setMessage(
 /**
  * Run through each message in the store, and ensure it has been translated
  * to the proper language. This most frequently happens after a locale change.
+ *
+ * @internal
  */
 function touchMessages(
   messageStore: FormKitMessageStore,
@@ -252,11 +276,15 @@ function touchMessages(
 
 /**
  * Remove a message from the store.
- * @param store - The store itself
+ *
+ * @param messageStore - The message store
  * @param store - The store interface
  * @param node - The node this store belongs to
  * @param key - The message key
+ *
  * @returns FormKitStore
+ *
+ * @internal
  */
 function removeMessage(
   messageStore: FormKitMessageStore,
@@ -280,11 +308,14 @@ function removeMessage(
 
 /**
  * Iterates over all messages removing those that are no longer wanted.
+ *
  * @param messageStore - The store itself
  * @param store - The store interface
  * @param node - The node to filter for
  * @param callback - A callback accepting a message and returning a boolean
  * @param type - Pre filtered by a given message type
+ *
+ * @internal
  */
 function filterMessages(
   messageStore: FormKitMessageStore,
@@ -303,12 +334,16 @@ function filterMessages(
 
 /**
  * Reduce the message store to some other generic value.
+ *
  * @param messageStore - The store itself
  * @param _store - Unused but curried — the store interface itself
  * @param _node - The node owner of this store
  * @param reducer - The callback that performs the reduction
  * @param accumulator - The initial value
+ *
  * @returns
+ *
+ * @internal
  */
 function reduceMessages<T>(
   messageStore: FormKitMessageStore,
@@ -325,11 +360,12 @@ function reduceMessages<T>(
 }
 
 /**
- *
  * @param messageStore - The store itself
  * @param _store - Unused but curried — the store interface itself
  * @param node - The node owner of this store
  * @param messages - An array of FormKitMessages to apply to this input, or an object of messages to apply to children.
+ *
+ * @internal
  */
 export function applyMessages(
   _messageStore: FormKitMessageStore,
@@ -372,7 +408,8 @@ export function applyMessages(
 
 /**
  * Error messages.
- * @internal
+ *
+ * @public
  */
 export type ErrorMessages =
   | string
@@ -381,8 +418,10 @@ export type ErrorMessages =
 
 /**
  * Creates an array of message arrays from strings.
+ *
+ * @param node - FormKitNode
  * @param errors - Arrays or objects of form errors or input errors
- * @returns
+ *
  * @internal
  */
 export function createMessages(
@@ -420,11 +459,12 @@ export function createMessages(
 }
 
 /**
- *
  * @param store - The store to apply this missed applications.
  * @param address - The address that was missed (a node path that didn't yet exist)
  * @param messages - The messages that should have been applied.
  * @param clear - The clearing function (if any)
+ *
+ * @internal
  */
 function missed(
   node: FormKitNode,
@@ -444,8 +484,10 @@ function missed(
  * Releases messages that were applied to a child via parent, but the child did
  * not exist. Once the child does exist, the created event for that child will
  * bubble to this point, and any stored applications will be applied serially.
+ *
  * @param store - The store object.
- * @returns
+ *
+ * @internal
  */
 function releaseMissed(node: FormKitNode, store: FormKitStore): string {
   return node.on(
@@ -470,9 +512,12 @@ function releaseMissed(node: FormKitNode, store: FormKitStore): string {
 
 /**
  * Iterates over all buffered messages and applies them in sequence.
+ *
  * @param messageStore - The store itself
  * @param store - The store interface
  * @param node - The node to filter for
+ *
+ * @internal
  */
 function releaseBuffer(
   _messageStore: FormKitMessageStore,

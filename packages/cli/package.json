@@ -1,6 +1,6 @@
 {
   "name": "@formkit/cli",
-  "version": "1.0.0-beta.12",
+  "version": "0.16.4",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
@@ -12,9 +12,9 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     },
     "./*": "./dist/*"
   },
@@ -38,12 +38,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/inputs": "1.0.0-beta.12",
+    "@formkit/core": "0.16.4",
+    "@formkit/inputs": "0.16.4",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
-    "prompts": "^2.4.2",
-    "execa": "6.1.0"
+    "execa": "6.1.0",
+    "prompts": "^2.4.2"
   },
   "devDependencies": {
     "@types/prompts": "^2.0.14"

@@ -15,6 +15,7 @@ node_modules
 
 # Generated dirs
 dist
+playwright-report/
 
 # Nuxt
 packages/nuxt/playground/.nuxt/*

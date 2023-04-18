@@ -15,7 +15,7 @@ import {
   eventCounter,
 } from '../../../.jest/helpers'
 import { generateClassList } from '../src/classes'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { FormKitMiddleware } from '../src/dispatcher'
 import { has, clone } from '@formkit/utils'
 
@@ -26,7 +26,7 @@ describe('node', () => {
   })
 
   it('emits a singe commit event for type input', () => {
-    const commitEvent = jest.fn()
+    const commitEvent = vi.fn()
     const countEmits = function (node: FormKitNode) {
       node.on('commit', commitEvent)
     }
@@ -37,7 +37,7 @@ describe('node', () => {
   })
 
   it('emits a singe commit event for type list', () => {
-    const commitEvent = jest.fn()
+    const commitEvent = vi.fn()
     const lib = function libraryPlugin() {}
     lib.library = (node: FormKitNode) => {
       if (node.props.type === 'list') {
@@ -117,8 +117,8 @@ describe('node', () => {
       type: 'group',
       children: [createNode({ name: 'child' })],
     })
-    const listenerA = jest.fn()
-    const listenerB = jest.fn()
+    const listenerA = vi.fn()
+    const listenerB = vi.fn()
     node.on('config:locale', listenerA)
     node.at('child')!.on('config:locale', listenerB)
     node.config.locale = 'fr'
@@ -151,8 +151,8 @@ describe('node', () => {
         }),
       ],
     })
-    const listenerA = jest.fn()
-    const listenerB = jest.fn()
+    const listenerA = vi.fn()
+    const listenerB = vi.fn()
     expect(node.at('list')?.props.locale).toBe('fr')
     expect(node.at('list.0')!.props.locale).toBe('fr')
     node.at('list')!.on('config:locale', listenerA)
@@ -204,7 +204,7 @@ describe('node', () => {
         createNode({ type: 'group', children: [createNode(), createNode()] }),
       ],
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     tree.each(callback)
     expect(callback).toHaveBeenCalledTimes(3)
   })
@@ -218,9 +218,23 @@ describe('node', () => {
         createNode({ type: 'group', children: [createNode(), createNode()] }),
       ],
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     tree.walk(callback)
     expect(callback).toHaveBeenCalledTimes(5)
+  })
+
+  it('stops traversing nodes when node.walk callback returns false', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'a' }),
+        createNode({ name: 'b' }),
+        createNode({ name: 'c' }),
+      ],
+    })
+    const callback = vi.fn().mockReturnValue(false)
+    tree.walk(callback, true)
+    expect(callback).toHaveBeenCalledTimes(1)
   })
 
   it('does not allow nodes of type input to be created with children', () => {
@@ -268,7 +282,7 @@ describe('node', () => {
       },
       children: [createNode({ name: 'child', config: { rootConfig } })],
     })
-    const listener = jest.fn()
+    const listener = vi.fn()
     expect(group.config.foo).toBe('bar')
     expect(group.at('child')?.props.foo).toBe('bar')
     group.at('child')!.on('prop:foo', listener)
@@ -638,7 +652,7 @@ describe('props system', () => {
   })
 
   it('emits a prop event when a config changes and there is no matching prop', () => {
-    const listener = jest.fn()
+    const listener = vi.fn()
     const node = createNode({
       props: {},
       config: { foo: 'bar' },
@@ -654,7 +668,7 @@ describe('props system', () => {
         name: 'ted',
       },
     })
-    const listener = jest.fn()
+    const listener = vi.fn()
     node.on('prop', listener)
     node.props.name = 'fred'
     expect(listener).toHaveBeenCalledWith({
@@ -671,7 +685,7 @@ describe('props system', () => {
 
 describe('plugin system', () => {
   it('runs plugins on node creation', () => {
-    const plugin = jest.fn(() => {})
+    const plugin = vi.fn(() => {})
     const node = createNode({
       plugins: [plugin],
     })
@@ -679,8 +693,8 @@ describe('plugin system', () => {
   })
 
   it('automatically inherits from parent plugins', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     const parent = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -696,8 +710,8 @@ describe('plugin system', () => {
   })
 
   it('runs inherited plugins when being added to a tree', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     createNode({
       type: 'list',
       plugins: [pluginA],
@@ -712,8 +726,8 @@ describe('plugin system', () => {
   })
 
   it('inherits the plugins when moving between trees', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     const treeA = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -730,7 +744,7 @@ describe('plugin system', () => {
   })
 
   it('does not re-run plugins when moving position in tree', () => {
-    const pluginA = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
     const child = createNode()
     const treeA = createNode({
       type: 'group',
@@ -820,7 +834,7 @@ describe('classes hook', () => {
     const themeMiddleware: FormKitMiddleware<{
       property: string
       classes: Record<string, boolean>
-    }> = jest.fn((obj, next) => {
+    }> = vi.fn((obj, next) => {
       obj.classes.foo = true
       obj.classes.bar = false
       return next(obj)
@@ -842,7 +856,7 @@ describe('classes hook', () => {
 
 describe('commit hook', () => {
   it('can change the value being assigned', async () => {
-    const commitMiddleware: FormKitMiddleware<string> = jest.fn(phoneMask)
+    const commitMiddleware: FormKitMiddleware<string> = vi.fn(phoneMask)
     const phonePlugin: FormKitPlugin = function (node) {
       if (node.type === 'input') {
         node.hook.commit(commitMiddleware)
@@ -972,7 +986,7 @@ describe('value propagation in a node tree', () => {
 
   it('collects values from a groups children', async () => {
     const parent = createNode({ type: 'group' })
-    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = vi.fn(
       (value, next) => next(value)
     )
     parent.hook.commit(commitMiddleware)
@@ -1004,7 +1018,7 @@ describe('value propagation in a node tree', () => {
         createNode(),
       ],
     })
-    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = vi.fn(
       (value, next) => next(value)
     )
     parent.hook.commit(commitMiddleware)
@@ -1102,7 +1116,7 @@ describe('value propagation in a node tree', () => {
         }),
       ],
     })
-    const commitListener = jest.fn()
+    const commitListener = vi.fn()
     repeater.on('commit', commitListener)
     repeater.at('1')?.destroy()
     await repeater.settled
@@ -1224,7 +1238,7 @@ describe('value propagation in a node tree', () => {
   })
 
   it('passes initial values through the input middleware', () => {
-    const maskPlugin: FormKitPlugin = jest.fn((n) => {
+    const maskPlugin: FormKitPlugin = vi.fn((n) => {
       n.hook.input(phoneMask)
       // n.hook.init(phoneMask)
     })
@@ -1383,7 +1397,7 @@ describe('value propagation in a node tree', () => {
 
     it('searches the entire tree', () => {
       const parent = createNameTree()
-      const searcher = jest.fn(() => false)
+      const searcher = vi.fn(() => false)
       bfs(parent, 'jim', searcher)
       expect(searcher.mock.calls.length).toBe(7)
     })
@@ -1447,28 +1461,43 @@ describe('resetting', () => {
   })
 
   it('emits an reset event', async () => {
-    const resetEvent = jest.fn()
+    const resetEvent = vi.fn()
     const node = createNode({ value: 'foobar' })
     node.on('reset', resetEvent)
     node.reset()
     expect(resetEvent).toHaveBeenCalledTimes(1)
   })
+
+  it('can reset group to new values which then become the initials', async () => {
+    const node = createNode({
+      type: 'group',
+      value: { foo: 'bar', bim: 'bam' },
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bim' })],
+    })
+    node.reset({ foo: 'abc', bim: 'xyz' })
+    node.input({ foo: 'baz', bim: 'bop' }, false)
+    node.reset()
+    expect(node.at('foo')?.value).toBe('abc')
+    expect(node.at('bim')?.value).toBe('xyz')
+  })
 })
 
 describe('errors', () => {
-  const form = createNode({
-    type: 'group',
-    name: 'myForm',
-    children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+  it('can set and count errors', () => {
+    const form = createNode({
+      type: 'group',
+      name: 'myForm',
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+    })
+    form.ledger.count('errors', (m) => m.type === 'error')
+    form.setErrors(['This is my error'], {
+      foo: 'And this is a child one',
+      bar: ['And this is another child one'],
+    })
+    expect(form.ledger.value('errors')).toBe(3)
+    form.clearErrors(false)
+    expect(form.ledger.value('errors')).toBe(2)
+    form.clearErrors()
+    expect(form.ledger.value('errors')).toBe(0)
   })
-  form.ledger.count('errors', (m) => m.type === 'error')
-  form.setErrors(['This is my error'], {
-    foo: 'And this is a child one',
-    bar: ['And this is another child one'],
-  })
-  expect(form.ledger.value('errors')).toBe(3)
-  form.clearErrors(false)
-  expect(form.ledger.value('errors')).toBe(2)
-  form.clearErrors()
-  expect(form.ledger.value('errors')).toBe(0)
 })

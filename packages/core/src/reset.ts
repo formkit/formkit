@@ -1,10 +1,12 @@
-import { cloneAny, init } from '@formkit/utils'
+import { cloneAny, init, isObject, empty } from '@formkit/utils'
 import { FormKitNode } from './node'
 import { warn } from './errors'
 import { getNode } from './registry'
 
 /**
  * Clear all state and error messages.
+ *
+ * @internal
  */
 function clearState(node: FormKitNode) {
   const clear = (n: FormKitNode) => {
@@ -25,10 +27,14 @@ function clearState(node: FormKitNode) {
 }
 
 /**
- * Resets an input to it’s "initial" value — if the input is a group or list it
+ * Resets an input to its "initial" value. If the input is a group or list it
  * resets all the children as well.
- * @param id - The id of an input to reset
- * @returns
+ *
+ * @param id - The id of an input to reset.
+ * @param resetTo - A value to reset the node to.
+ *
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`.
+ *
  * @public
  */
 export function reset(
@@ -44,16 +50,18 @@ export function reset(
     // pause all events in this tree.
     node._e.pause(node)
     // Set it back to basics
-    node.input(cloneAny(resetTo) || initial(node), false)
+    const resetValue = cloneAny(resetTo)
+
+    if (resetTo && !empty(resetTo)) {
+      node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
+    }
+    node.input(initial(node), false)
     // Set children back to basics in case they were additive (had their own value for example)
     node.walk((child) => child.input(initial(child), false))
     // Finally we need to lay any values back on top (if it is a group/list) since group values
     // take precedence over child values.
-    const finalInit = initial(node)
     node.input(
-      typeof finalInit === 'object'
-        ? cloneAny(resetTo) || init(finalInit)
-        : finalInit,
+      empty(resetValue) && resetValue ? resetValue : initial(node),
       false
     )
     // release the events.

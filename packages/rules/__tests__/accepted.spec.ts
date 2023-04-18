@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import accepted from '../src/accepted'
+import { describe, expect, it } from 'vitest'
 
 describe('accepted rule', () => {
   it('passes with true', () =>

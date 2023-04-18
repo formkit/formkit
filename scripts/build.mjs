@@ -38,17 +38,16 @@ const augmentations = {
  * Augment Vue’s globalProperties.
  * @public
  */
-declare module '@vue/runtime-core' {
-  export interface ComponentCustomProperties {
+declare module 'vue' {
+  interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
   }
-  export interface GlobalComponents {
+  interface GlobalComponents {
     FormKit: typeof FormKit
     FormKitSchema: typeof FormKitSchema
   }
 }
-
-export { }`,
+`,
 }
 
 const __filename = fileURLToPath(import.meta.url)
@@ -122,6 +121,8 @@ export async function buildPackage(p) {
 
   if (p === 'inputs') await inputsBuildExtras()
 
+  if (p === 'addons') await addonsBuildExtras()
+
   // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
@@ -164,13 +165,12 @@ export async function inputsBuildExtras() {
   msg.info('» Exporting inputs by type')
   const inputs = getInputs()
   const distDir = resolve(packagesDir, 'inputs/dist/exports')
-  console.log(distDir)
   await fs.mkdir(distDir, { recursive: true })
   await Promise.all(
     inputs.map(async (input) => {
       // await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
       let fileData = await fs.readFile(input.filePath, { encoding: 'utf8' })
-      fileData = fileData.replace("} from '../compose'", "} from '../'")
+      fileData = fileData.replace("} from '../compose'", "} from '../index'")
       await fs.writeFile(resolve(distDir, `${input.name}.ts`), fileData)
     })
   )
@@ -209,6 +209,33 @@ async function themesBuildExtras() {
       ])
     )
   )
+  const nestedTailwindPlugins = getPlugins('/themes/src/tailwindcss')
+  await Promise.all(
+    nestedTailwindPlugins.map((plugin) =>
+      Promise.all([
+        bundle('themes', 'esm', ['plugin', `tailwindcss/${plugin}`]),
+        bundle('themes', 'cjs', ['plugin', `tailwindcss/${plugin}`]),
+        declarations('themes', `tailwindcss/${plugin}`),
+      ])
+    )
+  )
+}
+
+/**
+ * Special considerations for building the addons package.
+ */
+async function addonsBuildExtras() {
+  const addonsCSS = await fs.readdir(packagesDir + '/addons/src/css')
+  fs.mkdir(packagesDir + '/addons/dist/css/', { recursive: true }, (err) => {
+    if (err) throw err
+  })
+  await addonsCSS.forEach(async (css) => {
+    console.log(packagesDir + '/addons/src/css/' + css)
+    await fs.copyFile(
+      packagesDir + '/addons/src/css/' + css,
+      packagesDir + '/addons/dist/css/' + css
+    )
+  })
 }
 
 /**
@@ -259,7 +286,7 @@ async function buildNuxtModule() {
   msg.loader.text = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
     exec(
-      'cd ./packages/nuxt && yarn prepack && cd ../../',
+      'cd ./packages/nuxt && pnpm prepack && cd ../../',
       (err, stdout, stderr) => {
         if (err) {
           reject(stderr)
@@ -319,7 +346,8 @@ async function declarations(p, plugin = '') {
     ])
   } else {
     msg.loader.text = `Rolling up type declarations`
-    apiExtractor(p)
+    await apiExtractor(p)
+    console.log('done rolling up')
   }
 }
 

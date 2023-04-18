@@ -1,5 +1,5 @@
-import { nextTick, h, reactive, ref } from 'vue'
-import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick, h, reactive, ref, PropType, mergeProps } from 'vue'
+import { mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
@@ -8,7 +8,9 @@ import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
+import { FormKitFrameworkContext } from '@formkit/core'
+import { createInput } from '../src'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -295,7 +297,7 @@ describe('v-model', () => {
     await nextTick()
     expect(wrapper.find('input').element.value).toBe('jane')
     wrapper.find('input').setValue('jon')
-    await flushPromises()
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.vm.$data.name).toBe('jon')
   })
 
@@ -835,8 +837,8 @@ describe('validation', () => {
   })
 
   it('avoids recursive updates when using state.valid and array computed array rules (#255)', async () => {
-    const warning = jest.fn()
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn()
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(
       {
         setup() {
@@ -1095,14 +1097,14 @@ describe('classes', () => {
     )
   })
 
-  it('can can remove existing classes if class name string is prefixed with a ! operator', () => {
+  it('can can remove existing classes if class name string is prefixed with the $remove: operator', () => {
     const wrapper = mount(FormKit, {
       props: {
         name: 'classTest',
         classes: {
-          outer: '!formkit-outer test-class-string1',
+          outer: '$remove:formkit-outer test-class-string1',
         },
-        outerClass: '!test-class-string1 should-be-only-me',
+        outerClass: '$remove:test-class-string1 should-be-only-me',
       },
       global: {
         plugins: [[plugin, defaultConfig]],
@@ -1385,6 +1387,40 @@ describe('plugins', () => {
     })
     expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')
   })
+
+  it('can use input props in a plugin’s immediate body', () => {
+    const lib = () => {}
+    lib.library = function (node: FormKitNode) {
+      if (node.props.type === 'fooBar') {
+        node.define({
+          type: 'input',
+          props: ['fooBarBaz'],
+          schema: [
+            {
+              $el: 'input',
+            },
+          ],
+        })
+      }
+    }
+    const testPlugin = vi.fn(function testPlugin(node: FormKitNode) {
+      node.addProps(['bimBam'])
+      expect(node.props.fooBarBaz).toBe('hello world')
+      expect(node.props.bimBam).toBe('working')
+    })
+    mount(FormKit, {
+      props: {
+        type: 'fooBar',
+        'foo-bar-baz': 'hello world',
+        'bim-bam': 'working',
+        plugins: [testPlugin],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ plugins: [lib] })]],
+      },
+    })
+    expect(testPlugin).toHaveBeenCalled()
+  })
 })
 
 describe('icons', () => {
@@ -1441,7 +1477,7 @@ describe('icons', () => {
   })
 
   it('can register click handlers on icons', async () => {
-    const iconClick = jest.fn()
+    const iconClick = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
         prefixIcon: 'heart',
@@ -1544,7 +1580,7 @@ describe('prefix and suffix', () => {
   })
 })
 
-describe('state attributes', () => {
+describe('state', () => {
   it('does not initialize with the complete attribute', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -1708,6 +1744,71 @@ describe('state attributes', () => {
     const outer = wrapper.find('.formkit-outer')
     expect(outer.html()).not.toContain('data-disabled')
   })
+
+  it('does not set the dirty state of a group if an unrelated mutation is made', async () => {
+    const showSecond = ref(false)
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          return { showSecond }
+        },
+        template: `
+        <FormKit type="form">
+          <FormKit type="group" name="groupA" #default="{ state: { dirty }}">
+            <FormKit name="a" value="foo" />
+            <pre>{{ dirty }}</pre>
+          </FormKit>
+          <FormKit type="group" name="groupB" v-if="showSecond">
+            <FormKit name="b" value="foo" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('pre').text()).toBe('false')
+    showSecond.value = true
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('pre').text()).toBe('false')
+  })
+
+  it('can change the dirty-behavior to be compare', async () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        template: `
+        <FormKit type="form" name="form" dirty-behavior="compare" #default="{ state: { dirty } }">
+          <FormKit name="a" value="foo" :delay="0" />
+          <pre>{{ dirty }}</pre>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.find('pre').text()).toBe('false')
+    wrapper.find('input').setValue('bar')
+    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('true')
+    wrapper.find('input').setValue('foo')
+    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
+  })
 })
 
 describe('exposures', () => {
@@ -1762,7 +1863,7 @@ describe('exposures', () => {
       }
     )
     const node = getNode(id)
-    const callback = jest.fn()
+    const callback = vi.fn()
     node?.on('dom-input-event', callback)
     wrapper.find('input').setValue('foo bar')
     expect(callback).toHaveBeenCalledTimes(1)
@@ -1955,5 +2056,73 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.find('.formkit-label').exists()).toBe(true)
     expect(wrapper.html()).not.toContain('<h1>click me</h1>')
+  })
+
+  it('does not trigger blur twice #413', async () => {
+    const custom = createInput({
+      props: {
+        context: {
+          type: Object as PropType<FormKitFrameworkContext>,
+        },
+      },
+      render(props: { context: FormKitFrameworkContext }) {
+        return h(
+          'input',
+          mergeProps(
+            {
+              onBlur: props.context.handlers.blur,
+            },
+            props.context.attrs
+          )
+        )
+      },
+    })
+    const blur = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: custom,
+        value: 'foo',
+      },
+      attrs: {
+        onBlur: blur,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(1)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(2)
+  })
+
+  it('can use v-show to hide a field, tests root node (#528)', async () => {
+    const show = ref(true)
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          return { show }
+        },
+        template: `
+        <FormKit type="text" label="hi there" v-show="show" />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(undefined)
+    show.value = false
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(
+      'display: none;'
+    )
   })
 })

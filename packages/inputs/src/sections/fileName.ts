@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * File name section to show the file name
+ *
  * @public
  */
 export const fileName = createSection('fileName', () => ({

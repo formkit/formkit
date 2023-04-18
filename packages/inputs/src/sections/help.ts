@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Help section that shows help text
+ *
  * @public
  */
 export const help = createSection('help', () => ({

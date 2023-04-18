@@ -1,13 +1,17 @@
 /**
- * index.ts
+ * The official FormKit core library. This package is responsible for most of FormKit’s internal functionality.
+ * You can read documentation specifically on how it works at formkit.com.
  *
- * In this file we explicitly declare what should end up in the public API.
+ * You can add this package by using `npm install @formkit/core` or `yarn add @formkit/core`.
+ *
+ * @packageDocumentation
  */
 
 /**
  * The current version of FormKit at the time the package is published. Is replaced
  * as part of the publishing script.
- * @public
+ *
+ * @internal
  */
 export const FORMKIT_VERSION = '__FKV__'
 
@@ -21,11 +25,16 @@ export * from './node'
  */
 export {
   createMessage,
+  ChildMessageBuffer,
+  FormKitInputMessages,
   FormKitMessage,
   FormKitMessageMeta,
   FormKitMessageStore,
   FormKitMessageProps,
   FormKitStore,
+  ErrorMessages,
+  FormKitStoreTraps,
+  MessageClearer,
 } from './store'
 
 /**
@@ -78,9 +87,11 @@ export {
   FormKitSchemaContext,
   FormKitSchemaDOMNode,
   FormKitSchemaFormKit,
+  FormKitSchemaMeta,
   FormKitSchemaNode,
   FormKitSchemaProps,
   FormKitSchemaTextNode,
+  FormKitSchemaDefinition,
   isComponent,
   isConditional,
   isDOM,
@@ -110,7 +121,7 @@ export * from './registry'
 /**
  * The root configuration creator.
  */
-export { createConfig } from './config'
+export { createConfig, FormKitRootConfig } from './config'
 
 /**
  * Sets error store messages on inputs.

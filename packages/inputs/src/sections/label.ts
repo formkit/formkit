@@ -1,6 +1,8 @@
-import { createSection } from '../compose'
+import { createSection } from '../createSection'
 
 /**
+ * Label section with label element
+ *
  * @public
  */
 export const label = createSection('label', () => ({

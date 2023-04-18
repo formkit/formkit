@@ -7,7 +7,7 @@ import {
   setErrors,
 } from '@formkit/vue'
 import { mount } from '@vue/test-utils'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import '../src/index'
 import radios from '../../inputs/src/features/radios'
 
@@ -53,8 +53,8 @@ describe('core error interception', () => {
 
 describe('core warning interception', () => {
   it('decodes W150', () => {
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     compile('$fns(123, 50)').provide(() => {
       return {
         $fns: () => 'bar',
@@ -69,8 +69,8 @@ describe('core warning interception', () => {
 
 describe('vue error interception', () => {
   it('decodes E600', () => {
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     expect(() =>
       mount(FormKit, {
         props: {
@@ -115,8 +115,8 @@ describe('vue error interception', () => {
 
 describe('vue warning interception', () => {
   it('decodes W650', () => {
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(FormKitSchema, {
       props: {
         schema: ['$get(true).value'],
@@ -131,8 +131,8 @@ describe('vue warning interception', () => {
     )
   })
   it('decodes W651', () => {
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(
       {
         template: `<h1>hi</h1>`,
@@ -155,8 +155,8 @@ describe('vue warning interception', () => {
 
 describe('input warning interception', () => {
   it('decodes W350', () => {
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(FormKit, {
       props: {
         name: 'radio',
@@ -165,7 +165,7 @@ describe('input warning interception', () => {
           schema: ['hello'],
           features: [radios],
         },
-        options: (/foobar/ as unknown) as string[],
+        options: /foobar/ as unknown as string[],
       },
       global: {
         plugins: [[plugin, defaultConfig]],

@@ -31,7 +31,9 @@ import { createObserver } from '@formkit/observer'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
+ *
  * @param node - FormKitNode to create the context on.
+ *
  * @public
  */
 const vueBindings: FormKitPlugin = function vueBindings(node) {
@@ -227,8 +229,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         }
       },
       touch: () => {
+        const doCompare = context.dirtyBehavior === 'compare'
+        if (node.store.dirty?.value && !doCompare) return
+        const isDirty = !eq(node.props._init, node._value)
+        if (!isDirty && !doCompare) return
         node.store.set(
-          createMessage({ key: 'dirty', visible: false, value: true })
+          createMessage({ key: 'dirty', visible: false, value: isDirty })
         )
       },
       DOMInput: (e: Event) => {
@@ -271,7 +277,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       triggerRef(value)
       triggerRef(_value)
     }
-    node.props._init = cloneAny(node.value)
+    ;(async () => {
+      await node.settled
+      node.props._init = cloneAny(node.value)
+    })()
   })
 
   /**
@@ -312,6 +321,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       'preserve',
       'preserveErrors',
       'id',
+      'dirtyBehavior',
     ]
     const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
     const matchingProps = Object.keys(node.props).filter((prop) => {
@@ -362,12 +372,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (
-      !context.state.dirty &&
+      (!context.state.dirty || context.dirtyBehavior === 'compare') &&
       node.isCreated &&
-      hasTicked &&
-      !eq(value.value, node.props._init)
-    )
+      hasTicked
+    ) {
       context.handlers.touch()
+    }
     if (
       isComplete &&
       node.type === 'input' &&

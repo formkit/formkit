@@ -1,6 +1,7 @@
 /**
  * Options should always be formatted as an array of objects with label and value
  * properties.
+ *
  * @public
  */
 export interface FormKitOptionsItem {
@@ -15,6 +16,7 @@ export interface FormKitOptionsItem {
 
 /**
  * An array of option items.
+ *
  * @public
  */
 export type FormKitOptionsList = FormKitOptionsItem[]
@@ -24,6 +26,7 @@ export type FormKitOptionsList = FormKitOptionsItem[]
  * are ignored, but values are applied to a union type. This allows for any
  * third party code to extend the options prop by using module augmentation
  * to add new values to the union type.
+ *
  * @public
  */
 export interface FormKitOptionsPropExtensions {
@@ -35,6 +38,7 @@ export interface FormKitOptionsPropExtensions {
 
 /**
  * The types of options that can be passed to the options prop.
+ *
  * @public
  */
 export type FormKitOptionsProp =
@@ -43,6 +47,7 @@ export type FormKitOptionsProp =
 /**
  * Synthetic props are props that are not explicitly declared as props, but
  * should be treated as props to the outside world.
+ *
  * @public
  */
 export interface FormKitSyntheticPropsExtensions {
@@ -65,10 +70,12 @@ export interface FormKitSyntheticPropsExtensions {
   disabled: string | boolean
   preserve: string | boolean
   preserveErrors: string | boolean
+  dirtyBehavior: 'touched' | 'compare'
 }
 
 /**
  * The synthetic prop types.
+ *
  * @public
  */
 export type FormKitSyntheticProps = {

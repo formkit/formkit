@@ -53,6 +53,42 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is more to load.
    */
   loadMore: 'تحميل المزيد',
+  /**
+   * Shown on buttons that navigate state forward
+   */
+  next: 'التالي',
+  /**
+   * Shown on buttons that navigate state backward
+   */
+  prev: 'السابق',
+  /**
+   * Shown when transferring items between lists.
+   */
+  addAllValues: 'أضف جميع القيم',
+  /**
+   * Shown when adding selected values.
+   */
+  addSelectedValues: 'إضافة قيم محددة',
+  /**
+   * Shown when removing all values.
+   */
+  removeAllValues: 'قم بإزالة جميع القيم',
+  /**
+   * Shown when removing selected values.
+   */
+  removeSelectedValues: 'إزالة القيم المحددة',
+  /**
+   * Shown when there is a date to choose.
+   */
+  chooseDate: 'اختر التاريخ',
+  /**
+   * Shown when there is a date to change.
+   */
+  changeDate: 'تاريخ التغيير',
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'التاريخ المحدد غير صالح.',
 }
 
 /**
@@ -112,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `يمكن أن تحتوي ${s(name)} على أحرف ومسافات فقط.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `يجب أن يحتوي ${s(name)} على أحرف أبجدية.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `يجب أن يحتوي ${s(name)} على أحرف أو أرقام.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `يجب أن يحتوي ${s(name)} على أحرف أو مسافات.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `يجب أن يحتوي ${s(name)} على رمز.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `يجب أن يحتوي ${s(name)} على أحرف كبيرة.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `يجب أن يحتوي ${s(name)} على أحرف صغيرة.`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `يجب أن يحتوي ${s(name)} على أرقام.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `يجب أن يكون ${s(name)} رمزًا.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `يمكن أن يحتوي ${s(name)} على أحرف كبيرة فقط.`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `يمكن أن يحتوي ${s(name)} على أحرف صغيرة فقط.`
     /* </i18n> */
   },
 
