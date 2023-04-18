@@ -100,4 +100,8 @@ export const checkbox: FormKitTypeDefinition = {
     checkboxes,
     defaultIcon('decorator', 'checkboxDecorator'),
   ],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: 'qje02tb3gu8',
 }

@@ -87,6 +87,10 @@ export type FormKitTypeDefinition = {
    * An array of additional feature functions to load when booting the input.
    */
   features?: Array<(node: FormKitNode) => void>
+  /**
+   * An optional string to use as a comparison key for memoizing the schema.
+   */
+  schemaMemoKey?: string
 }
 
 /**
@@ -1597,6 +1601,14 @@ function input(
 ): Promise<unknown> {
   context._value = validateInput(node, node.hook.input.dispatch(value))
   node.emit('input', context._value)
+  if (
+    node.isCreated &&
+    node.type === 'input' &&
+    eq(context._value, context.value)
+  ) {
+    // Perform an early return if the value hasn't changed during this input.
+    return context.settled
+  }
   if (context.isSettled) node.disturb()
   if (async) {
     if (context._tmo) clearTimeout(context._tmo)
@@ -1720,6 +1732,9 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
         (_value[child.name] && typeof _value[child.name] === 'object')
           ? init(_value[child.name])
           : _value[child.name]
+      // If the two are already equal, don’t recurse.
+      if (eq(childValue, child._value)) return
+      // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
       if (node.type !== 'list' || typeof child.name === 'number') {

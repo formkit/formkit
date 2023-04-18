@@ -194,6 +194,7 @@ export interface FormKitExtendableSchemaRoot {
       Partial<FormKitSchemaNode> | FormKitSchemaCondition
     >
   ): FormKitSchemaDefinition
+  memoKey?: string
 }
 
 /**

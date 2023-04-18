@@ -1872,7 +1872,7 @@ describe('exposures', () => {
     )
   })
 
-  it('debounces the input event and not the inputRaw event', async () => {
+  it('debounces the input event (not fired on mount) and not the inputRaw event', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -1896,8 +1896,8 @@ describe('exposures', () => {
       },
     })
     await new Promise((r) => setTimeout(r, 50))
-    expect(wrapper.emitted('inputRaw')!.length).toBe(5)
-    expect(wrapper.emitted('input')!.length).toBe(1)
+    expect(wrapper.emitted('inputRaw')!.length).toBe(4)
+    expect(wrapper.emitted('input')).toBe(undefined)
   })
 
   it('can set values on a group with values that dont have correlating nodes', async () => {

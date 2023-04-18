@@ -44,7 +44,7 @@
     "postcss": "^8.3.11",
     "postcss-import": "^14.0.2",
     "postcss-nesting": "^10.1.6",
-    "prettier": "^2.2.1",
+    "prettier": "^2.8.7",
     "prompts": "^2.4.1",
     "rollup": "^2.53.2",
     "rollup-plugin-postcss": "^4.0.1",

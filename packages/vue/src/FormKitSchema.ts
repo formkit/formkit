@@ -275,7 +275,8 @@ function get(nodeRefs: Record<string, Ref<unknown>>, id?: string) {
  */
 function parseSchema(
   library: FormKitComponentLibrary,
-  schema: FormKitSchemaNode | FormKitSchemaNode[]
+  schema: FormKitSchemaNode | FormKitSchemaNode[],
+  memoKey?: string
 ): SchemaProvider {
   /**
    * Given an if/then/else schema node, pre-compile the node and return the
@@ -714,7 +715,7 @@ function parseSchema(
     providerCallback: SchemaProviderCallback,
     key
   ) {
-    const memoKey = JSON.stringify(schema)
+    memoKey ??= JSON.stringify(schema)
     memoKeys[memoKey] ??= 0
     memoKeys[memoKey]++
     const [render, compiledProviders] = has(memo, memoKey)
@@ -840,12 +841,16 @@ export const FormKitSchema = defineComponent({
       type: Object as PropType<FormKitComponentLibrary>,
       default: () => ({}),
     },
+    memoKey: {
+      type: String,
+      required: false,
+    },
   },
   setup(props, context) {
     const instance = getCurrentInstance()
     let instanceKey = {}
     instanceScopes.set(instanceKey, [])
-    let provider = parseSchema(props.library, props.schema)
+    let provider = parseSchema(props.library, props.schema, props.memoKey)
     let render: RenderChildren
     let data: Record<string, any>
     // // Re-parse the schema if it changes:
@@ -854,7 +859,7 @@ export const FormKitSchema = defineComponent({
       (newSchema, oldSchema) => {
         const oldKey = instanceKey
         instanceKey = {}
-        provider = parseSchema(props.library, props.schema)
+        provider = parseSchema(props.library, props.schema, props.memoKey)
         render = createRenderFn(provider, data, instanceKey)
         if (newSchema === oldSchema) {
           // In this edge case, someone pushed/modified something in the schema
