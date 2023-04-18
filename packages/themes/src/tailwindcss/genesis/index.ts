@@ -135,7 +135,7 @@ export default {
     weekDays: 'flex',
     weekDay: 'flex w-[2.25em] h-[1em] m-1 items-center justify-center rounded-md font-medium lowercase',
     week: 'flex formkit-disabled:opacity-50 formkit-disabled:cursor-default formkit-disabled:pointer-events-none',
-    day: `
+    dayCell: `
       flex items-center justify-center
       w-[2.25em] h-[2.25em] m-1 p-2 rounded-md
       bg-gray-200
