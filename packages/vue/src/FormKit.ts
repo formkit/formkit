@@ -19,6 +19,11 @@ import { props } from './props'
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
+ * This variable is set to the node that is currently having its schema created.
+ */
+export let currentSchemaNode: FormKitNode | null = null
+
+/**
  * The root FormKit component.
  *
  * @public
@@ -56,7 +61,9 @@ export const FormKit = defineComponent({
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)
       if (typeof schemaDefinition === 'function') {
+        currentSchemaNode = node
         schema.value = schemaDefinition({ ...props.sectionsSchema })
+        currentSchemaNode = null
         if (
           (memoKey && props.sectionsSchema) ||
           ('memoKey' in schemaDefinition &&
