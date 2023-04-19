@@ -29,7 +29,7 @@ export * from './plugin'
 /**
  * The root FormKit component.
  */
-export { default as FormKit, parentSymbol, currentSchemaNode } from './FormKit'
+export { default as FormKit, parentSymbol, getCurrentSchemaNode } from './FormKit'
 
 /**
  * The FormKitMessages component.
