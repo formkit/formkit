@@ -1,4 +1,4 @@
-import { FormKitValidationMessages } from '@formkit/validation'
+import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -458,16 +458,13 @@ export const validation: FormKitValidationMessages = {
     const labels = inputNames.map(name => {
       const dependentNode = node.at(name)
       if (dependentNode) {
-        return dependentNode.props.validationLabel ||
-        dependentNode.props.label ||
-        dependentNode.props.name ||
-        String(dependentNode.name)
+return createMessageName(dependentNode)
       }
       return false
     }).filter(name => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
-    return `${labels.join(' 或 ')} 是必填项。`
+    return `${labels.join('或')}${labels}需要。`
     /* </i18n> */
   },
 
