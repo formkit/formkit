@@ -136,6 +136,7 @@ importers:
       '@formkit/addons': workspace:^0.16.4
       '@formkit/core': workspace:0.16.4
       '@formkit/i18n': workspace:0.16.4
+      '@formkit/inputs': workspace:0.16.4
       '@formkit/themes': workspace:0.16.4
       '@formkit/vue': workspace:^0.16.4
       '@types/react': ^17.0.19
@@ -149,6 +150,7 @@ importers:
       '@formkit/addons': link:../packages/addons
       '@formkit/core': link:../packages/core
       '@formkit/i18n': link:../packages/i18n
+      '@formkit/inputs': link:../packages/inputs
       '@formkit/themes': link:../packages/themes
       '@formkit/vue': link:../packages/vue
       '@types/react-dom': 17.0.19
@@ -4360,6 +4362,7 @@ packages:
   /commander/9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
+    requiresBuild: true
 
   /commondir/1.0.1:
     resolution: {integrity: sha512-W9pAhw0ja1Edb5GVdIF1mjZw/ASI0AlShXM83UUGe2DVr5TdAPEA1OA8m/g8zWp9x6On7gqufY+FatDbC3MDQg==}
