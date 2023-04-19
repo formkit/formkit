@@ -11,6 +11,7 @@
     "@formkit/addons": "workspace:^0.16.4",
     "@formkit/core": "workspace:0.16.4",
     "@formkit/i18n": "workspace:0.16.4",
+    "@formkit/inputs": "workspace:0.16.4",
     "@formkit/themes": "workspace:0.16.4",
     "@formkit/vue": "workspace:^0.16.4",
     "@types/react-dom": "^17.0.9",

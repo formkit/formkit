@@ -1,23 +1,36 @@
 <script setup>
-  import {ref} from "vue";
+import { createSection } from '@formkit/inputs'
+import { currentSchemaNode } from '@formkit/vue'
 
-  const stringify = (value) => JSON.stringify(value);
+const outer = createSection('outer', () => ({
+  $el: 'div',
+}))
+const innerA = createSection('innerA', () => ({
+  $el: 'div',
+  children: 'Inner a',
+}))
+const innerB = createSection('innerB', () => ({
+  $el: 'div',
+  children: 'Inner b',
+}))
 
-  const currentValue = ref(undefined);
+function switcher(schemaA, schemaB) {
+  return (extensions) => {
+    if (currentSchemaNode.props.attrs.options) {
+      return schemaA(extensions)
+    }
+    return schemaB(extensions)
+  }
+}
+
+const definition = {
+  type: 'input',
+  schema: outer(switcher(innerA(), innerB())),
+}
 </script>
 
 <template>
-  <FormKit
-    v-model="currentValue"
-    type="radio"
-    label="FormKit Input"
-    :options="[
-      { value: true, label: 'Yes' },
-      { value: false, label: 'No' },
-      { value: null, label: 'N/A' },
-    ]"
-  />
-  <div>Value: {{stringify(currentValue)}}</div>
+  <FormKit :type="definition" />
 </template>
 
 <style scoped>

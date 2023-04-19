@@ -62,7 +62,9 @@ export const FormKit = defineComponent({
       if (!schemaDefinition) error(601, node)
       if (typeof schemaDefinition === 'function') {
         currentSchemaNode = node
+        console.log('before--')
         schema.value = schemaDefinition({ ...props.sectionsSchema })
+        console.log('after--')
         currentSchemaNode = null
         if (
           (memoKey && props.sectionsSchema) ||
