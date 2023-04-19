@@ -1,6 +1,6 @@
 <script setup>
 import { createSection } from '@formkit/inputs'
-import { currentSchemaNode } from '@formkit/vue'
+import { getCurrentSchemaNode } from '@formkit/vue'
 
 const outer = createSection('outer', () => ({
   $el: 'div',
@@ -15,8 +15,9 @@ const innerB = createSection('innerB', () => ({
 }))
 
 function switcher(schemaA, schemaB) {
+  console.log('schemaA', schemaA)
   return (extensions) => {
-    if (currentSchemaNode.props.attrs.options) {
+    if (getCurrentSchemaNode().props.attrs.options) {
       return schemaA(extensions)
     }
     return schemaB(extensions)
@@ -30,7 +31,7 @@ const definition = {
 </script>
 
 <template>
-  <FormKit :type="definition" />
+  <FormKit :type="definition" :options="[]" />
 </template>
 
 <style scoped>

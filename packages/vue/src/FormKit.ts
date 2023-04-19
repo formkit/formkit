@@ -20,8 +20,17 @@ export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
  * This variable is set to the node that is currently having its schema created.
+ *
+ * @internal
  */
-export let currentSchemaNode: FormKitNode | null = null
+let currentSchemaNode: FormKitNode | null = null
+
+/**
+ * Returns the node that is currently having its schema created.
+ *
+ * @public
+ */
+export const getCurrentSchemaNode = () => currentSchemaNode
 
 /**
  * The root FormKit component.
@@ -62,9 +71,7 @@ export const FormKit = defineComponent({
       if (!schemaDefinition) error(601, node)
       if (typeof schemaDefinition === 'function') {
         currentSchemaNode = node
-        console.log('before--')
         schema.value = schemaDefinition({ ...props.sectionsSchema })
-        console.log('after--')
         currentSchemaNode = null
         if (
           (memoKey && props.sectionsSchema) ||
