@@ -131,6 +131,7 @@ export function createObserver(
       return createObserver(value, deps)
     }
     if (property === 'value') addDependency('commit')
+    if (property === '_value') addDependency('input')
     if (property === 'props') return observeProps(value)
     if (property === 'ledger') return observeLedger(value)
     return value
