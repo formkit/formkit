@@ -28,6 +28,13 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
+### 🥈 Silver sponsors
+<p style="margin-bottom: 1em;">
+  <a href="https://peakcrypto.com">
+    <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto" style="width: 20%;">
+  </a>
+</p>
+
 ### 🥉 Bronze sponsors
 
 <p style="margin-bottom: 1em;">
