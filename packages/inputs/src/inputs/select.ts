@@ -60,4 +60,8 @@ export const select: FormKitTypeDefinition = {
    * Additional features that should be added to your input
    */
   features: [options, selects, defaultIcon('select', 'select')],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: 'cb119h43krg',
 }

@@ -48,4 +48,8 @@ export const textarea: FormKitTypeDefinition = {
    * Additional features that should be added to your input
    */
   features: [initialValue],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: 'b1n0td79m9g',
 }

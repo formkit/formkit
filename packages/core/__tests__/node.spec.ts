@@ -74,9 +74,9 @@ describe('node', () => {
       parent: parentC,
       value: undefined,
     })
-    expect(commitEvent).toHaveBeenCalledTimes(12)
+    expect(commitEvent).toHaveBeenCalledTimes(9)
     node.input([{}, {}, {}], false)
-    expect(commitEvent).toHaveBeenCalledTimes(16)
+    expect(commitEvent).toHaveBeenCalledTimes(13)
   })
 
   it('allows configuration to flow to children', () => {
@@ -827,6 +827,20 @@ describe('input hook', () => {
     await node.settled
     expect(node.value).toBe('hello wor!')
   })
+
+  it('fires the input hook and event on all inputs, but will not commit if the value is the same', () => {
+    const node = createNode({ value: 'hello pluto' })
+    const inputHook = vi.fn((value, next) => next(value))
+    const commitHook = vi.fn((value, next) => next(value))
+    const event = vi.fn(() => {})
+    node.hook.input(inputHook)
+    node.hook.commit(commitHook)
+    node.on('input', event)
+    node.input('hello pluto', false)
+    expect(inputHook).toHaveBeenCalledTimes(1)
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(commitHook).toHaveBeenCalledTimes(0)
+  })
 })
 
 describe('classes hook', () => {
@@ -999,14 +1013,14 @@ describe('value propagation in a node tree', () => {
     email.input('test@example.com')
     username.input('test-user')
     await username.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(4) // 2 partials, 1 full commit
+    expect(commitMiddleware).toHaveBeenCalledTimes(3) // 2 partials, 1 full commit
     expect(parent.value).toEqual({ email: undefined, username: 'test-user' })
     await email.settled
     expect(parent.value).toEqual({
       email: 'test@example.com',
       username: 'test-user',
     })
-    expect(commitMiddleware).toHaveBeenCalledTimes(5)
+    expect(commitMiddleware).toHaveBeenCalledTimes(4)
   })
 
   it('collects values from a list of children', async () => {

@@ -52,4 +52,8 @@ export const text: FormKitTypeDefinition = {
    * Additional features that should be added to your input
    */
   features: [],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: 'c3cc4kflsg',
 }

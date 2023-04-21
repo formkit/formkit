@@ -29,7 +29,7 @@ export * from './plugin'
 /**
  * The root FormKit component.
  */
-export { default as FormKit, parentSymbol } from './FormKit'
+export { default as FormKit, parentSymbol, getCurrentSchemaNode } from './FormKit'
 
 /**
  * The FormKitMessages component.
@@ -40,12 +40,24 @@ export { FormKitMessages } from './FormKitMessages'
 /**
  * The FormKitSchema component.
  */
-export { FormKitSchema, Renderable, RenderableList, RenderableSlot, RenderableSlots, FormKitComponentLibrary, VirtualNode } from './FormKitSchema'
+export {
+  FormKitSchema,
+  Renderable,
+  RenderableList,
+  RenderableSlot,
+  RenderableSlots,
+  FormKitComponentLibrary,
+  VirtualNode,
+} from './FormKitSchema'
 
 /**
  * The default configuration.
  */
-export { default as defaultConfig, DefaultConfigOptions, PluginConfigs } from './defaultConfig'
+export {
+  default as defaultConfig,
+  DefaultConfigOptions,
+  PluginConfigs,
+} from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all

@@ -19,6 +19,20 @@ import { props } from './props'
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
+ * This variable is set to the node that is currently having its schema created.
+ *
+ * @internal
+ */
+let currentSchemaNode: FormKitNode | null = null
+
+/**
+ * Returns the node that is currently having its schema created.
+ *
+ * @public
+ */
+export const getCurrentSchemaNode = () => currentSchemaNode
+
+/**
  * The root FormKit component.
  *
  * @public
@@ -51,13 +65,26 @@ export const FormKit = defineComponent({
         )
     }
     const schema = ref<FormKitSchemaDefinition>([])
+    let memoKey: string | undefined = node.props.definition.schemaMemoKey
     const generateSchema = () => {
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)
-      schema.value =
-        typeof schemaDefinition === 'function'
-          ? schemaDefinition({ ...props.sectionsSchema })
-          : schemaDefinition
+      if (typeof schemaDefinition === 'function') {
+        currentSchemaNode = node
+        schema.value = schemaDefinition({ ...props.sectionsSchema })
+        currentSchemaNode = null
+        if (
+          (memoKey && props.sectionsSchema) ||
+          ('memoKey' in schemaDefinition &&
+            typeof schemaDefinition.memoKey === 'string')
+        ) {
+          memoKey =
+            (memoKey ?? schemaDefinition?.memoKey) +
+            JSON.stringify(props.sectionsSchema)
+        }
+      } else {
+        schema.value = schemaDefinition
+      }
     }
     generateSchema()
 
@@ -74,7 +101,7 @@ export const FormKit = defineComponent({
     return () =>
       h(
         FormKitSchema,
-        { schema: schema.value, data: node.context, library },
+        { schema: schema.value, data: node.context, library, memoKey },
         { ...context.slots }
       )
   },
