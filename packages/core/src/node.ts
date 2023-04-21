@@ -1732,8 +1732,9 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
         (_value[child.name] && typeof _value[child.name] === 'object')
           ? init(_value[child.name])
           : _value[child.name]
-      // If the two are already equal, don’t recurse.
-      if (eq(childValue, child._value)) return
+      // If the two are already equal or the child is currently disturbed then
+      // don’t send the value down since it will squash the child’s value.
+      if (!child.isSettled || eq(childValue, child._value)) return
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
