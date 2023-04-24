@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router'
 const show = ref(false)
 const wrapper = ref<HTMLElement>()
 
@@ -22,8 +22,16 @@ const observer = new MutationObserver((mutationList) => {
       if (!(node instanceof Element)) {
         return
       }
-      const input = (node as Element).querySelector(type === 'select' ? 'select' : 'input')
-      if (input instanceof HTMLInputElement || input instanceof HTMLSelectElement) {
+      const queryFor = ['form', 'select'].includes(type) ? type : 'input'
+      const input =
+        node instanceof HTMLFormElement
+          ? node
+          : (node as Element).querySelector(queryFor)
+      if (
+        input instanceof HTMLInputElement ||
+        input instanceof HTMLSelectElement ||
+        input instanceof HTMLFormElement
+      ) {
         if (elements.has(input)) {
           return
         }
@@ -35,19 +43,20 @@ const observer = new MutationObserver((mutationList) => {
   }
 })
 
-
 const options = {
   label: 'Memory test',
   help: 'This is some help text',
   type,
-  options: route.query.options ? JSON.parse(route.query.options as string) : undefined,
-  validation: "required",
+  options: route.query.options
+    ? JSON.parse(route.query.options as string)
+    : undefined,
+  validation: 'required',
 }
 onMounted(() => {
   if (wrapper.value) {
     observer.observe(wrapper.value, { childList: true, subtree: true })
   }
-  setTimeout(() => show.value = true, 200)
+  setTimeout(() => (show.value = true), 200)
   setTimeout(async () => {
     show.value = false
     setTimeout(() => {
@@ -59,10 +68,9 @@ onMounted(() => {
 
 <template>
   <div ref="wrapper">
-    <pre data-testid="collectionData">{{ collectedCount }}/{{ observedCount }}</pre>
-    <FormKit
-      v-if="show"
-      v-bind="options"
-    />
+    <pre data-testid="collectionData"
+      >{{ collectedCount }}/{{ observedCount }}</pre
+    >
+    <FormKit v-if="show" v-bind="options" />
   </div>
 </template>

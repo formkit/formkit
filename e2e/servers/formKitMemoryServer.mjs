@@ -3,12 +3,12 @@ import { renderToString } from '@vue/server-renderer'
 import { plugin, defaultConfig } from '@formkit/vue'
 import http from 'http'
 
-const template = `<div>
+const template = `<FormKit type="form">
   <FormKit label="Sample 1" type="text" validation="required" validation-visibility="live" />
   <FormKit label="Sample 2" type="text" validation="required" validation-visibility="live" />
   <FormKit label="Sample 3" type="text" validation="required" validation-visibility="live" />
   <FormKit label="Sample 4" type="text" validation="required" validation-visibility="live" />
-</div>`
+</FormKit>`
 
 const server = http.createServer((req, res) => {
   if (req.url === '/favicon.ico') {
