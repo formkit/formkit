@@ -8,7 +8,7 @@ const id = setInterval(async () => {
     gc()
   }
   memory.value = `${Math.round(
-    performance.memory.totalJSHeapSize / 1000 / 1000
+    performance.memory.usedJSHeapSize / 1000 / 1000
   )}`
 }, 500)
 onUnmounted(() => {

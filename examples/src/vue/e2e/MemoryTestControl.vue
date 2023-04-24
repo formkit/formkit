@@ -40,7 +40,7 @@ onMounted(() => {
     show.value = false
     setTimeout(() => {
       if (typeof gc === 'function') gc()
-    }, 2000)
+    }, 500)
   }, 1000)
 })
 </script>
