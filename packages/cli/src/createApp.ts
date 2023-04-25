@@ -107,8 +107,8 @@ export async function createApp(
       resolve(cwd(), `./${appName}/formkit.config.ts`),
       buildFormKitConfig(options as CreateAppOptions)
     )
-    await addDependency(appName, '@formkit/nuxt', 'next')
-    await addDependency(appName, '@formkit/icons', 'next')
+    await addDependency(appName, '@formkit/nuxt', 'latest')
+    await addDependency(appName, '@formkit/icons', 'latest')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
@@ -275,25 +275,16 @@ async function addNuxtModule(dirName: string) {
 function buildFormKitConfig(options: CreateAppOptions): string {
   const imports = [
     'import "@formkit/themes/genesis"',
-    'import { %icons% } from "@formkit/icons"',
+    'import { genesisIcons } from "@formkit/icons"',
   ]
   if (options.lang === 'ts') {
     imports.push("import { DefaultConfigOptions } from '@formkit/vue'")
   }
-  let icons = ['close', 'down', 'fileDoc', 'check', 'circle']
   const setup = []
   let config = ''
   if (options.pro) {
     imports.push("import { createProPlugin, inputs } from '@formkit/pro'")
     imports.push("import '@formkit/pro/genesis'")
-    icons = icons.concat([
-      'spinner',
-      'star',
-      'trash',
-      'add',
-      'arrowUp',
-      'arrowDown',
-    ])
     setup.push('')
     setup.push(`const pro = createProPlugin('${options.pro}', inputs)`)
     setup.push('')
@@ -301,7 +292,7 @@ function buildFormKitConfig(options: CreateAppOptions): string {
   }
   config += `${
     config ? ',\n' : ''
-  }  icons: { %icons%, checkboxDecorator: check }`
+  }  icons: { ...genesisIcons }`
 
   const rawConfig = `${imports.join('\n')}
 ${setup.join('\n')}
@@ -311,7 +302,7 @@ ${config}
 
 export default config
 `
-  return rawConfig.replace(/%icons%/g, icons.join(', '))
+  return rawConfig
 }
 
 async function isDirEmpty(path: string) {
