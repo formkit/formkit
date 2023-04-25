@@ -128,10 +128,13 @@ interface RenderNodes {
   (iterationData?: Record<string, unknown>): Renderable | Renderable[]
 }
 
-type SchemaProvider = (
-  providerCallback: SchemaProviderCallback,
-  instanceKey: object
-) => RenderChildren
+interface SchemaProvider {
+  (
+    providerCallback: SchemaProviderCallback,
+    instanceKey: object
+  ): RenderChildren
+  clean: () => void
+}
 
 type SchemaProviderCallback = (
   requirements: string[],
@@ -711,9 +714,9 @@ function parseSchema(
    * @param providerCallback - A function that is called for each required provider
    * @param key - a object representing the current instance
    */
-  return function createInstance(
+  function createInstance(
     providerCallback: SchemaProviderCallback,
-    key
+    key: object
   ) {
     memoKey ??= JSON.stringify(schema)
     memoKeys[memoKey] ??= 0
@@ -731,6 +734,15 @@ function parseSchema(
       return render()
     }
   }
+
+  /**
+   * Perform some "in-scope" cleaning operations.
+   */
+  createInstance.clean = () => {
+    providers.length = 0
+  }
+
+  return createInstance
 }
 
 /**
@@ -811,8 +823,12 @@ function createRenderFn(
  * @param schema - The schema to remove from memo.
  * @param instanceKey - The instance key to remove.
  */
-function clean(schema: FormKitSchemaDefinition, instanceKey: object) {
-  const memoKey = JSON.stringify(schema)
+function clean(
+  schema: FormKitSchemaDefinition,
+  memoKey: string | undefined,
+  instanceKey: object
+) {
+  memoKey ??= JSON.stringify(schema)
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
     delete memoKeys[memoKey]
@@ -869,7 +885,7 @@ export const FormKitSchema = defineComponent({
           // function completely.
           ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
         }
-        clean(oldSchema, oldKey)
+        clean(props.schema, props.memoKey, oldKey)
       },
       { deep: true }
     )
@@ -879,10 +895,20 @@ export const FormKitSchema = defineComponent({
       data = Object.assign(reactive(props.data), {
         slots: context.slots,
       })
+      context.slots
       render = createRenderFn(provider, data, instanceKey)
     })
 
-    onUnmounted(() => clean(props.schema, instanceKey))
+    onUnmounted(() => {
+      // Perform cleanup operations
+      clean(props.schema, props.memoKey, instanceKey)
+      provider.clean()
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      data.slots = null!
+      data = null!
+      render = null!
+      /* eslint-enable @typescript-eslint/no-non-null-assertion */
+    })
     return () => render()
   },
 })

@@ -2,7 +2,7 @@ import { createSSRApp } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import http from 'http'
 
-const template = `<div>
+const template = `<form>
   <div class="sample">
     <label for="sample-1">Sample 1</label>
     <input type="text" id="sample-1" />
@@ -23,7 +23,7 @@ const template = `<div>
 <label for="sample-5">Sample 5</label>
 <input type="text" id="sample-5" />
 </div>
-</div>`
+</form>`
 
 const server = http.createServer((req, res) => {
   const app = createSSRApp({

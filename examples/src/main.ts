@@ -123,6 +123,24 @@ const router = createRouter({
           path: 'memory',
           component: () => import('./vue/e2e/MemoryTest.vue'),
         },
+        {
+          path: 'memory-unmount',
+          component: () => import('./vue/e2e/MemoryTestUnmount.vue'),
+          children: [
+            {
+              path: 'schema',
+              component: () => import('./vue/e2e/MemoryTestUnmountSchema.vue'),
+            },
+            {
+              path: 'blank',
+              component: () => import('./vue/e2e/MemoryTestUnmountBlank.vue'),
+            },
+            {
+              path: 'control',
+              component: () => import('./vue/e2e/MemoryTestUnmountControl.vue'),
+            },
+          ],
+        },
       ],
     },
   ],

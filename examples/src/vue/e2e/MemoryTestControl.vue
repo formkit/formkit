@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TestInput from './components/TestInput.vue';
+import TestInput from './components/TestInput.vue'
 import { ref, onMounted } from 'vue'
 const show = ref(false)
 const wrapper = ref<HTMLElement>()
@@ -35,22 +35,21 @@ onMounted(() => {
   if (wrapper.value) {
     observer.observe(wrapper.value, { childList: true, subtree: true })
   }
-  setTimeout(() => show.value = true, 200)
+  setTimeout(() => (show.value = true), 200)
   setTimeout(async () => {
     show.value = false
     setTimeout(() => {
       if (typeof gc === 'function') gc()
-    }, 2000)
+    }, 500)
   }, 1000)
 })
 </script>
 
 <template>
   <div ref="wrapper">
-    <pre data-testid="collectionData">{{ collectedCount }}/{{ observedCount }}</pre>
-    <TestInput
-      v-if="show"
-      id="singleTest"
-    />
+    <pre data-testid="collectionData"
+      >{{ collectedCount }}/{{ observedCount }}</pre
+    >
+    <TestInput v-if="show" id="singleTest" />
   </div>
 </template>
