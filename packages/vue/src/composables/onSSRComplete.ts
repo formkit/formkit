@@ -9,7 +9,7 @@ const isServer = typeof window === 'undefined'
  * A map of Vue applications to a set of callbacks to be flushed after SSR is
  * complete.
  */
-const ssrCompleteRegistry = new WeakMap<App<any>, Set<CallableFunction>>()
+const ssrCompleteRegistry = new Map<App<any>, Set<CallableFunction>>()
 
 /**
  * Flush all callbacks registered with onSSRComplete for a given app.

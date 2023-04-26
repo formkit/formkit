@@ -1,6 +1,6 @@
 import { createSSRApp } from 'vue'
 import { renderToString } from '@vue/server-renderer'
-import { plugin, defaultConfig } from '@formkit/vue'
+import { plugin, defaultConfig, ssrComplete } from '@formkit/vue'
 import http from 'http'
 
 const template = `<FormKit type="form">
@@ -77,6 +77,7 @@ const server = http.createServer((req, res) => {
   app.use(plugin, defaultConfig)
 
   renderToString(app).then((html) => {
+    ssrComplete(app)
     if (typeof globalThis.gc === 'function') globalThis.gc() // eslint-disable-line no-undef
     res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
@@ -89,8 +90,6 @@ const server = http.createServer((req, res) => {
       <div id="app">${html}</div>
     </html>`)
   })
-
-  app = null
 })
 
 server.listen(8686, 'localhost', () => {
