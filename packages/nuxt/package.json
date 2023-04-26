@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "prepack": "nuxt-module-build",
-    "dev": "nuxi dev playground"
+    "dev": "nuxi dev playground",
+    "build": "nuxi build playground"
   },
   "dependencies": {
     "@formkit/core": "0.16.5",

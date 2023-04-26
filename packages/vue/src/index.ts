@@ -29,7 +29,11 @@ export * from './plugin'
 /**
  * The root FormKit component.
  */
-export { default as FormKit, parentSymbol, getCurrentSchemaNode } from './FormKit'
+export {
+  default as FormKit,
+  parentSymbol,
+  getCurrentSchemaNode,
+} from './FormKit'
 
 /**
  * The FormKitMessages component.
@@ -81,3 +85,8 @@ export {
   submitForm,
   reset,
 } from '@formkit/core'
+
+/**
+ * SSR support for cleanup operations relating to SSR.
+ */
+export { ssrComplete, onSSRComplete } from './composables/onSSRComplete'

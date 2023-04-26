@@ -12,6 +12,11 @@ import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
 
 /**
+ * Flag to determine if we are running on the server.
+ */
+const isServer = typeof window === 'undefined'
+
+/**
  * The symbol that represents the formkit parent injection value.
  *
  * @public
@@ -89,7 +94,9 @@ export const FormKit = defineComponent({
     generateSchema()
 
     // // If someone emits the schema event, we re-generate the schema
-    node.on('schema', generateSchema)
+    if (!isServer) {
+      node.on('schema', generateSchema)
+    }
 
     context.emit('node', node)
     const library = node.props.definition.library as

@@ -76,8 +76,9 @@
     "playwright": "playwright test --config ./playwright.config.ts",
     "playwright-build": "vite build --config ./examples/vite.config.ts",
     "playwright-server": "vite preview --config ./examples/vite.config.ts --port 8787 --host",
-    "nuxt-pack": "nuxt-module-build packages/nuxt",
-    "nuxt-dev": "nuxi dev packages/nuxt/playground",
+    "nuxt-pack": "cd packages/nuxt && pnpm prepack",
+    "nuxt-dev": "cd packages/nuxt && pnpm dev",
+    "nuxt-build": "cd packages/nuxt && pnpm build",
     "tailwind-dev": "vite packages/tailwindcss/playground --host",
     "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch"
   },

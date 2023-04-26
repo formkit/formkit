@@ -279,7 +279,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     }
     ;(async () => {
       await node.settled
-      node.props._init = cloneAny(node.value)
+      if (node) node.props._init = cloneAny(node.value)
     })()
   })
 
@@ -446,6 +446,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   // The context is complete
   node.emit('context', node, false)
+
+  node.on('destroyed', () => {
+    node.context = undefined
+    /* @ts-ignore */
+    node = null
+  })
 }
 
 export default vueBindings
