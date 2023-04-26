@@ -446,6 +446,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   // The context is complete
   node.emit('context', node, false)
+
+  node.on('destroyed', () => {
+    node.context = undefined
+    /* @ts-ignore */
+    node = null
+  })
 }
 
 export default vueBindings

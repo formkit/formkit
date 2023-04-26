@@ -4,10 +4,64 @@ import { plugin, defaultConfig } from '@formkit/vue'
 import http from 'http'
 
 const template = `<FormKit type="form">
-  <FormKit label="Sample 1" type="text" validation="required" validation-visibility="live" />
-  <FormKit label="Sample 2" type="text" validation="required" validation-visibility="live" />
-  <FormKit label="Sample 3" type="text" validation="required" validation-visibility="live" />
-  <FormKit label="Sample 4" type="text" validation="required" validation-visibility="live" />
+  <FormKit
+    type="text"
+    name="name"
+    id="name"
+    validation="required|not:Admin"
+    label="Name"
+    help="Enter your character's full name"
+    placeholder="“Scarlet Sword”"
+  />
+
+  <FormKit
+    type="select"
+    label="Class"
+    name="class"
+    id="class"
+    placeholder="Select a class"
+    :options="['Warrior', 'Mage', 'Assassin']"
+  />
+
+  <FormKit
+    type="range"
+    name="strength"
+    id="strength"
+    label="Strength"
+    value="5"
+    validation="min:2|max:9"
+    validation-visibility="live"
+    min="1"
+    max="10"
+    step="1"
+    help="How many strength points should this character have?"
+  />
+
+  <FormKit
+    type="range"
+    name="skill"
+    id="skill"
+    validation="required|max:10"
+    label="Skill"
+    value="5"
+    min="1"
+    max="10"
+    step="1"
+    help="How much skill points to start with"
+  />
+
+  <FormKit
+    type="range"
+    name="dexterity"
+    id="dexterity"
+    validation="required|max:10"
+    label="Dexterity"
+    value="5"
+    min="1"
+    max="10"
+    step="1"
+    help="How much dexterity points to start with"
+  />
 </FormKit>`
 
 const server = http.createServer((req, res) => {
@@ -23,7 +77,7 @@ const server = http.createServer((req, res) => {
   app.use(plugin, defaultConfig)
 
   renderToString(app).then((html) => {
-    globalThis.gc() // eslint-disable-line no-undef
+    if (typeof globalThis.gc === 'function') globalThis.gc() // eslint-disable-line no-undef
     res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
     res.end(`<!DOCTYPE />

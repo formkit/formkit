@@ -1830,6 +1830,10 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   node.emit('destroyed', node)
   context._e.flush()
   context._value = context.value = undefined
+  for (const property in context.context) {
+    delete context.context[property]
+  }
+  context.plugins.clear()
   context.context = null! // eslint-disable-line @typescript-eslint/no-non-null-assertion
 }
 
