@@ -95,7 +95,7 @@ export const FormKit = defineComponent({
 
     // // If someone emits the schema event, we re-generate the schema
     if (!isServer) {
-      // node.on('schema', generateSchema)
+      node.on('schema', generateSchema)
     }
 
     context.emit('node', node)

@@ -34,7 +34,7 @@ test('standard vue source app gets garbage collected (control)', async ({
   expect(finalMemory).toBeLessThan(initialMemory + 5)
 })
 
-test.only('formkit app gets garbage collected', async ({ page }) => {
+test('formkit app gets garbage collected', async ({ page }) => {
   await page.goto('http://localhost:8686/')
   await cycle(page, 2) // Warm up
   const initialMemory = await getMemory(page)
