@@ -50,8 +50,8 @@ export default defineConfig({
     },
     {
       command:
-        'pnpm nuxt-build && node --expose-gc packages/nuxt/playground/.output/server/index.mjs',
-      url: 'http://localhost:3000',
+        'pnpm nuxt-build && NITRO_PORT=8484 node --expose-gc packages/nuxt/playground/.output/server/index.mjs',
+      url: 'http://localhost:8484',
       reuseExistingServer: false,
     },
   ],

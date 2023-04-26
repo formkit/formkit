@@ -24,7 +24,7 @@ async function getMemory(page: Page) {
 }
 
 test('formkit app gets garbage collected in nuxt', async ({ page }) => {
-  await page.goto('http://localhost:3000/')
+  await page.goto('http://localhost:8484/')
   await cycle(page, 2) // Warm up
   const initialMemory = await getMemory(page)
   await cycle(page, 20)

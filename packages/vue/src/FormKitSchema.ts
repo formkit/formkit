@@ -916,7 +916,6 @@ export const FormKitSchema = defineComponent({
      * remove any memory allocations that were made during the render process.
      */
     function cleanUp() {
-      if (isServer) console.log('cleaning up ssr')
       // Perform cleanup operations
       clean(props.schema, props.memoKey, instanceKey)
       provider.clean()
