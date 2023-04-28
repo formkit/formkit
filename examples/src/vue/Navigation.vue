@@ -57,6 +57,11 @@
         </router-link>
       </li>
       <li>
+        <router-link to="/auto-height-textarea">
+          Auto Height Textarea
+        </router-link>
+      </li>
+      <li>
         <router-link to="/playground">
           Playground
         </router-link>

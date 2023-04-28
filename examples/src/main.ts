@@ -14,6 +14,7 @@ import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
 import TSXExample from './vue/examples/TSXExample.tsx'
+import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
@@ -103,6 +104,10 @@ const router = createRouter({
     {
       path: '/floating-labels',
       component: FloatingLabels,
+    },
+    {
+      path: '/auto-height-textarea',
+      component: AutoHeightTextarea,
     },
     {
       path: '/playground',
