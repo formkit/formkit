@@ -871,3 +871,23 @@ export function oncePerTick<T extends CallableFunction>(fn: T): T {
     return fn(...args)
   }) as unknown as T
 }
+
+/**
+ * @public
+ */
+export type KeyedElement<E> = E & { __key: string }
+
+/**
+ * Checks if every item in a given array has a __key property.
+ * @param arr - An array of unknown values.
+ * @returns
+ * @public
+ */
+export function isKeyedArray<T extends unknown | unknown[]>(
+  arr: T
+): arr is { [K in keyof T]: KeyedElement<T[K]> } {
+  if (!Array.isArray(arr)) return false
+  return arr.every(
+    (item) => item && typeof item === 'object' && '__key' in item
+  )
+}

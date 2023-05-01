@@ -18,6 +18,7 @@ import {
   slugify,
   shallowClone,
   spread,
+  isKeyedArray,
 } from '../src/index'
 import { describe, expect, it } from 'vitest'
 
@@ -602,5 +603,36 @@ describe('spread', () => {
     const spreadArr = spread(arr)
     expect(spreadArr).toStrictEqual(arr)
     expect(spreadArr).not.toBe(arr)
+  })
+})
+
+describe('isKeyedArray', () => {
+  it('returns true for a keyed array', () => {
+    expect(
+      isKeyedArray([
+        { a: 123, __key: 'a' },
+        { a: 123, __key: 'b' },
+      ])
+    ).toBe(true)
+  })
+  it('returns false for an unkeyed array', () => {
+    expect(isKeyedArray([{ a: 123, __key: 'a' }, { a: 123 }])).toBe(false)
+  })
+  it('returns true for an keyed array with non enumerable property', () => {
+    expect(
+      isKeyedArray([
+        { a: 123, __key: 'a' },
+        Object.defineProperty({ a: 123 }, '__key', {
+          value: 'xyz',
+          enumerable: false,
+        }),
+      ])
+    ).toBe(true)
+  })
+  it('returns false for a scalar value', () => {
+    expect(isKeyedArray('1234')).toBe(false)
+  })
+  it('returns false for a non-array object', () => {
+    expect(isKeyedArray({ 0: { __key: '2' }, 1: { __key: '2' } })).toBe(false)
   })
 })
