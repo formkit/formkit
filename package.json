@@ -59,7 +59,8 @@
     "vite": "^4.2.1",
     "vitest": "^0.29.7",
     "vue": "^3.0.0",
-    "windicss": "^3.5.2"
+    "windicss": "^3.5.2",
+    "zod": "^3.21.4"
   },
   "license": "UNLICENSED",
   "scripts": {

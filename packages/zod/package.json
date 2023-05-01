@@ -1,0 +1,42 @@
+{
+  "name": "@formkit/zod",
+  "version": "0.16.5",
+  "type": "module",
+  "description": "Zod validation for FormKit.",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "keywords": [
+    "zod",
+    "forms",
+    "inputs",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/formkit/zod.git",
+    "directory": "packages/zod"
+  },
+  "contributors": [
+    "Andrew Boyd <andrew@formkit.com>"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@formkit/core": "0.16.5"
+  },
+  "devDependencies": {},
+  "peerDependencies": {
+    "zod": "^3.0.0"
+  }
+}

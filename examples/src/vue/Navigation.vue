@@ -57,6 +57,9 @@
       <li>
         <router-link to="/performance"> Performance </router-link>
       </li>
+      <li>
+        <router-link to="/zod"> Zod </router-link>
+      </li>
     </ul>
   </nav>
 </template>

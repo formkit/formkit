@@ -21,6 +21,7 @@ import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
+import Zod from './vue/examples/Zod.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -152,6 +153,10 @@ const router = createRouter({
           ],
         },
       ],
+    },
+    {
+      path: '/zod',
+      component: Zod,
     },
   ],
 })
