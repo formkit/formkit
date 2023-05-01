@@ -2472,7 +2472,7 @@ function createConfig(
           node.emit(`config:${prop}`, value, false)
           configChange(node, prop, value)
           // Walk the node tree and notify of config/prop changes where relevant
-          node.walk((n) => configChange(n, prop, value), true)
+          node.walk((n) => configChange(n, prop, value))
         }
         return didSet
       }
