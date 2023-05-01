@@ -138,7 +138,7 @@ describe('node', () => {
 
   it('does not emit config:{property} events when ancestors defines its own local value', () => {
     const node = createNode({
-      // config: { locale: 'en' },
+      config: { locale: 'en' },
       type: 'group',
       children: [
         createNode({
