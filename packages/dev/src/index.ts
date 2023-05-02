@@ -75,7 +75,7 @@ const warnings: Record<
    * Input specific warnings:
    */
   350: ({ data: node }: { data: FormKitNode }) =>
-    `Invalid options prop for radio input (${node.name}). See https://formkit.com/inputs/radio`,
+    `Invalid options prop for ${node.name} input. See https://formkit.com/inputs/${node.name}`,
   /**
    * Vue warnings:
    */

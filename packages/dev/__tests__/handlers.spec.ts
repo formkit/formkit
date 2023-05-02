@@ -173,7 +173,7 @@ describe('input warning interception', () => {
     })
     mock.mockRestore()
     expect(warning).toBeCalledWith(
-      'Invalid options prop for radio input (radio). See https://formkit.com/inputs/radio'
+      'Invalid options prop for radio input. See https://formkit.com/inputs/radio'
     )
   })
 })
