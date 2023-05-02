@@ -81,9 +81,8 @@ const warnings: Record<
       node: FormKitNode
       inputType: string
     }
-  }) => {
-    return `Invalid options prop for ${node.name} input (${inputType}). See https://formkit.com/inputs/${inputType}`
-  },
+  }) =>
+    `Invalid options prop for ${node.name} input (${inputType}). See https://formkit.com/inputs/${inputType}`,
   /**
    * Vue warnings:
    */

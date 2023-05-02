@@ -154,7 +154,7 @@ describe('vue warning interception', () => {
 })
 
 describe('input warning interception', () => {
-  it.only('decodes W350', () => {
+  it('decodes W350', () => {
     const warning = vi.fn(() => {})
     const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(FormKit, {
