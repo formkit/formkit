@@ -19,6 +19,8 @@ import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
 import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
+import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
+import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -103,6 +105,14 @@ const router = createRouter({
     {
       path: '/floating-labels',
       component: FloatingLabels,
+    },
+    {
+      path: '/local-storage',
+      component: LocalStoragePlugin,
+    },
+    {
+      path: '/auto-height-textarea',
+      component: AutoHeightTextarea,
     },
     {
       path: '/playground',

@@ -1155,7 +1155,7 @@ export interface FormKitChildValue {
  * #### Signature
  *
  * ```typescript
- * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
+ * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean, recurseOnFalse?: boolean) => void
  * ```
  *
  * #### Parameters
@@ -1344,7 +1344,11 @@ export type FormKitNode<V = unknown> = {
    * expensive operation so it should be done very rarely and only lifecycle
    * events that are relatively rare like boot up and shut down.
    */
-  walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
+  walk: (
+    callback: FormKitChildCallback,
+    stopOnFalse?: boolean,
+    skipSubtreeOnFalse?: boolean
+  ) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
 
 /**
@@ -2165,6 +2169,7 @@ function eachChild(
  * @param context - A {@link FormKitContext | FormKitContext}
  * @param callback - A {@link FormKitChildCallback | FormKitChildCallback}
  * @param stopIfFalse - Boolean to stop running on children
+ * @param skipSubtreeOnFalse - Boolean that when true prevents recursion into a deeper node when the callback returns false
  *
  * @internal
  */
@@ -2172,12 +2177,15 @@ function walkTree(
   _node: FormKitNode,
   context: FormKitContext,
   callback: FormKitChildCallback,
-  stopIfFalse = false
+  stopIfFalse = false,
+  skipSubtreeOnFalse = false
 ) {
   context.children.some((child: FormKitNode) => {
     const val = callback(child)
+    // return true to stop the walk early
     if (stopIfFalse && val === false) return true
-    return child.walk(callback, stopIfFalse)
+    if (skipSubtreeOnFalse && val === false) return false
+    return child.walk(callback, stopIfFalse, skipSubtreeOnFalse)
   })
 }
 
@@ -2532,7 +2540,7 @@ function createConfig(
           node.emit(`config:${prop}`, value, false)
           configChange(node, prop, value)
           // Walk the node tree and notify of config/prop changes where relevant
-          node.walk((n) => configChange(n, prop, value))
+          node.walk((n) => configChange(n, prop, value), false, true)
         }
         return didSet
       }

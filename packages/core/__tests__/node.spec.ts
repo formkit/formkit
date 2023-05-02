@@ -92,6 +92,65 @@ describe('node', () => {
     expect(listenerB).toHaveBeenCalledTimes(1)
   })
 
+  it('does not emit config:{property} events when ancestors defines its own local value', () => {
+    const node = createNode({
+      config: { locale: 'en' },
+      type: 'group',
+      children: [
+        createNode({
+          type: 'list',
+          name: 'list',
+          config: {
+            locale: 'fr',
+          },
+          children: [createNode()],
+        }),
+      ],
+    })
+    const listenerA = vi.fn()
+    const listenerB = vi.fn()
+    expect(node.at('list')?.props.locale).toBe('fr')
+    expect(node.at('list.0')!.props.locale).toBe('fr')
+    node.at('list')!.on('config:locale', listenerA)
+    node.at('list.0')!.on('config:locale', listenerB)
+    node.config.locale = 'zh'
+    expect(node.props.locale).toBe('zh')
+    expect(node.at('list')!.props.locale).toBe('fr')
+    expect(node.at('list.0')!.props.locale).toBe('fr')
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    expect(listenerB).toHaveBeenCalledTimes(0)
+  })
+
+  it('can traverse into lists and groups', () => {
+    const group = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'team' }),
+        createNode({
+          type: 'list',
+          name: 'users',
+          children: [
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password' }),
+              ],
+            }),
+            createNode({
+              type: 'group',
+              children: [
+                createNode({ name: 'email' }),
+                createNode({ name: 'password', value: 'foobar' }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    })
+    expect(group.at('users.1.password')?.value).toBe('foobar')
+  })
+
   it('only traverses one layer deep when calling node.each', () => {
     const tree = createNode({
       type: 'group',
