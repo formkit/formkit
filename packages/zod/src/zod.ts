@@ -1,47 +1,69 @@
 import { FormKitNode, FormKitPlugin } from '@formkit/core'
-import { ZodSchema, ZodError } from 'zod'
+import { z } from 'zod'
 // import { undefine } from '@formkit/utils'
-
-/**
- * The options to be passed to {@link createZodPlugin | createZodPlugin}
- *
- * @public
- */
-export interface zodOptions {
-  schema?: string
-}
 
 /**
  * Creates a new Zod schema plugin.
  *
- * @param zodOptions - The options of {@link zodOptions | zodOptions} to pass to the plugin
+ * @param zodSchema - A Zod schema to validate the form against.
+ * @param submitCallback - A callback to run when the form is submitted and it passes validation.
  *
- * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
+ * @returns A tuple of a {@link @formkit/core#FormKitPlugin | FormKitPlugin} and a submit handler.
  *
  * @public
  */
-export function createZodPlugin(): FormKitPlugin {
+export function createZodPlugin<Z extends z.ZodTypeAny>(
+  zodSchema: Z,
+  submitCallback: (payload: z.infer<typeof zodSchema>) => void | Promise<void>
+): [FormKitPlugin, (payload: any, node: FormKitNode) => void] {
+  // The Zod plugin — maps zod schema to validation rules on
+  // matching FormKit nodes.
   const zodPlugin = (node: FormKitNode) => {
-    // if our internal FormKit input type is not 'group' then return
-    if (node.type !== 'group') return
-    node.addProps(['zodSchema'])
-    let zodSchema: ZodSchema<any>
-
-    node.on('created', () => {
-      zodSchema = node.props.zodSchema as ZodSchema<any>
-    })
-
-    node.hook.submit((payload, next) => {
-      let errors: ZodError | undefined = undefined
-      try {
-        const zodValidation = zodSchema.parse(payload)
-        console.log(zodValidation)
-      } catch (error) {
-        errors = error as ZodError
-      }
-      console.log(errors)
-      return next(payload)
-    })
+    console.log('zodPlugin from src', node)
+    return false
   }
-  return zodPlugin
+
+  // The submit handler — validates the payload against the zod schema
+  // and then passes the data to the user's submit callback.
+  async function submitHandler(payload: any, node: FormKitNode) {
+    const zodResults = await zodSchema.safeParseAsync(payload)
+    if (!zodResults.success) {
+      setFormErrors(zodResults.error, node)
+    } else {
+      await submitCallback(zodResults as z.infer<Z>)
+    }
+  }
+
+  // Sets the form errors on the correct nodes.
+  function setFormErrors(zodErrors: z.ZodError, node: FormKitNode) {
+    const allErrors = buildFormErrors(zodErrors)
+    const inputErrors = Object.entries(allErrors).reduce(
+      (acc, [path, message]) => {
+        const exists = !!node.at(path)
+        if (exists) {
+          delete allErrors[path]
+          acc[path] = message
+          return acc
+        }
+        return acc
+      },
+      {} as Record<string, string>
+    )
+    const formErrors = Object.keys(allErrors).map((error) => {
+      return `${error}: ${allErrors[error]}`
+    })
+    node.setErrors(inputErrors, formErrors)
+  }
+
+  // Builds a FormKit errors object from the zod error object.
+  function buildFormErrors(zodError: z.ZodError): Record<string, string> {
+    const formErrors: Record<string, string> = {}
+    zodError.errors.forEach((error) => {
+      const path = error.path.join('.')
+      formErrors[path] = error.message
+    })
+    return formErrors
+  }
+
+  return [zodPlugin, submitHandler]
 }

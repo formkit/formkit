@@ -1,32 +1,37 @@
-<script setup>
-import { ref } from 'vue'
-import { createZodPlugin } from '@formkit/zod'
+<script setup lang="ts">
+import { createZodPlugin } from '../../../../packages/zod/src'
 import * as z from 'zod'
 
 const zodSchema = z.object({
-  name: z.string().min(3).max(255),
-  email: z.string().email(),
+  personalInfo: z.object({
+    firstName: z.string().min(3).max(255),
+    lastName: z.string().min(3).max(255),
+  }),
+  email: z.string().email({
+    message: 'Please enter a valid email address',
+  }),
   message: z.string().min(10).max(1000),
+  missing: z.number(),
 })
 
-const handleSubmit = async function () {
+const submitCallback = async function (formData: z.infer<typeof zodSchema>) {
+  console.log(formData)
   await new Promise((r) => setTimeout(r, 2000))
-  alert('Form submitted!')
 }
+
+const [zodPlugin, submitHandler] = createZodPlugin(zodSchema, submitCallback)
 </script>
 
 <template>
   <h1>Kneel before Zod</h1>
 
   <h2>A simple form</h2>
-  <FormKit
-    type="form"
-    :plugins="[createZodPlugin()]"
-    :zod-schema="zodSchema"
-    @submit="handleSubmit"
-  >
-    <FormKit type="text" name="name" label="Your name" />
-    <FormKit type="email" name="email" label="Your email" />
+  <FormKit type="form" :plugins="[zodPlugin]" @submit="submitHandler">
+    <FormKit type="text" name="email" label="Your email" />
     <FormKit type="textarea" name="message" label="Your message" />
+    <FormKit type="group" name="personalInfo">
+      <FormKit type="text" name="firstName" label="First Name" />
+      <FormKit type="text" name="lastName" label="Last Name" />
+    </FormKit>
   </FormKit>
 </template>
