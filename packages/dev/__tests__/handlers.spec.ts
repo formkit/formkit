@@ -154,7 +154,7 @@ describe('vue warning interception', () => {
 })
 
 describe('input warning interception', () => {
-  it('decodes W350', () => {
+  it.only('decodes W350', () => {
     const warning = vi.fn(() => {})
     const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(FormKit, {
@@ -173,7 +173,7 @@ describe('input warning interception', () => {
     })
     mock.mockRestore()
     expect(warning).toBeCalledWith(
-      'Invalid options prop for radio input. See https://formkit.com/inputs/radio'
+      'Invalid options prop for radio input (radio). See https://formkit.com/inputs/radio'
     )
   })
 })
