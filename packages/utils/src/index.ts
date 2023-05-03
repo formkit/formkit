@@ -880,14 +880,16 @@ export type KeyedElement<E> = E & { __key: string }
 /**
  * Checks if every item in a given array has a __key property.
  * @param arr - An array of unknown values.
+ * @param fast - If true, it will only check the first item in the array.
  * @returns
  * @public
  */
 export function isKeyedArray<T extends unknown | unknown[]>(
-  arr: T
+  arr: T,
+  fast = true
 ): arr is { [K in keyof T]: KeyedElement<T[K]> } {
   if (!Array.isArray(arr)) return false
-  return arr.every(
+  return arr[fast ? 'some' : 'every'](
     (item) => item && typeof item === 'object' && '__key' in item
   )
 }

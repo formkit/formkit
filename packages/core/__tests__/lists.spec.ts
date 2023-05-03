@@ -13,24 +13,6 @@ describe('lists', () => {
     expect(item.index).toBe(2)
   })
 
-  it('can remove a node via value', async () => {
-    const nodes = [
-      createNode({ value: 'A' }),
-      createNode({ value: 'B' }),
-      createNode({ value: 'C' }),
-    ]
-    const list = createNode<string[]>({
-      type: 'list',
-      sync: true,
-      children: nodes,
-    })
-    list.value.splice(1, 1)
-    list.input(list.value)
-    expect(list.value).toStrictEqual(['A', 'C'])
-    await list.settled
-    expect(list.children.map((child) => child.value)).toEqual(['A', 'C'])
-  })
-
   it('allows changing a node’s index by directly assigning it', () => {
     const moveMe = createNode()
     const parent = createNode({
@@ -81,6 +63,7 @@ describe('lists', () => {
     B.input('Z', false)
     expect(list.value).toStrictEqual(['A', 'Z', 'C'])
   })
+
   it('can remove a child from the list’s values', async () => {
     const food = createNode({
       type: 'list',
@@ -235,5 +218,65 @@ describe('bfs', () => {
     const searcher = vi.fn(() => false)
     bfs(parent, 'jim', searcher)
     expect(searcher.mock.calls.length).toBe(7)
+  })
+})
+
+describe('synced lists', () => {
+  it('can remove a node via value in synced list', async () => {
+    const nodes = [
+      createNode({ value: 'A' }),
+      createNode({ value: 'B' }),
+      createNode({ value: 'C' }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      sync: true,
+      children: nodes,
+    })
+    list.value.splice(1, 1)
+    list.input(list.value)
+    expect(list.value).toStrictEqual(['A', 'C'])
+    await list.settled
+    expect(list.children.map((child) => child.value)).toStrictEqual(['A', 'C'])
+    // Even though the middle value was spliced out, all that happened was the
+    // last node was removed and the values shifted.
+    expect(list.children[0]).toBe(nodes[0])
+    expect(list.children[1]).toBe(nodes[1])
+  })
+
+  it('can remove a keyed node in synced list', async () => {
+    const nodes = [
+      createNode({
+        type: 'group',
+        value: { __key: '1' },
+        children: [createNode({ value: 'A ' })],
+      }),
+      createNode({
+        type: 'group',
+        value: { __key: '2' },
+        children: [createNode({ value: 'B ' })],
+      }),
+      createNode({
+        type: 'group',
+        value: { __key: '3' },
+        children: [createNode({ value: 'C ' })],
+      }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      sync: true,
+      children: nodes,
+    })
+    list.value.splice(1, 1)
+    list.input(list.value)
+    expect(list.value).toStrictEqual(['A', 'C'])
+    await list.settled
+    expect(list.children.map((child) => child.value)).toStrictEqual(['A', 'C'])
+    // Even though the middle value was spliced out, all that happened was the
+    // last node was removed and the values shifted.
+    expect(list.children[0]).toBe(nodes[0])
+    expect(list.children[1]).toBe(nodes[1])
   })
 })

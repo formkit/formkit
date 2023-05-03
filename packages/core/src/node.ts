@@ -1801,22 +1801,41 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
 }
 
 /**
- * Hydrate a list node and its children
+ * Hydrate a list node and its children. There are some assumptions about the
+ * child nodes that are made here:
+ * 1. The child nodes are either:
+ *    - Are scalars and their values can be exchanged.
+ *    - Are groups and should maintain node identity.
+ * 2. The value of the list will be a 1-1 representation of the children.
+ * 3. If new values are *added* to the list, those nodes must be created by some
+ *   other means — adding a value does not add a node automatically.
+ *
  * @param node - A {@link FormKitNode | FormKitNode}
  */
 function hydrateSyncedList(node: FormKitNode, context: FormKitContext) {
   const _value = node._value
-  if (isKeyedArray(_value)) {
+  if (node.children[0]?.type !== 'input') {
+    // When the children are groups, we attempt to match them by keys.
+    const nodeIndexes = new Map<FormKitNode, number>()
+    const valueMap = new Map<object, FormKitNode>()
+    node.children.forEach((child, i) => {
+      nodeIndexes.set(child, i)
+      valueMap.set(child.value as object, child)
+    })
   } else if (Array.isArray(_value)) {
     let i = 0
+    const initialChildren = context.children.length
     for (; i < _value.length; i++) {
       const child = node.children[i]
-      if (!eq(child._value, _value[i])) {
+      if (child && !eq(child._value, _value[i])) {
         child.input(_value[i], false)
       }
     }
-    if (i < node.children.length) {
-      context.children.splice(i).forEach((child) => child.remove())
+    if (i < initialChildren) {
+      context.children.splice(i).forEach((child) => {
+        node.remove(child)
+        child.destroy()
+      })
     }
   }
 }
