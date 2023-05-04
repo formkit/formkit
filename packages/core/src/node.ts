@@ -9,7 +9,6 @@ import {
   init,
   cloneAny,
   clone,
-  isKeyedArray,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -336,7 +335,7 @@ export interface FormKitContext {
   /**
    * An array of child nodes (groups and lists)
    */
-  children: Array<FormKitNode>
+  children: Array<FormKitNode | FormKitPlaceholderNode>
   /**
    * Configuration state for a given tree.
    */
@@ -1292,7 +1291,7 @@ export type FormKitNode<V = unknown> = {
   /**
    * Remove a child from a node.
    */
-  remove: (node: FormKitNode) => FormKitNode
+  remove: (node: FormKitNode | FormKitPlaceholderNode) => FormKitNode
   /**
    * Retrieves the root node of a tree. This is accomplished via tree-traversal
    * on-request, and as such should not be used in frequently called functions.
@@ -1350,6 +1349,46 @@ export type FormKitNode<V = unknown> = {
     skipSubtreeOnFalse?: boolean
   ) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'>
+
+/**
+ * A faux node that is used as a placeholder in the children node array during
+ * various node manipulations.
+ */
+export interface FormKitPlaceholderNode<V = unknown> {
+  /**
+   * Flag indicating this is a placeholder.
+   */
+  __FKP: true
+  /**
+   * The type of placeholder node, if relevant.
+   */
+  type: FormKitNodeType
+  /**
+   * A value at the placeholder location.
+   */
+  value: V
+  /**
+   * The uncommitted value, in a placeholder will always be the same
+   * as the value.
+   */
+  _value: V
+  /**
+   * Artificially use a plugin (performs no-op)
+   */
+  use: (...args: any[]) => void
+  /**
+   * A name to use.
+   */
+  name: string
+  /**
+   * Sets the value of the placeholder.
+   */
+  input: (value: unknown, async: boolean) => Promise<unknown>
+  /**
+   * A placeholder is always settled.
+   */
+  isSettled: boolean
+}
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
@@ -1814,30 +1853,38 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
  */
 function hydrateSyncedList(node: FormKitNode, context: FormKitContext) {
   const _value = node._value
-  if (node.children[0]?.type !== 'input') {
-    // When the children are groups, we attempt to match them by keys.
-    const nodeIndexes = new Map<FormKitNode, number>()
-    const valueMap = new Map<object, FormKitNode>()
-    node.children.forEach((child, i) => {
-      nodeIndexes.set(child, i)
-      valueMap.set(child.value as object, child)
-    })
-  } else if (Array.isArray(_value)) {
-    let i = 0
-    const initialChildren = context.children.length
-    for (; i < _value.length; i++) {
-      const child = node.children[i]
-      if (child && !eq(child._value, _value[i])) {
-        child.input(_value[i], false)
-      }
+  if (!Array.isArray(_value)) return
+
+  // When the children are groups, we attempt to match them by keys.
+  const nodeIndexes = new Map<FormKitNode | FormKitPlaceholderNode, number>()
+  const valueMap = new Map<object, FormKitNode>()
+  node.children.forEach((child, i) => {
+    nodeIndexes.set(child, i)
+    valueMap.set(child.value as object, child)
+  })
+  const newChildren: FormKitNode[] = []
+  _value.forEach((childValue) => {
+    if (valueMap.has(childValue)) {
+      newChildren.push(valueMap.get(childValue)!)
     }
-    if (i < initialChildren) {
-      context.children.splice(i).forEach((child) => {
-        node.remove(child)
-        child.destroy()
-      })
-    }
-  }
+  })
+
+  // Hydrate the list by index instead.
+  // TODO: evaluate if this is necessary.
+  // let i = 0
+  // const initialChildren = context.children.length
+  // for (; i < _value.length; i++) {
+  //   const child = node.children[i]
+  //   if (child && !eq(child._value, _value[i])) {
+  //     child.input(_value[i], false)
+  //   }
+  // }
+  // if (i < initialChildren) {
+  //   context.children.splice(i).forEach((child) => {
+  //     node.remove(child)
+  //     child.destroy()
+  //   })
+  // }
 }
 
 /**
@@ -2178,7 +2225,7 @@ function eachChild(
   context: FormKitContext,
   callback: FormKitChildCallback
 ) {
-  context.children.forEach((child) => callback(child))
+  context.children.forEach((child) => !('__FKP' in child) && callback(child))
 }
 
 /**
@@ -2199,7 +2246,8 @@ function walkTree(
   stopIfFalse = false,
   skipSubtreeOnFalse = false
 ) {
-  context.children.some((child: FormKitNode) => {
+  context.children.some((child) => {
+    if ('__FKP' in child) return false
     const val = callback(child)
     // return true to stop the walk early
     if (stopIfFalse && val === false) return true
@@ -2402,8 +2450,9 @@ function getNode(
         break
       default:
         pointer =
-          pointer.children.find((c) => String(c.name) === String(name)) ||
-          select(pointer, name)
+          (pointer.children.find(
+            (c) => !('__FKP' in c) && String(c.name) === String(name)
+          ) as FormKitNode | undefined) || select(pointer, name)
     }
   }
   return pointer || undefined
@@ -2480,9 +2529,10 @@ export function bfs(
     typeof searchGoal === 'string'
       ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
       : searchGoal
-  const stack = [tree]
+  const stack: Array<FormKitNode | FormKitPlaceholderNode> = [tree]
   while (stack.length) {
     const node = stack.shift()! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    if ('__FKP' in node) continue
     if (search(node, searchValue)) return node
     stack.push(...node.children)
   }
@@ -2863,6 +2913,31 @@ function nodeInit<V>(
   node.emit('created', node)
   node.isCreated = true
   return node as FormKitNode<V>
+}
+
+/**
+ *
+ * @param options - FormKitOptions
+ */
+export function createPlaceholder(
+  options?: FormKitOptions
+): FormKitPlaceholderNode {
+  return {
+    __FKP: true,
+    name: `p_${nameCount++}`,
+    value: null,
+    _value: null,
+    type: options?.type ?? 'input',
+    use: () => {
+      // noop
+    },
+    input(value: unknown) {
+      this._value = value
+      this.value = value
+      return Promise.resolve()
+    },
+    isSettled: true,
+  }
 }
 
 /**

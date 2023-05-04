@@ -249,34 +249,39 @@ describe('synced lists', () => {
     const nodes = [
       createNode({
         type: 'group',
-        value: { __key: '1' },
-        children: [createNode({ value: 'A ' })],
+        children: [createNode({ name: 'x', value: 'A' })],
       }),
       createNode({
         type: 'group',
-        value: { __key: '2' },
-        children: [createNode({ value: 'B ' })],
+        children: [createNode({ name: 'x', value: 'B' })],
       }),
       createNode({
         type: 'group',
-        value: { __key: '3' },
-        children: [createNode({ value: 'C ' })],
+        children: [createNode({ name: 'x', value: 'C' })],
       }),
     ]
     const list = createNode<string[]>({
       type: 'list',
-      value: ['A', 'B', 'C'],
+      value: [{ __key: '1' }, { __key: '2' }, { __key: '3' }],
       sync: true,
       children: nodes,
     })
+
+    expect(list.children.map((child) => child.value)).toStrictEqual([
+      { __init: true, __key: '1', x: 'A' },
+      { __init: true, __key: '2', x: 'B' },
+      { __init: true, __key: '3', x: 'C' },
+    ])
+
     list.value.splice(1, 1)
     list.input(list.value)
-    expect(list.value).toStrictEqual(['A', 'C'])
+    expect(list.value).toEqual([
+      { x: 'A', __key: '1' },
+      { x: 'C', __key: '3' },
+    ])
     await list.settled
-    expect(list.children.map((child) => child.value)).toStrictEqual(['A', 'C'])
-    // Even though the middle value was spliced out, all that happened was the
-    // last node was removed and the values shifted.
+    // Because this was a list of nodes
     expect(list.children[0]).toBe(nodes[0])
-    expect(list.children[1]).toBe(nodes[1])
+    expect(list.children[1]).toBe(nodes[2])
   })
 })
