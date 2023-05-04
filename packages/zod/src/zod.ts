@@ -1,6 +1,17 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
 import { z } from 'zod'
-// import { undefine } from '@formkit/utils'
+
+function createMessageName(node: FormKitNode): string {
+  if (typeof node.props.validationLabel === 'function') {
+    return node.props.validationLabel(node)
+  }
+  return (
+    node.props.validationLabel ||
+    node.props.label ||
+    node.props.name ||
+    String(node.name)
+  )
+}
 
 /**
  * Creates a new Zod schema plugin.
@@ -16,11 +27,49 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   zodSchema: Z,
   submitCallback: (payload: z.infer<typeof zodSchema>) => void | Promise<void>
 ): [FormKitPlugin, (payload: any, node: FormKitNode) => void] {
+  const zodValidationSet = new Set<FormKitNode>()
   // The Zod plugin — maps zod schema to validation rules on
   // matching FormKit nodes.
   const zodPlugin = (node: FormKitNode) => {
-    console.log('zodPlugin from src', node)
+    if (node.props.type !== 'form') return false
+    let commitTimout: ReturnType<typeof setTimeout> | number = 0
+    let start = Date.now()
+    node.on('commit', ({ payload }) => {
+      clearTimeout(commitTimout)
+      const now = Date.now()
+      // perform at least every 600ms
+      if (now - start > 600) {
+        start = now
+        performZodValidation(payload, node)
+      }
+      // also perform after 200ms of no commits
+      commitTimout = setTimeout(() => {
+        performZodValidation(payload, node)
+      }, 200)
+    })
+    node.on('message-added', (message) => {
+      if (
+        message.payload.type === 'state' &&
+        message.payload.key === 'submitted'
+      ) {
+        // perform validation on submit so that check
+        // for form level errors can be done
+        performZodValidation(node.value, node)
+      }
+    })
     return false
+  }
+
+  function performZodValidation(payload: any, node: FormKitNode) {
+    const zodResults = zodSchema.safeParse(payload)
+    if (!zodResults.success) {
+      setFormValidations(zodResults.error, node)
+    } else {
+      zodValidationSet.forEach((node) => {
+        node.store.remove(`${node.address.slice(1).join('.')}:zod`)
+      })
+      zodValidationSet.clear()
+    }
   }
 
   // The submit handler — validates the payload against the zod schema
@@ -28,39 +77,67 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   async function submitHandler(payload: any, node: FormKitNode) {
     const zodResults = await zodSchema.safeParseAsync(payload)
     if (!zodResults.success) {
-      setFormErrors(zodResults.error, node)
+      setFormValidations(zodResults.error, node)
     } else {
       await submitCallback(zodResults as z.infer<Z>)
     }
   }
 
   // Sets the form errors on the correct nodes.
-  function setFormErrors(zodErrors: z.ZodError, node: FormKitNode) {
-    const allErrors = buildFormErrors(zodErrors)
-    const inputErrors = Object.entries(allErrors).reduce(
-      (acc, [path, message]) => {
-        const exists = !!node.at(path)
-        if (exists) {
-          delete allErrors[path]
-          acc[path] = message
-          return acc
-        }
-        return acc
-      },
-      {} as Record<string, string>
-    )
-    const formErrors = Object.keys(allErrors).map((error) => {
-      return `${error}: ${allErrors[error]}`
+  function setFormValidations(zodErrors: z.ZodError, node: FormKitNode) {
+    const allErrors = buildFormValidationMessages(zodErrors)
+    const oldZodValidationSet = new Set(zodValidationSet)
+    Object.entries(allErrors).map((error) => {
+      const [path, issue] = error
+      const targetNode = node.at(path)
+      if (targetNode) {
+        // Remove the error
+        delete allErrors[path]
+        oldZodValidationSet.delete(targetNode)
+        targetNode.store.set(
+          createMessage({
+            blocking: true,
+            type: 'validation',
+            key: `${path}:zod`,
+            value: issue.message,
+            meta: {
+              i18nArgs: [
+                {
+                  node: targetNode,
+                  name: createMessageName(targetNode),
+                  args: [issue],
+                },
+              ],
+              messageKey: issue.message.toLowerCase().replaceAll(' ', '_'),
+            },
+          })
+        )
+        zodValidationSet.add(targetNode)
+      }
     })
-    node.setErrors(inputErrors, formErrors)
+
+    // on submit, all remaining errors are global errors
+    if (node?.context?.state.submitted) {
+      const formErrors = Object.keys(allErrors).map((error) => {
+        return `${error}: ${allErrors[error].message}`
+      })
+      node.setErrors([], formErrors)
+    }
+
+    oldZodValidationSet.forEach((node) => {
+      node.store.remove(`${node.address.slice(1).join('.')}:zod`)
+      zodValidationSet.delete(node)
+    })
   }
 
   // Builds a FormKit errors object from the zod error object.
-  function buildFormErrors(zodError: z.ZodError): Record<string, string> {
-    const formErrors: Record<string, string> = {}
+  function buildFormValidationMessages(
+    zodError: z.ZodError
+  ): Record<string, z.ZodIssue> {
+    const formErrors: Record<string, z.ZodIssue> = {}
     zodError.errors.forEach((error) => {
       const path = error.path.join('.')
-      formErrors[path] = error.message
+      formErrors[path] = error
     })
     return formErrors
   }
