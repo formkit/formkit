@@ -28,6 +28,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   submitCallback: (payload: z.infer<typeof zodSchema>) => void | Promise<void>
 ): [FormKitPlugin, (payload: any, node: FormKitNode) => void] {
   const zodValidationSet = new Set<FormKitNode>()
+  const zodValidationListeners = new Map<FormKitNode, string>()
   // The Zod plugin — maps zod schema to validation rules on
   // matching FormKit nodes.
   const zodPlugin = (node: FormKitNode) => {
@@ -57,6 +58,12 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
         performZodValidation(node.value, node)
       }
     })
+    node.ledger.count('nonZodValidation', (message) => {
+      if (message.type === 'validation') {
+        return !message.key.endsWith(':zod')
+      }
+      return false
+    })
     return false
   }
 
@@ -66,7 +73,10 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
       setFormValidations(zodResults.error, node)
     } else {
       zodValidationSet.forEach((node) => {
-        node.store.remove(`${node.address.slice(1).join('.')}:zod`)
+        node.store.remove(`zod`)
+        const receipt = zodValidationListeners.get(node)
+        node.off(receipt as string)
+        zodValidationListeners.delete(node)
       })
       zodValidationSet.clear()
     }
@@ -94,25 +104,41 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
         // Remove the error
         delete allErrors[path]
         oldZodValidationSet.delete(targetNode)
-        targetNode.store.set(
-          createMessage({
-            blocking: true,
-            type: 'validation',
-            key: `${path}:zod`,
-            value: issue.message,
-            meta: {
-              i18nArgs: [
-                {
-                  node: targetNode,
-                  name: createMessageName(targetNode),
-                  args: [issue],
-                },
-              ],
-              messageKey: issue.message.toLowerCase().replaceAll(' ', '_'),
-            },
-          })
-        )
-        zodValidationSet.add(targetNode)
+
+        const nonZodValidationCount =
+          targetNode.ledger.value('nonZodValidation')
+        if (nonZodValidationCount === 0) {
+          if (!targetNode.store[`${path}:zod`]) {
+            const validationListener = targetNode.on(
+              'unsettled:nonZodValidation',
+              () => {
+                targetNode.store.remove(`${path}:zod`)
+                zodValidationSet.delete(targetNode)
+              }
+            )
+            zodValidationListeners.set(targetNode, validationListener)
+          }
+
+          targetNode.store.set(
+            createMessage({
+              blocking: true,
+              type: 'validation',
+              key: `${path}:zod`,
+              value: issue.message,
+              meta: {
+                i18nArgs: [
+                  {
+                    node: targetNode,
+                    name: createMessageName(targetNode),
+                    args: [issue],
+                  },
+                ],
+                messageKey: 'zod',
+              },
+            })
+          )
+          zodValidationSet.add(targetNode)
+        }
       }
     })
 
