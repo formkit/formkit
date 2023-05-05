@@ -588,7 +588,8 @@ export interface FormKitChildValue {
 }
 
 /**
- * An empty interface for adding FormKit node extensions
+ * An empty interface for adding FormKit node extensions.
+ * @public
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FormKitNodeExtensions {}
