@@ -1,3 +1,4 @@
+import { FormKitNodeExtensions } from './../src/node'
 import {
   createNode,
   FormKitGroupValue,
@@ -138,7 +139,7 @@ describe('node', () => {
 
   it('does not emit config:{property} events when ancestors defines its own local value', () => {
     const node = createNode({
-      // config: { locale: 'en' },
+      config: { locale: 'en' },
       type: 'group',
       children: [
         createNode({
@@ -1513,5 +1514,26 @@ describe('errors', () => {
     expect(form.ledger.value('errors')).toBe(2)
     form.clearErrors()
     expect(form.ledger.value('errors')).toBe(0)
+  })
+})
+
+declare module '../src/node' {
+  interface FormKitNodeExtensions {
+    foo(): string
+  }
+}
+
+describe('extend', () => {
+  it('can add a new feature to the node', () => {
+    const addFeature: FormKitPlugin = (node) => {
+      node.extend(`foo`, {
+        get: (node) => `${node.name} is foobar`,
+        set: false,
+      })
+    }
+    const user = createNode({ name: 'username', plugins: [addFeature] })
+    expect(user.foo).toBe('username is foobar')
+    user.name = 'new name'
+    expect(user.foo).toBe('new name is foobar')
   })
 })
