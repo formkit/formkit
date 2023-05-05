@@ -1,4 +1,5 @@
 import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
+import { whenAvailable } from '@formkit/utils'
 import { z } from 'zod'
 
 function createMessageName(node: FormKitNode): string {
@@ -33,6 +34,29 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   // matching FormKit nodes.
   const zodPlugin = (node: FormKitNode) => {
     if (node.props.type !== 'form') return false
+
+    node.ledger.count('existingValidation', (message) => {
+      if (message.type === 'validation' || message.type === 'error') {
+        return !message.key.endsWith(':zod')
+      }
+      return false
+    })
+
+    node.on('created', () => {
+      node.extend('setZodErrors', {
+        get: () => (zodError: z.ZodError) => {
+          whenAvailable(node.props.id as string, () => {
+            const [formErrors, fieldErrors] = zodErrorToFormKitErrors(
+              zodError,
+              node
+            )
+            node.setErrors(fieldErrors, formErrors)
+          })
+        },
+        set: false,
+      })
+    })
+
     let commitTimout: ReturnType<typeof setTimeout> | number = 0
     let start = Date.now()
     node.on('commit', ({ payload }) => {
@@ -48,6 +72,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
         performZodValidation(payload, node)
       }, 200)
     })
+
     node.on('message-added', (message) => {
       if (
         message.payload.type === 'state' &&
@@ -58,12 +83,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
         performZodValidation(node.value, node)
       }
     })
-    node.ledger.count('nonZodValidation', (message) => {
-      if (message.type === 'validation') {
-        return !message.key.endsWith(':zod')
-      }
-      return false
-    })
+
     return false
   }
 
@@ -84,7 +104,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
 
   // The submit handler — validates the payload against the zod schema
   // and then passes the data to the user's submit callback.
-  async function submitHandler(payload: any, node: FormKitNode) {
+  async function submitHandler(payload: any, node?: FormKitNode | undefined) {
     const zodResults = await zodSchema.safeParseAsync(payload)
     if (!zodResults.success) {
       setFormValidations(zodResults.error, node)
@@ -94,23 +114,24 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   }
 
   // Sets the form errors on the correct nodes.
-  function setFormValidations(zodErrors: z.ZodError, node: FormKitNode) {
-    const allErrors = buildFormValidationMessages(zodErrors)
+  function setFormValidations(
+    zodErrors: z.ZodError,
+    node?: FormKitNode | undefined
+  ) {
+    if (!node) return
+    const [formErrors, InputErrors] = zodErrorToFormKitErrors(zodErrors, node)
     const oldZodValidationSet = new Set(zodValidationSet)
-    Object.entries(allErrors).map((error) => {
-      const [path, issue] = error
+    Object.entries(InputErrors).map((issue) => {
+      const [path, message] = issue
       const targetNode = node.at(path)
       if (targetNode) {
-        // Remove the error
-        delete allErrors[path]
         oldZodValidationSet.delete(targetNode)
-
-        const nonZodValidationCount =
-          targetNode.ledger.value('nonZodValidation')
-        if (nonZodValidationCount === 0) {
+        const existingValidationCount =
+          targetNode.ledger.value('existingValidation')
+        if (existingValidationCount === 0) {
           if (!targetNode.store[`${path}:zod`]) {
             const validationListener = targetNode.on(
-              'unsettled:nonZodValidation',
+              'unsettled:existingValidation',
               () => {
                 targetNode.store.remove(`${path}:zod`)
                 zodValidationSet.delete(targetNode)
@@ -124,7 +145,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
               blocking: true,
               type: 'validation',
               key: `${path}:zod`,
-              value: issue.message,
+              value: message,
               meta: {
                 i18nArgs: [
                   {
@@ -144,9 +165,6 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
 
     // on submit, all remaining errors are global errors
     if (node?.context?.state.submitted) {
-      const formErrors = Object.keys(allErrors).map((error) => {
-        return `${error}: ${allErrors[error].message}`
-      })
       node.setErrors([], formErrors)
     }
 
@@ -156,16 +174,24 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
     })
   }
 
-  // Builds a FormKit errors object from the zod error object.
-  function buildFormValidationMessages(
-    zodError: z.ZodError
-  ): Record<string, z.ZodIssue> {
-    const formErrors: Record<string, z.ZodIssue> = {}
+  function zodErrorToFormKitErrors(
+    zodError: z.ZodError,
+    node: FormKitNode
+  ): [string[], Record<string, string>] {
+    const fieldErrors: Record<string, string> = {}
+    const formErrors: string[] = []
     zodError.errors.forEach((error) => {
       const path = error.path.join('.')
-      formErrors[path] = error
+      const targetNode = node.at(path)
+      if (targetNode) {
+        if (!fieldErrors[path]) {
+          fieldErrors[path] = error.message
+        }
+      } else {
+        formErrors.push(`${path}: ${error.message}`)
+      }
     })
-    return formErrors
+    return [formErrors, fieldErrors]
   }
 
   return [zodPlugin, submitHandler]

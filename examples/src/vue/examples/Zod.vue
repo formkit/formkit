@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { FormKitNode } from '@formkit/core'
 import { createZodPlugin } from '../../../../packages/zod/src'
 import { z } from 'zod'
 
@@ -40,6 +41,12 @@ const invalidValues = {
   missing: 'test',
 }
 
+const zodParseResults = zodSchema.safeParse(invalidValues)
+let zodErrors: z.ZodError | undefined
+if (!zodParseResults.success) {
+  zodErrors = zodParseResults.error
+}
+
 const [zodPlugin, submitHandler] = createZodPlugin(
   zodSchema,
   async (formData) => {
@@ -47,6 +54,10 @@ const [zodPlugin, submitHandler] = createZodPlugin(
     await new Promise((r) => setTimeout(r, 2000))
   }
 )
+
+function setupFormNode(node: FormKitNode) {
+  node.setZodErrors(zodErrors)
+}
 </script>
 
 <template>
@@ -58,6 +69,7 @@ const [zodPlugin, submitHandler] = createZodPlugin(
     :plugins="[zodPlugin]"
     :value="invalidValues"
     @submit="submitHandler"
+    @node="setupFormNode"
   >
     <FormKit type="text" name="email" label="Your email" validation="email" />
     <FormKit type="textarea" name="message" label="Your message" />
