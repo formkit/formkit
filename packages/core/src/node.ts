@@ -625,6 +625,13 @@ export interface FormKitChildValue {
 }
 
 /**
+ * An empty interface for adding FormKit node extensions.
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FormKitNodeExtensions {}
+
+/**
  * FormKit's Node object produced by createNode(). Every `<FormKit />` input has
  * 1 FormKitNode ("core node") associated with it. All inputs, forms, and groups
  * are instances of nodes. Read more about core nodes in the
@@ -798,6 +805,25 @@ export interface FormKitChildValue {
  * - `event` — The event name to be emitted.
  * - `payload` *optional* — A value to be passed together with the event.
  * - `bubble` *optional* — If the event should bubble to the parent.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param extend -
+ * Extend a {@link FormKitNode | FormKitNode} by adding arbitrary properties
+ * that are accessible via `node.{property}()`.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * extend: (property: string, trap: FormKitTrap) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `property` — The property to add the core node (`node.{property}`).
+ * - `trap` — An object with a get and set property.
  *
  * #### Returns
  *
@@ -1246,6 +1272,10 @@ export type FormKitNode<V = unknown> = {
    */
   emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
   /**
+   * Extend the core node by giving it a key and a trap.
+   */
+  extend: (key: string, trap: FormKitTrap) => FormKitNode
+  /**
    * Within a given tree, find a node matching a given selector. Selectors
    * can be simple strings or a function.
    */
@@ -1348,7 +1378,8 @@ export type FormKitNode<V = unknown> = {
     stopOnFalse?: boolean,
     skipSubtreeOnFalse?: boolean
   ) => void
-} & Omit<FormKitContext, 'value' | 'name' | 'config'>
+} & Omit<FormKitContext, 'value' | 'name' | 'config'> &
+  FormKitNodeExtensions
 
 /**
  * A faux node that is used as a placeholder in the children node array during
@@ -1513,6 +1544,7 @@ const traps = {
   define: trap(define),
   disturb: trap(disturb),
   destroy: trap(destroy),
+  extend: trap(extend),
   hydrate: trap(hydrate),
   index: trap(getIndex, setIndex, false),
   input: trap(input),
@@ -2801,6 +2833,25 @@ function createProps(initial: unknown) {
       return true
     },
   })
+}
+
+/**
+ * Applies a new trap to the FormKitNode allowing plugins to extend the
+ * base functionality of a FormKitNode.
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param property - A string of the property name
+ * @param trap - A {@link FormKitTrap | FormKitTrap}
+ * @returns
+ */
+function extend(
+  node: FormKitNode,
+  context: FormKitContext,
+  property: string,
+  trap: FormKitTrap
+) {
+  context.traps.set(property, trap)
+  return node
 }
 
 /**

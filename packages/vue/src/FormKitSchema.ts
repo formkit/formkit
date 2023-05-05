@@ -139,7 +139,6 @@ interface SchemaProvider {
     providerCallback: SchemaProviderCallback,
     instanceKey: object
   ): RenderChildren
-  clean: () => void
 }
 
 type SchemaProviderCallback = (
@@ -744,14 +743,6 @@ function parseSchema(
       return render()
     }
   }
-
-  /**
-   * Perform some "in-scope" cleaning operations.
-   */
-  createInstance.clean = () => {
-    providers.length = 0
-  }
-
   return createInstance
 }
 
@@ -842,7 +833,9 @@ function clean(
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
     delete memoKeys[memoKey]
+    const [, providers] = memo[memoKey]
     delete memo[memoKey]
+    providers.length = 0
   }
   instanceScopes.delete(instanceKey)
 }
@@ -918,7 +911,6 @@ export const FormKitSchema = defineComponent({
     function cleanUp() {
       // Perform cleanup operations
       clean(props.schema, props.memoKey, instanceKey)
-      provider.clean()
       /* eslint-disable @typescript-eslint/no-non-null-assertion */
       if (data.node) data.node.destroy()
       data.slots = null!

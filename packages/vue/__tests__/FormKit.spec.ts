@@ -2125,4 +2125,46 @@ describe('schema changed', () => {
       'display: none;'
     )
   })
+
+  it('can toggle between two different keyed components (#690)', async () => {
+    const showA = ref(true)
+    const wrapper = mount(
+      {
+        setup() {
+          return { showA }
+        },
+        template: `
+          <button @click="showA = !showA">Toggle</button>
+          <FormKit
+            v-if="showA"
+            key="a"
+            type="text"
+            name="a"
+            label="Input A"
+            help="edit me to get started"
+          />
+          <FormKit
+            v-else
+            key="b"
+            name="b"
+            type="text"
+            label="Input B"
+            help="edit me to get started"
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('Input A')
+    showA.value = false
+    await nextTick()
+    expect(wrapper.html()).toContain('Input B')
+    showA.value = true
+    await nextTick()
+    expect(wrapper.html()).toContain('Input A')
+  })
 })
