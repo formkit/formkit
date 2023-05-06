@@ -1,4 +1,3 @@
-import { FormKitNodeExtensions } from './../src/node'
 import {
   createNode,
   FormKitGroupValue,

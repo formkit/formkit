@@ -3,6 +3,7 @@ import {
   FormKitPlugin,
   createMessage,
   FormKitFrameworkContext,
+  isPlaceholder,
 } from '@formkit/core'
 import { whenAvailable } from '@formkit/utils'
 import { multiStep, step } from './schema'
@@ -208,8 +209,8 @@ function initEvents(node: FormKitNode, el: Element) {
       ) {
         event.preventDefault()
         const activeStepContext = node.children.find(
-          (step) => step.name === node.props.activeStep
-        )
+          (step) => !isPlaceholder(step) && step.name === node.props.activeStep
+        ) as FormKitNode | undefined
         if (activeStepContext && activeStepContext.context) {
           incrementStep(
             1,
@@ -261,6 +262,7 @@ export function createMultiStepPlugin(
 
       node.on('prop:activeStep', ({ payload }) => {
         node.children.forEach((child) => {
+          if (isPlaceholder(child)) return
           child.props.isActiveStep = child.name === payload
           if (isBrowser && child.name === payload) {
             const el = document.querySelector(

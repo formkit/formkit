@@ -321,6 +321,10 @@ export interface FormKitContext {
    */
   _e: FormKitEventEmitter
   /**
+   * A unique identifier for a node.
+   */
+  _uid: symbol
+  /**
    * A node’s internal disturbance counter promise.
    */
   _resolve: ((value: unknown) => void) | false
@@ -1384,12 +1388,17 @@ export type FormKitNode<V = unknown> = {
 /**
  * A faux node that is used as a placeholder in the children node array during
  * various node manipulations.
+ * @public
  */
 export interface FormKitPlaceholderNode<V = unknown> {
   /**
    * Flag indicating this is a placeholder.
    */
   __FKP: true
+  /**
+   * A unique symbol identifying this placeholder.
+   */
+  _uid: symbol
   /**
    * The type of placeholder node, if relevant.
    */
@@ -1833,10 +1842,11 @@ function partial(
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   const _value = context._value as KeyedValue
+  // For "synced" lists the underlying nodes need to be synced to their values
+  // before hydration.
+  if (node.type === 'list' && node.sync) syncListNodes(node, context)
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
-    if (node.type === 'list' && node.sync)
-      return hydrateSyncedList(node, context)
     if (child.name in _value) {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
@@ -1883,40 +1893,73 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
  *
  * @param node - A {@link FormKitNode | FormKitNode}
  */
-function hydrateSyncedList(node: FormKitNode, context: FormKitContext) {
+function syncListNodes(node: FormKitNode, context: FormKitContext) {
   const _value = node._value
   if (!Array.isArray(_value)) return
 
-  // When the children are groups, we attempt to match them by keys.
-  const nodeIndexes = new Map<FormKitNode | FormKitPlaceholderNode, number>()
-  const valueMap = new Map<object, FormKitNode>()
-  node.children.forEach((child, i) => {
-    nodeIndexes.set(child, i)
-    valueMap.set(child.value as object, child)
-  })
-  const newChildren: FormKitNode[] = []
-  _value.forEach((childValue) => {
-    if (valueMap.has(childValue)) {
-      newChildren.push(valueMap.get(childValue)!)
+  const newChildren: Array<FormKitNode | FormKitPlaceholderNode | null> = []
+  const unused = new Set(context.children)
+  const placeholderValues = new Map<unknown, number>()
+
+  // 1. Iterate over the values and if the values at the same index are equal
+  //    then we can reuse the node. Otherwise we add a `null` placeholder.
+  _value.forEach((value, i) => {
+    if (context.children[i] && context.children[i]._value === value) {
+      newChildren.push(context.children[i])
+      unused.delete(context.children[i])
+    } else {
+      newChildren.push(null)
+      placeholderValues.set(value, i)
     }
   })
 
-  // Hydrate the list by index instead.
-  // TODO: evaluate if this is necessary.
-  // let i = 0
-  // const initialChildren = context.children.length
-  // for (; i < _value.length; i++) {
-  //   const child = node.children[i]
-  //   if (child && !eq(child._value, _value[i])) {
-  //     child.input(_value[i], false)
-  //   }
-  // }
-  // if (i < initialChildren) {
-  //   context.children.splice(i).forEach((child) => {
-  //     node.remove(child)
-  //     child.destroy()
-  //   })
-  // }
+  // 2. If there are unused nodes, and there are null nodes in the new children
+  //    then we attempt to match those irregardless of their index.
+  if (unused.size && placeholderValues.size) {
+    unused.forEach((child) => {
+      if (placeholderValues.has(child._value)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        newChildren[placeholderValues.get(child._value)!] = child
+        unused.delete(child)
+        placeholderValues.delete(child._value)
+      }
+    })
+  }
+
+  // 3. If there are still unused nodes, and unused placeholders, we assign the
+  //    unused nodes to the unused placeholders in order.
+  while (unused.size && placeholderValues.size) {
+    const child = unused.values().next().value
+    const placeholders = placeholderValues[Symbol.iterator]()
+    const [value, index] = placeholders.next().value
+    newChildren[index] = child
+    unused.delete(child)
+    placeholderValues.delete(value)
+  }
+
+  // 4. If there are placeholders in the children, we create true placeholders.
+  if (placeholderValues.size) {
+    placeholderValues.forEach((index, value) => {
+      // TODO: add something unique here
+      newChildren[index] = createPlaceholder({ value })
+    })
+  }
+
+  // 5. If there are unused nodes, we remove them.
+  if (unused.size) {
+    unused.forEach((child) => {
+      if (!('__FKP' in child)) {
+        // Before we destroy the child, we need to disassosiate it from the
+        // parent, otherwise it would remove it’s value from the parent and in
+        // this case the parent’s value is the source of truth.
+        child._c.parent = null
+        child.destroy()
+      }
+    })
+  }
+
+  // 6. Finally, we assign the new children to the context.
+  context.children = newChildren as Array<FormKitNode | FormKitPlaceholderNode>
 }
 
 /**
@@ -2118,7 +2161,15 @@ function addChild(
   if (!parentContext.children.includes(child)) {
     if (listIndex !== undefined && parent.type === 'list') {
       // Inject the child:
-      parentContext.children.splice(listIndex, 0, child)
+      const existingNode = parentContext.children[listIndex]
+      if (existingNode && '__FKP' in existingNode) {
+        // The node index is populated by a placeholderNode so we need to
+        // remove that replace it with the real node (the current child).
+        child._c._uid = existingNode._uid
+        parentContext.children.splice(listIndex, 1, child)
+      } else {
+        parentContext.children.splice(listIndex, 0, child)
+      }
 
       if (
         Array.isArray(parent.value) &&
@@ -2889,6 +2940,7 @@ function createContext(options: FormKitOptions): FormKitContext {
   return {
     _d: 0,
     _e: createEmitter(),
+    _uid: Symbol(),
     _resolve: false,
     _tmo: false,
     _value: value,
@@ -2967,14 +3019,15 @@ function nodeInit<V>(
 }
 
 /**
- *
+ * Creates a placeholder node that can be used to hold a place in a the children
+ * array until the actual node is created.
  * @param options - FormKitOptions
+ * @internal
  */
-export function createPlaceholder(
-  options?: FormKitOptions
-): FormKitPlaceholderNode {
+function createPlaceholder(options?: FormKitOptions): FormKitPlaceholderNode {
   return {
     __FKP: true,
+    _uid: Symbol(),
     name: `p_${nameCount++}`,
     value: null,
     _value: null,
@@ -2989,6 +3042,18 @@ export function createPlaceholder(
     },
     isSettled: true,
   }
+}
+
+/**
+ * Determines if a node is a placeholder node.
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @returns
+ * @public
+ */
+export function isPlaceholder(
+  node: FormKitNode | FormKitPlaceholderNode
+): node is FormKitPlaceholderNode {
+  return '__FKP' in node
 }
 
 /**

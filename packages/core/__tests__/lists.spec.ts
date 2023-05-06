@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { createNode, bfs, FormKitNode } from '../src'
+import { createNode, bfs, FormKitNode, isPlaceholder } from '../src'
 import { clone } from '@formkit/utils'
 import { createNameTree } from '.jest/helpers'
 
@@ -235,17 +235,17 @@ describe('synced lists', () => {
       children: nodes,
     })
     list.value.splice(1, 1)
-    list.input(list.value)
+    list.input(list.value, false)
     expect(list.value).toStrictEqual(['A', 'C'])
     await list.settled
     expect(list.children.map((child) => child.value)).toStrictEqual(['A', 'C'])
     // Even though the middle value was spliced out, all that happened was the
     // last node was removed and the values shifted.
     expect(list.children[0]).toBe(nodes[0])
-    expect(list.children[1]).toBe(nodes[1])
+    expect(list.children[1]).toBe(nodes[2])
   })
 
-  it('can remove a keyed node in synced list', async () => {
+  it('can remove a node in synced list by splicing the value', async () => {
     const nodes = [
       createNode({
         type: 'group',
@@ -268,13 +268,13 @@ describe('synced lists', () => {
     })
 
     expect(list.children.map((child) => child.value)).toStrictEqual([
-      { __init: true, __key: '1', x: 'A' },
-      { __init: true, __key: '2', x: 'B' },
-      { __init: true, __key: '3', x: 'C' },
+      { __key: '1', x: 'A' },
+      { __key: '2', x: 'B' },
+      { __key: '3', x: 'C' },
     ])
 
     list.value.splice(1, 1)
-    list.input(list.value)
+    list.input(list.value, false)
     expect(list.value).toEqual([
       { x: 'A', __key: '1' },
       { x: 'C', __key: '3' },
@@ -283,5 +283,42 @@ describe('synced lists', () => {
     // Because this was a list of nodes
     expect(list.children[0]).toBe(nodes[0])
     expect(list.children[1]).toBe(nodes[2])
+  })
+
+  it('can push add a placeholder node in a synced list by pushing a value', async () => {
+    const nodes = [
+      createNode({
+        type: 'group',
+        children: [createNode({ name: 'x', value: 'A' })],
+      }),
+      createNode({
+        type: 'group',
+        children: [createNode({ name: 'x', value: 'B' })],
+      }),
+      createNode({
+        type: 'group',
+        children: [createNode({ name: 'x', value: 'C' })],
+      }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: [{ __key: '1' }, { __key: '2' }, { __key: '3' }],
+      sync: true,
+      children: nodes,
+    })
+
+    list.input([{}, ...list.value], false)
+    expect(list.value).toEqual([
+      {},
+      { x: 'A', __key: '1' },
+      { x: 'B', __key: '2' },
+      { x: 'C', __key: '3' },
+    ])
+    await list.settled
+    // Because this was a list of nodes
+    expect(list.children[1]).toBe(nodes[0])
+    expect(list.children[2]).toBe(nodes[1])
+    expect(list.children[3]).toBe(nodes[2])
+    expect(isPlaceholder(list.children[0])).toBe(true)
   })
 })
