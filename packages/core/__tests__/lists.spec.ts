@@ -321,4 +321,59 @@ describe('synced lists', () => {
     expect(list.children[3]).toBe(nodes[2])
     expect(isPlaceholder(list.children[0])).toBe(true)
   })
+
+  it('removes all nodes that are not in the initial values', async () => {
+    const list = createNode<string[]>({
+      type: 'list',
+      sync: true,
+      children: [createNode({ value: 'A' }), createNode({ value: 'B' })],
+    })
+    await list.settled
+    expect(list.value).toEqual([])
+    expect(list.children).toHaveLength(0)
+  })
+
+  it('can update values from a child node', async () => {
+    const list = createNode<string[]>({
+      type: 'list',
+      sync: true,
+      value: ['A', 'B'],
+      children: [
+        createNode({ value: 'A' }),
+        createNode({ value: 'B', config: { delay: 0 } }),
+      ],
+    })
+    await list.settled
+    list.children[1].input('C')
+    list.children[1].input('Cat')
+    list.children[1].input('Cat in the')
+    list.children[1].input('Cat in hat')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(list.value).toEqual(['A', 'Cat in hat'])
+  })
+
+  it('can replace a placeholder node in a synced list', async () => {
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B'],
+      sync: true,
+      children: [createNode({ value: 'A' }), createNode({ value: 'B' })],
+    })
+    await list.settled
+    expect(list.value).toEqual(['A', 'B'])
+    expect(list.children.map((child) => child.value)).toEqual(['A', 'B'])
+    expect(isPlaceholder(list.children[0])).toBe(false)
+    list.input(['X', 'A', 'B'], false)
+    expect(list.value).toEqual(['X', 'A', 'B'])
+    expect(list.children.map((child) => child.value)).toEqual([
+      undefined,
+      'A',
+      'B',
+    ])
+    expect(isPlaceholder(list.children[0])).toBe(true)
+    createNode({ index: 0, parent: list })
+    expect(list.value).toEqual(['X', 'A', 'B'])
+    expect(list.children.map((child) => child.value)).toEqual(['X', 'A', 'B'])
+    expect(isPlaceholder(list.children[0])).toBe(false)
+  })
 })

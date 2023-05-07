@@ -1423,7 +1423,7 @@ export interface FormKitPlaceholderNode<V = unknown> {
   /**
    * Sets the value of the placeholder.
    */
-  input: (value: unknown, async: boolean) => Promise<unknown>
+  input: (value: unknown, async?: boolean) => Promise<unknown>
   /**
    * A placeholder is always settled.
    */
@@ -1940,7 +1940,6 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   // 4. If there are placeholders in the children, we create true placeholders.
   if (placeholderValues.size) {
     placeholderValues.forEach((index, value) => {
-      // TODO: add something unique here
       newChildren[index] = createPlaceholder({ value })
     })
   }
@@ -3024,13 +3023,15 @@ function nodeInit<V>(
  * @param options - FormKitOptions
  * @internal
  */
-function createPlaceholder(options?: FormKitOptions): FormKitPlaceholderNode {
+function createPlaceholder(
+  options?: FormKitOptions & { name?: string }
+): FormKitPlaceholderNode {
   return {
     __FKP: true,
     _uid: Symbol(),
-    name: `p_${nameCount++}`,
-    value: null,
-    _value: null,
+    name: options?.name ?? `p_${nameCount++}`,
+    value: options?.value ?? null,
+    _value: options?.value ?? null,
     type: options?.type ?? 'input',
     use: () => {
       // noop
