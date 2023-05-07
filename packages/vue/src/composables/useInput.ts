@@ -60,6 +60,7 @@ export interface FormKitComponentProps {
   inputErrors: Record<string, string | string[]>
   index?: number
   config: Record<string, any>
+  sync: boolean
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
 }
@@ -240,6 +241,7 @@ export function useInput(
         config: props.config,
         props: initialProps,
         index: props.index,
+        sync: props.sync,
       },
       false,
       true

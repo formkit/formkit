@@ -323,7 +323,7 @@ export interface FormKitContext {
   /**
    * A unique identifier for a node.
    */
-  _uid: symbol
+  uid: symbol
   /**
    * A node’s internal disturbance counter promise.
    */
@@ -451,6 +451,12 @@ export interface FormKitFrameworkContext {
    * This is generally required for accessibility reasons.
    */
   id: string
+  /**
+   * An array of symbols that represent the a child’s nodes. These are not the
+   * child’s nodes but are just symbols representing them. They are used to
+   * iterate over the children for rendering purposes.
+   */
+  items: symbol[]
   /**
    * The label of the input.
    */
@@ -1363,6 +1369,10 @@ export type FormKitNode<V = unknown> = {
    */
   isSettled: boolean
   /**
+   * A unique identifier for the node.
+   */
+  uid: symbol
+  /**
    * Registers a new plugin on the node and its subtree.
    * run = should the plugin be executed or not
    * library = should the plugin's library function be executed (if there)
@@ -1398,7 +1408,7 @@ export interface FormKitPlaceholderNode<V = unknown> {
   /**
    * A unique symbol identifying this placeholder.
    */
-  _uid: symbol
+  uid: symbol
   /**
    * The type of placeholder node, if relevant.
    */
@@ -1944,14 +1954,17 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
     })
   }
 
-  // 5. If there are unused nodes, we remove them.
+  // 5. If there are unused nodes, we remove them. To ensure we don’t remove any
+  //    values in this process we set the children to an empty array first. This
+  //    ensures that calling removeChild() inside child.destroy() will not
+  //    remove the value from the parent.
+  context.children = []
   if (unused.size) {
     unused.forEach((child) => {
       if (!('__FKP' in child)) {
         // Before we destroy the child, we need to disassosiate it from the
         // parent, otherwise it would remove it’s value from the parent and in
         // this case the parent’s value is the source of truth.
-        child._c.parent = null
         child.destroy()
       }
     })
@@ -2164,7 +2177,7 @@ function addChild(
       if (existingNode && '__FKP' in existingNode) {
         // The node index is populated by a placeholderNode so we need to
         // remove that replace it with the real node (the current child).
-        child._c._uid = existingNode._uid
+        child._c.uid = existingNode.uid
         parentContext.children.splice(listIndex, 1, child)
       } else {
         parentContext.children.splice(listIndex, 0, child)
@@ -2939,7 +2952,7 @@ function createContext(options: FormKitOptions): FormKitContext {
   return {
     _d: 0,
     _e: createEmitter(),
-    _uid: Symbol(),
+    uid: Symbol(),
     _resolve: false,
     _tmo: false,
     _value: value,
@@ -3028,7 +3041,7 @@ function createPlaceholder(
 ): FormKitPlaceholderNode {
   return {
     __FKP: true,
-    _uid: Symbol(),
+    uid: Symbol(),
     name: options?.name ?? `p_${nameCount++}`,
     value: options?.value ?? null,
     _value: options?.value ?? null,

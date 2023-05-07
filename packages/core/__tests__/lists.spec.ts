@@ -371,9 +371,11 @@ describe('synced lists', () => {
       'B',
     ])
     expect(isPlaceholder(list.children[0])).toBe(true)
+    const placeholderSymbol = list.children[0].uid
     createNode({ index: 0, parent: list })
     expect(list.value).toEqual(['X', 'A', 'B'])
     expect(list.children.map((child) => child.value)).toEqual(['X', 'A', 'B'])
     expect(isPlaceholder(list.children[0])).toBe(false)
+    expect(placeholderSymbol).toBe(list.children[0].uid)
   })
 })

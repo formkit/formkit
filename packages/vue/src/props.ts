@@ -74,6 +74,10 @@ const nativeProps = {
     >,
     default: {},
   },
+  sync: {
+    boolean: Boolean,
+    default: false,
+  },
   type: {
     type: [String, Object] as PropType<string | FormKitTypeDefinition>,
     default: 'text',
