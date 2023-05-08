@@ -7,6 +7,7 @@ importers:
       '@aws-sdk/client-cloudfront': ^3.45.0
       '@aws-sdk/client-s3': ^3.45.0
       '@aws-sdk/client-translate': ^3.56.0
+      '@formkit/auto-animate': 1.0.0-beta.6
       '@fortawesome/fontawesome-svg-core': ^6.1.1
       '@fortawesome/free-solid-svg-icons': ^6.1.1
       '@microsoft/api-extractor': ^7.18.4
@@ -67,6 +68,7 @@ importers:
       '@aws-sdk/client-cloudfront': 3.300.0
       '@aws-sdk/client-s3': 3.300.0
       '@aws-sdk/client-translate': 3.300.0
+      '@formkit/auto-animate': 1.0.0-beta.6
       '@fortawesome/fontawesome-svg-core': 6.4.0
       '@fortawesome/free-solid-svg-icons': 6.4.0
       '@microsoft/api-extractor': 7.34.4_@types+node@18.15.10
@@ -1965,7 +1967,6 @@ packages:
 
   /@formkit/auto-animate/1.0.0-beta.6:
     resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
-    dev: false
 
   /@fortawesome/fontawesome-common-types/6.4.0:
     resolution: {integrity: sha512-HNii132xfomg5QVZw0HwXXpN22s7VBHQBv9CeOu9tfJnhsWQNd2lmTNi8CSrnw5B+5YOmzu1UoPAyxaXsJ6RgQ==}

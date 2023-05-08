@@ -190,69 +190,36 @@ describe('numeric lists', () => {
     expect(hookCallback).toBeCalledTimes(4)
   })
 
-  // it.only('can render a list of inputs each with an index number', async () => {
-  //   const wrapper = mount(
-  //     {
-  //       data() {
-  //         return {
-  //           showB: false,
-  //           values: ['A', 'B', 'C'],
-  //         }
-  //       },
-  //       template: `<FormKit type="list" v-model="values">
-  //       <FormKit
-  //         v-for="(value, index) in values"
-  //         v-if="values.length < 10"
-  //         :key="value"
-  //         :value="value"
-  //         :index="1 * index"
-  //       />
-  //     </FormKit>
-  //     `,
-  //     },
-  //     {
-  //       global: {
-  //         plugins: [[plugin, defaultConfig]],
-  //       },
-  //     }
-  //   )
-  //   console.log(wrapper.vm.values)
-  //   expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
-  // })
-
-  // it.only('can remove an item by inputting a smaller array', async () => {
-  //   const wrapper = mount(
-  //     {
-  //       data() {
-  //         return {
-  //           values: [{}, {}, {}],
-  //         }
-  //       },
-  //       template: `
-  //       <div>
-  //         <FormKit type="list" :delay="0" v-model="values" #default="{ value }">
-  //           <template v-for="item in value">
-  //             <FormKit
-  //               v-if="item !== undefined"
-  //               type="group"
-  //             >
-  //               <FormKit name="biz" />
-  //             </FormKit>
-  //           </template>
-  //         </FormKit>
-  //       </div>
-  //     `,
-  //     },
-  //     {
-  //       global: {
-  //         plugins: [[plugin, defaultConfig]],
-  //       },
-  //     }
-  //   )
-  //   expect(wrapper.get('div').findAll('input').length).toBe(3)
-  //   wrapper.vm.values = [{}, {}]
-  //   await new Promise((r) => setTimeout(r, 30))
-  //   console.log('values: ', wrapper.vm.values)
-  //   expect(wrapper.get('div').findAll('input').length).toBe(2)
-  // })
+  describe('synced lists', () => {
+    it('can sync a list of strings to their underlying formkit nodes', async () => {
+      const wrapper = mount(
+        {
+          data() {
+            return {
+              books: [
+                'The Great Gatsby',
+                'To Kill A Mockingbird',
+                'A Farewell to Arms',
+                'The Catcher in the Rye',
+              ],
+            }
+          },
+          template: `
+          <FormKit type="list" :sync="true" v-model="books" id="books" #default="{ items }">
+            <FormKit type="text" v-for="item in items" :key="item" />
+          </FormKit>
+        `,
+        },
+        {
+          global: {
+            plugins: [[plugin, defaultConfig]],
+          },
+        }
+      )
+      expect(wrapper.findAll('input').length).toBe(4)
+      wrapper.vm.books.splice(1, 1)
+      await nextTick()
+      expect(wrapper.findAll('input').length).toBe(3)
+    })
+  })
 })

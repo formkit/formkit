@@ -434,14 +434,6 @@ export function useInput(
       ) as unknown as number
     }
     if (isVModeled && node.context) {
-      // const newValue = useRaw(node.context.value)
-
-      // if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
-      //   // If this is an object that has been mutated inside FormKit core then
-      //   // we know when it is emitted it will "return" in the watchVerbose so
-      //   // we pro-actively add it to the mutex.
-      //   mutex.add(newValue)
-      // }
       context.emit('update:modelValue', node.value)
     }
   })
@@ -457,15 +449,6 @@ export function useInput(
       },
       { deep: true }
     )
-    // watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
-    //   const rawValue = useRaw(value)
-    //   console.log(rawValue)
-    //   // if (isObject(rawValue) && mutex.has(rawValue)) {
-    //   //   return mutex.delete(rawValue)
-    //   // }
-    //   if (!path.length) node.input(value, false)
-    //   else node.at(path)?.input(value, false)
-    // })
 
     /**
      * On initialization, if the node’s value was updated (like in a plugin
@@ -479,7 +462,6 @@ export function useInput(
   /**
    * When this input shuts down, we need to "delete" the node too.
    */
-  // onUnmounted(() => node.destroy())
   onBeforeUnmount(() => node.destroy())
 
   return node

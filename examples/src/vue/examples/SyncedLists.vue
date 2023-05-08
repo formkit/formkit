@@ -1,30 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-const value = ref(['one', 'two', 'three'])
+import { vAutoAnimate } from '@formkit/auto-animate'
+import Repeater from './Repeater.vue'
+
+const items = []
+for (let i = 0; i < 1; i++) {
+  items.push({ name: Math.random(), toys: [{ name: Math.random() }] })
+}
+const values = ref({ users: items })
 </script>
 
 <template>
   <h1>Synced lists</h1>
-  <FormKit type="list" :sync="true" v-model="value" v-slot="{ items, value }">
-    {{ value }}
-    <div v-for="(item, index) in items" :key="item">
-      <FormKit :index="index" type="text" />
-      <button type="button" @click="value.splice(index + 1, 0, '')">
-        Add ➕
-      </button>
-      <button type="button" @click="value.splice(index, 1)">Remove ➖</button>
-      <button
-        type="button"
-        @click="value.splice(index - 1, 0, value.splice(index, 1)[0])"
-      >
-        Up ⬆️
-      </button>
-      <button
-        type="button"
-        @click="value.splice(index + 1, 0, value.splice(index, 1)[0])"
-      >
-        Down ⬇️
-      </button>
-    </div>
-  </FormKit>
+  <div v-auto-animate>
+    <FormKit type="form" v-model="values" #default="{ value }">
+      <Repeater name="users">
+        <FormKit type="text" name="name" label="Child’s name" />
+      </Repeater>
+    </FormKit>
+  </div>
 </template>
