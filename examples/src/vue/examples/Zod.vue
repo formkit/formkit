@@ -38,7 +38,7 @@ const invalidValues = {
   dateAfter: '1899-04-05',
   arrayMin: ['a'],
   arrayMax: ['a', 'b', 'c'],
-  missing: 'test',
+  missing: 10,
 }
 
 const zodParseResults = zodSchema.safeParse(invalidValues)
