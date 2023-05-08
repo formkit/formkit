@@ -26,15 +26,15 @@
     "directory": "packages/zod"
   },
   "contributors": [
-    "Andrew Boyd <andrew@formkit.com>"
+    "Andrew Boyd <andrew@formkit.com>",
+    "Justin Schroeder <justin@formkit.com>"
   ],
   "license": "MIT",
   "scripts": {
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "0.16.5",
-    "@formkit/utils": "0.16.5"
+    "@formkit/core": "0.16.5"
   },
   "devDependencies": {},
   "peerDependencies": {

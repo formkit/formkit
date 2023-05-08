@@ -1,5 +1,4 @@
 import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
-import { whenAvailable } from '@formkit/utils'
 import { z } from 'zod'
 
 declare module '@formkit/core' {
@@ -53,15 +52,14 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
 
     node.on('created', () => {
       node.extend('setZodErrors', {
-        get: (node) => (zodError: z.ZodError) => {
+        get: (node) => async (zodError: z.ZodError) => {
           if (!zodError) return
-          whenAvailable(node.props.id as string, () => {
-            const [formErrors, fieldErrors] = zodErrorToFormKitErrors(
-              zodError,
-              node
-            )
-            node.setErrors(fieldErrors, formErrors)
-          })
+          await node.settled
+          const [formErrors, fieldErrors] = zodErrorToFormKitErrors(
+            zodError,
+            node
+          )
+          node.setErrors(fieldErrors, formErrors)
         },
         set: false,
       })
