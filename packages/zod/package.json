@@ -33,7 +33,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "0.16.5"
+    "@formkit/core": "0.16.5",
+    "@formkit/utils": "0.16.5"
   },
   "devDependencies": {},
   "peerDependencies": {

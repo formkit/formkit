@@ -338,8 +338,10 @@ importers:
   packages/zod:
     specifiers:
       '@formkit/core': 0.16.5
+      '@formkit/utils': 0.16.5
     dependencies:
       '@formkit/core': link:../core
+      '@formkit/utils': link:../utils
 
 packages:
 
