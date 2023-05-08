@@ -57,6 +57,11 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
       })
     })
 
+    node.on('destroyed', () => {
+      zodValidationSet.clear()
+      zodValidationListeners.clear()
+    })
+
     let commitTimout: ReturnType<typeof setTimeout> | number = 0
     let start = Date.now()
     node.on('commit', ({ payload }) => {
