@@ -15,7 +15,7 @@ function createMessageName(node: FormKitNode): string {
 }
 
 /**
- * Creates a new Zod schema plugin.
+ * Creates a new Zod schema plugin for form validation.
  *
  * @param zodSchema - A Zod schema to validate the form against.
  * @param submitCallback - A callback to run when the form is submitted and it passes validation.
@@ -44,7 +44,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
 
     node.on('created', () => {
       node.extend('setZodErrors', {
-        get: () => (zodError: z.ZodError) => {
+        get: (node) => (zodError: z.ZodError) => {
           whenAvailable(node.props.id as string, () => {
             const [formErrors, fieldErrors] = zodErrorToFormKitErrors(
               zodError,
@@ -88,6 +88,17 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   }
 
   function performZodValidation(payload: any, node: FormKitNode) {
+    // block submission while validation is running
+    node.store.set(
+      createMessage({
+        type: 'state',
+        blocking: true,
+        visible: false,
+        value: true,
+        key: 'validating:zod',
+      })
+    )
+
     const zodResults = zodSchema.safeParse(payload)
     if (!zodResults.success) {
       setFormValidations(zodResults.error, node)
@@ -100,6 +111,9 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
       })
       zodValidationSet.clear()
     }
+
+    // unblock submission
+    node.store.remove('validating:zod')
   }
 
   // The submit handler — validates the payload against the zod schema
