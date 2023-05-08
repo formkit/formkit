@@ -2,6 +2,12 @@ import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
 import { whenAvailable } from '@formkit/utils'
 import { z } from 'zod'
 
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    setZodErrors(zodError: z.ZodError | undefined): FormKitNode
+  }
+}
+
 function createMessageName(node: FormKitNode): string {
   if (typeof node.props.validationLabel === 'function') {
     return node.props.validationLabel(node)
@@ -45,6 +51,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
     node.on('created', () => {
       node.extend('setZodErrors', {
         get: (node) => (zodError: z.ZodError) => {
+          if (!zodError) return
           whenAvailable(node.props.id as string, () => {
             const [formErrors, fieldErrors] = zodErrorToFormKitErrors(
               zodError,
