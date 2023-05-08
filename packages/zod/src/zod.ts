@@ -32,8 +32,11 @@ function createMessageName(node: FormKitNode): string {
  */
 export function createZodPlugin<Z extends z.ZodTypeAny>(
   zodSchema: Z,
-  submitCallback: (payload: z.infer<typeof zodSchema>) => void | Promise<void>
-): [FormKitPlugin, (payload: any, node: FormKitNode) => void] {
+  submitCallback: (
+    payload: z.infer<typeof zodSchema>,
+    node: FormKitNode | undefined
+  ) => void | Promise<void>
+): [FormKitPlugin, (payload: any, node: FormKitNode | undefined) => void] {
   const zodValidationSet = new Set<FormKitNode>()
   const zodValidationListeners = new Map<FormKitNode, string>()
   // The Zod plugin — maps zod schema to validation rules on
@@ -135,7 +138,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
     if (!zodResults.success) {
       setFormValidations(zodResults.error, node)
     } else {
-      await submitCallback(zodResults as z.infer<Z>)
+      await submitCallback(payload as z.infer<Z>, node)
     }
   }
 
