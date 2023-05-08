@@ -87,12 +87,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * inside a synced list.
    */
   const items = ref(node.children.map((child) => child.uid))
-  node.on('childRemoved', () => {
-    items.value = node.children.map((child) => child.uid)
-  })
-  node.on('child', () => {
-    items.value = node.children.map((child) => child.uid)
-  })
 
   /**
    * The current visibility state of validation messages.
@@ -376,12 +370,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      value.value = _value.value = shallowClone(payload)
-    } else {
-      value.value = _value.value = payload
-      triggerRef(value)
-    }
+    // if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
+    //   value.value = _value.value = shallowClone(payload)
+    // } else {
+    value.value = _value.value = payload
+    triggerRef(value)
+    // }
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (

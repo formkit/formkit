@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { createNode, bfs, FormKitNode, isPlaceholder } from '../src'
+import {
+  createNode,
+  bfs,
+  FormKitNode,
+  isPlaceholder,
+  createPlaceholder,
+} from '../src'
 import { clone } from '@formkit/utils'
 import { createNameTree } from '.jest/helpers'
 
@@ -145,9 +151,9 @@ describe('lists', () => {
       parent: parentC,
       value: undefined,
     })
-    expect(commitEvent).toHaveBeenCalledTimes(9)
+    expect(commitEvent).toHaveBeenCalledTimes(12)
     node.input([{}, {}, {}], false)
-    expect(commitEvent).toHaveBeenCalledTimes(13)
+    expect(commitEvent).toHaveBeenCalledTimes(16)
   })
 
   it('can hydrate a list at depth', () => {
@@ -377,5 +383,27 @@ describe('synced lists', () => {
     expect(list.children.map((child) => child.value)).toEqual(['X', 'A', 'B'])
     expect(isPlaceholder(list.children[0])).toBe(false)
     expect(placeholderSymbol).toBe(list.children[0].uid)
+  })
+
+  it('can remove the last element in a synced list', async () => {
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      config: {
+        delay: 0,
+      },
+      sync: true,
+    })
+    await list.settled
+    expect(list.value).toEqual(['A', 'B', 'C'])
+    expect(list.children.length).toBe(3)
+    createPlaceholder({ index: 0, parent: list })
+    createPlaceholder({ index: 1, parent: list })
+    createPlaceholder({ index: 2, parent: list })
+    expect(list.value).toEqual(['A', 'B', 'C'])
+    list.input(['A', 'B'])
+    await new Promise((r) => setTimeout(r, 10))
+    expect(list.value).toStrictEqual(['A', 'B'])
+    expect(list.children.length).toBe(2)
   })
 })

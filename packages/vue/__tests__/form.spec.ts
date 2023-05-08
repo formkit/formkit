@@ -104,10 +104,10 @@ describe('value propagation', () => {
     ).toStrictEqual([false, false, false])
     wrapper.vm.values.boxes = ['a', 'b', 'c']
     await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.vm.values.boxes).toStrictEqual(['a', 'b', 'c'])
     expect(
       inputs.map((input) => (input.element as HTMLInputElement).checked)
     ).toStrictEqual([true, true, true])
-    expect(wrapper.vm.values.boxes).toStrictEqual(['a', 'b', 'c'])
   })
 
   it('can set the state of checkboxes from a v-model using vue ref object', async () => {

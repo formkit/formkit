@@ -9,6 +9,7 @@ import {
   init,
   cloneAny,
   clone,
+  isObject,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -1868,7 +1869,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
           : _value[child.name]
       // If the two are already equal or the child is currently disturbed then
       // don’t send the value down since it will squash the child’s value.
-      if (!child.isSettled || eq(childValue, child._value)) return
+      if (
+        !child.isSettled ||
+        (!isObject(childValue) && eq(childValue, child._value))
+      )
+        return
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
@@ -1958,13 +1963,13 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   //    values in this process we set the children to an empty array first. This
   //    ensures that calling removeChild() inside child.destroy() will not
   //    remove the value from the parent.
-  context.children = []
   if (unused.size) {
     unused.forEach((child) => {
       if (!('__FKP' in child)) {
         // Before we destroy the child, we need to disassosiate it from the
         // parent, otherwise it would remove it’s value from the parent and in
         // this case the parent’s value is the source of truth.
+        child._c.parent = null
         child.destroy()
       }
     })
@@ -3036,7 +3041,7 @@ function nodeInit<V>(
  * @param options - FormKitOptions
  * @internal
  */
-function createPlaceholder(
+export function createPlaceholder(
   options?: FormKitOptions & { name?: string }
 ): FormKitPlaceholderNode {
   return {

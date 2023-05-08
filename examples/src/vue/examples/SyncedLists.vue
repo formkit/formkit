@@ -10,9 +10,21 @@ const value = ref(['one', 'two', 'three'])
     <div v-for="(item, index) in items" :key="item">
       <FormKit :index="index" type="text" />
       <button type="button" @click="value.splice(index + 1, 0, '')">
-        Add +
+        Add ➕
       </button>
-      <button type="button" @click="value.splice(index, 1)">Remove +</button>
+      <button type="button" @click="value.splice(index, 1)">Remove ➖</button>
+      <button
+        type="button"
+        @click="value.splice(index - 1, 0, value.splice(index, 1)[0])"
+      >
+        Up ⬆️
+      </button>
+      <button
+        type="button"
+        @click="value.splice(index + 1, 0, value.splice(index, 1)[0])"
+      >
+        Down ⬇️
+      </button>
     </div>
   </FormKit>
 </template>

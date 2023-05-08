@@ -41,8 +41,8 @@ import {
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-import watchVerbose from './watchVerbose'
-import useRaw from './useRaw'
+// import watchVerbose from './watchVerbose'
+// import useRaw from './useRaw'
 // import { observe, isObserver } from './mutationObserver'
 
 /**
@@ -415,7 +415,7 @@ export function useInput(
   let inputTimeout: number | undefined
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  const mutex = new WeakSet<object>()
+  // const mutex = new WeakSet<object>()
 
   /**
    * Explicitly watch the input value, and emit changes (lazy)
@@ -434,14 +434,15 @@ export function useInput(
       ) as unknown as number
     }
     if (isVModeled && node.context) {
-      const newValue = useRaw(node.context.value)
-      if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
-        // If this is an object that has been mutated inside FormKit core then
-        // we know when it is emitted it will "return" in the watchVerbose so
-        // we pro-actively add it to the mutex.
-        mutex.add(newValue)
-      }
-      context.emit('update:modelValue', newValue)
+      // const newValue = useRaw(node.context.value)
+
+      // if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
+      //   // If this is an object that has been mutated inside FormKit core then
+      //   // we know when it is emitted it will "return" in the watchVerbose so
+      //   // we pro-actively add it to the mutex.
+      //   mutex.add(newValue)
+      // }
+      context.emit('update:modelValue', node.value)
     }
   })
 
@@ -449,14 +450,22 @@ export function useInput(
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (isVModeled) {
-    watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
-      const rawValue = useRaw(value)
-      if (isObject(rawValue) && mutex.has(rawValue)) {
-        return mutex.delete(rawValue)
-      }
-      if (!path.length) node.input(value, false)
-      else node.at(path)?.input(value, false)
-    })
+    watch(
+      toRef(props, 'modelValue'),
+      (value) => {
+        node.input(value, false)
+      },
+      { deep: true }
+    )
+    // watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
+    //   const rawValue = useRaw(value)
+    //   console.log(rawValue)
+    //   // if (isObject(rawValue) && mutex.has(rawValue)) {
+    //   //   return mutex.delete(rawValue)
+    //   // }
+    //   if (!path.length) node.input(value, false)
+    //   else node.at(path)?.input(value, false)
+    // })
 
     /**
      * On initialization, if the node’s value was updated (like in a plugin
