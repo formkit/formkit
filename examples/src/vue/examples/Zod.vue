@@ -35,7 +35,8 @@ const [zodPluginMinimal, submitHandlerMinimal] = createZodPlugin(
   zodSchemaMinimal,
   async (formData) => {
     await new Promise((r) => setTimeout(r, 2000))
-    alert('Form was submitted!', JSON.stringify(formData, null, 2))
+    alert('Form was submitted!')
+    console.log(formData)
   }
 )
 
@@ -102,7 +103,7 @@ function setupFormNode(node: FormKitNode) {
   <h2>Robust form</h2>
   <FormKit
     type="form"
-    :plugins="[]"
+    :plugins="[zodPlugin]"
     :value="invalidValues"
     @submit="submitHandler"
     @node="setupFormNode"
