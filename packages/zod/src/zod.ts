@@ -104,17 +104,6 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   }
 
   function performZodValidation(payload: any, node: FormKitNode) {
-    // block submission while validation is running
-    node.store.set(
-      createMessage({
-        type: 'state',
-        blocking: true,
-        visible: false,
-        value: true,
-        key: 'validating:zod',
-      })
-    )
-
     const zodResults = zodSchema.safeParse(payload)
     if (!zodResults.success) {
       setFormValidations(zodResults.error, node)
@@ -127,9 +116,6 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
       })
       zodValidationSet.clear()
     }
-
-    // unblock submission
-    node.store.remove('validating:zod')
   }
 
   // The submit handler — validates the payload against the zod schema
