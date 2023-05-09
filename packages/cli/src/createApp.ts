@@ -86,8 +86,8 @@ export async function createApp(
       `vue${options.lang === 'ts' ? '-ts' : ''}`,
     ])
     // TODO: add better version matching here:
-    await addDependency(appName, '@formkit/vue', 'next')
-    await addDependency(appName, '@formkit/icons', 'next')
+    await addDependency(appName, '@formkit/vue', 'latest')
+    await addDependency(appName, '@formkit/icons', 'latest')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
@@ -290,9 +290,7 @@ function buildFormKitConfig(options: CreateAppOptions): string {
     setup.push('')
     config += `  plugins: [pro]`
   }
-  config += `${
-    config ? ',\n' : ''
-  }  icons: { ...genesisIcons }`
+  config += `${config ? ',\n' : ''}  icons: { ...genesisIcons }`
 
   const rawConfig = `${imports.join('\n')}
 ${setup.join('\n')}

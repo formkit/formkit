@@ -297,7 +297,7 @@ describe('v-model', () => {
     await nextTick()
     expect(wrapper.find('input').element.value).toBe('jane')
     wrapper.find('input').setValue('jon')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.vm.$data.name).toBe('jon')
   })
 

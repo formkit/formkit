@@ -21,6 +21,7 @@ import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
+import SyncedLists from './vue/examples/SyncedLists.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
 import Zod from './vue/examples/Zod.vue'
 import '@formkit/themes/genesis'
@@ -127,6 +128,10 @@ const router = createRouter({
     {
       path: '/performance',
       component: Performance,
+    },
+    {
+      path: '/synced-lists',
+      component: SyncedLists,
     },
     {
       path: '/e2e',

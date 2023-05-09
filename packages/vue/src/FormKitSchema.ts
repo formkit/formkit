@@ -897,7 +897,7 @@ export const FormKitSchema = defineComponent({
 
     // // Watch the data object explicitly
     watchEffect(() => {
-      data = Object.assign(reactive(props.data), {
+      data = Object.assign(reactive(props.data ?? {}), {
         slots: context.slots,
       })
       context.slots
@@ -924,7 +924,7 @@ export const FormKitSchema = defineComponent({
     // For SSR rendering:
     onSSRComplete(getCurrentInstance()?.appContext.app, cleanUp)
 
-    return () => render()
+    return () => (render ? render() : null)
   },
 })
 

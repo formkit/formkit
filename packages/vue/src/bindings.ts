@@ -83,6 +83,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const hasShownErrors = ref(validationVisibility.value === 'live')
 
   /**
+   * An array of unique identifiers that should only be used for iterating
+   * inside a synced list.
+   */
+  const items = ref(node.children.map((child) => child.uid))
+
+  /**
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
@@ -244,6 +250,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     help: node.props.help,
     id: node.props.id as string,
+    items,
     label: node.props.label,
     messages,
     node: markRaw(node),
@@ -363,12 +370,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input commits from core.
    */
   node.on('commit', ({ payload }) => {
-    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      value.value = _value.value = shallowClone(payload)
-    } else {
-      value.value = _value.value = payload
-      triggerRef(value)
-    }
+    // if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
+    //   value.value = _value.value = shallowClone(payload)
+    // } else {
+    value.value = _value.value = payload
+    triggerRef(value)
+    // }
     node.emit('modelUpdated')
     // The input is dirty after a value has been input by a user
     if (
@@ -388,6 +395,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         (message) =>
           !(message.type === 'error' && message.meta?.autoClear === true)
       )
+    }
+    if (node.type === 'list' && node.sync) {
+      items.value = node.children.map((child) => child.uid)
     }
   })
 
@@ -449,7 +459,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   node.on('destroyed', () => {
     node.context = undefined
-    /* @ts-ignore */
+    /* @ts-ignore */ // eslint-disable-line
     node = null
   })
 }
