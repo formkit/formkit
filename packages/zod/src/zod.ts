@@ -83,10 +83,10 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
         start = now
         performZodValidation(payload, node)
       }
-      // also perform after 200ms of no commits
+      // also perform after 150ms of no commits
       commitTimout = setTimeout(() => {
         performZodValidation(payload, node)
-      }, 200)
+      }, 150)
     })
 
     node.on('message-added', (message) => {
@@ -120,7 +120,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
       setFormValidations(zodResults.error, node)
     } else {
       zodValidationSet.forEach((node) => {
-        node.store.remove(`zod`)
+        node.store.remove(`${node.address.slice(1).join('.')}:zod`)
         const receipt = zodValidationListeners.get(node)
         node.off(receipt as string)
         zodValidationListeners.delete(node)

@@ -22,6 +22,23 @@ const zodSchema = z.object({
   missing: z.number(),
 })
 
+const zodSchemaMinimal = z.object({
+  personalInfo: z.object({
+    firstName: z.string().min(3).max(25),
+    lastName: z.string().min(3).max(25),
+  }),
+  email: z.string().email(),
+  arrayMin: z.string().array().min(2),
+})
+
+const [zodPluginMinimal, submitHandlerMinimal] = createZodPlugin(
+  zodSchemaMinimal,
+  async (formData) => {
+    await new Promise((r) => setTimeout(r, 2000))
+    alert('Form was submitted!', JSON.stringify(formData, null, 2))
+  }
+)
+
 const invalidValues = {
   personalInfo: {
     firstName: 'A',
@@ -63,10 +80,29 @@ function setupFormNode(node: FormKitNode) {
 <template>
   <h1>Kneel before Zod</h1>
 
-  <h2>A simple form</h2>
+  <h2>Minimal form</h2>
   <FormKit
     type="form"
-    :plugins="[zodPlugin]"
+    :plugins="[zodPluginMinimal]"
+    @submit="submitHandlerMinimal"
+  >
+    <FormKit type="group" name="personalInfo">
+      <FormKit type="text" name="firstName" label="First Name" />
+      <FormKit type="text" name="lastName" label="Last Name" />
+    </FormKit>
+    <FormKit type="text" name="email" label="Your email" />
+    <FormKit
+      type="checkbox"
+      name="arrayMin"
+      label="Select at least two options"
+      :options="['Validation', 'Type-Safety', 'Composability']"
+    />
+  </FormKit>
+
+  <h2>Robust form</h2>
+  <FormKit
+    type="form"
+    :plugins="[]"
     :value="invalidValues"
     @submit="submitHandler"
     @node="setupFormNode"
