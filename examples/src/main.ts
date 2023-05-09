@@ -19,6 +19,10 @@ import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
 import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
+import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
+import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
+import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
+import Zod from './vue/examples/Zod.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -65,6 +69,10 @@ const router = createRouter({
       component: BasicForm,
     },
     {
+      path: '/async-form-test',
+      component: TestAsyncFormSubmit,
+    },
+    {
       path: '/theme-plugin',
       component: ThemePlugin,
     },
@@ -105,6 +113,14 @@ const router = createRouter({
       component: FloatingLabels,
     },
     {
+      path: '/local-storage',
+      component: LocalStoragePlugin,
+    },
+    {
+      path: '/auto-height-textarea',
+      component: AutoHeightTextarea,
+    },
+    {
       path: '/playground',
       component: Playground,
     },
@@ -142,6 +158,10 @@ const router = createRouter({
           ],
         },
       ],
+    },
+    {
+      path: '/zod',
+      component: Zod,
     },
   ],
 })

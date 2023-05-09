@@ -59,7 +59,8 @@
     "vite": "^4.2.1",
     "vitest": "^0.29.7",
     "vue": "^3.0.0",
-    "windicss": "^3.5.2"
+    "windicss": "^3.5.2",
+    "zod": "^3.21.4"
   },
   "license": "UNLICENSED",
   "scripts": {
@@ -76,8 +77,9 @@
     "playwright": "playwright test --config ./playwright.config.ts",
     "playwright-build": "vite build --config ./examples/vite.config.ts",
     "playwright-server": "vite preview --config ./examples/vite.config.ts --port 8787 --host",
-    "nuxt-pack": "nuxt-module-build packages/nuxt",
-    "nuxt-dev": "nuxi dev packages/nuxt/playground",
+    "nuxt-pack": "cd packages/nuxt && pnpm prepack",
+    "nuxt-dev": "cd packages/nuxt && pnpm dev",
+    "nuxt-build": "cd packages/nuxt && pnpm build",
     "tailwind-dev": "vite packages/tailwindcss/playground --host",
     "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch"
   },

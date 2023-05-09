@@ -48,16 +48,16 @@
         "public"
       ],
       "#app": [
-        "../../../node_modules/.pnpm/nuxt@3.3.1_er5663cxvbd4jd6tsj56chveyu/node_modules/nuxt/dist/app"
+        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app"
       ],
       "#app/*": [
-        "../../../node_modules/.pnpm/nuxt@3.3.1_er5663cxvbd4jd6tsj56chveyu/node_modules/nuxt/dist/app/*"
+        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app/*"
       ],
       "vue-demi": [
-        "../../../node_modules/.pnpm/nuxt@3.3.1_er5663cxvbd4jd6tsj56chveyu/node_modules/nuxt/dist/app/compat/vue-demi"
+        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app/compat/vue-demi"
       ],
       "@vueuse/head": [
-        "../../../node_modules/.pnpm/@unhead+vue@1.1.23_vue@3.2.47/node_modules/@unhead/vue/dist/index"
+        "../../../node_modules/.pnpm/@unhead+vue@1.1.25_vue@3.2.47/node_modules/@unhead/vue/dist/index"
       ],
       "#imports": [
         ".nuxt/imports"

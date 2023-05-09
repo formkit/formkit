@@ -588,6 +588,12 @@ export interface FormKitChildValue {
 }
 
 /**
+ * An empty interface for adding FormKit node extensions
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface FormKitNodeExtensions {}
+
+/**
  * FormKit's Node object produced by createNode(). Every `<FormKit />` input has
  * 1 FormKitNode ("core node") associated with it. All inputs, forms, and groups
  * are instances of nodes. Read more about core nodes in the
@@ -761,6 +767,25 @@ export interface FormKitChildValue {
  * - `event` — The event name to be emitted.
  * - `payload` *optional* — A value to be passed together with the event.
  * - `bubble` *optional* — If the event should bubble to the parent.
+ *
+ * #### Returns
+ *
+ * The {@link FormKitNode | FormKitNode}.
+ *
+ * @param extend -
+ * Extend a {@link FormKitNode | FormKitNode} by adding arbitrary properties
+ * that are accessible via `node.{property}()`.
+ *
+ * #### Signature
+ *
+ * ```typescript
+ * extend: (property: string, trap: FormKitTrap) => FormKitNode
+ * ```
+ *
+ * #### Parameters
+ *
+ * - `property` — The property to add the core node (`node.{property}`).
+ * - `trap` — An object with a get and set property.
  *
  * #### Returns
  *
@@ -1117,7 +1142,7 @@ export interface FormKitChildValue {
  * #### Signature
  *
  * ```typescript
- * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
+ * walk: (callback: FormKitChildCallback, stopOnFalse?: boolean, recurseOnFalse?: boolean) => void
  * ```
  *
  * #### Parameters
@@ -1208,6 +1233,10 @@ export type FormKitNode = {
    * Emit an event from the node.
    */
   emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+  /**
+   * Extend the core node by giving it a key and a trap.
+   */
+  extend: (key: string, trap: FormKitTrap) => FormKitNode
   /**
    * Within a given tree, find a node matching a given selector. Selectors
    * can be simple strings or a function.
@@ -1306,8 +1335,13 @@ export type FormKitNode = {
    * expensive operation so it should be done very rarely and only lifecycle
    * events that are relatively rare like boot up and shut down.
    */
-  walk: (callback: FormKitChildCallback, stopOnFalse?: boolean) => void
-} & Omit<FormKitContext, 'value' | 'name' | 'config'>
+  walk: (
+    callback: FormKitChildCallback,
+    stopOnFalse?: boolean,
+    skipSubtreeOnFalse?: boolean
+  ) => void
+} & Omit<FormKitContext, 'value' | 'name' | 'config'> &
+  FormKitNodeExtensions
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
@@ -1432,6 +1466,7 @@ const traps = {
   define: trap(define),
   disturb: trap(disturb),
   destroy: trap(destroy),
+  extend: trap(extend),
   hydrate: trap(hydrate),
   index: trap(getIndex, setIndex, false),
   input: trap(input),
@@ -1830,6 +1865,10 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   node.emit('destroyed', node)
   context._e.flush()
   context._value = context.value = undefined
+  for (const property in context.context) {
+    delete context.context[property]
+  }
+  context.plugins.clear()
   context.context = null! // eslint-disable-line @typescript-eslint/no-non-null-assertion
 }
 
@@ -2101,6 +2140,7 @@ function eachChild(
  * @param context - A {@link FormKitContext | FormKitContext}
  * @param callback - A {@link FormKitChildCallback | FormKitChildCallback}
  * @param stopIfFalse - Boolean to stop running on children
+ * @param skipSubtreeOnFalse - Boolean that when true prevents recursion into a deeper node when the callback returns false
  *
  * @internal
  */
@@ -2108,12 +2148,15 @@ function walkTree(
   _node: FormKitNode,
   context: FormKitContext,
   callback: FormKitChildCallback,
-  stopIfFalse = false
+  stopIfFalse = false,
+  skipSubtreeOnFalse = false
 ) {
   context.children.some((child: FormKitNode) => {
     const val = callback(child)
+    // return true to stop the walk early
     if (stopIfFalse && val === false) return true
-    return child.walk(callback, stopIfFalse)
+    if (skipSubtreeOnFalse && val === false) return false
+    return child.walk(callback, stopIfFalse, skipSubtreeOnFalse)
   })
 }
 
@@ -2468,7 +2511,7 @@ function createConfig(
           node.emit(`config:${prop}`, value, false)
           configChange(node, prop, value)
           // Walk the node tree and notify of config/prop changes where relevant
-          node.walk((n) => configChange(n, prop, value), true)
+          node.walk((n) => configChange(n, prop, value), false, true)
         }
         return didSet
       }
@@ -2660,6 +2703,25 @@ function createProps(initial: unknown) {
       return true
     },
   })
+}
+
+/**
+ * Applies a new trap to the FormKitNode allowing plugins to extend the
+ * base functionality of a FormKitNode.
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param context - A {@link FormKitContext | FormKitContext}
+ * @param property - A string of the property name
+ * @param trap - A {@link FormKitTrap | FormKitTrap}
+ * @returns
+ */
+function extend(
+  node: FormKitNode,
+  context: FormKitContext,
+  property: string,
+  trap: FormKitTrap
+) {
+  context.traps.set(property, trap)
+  return node
 }
 
 /**

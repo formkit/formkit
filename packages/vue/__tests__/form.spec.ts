@@ -745,10 +745,13 @@ describe('form submission', () => {
       {
         methods: {
           doSave() {
-            return new Promise((r) => setTimeout(r, 50))
+            return new Promise((r) => setTimeout(r, 20))
           },
         },
         template: `<FormKit type="form" @submit="doSave">
+          <FormKit type="group">
+            <FormKit type="text" name="foo" />
+          </FormKit>
         <FormKit type="text" name="foo" />
       </FormKit>`,
       },
@@ -762,7 +765,18 @@ describe('form submission', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
+    expect(
+      wrapper.findAll('input').map((input) => input.element.disabled)
+    ).toEqual([true, true])
     expect(button.element.disabled).toBe(true)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(
+      false
+    )
+    expect(
+      wrapper.findAll('input').map((input) => input.element.disabled)
+    ).toEqual([false, false])
+    expect(button.element.disabled).toBe(false)
   })
 
   it('the form remains enabled if submit-behavior is live', async () => {

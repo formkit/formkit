@@ -37,6 +37,12 @@ import {
   isNode,
   sugar,
 } from '@formkit/core'
+import { onSSRComplete } from './composables/onSSRComplete'
+
+/**
+ * A simple flag to tell if we are running on the server or not.
+ */
+const isServer = typeof window === 'undefined'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -133,7 +139,6 @@ interface SchemaProvider {
     providerCallback: SchemaProviderCallback,
     instanceKey: object
   ): RenderChildren
-  clean: () => void
 }
 
 type SchemaProviderCallback = (
@@ -719,12 +724,16 @@ function parseSchema(
     key: object
   ) {
     memoKey ??= JSON.stringify(schema)
-    memoKeys[memoKey] ??= 0
-    memoKeys[memoKey]++
     const [render, compiledProviders] = has(memo, memoKey)
       ? memo[memoKey]
       : [createElements(library, schema), providers]
-    memo[memoKey] = [render, compiledProviders]
+
+    if (!isServer) {
+      memoKeys[memoKey] ??= 0
+      memoKeys[memoKey]++
+      memo[memoKey] = [render, compiledProviders]
+    }
+
     compiledProviders.forEach((compiledProvider) => {
       compiledProvider(providerCallback, key)
     })
@@ -734,14 +743,6 @@ function parseSchema(
       return render()
     }
   }
-
-  /**
-   * Perform some "in-scope" cleaning operations.
-   */
-  createInstance.clean = () => {
-    providers.length = 0
-  }
-
   return createInstance
 }
 
@@ -832,7 +833,9 @@ function clean(
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
     delete memoKeys[memoKey]
+    const [, providers] = memo[memoKey]
     delete memo[memoKey]
+    providers.length = 0
   }
   instanceScopes.delete(instanceKey)
 }
@@ -870,25 +873,27 @@ export const FormKitSchema = defineComponent({
     let render: RenderChildren
     let data: Record<string, any>
     // // Re-parse the schema if it changes:
-    watch(
-      () => props.schema,
-      (newSchema, oldSchema) => {
-        const oldKey = instanceKey
-        instanceKey = {}
-        provider = parseSchema(props.library, props.schema, props.memoKey)
-        render = createRenderFn(provider, data, instanceKey)
-        if (newSchema === oldSchema) {
-          // In this edge case, someone pushed/modified something in the schema
-          // and we've successfully re-parsed, but since the schema is not
-          // referenced in the render function it technically isnt a dependency
-          // and we need to force a re-render since we swapped out the render
-          // function completely.
-          ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
-        }
-        clean(props.schema, props.memoKey, oldKey)
-      },
-      { deep: true }
-    )
+    if (!isServer) {
+      watch(
+        () => props.schema,
+        (newSchema, oldSchema) => {
+          const oldKey = instanceKey
+          instanceKey = {}
+          provider = parseSchema(props.library, props.schema, props.memoKey)
+          render = createRenderFn(provider, data, instanceKey)
+          if (newSchema === oldSchema) {
+            // In this edge case, someone pushed/modified something in the schema
+            // and we've successfully re-parsed, but since the schema is not
+            // referenced in the render function it technically isnt a dependency
+            // and we need to force a re-render since we swapped out the render
+            // function completely.
+            ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
+          }
+          clean(props.schema, props.memoKey, oldKey)
+        },
+        { deep: true }
+      )
+    }
 
     // // Watch the data object explicitly
     watchEffect(() => {
@@ -899,16 +904,26 @@ export const FormKitSchema = defineComponent({
       render = createRenderFn(provider, data, instanceKey)
     })
 
-    onUnmounted(() => {
+    /**
+     * Perform cleanup operations when the component is unmounted. This should
+     * remove any memory allocations that were made during the render process.
+     */
+    function cleanUp() {
       // Perform cleanup operations
       clean(props.schema, props.memoKey, instanceKey)
-      provider.clean()
       /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      if (data.node) data.node.destroy()
       data.slots = null!
       data = null!
       render = null!
       /* eslint-enable @typescript-eslint/no-non-null-assertion */
-    })
+    }
+
+    // For browser rendering:
+    onUnmounted(cleanUp)
+    // For SSR rendering:
+    onSSRComplete(getCurrentInstance()?.appContext.app, cleanUp)
+
     return () => render()
   },
 })
