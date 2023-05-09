@@ -63,6 +63,7 @@ importers:
       vitest: ^0.29.7
       vue: ^3.0.0
       windicss: ^3.5.2
+      zod: ^3.21.4
     devDependencies:
       '@aws-sdk/client-cloudfront': 3.300.0
       '@aws-sdk/client-s3': 3.300.0
@@ -123,6 +124,7 @@ importers:
       vitest: 0.29.7_jsdom@21.1.1+terser@5.16.8
       vue: 3.2.47
       windicss: 3.5.6
+      zod: 3.21.4
 
   e2e:
     specifiers:
@@ -133,18 +135,20 @@ importers:
   examples:
     specifiers:
       '@braid/griddle': ^3.1.1
-      '@formkit/addons': workspace:^0.16.4
-      '@formkit/core': workspace:^0.16.4
-      '@formkit/i18n': workspace:^0.16.4
-      '@formkit/inputs': workspace:^0.16.4
-      '@formkit/themes': workspace:^0.16.4
-      '@formkit/vue': workspace:^0.16.4
+      '@formkit/addons': workspace:^0.16.5
+      '@formkit/core': workspace:^0.16.5
+      '@formkit/i18n': workspace:^0.16.5
+      '@formkit/inputs': workspace:^0.16.5
+      '@formkit/themes': workspace:^0.16.5
+      '@formkit/vue': workspace:^0.16.5
+      '@formkit/zod': workspace:^0.16.5
       '@types/react': ^17.0.19
       '@types/react-dom': ^17.0.9
       '@vitejs/plugin-vue': ^1.4.0
       sass: ^1.45.1
       vite: ^2.4.4
       vue-router: '4'
+      zod: ^3.21.4
     dependencies:
       '@braid/griddle': 3.1.2
       '@formkit/addons': link:../packages/addons
@@ -153,6 +157,7 @@ importers:
       '@formkit/inputs': link:../packages/inputs
       '@formkit/themes': link:../packages/themes
       '@formkit/vue': link:../packages/vue
+      '@formkit/zod': link:../packages/zod
       '@types/react-dom': 17.0.19
       '@vitejs/plugin-vue': 1.10.2_vite@2.9.15
       vite: 2.9.15_sass@1.60.0
@@ -160,6 +165,7 @@ importers:
     devDependencies:
       '@types/react': 17.0.54
       sass: 1.60.0
+      zod: 3.21.4
 
   packages/addons:
     specifiers:
@@ -328,6 +334,12 @@ importers:
       '@formkit/themes': link:../themes
       '@formkit/utils': link:../utils
       '@formkit/validation': link:../validation
+
+  packages/zod:
+    specifiers:
+      '@formkit/core': 0.16.5
+    dependencies:
+      '@formkit/core': link:../core
 
 packages:
 
@@ -11332,4 +11344,8 @@ packages:
       archiver-utils: 2.1.0
       compress-commons: 4.1.1
       readable-stream: 3.6.2
+    dev: true
+
+  /zod/3.21.4:
+    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
     dev: true

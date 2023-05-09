@@ -48,6 +48,16 @@ declare module 'vue' {
   }
 }
 `,
+  zod: `
+/**
+ * Extend FormKitNode with setZodErrors.
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    setZodErrors(zodError: z.ZodError | undefined): FormKitNode
+  }
+}
+`,
 }
 
 const __filename = fileURLToPath(import.meta.url)
