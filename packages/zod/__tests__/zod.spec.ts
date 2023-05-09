@@ -145,7 +145,6 @@ describe('zod validation', () => {
     await nextTick()
     const name = wrapper.find('[data-type="text"]')
     const email = wrapper.find('[data-type="email"]')
-    console.log(form.html())
     expect(name.find('.formkit-message').exists()).toBe(true)
     expect(email.find('.formkit-message').exists()).toBe(true)
     expect(
