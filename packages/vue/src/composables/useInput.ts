@@ -23,6 +23,7 @@ import {
   token,
   undefine,
   oncePerTick,
+  eq,
 } from '@formkit/utils'
 import {
   toRef,
@@ -31,7 +32,6 @@ import {
   provide,
   watch,
   SetupContext,
-  // onUnmounted,
   getCurrentInstance,
   computed,
   ref,
@@ -41,9 +41,6 @@ import {
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-// import watchVerbose from './watchVerbose'
-// import useRaw from './useRaw'
-// import { observe, isObserver } from './mutationObserver'
 
 /**
  * FormKit props of a component
@@ -412,10 +409,9 @@ export function useInput(
     provide(parentSymbol, node)
   }
 
-  let inputTimeout: number | undefined
+  // let inputTimeout: number | undefined
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  // const mutex = new WeakSet<object>()
+  let clonedValueBeforeVmodel: unknown = undefined
 
   /**
    * Explicitly watch the input value, and emit changes (lazy)
@@ -424,16 +420,10 @@ export function useInput(
     // Emit the values after commit
     context.emit('inputRaw', node.context?.value, node)
     if (isMounted) {
-      clearTimeout(inputTimeout)
-      inputTimeout = setTimeout(
-        context.emit,
-        20,
-        'input',
-        node.context?.value,
-        node
-      ) as unknown as number
+      context.emit('input', node.context?.value, node)
     }
     if (isVModeled && node.context) {
+      clonedValueBeforeVmodel = cloneAny(node.value)
       context.emit('update:modelValue', node.value)
     }
   })
@@ -445,7 +435,7 @@ export function useInput(
     watch(
       toRef(props, 'modelValue'),
       (value) => {
-        node.input(value, false)
+        if (!eq(clonedValueBeforeVmodel, value)) node.input(value, false)
       },
       { deep: true }
     )

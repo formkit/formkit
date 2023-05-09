@@ -5,7 +5,7 @@ import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 
-describe('numeric lists', () => {
+describe('standard lists', () => {
   it('uses list index as key', () => {
     mount(
       {
@@ -150,11 +150,11 @@ describe('numeric lists', () => {
     expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
   })
 
-  it('can can replace the value array', () => {
+  it('can replace the value array', async () => {
     const middleware: FormKitMiddleware<any[]> = (value, next) => {
       return next(value.map((childValue: any) => childValue))
-      // return next(value)
     }
+    const warn = vi.spyOn(console, 'warn')
     const hookCallback = vi.fn(middleware)
     mount(
       {
@@ -188,6 +188,9 @@ describe('numeric lists', () => {
       }
     )
     expect(hookCallback).toBeCalledTimes(4)
+    await new Promise((r) => setTimeout(r, 50))
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
   describe('synced lists', () => {

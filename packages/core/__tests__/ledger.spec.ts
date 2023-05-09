@@ -1,5 +1,5 @@
 import { FormKitPlugin } from './../src/node'
-import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
+import { createShippingTree, createTicketTree } from '../../../.tests/helpers'
 import { createNode } from '../src/node'
 import { getNode } from '../src/registry'
 import { createMessage } from '../src/store'

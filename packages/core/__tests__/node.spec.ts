@@ -12,7 +12,7 @@ import {
   createShippingTree,
   phoneMask,
   eventCounter,
-} from '../../../.jest/helpers'
+} from '../../../.tests/helpers'
 import { generateClassList } from '../src/classes'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitMiddleware } from '../src/dispatcher'
