@@ -9,6 +9,7 @@ import {
   init,
   cloneAny,
   clone,
+  isObject,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -321,6 +322,10 @@ export interface FormKitContext {
    */
   _e: FormKitEventEmitter
   /**
+   * A unique identifier for a node.
+   */
+  uid: symbol
+  /**
    * A node’s internal disturbance counter promise.
    */
   _resolve: ((value: unknown) => void) | false
@@ -335,7 +340,7 @@ export interface FormKitContext {
   /**
    * An array of child nodes (groups and lists)
    */
-  children: Array<FormKitNode>
+  children: Array<FormKitNode | FormKitPlaceholderNode>
   /**
    * Configuration state for a given tree.
    */
@@ -394,6 +399,11 @@ export interface FormKitContext {
    */
   type: FormKitNodeType
   /**
+   * Only used on list nodes, this flag determines whether or not the list
+   * should sync its values with the underlying node children.
+   */
+  sync: boolean
+  /**
    * The actual value of the node.
    */
   value: unknown
@@ -442,6 +452,12 @@ export interface FormKitFrameworkContext {
    * This is generally required for accessibility reasons.
    */
   id: string
+  /**
+   * An array of symbols that represent the a child’s nodes. These are not the
+   * child’s nodes but are just symbols representing them. They are used to
+   * iterate over the children for rendering purposes.
+   */
+  items: symbol[]
   /**
    * The label of the input.
    */
@@ -551,18 +567,50 @@ export interface FormKitFrameworkContextState {
 }
 
 /**
- * Options that can be used to instantiate a new node via createNode().
+ * Options that can be used to instantiate a new node via `createNode()`.
  *
  * @public
  */
 export type FormKitOptions = Partial<
   Omit<FormKitContext, 'children' | 'plugins' | 'config' | 'hook'> & {
+    /**
+     * Config settings for the node, these are automatically exposed as props
+     * but are also checked in during hierarchical for prop checking.
+     */
     config: Partial<FormKitConfig>
+    /**
+     * Props directly set on this node, these are not inherited.
+     */
     props: Partial<FormKitProps>
+    /**
+     * The children of the node.
+     */
     children: FormKitNode[] | Set<FormKitNode>
+    /**
+     * The explicit index of this node when used in a list. If specified, this
+     * node will be created at this index atomically.
+     */
     index?: number
+    /**
+     * Should only be specified on list nodes — when true this indicates if the
+     * list node should automatically sync its child nodes with the value of
+     * the list node. In other words, if the list node’s value is an array of
+     * strings, and one string is popped off, the corresponding node should be
+     * removed the list and destroyed.
+     */
+    sync: boolean
+    /**
+     * Any plugins that should be registered on this node explicitly. These will
+     * automatically be inherited by any children.
+     */
     plugins: FormKitPlugin[]
+    /**
+     * For internal use only.
+     */
     alias: string
+    /**
+     * For internal use only.
+     */
     schemaAlias: string
   }
 >
@@ -588,7 +636,8 @@ export interface FormKitChildValue {
 }
 
 /**
- * An empty interface for adding FormKit node extensions
+ * An empty interface for adding FormKit node extensions.
+ * @public
  */
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface FormKitNodeExtensions {}
@@ -1152,7 +1201,7 @@ export interface FormKitNodeExtensions {}
  *
  * @public
  */
-export type FormKitNode = {
+export type FormKitNode<V = unknown> = {
   /**
    * Boolean true indicating this object is a valid FormKitNode
    */
@@ -1161,7 +1210,7 @@ export type FormKitNode = {
    * The value of the input. This should never be directly modified. Any
    * desired mutations should be made through node.input()
    */
-  readonly value: unknown
+  readonly value: V
   /**
    * The internal FormKitContext object — this is not a public API and should
    * never be used outside of the core package itself. It is only here for
@@ -1283,7 +1332,7 @@ export type FormKitNode = {
   /**
    * Remove a child from a node.
    */
-  remove: (node: FormKitNode) => FormKitNode
+  remove: (node: FormKitNode | FormKitPlaceholderNode) => FormKitNode
   /**
    * Retrieves the root node of a tree. This is accomplished via tree-traversal
    * on-request, and as such should not be used in frequently called functions.
@@ -1321,6 +1370,10 @@ export type FormKitNode = {
    */
   isSettled: boolean
   /**
+   * A unique identifier for the node.
+   */
+  uid: symbol
+  /**
    * Registers a new plugin on the node and its subtree.
    * run = should the plugin be executed or not
    * library = should the plugin's library function be executed (if there)
@@ -1342,6 +1395,51 @@ export type FormKitNode = {
   ) => void
 } & Omit<FormKitContext, 'value' | 'name' | 'config'> &
   FormKitNodeExtensions
+
+/**
+ * A faux node that is used as a placeholder in the children node array during
+ * various node manipulations.
+ * @public
+ */
+export interface FormKitPlaceholderNode<V = unknown> {
+  /**
+   * Flag indicating this is a placeholder.
+   */
+  __FKP: true
+  /**
+   * A unique symbol identifying this placeholder.
+   */
+  uid: symbol
+  /**
+   * The type of placeholder node, if relevant.
+   */
+  type: FormKitNodeType
+  /**
+   * A value at the placeholder location.
+   */
+  value: V
+  /**
+   * The uncommitted value, in a placeholder will always be the same
+   * as the value.
+   */
+  _value: V
+  /**
+   * Artificially use a plugin (performs no-op)
+   */
+  use: (...args: any[]) => void
+  /**
+   * A name to use.
+   */
+  name: string
+  /**
+   * Sets the value of the placeholder.
+   */
+  input: (value: unknown, async?: boolean) => Promise<unknown>
+  /**
+   * A placeholder is always settled.
+   */
+  isSettled: boolean
+}
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
@@ -1755,9 +1853,11 @@ function partial(
  */
 function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   const _value = context._value as KeyedValue
+  // For "synced" lists the underlying nodes need to be synced to their values
+  // before hydration.
+  if (node.type === 'list' && node.sync) syncListNodes(node, context)
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
-    // if (has(context._value as FormKitGroupValue, child.name)) {
     if (child.name in _value) {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
@@ -1769,7 +1869,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
           : _value[child.name]
       // If the two are already equal or the child is currently disturbed then
       // don’t send the value down since it will squash the child’s value.
-      if (!child.isSettled || eq(childValue, child._value)) return
+      if (
+        !child.isSettled ||
+        (!isObject(childValue) && eq(childValue, child._value))
+      )
+        return
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
@@ -1790,6 +1894,89 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
     }
   })
   return node
+}
+
+/**
+ * Hydrate a list node and its children. There are some assumptions about the
+ * child nodes that are made here:
+ * 1. The child nodes are either:
+ *    - Are scalars and their values can be exchanged.
+ *    - Are groups and should maintain node identity.
+ * 2. The value of the list will be a 1-1 representation of the children.
+ * 3. If new values are *added* to the list, those nodes must be created by some
+ *   other means — adding a value does not add a node automatically.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ */
+function syncListNodes(node: FormKitNode, context: FormKitContext) {
+  const _value = node._value
+  if (!Array.isArray(_value)) return
+
+  const newChildren: Array<FormKitNode | FormKitPlaceholderNode | null> = []
+  const unused = new Set(context.children)
+  const placeholderValues = new Map<unknown, number>()
+
+  // 1. Iterate over the values and if the values at the same index are equal
+  //    then we can reuse the node. Otherwise we add a `null` placeholder.
+  _value.forEach((value, i) => {
+    if (context.children[i] && context.children[i]._value === value) {
+      newChildren.push(context.children[i])
+      unused.delete(context.children[i])
+    } else {
+      newChildren.push(null)
+      placeholderValues.set(value, i)
+    }
+  })
+
+  // 2. If there are unused nodes, and there are null nodes in the new children
+  //    then we attempt to match those irregardless of their index.
+  if (unused.size && placeholderValues.size) {
+    unused.forEach((child) => {
+      if (placeholderValues.has(child._value)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        newChildren[placeholderValues.get(child._value)!] = child
+        unused.delete(child)
+        placeholderValues.delete(child._value)
+      }
+    })
+  }
+
+  // 3. If there are still unused nodes, and unused placeholders, we assign the
+  //    unused nodes to the unused placeholders in order.
+  while (unused.size && placeholderValues.size) {
+    const child = unused.values().next().value
+    const placeholders = placeholderValues[Symbol.iterator]()
+    const [value, index] = placeholders.next().value
+    newChildren[index] = child
+    unused.delete(child)
+    placeholderValues.delete(value)
+  }
+
+  // 4. If there are placeholders in the children, we create true placeholders.
+  if (placeholderValues.size) {
+    placeholderValues.forEach((index, value) => {
+      newChildren[index] = createPlaceholder({ value })
+    })
+  }
+
+  // 5. If there are unused nodes, we remove them. To ensure we don’t remove any
+  //    values in this process we set the children to an empty array first. This
+  //    ensures that calling removeChild() inside child.destroy() will not
+  //    remove the value from the parent.
+  if (unused.size) {
+    unused.forEach((child) => {
+      if (!('__FKP' in child)) {
+        // Before we destroy the child, we need to disassosiate it from the
+        // parent, otherwise it would remove it’s value from the parent and in
+        // this case the parent’s value is the source of truth.
+        child._c.parent = null
+        child.destroy()
+      }
+    })
+  }
+
+  // 6. Finally, we assign the new children to the context.
+  context.children = newChildren as Array<FormKitNode | FormKitPlaceholderNode>
 }
 
 /**
@@ -1991,7 +2178,15 @@ function addChild(
   if (!parentContext.children.includes(child)) {
     if (listIndex !== undefined && parent.type === 'list') {
       // Inject the child:
-      parentContext.children.splice(listIndex, 0, child)
+      const existingNode = parentContext.children[listIndex]
+      if (existingNode && '__FKP' in existingNode) {
+        // The node index is populated by a placeholderNode so we need to
+        // remove that replace it with the real node (the current child).
+        child._c.uid = existingNode.uid
+        parentContext.children.splice(listIndex, 1, child)
+      } else {
+        parentContext.children.splice(listIndex, 0, child)
+      }
 
       if (
         Array.isArray(parent.value) &&
@@ -2130,7 +2325,7 @@ function eachChild(
   context: FormKitContext,
   callback: FormKitChildCallback
 ) {
-  context.children.forEach((child) => callback(child))
+  context.children.forEach((child) => !('__FKP' in child) && callback(child))
 }
 
 /**
@@ -2151,7 +2346,8 @@ function walkTree(
   stopIfFalse = false,
   skipSubtreeOnFalse = false
 ) {
-  context.children.some((child: FormKitNode) => {
+  context.children.some((child) => {
+    if ('__FKP' in child) return false
     const val = callback(child)
     // return true to stop the walk early
     if (stopIfFalse && val === false) return true
@@ -2354,8 +2550,9 @@ function getNode(
         break
       default:
         pointer =
-          pointer.children.find((c) => String(c.name) === String(name)) ||
-          select(pointer, name)
+          (pointer.children.find(
+            (c) => !('__FKP' in c) && String(c.name) === String(name)
+          ) as FormKitNode | undefined) || select(pointer, name)
     }
   }
   return pointer || undefined
@@ -2432,9 +2629,10 @@ export function bfs(
     typeof searchGoal === 'string'
       ? (n: FormKitNode) => n[searchGoal] == searchValue // non-strict comparison is intentional
       : searchGoal
-  const stack = [tree]
+  const stack: Array<FormKitNode | FormKitPlaceholderNode> = [tree]
   while (stack.length) {
     const node = stack.shift()! // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    if ('__FKP' in node) continue
     if (search(node, searchValue)) return node
     stack.push(...node.children)
   }
@@ -2759,6 +2957,7 @@ function createContext(options: FormKitOptions): FormKitContext {
   return {
     _d: 0,
     _e: createEmitter(),
+    uid: Symbol(),
     _resolve: false,
     _tmo: false,
     _value: value,
@@ -2774,6 +2973,7 @@ function createContext(options: FormKitOptions): FormKitContext {
     props: createProps(value),
     settled: Promise.resolve(value),
     store: createStore(true),
+    sync: options.sync || false,
     traps: createTraps(),
     type: options.type || 'input',
     value,
@@ -2790,7 +2990,10 @@ function createContext(options: FormKitOptions): FormKitContext {
  *
  * @internal
  */
-function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
+function nodeInit<V>(
+  node: FormKitNode,
+  options: FormKitOptions
+): FormKitNode<V> {
   // Set the internal node on the props, config, ledger and store
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
@@ -2829,7 +3032,47 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
   // Our node is finally ready, emit it to the world
   node.emit('created', node)
   node.isCreated = true
-  return node
+  return node as FormKitNode<V>
+}
+
+/**
+ * Creates a placeholder node that can be used to hold a place in a the children
+ * array until the actual node is created.
+ * @param options - FormKitOptions
+ * @internal
+ */
+export function createPlaceholder(
+  options?: FormKitOptions & { name?: string }
+): FormKitPlaceholderNode {
+  return {
+    __FKP: true,
+    uid: Symbol(),
+    name: options?.name ?? `p_${nameCount++}`,
+    value: options?.value ?? null,
+    _value: options?.value ?? null,
+    type: options?.type ?? 'input',
+    use: () => {
+      // noop
+    },
+    input(value: unknown) {
+      this._value = value
+      this.value = value
+      return Promise.resolve()
+    },
+    isSettled: true,
+  }
+}
+
+/**
+ * Determines if a node is a placeholder node.
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @returns
+ * @public
+ */
+export function isPlaceholder(
+  node: FormKitNode | FormKitPlaceholderNode
+): node is FormKitPlaceholderNode {
+  return '__FKP' in node
 }
 
 /**
@@ -2855,7 +3098,9 @@ function nodeInit(node: FormKitNode, options: FormKitOptions): FormKitNode {
  *
  * @public
  */
-export function createNode(options?: FormKitOptions): FormKitNode {
+export function createNode<V = unknown>(
+  options?: FormKitOptions
+): FormKitNode<V> {
   const ops = options || {}
   const context = createContext(ops) as FormKitContext
   // Note: The typing for the proxy object cannot be fully modeled, thus we are

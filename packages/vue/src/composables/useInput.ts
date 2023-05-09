@@ -23,6 +23,7 @@ import {
   token,
   undefine,
   oncePerTick,
+  eq,
 } from '@formkit/utils'
 import {
   toRef,
@@ -31,7 +32,6 @@ import {
   provide,
   watch,
   SetupContext,
-  // onUnmounted,
   getCurrentInstance,
   computed,
   ref,
@@ -41,9 +41,6 @@ import {
 } from 'vue'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-import watchVerbose from './watchVerbose'
-import useRaw from './useRaw'
-// import { observe, isObserver } from './mutationObserver'
 
 /**
  * FormKit props of a component
@@ -60,6 +57,7 @@ export interface FormKitComponentProps {
   inputErrors: Record<string, string | string[]>
   index?: number
   config: Record<string, any>
+  sync: boolean
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
   plugins: FormKitPlugin[]
 }
@@ -240,6 +238,7 @@ export function useInput(
         config: props.config,
         props: initialProps,
         index: props.index,
+        sync: props.sync,
       },
       false,
       true
@@ -410,10 +409,9 @@ export function useInput(
     provide(parentSymbol, node)
   }
 
-  let inputTimeout: number | undefined
+  // let inputTimeout: number | undefined
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  const mutex = new WeakSet<object>()
+  let clonedValueBeforeVmodel: unknown = undefined
 
   /**
    * Explicitly watch the input value, and emit changes (lazy)
@@ -422,24 +420,11 @@ export function useInput(
     // Emit the values after commit
     context.emit('inputRaw', node.context?.value, node)
     if (isMounted) {
-      clearTimeout(inputTimeout)
-      inputTimeout = setTimeout(
-        context.emit,
-        20,
-        'input',
-        node.context?.value,
-        node
-      ) as unknown as number
+      context.emit('input', node.context?.value, node)
     }
     if (isVModeled && node.context) {
-      const newValue = useRaw(node.context.value)
-      if (isObject(newValue) && useRaw(props.modelValue) !== newValue) {
-        // If this is an object that has been mutated inside FormKit core then
-        // we know when it is emitted it will "return" in the watchVerbose so
-        // we pro-actively add it to the mutex.
-        mutex.add(newValue)
-      }
-      context.emit('update:modelValue', newValue)
+      clonedValueBeforeVmodel = cloneAny(node.value)
+      context.emit('update:modelValue', node.value)
     }
   })
 
@@ -447,14 +432,13 @@ export function useInput(
    * Enabled support for v-model, using this for groups/lists is not recommended
    */
   if (isVModeled) {
-    watchVerbose(toRef(props, 'modelValue'), (path, value): void | boolean => {
-      const rawValue = useRaw(value)
-      if (isObject(rawValue) && mutex.has(rawValue)) {
-        return mutex.delete(rawValue)
-      }
-      if (!path.length) node.input(value, false)
-      else node.at(path)?.input(value, false)
-    })
+    watch(
+      toRef(props, 'modelValue'),
+      (value) => {
+        if (!eq(clonedValueBeforeVmodel, value)) node.input(value, false)
+      },
+      { deep: true }
+    )
 
     /**
      * On initialization, if the node’s value was updated (like in a plugin
@@ -468,7 +452,6 @@ export function useInput(
   /**
    * When this input shuts down, we need to "delete" the node too.
    */
-  // onUnmounted(() => node.destroy())
   onBeforeUnmount(() => node.destroy())
 
   return node

@@ -17,11 +17,6 @@ export { useInput, FormKitComponentProps } from './composables/useInput'
 export { createInput } from './composables/createInput'
 
 /**
- * A special watcher for Vue that reports the location of a deep mutation.
- */
-export { default as watchVerbose } from './composables/watchVerbose'
-
-/**
  * The plugin and plugin types.
  */
 export * from './plugin'

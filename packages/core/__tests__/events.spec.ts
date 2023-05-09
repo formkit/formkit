@@ -1,5 +1,5 @@
 import { createNode } from '../src/node'
-import { createShippingTree } from '../../../.jest/helpers'
+import { createShippingTree } from '../../../.tests/helpers'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitEvent } from '../src/events'
 
