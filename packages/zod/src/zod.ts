@@ -1,6 +1,9 @@
 import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
 import { z } from 'zod'
 
+/**
+ * Extend FormKitNode with setZodErrors.
+ */
 declare module '@formkit/core' {
   interface FormKitNodeExtensions {
     setZodErrors(zodError: z.ZodError | undefined): FormKitNode
