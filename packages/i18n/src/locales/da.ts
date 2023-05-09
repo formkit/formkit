@@ -1,4 +1,4 @@
-import { FormKitValidationMessages } from '@formkit/validation'
+import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -447,6 +447,24 @@ export const validation: FormKitValidationMessages = {
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
     return `${s(name)} skal være et tal.`
+    /* </i18n> */
+  },
+
+  /**
+   * Require one field.
+   * @see {@link https://formkit.com/essentials/validation#require-one}
+   */
+  require_one: ({ name, node, args: inputNames }) => {
+    const labels = inputNames.map(name => {
+      const dependentNode = node.at(name)
+      if (dependentNode) {
+return createMessageName(dependentNode)
+      }
+      return false
+    }).filter(name => !!name)
+    labels.unshift(name)
+    /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
+    return `${labels.join(' eller ')} er påkrævet.`
     /* </i18n> */
   },
 
