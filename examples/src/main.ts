@@ -22,6 +22,8 @@ import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import SyncedLists from './vue/examples/SyncedLists.vue'
+import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
+import Zod from './vue/examples/Zod.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -66,6 +68,10 @@ const router = createRouter({
     {
       path: '/basic-form',
       component: BasicForm,
+    },
+    {
+      path: '/async-form-test',
+      component: TestAsyncFormSubmit,
     },
     {
       path: '/theme-plugin',
@@ -157,6 +163,10 @@ const router = createRouter({
           ],
         },
       ],
+    },
+    {
+      path: '/zod',
+      component: Zod,
     },
   ],
 })
