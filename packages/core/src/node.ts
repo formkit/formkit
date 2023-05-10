@@ -1963,13 +1963,13 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   //    values in this process we set the children to an empty array first. This
   //    ensures that calling removeChild() inside child.destroy() will not
   //    remove the value from the parent.
+  context.children = []
   if (unused.size) {
     unused.forEach((child) => {
       if (!('__FKP' in child)) {
         // Before we destroy the child, we need to disassosiate it from the
         // parent, otherwise it would remove it’s value from the parent and in
         // this case the parent’s value is the source of truth.
-        child._c.parent = null
         child.destroy()
       }
     })

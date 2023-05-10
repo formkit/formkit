@@ -5,6 +5,7 @@ import {
   FormKitNode,
   isPlaceholder,
   createPlaceholder,
+  createMessage,
 } from '../src'
 import { clone } from '@formkit/utils'
 import { createNameTree } from '.tests/helpers'
@@ -405,5 +406,24 @@ describe('synced lists', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(list.value).toStrictEqual(['A', 'B'])
     expect(list.children.length).toBe(2)
+  })
+
+  it('removes ledger counts from upstream nodes when a synced node is removed', async () => {
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A'],
+      config: {
+        delay: 0,
+      },
+      sync: true,
+    })
+    await list.settled
+    expect(list.value).toEqual(['A'])
+    const a = createNode({ value: 'A', index: 0, parent: list })
+    a.store.set(createMessage({ key: 'validation', blocking: true }))
+    list.ledger.count('blocking', (m) => m.blocking)
+    expect(list.ledger.value('blocking')).toBe(1)
+    list.input([], false)
+    expect(list.ledger.value('blocking')).toBe(0)
   })
 })
