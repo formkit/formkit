@@ -1217,6 +1217,18 @@ describe('value propagation in a node tree', () => {
     })
   })
 
+  describe('commitRaw', () => {
+    it('emits commitRaw even when the value is the same', () => {
+      const callback = vi.fn()
+      const node = createNode({ value: 'hello' })
+      node.on('commitRaw', callback)
+      node.input('hi', false)
+      expect(callback).toHaveBeenCalledOnce()
+      node.input('hi', false)
+      expect(callback).toHaveBeenCalledTimes(2)
+    })
+  })
+
   describe('text hook', () => {
     it('can pass a string of text directly through core with no modifications', () => {
       const node = createNode()

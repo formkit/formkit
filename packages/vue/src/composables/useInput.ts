@@ -412,7 +412,6 @@ export function useInput(
   // let inputTimeout: number | undefined
 
   let clonedValueBeforeVmodel: unknown = undefined
-
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
@@ -435,7 +434,9 @@ export function useInput(
     watch(
       toRef(props, 'modelValue'),
       (value) => {
-        if (!eq(clonedValueBeforeVmodel, value)) node.input(value, false)
+        if (!eq(clonedValueBeforeVmodel, value)) {
+          node.input(value, false)
+        }
       },
       { deep: true }
     )

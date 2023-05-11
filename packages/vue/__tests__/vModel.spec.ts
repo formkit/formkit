@@ -1,9 +1,9 @@
 import { ref, nextTick } from 'vue'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
-import { getNode } from '@formkit/core'
+import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 
 describe('v-model', () => {
@@ -50,5 +50,44 @@ describe('v-model', () => {
     const inputs = wrapper.findAll('input')
     expect(inputs.at(0)?.element.value).toBe('baz')
     expect(inputs.at(1)?.element.value).toBe('fiz')
+  })
+
+  it('emits a modelUpdated event even when the value results in the same value', async () => {
+    const id = token()
+    const updatedEventCallback = vi.fn()
+    const value = ref('xyz')
+    mount(
+      {
+        setup() {
+          const setToFoo = (node: FormKitNode) => {
+            node.hook.input((_, next) => {
+              return next('foo')
+            })
+          }
+          return { setToFoo, updatedEventCallback, value }
+        },
+        template: `
+        <FormKit
+          id="${id}"
+          type="text"
+          v-model="value"
+          @update:modelValue="updatedEventCallback"
+          :plugins="[setToFoo]"
+        />
+      `,
+      },
+      {
+        global: { plugins: [[plugin, defaultConfig]] },
+      }
+    )
+    expect(updatedEventCallback).toHaveBeenCalledTimes(1)
+    expect(updatedEventCallback).toHaveBeenLastCalledWith('foo')
+    expect(value.value).toBe('foo')
+
+    value.value = 'bar'
+    await nextTick()
+    expect(updatedEventCallback).toHaveBeenCalledTimes(2)
+    expect(updatedEventCallback).toHaveBeenLastCalledWith('foo')
+    expect(value.value).toBe('foo')
   })
 })

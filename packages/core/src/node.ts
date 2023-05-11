@@ -1739,6 +1739,7 @@ function input(
     node.type === 'input' &&
     eq(context._value, context.value)
   ) {
+    node.emit('commitRaw', context.value)
     // Perform an early return if the value hasn't changed during this input.
     return context.settled
   }
@@ -1800,6 +1801,7 @@ function commit(
 ) {
   context._value = context.value = node.hook.commit.dispatch(context._value)
   if (node.type !== 'input' && hydrate) node.hydrate()
+  node.emit('commitRaw', context.value)
   node.emit('commit', context.value)
   if (calm) node.calm()
 }

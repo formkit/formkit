@@ -367,16 +367,24 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
-   * Watch for input commits from core.
+   * Model updates from core. This is the raw value and should emitted as a
+   * model update even if the value did not update internally. Why? Because
+   * the model that created this event may have not be the same value as our
+   * internal value.
+   *
+   * See test: "emits a modelUpdated event even when the value results in the
+   * same value"
    */
-  node.on('commit', ({ payload }) => {
-    // if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-    //   value.value = _value.value = shallowClone(payload)
-    // } else {
+  node.on('commitRaw', ({ payload }) => {
     value.value = _value.value = payload
     triggerRef(value)
-    // }
     node.emit('modelUpdated')
+  })
+
+  /**
+   * Watch for input commits from core.
+   */
+  node.on('commit', () => {
     // The input is dirty after a value has been input by a user
     if (
       (!context.state.dirty || context.dirtyBehavior === 'compare') &&
