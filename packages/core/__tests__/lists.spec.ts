@@ -411,18 +411,26 @@ describe('synced lists', () => {
   it('removes ledger counts from upstream nodes when a synced node is removed', async () => {
     const list = createNode<string[]>({
       type: 'list',
-      value: ['A'],
+      value: [{ foo: 'bar' }],
       config: {
         delay: 0,
       },
       sync: true,
     })
     await list.settled
-    expect(list.value).toEqual(['A'])
-    const a = createNode({ value: 'A', index: 0, parent: list })
-    a.store.set(createMessage({ key: 'validation', blocking: true }))
+    expect(list.value).toEqual([{ foo: 'bar' }])
+    const child = createNode({ name: 'foo', value: 'bar' })
+    const group = createNode({
+      type: 'group',
+      value: { foo: 'bar' },
+      index: 0,
+      parent: list,
+      children: [child],
+    })
+    child.store.set(createMessage({ blocking: true, key: 'validation' }))
+    group.store.set(createMessage({ key: 'validation', blocking: true }))
     list.ledger.count('blocking', (m) => m.blocking)
-    expect(list.ledger.value('blocking')).toBe(1)
+    expect(list.ledger.value('blocking')).toBe(2)
     list.input([], false)
     expect(list.ledger.value('blocking')).toBe(0)
   })

@@ -1960,16 +1960,15 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   }
 
   // 5. If there are unused nodes, we remove them. To ensure we don’t remove any
-  //    values in this process we set the children to an empty array first. This
-  //    ensures that calling removeChild() inside child.destroy() will not
-  //    remove the value from the parent.
-  context.children = []
+  //    values we explicitly remove each child’s parent and manually unmerge the
+  //    child from the parent’s ledger before destroying the subtree.
   if (unused.size) {
     unused.forEach((child) => {
       if (!('__FKP' in child)) {
-        // Before we destroy the child, we need to disassosiate it from the
-        // parent, otherwise it would remove it’s value from the parent and in
-        // this case the parent’s value is the source of truth.
+        const parent = child._c.parent
+        if (!parent || isPlaceholder(parent)) return
+        parent.ledger.unmerge(child)
+        child._c.parent = null
         child.destroy()
       }
     })

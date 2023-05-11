@@ -224,5 +224,46 @@ describe('standard lists', () => {
       await nextTick()
       expect(wrapper.findAll('input').length).toBe(3)
     })
+
+    it('can do the hokey pokey and turn itself around', async () => {
+      const wrapper = mount(
+        {
+          data() {
+            return {
+              books: [
+                { book: 'The Great Gatsby' },
+                { book: 'To Kill A Mockingbird' },
+                { book: 'A Farewell to Arms' },
+                { book: 'The Catcher in the Rye' },
+              ],
+            }
+          },
+          template: `
+          <FormKit type="list" :sync="true" v-model="books" id="books" #default="{ items }">
+            <FormKit type="group" v-for="(item, index) in items" :key="item" :index="index">
+              <FormKit type="text" name="book" />
+            </FormKit>
+          </FormKit>
+        `,
+        },
+        {
+          global: {
+            plugins: [[plugin, defaultConfig]],
+          },
+        }
+      )
+      let count = wrapper.vm.books.length
+      async function cycle() {
+        const book = wrapper.vm.books.splice(0, 1)
+        await nextTick()
+        expect(wrapper.findAll('input').length).toBe(3)
+        wrapper.vm.books.push(book[0])
+        await nextTick()
+        if (--count > 0) {
+          await cycle()
+        }
+      }
+      await cycle()
+    })
   })
 })
