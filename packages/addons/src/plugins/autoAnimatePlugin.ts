@@ -9,15 +9,12 @@ import { eachSection } from '@formkit/inputs'
 import { FormKitSchemaDOMNode } from 'packages/core/src'
 
 const pendingIds: Map<string, AutoAnimateOptions | undefined> = new Map()
+const optionOverrides = new Map<string, AutoAnimateOptions | undefined>()
+
+let autoAnimateOptionsId = 0
 
 let observer: MutationObserver | null = null
 let observerTimeout: ReturnType<typeof setTimeout> | number = 0
-
-const animationTargets: Record<string, string[]> = {
-  global: ['outer', 'inner'],
-  form: ['form'],
-  repeater: ['items'],
-}
 
 /**
  * Create a new mutation observer that checks for the document for ids. We do
@@ -44,9 +41,15 @@ function observeIds() {
       clearTimeout(observerTimeout)
       pendingIds.delete(id)
       observerTimeout = setTimeout(() => {
-        const targets = document.querySelectorAll('[data-auto-animate="true"]')
+        const targets = document.querySelectorAll('[data-auto-animate]')
         targets.forEach((target) => {
-          autoAnimate(target as HTMLElement, options || {})
+          // get the value of data-auto-animate
+          let overrideOptions: AutoAnimateOptions | undefined
+          const optionsId = target.getAttribute('data-auto-animate')
+          if (optionsId) {
+            overrideOptions = optionOverrides.get(optionsId)
+          }
+          autoAnimate(target as HTMLElement, overrideOptions || options || {})
         })
       }, 250)
     }
@@ -74,6 +77,7 @@ function observeIds() {
  * ```
  *
  * @param options - {@link https://github.com/formkit/auto-animate/blob/master/src/index.ts#L596 | AutoAnimateOptions }
+ * @param animationTargets - A map of input types and an array of their sections that should be animated.
  *
  * @returns
  * {@link @formkit/core#FormKitPlugin | FormKitPlugin}
@@ -81,7 +85,12 @@ function observeIds() {
  * @public
  */
 export function createAutoAnimatePlugin(
-  options?: AutoAnimateOptions
+  options?: AutoAnimateOptions,
+  animationTargets: Record<string, string[]> = {
+    global: ['outer', 'inner'],
+    form: ['form'],
+    repeater: ['items'],
+  }
 ): FormKitPlugin {
   return (node: FormKitNode) => {
     node.on('created', () => {
@@ -102,8 +111,29 @@ export function createAutoAnimatePlugin(
               if (isDOM(section)) {
                 let isAnimationTarget = false
                 const sectionName = section?.meta?.section
-                // if we have a section name, check if it's a known animation target
-                if (sectionName && typeof sectionName === 'string') {
+                let instanceId: boolean | string = true
+
+                // If we have explicit autoAnimate meta set, use that
+                if (section?.meta?.autoAnimate) {
+                  isAnimationTarget = true
+
+                  if (typeof section.meta.autoAnimate === 'object') {
+                    const newOptions = Object.assign(
+                      {},
+                      options,
+                      section.meta.autoAnimate
+                    )
+                    instanceId = `${node.props.id}-${autoAnimateOptionsId++}`
+                    optionOverrides.set(instanceId, newOptions)
+                  }
+                }
+
+                // if didn't have meta but we have a section name, check if it's a known animation target
+                if (
+                  !isAnimationTarget &&
+                  sectionName &&
+                  typeof sectionName === 'string'
+                ) {
                   if (
                     animationTargets.global.includes(sectionName) ||
                     (animationTargets[node.props.type] &&
@@ -112,18 +142,17 @@ export function createAutoAnimatePlugin(
                     isAnimationTarget = true
                   }
                 }
-                // if we're not a known target, check if we have autoAnimate meta set
-                if (!isAnimationTarget && section?.meta?.autoAnimate === true) {
-                  isAnimationTarget = true
-                }
-                // bail if we were not a match
+
+                // bail if we we're not a match
                 if (!isAnimationTarget) return
 
                 // add the auto-animate attribute which our observer will pick up
                 if (!section?.attrs) {
-                  section.attrs = { 'data-auto-animate': true }
+                  section.attrs = { 'data-auto-animate': instanceId }
                 } else {
-                  Object.assign(section.attrs, { 'data-auto-animate': true })
+                  Object.assign(section.attrs, {
+                    'data-auto-animate': instanceId,
+                  })
                 }
 
                 // add the node id to the pending list

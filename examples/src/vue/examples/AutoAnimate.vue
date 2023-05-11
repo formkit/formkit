@@ -67,7 +67,25 @@ function setNode(n: FormKitNode) {
       validation="required|email|length:16,9"
       validation-visibility="live"
       outer-class="my-class !formkit-outer"
+      :sections-schema="{
+        outer: {
+          meta: {
+            autoAnimate: {
+              duration: 2000,
+            },
+          },
+        },
+      }"
       @node="setNode"
+    />
+    <FormKit
+      type="email"
+      name="email2"
+      label="Email address"
+      help="What is your email address?"
+      placeholder="jon@foo.com"
+      validation="required|email|length:16,9"
+      validation-visibility="live"
     />
     <FormKit
       type="file"
