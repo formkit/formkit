@@ -71,6 +71,15 @@ function observeIds() {
  *   plugins: [
  *     createAutoAnimatePlugin({
  *       // optional config
+ *       duration: 250,
+ *       easing: 'ease-in-out',
+ *       delay: 0,
+ *     },
+ *     {
+ *       // optional animation targets object
+ *       global: ['outer', 'inner'],
+ *       form: ['form'],
+ *       repeater: ['items'],
  *     })
  *   ]
  * }))
