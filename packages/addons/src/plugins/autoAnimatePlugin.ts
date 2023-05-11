@@ -1,11 +1,25 @@
-import { FormKitNode, FormKitPlugin, isConditional, isDOM } from '@formkit/core'
+import {
+  FormKitNode,
+  FormKitSchemaComponent,
+  FormKitPlugin,
+  isDOM,
+} from '@formkit/core'
 import autoAnimate, { AutoAnimateOptions } from '@formkit/auto-animate'
-import { extend } from '@formkit/utils'
+import { eachSection } from '@formkit/inputs'
 import { FormKitSchemaDOMNode } from 'packages/core/src'
 
 const pendingIds: Map<string, AutoAnimateOptions | undefined> = new Map()
 
 let observer: MutationObserver | null = null
+let observerTimeout: ReturnType<typeof setTimeout> | number = 0
+
+const animationTargets: Record<string, string[]> = {
+  global: ['outer', 'inner'],
+  form: ['form'],
+  repeater: ['items'],
+  taglist: ['tags'],
+  'transfer-list': ['source-list-items', 'target-list-items'],
+}
 
 /**
  * Create a new mutation observer that checks for the document for ids. We do
@@ -29,8 +43,14 @@ function observeIds() {
   pendingIds.forEach((options, id) => {
     const outer = document.getElementById(id)
     if (outer) {
+      clearTimeout(observerTimeout)
       pendingIds.delete(id)
-      autoAnimate(outer, options || {})
+      observerTimeout = setTimeout(() => {
+        const targets = document.querySelectorAll('[data-auto-animate="true"]')
+        targets.forEach((target) => {
+          autoAnimate(target as HTMLElement, options || {})
+        })
+      }, 250)
     }
   })
 }
@@ -69,35 +89,52 @@ export function createAutoAnimatePlugin(
     node.on('created', () => {
       if (typeof node.props.definition?.schema === 'function') {
         if (typeof window === undefined) return
+
+        // make a copy of the original schema
+        const originalSchema = node.props.definition.schema
+
         // add an outer wrapper id or get the current one
-        const original = node.props.definition.schema
         node.props.definition.schema = (extensions) => {
-          extensions.outer = extend(
-            { attrs: { id: `outer-${node.props.id}` } },
-            extensions.outer || {}
-          ) as Partial<FormKitSchemaDOMNode>
-          const s = original(extensions)
-          const finalSchema = Array.isArray(s) ? s[0] : s
-          const outermostSchema = isConditional(finalSchema)
-            ? Array.isArray(finalSchema.else)
-              ? finalSchema.else[0]
-              : finalSchema.else
-            : finalSchema
-          if (
-            outermostSchema &&
-            isDOM(outermostSchema) &&
-            outermostSchema.attrs &&
-            'id' in outermostSchema.attrs
-          ) {
-            pendingIds.set(
-              String(
-                outermostSchema.attrs.id === '$id'
-                  ? node.props.id
-                  : outermostSchema.attrs.id
-              ),
-              options || undefined
-            )
-          }
+          const schema = originalSchema(extensions)
+          const finalSchema = Array.isArray(schema) ? schema[0] : schema
+
+          eachSection(
+            finalSchema,
+            (section: FormKitSchemaComponent | FormKitSchemaDOMNode) => {
+              if (isDOM(section)) {
+                let isAnimationTarget = false
+                const sectionName = section?.meta?.section
+                // if we have a section name, check if it's a known animation target
+                if (sectionName && typeof sectionName === 'string') {
+                  if (
+                    animationTargets.global.includes(sectionName) ||
+                    (animationTargets[node.props.type] &&
+                      animationTargets[node.props.type].includes(sectionName))
+                  ) {
+                    isAnimationTarget = true
+                  }
+                }
+                // if we're not a known target, check if we have autoAnimate meta set
+                if (!isAnimationTarget && section?.meta?.autoAnimate === true) {
+                  isAnimationTarget = true
+                }
+                // bail if we were not a match
+                if (!isAnimationTarget) return
+
+                // add the auto-animate attribute which our observer will pick up
+                if (!section?.attrs) {
+                  section.attrs = { 'data-auto-animate': true }
+                } else {
+                  Object.assign(section.attrs, { 'data-auto-animate': true })
+                }
+
+                // add the node id to the pending list
+                if (node.props.id) {
+                  pendingIds.set(node.props.id, options)
+                }
+              }
+            }
+          )
           return finalSchema
         }
       }

@@ -9,6 +9,7 @@ import {
   isDOM,
   isConditional,
   warn,
+  FormKitSchemaDOMNode,
 } from '@formkit/core'
 import {
   isSchemaObject,
@@ -28,6 +29,7 @@ import {
   message,
   help,
 } from './sections'
+import { FormKitSchemaComponent } from 'packages/core/src'
 
 /**
  * Either a schema node, or a function that returns a schema node.
@@ -76,39 +78,9 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 }
 
 /**
- * Searches a given section for a specific section name in the meta.
- * @param target - The name of the section to find.
- * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
- * @param section - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
- * @returns
- */
-function checkSection(
-  target: string,
-  schema: FormKitSchemaNode[],
-  section: FormKitSchemaNode | FormKitSchemaCondition
-): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] | void {
-  if (isSlotCondition(section)) {
-    if (isComponent(section.else) || isDOM(section.else)) {
-      if (section.else.meta?.section === target) {
-        return [schema, section]
-      } else if (
-        section.else.children &&
-        Array.isArray(section.else.children) &&
-        section.else.children.length
-      ) {
-        const found = findSection(section.else.children, target)
-        if (found[0]) {
-          return found
-        }
-      }
-    }
-  }
-}
-
-/**
  * Finds a seciton by name in a schema.
  *
- * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param schema - A {@link @formkit/core#FormKitSchemaDefinition | FormKitSchemaDefinition} array.
  * @param target - The name of the section to find.
  *
  * @returns a tuple of the schema and the section or a tuple of `false` and `false` if not found.
@@ -118,17 +90,80 @@ function checkSection(
 export function findSection(
   schema: FormKitSchemaDefinition,
   target: string
-): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] {
-  if (!Array.isArray(schema)) {
-    const val = checkSection(target, [schema], schema)
-    if (val) return val
-    return [false, false]
+): [false, false] | [FormKitSchemaNode[] | false, FormKitSchemaCondition] {
+  return (
+    eachSection(
+      schema,
+      (section, parent, schemaCondition) => {
+        if (section.meta?.section === target) {
+          return [parent, schemaCondition]
+        }
+        return
+      },
+      true
+    ) ?? [false, false]
+  )
+}
+
+/**
+ * Runs a callback over every section in a schema. if stopOnCallbackReturn is true
+ * and the callback returns a value, the loop will stop and return that value.
+ *
+ * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param callback - A callback to run on every section.
+ * @param stopOnCallbackReturn - If true, the loop will stop if the callback returns a value.
+ * @param schemaParent - The parent of the current schema node.
+ *
+ * @returns
+ *
+ * @public
+ */
+export function eachSection<T>(
+  schema: FormKitSchemaDefinition,
+  callback: (
+    section: FormKitSchemaComponent | FormKitSchemaDOMNode,
+    schemaParent: FormKitSchemaNode[],
+    schema: FormKitSchemaCondition
+  ) => T,
+  stopOnCallbackReturn = false,
+  schemaParent: FormKitSchemaNode[] = []
+): T | void {
+  if (Array.isArray(schema)) {
+    for (const section of schema) {
+      const callbackReturn = eachSection(
+        section,
+        callback,
+        stopOnCallbackReturn,
+        schema
+      )
+      if (callbackReturn && stopOnCallbackReturn) {
+        return callbackReturn
+      }
+    }
+    return
   }
-  for (let index = 0; index < schema.length; index++) {
-    const val = checkSection(target, schema, schema[index])
-    if (val) return val
+  if (isSlotCondition(schema)) {
+    if (isComponent(schema.else) || isDOM(schema.else)) {
+      if (schema.else.meta) {
+        const callbackReturn = callback(schema.else, schemaParent, schema)
+        if (callbackReturn && stopOnCallbackReturn) {
+          return callbackReturn
+        }
+      }
+      if (
+        schema.else.children &&
+        Array.isArray(schema.else.children) &&
+        schema.else.children.length
+      ) {
+        return eachSection(
+          schema.else.children,
+          callback,
+          stopOnCallbackReturn,
+          schemaParent
+        )
+      }
+    }
   }
-  return [false, false]
 }
 
 /**
