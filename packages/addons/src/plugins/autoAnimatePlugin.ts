@@ -17,8 +17,6 @@ const animationTargets: Record<string, string[]> = {
   global: ['outer', 'inner'],
   form: ['form'],
   repeater: ['items'],
-  taglist: ['tags'],
-  transferlist: ['sourceListItems', 'targetListItems'],
 }
 
 /**
