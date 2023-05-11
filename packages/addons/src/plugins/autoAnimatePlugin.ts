@@ -18,7 +18,7 @@ const animationTargets: Record<string, string[]> = {
   form: ['form'],
   repeater: ['items'],
   taglist: ['tags'],
-  'transfer-list': ['source-list-items', 'target-list-items'],
+  transferlist: ['source-list-items', 'target-list-items'],
 }
 
 /**
