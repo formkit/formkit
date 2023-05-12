@@ -5,6 +5,9 @@
         <router-link to="/basic-form"> Basic Form </router-link>
       </li>
       <li>
+        <router-link to="/auto-animate"> AutoAnimate Example </router-link>
+      </li>
+      <li>
         <router-link to="/async-form-test"> Async Form Test </router-link>
       </li>
       <li>
