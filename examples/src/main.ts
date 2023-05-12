@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr, tr } from '@formkit/i18n'
+import { createMultiStepPlugin } from '@formkit/addons'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
+import AutoAnimate from './vue/examples/AutoAnimate.vue'
 import ThemePlugin from './vue/examples/ThemePlugin.vue'
 import ThirdPartyIcons from './vue/examples/3rdPartyIcons.vue'
 import FormKitIconExample from './vue/examples/FormKitIcon.vue'
@@ -16,8 +18,13 @@ import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
 import Playground from './vue/examples/Playground.vue'
+import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
-import { createAutoAnimatePlugin, createMultiStepPlugin } from '@formkit/addons'
+import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
+import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
+import SyncedLists from './vue/examples/SyncedLists.vue'
+import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
+import Zod from './vue/examples/Zod.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
 
@@ -43,7 +50,7 @@ const config = defaultConfig({
   inputs: { foo: myInput },
   plugins: [
     // proPlugin,
-    createAutoAnimatePlugin(),
+    // createAutoAnimatePlugin(),
     createMultiStepPlugin(),
   ],
 })
@@ -60,8 +67,16 @@ const router = createRouter({
       component: BasicForm,
     },
     {
+      path: '/auto-animate',
+      component: AutoAnimate,
+    },
+    {
       path: '/basic-form',
       component: BasicForm,
+    },
+    {
+      path: '/async-form-test',
+      component: TestAsyncFormSubmit,
     },
     {
       path: '/theme-plugin',
@@ -104,8 +119,59 @@ const router = createRouter({
       component: FloatingLabels,
     },
     {
+      path: '/local-storage',
+      component: LocalStoragePlugin,
+    },
+    {
+      path: '/auto-height-textarea',
+      component: AutoHeightTextarea,
+    },
+    {
       path: '/playground',
       component: Playground,
+    },
+    {
+      path: '/performance',
+      component: Performance,
+    },
+    {
+      path: '/synced-lists',
+      component: SyncedLists,
+    },
+    {
+      path: '/e2e',
+      children: [
+        {
+          path: 'memory-control',
+          component: () => import('./vue/e2e/MemoryTestControl.vue'),
+        },
+        {
+          path: 'memory',
+          component: () => import('./vue/e2e/MemoryTest.vue'),
+        },
+        {
+          path: 'memory-unmount',
+          component: () => import('./vue/e2e/MemoryTestUnmount.vue'),
+          children: [
+            {
+              path: 'schema',
+              component: () => import('./vue/e2e/MemoryTestUnmountSchema.vue'),
+            },
+            {
+              path: 'blank',
+              component: () => import('./vue/e2e/MemoryTestUnmountBlank.vue'),
+            },
+            {
+              path: 'control',
+              component: () => import('./vue/e2e/MemoryTestUnmountControl.vue'),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      path: '/zod',
+      component: Zod,
     },
   ],
 })

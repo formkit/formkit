@@ -77,4 +77,8 @@ export const file: FormKitTypeDefinition = {
     defaultIcon('fileRemove', 'fileRemove'),
     defaultIcon('noFiles', 'noFiles'),
   ],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: '9kqc4852fv8',
 }

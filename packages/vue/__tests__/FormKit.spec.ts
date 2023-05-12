@@ -1,5 +1,5 @@
-import { nextTick, h, reactive, ref } from 'vue'
-import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick, h, reactive, ref, PropType, mergeProps } from 'vue'
+import { mount } from '@vue/test-utils'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
 import defaultConfig from '../src/defaultConfig'
@@ -8,7 +8,9 @@ import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
+import { FormKitFrameworkContext } from '@formkit/core'
+import { createInput } from '../src'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -295,7 +297,7 @@ describe('v-model', () => {
     await nextTick()
     expect(wrapper.find('input').element.value).toBe('jane')
     wrapper.find('input').setValue('jon')
-    await flushPromises()
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.vm.$data.name).toBe('jon')
   })
 
@@ -835,8 +837,8 @@ describe('validation', () => {
   })
 
   it('avoids recursive updates when using state.valid and array computed array rules (#255)', async () => {
-    const warning = jest.fn()
-    const mock = jest.spyOn(global.console, 'warn').mockImplementation(warning)
+    const warning = vi.fn()
+    const mock = vi.spyOn(global.console, 'warn').mockImplementation(warning)
     mount(
       {
         setup() {
@@ -1401,7 +1403,7 @@ describe('plugins', () => {
         })
       }
     }
-    const testPlugin = jest.fn(function testPlugin(node: FormKitNode) {
+    const testPlugin = vi.fn(function testPlugin(node: FormKitNode) {
       node.addProps(['bimBam'])
       expect(node.props.fooBarBaz).toBe('hello world')
       expect(node.props.bimBam).toBe('working')
@@ -1475,7 +1477,7 @@ describe('icons', () => {
   })
 
   it('can register click handlers on icons', async () => {
-    const iconClick = jest.fn()
+    const iconClick = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
         prefixIcon: 'heart',
@@ -1799,9 +1801,11 @@ describe('state', () => {
     await nextTick()
     expect(wrapper.find('pre').text()).toBe('false')
     wrapper.find('input').setValue('bar')
+    await nextTick()
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('pre').text()).toBe('true')
     wrapper.find('input').setValue('foo')
+    await nextTick()
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('pre').text()).toBe('false')
   })
@@ -1859,7 +1863,7 @@ describe('exposures', () => {
       }
     )
     const node = getNode(id)
-    const callback = jest.fn()
+    const callback = vi.fn()
     node?.on('dom-input-event', callback)
     wrapper.find('input').setValue('foo bar')
     expect(callback).toHaveBeenCalledTimes(1)
@@ -1868,7 +1872,7 @@ describe('exposures', () => {
     )
   })
 
-  it('debounces the input event and not the inputRaw event', async () => {
+  it('debounces the input event (not fired on mount) and not the inputRaw event', async () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
@@ -1892,8 +1896,8 @@ describe('exposures', () => {
       },
     })
     await new Promise((r) => setTimeout(r, 50))
-    expect(wrapper.emitted('inputRaw')!.length).toBe(5)
-    expect(wrapper.emitted('input')!.length).toBe(1)
+    expect(wrapper.emitted('inputRaw')!.length).toBe(4)
+    expect(wrapper.emitted('input')).toBe(undefined)
   })
 
   it('can set values on a group with values that dont have correlating nodes', async () => {
@@ -2052,5 +2056,115 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.find('.formkit-label').exists()).toBe(true)
     expect(wrapper.html()).not.toContain('<h1>click me</h1>')
+  })
+
+  it('does not trigger blur twice #413', async () => {
+    const custom = createInput({
+      props: {
+        context: {
+          type: Object as PropType<FormKitFrameworkContext>,
+        },
+      },
+      render(props: { context: FormKitFrameworkContext }) {
+        return h(
+          'input',
+          mergeProps(
+            {
+              onBlur: props.context.handlers.blur,
+            },
+            props.context.attrs
+          )
+        )
+      },
+    })
+    const blur = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: custom,
+        value: 'foo',
+      },
+      attrs: {
+        onBlur: blur,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(1)
+    wrapper.find('input').trigger('blur')
+    await nextTick()
+    expect(blur).toHaveBeenCalledTimes(2)
+  })
+
+  it('can use v-show to hide a field, tests root node (#528)', async () => {
+    const show = ref(true)
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+        },
+        setup() {
+          return { show }
+        },
+        template: `
+        <FormKit type="text" label="hi there" v-show="show" />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(undefined)
+    show.value = false
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('.formkit-outer').attributes('style')).toBe(
+      'display: none;'
+    )
+  })
+
+  it('can toggle between two different keyed components (#690)', async () => {
+    const showA = ref(true)
+    const wrapper = mount(
+      {
+        setup() {
+          return { showA }
+        },
+        template: `
+          <button @click="showA = !showA">Toggle</button>
+          <FormKit
+            v-if="showA"
+            key="a"
+            type="text"
+            name="a"
+            label="Input A"
+            help="edit me to get started"
+          />
+          <FormKit
+            v-else
+            key="b"
+            name="b"
+            type="text"
+            label="Input B"
+            help="edit me to get started"
+          />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('Input A')
+    showA.value = false
+    await nextTick()
+    expect(wrapper.html()).toContain('Input B')
+    showA.value = true
+    await nextTick()
+    expect(wrapper.html()).toContain('Input A')
   })
 })

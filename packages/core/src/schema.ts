@@ -28,13 +28,13 @@ export type FormKitListStatement =
  */
 export type FormKitSchemaMeta = {
   [key: string]:
-  | string
-  | number
-  | boolean
-  | undefined
-  | null
-  | CallableFunction
-  | FormKitSchemaMeta
+    | string
+    | number
+    | boolean
+    | undefined
+    | null
+    | CallableFunction
+    | FormKitSchemaMeta
 }
 
 /**
@@ -99,8 +99,8 @@ export interface FormKitSchemaAttributesCondition {
  */
 export type FormKitSchemaAttributes =
   | {
-    [index: string]: FormKitAttributeValue
-  }
+      [index: string]: FormKitAttributeValue
+    }
   | null
   | FormKitSchemaAttributesCondition
 
@@ -158,6 +158,18 @@ export type FormKitSchemaNode =
   | FormKitSchemaFormKit
 
 /**
+ * An entire schema object or subtree from any entry point. Can be a single
+ * node, an array of nodes, or a conditional. This is the type that is passed to
+ * the FormKitSchema constructor.
+ *
+ * @public
+ */
+export type FormKitSchemaDefinition =
+  | FormKitSchemaNode
+  | FormKitSchemaNode[]
+  | FormKitSchemaCondition
+
+/**
  * Definition for a function that can extend a given schema node.
  *
  * @public
@@ -181,7 +193,8 @@ export interface FormKitExtendableSchemaRoot {
       string,
       Partial<FormKitSchemaNode> | FormKitSchemaCondition
     >
-  ): FormKitSchemaNode[]
+  ): FormKitSchemaDefinition
+  memoKey?: string
 }
 
 /**

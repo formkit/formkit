@@ -12,16 +12,24 @@
       "require": "./dist/module.cjs"
     }
   },
-  "main": "./dist/module.cjs",
+  "module": "./dist/module.mjs",
   "types": "./dist/types.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
     "prepack": "nuxt-module-build",
-    "dev": "nuxi dev playground"
+    "dev": "nuxi dev playground",
+    "build": "nuxi build playground"
   },
   "dependencies": {
-    "@formkit/vue": "0.16.5"
+    "@formkit/core": "0.16.5",
+    "@formkit/i18n": "0.16.5",
+    "@formkit/vue": "0.16.5",
+    "@nuxt/kit": "^3.3.1"
+  },
+  "devDependencies": {
+    "@nuxt/module-builder": "^0.2.1",
+    "@nuxt/schema": "^3.3.1"
   }
 }

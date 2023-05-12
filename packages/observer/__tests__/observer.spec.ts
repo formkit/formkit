@@ -5,7 +5,7 @@ import {
   isKilled,
   FormKitObservedNode,
 } from '../src'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('observer', () => {
   it('can detect requests for value on primary node', () => {
@@ -30,7 +30,7 @@ describe('observer', () => {
     const node = createObserver(
       createNode({ value: 120, config: { label: 'hi', altLabel: 'bye' } })
     )
-    const validation: FormKitWatchable = jest.fn((node) => {
+    const validation: FormKitWatchable = vi.fn((node) => {
       if ((node.value as number) > 123) {
         return node.config.label
       }
@@ -46,11 +46,11 @@ describe('observer', () => {
     const node = createObserver(
       createNode({ value: 1, props: { multiplier: 3, equals: 9 } })
     )
-    const watchable = jest.fn(
+    const watchable = vi.fn(
       (node: FormKitObservedNode) =>
         node.props.multiplier * (node.value as number)
     )
-    const after = jest.fn((value: number) => node.props.equals === value)
+    const after = vi.fn((value: number) => node.props.equals === value)
     node.watch(watchable, after)
     expect(watchable).toHaveBeenCalledTimes(1)
     expect(after).toHaveBeenCalledTimes(1)
@@ -64,6 +64,20 @@ describe('observer', () => {
     expect(after).toHaveBeenCalledTimes(2)
   })
 
+  it('does not call an observer if the value has not changed', () => {
+    const node = createNode({ name: 'username', value: 'foo' })
+    const observed = createObserver(node)
+    const callback = vi.fn((n: FormKitObservedNode) => {
+      if (n.value === 'bar') {
+        // do things
+      }
+    })
+    observed.watch(callback)
+    expect(callback).toHaveBeenCalledTimes(1)
+    node.input('foo', false)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
   it('can watch a node accessing its child', async () => {
     const child = createNode({ name: 'username', value: 'foo' })
     const node = createNode({
@@ -71,8 +85,8 @@ describe('observer', () => {
       children: [child],
     })
     const obs = createObserver(node)
-    const success = jest.fn()
-    const watcher: FormKitWatchable = jest.fn((node) => {
+    const success = vi.fn()
+    const watcher: FormKitWatchable = vi.fn((node) => {
       if (node.at('username')?.value === 'bar') {
         success()
       }
@@ -99,8 +113,8 @@ describe('observer', () => {
       ],
     })
     const obs = createObserver(parent)
-    const success = jest.fn()
-    const watcher: FormKitWatchable = jest.fn((node) => {
+    const success = vi.fn()
+    const watcher: FormKitWatchable = vi.fn((node) => {
       if (node.at('$root')?.props.whale) {
         success()
       }
@@ -133,8 +147,8 @@ describe('observer', () => {
       ],
     })
     const childObserver = createObserver(child)
-    const success = jest.fn()
-    const watcher: FormKitWatchable = jest.fn((child) => {
+    const success = vi.fn()
+    const watcher: FormKitWatchable = vi.fn((child) => {
       if (child.at('$root')?.props.whale) {
         success(child.parent?.props.goose)
       }
@@ -155,8 +169,8 @@ describe('observer', () => {
       type: 'group',
       children: [child],
     })
-    const success = jest.fn()
-    const watcher: FormKitWatchable = jest.fn((node) => {
+    const success = vi.fn()
+    const watcher: FormKitWatchable = vi.fn((node) => {
       if (node.at('username')?.value === 'bar') {
         success()
       }
@@ -188,7 +202,7 @@ describe('observer', () => {
       children: [child],
     })
     node.ledger.count('blocking', (message) => message.blocking)
-    const watcher: FormKitWatchable = jest.fn((node) => {
+    const watcher: FormKitWatchable = vi.fn((node) => {
       return node.ledger.value('blocking')
     })
     const obs = createObserver(node)
@@ -202,7 +216,7 @@ describe('observer', () => {
   it('stops watching when killed', () => {
     const node = createNode()
     const observed = createObserver(node)
-    const watcher = jest.fn((node: FormKitObservedNode) => node.value)
+    const watcher = vi.fn((node: FormKitObservedNode) => node.value)
     observed.watch(watcher)
     expect(watcher).toHaveBeenCalledTimes(1)
     observed.kill()

@@ -3,7 +3,6 @@ import {
   FormKitGroupValue,
   FormKitPlugin,
   FormKitNode,
-  bfs,
   resetCount,
 } from '../src/node'
 import { createConfig } from '../src/config'
@@ -13,9 +12,9 @@ import {
   createShippingTree,
   phoneMask,
   eventCounter,
-} from '../../../.jest/helpers'
+} from '../../../.tests/helpers'
 import { generateClassList } from '../src/classes'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { FormKitMiddleware } from '../src/dispatcher'
 import { has, clone } from '@formkit/utils'
 
@@ -26,7 +25,7 @@ describe('node', () => {
   })
 
   it('emits a singe commit event for type input', () => {
-    const commitEvent = jest.fn()
+    const commitEvent = vi.fn()
     const countEmits = function (node: FormKitNode) {
       node.on('commit', commitEvent)
     }
@@ -34,49 +33,6 @@ describe('node', () => {
     expect(commitEvent).toHaveBeenCalledTimes(1)
     node.input(['a', 'b'], false)
     expect(commitEvent).toHaveBeenCalledTimes(2)
-  })
-
-  it('emits a singe commit event for type list', () => {
-    const commitEvent = jest.fn()
-    const lib = function libraryPlugin() {}
-    lib.library = (node: FormKitNode) => {
-      if (node.props.type === 'list') {
-        node.define({ type: 'list' })
-      } else if (node.props.type === 'group') {
-        node.define({ type: 'group' })
-      } else {
-        node.define({ type: 'input' })
-      }
-    }
-    const node = createNode({
-      props: { type: 'list' },
-      plugins: [lib],
-    })
-    node.on('commit', commitEvent)
-    const parentA = createNode({ props: { type: 'group' }, parent: node })
-    const parentB = createNode({ props: { type: 'group' }, parent: node })
-    const parentC = createNode({ props: { type: 'group' }, parent: node })
-    createNode({
-      name: 'a',
-      props: { type: 'text' },
-      parent: parentA,
-      value: undefined,
-    })
-    createNode({
-      name: 'b',
-      props: { type: 'text' },
-      parent: parentB,
-      value: undefined,
-    })
-    createNode({
-      name: 'c',
-      props: { type: 'text' },
-      parent: parentC,
-      value: undefined,
-    })
-    expect(commitEvent).toHaveBeenCalledTimes(12)
-    node.input([{}, {}, {}], false)
-    expect(commitEvent).toHaveBeenCalledTimes(16)
   })
 
   it('allows configuration to flow to children', () => {
@@ -117,8 +73,8 @@ describe('node', () => {
       type: 'group',
       children: [createNode({ name: 'child' })],
     })
-    const listenerA = jest.fn()
-    const listenerB = jest.fn()
+    const listenerA = vi.fn()
+    const listenerB = vi.fn()
     node.on('config:locale', listenerA)
     node.at('child')!.on('config:locale', listenerB)
     node.config.locale = 'fr'
@@ -138,7 +94,7 @@ describe('node', () => {
 
   it('does not emit config:{property} events when ancestors defines its own local value', () => {
     const node = createNode({
-      // config: { locale: 'en' },
+      config: { locale: 'en' },
       type: 'group',
       children: [
         createNode({
@@ -151,8 +107,8 @@ describe('node', () => {
         }),
       ],
     })
-    const listenerA = jest.fn()
-    const listenerB = jest.fn()
+    const listenerA = vi.fn()
+    const listenerB = vi.fn()
     expect(node.at('list')?.props.locale).toBe('fr')
     expect(node.at('list.0')!.props.locale).toBe('fr')
     node.at('list')!.on('config:locale', listenerA)
@@ -204,7 +160,7 @@ describe('node', () => {
         createNode({ type: 'group', children: [createNode(), createNode()] }),
       ],
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
     tree.each(callback)
     expect(callback).toHaveBeenCalledTimes(3)
   })
@@ -218,7 +174,38 @@ describe('node', () => {
         createNode({ type: 'group', children: [createNode(), createNode()] }),
       ],
     })
-    const callback = jest.fn()
+    const callback = vi.fn()
+    tree.walk(callback)
+    expect(callback).toHaveBeenCalledTimes(5)
+  })
+
+  it('stops traversing nodes when node.walk callback returns false and stopIfFalse is true', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'a' }),
+        createNode({ name: 'b' }),
+        createNode({ name: 'c' }),
+      ],
+    })
+    const callback = vi.fn().mockReturnValue(false)
+    tree.walk(callback, true)
+    expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops traversing nodes when node.walk callback returns false', () => {
+    const tree = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'a' }),
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'b' }), createNode({ name: 'c' })],
+        }),
+        createNode({ name: 'x' }),
+      ],
+    })
+    const callback = vi.fn().mockReturnValue(false)
     tree.walk(callback)
     expect(callback).toHaveBeenCalledTimes(5)
   })
@@ -268,7 +255,7 @@ describe('node', () => {
       },
       children: [createNode({ name: 'child', config: { rootConfig } })],
     })
-    const listener = jest.fn()
+    const listener = vi.fn()
     expect(group.config.foo).toBe('bar')
     expect(group.at('child')?.props.foo).toBe('bar')
     group.at('child')!.on('prop:foo', listener)
@@ -350,66 +337,6 @@ describe('node', () => {
     const child = createNode({ parent })
     expect(parent.children.length).toBe(2)
     expect(child.parent).toBe(parent)
-  })
-
-  it('can get a node’s index', () => {
-    const item = createNode()
-    createNode({
-      type: 'list',
-      children: [createNode(), createNode(), item, createNode()],
-    })
-    expect(item.index).toBe(2)
-  })
-
-  it('allows changing a node’s index by directly assigning it', () => {
-    const moveMe = createNode()
-    const parent = createNode({
-      type: 'list',
-      children: [createNode(), createNode(), moveMe, createNode()],
-    })
-    moveMe.index = 1
-    let children = [...parent.children]
-    expect(children[1]).toBe(moveMe)
-    moveMe.index = 3
-    children = [...parent.children]
-    expect(children[3]).toBe(moveMe)
-    moveMe.index = -1
-    children = [...parent.children]
-    expect(children[0]).toBe(moveMe)
-    moveMe.index = 99
-    children = [...parent.children]
-    expect(children[3]).toBe(moveMe)
-  })
-
-  it('can inject a new child directly into a parent at a given index', () => {
-    const list = createNode({
-      type: 'list',
-      children: [
-        createNode({ value: 'A' }),
-        createNode({ value: 'C' }),
-        createNode({ value: 'D' }),
-      ],
-    })
-    createNode({ value: 'B', parent: list, index: 1 })
-    expect(list.value).toStrictEqual(['A', 'B', 'C', 'D'])
-  })
-
-  it('can inject a new child directly into a parent at a given index and inherit the value', () => {
-    const A = createNode({ value: 'A' })
-    const C = createNode({ value: 'C' })
-    const list = createNode({
-      type: 'list',
-      children: [A, C],
-    })
-    const val = clone(list.value as string[])
-    val.splice(1, 0, 'B')
-    list.input(val, false)
-    expect(list.value).toStrictEqual(['A', 'B', 'C'])
-    const B = createNode({ value: undefined, parent: list, index: 1 })
-    expect(list.value).toStrictEqual(['A', 'B', 'C'])
-    expect(B.value).toBe('B')
-    B.input('Z', false)
-    expect(list.value).toStrictEqual(['A', 'Z', 'C'])
   })
 
   it('can inject a new value into a list without the list immediately inheriting that index’s sub values', () => {
@@ -638,7 +565,7 @@ describe('props system', () => {
   })
 
   it('emits a prop event when a config changes and there is no matching prop', () => {
-    const listener = jest.fn()
+    const listener = vi.fn()
     const node = createNode({
       props: {},
       config: { foo: 'bar' },
@@ -654,7 +581,7 @@ describe('props system', () => {
         name: 'ted',
       },
     })
-    const listener = jest.fn()
+    const listener = vi.fn()
     node.on('prop', listener)
     node.props.name = 'fred'
     expect(listener).toHaveBeenCalledWith({
@@ -671,7 +598,7 @@ describe('props system', () => {
 
 describe('plugin system', () => {
   it('runs plugins on node creation', () => {
-    const plugin = jest.fn(() => {})
+    const plugin = vi.fn(() => {})
     const node = createNode({
       plugins: [plugin],
     })
@@ -679,8 +606,8 @@ describe('plugin system', () => {
   })
 
   it('automatically inherits from parent plugins', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     const parent = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -696,8 +623,8 @@ describe('plugin system', () => {
   })
 
   it('runs inherited plugins when being added to a tree', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     createNode({
       type: 'list',
       plugins: [pluginA],
@@ -712,8 +639,8 @@ describe('plugin system', () => {
   })
 
   it('inherits the plugins when moving between trees', () => {
-    const pluginA = jest.fn(() => {})
-    const pluginB = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
+    const pluginB = vi.fn(() => {})
     const treeA = createNode({
       type: 'group',
       plugins: [pluginA],
@@ -730,7 +657,7 @@ describe('plugin system', () => {
   })
 
   it('does not re-run plugins when moving position in tree', () => {
-    const pluginA = jest.fn(() => {})
+    const pluginA = vi.fn(() => {})
     const child = createNode()
     const treeA = createNode({
       type: 'group',
@@ -813,6 +740,20 @@ describe('input hook', () => {
     await node.settled
     expect(node.value).toBe('hello wor!')
   })
+
+  it('fires the input hook and event on all inputs, but will not commit if the value is the same', () => {
+    const node = createNode({ value: 'hello pluto' })
+    const inputHook = vi.fn((value, next) => next(value))
+    const commitHook = vi.fn((value, next) => next(value))
+    const event = vi.fn(() => {})
+    node.hook.input(inputHook)
+    node.hook.commit(commitHook)
+    node.on('input', event)
+    node.input('hello pluto', false)
+    expect(inputHook).toHaveBeenCalledTimes(1)
+    expect(event).toHaveBeenCalledTimes(1)
+    expect(commitHook).toHaveBeenCalledTimes(0)
+  })
 })
 
 describe('classes hook', () => {
@@ -820,7 +761,7 @@ describe('classes hook', () => {
     const themeMiddleware: FormKitMiddleware<{
       property: string
       classes: Record<string, boolean>
-    }> = jest.fn((obj, next) => {
+    }> = vi.fn((obj, next) => {
       obj.classes.foo = true
       obj.classes.bar = false
       return next(obj)
@@ -842,7 +783,7 @@ describe('classes hook', () => {
 
 describe('commit hook', () => {
   it('can change the value being assigned', async () => {
-    const commitMiddleware: FormKitMiddleware<string> = jest.fn(phoneMask)
+    const commitMiddleware: FormKitMiddleware<string> = vi.fn(phoneMask)
     const phonePlugin: FormKitPlugin = function (node) {
       if (node.type === 'input') {
         node.hook.commit(commitMiddleware)
@@ -972,7 +913,7 @@ describe('value propagation in a node tree', () => {
 
   it('collects values from a groups children', async () => {
     const parent = createNode({ type: 'group' })
-    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = vi.fn(
       (value, next) => next(value)
     )
     parent.hook.commit(commitMiddleware)
@@ -985,14 +926,14 @@ describe('value propagation in a node tree', () => {
     email.input('test@example.com')
     username.input('test-user')
     await username.settled
-    expect(commitMiddleware).toHaveBeenCalledTimes(4) // 2 partials, 1 full commit
+    expect(commitMiddleware).toHaveBeenCalledTimes(3) // 2 partials, 1 full commit
     expect(parent.value).toEqual({ email: undefined, username: 'test-user' })
     await email.settled
     expect(parent.value).toEqual({
       email: 'test@example.com',
       username: 'test-user',
     })
-    expect(commitMiddleware).toHaveBeenCalledTimes(5)
+    expect(commitMiddleware).toHaveBeenCalledTimes(4)
   })
 
   it('collects values from a list of children', async () => {
@@ -1004,7 +945,7 @@ describe('value propagation in a node tree', () => {
         createNode(),
       ],
     })
-    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = jest.fn(
+    const commitMiddleware: FormKitMiddleware<FormKitGroupValue> = vi.fn(
       (value, next) => next(value)
     )
     parent.hook.commit(commitMiddleware)
@@ -1066,49 +1007,6 @@ describe('value propagation in a node tree', () => {
         },
       ],
     })
-  })
-
-  it('can remove a child from the list’s values', async () => {
-    const food = createNode({
-      type: 'list',
-      children: [
-        createNode({ value: 'pizza' }),
-        createNode({ value: 'pasta' }),
-        createNode({ value: 'steak' }),
-        createNode({ value: 'fish' }),
-      ],
-    })
-    food.remove(food.at([2])!)
-    expect(food.children.length).toBe(3)
-    expect(food.isSettled).toBe(true)
-    expect(food.value).toStrictEqual(['pizza', 'pasta', 'fish'])
-  })
-
-  it('can remove a child from a list by destroying it', async () => {
-    const repeater = createNode({
-      type: 'list',
-      children: [
-        createNode({
-          type: 'group',
-          children: [createNode({ name: 'a', value: '123' })],
-        }),
-        createNode({
-          type: 'group',
-          children: [createNode({ name: 'a', value: 'abc' })],
-        }),
-        createNode({
-          type: 'group',
-          children: [createNode({ name: 'a', value: 'xyz' })],
-        }),
-      ],
-    })
-    const commitListener = jest.fn()
-    repeater.on('commit', commitListener)
-    repeater.at('1')?.destroy()
-    await repeater.settled
-    expect(repeater.children.length).toBe(2)
-    expect(repeater.value).toStrictEqual([{ a: '123' }, { a: 'xyz' }])
-    expect(commitListener).toHaveBeenCalledTimes(1)
   })
 
   it('can remove a child from a group’s values', async () => {
@@ -1224,7 +1122,7 @@ describe('value propagation in a node tree', () => {
   })
 
   it('passes initial values through the input middleware', () => {
-    const maskPlugin: FormKitPlugin = jest.fn((n) => {
+    const maskPlugin: FormKitPlugin = vi.fn((n) => {
       n.hook.input(phoneMask)
       // n.hook.init(phoneMask)
     })
@@ -1288,36 +1186,6 @@ describe('value propagation in a node tree', () => {
     expect(treeA.at('b.d')!.value).toBe(456)
   })
 
-  it('can hydrate a list at depth', () => {
-    const tree = createNode({
-      type: 'group',
-      name: 'form',
-      value: {
-        a: 'foo',
-        people: ['first', 'second', 'third'],
-      },
-      children: [
-        createNode({ name: 'a' }),
-        createNode({
-          name: 'people',
-          type: 'list',
-          children: [
-            createNode(),
-            createNode({ value: 'fifth' }),
-            createNode(),
-          ],
-        }),
-      ],
-    })
-    expect(tree.value).toStrictEqual({
-      a: 'foo',
-      people: ['first', 'second', 'third'],
-    })
-    expect(tree.at('people.0')!.value).toBe('first')
-    expect(tree.at('people.1')!.value).toBe('second')
-    expect(tree.at('people.2')!.value).toBe('third')
-  })
-
   it('settles the group when a preserved input is removed', async () => {
     const group = createNode({ type: 'group' })
     const child = createNode({ parent: group, props: { preserve: true } })
@@ -1349,43 +1217,15 @@ describe('value propagation in a node tree', () => {
     })
   })
 
-  describe('bfs', () => {
-    it('searches the parent node first', () => {
-      const parent = createNameTree()
-      expect(bfs(parent, 'tommy')).toBe(parent)
-    })
-
-    it('searches for a name in the children', () => {
-      const parent = createNameTree()
-      expect(bfs(parent, 'wendy')).toBe(parent.at('wendy'))
-    })
-
-    it('allows changing the searched property', () => {
-      const parent = createNameTree()
-      expect(bfs(parent, '555', 'value')).toBe(parent.at('jane'))
-    })
-
-    it('allows a callback to determine the search parameters', () => {
-      const parent = createNameTree()
-      expect(
-        bfs(
-          parent,
-          'radio',
-          (node) => node.name !== 'jane' && node.value === '555'
-        )
-      ).toBe(parent.at('stella.tommy'))
-    })
-
-    it('returns undefined when unable to find a match', () => {
-      const parent = createNameTree()
-      expect(bfs(parent, 'jim')).toBe(undefined)
-    })
-
-    it('searches the entire tree', () => {
-      const parent = createNameTree()
-      const searcher = jest.fn(() => false)
-      bfs(parent, 'jim', searcher)
-      expect(searcher.mock.calls.length).toBe(7)
+  describe('commitRaw', () => {
+    it('emits commitRaw even when the value is the same', () => {
+      const callback = vi.fn()
+      const node = createNode({ value: 'hello' })
+      node.on('commitRaw', callback)
+      node.input('hi', false)
+      expect(callback).toHaveBeenCalledOnce()
+      node.input('hi', false)
+      expect(callback).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -1447,28 +1287,64 @@ describe('resetting', () => {
   })
 
   it('emits an reset event', async () => {
-    const resetEvent = jest.fn()
+    const resetEvent = vi.fn()
     const node = createNode({ value: 'foobar' })
     node.on('reset', resetEvent)
     node.reset()
     expect(resetEvent).toHaveBeenCalledTimes(1)
   })
+
+  it('can reset group to new values which then become the initials', async () => {
+    const node = createNode({
+      type: 'group',
+      value: { foo: 'bar', bim: 'bam' },
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bim' })],
+    })
+    node.reset({ foo: 'abc', bim: 'xyz' })
+    node.input({ foo: 'baz', bim: 'bop' }, false)
+    node.reset()
+    expect(node.at('foo')?.value).toBe('abc')
+    expect(node.at('bim')?.value).toBe('xyz')
+  })
 })
 
 describe('errors', () => {
-  const form = createNode({
-    type: 'group',
-    name: 'myForm',
-    children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+  it('can set and count errors', () => {
+    const form = createNode({
+      type: 'group',
+      name: 'myForm',
+      children: [createNode({ name: 'foo' }), createNode({ name: 'bar' })],
+    })
+    form.ledger.count('errors', (m) => m.type === 'error')
+    form.setErrors(['This is my error'], {
+      foo: 'And this is a child one',
+      bar: ['And this is another child one'],
+    })
+    expect(form.ledger.value('errors')).toBe(3)
+    form.clearErrors(false)
+    expect(form.ledger.value('errors')).toBe(2)
+    form.clearErrors()
+    expect(form.ledger.value('errors')).toBe(0)
   })
-  form.ledger.count('errors', (m) => m.type === 'error')
-  form.setErrors(['This is my error'], {
-    foo: 'And this is a child one',
-    bar: ['And this is another child one'],
+})
+
+declare module '../src/node' {
+  interface FormKitNodeExtensions {
+    foo(): string
+  }
+}
+
+describe('extend', () => {
+  it('can add a new feature to the node', () => {
+    const addFeature: FormKitPlugin = (node) => {
+      node.extend(`foo`, {
+        get: (node) => `${node.name} is foobar`,
+        set: false,
+      })
+    }
+    const user = createNode({ name: 'username', plugins: [addFeature] })
+    expect(user.foo).toBe('username is foobar')
+    user.name = 'new name'
+    expect(user.foo).toBe('new name is foobar')
   })
-  expect(form.ledger.value('errors')).toBe(3)
-  form.clearErrors(false)
-  expect(form.ledger.value('errors')).toBe(2)
-  form.clearErrors()
-  expect(form.ledger.value('errors')).toBe(0)
 })

@@ -272,12 +272,13 @@ export function writePackageJSON(pkg, json) {
 export function getPackageDependencies(pkg) {
   const packageJSON = getPackageJSON(pkg)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
-  const devDependencies = packageJSON.devDependencies
-    ? packageJSON.devDependencies
-    : []
+  // lets not include dev deps for now:
+  // const devDependencies = packageJSON.devDependencies
+  //   ? packageJSON.devDependencies
+  //   : []
   return [
     ...getFKDependenciesFromObj(dependencies),
-    ...getFKDependenciesFromObj(devDependencies),
+    // ...getFKDependenciesFromObj(devDependencies),
   ]
 }
 

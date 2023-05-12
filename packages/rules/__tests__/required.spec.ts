@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import required from '../src/required'
+import { describe, expect, it } from 'vitest'
 
 describe('required rule', () => {
   it('fails on an empty string', () =>

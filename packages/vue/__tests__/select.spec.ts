@@ -6,6 +6,7 @@ import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { nextTick, ref } from 'vue'
+import { describe, expect, it } from 'vitest'
 
 describe('select', () => {
   it('renders a select list with an array of objects', () => {

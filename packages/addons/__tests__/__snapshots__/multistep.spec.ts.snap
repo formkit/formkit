@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`multistep Allows step advancment when current step is invalid but allowIncomplete is true 1`] = `
+exports[`multistep > Allows step advancment when current step is invalid but allowIncomplete is true 1`] = `
 "<div class=\\"formkit-outer\\" id=\\"input_0\\" data-family=\\"multi-step\\" data-type=\\"multi-step\\">
   <div class=\\"formkit-wrapper\\" data-tab-style=\\"progress\\" data-hide-labels=\\"true\\">
     <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"false\\" aria-controls=\\"input_1\\" tabindex=\\"-1\\" style=\\"\\">
@@ -105,7 +105,7 @@ exports[`multistep Allows step advancment when current step is invalid but allow
 </div>"
 `;
 
-exports[`multistep Does not allow step advancment when current step is invalid 1`] = `
+exports[`multistep > Does not allow step advancment when current step is invalid 1`] = `
 "<div class=\\"formkit-outer\\" id=\\"input_0\\" data-family=\\"multi-step\\" data-type=\\"multi-step\\">
   <div class=\\"formkit-wrapper\\" data-tab-style=\\"tab\\" data-hide-labels=\\"false\\">
     <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"true\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"true\\" aria-controls=\\"input_1\\" tabindex=\\"0\\" style=\\"\\"><span class=\\"formkit-tab-label\\">Step One</span><span class=\\"formkit-badge\\" role=\\"presentation\\">1</span>

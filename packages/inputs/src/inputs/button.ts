@@ -52,4 +52,9 @@ export const button: FormKitTypeDefinition = {
    * Additional features that should be added to your input
    */
   features: [localize('submit'), ignores],
+  /**
+   * A key to use for memoizing the schema. This is used to prevent the schema
+   * from needing to be stringified when performing a memo lookup.
+   */
+  schemaMemoKey: 'h6st4epl3j8',
 }

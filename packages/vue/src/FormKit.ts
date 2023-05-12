@@ -1,9 +1,4 @@
-import {
-  error,
-  FormKitNode,
-  FormKitSchemaCondition,
-  FormKitSchemaNode,
-} from '@formkit/core'
+import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
   h,
   ref,
@@ -17,11 +12,30 @@ import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
 
 /**
+ * Flag to determine if we are running on the server.
+ */
+const isServer = typeof window === 'undefined'
+
+/**
  * The symbol that represents the formkit parent injection value.
  *
  * @public
  */
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
+
+/**
+ * This variable is set to the node that is currently having its schema created.
+ *
+ * @internal
+ */
+let currentSchemaNode: FormKitNode | null = null
+
+/**
+ * Returns the node that is currently having its schema created.
+ *
+ * @public
+ */
+export const getCurrentSchemaNode = () => currentSchemaNode
 
 /**
  * The root FormKit component.
@@ -55,32 +69,46 @@ export const FormKit = defineComponent({
           { ...context.slots }
         )
     }
-    const schema = ref<FormKitSchemaCondition | FormKitSchemaNode[]>([])
+    const schema = ref<FormKitSchemaDefinition>([])
+    let memoKey: string | undefined = node.props.definition.schemaMemoKey
     const generateSchema = () => {
       const schemaDefinition = node.props?.definition?.schema
       if (!schemaDefinition) error(601, node)
-      schema.value =
-        typeof schemaDefinition === 'function'
-          ? schemaDefinition({ ...props.sectionsSchema })
-          : schemaDefinition
+      if (typeof schemaDefinition === 'function') {
+        currentSchemaNode = node
+        schema.value = schemaDefinition({ ...props.sectionsSchema })
+        currentSchemaNode = null
+        if (
+          (memoKey && props.sectionsSchema) ||
+          ('memoKey' in schemaDefinition &&
+            typeof schemaDefinition.memoKey === 'string')
+        ) {
+          memoKey =
+            (memoKey ?? schemaDefinition?.memoKey) +
+            JSON.stringify(props.sectionsSchema)
+        }
+      } else {
+        schema.value = schemaDefinition
+      }
     }
     generateSchema()
 
-    // If someone emits the schema event, we re-generate the schema
-    node.on('schema', generateSchema)
+    // // If someone emits the schema event, we re-generate the schema
+    if (!isServer) {
+      node.on('schema', generateSchema)
+    }
 
     context.emit('node', node)
     const library = node.props.definition.library as
       | Record<string, ConcreteComponent>
       | undefined
 
-    // Expose the FormKitNode to template refs.
+    // // Expose the FormKitNode to template refs.
     context.expose({ node })
-
     return () =>
       h(
         FormKitSchema,
-        { schema: schema.value, data: node.context, library },
+        { schema: schema.value, data: node.context, library, memoKey },
         { ...context.slots }
       )
   },

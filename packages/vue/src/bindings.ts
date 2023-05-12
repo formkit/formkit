@@ -83,6 +83,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const hasShownErrors = ref(validationVisibility.value === 'live')
 
   /**
+   * An array of unique identifiers that should only be used for iterating
+   * inside a synced list.
+   */
+  const items = ref(node.children.map((child) => child.uid))
+
+  /**
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
@@ -244,6 +250,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     help: node.props.help,
     id: node.props.id as string,
+    items,
     label: node.props.label,
     messages,
     node: markRaw(node),
@@ -279,7 +286,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     }
     ;(async () => {
       await node.settled
-      node.props._init = cloneAny(node.value)
+      if (node) node.props._init = cloneAny(node.value)
     })()
   })
 
@@ -360,16 +367,24 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * Model updates from core. This is the raw value and should emitted as a
+   * model update even if the value did not update internally. Why? Because
+   * the model that created this event may have not be the same value as our
+   * internal value.
+   *
+   * See test: "emits a modelUpdated event even when the value results in the
+   * same value"
+   */
+  node.on('commitRaw', ({ payload }) => {
+    value.value = _value.value = payload
+    triggerRef(value)
+    node.emit('modelUpdated')
+  })
+
+  /**
    * Watch for input commits from core.
    */
-  node.on('commit', ({ payload }) => {
-    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      value.value = _value.value = shallowClone(payload)
-    } else {
-      value.value = _value.value = payload
-      triggerRef(value)
-    }
-    node.emit('modelUpdated')
+  node.on('commit', () => {
     // The input is dirty after a value has been input by a user
     if (
       (!context.state.dirty || context.dirtyBehavior === 'compare') &&
@@ -388,6 +403,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         (message) =>
           !(message.type === 'error' && message.meta?.autoClear === true)
       )
+    }
+    if (node.type === 'list' && node.sync) {
+      items.value = node.children.map((child) => child.uid)
     }
   })
 
@@ -446,6 +464,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   // The context is complete
   node.emit('context', node, false)
+
+  node.on('destroyed', () => {
+    node.context = undefined
+    /* @ts-ignore */ // eslint-disable-line
+    node = null
+  })
 }
 
 export default vueBindings

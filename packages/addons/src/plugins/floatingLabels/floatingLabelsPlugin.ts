@@ -66,11 +66,14 @@ export function createFloatingLabelsPlugin(
             }
 
             const inputSchema = originalSchema(extensions)
+            const finalSchema = Array.isArray(inputSchema)
+              ? inputSchema[0]
+              : inputSchema
             const [labelParentChildren, labelSection] = findSection(
-              inputSchema,
+              finalSchema,
               'label'
             )
-            const [inputParentChildren] = findSection(inputSchema, 'input')
+            const [inputParentChildren] = findSection(finalSchema, 'input')
 
             if (labelParentChildren && labelSection && inputParentChildren) {
               labelParentChildren.splice(
@@ -84,6 +87,7 @@ export function createFloatingLabelsPlugin(
           }
 
           inputDefinition.schema = higherOrderSchema
+          inputDefinition.schemaMemoKey += '-floating-label'
           node.props.definition = inputDefinition
         }
       })

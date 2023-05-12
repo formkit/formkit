@@ -6,7 +6,7 @@ import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { ref, reactive, h, nextTick } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
@@ -21,7 +21,7 @@ const global: Record<string, Record<string, any>> = {
  * application. This change was needed after:
  * https://github.com/formkit/formkit/pull/581
  */
-declare module '@vue/runtime-core' {
+declare module 'vue' {
   interface ComponentCustomProperties {
     $formkit: FormKitVuePlugin
   }
@@ -104,10 +104,10 @@ describe('value propagation', () => {
     ).toStrictEqual([false, false, false])
     wrapper.vm.values.boxes = ['a', 'b', 'c']
     await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.vm.values.boxes).toStrictEqual(['a', 'b', 'c'])
     expect(
       inputs.map((input) => (input.element as HTMLInputElement).checked)
     ).toStrictEqual([true, true, true])
-    expect(wrapper.vm.values.boxes).toStrictEqual(['a', 'b', 'c'])
   })
 
   it('can set the state of checkboxes from a v-model using vue ref object', async () => {
@@ -144,7 +144,7 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(
       {
         setup() {
@@ -179,7 +179,7 @@ describe('value propagation', () => {
 
 describe('form submission', () => {
   it('wont submit the form when it has errors', async () => {
-    const submitHandler = jest.fn()
+    const submitHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -197,7 +197,7 @@ describe('form submission', () => {
   })
 
   it('will call the submit handler when the form has no errors', async () => {
-    const submitHandler = jest.fn()
+    const submitHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -215,7 +215,7 @@ describe('form submission', () => {
   })
 
   it('sets submitted state when form is submitted', async () => {
-    const submitHandler = jest.fn()
+    const submitHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -237,8 +237,8 @@ describe('form submission', () => {
   })
 
   it('fires a submit-raw event even with validation errors', async () => {
-    const submitHandler = jest.fn()
-    const rawHandler = jest.fn()
+    const submitHandler = vi.fn()
+    const rawHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -281,7 +281,7 @@ describe('form submission', () => {
   })
 
   it('sets a loading state if handler is async', async () => {
-    const submitHandler = jest.fn(() => {
+    const submitHandler = vi.fn(() => {
       return new Promise((r) => setTimeout(r, 20))
     })
     const wrapper = mount(
@@ -745,10 +745,13 @@ describe('form submission', () => {
       {
         methods: {
           doSave() {
-            return new Promise((r) => setTimeout(r, 50))
+            return new Promise((r) => setTimeout(r, 20))
           },
         },
         template: `<FormKit type="form" @submit="doSave">
+          <FormKit type="group">
+            <FormKit type="text" name="foo" />
+          </FormKit>
         <FormKit type="text" name="foo" />
       </FormKit>`,
       },
@@ -759,10 +762,21 @@ describe('form submission', () => {
       }
     )
     const button = wrapper.find('button')
-    wrapper.find('form').element.submit()
+    wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
+    expect(
+      wrapper.findAll('input').map((input) => input.element.disabled)
+    ).toEqual([true, true])
     expect(button.element.disabled).toBe(true)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(
+      false
+    )
+    expect(
+      wrapper.findAll('input').map((input) => input.element.disabled)
+    ).toEqual([false, false])
+    expect(button.element.disabled).toBe(false)
   })
 
   it('the form remains enabled if submit-behavior is live', async () => {
@@ -784,7 +798,7 @@ describe('form submission', () => {
       }
     )
     const button = wrapper.find('button')
-    wrapper.find('form').element.submit()
+    wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 15))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
     expect(button.element.disabled).toBe(false)
@@ -873,10 +887,10 @@ describe('form submission', () => {
 describe('programmatic submission', () => {
   it('can be submitted programmatically', async () => {
     const id = 'programmatic-form-test'
-    const submit = jest.fn()
-    const submitRaw = jest.fn()
-    const warning = jest.fn(() => {})
-    const mock = jest.spyOn(console, 'warn').mockImplementation(warning)
+    const submit = vi.fn()
+    const submitRaw = vi.fn()
+    const warning = vi.fn(() => {})
+    const mock = vi.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
       {
         template: `
@@ -928,8 +942,8 @@ describe('programmatic submission', () => {
 
   it('can be submitted by child node', async () => {
     const id = 'childInput'
-    const submit = jest.fn()
-    const submitRaw = jest.fn()
+    const submit = vi.fn()
+    const submitRaw = vi.fn()
     const wrapper = mount(
       {
         template: `
@@ -979,7 +993,7 @@ describe('programmatic submission', () => {
 
 describe('resetting', () => {
   it('can be reset to a specific value', async () => {
-    const submitHandler = jest.fn()
+    const submitHandler = vi.fn()
     const formId = token()
     const form = mount(
       {
@@ -1035,6 +1049,7 @@ describe('resetting', () => {
         zip: undefined,
       },
     })
+    expect(form.vm.values.propertyIsEnumerable('__init')).toBe(false)
     expect(form.find('.formkit-message').exists()).toBe(false)
   })
 
@@ -1072,7 +1087,7 @@ describe('resetting', () => {
 describe('submit hook', () => {
   it('can change the fields before submitting', async () => {
     const id = 'programmatic-form-test'
-    const submitHandler = jest.fn()
+    const submitHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -1144,7 +1159,7 @@ describe('v-model', () => {
 
 describe('submit-invalid', () => {
   it('calls the submit-invalid handler', async () => {
-    const invalidHandler = jest.fn()
+    const invalidHandler = vi.fn()
     const wrapper = mount(
       {
         methods: {
@@ -1176,7 +1191,7 @@ describe('submit-invalid', () => {
 
 describe('FormKitMessages', () => {
   it('can render messages in a new location', async () => {
-    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+    const handler = vi.fn((_data: any, node?: FormKitNode) => {
       node?.setErrors(['Oops, an error occurred.'])
     })
     const wrapper = mount(
@@ -1214,7 +1229,7 @@ describe('FormKitMessages', () => {
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
   it('can render messages in a new location', async () => {
-    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+    const handler = vi.fn((_data: any, node?: FormKitNode) => {
       node?.setErrors(['Oops, an error occurred.'])
     })
     const wrapper = mount(
@@ -1258,7 +1273,7 @@ describe('FormKitMessages', () => {
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
   it('can render messages in both locations including the original', async () => {
-    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+    const handler = vi.fn((_data: any, node?: FormKitNode) => {
       node?.setErrors(['Oops, an error occurred.'])
     })
     const wrapper = mount(
@@ -1307,7 +1322,7 @@ describe('FormKitMessages', () => {
   })
 
   it('can override the schema of FormKitMessages', async () => {
-    const handler = jest.fn((_data: any, node?: FormKitNode) => {
+    const handler = vi.fn((_data: any, node?: FormKitNode) => {
       node?.setErrors(['Oops, an error occurred.'])
     })
     const wrapper = mount(

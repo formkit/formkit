@@ -278,6 +278,7 @@ function run(
     validation.queued = false
     const newDeps = node.stopObserve()
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
+      // Event callback for when the deps change:
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
       state.rerun = setTimeout(
@@ -458,7 +459,7 @@ function createCustomMessage(
 ): string | undefined {
   const customMessage =
     node.props.validationMessages &&
-      has(node.props.validationMessages, validation.name)
+    has(node.props.validationMessages, validation.name)
       ? node.props.validationMessages[validation.name]
       : undefined
   if (typeof customMessage === 'function') {

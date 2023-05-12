@@ -30,7 +30,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 ### 🥈 Silver sponsors
 <p style="margin-bottom: 1em;">
-  <a href="https://peakcrypto.com">
+  <a href="https://www.peakcrypto.com">
     <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto" style="width: 20%;">
   </a>
 </p>
@@ -51,7 +51,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 ### Backers
 
-[uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic)
+[uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic), [João Bondim](https://github.com/JesterIruka)
 
 <table style="width: 100%;">
 	<tr>

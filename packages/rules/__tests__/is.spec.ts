@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import is from '../src/is'
+import { describe, expect, it } from 'vitest'
 
 describe('is', () => {
   it('fails when not in stack', async () => {

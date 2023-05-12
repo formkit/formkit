@@ -47,9 +47,7 @@
   }
 
   /* border removal for checkbox and radio inputs */
-  @nest
-  [data-type="checkbox"] &,
-  [data-type="radio"] & {
+  @nest [data-type='checkbox'] &, [data-type='radio'] & {
     border: none;
     box-shadow: none;
     display: inline-block;
@@ -66,8 +64,7 @@
     background-color: var(--fk-bg-disabled);
   }
 
-  &[multiple="true"],
-  &[multiple="multiple"] {
+  &[multiple] {
     padding: 0;
 
     & option {
@@ -75,7 +72,7 @@
     }
   }
 
-  @nest input[type="date"]& {
+  @nest input[type='date']& {
     &::-webkit-calendar-picker-indicator {
       padding-top: 0;
       padding-bottom: 0;
@@ -112,7 +109,7 @@
     }
   }
 
-  @nest input[type="radio"]& {
+  @nest input[type='radio']& {
     & ~ .formkit-decorator {
       border-radius: var(--fk-border-radius-full);
 

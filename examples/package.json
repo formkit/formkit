@@ -1,5 +1,6 @@
 {
   "name": "@formkit/examples",
+  "private": true,
   "version": "1.0.0-alpha.0",
   "description": "FormKit examples",
   "main": "index.js",
@@ -7,15 +8,21 @@
   "license": "MIT",
   "dependencies": {
     "@braid/griddle": "^3.1.1",
+    "@formkit/addons": "workspace:^0.16.5",
+    "@formkit/core": "workspace:^0.16.5",
+    "@formkit/i18n": "workspace:^0.16.5",
+    "@formkit/inputs": "workspace:^0.16.5",
+    "@formkit/themes": "workspace:^0.16.5",
+    "@formkit/vue": "workspace:^0.16.5",
+    "@formkit/zod": "workspace:^0.16.5",
     "@types/react-dom": "^17.0.9",
     "@vitejs/plugin-vue": "^1.4.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
     "vite": "^2.4.4",
     "vue-router": "4"
   },
   "devDependencies": {
     "@types/react": "^17.0.19",
-    "sass": "^1.45.1"
+    "sass": "^1.45.1",
+    "zod": "^3.21.4"
   }
 }

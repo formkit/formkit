@@ -65,7 +65,9 @@ export const radio: FormKitTypeDefinition = {
                 decorator(icon('decorator')),
                 suffix()
               ),
-              $if('$option.label', boxLabel('$option.label'))
+              $extend(boxLabel('$option.label'), {
+                if: '$option.label',
+              })
             ),
             boxHelp('$option.help')
           )
@@ -73,7 +75,7 @@ export const radio: FormKitTypeDefinition = {
       )
     ),
     // Help text only goes under the input when it is a single.
-    $if('$options === undefined && $help', help('$help')),
+    $if('$options == undefined && $help', help('$help')),
     messages(message('$message.value'))
   ),
   /**
@@ -98,4 +100,8 @@ export const radio: FormKitTypeDefinition = {
     radios,
     defaultIcon('decorator', 'radioDecorator'),
   ],
+  /**
+   * The key used to memoize the schema.
+   */
+  schemaMemoKey: 'qje02tb3gu8',
 }

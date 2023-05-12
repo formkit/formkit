@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import url from '../src/url'
+import { describe, expect, it } from 'vitest'
 
 describe('url rule', () => {
   it('passes with http://google.com', () =>

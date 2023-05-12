@@ -1,5 +1,6 @@
 import { createNode } from '@formkit/core'
 import alphanumeric from '../src/alphanumeric'
+import { describe, expect, it } from 'vitest'
 
 describe('alphanumeric', () => {
   it('passes with simple string', () =>

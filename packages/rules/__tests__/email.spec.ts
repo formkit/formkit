@@ -1,5 +1,6 @@
 import email from '../src/email'
 import { createNode } from '@formkit/core'
+import { describe, expect, it } from 'vitest'
 
 describe('email', () => {
   it('passes normal email', () =>

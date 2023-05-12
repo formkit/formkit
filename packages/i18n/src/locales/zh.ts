@@ -1,4 +1,4 @@
-import { FormKitValidationMessages } from '@formkit/validation'
+import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -60,11 +60,11 @@ export const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons that navigate state backward
    */
-  prev: '以前',
+  prev: '上一步',
   /**
    * Shown when adding all values.
    */
-  addAllValues: '将所有值相加',
+  addAllValues: '添加所有值',
   /**
    * Shown when adding selected values.
    */
@@ -148,6 +148,106 @@ export const validation: FormKitValidationMessages = {
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
     return `${s(name)}只能包含字母和空格。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter.
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha}
+   */
+  contains_alpha({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical characters."> */
+    return `${s(name)} 必须包含字母字符`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no alphanumeric
+   * @see {@link https://formkit.com/essentials/validation#contains_alphanumeric}
+   */
+  contains_alphanumeric({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphanumeric characters."> */
+    return `${s(name)} 必须包含字母或数字。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no letter and/or spaces
+   * @see {@link https://formkit.com/essentials/validation#contains_alpha-spaces}
+   */
+  contains_alpha_spaces({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical and non-space characters."> */
+    return `${s(name)} 必须包含字母或空格。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no symbol
+   * @see {@link https://formkit.com/essentials/validation#contains_symbol}
+   */
+  contains_symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only alphanumeric and space characters."> */
+    return `${s(name)} 必须包含符号。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no uppercase
+   * @see {@link https://formkit.com/essentials/validation#contains_uppercase}
+   */
+  contains_uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-uppercase characters."> */
+    return `${s(name)} 必须包含大写字母。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value have no lowercase
+   * @see {@link https://formkit.com/essentials/validation#contains_lowercase}
+   */
+  contains_lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains only non-alphabetical-lowercase characters."> */
+    return `${s(name)} 必须包含小写字母。`
+    /* </i18n> */
+  },
+
+  /**
+   *  The value have no numeric
+   * @see {@link https://formkit.com/essentials/validation#contains_numeric}
+   */
+  contains_numeric({ name }) {
+    /* <i18n case="Shown when the user-provided value have no numeric."> */
+    return `${s(name)} 必须包含数字。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not symbol
+   * @see {@link https://formkit.com/essentials/validation#symbol}
+   */
+  symbol({ name }) {
+    /* <i18n case="Shown when the user-provided value contains alphanumeric and space characters."> */
+    return `${s(name)} 必须是符号。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not uppercase
+   * @see {@link https://formkit.com/essentials/validation#uppercase}
+   */
+  uppercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-uppercase characters."> */
+    return `${s(name)} 只能包含大写字母。`
+    /* </i18n> */
+  },
+
+  /**
+   * The value is not lowercase
+   * @see {@link https://formkit.com/essentials/validation#lowercase}
+   */
+  lowercase({ name }) {
+    /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
+    return `${s(name)} 只能包含小写字母。`
     /* </i18n> */
   },
 
@@ -347,6 +447,24 @@ export const validation: FormKitValidationMessages = {
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
     return `${s(name)}必须为数字。`
+    /* </i18n> */
+  },
+
+  /**
+   * Require one field.
+   * @see {@link https://formkit.com/essentials/validation#require-one}
+   */
+  require_one: ({ name, node, args: inputNames }) => {
+    const labels = inputNames.map(name => {
+      const dependentNode = node.at(name)
+      if (dependentNode) {
+return createMessageName(dependentNode)
+      }
+      return false
+    }).filter(name => !!name)
+    labels.unshift(name)
+    /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
+    return `${labels.join('或')}${labels}需要。`
     /* </i18n> */
   },
 

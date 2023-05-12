@@ -1,17 +1,23 @@
+import { isObject, token } from '@formkit/utils'
 import {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
   FormKitSchemaNode,
-  FormKitSchemaDOMNode,
-  FormKitSchemaComponent,
-  FormKitSchemaFormKit,
   FormKitSchemaCondition,
-  FormKitSchemaComposable,
+  FormKitSchemaDefinition,
   isComponent,
   isDOM,
   isConditional,
   warn,
+  FormKitSchemaDOMNode,
 } from '@formkit/core'
+import {
+  isSchemaObject,
+  extendSchema,
+  FormKitSection,
+  FormKitSchemaExtendableSection,
+  createRoot,
+} from './createSection'
 import {
   outer,
   wrapper,
@@ -23,7 +29,7 @@ import {
   message,
   help,
 } from './sections'
-import { clone, extend, isObject, token } from '@formkit/utils'
+import { FormKitSchemaComponent } from 'packages/core/src'
 
 /**
  * Either a schema node, or a function that returns a schema node.
@@ -31,32 +37,8 @@ import { clone, extend, isObject, token } from '@formkit/utils'
  * @public
  */
 export type FormKitInputSchema =
-  | ((
-      children?: string | FormKitSchemaNode[] | FormKitSchemaCondition
-    ) => FormKitSchemaNode)
+  | ((children?: FormKitSchemaDefinition) => FormKitSchemaNode)
   | FormKitSchemaNode
-
-/**
- * Type guard for schema objects.
- *
- * @param schema - returns `true` if the node is a schema node but not a string
- * or conditional.
- *
- * @returns `boolean`
- *
- * @public
- */
-export function isSchemaObject(
-  schema: Partial<FormKitSchemaNode>
-): schema is
-  | FormKitSchemaDOMNode
-  | FormKitSchemaComponent
-  | FormKitSchemaFormKit {
-  return (
-    typeof schema === 'object' &&
-    ('$el' in schema || '$cmp' in schema || '$formkit' in schema)
-  )
-}
 
 /**
  * Checks if the current schema node is a slot condition.
@@ -98,7 +80,7 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
 /**
  * Finds a seciton by name in a schema.
  *
- * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param schema - A {@link @formkit/core#FormKitSchemaDefinition | FormKitSchemaDefinition} array.
  * @param target - The name of the section to find.
  *
  * @returns a tuple of the schema and the section or a tuple of `false` and `false` if not found.
@@ -106,97 +88,80 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
  * @public
  */
 export function findSection(
-  schema: FormKitSchemaNode[],
+  schema: FormKitSchemaDefinition,
   target: string
-): [false, false] | [FormKitSchemaNode[], FormKitSchemaCondition] {
-  for (let index = 0; index < schema.length; index++) {
-    const section = schema[index]
-    if (isSlotCondition(section)) {
-      if (isComponent(section.else) || isDOM(section.else)) {
-        if (section.else.meta?.section === target) {
-          return [schema, section]
-        } else if (
-          section.else.children &&
-          Array.isArray(section.else.children) &&
-          section.else.children.length
-        ) {
-          const found = findSection(section.else.children, target)
-          if (found[0]) {
-            return found
-          }
+): [false, false] | [FormKitSchemaNode[] | false, FormKitSchemaCondition] {
+  return (
+    eachSection(
+      schema,
+      (section, parent, schemaCondition) => {
+        if (section.meta?.section === target) {
+          return [parent, schemaCondition]
         }
-      }
-    }
-  }
-  return [false, false]
+        return
+      },
+      true
+    ) ?? [false, false]
+  )
 }
 
 /**
- * Extends a single schema node with an extension. The extension can be any
- * partial node including strings.
+ * Runs a callback over every section in a schema. if stopOnCallbackReturn is true
+ * and the callback returns a value, the loop will stop and return that value.
  *
- * @param schema - The base schema node.
- * @param extension - The values to extend on the base schema node.
+ * @param schema - A {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode} array.
+ * @param callback - A callback to run on every section.
+ * @param stopOnCallbackReturn - If true, the loop will stop if the callback returns a value.
+ * @param schemaParent - The parent of the current schema node.
  *
- * @returns {@link @formkit/core#FormKitSchemaNode | FormKitSchemaNode}
- *
- * @public
- */
-export function extendSchema(
-  schema: FormKitSchemaNode,
-  extension: Partial<FormKitSchemaNode> = {}
-): FormKitSchemaNode {
-  if (typeof schema === 'string') {
-    return isSchemaObject(extension) || typeof extension === 'string'
-      ? extension
-      : schema
-  } else if (Array.isArray(schema)) {
-    return isSchemaObject(extension) ? extension : schema
-  }
-  return extend(schema, extension) as FormKitSchemaNode
-}
-
-/**
- * @deprecated This function is deprecated. Use `createSection` instead!
- *
- * @param key - A new section key name.
- * @param schema - The default schema in this composable slot.
- *
- * @returns {@link @formkit/core#FormKitSchemaComposable | FormKitSchemaComposable}
+ * @returns
  *
  * @public
  */
-export function composable(
-  key: string,
-  schema: FormKitInputSchema
-): FormKitSchemaComposable {
-  warn(800, 'composable function')
-  return (extendWith = {}, children = undefined) => {
-    const root =
-      typeof schema === 'function'
-        ? schema(children)
-        : typeof schema === 'object'
-        ? (clone(schema as Record<string, unknown>) as
-            | FormKitSchemaDOMNode
-            | FormKitSchemaComponent
-            | FormKitSchemaFormKit
-            | FormKitSchemaCondition)
-        : schema
-    const isObj = isSchemaObject(root)
-    if (isObj && !('children' in root) && children) {
-      if (Array.isArray(children)) {
-        if (children.length) {
-          root.children = children
-        }
-      } else {
-        root.children = [children]
+export function eachSection<T>(
+  schema: FormKitSchemaDefinition,
+  callback: (
+    section: FormKitSchemaComponent | FormKitSchemaDOMNode,
+    schemaParent: FormKitSchemaNode[],
+    schema: FormKitSchemaCondition
+  ) => T,
+  stopOnCallbackReturn = false,
+  schemaParent: FormKitSchemaNode[] = []
+): T | void {
+  if (Array.isArray(schema)) {
+    for (const section of schema) {
+      const callbackReturn = eachSection(
+        section,
+        callback,
+        stopOnCallbackReturn,
+        schema
+      )
+      if (callbackReturn && stopOnCallbackReturn) {
+        return callbackReturn
       }
     }
-    const extended = extendSchema(root, extendWith)
-    return {
-      if: `$slots.${key}`,
-      then: `$slots.${key}`,
-      else: Array.isArray(extended) ? extended : [extended],
+    return
+  }
+  if (isSlotCondition(schema)) {
+    if (isComponent(schema.else) || isDOM(schema.else)) {
+      if (schema.else.meta) {
+        const callbackReturn = callback(schema.else, schemaParent, schema)
+        if (callbackReturn && stopOnCallbackReturn) {
+          return callbackReturn
+        }
+      }
+      if (
+        schema.else.children &&
+        Array.isArray(schema.else.children) &&
+        schema.else.children.length
+      ) {
+        return eachSection(
+          schema.else.children,
+          callback,
+          stopOnCallbackReturn,
+          schemaParent
+        )
+      }
     }
   }
 }
@@ -212,7 +177,7 @@ export function composable(
  */
 export function useSchema(
   inputSection: FormKitSection
-): FormKitExtendableSchemaRoot {
+): FormKitSchemaExtendableSection {
   return outer(
     wrapper(label('$label'), inner(prefix(), inputSection(), suffix())),
     help('$help'),
@@ -221,132 +186,6 @@ export function useSchema(
 }
 
 // ========================================================
-
-/**
- * A function that is called with an extensions argument and returns a valid
- * schema node.
- *
- * @public
- */
-export interface FormKitSchemaExtendableSection {
-  (extensions: Record<string, Partial<FormKitSchemaNode>>): FormKitSchemaNode
-  _s?: string
-}
-
-/**
- * A function that when called, returns a function that can in turn be called
- * with an extension parameter.
- *
- * @public
- */
-export interface FormKitSection<T = FormKitSchemaExtendableSection> {
-  (...children: Array<FormKitSchemaExtendableSection | string>): T
-}
-
-/**
- * Creates a new reusable section.
- *
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- * @param root - When true, returns a FormKitExtendableSchemaRoot. When false,
- * returns a FormKitSchemaExtendableSection.
- *
- * @returns Returns a {@link @formkit/core#FormKitExtendableSchemaRoot
- * | FormKitExtendableSchemaRoot} or a {@link
- * @formkit/core#FormKitSchemaExtendableSection | FormKitSchemaExtendableSection}.
- *
- * @public
- */
-export function createSection(
-  section: string,
-  el: string | null | (() => FormKitSchemaNode),
-  root: true
-): FormKitSection<FormKitExtendableSchemaRoot>
-
-/**
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- *
- * @public
- */
-export function createSection(
-  section: string,
-  el: string | null | (() => FormKitSchemaNode)
-): FormKitSection<FormKitSchemaExtendableSection>
-
-/**
- * @param section - A single section of schema
- * @param el - The element or a function that returns a schema node.
- * @param root - When false, returns a FormKitSchemaExtendableSection.
- *
- * @public
- */
-export function createSection(
-  section: string,
-  el: string | (() => FormKitSchemaNode),
-  root: false
-): FormKitSection<FormKitSchemaExtendableSection>
-
-export function createSection(
-  section: string,
-  el: string | null | (() => FormKitSchemaNode),
-  root = false
-): FormKitSection<
-  FormKitExtendableSchemaRoot | FormKitSchemaExtendableSection
-> {
-  return (...children: Array<FormKitSchemaExtendableSection | string>) => {
-    const extendable = (
-      extensions: Record<string, Partial<FormKitSchemaNode>>
-    ) => {
-      const node = !el || typeof el === 'string' ? { $el: el } : el()
-      if (isDOM(node) || isComponent(node)) {
-        if (!node.meta) {
-          node.meta = { section }
-        }
-        if (children.length && !node.children) {
-          node.children = [
-            ...children.map((child) =>
-              typeof child === 'string' ? child : child(extensions)
-            ),
-          ]
-        }
-        if (isDOM(node)) {
-          node.attrs = {
-            class: `$classes.${section}`,
-            ...(node.attrs || {}),
-          }
-        }
-      }
-      return {
-        if: `$slots.${section}`,
-        then: `$slots.${section}`,
-        else:
-          section in extensions
-            ? extendSchema(node, extensions[section])
-            : node,
-      }
-    }
-    extendable._s = section
-    return root ? createRoot(extendable) : extendable
-  }
-}
-
-/**
- * Returns an extendable schema root node.
- *
- * @param rootSection - Creates the root node.
- *
- * @returns {@link @formkit/core#FormKitExtendableSchemaRoot | FormKitExtendableSchemaRoot}
- *
- * @internal
- */
-function createRoot(
-  rootSection: FormKitSchemaExtendableSection
-): FormKitExtendableSchemaRoot {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
-    return [rootSection(extensions)]
-  }
-}
 
 /**
  * Applies attributes to a given schema section by applying a higher order
@@ -501,6 +340,7 @@ export function $extend(
 export function $root(
   section: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
+  warn(800, '$root')
   return createRoot(section)
 }
 

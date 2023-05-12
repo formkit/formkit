@@ -45,7 +45,10 @@ export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
  *
  * @public
  */
-export type FormKitObserverReceipts = Map<FormKitNode, { [index: string]: string }>
+export type FormKitObserverReceipts = Map<
+  FormKitNode,
+  { [index: string]: string }
+>
 
 /**
  * A callback to watch for nodes.
@@ -197,6 +200,7 @@ export function createObserver(
  * Given two maps (`toAdd` and `toRemove`), apply the dependencies as event
  * listeners on the underlying nodes.
  * @param node - The node to apply dependencies to.
+ * @param deps - A tuple of toAdd and toRemove FormKitDependencies maps.
  * @param callback - The callback to add or remove.
  * @internal
  */
@@ -248,6 +252,7 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
  * code when those dependencies are manipulated.
  * @param node - The node to observer
  * @param block - The block of code to observe
+ * @param after - A function to call after a effect has been run.
  * @public
  */
 function watch<T extends FormKitWatchable>(

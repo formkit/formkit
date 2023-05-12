@@ -16,6 +16,7 @@ import {
   Ref,
   getCurrentInstance,
   ConcreteComponent,
+  onUnmounted,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -29,12 +30,19 @@ import {
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
   FormKitCompilerOutput,
+  FormKitSchemaDefinition,
   getNode,
   warn,
   watchRegistry,
   isNode,
   sugar,
 } from '@formkit/core'
+import { onSSRComplete } from './composables/onSSRComplete'
+
+/**
+ * A simple flag to tell if we are running on the server or not.
+ */
+const isServer = typeof window === 'undefined'
 
 /**
  * A library of components available to the schema (in addition to globally
@@ -109,7 +117,7 @@ export type RenderableSlots = Record<string, RenderableSlot>
  */
 export type RenderableSlot = (
   data?: Record<string, any>,
-  key?: symbol
+  key?: object
 ) => RenderableList
 /**
  * Describes renderable children.
@@ -126,10 +134,12 @@ interface RenderNodes {
   (iterationData?: Record<string, unknown>): Renderable | Renderable[]
 }
 
-type SchemaProvider = (
-  providerCallback: SchemaProviderCallback,
-  instanceKey: symbol
-) => RenderChildren
+interface SchemaProvider {
+  (
+    providerCallback: SchemaProviderCallback,
+    instanceKey: object
+  ): RenderChildren
+}
 
 type SchemaProviderCallback = (
   requirements: string[],
@@ -138,7 +148,7 @@ type SchemaProviderCallback = (
 
 type ProviderRegistry = ((
   providerCallback: SchemaProviderCallback,
-  key: symbol
+  key: object
 ) => void)[]
 
 /**
@@ -148,16 +158,27 @@ type ProviderRegistry = ((
 const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
 
 /**
- * This symbol represents the current component instance during render. It is
+ * A map of memoized keys to how many instances of that memo are currently in
+ * use.
+ */
+const memoKeys: Record<string, number> = {}
+
+/**
+ * This object represents the current component instance during render. It is
  * critical for linking the current instance to the data required for render.
  */
-let instanceKey: symbol
+let instanceKey: object
 
 /**
  * A registry of scoped data produced during runtime that is keyed by the
- * instance symbol. For example data from: for-loop instances and slot data.
+ * instance object. For example data from: for-loop instances and slot data.
  */
-const instanceScopes = new Map<symbol, Record<string, any>[]>()
+// NOTE: This is a hack to get around the fact that the TS compiler doesn't
+// understand WeakMap's allowing us to use a object as a keys, see:
+// https://github.com/microsoft/TypeScript/issues/52534
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const instanceScopes = new WeakMap<object, Record<string, any>[]>()
 
 /**
  * Indicates the a section of the schema is raw.
@@ -262,7 +283,8 @@ function get(nodeRefs: Record<string, Ref<unknown>>, id?: string) {
  */
 function parseSchema(
   library: FormKitComponentLibrary,
-  schema: FormKitSchemaNode | FormKitSchemaNode[]
+  schema: FormKitSchemaNode | FormKitSchemaNode[],
+  memoKey?: string
 ): SchemaProvider {
   /**
    * Given an if/then/else schema node, pre-compile the node and return the
@@ -481,7 +503,7 @@ function parseSchema(
           return {
             default(
               slotData?: Record<string, any>,
-              key?: symbol
+              key?: object
             ): RenderableList {
               // We need to switch the current instance key back to the one that
               // originally called this component's render function.
@@ -601,7 +623,7 @@ function parseSchema(
       const [getValues, valueName, keyName] = iterator
       createNodes = (() => {
         const _v = getValues()
-        const values = !isNaN(_v as number)
+        const values = Number.isFinite(_v)
           ? Array(Number(_v))
               .fill(0)
               .map((_, i) => i)
@@ -626,7 +648,7 @@ function parseSchema(
                 },
                 {} as Record<string, undefined>
               ),
-              [valueName]: values[key],
+              [valueName]: (values as Record<string, any>)[key],
               ...(keyName !== null
                 ? { [keyName]: isArray ? Number(key) : key }
                 : {}),
@@ -679,37 +701,49 @@ function parseSchema(
     compiled: FormKitCompilerOutput,
     hints: Record<string, boolean> = {}
   ) {
-    const compiledFns: Record<symbol, FormKitCompilerOutput> = {}
-    providers.push((callback: SchemaProviderCallback, key: symbol) => {
-      compiledFns[key] = compiled.provide((tokens) => callback(tokens, hints))
+    const compiledFns = new WeakMap<object, FormKitCompilerOutput>()
+    providers.push((callback: SchemaProviderCallback, key: object) => {
+      compiledFns.set(
+        key,
+        compiled.provide((tokens) => callback(tokens, hints))
+      )
     })
-    return () => compiledFns[instanceKey]()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return () => compiledFns.get(instanceKey)!()
   }
 
   /**
    * Creates a new instance of a given schema — this either comes from a
-   * memoized copy of the parsed schema or a freshly parsed version. An symbol
+   * memoized copy of the parsed schema or a freshly parsed version. An object
    * instance key, and dataProvider functions are passed in.
    * @param providerCallback - A function that is called for each required provider
-   * @param key - a symbol representing the current instance
+   * @param key - a object representing the current instance
    */
-  return function createInstance(
+  function createInstance(
     providerCallback: SchemaProviderCallback,
-    key
+    key: object
   ) {
-    const memoKey = JSON.stringify(schema)
+    memoKey ??= JSON.stringify(schema)
     const [render, compiledProviders] = has(memo, memoKey)
       ? memo[memoKey]
       : [createElements(library, schema), providers]
-    memo[memoKey] = [render, compiledProviders]
+
+    if (!isServer) {
+      memoKeys[memoKey] ??= 0
+      memoKeys[memoKey]++
+      memo[memoKey] = [render, compiledProviders]
+    }
+
     compiledProviders.forEach((compiledProvider) => {
       compiledProvider(providerCallback, key)
     })
     return () => {
+      // Set the instance key for this pass of rendering.
       instanceKey = key
       return render()
     }
   }
+  return createInstance
 }
 
 /**
@@ -729,7 +763,7 @@ function useScope(token: string, defaultValue: any) {
 /**
  * Get the current scoped data and flatten it.
  */
-function slotData(data: Record<string, any>, key: symbol) {
+function slotData(data: Record<string, any>, key: object) {
   return new Proxy(data, {
     get(...args) {
       let data: any = undefined
@@ -754,7 +788,7 @@ function slotData(data: Record<string, any>, key: symbol) {
 function createRenderFn(
   instanceCreator: SchemaProvider,
   data: Record<string, any>,
-  instanceKey: symbol
+  instanceKey: object
 ) {
   return instanceCreator(
     (requirements, hints: Record<string, boolean> = {}) => {
@@ -785,7 +819,26 @@ function createRenderFn(
   )
 }
 
-let i = 0
+/**
+ * Removes the schema from the memo and cleans up the instance scope.
+ * @param schema - The schema to remove from memo.
+ * @param instanceKey - The instance key to remove.
+ */
+function clean(
+  schema: FormKitSchemaDefinition,
+  memoKey: string | undefined,
+  instanceKey: object
+) {
+  memoKey ??= JSON.stringify(schema)
+  memoKeys[memoKey]--
+  if (memoKeys[memoKey] === 0) {
+    delete memoKeys[memoKey]
+    const [, providers] = memo[memoKey]
+    delete memo[memoKey]
+    providers.length = 0
+  }
+  instanceScopes.delete(instanceKey)
+}
 
 /**
  * The FormKitSchema vue component:
@@ -796,9 +849,7 @@ export const FormKitSchema = defineComponent({
   name: 'FormKitSchema',
   props: {
     schema: {
-      type: [Array, Object] as PropType<
-        FormKitSchemaNode[] | FormKitSchemaCondition
-      >,
+      type: [Array, Object] as PropType<FormKitSchemaDefinition>,
       required: true,
     },
     data: {
@@ -809,41 +860,71 @@ export const FormKitSchema = defineComponent({
       type: Object as PropType<FormKitComponentLibrary>,
       default: () => ({}),
     },
+    memoKey: {
+      type: String,
+      required: false,
+    },
   },
   setup(props, context) {
     const instance = getCurrentInstance()
-    let instanceKey = Symbol(String(i++))
+    let instanceKey = {}
     instanceScopes.set(instanceKey, [])
-    let provider = parseSchema(props.library, props.schema)
+    let provider = parseSchema(props.library, props.schema, props.memoKey)
     let render: RenderChildren
     let data: Record<string, any>
-    // Re-parse the schema if it changes:
-    watch(
-      () => props.schema,
-      (newSchema, oldSchema) => {
-        instanceKey = Symbol(String(i++))
-        provider = parseSchema(props.library, props.schema)
-        render = createRenderFn(provider, data, instanceKey)
-        if (newSchema === oldSchema) {
-          // In this edge case, someone pushed/modified something in the schema
-          // and we've successfully re-parsed, but since the schema is not
-          // referenced in the render function it technically isnt a dependency
-          // and we need to force a re-render since we swapped out the render
-          // function completely.
-          ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
-        }
-      },
-      { deep: true }
-    )
+    // // Re-parse the schema if it changes:
+    if (!isServer) {
+      watch(
+        () => props.schema,
+        (newSchema, oldSchema) => {
+          const oldKey = instanceKey
+          instanceKey = {}
+          provider = parseSchema(props.library, props.schema, props.memoKey)
+          render = createRenderFn(provider, data, instanceKey)
+          if (newSchema === oldSchema) {
+            // In this edge case, someone pushed/modified something in the schema
+            // and we've successfully re-parsed, but since the schema is not
+            // referenced in the render function it technically isnt a dependency
+            // and we need to force a re-render since we swapped out the render
+            // function completely.
+            ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
+          }
+          clean(props.schema, props.memoKey, oldKey)
+        },
+        { deep: true }
+      )
+    }
 
-    // Watch the data object explicitly
+    // // Watch the data object explicitly
     watchEffect(() => {
-      data = Object.assign(reactive(props.data), {
+      data = Object.assign(reactive(props.data ?? {}), {
         slots: context.slots,
       })
+      context.slots
       render = createRenderFn(provider, data, instanceKey)
     })
-    return () => render()
+
+    /**
+     * Perform cleanup operations when the component is unmounted. This should
+     * remove any memory allocations that were made during the render process.
+     */
+    function cleanUp() {
+      // Perform cleanup operations
+      clean(props.schema, props.memoKey, instanceKey)
+      /* eslint-disable @typescript-eslint/no-non-null-assertion */
+      if (data.node) data.node.destroy()
+      data.slots = null!
+      data = null!
+      render = null!
+      /* eslint-enable @typescript-eslint/no-non-null-assertion */
+    }
+
+    // For browser rendering:
+    onUnmounted(cleanUp)
+    // For SSR rendering:
+    onSSRComplete(getCurrentInstance()?.appContext.app, cleanUp)
+
+    return () => (render ? render() : null)
   },
 })
 

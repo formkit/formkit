@@ -17,11 +17,6 @@ export { useInput, FormKitComponentProps } from './composables/useInput'
 export { createInput } from './composables/createInput'
 
 /**
- * A special watcher for Vue that reports the location of a deep mutation.
- */
-export { default as watchVerbose } from './composables/watchVerbose'
-
-/**
  * The plugin and plugin types.
  */
 export * from './plugin'
@@ -29,7 +24,11 @@ export * from './plugin'
 /**
  * The root FormKit component.
  */
-export { default as FormKit, parentSymbol } from './FormKit'
+export {
+  default as FormKit,
+  parentSymbol,
+  getCurrentSchemaNode,
+} from './FormKit'
 
 /**
  * The FormKitMessages component.
@@ -40,12 +39,24 @@ export { FormKitMessages } from './FormKitMessages'
 /**
  * The FormKitSchema component.
  */
-export { FormKitSchema, Renderable, RenderableList, RenderableSlot, RenderableSlots, FormKitComponentLibrary, VirtualNode } from './FormKitSchema'
+export {
+  FormKitSchema,
+  Renderable,
+  RenderableList,
+  RenderableSlot,
+  RenderableSlots,
+  FormKitComponentLibrary,
+  VirtualNode,
+} from './FormKitSchema'
 
 /**
  * The default configuration.
  */
-export { default as defaultConfig, DefaultConfigOptions, PluginConfigs } from './defaultConfig'
+export {
+  default as defaultConfig,
+  DefaultConfigOptions,
+  PluginConfigs,
+} from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all
@@ -69,3 +80,8 @@ export {
   submitForm,
   reset,
 } from '@formkit/core'
+
+/**
+ * SSR support for cleanup operations relating to SSR.
+ */
+export { ssrComplete, onSSRComplete } from './composables/onSSRComplete'

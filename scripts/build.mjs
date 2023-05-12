@@ -48,6 +48,16 @@ declare module 'vue' {
   }
 }
 `,
+  zod: `
+/**
+ * Extend FormKitNode with setZodErrors.
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    setZodErrors(zodError: z.ZodError | undefined): FormKitNode
+  }
+}
+`,
 }
 
 const __filename = fileURLToPath(import.meta.url)
@@ -165,13 +175,12 @@ export async function inputsBuildExtras() {
   msg.info('» Exporting inputs by type')
   const inputs = getInputs()
   const distDir = resolve(packagesDir, 'inputs/dist/exports')
-  console.log(distDir)
   await fs.mkdir(distDir, { recursive: true })
   await Promise.all(
     inputs.map(async (input) => {
       // await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
       let fileData = await fs.readFile(input.filePath, { encoding: 'utf8' })
-      fileData = fileData.replace("} from '../compose'", "} from '../'")
+      fileData = fileData.replace("} from '../compose'", "} from '../index'")
       await fs.writeFile(resolve(distDir, `${input.name}.ts`), fileData)
     })
   )
@@ -287,7 +296,7 @@ async function buildNuxtModule() {
   msg.loader.text = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
     exec(
-      'cd ./packages/nuxt && yarn prepack && cd ../../',
+      'cd ./packages/nuxt && pnpm prepack && cd ../../',
       (err, stdout, stderr) => {
         if (err) {
           reject(stderr)
@@ -347,7 +356,8 @@ async function declarations(p, plugin = '') {
     ])
   } else {
     msg.loader.text = `Rolling up type declarations`
-    apiExtractor(p)
+    await apiExtractor(p)
+    console.log('done rolling up')
   }
 }
 

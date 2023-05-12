@@ -3,9 +3,9 @@ import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 
-describe('numeric lists', () => {
+describe('standard lists', () => {
   it('uses list index as key', () => {
     mount(
       {
@@ -150,12 +150,12 @@ describe('numeric lists', () => {
     expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
   })
 
-  it('can can replace the value array', () => {
+  it('can replace the value array', async () => {
     const middleware: FormKitMiddleware<any[]> = (value, next) => {
       return next(value.map((childValue: any) => childValue))
-      // return next(value)
     }
-    const hookCallback = jest.fn(middleware)
+    const warn = vi.spyOn(console, 'warn')
+    const hookCallback = vi.fn(middleware)
     mount(
       {
         data() {
@@ -188,71 +188,82 @@ describe('numeric lists', () => {
       }
     )
     expect(hookCallback).toBeCalledTimes(4)
+    await new Promise((r) => setTimeout(r, 50))
+    expect(warn).not.toHaveBeenCalled()
+    warn.mockRestore()
   })
 
-  // it.only('can render a list of inputs each with an index number', async () => {
-  //   const wrapper = mount(
-  //     {
-  //       data() {
-  //         return {
-  //           showB: false,
-  //           values: ['A', 'B', 'C'],
-  //         }
-  //       },
-  //       template: `<FormKit type="list" v-model="values">
-  //       <FormKit
-  //         v-for="(value, index) in values"
-  //         v-if="values.length < 10"
-  //         :key="value"
-  //         :value="value"
-  //         :index="1 * index"
-  //       />
-  //     </FormKit>
-  //     `,
-  //     },
-  //     {
-  //       global: {
-  //         plugins: [[plugin, defaultConfig]],
-  //       },
-  //     }
-  //   )
-  //   console.log(wrapper.vm.values)
-  //   expect(wrapper.vm.values).toStrictEqual(['A', 'B', 'C'])
-  // })
+  describe('synced lists', () => {
+    it('can sync a list of strings to their underlying formkit nodes', async () => {
+      const wrapper = mount(
+        {
+          data() {
+            return {
+              books: [
+                'The Great Gatsby',
+                'To Kill A Mockingbird',
+                'A Farewell to Arms',
+                'The Catcher in the Rye',
+              ],
+            }
+          },
+          template: `
+          <FormKit type="list" dynamic v-model="books" id="books" #default="{ items }">
+            <FormKit type="text" v-for="(item, index) in items" :key="item" :index="index" />
+          </FormKit>
+        `,
+        },
+        {
+          global: {
+            plugins: [[plugin, defaultConfig]],
+          },
+        }
+      )
+      expect(wrapper.findAll('input').length).toBe(4)
+      wrapper.vm.books.splice(1, 1)
+      await nextTick()
+      expect(wrapper.findAll('input').length).toBe(3)
+    })
 
-  // it.only('can remove an item by inputting a smaller array', async () => {
-  //   const wrapper = mount(
-  //     {
-  //       data() {
-  //         return {
-  //           values: [{}, {}, {}],
-  //         }
-  //       },
-  //       template: `
-  //       <div>
-  //         <FormKit type="list" :delay="0" v-model="values" #default="{ value }">
-  //           <template v-for="item in value">
-  //             <FormKit
-  //               v-if="item !== undefined"
-  //               type="group"
-  //             >
-  //               <FormKit name="biz" />
-  //             </FormKit>
-  //           </template>
-  //         </FormKit>
-  //       </div>
-  //     `,
-  //     },
-  //     {
-  //       global: {
-  //         plugins: [[plugin, defaultConfig]],
-  //       },
-  //     }
-  //   )
-  //   expect(wrapper.get('div').findAll('input').length).toBe(3)
-  //   wrapper.vm.values = [{}, {}]
-  //   await new Promise((r) => setTimeout(r, 30))
-  //   console.log('values: ', wrapper.vm.values)
-  //   expect(wrapper.get('div').findAll('input').length).toBe(2)
-  // })
+    it('can do the hokey pokey and turn itself around', async () => {
+      const wrapper = mount(
+        {
+          data() {
+            return {
+              books: [
+                { book: 'The Great Gatsby' },
+                { book: 'To Kill A Mockingbird' },
+                { book: 'A Farewell to Arms' },
+                { book: 'The Catcher in the Rye' },
+              ],
+            }
+          },
+          template: `
+          <FormKit type="list" :sync="true" v-model="books" id="books" #default="{ items }">
+            <FormKit type="group" v-for="(item, index) in items" :key="item" :index="index">
+              <FormKit type="text" name="book" />
+            </FormKit>
+          </FormKit>
+        `,
+        },
+        {
+          global: {
+            plugins: [[plugin, defaultConfig]],
+          },
+        }
+      )
+      let count = wrapper.vm.books.length
+      async function cycle() {
+        const book = wrapper.vm.books.splice(0, 1)
+        await nextTick()
+        expect(wrapper.findAll('input').length).toBe(3)
+        wrapper.vm.books.push(book[0])
+        await nextTick()
+        if (--count > 0) {
+          await cycle()
+        }
+      }
+      await cycle()
+    })
+  })
 })

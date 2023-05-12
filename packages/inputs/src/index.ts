@@ -18,6 +18,17 @@ export { createLibraryPlugin } from './plugin'
 export { normalizeOptions } from './features/options'
 
 /**
+ * createSection() and related utilities.
+ */
+export {
+  FormKitSchemaExtendableSection,
+  FormKitSection,
+  createSection,
+  isSchemaObject,
+  extendSchema,
+} from './createSection'
+
+/**
  * Composable logic.
  */
 export * from './compose'

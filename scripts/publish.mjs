@@ -52,7 +52,7 @@ let tag = false
  */
 async function publishPackages(force = false) {
   if (!/npm-cli\.js$/.test(process.env.npm_execpath)) {
-    msg.error(`⚠️ You must run this command with npm instead of yarn.`)
+    msg.error(`⚠️ You must run this command with npm instead of yarn or pnpm.`)
     msg.info('Please try again with:\n\n» npm run publish\n\n')
     return
   }

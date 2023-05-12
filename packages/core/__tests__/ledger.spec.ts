@@ -1,9 +1,9 @@
 import { FormKitPlugin } from './../src/node'
-import { createShippingTree, createTicketTree } from '../../../.jest/helpers'
+import { createShippingTree, createTicketTree } from '../../../.tests/helpers'
 import { createNode } from '../src/node'
 import { getNode } from '../src/registry'
 import { createMessage } from '../src/store'
-import { jest } from '@jest/globals'
+import { describe, expect, it, vi } from 'vitest'
 import { token } from '@formkit/utils'
 
 const nextTick = () => new Promise((r) => setTimeout(r, 0))
@@ -24,7 +24,7 @@ describe('ledger tracking on single node', () => {
       })
     )
     expect(braveHeart.ledger.value('braveheart')).toBe(1)
-    const whenSettled = jest.fn()
+    const whenSettled = vi.fn()
     braveHeart.ledger.settled('braveheart').then(whenSettled)
     braveHeart.store.set(
       createMessage({
@@ -64,7 +64,7 @@ describe('ledger tracking on a tree', () => {
         type: 'errors',
       })
     )
-    const settledListener = jest.fn()
+    const settledListener = vi.fn()
     tree.ledger.settled('errors').then(settledListener)
     await nextTick()
     expect(settledListener).toHaveBeenCalledTimes(0)
@@ -132,7 +132,7 @@ describe('ledger tracking on a tree', () => {
     tree.at('form.products.1.price')!.store.set(error())
     tree.ledger.count('blocking', (m) => m.blocking)
     expect(tree.ledger.value('blocking')).toBe(4)
-    const isSettled = jest.fn()
+    const isSettled = vi.fn()
     tree.ledger.settled('blocking').then(isSettled)
     tree.store.remove('required_rule')
     await nextTick()
@@ -169,7 +169,7 @@ describe('ledger tracking on a tree', () => {
       })
     const tree = createShippingTree()
     tree.ledger.count('blocking', (m) => m.blocking)
-    const listener = jest.fn()
+    const listener = vi.fn()
     tree.on('unsettled:blocking', listener)
     tree.at('form.address.state')!.store.set(error())
     tree.at('form.address.city')!.store.set(error())
@@ -184,7 +184,7 @@ describe('ledger tracking on a tree', () => {
         blocking: true,
       })
     const tree = createShippingTree()
-    const settledListener = jest.fn()
+    const settledListener = vi.fn()
     tree.on('settled:blocking', settledListener)
     tree.ledger.count('blocking', (m) => m.blocking)
     tree.at('form')!.store.set(error())
