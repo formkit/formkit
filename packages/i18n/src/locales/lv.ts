@@ -37,7 +37,7 @@ export const ui: FormKitLocaleMessages = {
    * Shown when no files are selected.
    */
   noFiles: 'Nav izvēlēts fails',
-    /**
+  /**
    * Shown on buttons that move fields up in a list.
    */
   moveUp: 'Uz augšu',
@@ -102,7 +102,7 @@ export const validation: FormKitValidationMessages = {
    */
   accepted({ name }): string {
     /* <i18n case="Shown when the user-provided value is not a valid 'accepted' value."> */
-    return `Lūdzu apstipriniet ${name}`.
+    return `Lūdzu apstipriniet ${name}`
     /* </i18n> */
   },
 
@@ -113,11 +113,11 @@ export const validation: FormKitValidationMessages = {
   date_after({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not after the date supplied to the rule."> */
-      return `${(name)} jābūt pēc ${date(args[0])}.`
+      return `${name} jābūt pēc ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not after today's date, since no date was supplied to the rule."> */
-    return `${(name)} jābūt pēc šodienas datuma.`
+    return `${name} jābūt pēc šodienas datuma.`
     /* </i18n> */
   },
 
@@ -127,7 +127,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical characters."> */
-    return `${(name)} var saturēt tikai alfabētiskās rakstzīmes.`
+    return `${name} var saturēt tikai alfabētiskās rakstzīmes.`
     /* </i18n> */
   },
 
@@ -137,7 +137,7 @@ export const validation: FormKitValidationMessages = {
    */
   alphanumeric({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphanumeric characters."> */
-    return `${(name)} var saturēt tikai burtus un ciparus.`
+    return `${name} var saturēt tikai burtus un ciparus.`
     /* </i18n> */
   },
 
@@ -147,7 +147,7 @@ export const validation: FormKitValidationMessages = {
    */
   alpha_spaces({ name }) {
     /* <i18n case="Shown when the user-provided value contains non-alphabetical and non-space characters."> */
-    return `${(name)} var saturēt tikai burtus un atstarpes.`
+    return `${name} var saturēt tikai burtus un atstarpes.`
     /* </i18n> */
   },
 
@@ -158,11 +158,11 @@ export const validation: FormKitValidationMessages = {
   date_before({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date is not before the date supplied to the rule."> */
-      return `${(name)} jābūt pirms ${date(args[0])}.`
+      return `${name} jābūt pirms ${date(args[0])}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided date is not before today's date, since no date was supplied to the rule."> */
-    return `${(name)} jābūt pirms šodienas datuma.`
+    return `${name} jābūt pirms šodienas datuma.`
     /* </i18n> */
   },
 
@@ -178,7 +178,7 @@ export const validation: FormKitValidationMessages = {
     }
     const [a, b] = order(args[0], args[1])
     /* <i18n case="Shown when the user-provided value is not between two numbers."> */
-    return `${(name)} jābūt starp ${a} un ${b}.`
+    return `${name} jābūt starp ${a} un ${b}.`
     /* </i18n> */
   },
 
@@ -188,7 +188,7 @@ export const validation: FormKitValidationMessages = {
    */
   confirm({ name }) {
     /* <i18n case="Shown when the user-provided value does not equal the value of the matched input."> */
-    return `${(name)} nesakrīt.`
+    return `${name} nesakrīt.`
     /* </i18n> */
   },
 
@@ -199,7 +199,7 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${(name)} nav pareizs datums, lūdzu lietojiet formātu ${args[0]}`
+      return `${name} nav pareizs datums, lūdzu lietojiet formātu ${args[0]}`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -213,7 +213,7 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${(name)} jābūt starp ${date(args[0])} un ${date(args[1])}`
+    return `${name} jābūt starp ${date(args[0])} un ${date(args[1])}`
     /* </i18n> */
   },
 
@@ -229,7 +229,7 @@ export const validation: FormKitValidationMessages = {
    */
   ends_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not end with the substring supplied to the rule."> */
-    return `${(name)} nebeidzas ar ${list(args)}.`
+    return `${name} nebeidzas ar ${list(args)}.`
     /* </i18n> */
   },
 
@@ -239,7 +239,7 @@ export const validation: FormKitValidationMessages = {
    */
   is({ name }) {
     /* <i18n case="Shown when the user-provided value is not one of the values supplied to the rule."> */
-    return `${(name)} nav atļauta vērtība.`
+    return `${name} nav atļauta vērtība.`
     /* </i18n> */
   },
 
@@ -252,26 +252,26 @@ export const validation: FormKitValidationMessages = {
     const max = Number(second) >= Number(first) ? second : first
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
-      return `${(name)} jābūt vismaz vienam simbolam.`
+      return `${name} jābūt vismaz vienam simbolam.`
       /* </i18n> */
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${(name)} jābūt mazāk par vai ${max} simboliem.`
+      return `${name} jābūt mazāk par vai ${max} simboliem.`
       /* </i18n> */
     }
     if (min === max) {
       /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
-      return `${(name)} jābūt ${max} simbolu garumā.`
+      return `${name} jābūt ${max} simbolu garumā.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${(name)} jābūt vismaz ${min} simboliem.`
+      return `${name} jābūt vismaz ${min} simboliem.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${(name)} jābūt starp ${min} un ${max} simboliem.`
+    return `${name} jābūt starp ${min} un ${max} simboliem.`
     /* </i18n> */
   },
 
@@ -281,7 +281,7 @@ export const validation: FormKitValidationMessages = {
    */
   matches({ name }) {
     /* <i18n case="Shown when the user-provided value does not match any of the values or RegExp patterns supplied to the rule. "> */
-    return `${(name)} nav atļauta vērtība.`
+    return `${name} nav atļauta vērtība.`
     /* </i18n> */
   },
 
@@ -296,7 +296,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${(name)} nevar būt mazāk par ${args[0]} vai ${args[0]}.`
+    return `${name} nevar būt mazāk par ${args[0]} vai ${args[0]}.`
     /* </i18n> */
   },
 
@@ -346,7 +346,7 @@ export const validation: FormKitValidationMessages = {
    */
   number({ name }) {
     /* <i18n case="Shown when the user-provided value is not a number."> */
-    return `${(name)} jābūt ciparam.`
+    return `${name} jābūt ciparam.`
     /* </i18n> */
   },
 
@@ -356,7 +356,7 @@ export const validation: FormKitValidationMessages = {
    */
   required({ name }) {
     /* <i18n case="Shown when a user does not provide a value to a required input."> */
-    return `${(name)} ir obligāti jāaizpilda`
+    return `${name} ir obligāti jāaizpilda`
     /* </i18n> */
   },
 
@@ -366,7 +366,7 @@ export const validation: FormKitValidationMessages = {
    */
   starts_with({ name, args }) {
     /* <i18n case="Shown when the user-provided value does not start with the substring supplied to the rule."> */
-    return `${(name)} nesākas ar ${list(args)}.`
+    return `${name} nesākas ar ${list(args)}.`
     /* </i18n> */
   },
 

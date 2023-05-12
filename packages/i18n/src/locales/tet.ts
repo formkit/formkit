@@ -213,7 +213,9 @@ export const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} tenki iha ${date(args[0])} no ${date(args[1])} nia klaran`
+    return `${s(name)} tenki iha ${date(args[0])} no ${date(
+      args[1]
+    )} nia klaran`
     /* </i18n> */
   },
 
@@ -307,7 +309,7 @@ export const validation: FormKitValidationMessages = {
   mime({ name, args }) {
     if (!args[0]) {
       /* <i18n case="Shown when no file formats were supplied to the rule."> */
-      return 'La bele simu 'format' ida.'
+      return `La bele simu 'format' ida.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the mime type of user-provided file does not match any mime types supplied to the rule."> */
