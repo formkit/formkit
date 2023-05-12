@@ -208,7 +208,7 @@ describe('standard lists', () => {
             }
           },
           template: `
-          <FormKit type="list" :sync="true" v-model="books" id="books" #default="{ items }">
+          <FormKit type="list" dynamic v-model="books" id="books" #default="{ items }">
             <FormKit type="text" v-for="(item, index) in items" :key="item" :index="index" />
           </FormKit>
         `,

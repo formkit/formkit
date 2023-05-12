@@ -37,6 +37,10 @@ const nativeProps = {
     type: Number,
     required: false,
   },
+  dynamic: {
+    type: Boolean as PropType<boolean | undefined>,
+    required: false,
+  },
   errors: {
     type: Array as PropType<string[]>,
     default: [],
@@ -75,8 +79,8 @@ const nativeProps = {
     default: {},
   },
   sync: {
-    boolean: Boolean,
-    default: false,
+    type: Boolean as PropType<boolean | undefined>,
+    required: false,
   },
   type: {
     type: [String, Object] as PropType<string | FormKitTypeDefinition>,
