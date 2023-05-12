@@ -1,6 +1,7 @@
 import { createSection } from '../src/createSection'
-import { $if, $for, $attrs, $extend, $root } from '../src/compose'
+import { $if, $for, $attrs, $extend, $root, eachSection } from '../src/compose'
 import { describe, expect, it, vi } from 'vitest'
+import { FormKitSchemaDefinition, isDOM } from 'packages/core/src'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {
@@ -119,5 +120,67 @@ describe('composable helpers', () => {
     // Should warn about the $root deprecation.
     expect(consoleSpy).toHaveBeenCalledTimes(1)
     consoleSpy.mockRestore()
+  })
+})
+
+describe('eachSection', () => {
+  it('can iterate over all nested schema', () => {
+    const spy = vi.fn()
+
+    const schema = $extend(createSection('foo', 'div')(), {
+      children: [
+        createSection('label', 'label')()({}),
+        createSection('input', 'input')()({}),
+        createSection('help', 'span')()({}),
+      ],
+    })({})
+    const finalSchema = Array.isArray(schema) ? schema[0] : schema
+    let iteration = 0
+
+    eachSection(finalSchema as FormKitSchemaDefinition, (section) => {
+      iteration++
+      const sectionName = section.meta?.section
+      if (iteration === 1) {
+        expect(sectionName).toEqual('foo')
+      }
+      if (iteration === 2) {
+        expect(sectionName).toEqual('label')
+      }
+      if (iteration === 3) {
+        expect(sectionName).toEqual('input')
+      }
+      if (iteration === 4) {
+        expect(sectionName).toEqual('help')
+      }
+      spy()
+    })
+    expect(spy).toHaveBeenCalledTimes(4)
+  })
+
+  it('stops iterating if the callback returns a value and stopOnCallbackReturn is set to true', () => {
+    const spy = vi.fn()
+
+    const schema = $extend(createSection('foo', 'div')(), {
+      children: [
+        createSection('label', 'label')()({}),
+        createSection('input', 'input')()({}),
+        createSection('help', 'span')()({}),
+      ],
+    })({})
+    const finalSchema = Array.isArray(schema) ? schema[0] : schema
+
+    eachSection(
+      finalSchema as FormKitSchemaDefinition,
+      (section) => {
+        const sectionName = section.meta?.section
+        spy()
+        if (sectionName === 'label') {
+          return true
+        }
+        return
+      },
+      true
+    )
+    expect(spy).toHaveBeenCalledTimes(2)
   })
 })
