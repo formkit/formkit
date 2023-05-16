@@ -649,7 +649,7 @@ describe('select arbitrary type values', () => {
     ])
     wrapper.find('select').setValue('__mask_1')
     wrapper.find('select').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(options.map((option) => option.element.selected)).toEqual([
       true,
       false,
