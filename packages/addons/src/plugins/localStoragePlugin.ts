@@ -4,13 +4,21 @@ import { undefine } from '@formkit/utils'
 /**
  * The options to be passed to {@link createLocalStoragePlugin | createLocalStoragePlugin}
  *
+ * @param prefix - The prefix to use for the local storage key
+ * @param key - The key to use for the local storage entry, useful for scoping data per user
+ * @param control - The form control to use enable or disable saving to localStorage. Must return a boolean value.
+ * @param maxAge - The maximum age of the local storage entry in milliseconds
+ * @param debounce - The debounce time in milliseconds to use when saving to localStorage
+ * @param beforeSave - A function to call for modifying data before saving to localStorage
+ * @param beforeLoad - A function to call for modifying data before loading from localStorage
+ *
  * @public
  */
 export interface LocalStorageOptions {
   prefix?: string
-  maxAge?: number
   key?: string | number
-  control: string
+  control?: string
+  maxAge?: number
   debounce?: number
   beforeSave?: (payload: any) => any
   beforeLoad?: (payload: any) => any
