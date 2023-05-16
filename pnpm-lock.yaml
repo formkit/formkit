@@ -172,9 +172,9 @@ importers:
   packages/addons:
     specifiers:
       '@formkit/auto-animate': latest
-      '@formkit/core': 0.17.0
-      '@formkit/inputs': 0.17.0
-      '@formkit/utils': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/inputs': 0.17.1
+      '@formkit/utils': 0.17.1
       '@formkit/vue': 0.16.5
     dependencies:
       '@formkit/auto-animate': 1.0.0-beta.6
@@ -186,8 +186,8 @@ importers:
 
   packages/cli:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/inputs': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/inputs': 0.17.1
       '@types/prompts': ^2.0.14
       axios: ^0.27.2
       chalk: ^5.0.1
@@ -207,14 +207,14 @@ importers:
 
   packages/core:
     specifiers:
-      '@formkit/utils': 0.17.0
+      '@formkit/utils': 0.17.1
     dependencies:
       '@formkit/utils': link:../utils
 
   packages/dev:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/utils': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/utils': 0.17.1
       '@formkit/vue': ^0.16.4
     dependencies:
       '@formkit/core': link:../core
@@ -224,15 +224,15 @@ importers:
 
   packages/formkit:
     specifiers:
-      '@formkit/cli': 0.17.0
+      '@formkit/cli': 0.17.1
     dependencies:
       '@formkit/cli': link:../cli
 
   packages/i18n:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/utils': 0.17.0
-      '@formkit/validation': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/utils': 0.17.1
+      '@formkit/validation': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/utils': link:../utils
@@ -240,23 +240,23 @@ importers:
 
   packages/icons:
     specifiers:
-      '@formkit/core': 0.17.0
+      '@formkit/core': 0.17.1
     dependencies:
       '@formkit/core': link:../core
 
   packages/inputs:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/utils': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/utils': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/utils': link:../utils
 
   packages/nuxt:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/i18n': 0.17.0
-      '@formkit/vue': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/i18n': 0.17.1
+      '@formkit/vue': 0.17.1
       '@nuxt/kit': ^3.3.1
       '@nuxt/module-builder': ^0.2.1
       '@nuxt/schema': ^3.3.1
@@ -271,17 +271,17 @@ importers:
 
   packages/observer:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/utils': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/utils': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/utils': link:../utils
 
   packages/rules:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/utils': 0.17.0
-      '@formkit/validation': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/utils': 0.17.1
+      '@formkit/validation': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/utils': link:../utils
@@ -289,7 +289,7 @@ importers:
 
   packages/tailwindcss:
     specifiers:
-      '@formkit/themes': 0.17.0
+      '@formkit/themes': 0.17.1
       '@types/tailwindcss': ^3.0.10
     dependencies:
       '@formkit/themes': link:../themes
@@ -298,7 +298,7 @@ importers:
 
   packages/themes:
     specifiers:
-      '@formkit/core': 0.17.0
+      '@formkit/core': 0.17.1
     dependencies:
       '@formkit/core': link:../core
 
@@ -307,9 +307,9 @@ importers:
 
   packages/validation:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/observer': 0.17.0
-      '@formkit/utils': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/observer': 0.17.1
+      '@formkit/utils': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/observer': link:../observer
@@ -317,15 +317,15 @@ importers:
 
   packages/vue:
     specifiers:
-      '@formkit/core': 0.17.0
-      '@formkit/dev': 0.17.0
-      '@formkit/i18n': 0.17.0
-      '@formkit/inputs': 0.17.0
-      '@formkit/observer': 0.17.0
-      '@formkit/rules': 0.17.0
-      '@formkit/themes': 0.17.0
-      '@formkit/utils': 0.17.0
-      '@formkit/validation': 0.17.0
+      '@formkit/core': 0.17.1
+      '@formkit/dev': 0.17.1
+      '@formkit/i18n': 0.17.1
+      '@formkit/inputs': 0.17.1
+      '@formkit/observer': 0.17.1
+      '@formkit/rules': 0.17.1
+      '@formkit/themes': 0.17.1
+      '@formkit/utils': 0.17.1
+      '@formkit/validation': 0.17.1
     dependencies:
       '@formkit/core': link:../core
       '@formkit/dev': link:../dev
@@ -339,7 +339,7 @@ importers:
 
   packages/zod:
     specifiers:
-      '@formkit/core': 0.17.0
+      '@formkit/core': 0.17.1
     dependencies:
       '@formkit/core': link:../core
 
