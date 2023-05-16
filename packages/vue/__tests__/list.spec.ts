@@ -266,4 +266,30 @@ describe('standard lists', () => {
       await cycle()
     })
   })
+
+  it('can initialize a synced list with multiple identical initial values (#715)', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: ['123', '123'],
+          }
+        },
+        template: `
+        <FormKit type="list" :sync="true" v-model="values" #default="{ items }">
+          <FormKit type="text" v-for="(item, index) in items" :key="item" :index="index" />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.findAll('input').length).toBe(2)
+    wrapper.findAll('input').forEach((input) => {
+      expect(input.element.value).toBe('123')
+    })
+  })
 })

@@ -1916,7 +1916,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
 
   const newChildren: Array<FormKitNode | FormKitPlaceholderNode | null> = []
   const unused = new Set(context.children)
-  const placeholderValues = new Map<unknown, number>()
+  const placeholderValues = new Map<unknown, number[]>()
 
   // 1. Iterate over the values and if the values at the same index are equal
   //    then we can reuse the node. Otherwise we add a `null` placeholder.
@@ -1926,7 +1926,10 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
       unused.delete(context.children[i])
     } else {
       newChildren.push(null)
-      placeholderValues.set(value, i)
+
+      const indexes = placeholderValues.get(value) || []
+      indexes.push(i)
+      placeholderValues.set(value, indexes)
     }
   })
 
@@ -1935,31 +1938,36 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   if (unused.size && placeholderValues.size) {
     unused.forEach((child) => {
       if (placeholderValues.has(child._value)) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        newChildren[placeholderValues.get(child._value)!] = child
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        const indexes = placeholderValues.get(child._value)!
+        const index = indexes.shift()!
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
+        newChildren[index] = child
         unused.delete(child)
-        placeholderValues.delete(child._value)
+        if (!indexes.length) placeholderValues.delete(child._value)
       }
     })
   }
 
   // 3. If there are still unused nodes, and unused placeholders, we assign the
   //    unused nodes to the unused placeholders in order.
-  while (unused.size && placeholderValues.size) {
+  const emptyIndexes: number[] = []
+  placeholderValues.forEach((indexes) => {
+    emptyIndexes.push(...indexes)
+  })
+
+  while (unused.size && emptyIndexes.length) {
     const child = unused.values().next().value
-    const placeholders = placeholderValues[Symbol.iterator]()
-    const [value, index] = placeholders.next().value
+    const index = emptyIndexes.shift()
+    if (index === undefined) break
     newChildren[index] = child
     unused.delete(child)
-    placeholderValues.delete(value)
   }
 
   // 4. If there are placeholders in the children, we create true placeholders.
-  if (placeholderValues.size) {
-    placeholderValues.forEach((index, value) => {
-      newChildren[index] = createPlaceholder({ value })
-    })
-  }
+  emptyIndexes.forEach((index, value) => {
+    newChildren[index] = createPlaceholder({ value })
+  })
 
   // 5. If there are unused nodes, we remove them. To ensure we don’t remove any
   //    values we explicitly remove each child’s parent and manually unmerge the

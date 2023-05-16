@@ -434,4 +434,14 @@ describe('synced lists', () => {
     list.input([], false)
     expect(list.ledger.value('blocking')).toBe(0)
   })
+
+  it('can create a new list with 2 identical values (#715)', () => {
+    expect(() => {
+      createNode<string[]>({
+        type: 'list',
+        value: ['A', 'A'],
+        sync: true,
+      })
+    }).not.toThrow()
+  })
 })
