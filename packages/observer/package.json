@@ -1,6 +1,6 @@
 {
   "name": "@formkit/observer",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "type": "module",
   "description": "Utility to wrap a FormKitNode in a dependency tracking observer proxy",
   "main": "dist/index.cjs",
@@ -34,8 +34,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "0.17.0",
-    "@formkit/utils": "0.17.0"
+    "@formkit/core": "0.17.1",
+    "@formkit/utils": "0.17.1"
   },
   "devDependencies": {}
 }
