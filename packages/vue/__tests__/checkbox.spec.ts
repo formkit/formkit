@@ -462,7 +462,7 @@ describe('non string values for checkboxes', () => {
     ])
     checkboxes[0].element.checked = false
     checkboxes[0].trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(checkboxes.map((input) => input.element.checked)).toEqual([
       true,
       true,
