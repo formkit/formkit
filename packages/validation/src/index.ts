@@ -6,7 +6,6 @@
  * @packageDocumentation
  */
 
-
 /**
  * Export the validation and the public typings
  */
@@ -19,6 +18,7 @@ export {
   FormKitValidationRule,
   FormKitValidationRules,
   FormKitValidationMessages,
+  FormKitValidationMessage,
   FormKitValidationHints,
   FormKitValidationI18NArgs,
 } from './validation'
