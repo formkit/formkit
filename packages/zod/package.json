@@ -1,6 +1,6 @@
 {
   "name": "@formkit/zod",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "type": "module",
   "description": "Zod validation for FormKit.",
   "main": "dist/index.cjs",
@@ -34,7 +34,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "0.17.1"
+    "@formkit/core": "0.17.2"
   },
   "devDependencies": {},
   "peerDependencies": {
