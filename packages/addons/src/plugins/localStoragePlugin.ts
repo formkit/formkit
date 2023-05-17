@@ -24,7 +24,7 @@ export function createLocalStoragePlugin(
   LocalStorageOptions?: LocalStorageOptions
 ): FormKitPlugin {
   const localStoragePlugin = (node: FormKitNode) => {
-    if (node.props.type !== 'form') return
+    if (!['form','multi-step'].includes(node.props.type)) return
     node.addProps(['useLocalStorage'])
 
     node.on('created', () => {
