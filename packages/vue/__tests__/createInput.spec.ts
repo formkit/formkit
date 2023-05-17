@@ -197,3 +197,24 @@ describe('custom input behaviors', () => {
     expect(pseudoPropEvent).toHaveBeenCalledTimes(0)
   })
 })
+
+describe('schemaMemoKey', () => {
+  it('automatically applies a schema memo key if there is none', async () => {
+    const componentA = () => 'Hello world'
+    const componentB = () => 'Hello mars'
+    const text = createInput(componentA)
+    const password = createInput(componentB)
+    const wrapper = mount(
+      {
+        template: `<FormKit type="text" /><FormKit type="password" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { text, password } })]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.text()).toBe('Hello worldHello mars')
+  })
+})

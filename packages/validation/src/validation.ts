@@ -120,11 +120,19 @@ export interface FormKitValidationRules {
 }
 
 /**
+ * The interface for the localized validation message function.
+ * @public
+ */
+export interface FormKitValidationMessage {
+  (...args: FormKitValidationI18NArgs): string
+}
+
+/**
  * The interface for the localized validation message registry.
  * @public
  */
 export interface FormKitValidationMessages {
-  [index: string]: string | ((...args: FormKitValidationI18NArgs) => string)
+  [index: string]: string | FormKitValidationMessage
 }
 
 /**
