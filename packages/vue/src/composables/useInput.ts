@@ -24,6 +24,7 @@ import {
   undefine,
   oncePerTick,
   eq,
+  shallowClone,
 } from '@formkit/utils'
 import {
   toRef,
@@ -424,7 +425,7 @@ export function useInput(
     }
     if (isVModeled && node.context) {
       clonedValueBeforeVmodel = cloneAny(node.value)
-      context.emit('update:modelValue', node.value)
+      context.emit('update:modelValue', shallowClone(node.value))
     }
   })
 

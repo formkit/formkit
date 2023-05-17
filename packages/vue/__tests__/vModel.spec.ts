@@ -90,4 +90,37 @@ describe('v-model', () => {
     expect(updatedEventCallback).toHaveBeenLastCalledWith('foo')
     expect(value.value).toBe('foo')
   })
+
+  it('updates a rendered v-model when the value changes at depth', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const data = ref({})
+          return { data }
+        },
+        template: `
+      <FormKit type="form" v-model="data">
+        <FormKit type="group" name="group">
+          <FormKit
+            type="text"
+            name="text"
+            label="FormKit Input"
+            help="edit me to get started"
+            :delay="0"
+          />
+        </FormKit>
+      </FormKit>
+      <pre wrap>{{ data }}</pre>`,
+      },
+      {
+        global: { plugins: [[plugin, defaultConfig]] },
+      }
+    )
+    await wrapper.find('input').setValue('foo')
+    wrapper.find('input').trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe(
+      '{\n  "group": {\n    "text": "foo"\n  }\n}'
+    )
+  })
 })
