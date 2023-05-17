@@ -40,7 +40,6 @@ export function createLocalStoragePlugin(
     // only apply if internal FormKit type is 'group'. This applies
     // to 'form' and 'group' inputs — as well as any add-on inputs
     // registered of FormKit type 'group' (eg. 'multi-step').
-    console.log(node.type)
     if (node.type !== 'group') return
 
     const shouldUseLocalStorage = (controlNode: FormKitNode | undefined) => {
