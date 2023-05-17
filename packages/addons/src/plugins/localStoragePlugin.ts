@@ -98,7 +98,7 @@ export function createLocalStoragePlugin(
         }
         if (!loadValue || typeof loadValue.data !== 'object') return
         if (loadValue.maxAge > Date.now()) {
-          node.input(loadValue.data)
+          node.input(loadValue.data, false)
         } else {
           localStorage.removeItem(storageKey)
         }
