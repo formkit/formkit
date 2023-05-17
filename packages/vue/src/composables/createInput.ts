@@ -62,5 +62,8 @@ export function createInput(
 
   // Use the default wrapping schema
   definition.schema = useSchema(schema || 'Schema undefined')
+  if (!definition.schemaMemoKey) {
+    definition.schemaMemoKey = `${Math.random()}`
+  }
   return definition
 }
