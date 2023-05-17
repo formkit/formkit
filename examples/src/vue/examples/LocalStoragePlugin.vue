@@ -42,6 +42,7 @@ async function beforeLoad(payload) {
       createLocalStoragePlugin({
         prefix: 'myPrefix',
         maxAge: 15000,
+        control: 'saveData',
         beforeSave: beforeSave,
         beforeLoad: beforeLoad,
       }),
@@ -61,5 +62,15 @@ async function beforeLoad(payload) {
     <FormKit type="textarea" name="message" label="Your message" />
 
     <pre>{{ value }}</pre>
+  </FormKit>
+
+  <h2>Test on a non-form 'group' input</h2>
+  <FormKit
+    type="group"
+    :plugins="[createLocalStoragePlugin()]"
+    use-local-storage
+  >
+    <FormKit type="text" label="Subject" />
+    <FormKit type="textarea" label="Message" />
   </FormKit>
 </template>
