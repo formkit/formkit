@@ -21,7 +21,7 @@ import { execa } from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { remove, move } from 'fs-extra';
+import { remove, move } from 'fs-extra'
 import {
   getPackages,
   getThemes,
@@ -162,6 +162,7 @@ export async function buildPackage(p) {
 export async function buildAllPackages(packages) {
   const orderedPackages = getBuildOrder(packages)
   msg.info('» Building packages in dependency order:')
+  console.log(orderedPackages)
   for (const [i, p] of orderedPackages.entries()) {
     msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
     await buildPackage(p)
@@ -236,9 +237,13 @@ async function themesBuildExtras() {
  */
 async function addonsBuildExtras() {
   const addonsCSS = await fs.readdir(resolve(packagesDir, 'addons/src/css'))
-  fs.mkdir(resolve(packagesDir, 'addons/dist/css'), { recursive: true }, (err) => {
-    if (err) throw err
-  })
+  fs.mkdir(
+    resolve(packagesDir, 'addons/dist/css'),
+    { recursive: true },
+    (err) => {
+      if (err) throw err
+    }
+  )
   await addonsCSS.forEach(async (css) => {
     await fs.copyFile(
       resolve(packagesDir, 'addons/src/css/', css),
@@ -331,7 +336,10 @@ async function declarations(p, plugin = '') {
   }
   // Annoyingly even though we tell @rollup/plugin-typescript
   // emitDeclarationOnly it still outputs an index.js — is this a bug?
-  const artifactToDelete = resolve(packagesDir, `${p}/dist/${plugin ? plugin + '/' : ''}index.js`)
+  const artifactToDelete = resolve(
+    packagesDir,
+    `${p}/dist/${plugin ? plugin + '/' : ''}index.js`
+  )
   let shouldDelete
   try {
     shouldDelete = await fs.stat(artifactToDelete)
@@ -344,7 +352,10 @@ async function declarations(p, plugin = '') {
   if (plugin) {
     msg.loader.text = `Emitting type declarations for ${plugin}`
     await move(
-      resolve(packagesDir, `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`),
+      resolve(
+        packagesDir,
+        `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`
+      ),
       resolve(packagesDir, `themes/dist/${plugin}/index.d.ts`)
     )
     await remove(resolve(packagesDir, `themes/dist/${plugin}/packages`))
