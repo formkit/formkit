@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import { execSync } from 'child_process'
-import { dirname, resolve, join } from 'path'
+import { dirname, resolve, join, basename, extname } from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
@@ -85,12 +85,13 @@ export function getThemes() {
  * Get the available icons from the icons directory.
  */
 export function getIcons() {
-  const iconFiles = getAllFiles(packagesDir + '/icons/src/icons')
+  const iconFiles = getAllFiles(resolve(packagesDir, 'icons/src/icons'))
   const icons = {}
   iconFiles.forEach((filePath) => {
-    if (!filePath.endsWith('.ts')) return
-    let name = filePath.split('/')
-    name = toCamelCase(name[name.length - 1].split('.')[0])
+    const extension = extname(filePath)
+    if (extension !== '.ts') return
+    const file = basename(filePath, extension)
+    const name = toCamelCase(file)
     let data = fs.readFileSync(filePath, 'utf8')
     data = data.replace('export default `', '').replace('</svg>`', '</svg>')
     icons[name] = data
@@ -203,18 +204,16 @@ export function drawDependencyTree(
   for (const [i, branch] of tree.entries()) {
     const title = branch[0]
     const deps = branch[1]
-    const directoryIndent = `${'  '.repeat(depth)}${
-      depth > 0 ? directoryPrefix : ''
-    }${'— '.repeat(Math.min(1, depth))}`
+    const directoryIndent = `${'  '.repeat(depth)}${depth > 0 ? directoryPrefix : ''}${'— '.repeat(Math.min(1, depth))}`
     if (depth === 0) {
       console.log(
         `${i + 1}) ${directoryIndent}${title} ` +
-          chalk.dim(`(${getPackageVersion(title)})`)
+        chalk.dim(`(${getPackageVersion(title)})`)
       )
     } else {
       msg.info(
         `  ${directoryIndent}${title} ` +
-          chalk.dim(`(${getDependencyVersion(parent, title)})`)
+        chalk.dim(`(${getDependencyVersion(parent, title)})`)
       )
     }
 
