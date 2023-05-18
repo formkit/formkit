@@ -56,7 +56,7 @@
     pointer-events: none;
 
     &::before {
-      animation: rotate 0.5s linear infinite;
+      animation: fk-rotate 0.5s linear infinite;
       width: 1.28571428em;
       border: 0.1428571429em solid white;
       border-right-color: transparent;
