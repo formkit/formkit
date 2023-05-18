@@ -87,7 +87,7 @@
     }
 
     &[data-file-hover] {
-      animation: glow 0.75s infinite alternate;
+      animation: fk-glow 0.75s infinite alternate;
     }
   }
 
