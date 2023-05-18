@@ -68,6 +68,12 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
           })
         )
         await retVal
+          .then((response) => {
+            node.emit('submit:success', response)
+          })
+          .catch((e) => {
+            node.emit('submit:error', e)
+          })
         if (autoDisable) node.props.disabled = false
         node.store.remove('loading')
       }
