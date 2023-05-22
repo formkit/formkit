@@ -43,6 +43,7 @@ const camel2title = (str: string) =>
  * Compares steps to DOM order and reorders steps if needed
  */
 function orderSteps(steps: FormKitFrameworkContext[]) {
+  if (!isBrowser) return steps
   const orderedSteps = steps.sort((a, b) => {
     const aEl = document.getElementById(a.id)
     const bEl = document.getElementById(b.id)
@@ -146,7 +147,6 @@ function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
         step.node.name === targetStep.node.parent?.props.activeStep
     )
     const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
-
     if (stepIsAllowed && targetStep.node.parent.context) {
       targetStep.node.parent.props.activeStep = targetStep.node.name
     }
@@ -234,10 +234,15 @@ function initEvents(node: FormKitNode, el: Element) {
 export function createMultiStepPlugin(
   options?: MultiStepOptions
 ): FormKitPlugin {
+  let isFirstStep = true
+
   const multiStepPlugin = (node: FormKitNode) => {
     if (node.props.type === 'multi-step') {
+      if (!node.context) return
+      isFirstStep = true // reset variable, next step will be first step in multistep
       node.addProps(['steps', 'activeStep'])
 
+      node.props.steps = []
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete
@@ -250,11 +255,10 @@ export function createMultiStepPlugin(
           : options?.hideProgressLabels || false
       node.props.tabStyle = node.props.tabStyle || options?.tabStyle || 'tab'
 
-      node.on('created', () => {
-        if (!node.context) return
-        node.context.handlers.triggerStepValidations = triggerStepValidations
-        node.context.handlers.showStepErrors = showStepErrors
+      node.context.handlers.triggerStepValidations = triggerStepValidations
+      node.context.handlers.showStepErrors = showStepErrors
 
+      node.on('created', () => {
         whenAvailable(`${node.props.id}`, (el) => {
           initEvents(node, el)
         })
@@ -294,16 +298,23 @@ export function createMultiStepPlugin(
             ? node.props.steps[targetIndex].node.name
             : ''
         }
-
-        // recompute step positions
-        orderSteps(node.props.steps)
-        setNodePositionProps(node.props.steps)
       })
     }
     if (
       node.props.type === 'step' &&
       node.parent?.props.type === 'multi-step'
     ) {
+      if (!node.context || !node.parent || !node.parent.context) return
+
+      // send step info to parent
+      const parentNode = node.parent
+      parentNode.props.steps =
+        Array.isArray(parentNode.props.steps) &&
+        parentNode.props.steps.length > 0
+          ? [...parentNode.props.steps, node.context]
+          : [node.context]
+      setNodePositionProps(parentNode.props.steps)
+
       node.addProps([
         'isActiveStep',
         'isFirstStep',
@@ -317,51 +328,41 @@ export function createMultiStepPlugin(
         'hasBeenVisited',
         'ordered',
       ])
-      node.on('created', () => {
-        if (!node.context) return
-        if (node.parent && node.parent.context) {
-          node.props.stepName = node.props.label || camel2title(node.name)
-          node.props.errorCount = 0
-          node.props.blockingCount = 0
-          node.props.isActiveStep = false
 
-          const parentNode = node.parent
+      node.props.stepName = node.props.label || camel2title(node.name)
+      node.props.errorCount = 0
+      node.props.blockingCount = 0
+      node.props.isActiveStep = isFirstStep
+      isFirstStep = false
 
-          parentNode.props.steps = Array.isArray(parentNode.props.steps)
-            ? [...parentNode.props.steps, node.context]
-            : [node.context]
+      parentNode.props.activeStep = parentNode.props.activeStep
+        ? parentNode.props.activeStep
+        : parentNode.props.steps[0]
+        ? parentNode.props.steps[0].node.name
+        : ''
 
-          whenAvailable(`${node.props.id}`, () => {
-            parentNode.props.steps = orderSteps(parentNode.props.steps)
-            setNodePositionProps(parentNode.props.steps)
-
-            parentNode.props.activeStep = parentNode.props.activeStep
-              ? parentNode.props.activeStep
-              : parentNode.props.steps[0]
-              ? parentNode.props.steps[0].node.name
-              : ''
-          })
-
-          if (node.context && parentNode.context) {
-            parentNode.context.handlers.setActiveStep = (
-              stepNode: FormKitFrameworkContext
-            ) => setActiveStep.bind(null, stepNode)
-            node.context.handlers.incrementStep = (
-              delta: number,
-              stepNode: FormKitFrameworkContextWithSteps
-            ) => incrementStep.bind(null, delta, stepNode)
-            node.context.makeActive = () => {
-              setActiveStep(node.context as FormKitFrameworkContext)
-            }
-            node.context.handlers.next = () =>
-              incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
-            node.context.handlers.previous = () =>
-              incrementStep(
-                -1,
-                node.context as FormKitFrameworkContextWithSteps
-              )
-          }
+      if (node.context && parentNode.context) {
+        parentNode.context.handlers.setActiveStep = (
+          stepNode: FormKitFrameworkContext
+        ) => setActiveStep.bind(null, stepNode)
+        node.context.handlers.incrementStep = (
+          delta: number,
+          stepNode: FormKitFrameworkContextWithSteps
+        ) => incrementStep.bind(null, delta, stepNode)
+        node.context.makeActive = () => {
+          setActiveStep(node.context as FormKitFrameworkContext)
         }
+        node.context.handlers.next = () =>
+          incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
+        node.context.handlers.previous = () =>
+          incrementStep(-1, node.context as FormKitFrameworkContextWithSteps)
+      }
+
+      node.on('created', () => {
+        whenAvailable(`${node.props.id}`, () => {
+          parentNode.props.steps = orderSteps(parentNode.props.steps)
+          setNodePositionProps(parentNode.props.steps)
+        })
       })
 
       node.on('count:errors', ({ payload: count }) => {
