@@ -222,16 +222,6 @@ function initEvents(node: FormKitNode, el: Element) {
   })
 }
 
-function updateStepPositions(node: FormKitNode) {
-  setNodePositionProps(node.props.steps)
-
-  node.props.activeStep = node.props.activeStep
-    ? node.props.activeStep
-    : node.props.steps[0]
-    ? node.props.steps[0].node.name
-    : ''
-}
-
 /**
  * Creates a new multi-step plugin.
  *
@@ -343,9 +333,14 @@ export function createMultiStepPlugin(
 
           whenAvailable(`${node.props.id}`, () => {
             parentNode.props.steps = orderSteps(parentNode.props.steps)
-            updateStepPositions(parentNode)
+            setNodePositionProps(parentNode.props.steps)
+
+            parentNode.props.activeStep = parentNode.props.activeStep
+              ? parentNode.props.activeStep
+              : parentNode.props.steps[0]
+              ? parentNode.props.steps[0].node.name
+              : ''
           })
-          updateStepPositions(parentNode)
 
           if (node.context && parentNode.context) {
             parentNode.context.handlers.setActiveStep = (
