@@ -93,6 +93,7 @@ describe('multistep', () => {
     })
 
     expect(wrapper.html()).toContain('data-type="multi-step"')
+    wrapper.unmount()
   })
 
   it('it can mount steps inside of a multistep input', () => {
@@ -120,12 +121,13 @@ describe('multistep', () => {
       },
     })
     expect(wrapper.html()).toContain('data-type="step"')
+    wrapper.unmount()
   })
 
   it('it throws a warning when using a step input outside of a multi-step', () => {
     vi.spyOn(global.console, 'warn').mockImplementation(() => {})
 
-    mount(FormKit, {
+    const wrapper = mount(FormKit, {
       props: {
         type: 'step',
       },
@@ -145,12 +147,13 @@ describe('multistep', () => {
     expect(console.warn).toBeCalledWith(
       'Invalid use of <FormKit type="step">. <FormKit type="step"> must be an immediate child of a <FormKit type="multi-step"> component.'
     )
+    wrapper.unmount()
   })
 
   it('it throws a warning when using a non-step input as a direct child of a multi-step', () => {
     vi.spyOn(global.console, 'warn').mockImplementation(() => {})
 
-    mount(FormKit, {
+    const wrapper = mount(FormKit, {
       props: {
         type: 'multi-step',
       },
@@ -177,6 +180,8 @@ describe('multistep', () => {
     expect(console.warn).toBeCalledWith(
       'Invalid FormKit input location. <FormKit type="multi-step"> should only have <FormKit type="step"> inputs as immediate children. Failure to wrap child inputs in <FormKit type="step"> can lead to undesired behaviors.'
     )
+
+    wrapper.unmount()
   })
 
   it('creates 3 step tabs when it has 3 children of type step', async () => {
@@ -201,6 +206,7 @@ describe('multistep', () => {
     expect(wrapper.html().match(/button class=\"formkit-tab\"/g)?.length).toBe(
       3
     )
+    wrapper.unmount()
   })
 
   it('defaults to expected prop arguments', async () => {
@@ -224,6 +230,7 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toContain('data-tab-style="tab"')
     expect(wrapper.html()).toContain('data-hide-labels="false"')
+    wrapper.unmount()
   })
 
   it('accepts new prop argument values', async () => {
@@ -247,6 +254,7 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toContain('data-tab-style="progress"')
     expect(wrapper.html()).toContain('data-hide-labels="true"')
+    wrapper.unmount()
   })
 
   it('Does not allow step advancment when current step is invalid', async () => {
@@ -275,6 +283,7 @@ describe('multistep', () => {
     wrapper.find('.formkit-step-next button').trigger('click')
     await new Promise((r) => setTimeout(r, 15))
     expect(wrapper.html()).toMatchSnapshot()
+    wrapper.unmount()
   })
 
   it('Allows step advancment when current step is invalid but allowIncomplete is true', async () => {
@@ -304,6 +313,7 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
     expect(wrapper.html()).toMatchSnapshot()
+    wrapper.unmount()
   })
 
   it('preserves the order of steps even when a step is conditionally rendered', async () => {
@@ -319,18 +329,18 @@ describe('multistep', () => {
             children: [
               {
                 $formkit: 'step',
-                name: 'stepOne',
+                name: 'stepAlpha',
                 key: 'stepOne',
               },
               {
                 $formkit: 'step',
                 if: '$showStepTwo',
-                name: 'stepTwo',
+                name: 'stepBravo',
                 key: 'stepTwo',
               },
               {
                 $formkit: 'step',
-                name: 'stepThree',
+                name: 'stepCharlie',
                 key: 'stepThree',
               },
             ],
@@ -353,14 +363,19 @@ describe('multistep', () => {
     const stepNameRegex = /Step (.*)?</gm
     await new Promise((r) => setTimeout(r, 15))
     const stepMatches = wrapper.html().match(stepNameRegex)
-    expect(stepMatches).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
+    expect(stepMatches).toEqual(['Step Alpha<', 'Step Bravo<', 'Step Charlie<'])
     data.showStepTwo = false
     await new Promise((r) => setTimeout(r, 15))
     const stepMatchesAfter = wrapper.html().match(stepNameRegex)
-    expect(stepMatchesAfter).toEqual(['Step One<', 'Step Three<'])
+    expect(stepMatchesAfter).toEqual(['Step Alpha<', 'Step Charlie<'])
     data.showStepTwo = true
-    await new Promise((r) => setTimeout(r, 15))
+    await new Promise((r) => setTimeout(r, 500))
     const stepMatchesAfter2 = wrapper.html().match(stepNameRegex)
-    expect(stepMatchesAfter2).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
+    expect(stepMatchesAfter2).toEqual([
+      'Step Alpha<',
+      'Step Bravo<',
+      'Step Charlie<',
+    ])
+    wrapper.unmount()
   })
 })
