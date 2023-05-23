@@ -44,13 +44,16 @@ const camel2title = (str: string) =>
  */
 function orderSteps(steps: FormKitFrameworkContext[]) {
   if (!isBrowser) return steps
-  const orderedSteps = steps.sort((a, b) => {
+  const orderedSteps = [...steps]
+  orderedSteps.sort((a, b) => {
     const aEl = document.getElementById(a.id)
     const bEl = document.getElementById(b.id)
     if (!aEl || !bEl) return 0
     return aEl.compareDocumentPosition(bEl) === 2 ? 1 : -1
   })
-  steps.map((step) => (step.ordered = true))
+  orderedSteps.map((step) => {
+    step.ordered = true
+  })
   return orderedSteps
 }
 
@@ -264,6 +267,28 @@ export function createMultiStepPlugin(
         })
       })
 
+      node.on('child', ({ payload: childNode }) => {
+        node.props.steps =
+          Array.isArray(node.props.steps) && node.props.steps.length > 0
+            ? [...node.props.steps, childNode.context]
+            : [childNode.context]
+        node.props.steps = orderSteps(node.props.steps)
+        setNodePositionProps(node.props.steps)
+
+        childNode.props.stepName =
+          childNode.props.label || camel2title(childNode.name)
+        childNode.props.errorCount = 0
+        childNode.props.blockingCount = 0
+        childNode.props.isActiveStep = isFirstStep
+        isFirstStep = false
+
+        node.props.activeStep = node.props.activeStep
+          ? node.props.activeStep
+          : node.props.steps[0]
+          ? node.props.steps[0].node.name
+          : ''
+      })
+
       node.on('prop:activeStep', ({ payload }) => {
         node.children.forEach((child) => {
           if (isPlaceholder(child)) return
@@ -281,6 +306,7 @@ export function createMultiStepPlugin(
 
       node.on('childRemoved', ({ payload: childNode }) => {
         let removedStepIndex = -1
+        childNode.props.ordered = false
         node.props.steps = node.props.steps.filter(
           (step: FormKitFrameworkContext, index: number) => {
             if (step.node.name !== childNode.name) {
@@ -306,15 +332,6 @@ export function createMultiStepPlugin(
     ) {
       if (!node.context || !node.parent || !node.parent.context) return
 
-      // send step info to parent
-      const parentNode = node.parent
-      parentNode.props.steps =
-        Array.isArray(parentNode.props.steps) &&
-        parentNode.props.steps.length > 0
-          ? [...parentNode.props.steps, node.context]
-          : [node.context]
-      setNodePositionProps(parentNode.props.steps)
-
       node.addProps([
         'isActiveStep',
         'isFirstStep',
@@ -328,18 +345,14 @@ export function createMultiStepPlugin(
         'hasBeenVisited',
         'ordered',
       ])
+      const parentNode = node.parent
 
-      node.props.stepName = node.props.label || camel2title(node.name)
-      node.props.errorCount = 0
-      node.props.blockingCount = 0
-      node.props.isActiveStep = isFirstStep
-      isFirstStep = false
-
-      parentNode.props.activeStep = parentNode.props.activeStep
-        ? parentNode.props.activeStep
-        : parentNode.props.steps[0]
-        ? parentNode.props.steps[0].node.name
-        : ''
+      node.on('created', () => {
+        whenAvailable(`${node.props.id}`, () => {
+          parentNode.props.steps = orderSteps(parentNode.props.steps)
+          setNodePositionProps(parentNode.props.steps)
+        })
+      })
 
       if (node.context && parentNode.context) {
         parentNode.context.handlers.setActiveStep = (
@@ -357,13 +370,6 @@ export function createMultiStepPlugin(
         node.context.handlers.previous = () =>
           incrementStep(-1, node.context as FormKitFrameworkContextWithSteps)
       }
-
-      node.on('created', () => {
-        whenAvailable(`${node.props.id}`, () => {
-          parentNode.props.steps = orderSteps(parentNode.props.steps)
-          setNodePositionProps(parentNode.props.steps)
-        })
-      })
 
       node.on('count:errors', ({ payload: count }) => {
         node.props.errorCount = count

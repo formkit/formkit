@@ -351,15 +351,15 @@ describe('multistep', () => {
     })
 
     const stepNameRegex = /Step (.*)?</gm
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 15))
     const stepMatches = wrapper.html().match(stepNameRegex)
     expect(stepMatches).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
     data.showStepTwo = false
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 15))
     const stepMatchesAfter = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter).toEqual(['Step One<', 'Step Three<'])
     data.showStepTwo = true
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 15))
     const stepMatchesAfter2 = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter2).toEqual(['Step One<', 'Step Two<', 'Step Three<'])
   })
