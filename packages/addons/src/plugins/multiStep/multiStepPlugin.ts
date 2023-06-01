@@ -33,17 +33,19 @@ type FormKitFrameworkContextWithSteps = FormKitFrameworkContext & {
  * @param str - The string to convert
  * @returns string
  */
-const camel2title = (str: string) =>
-  str
+const camel2title = (str: string) => {
+  if (!str) return str
+  return str
     .replace(/([A-Z])/g, (match: string) => ` ${match}`)
     .replace(/^./, (match: string) => match.toUpperCase())
     .trim()
+}
 
 /**
  * Compares steps to DOM order and reorders steps if needed
  */
 function orderSteps(steps: FormKitFrameworkContext[]) {
-  if (!isBrowser) return steps
+  if (!isBrowser || !steps) return steps
   const orderedSteps = [...steps]
   orderedSteps.sort((a, b) => {
     const aEl = document.getElementById(a.id)
@@ -64,6 +66,7 @@ function orderSteps(steps: FormKitFrameworkContext[]) {
  * @param steps - The steps to iterate through
  */
 function setNodePositionProps(steps: FormKitFrameworkContext[]) {
+  if (!steps) return
   steps.forEach((step: FormKitFrameworkContext, index: number) => {
     step.isFirstStep = index === 0
     step.isLastStep = index === steps.length - 1
@@ -242,6 +245,23 @@ function initEvents(node: FormKitNode, el: Element) {
   })
 }
 
+function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
+  if (!tabs || !tabs.length) return []
+  const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
+    return {
+      __isPlaceholder: true,
+      stepName: tab.props.label || camel2title(tab.props.name),
+      isFirstStep: index === 0,
+      isLastStep: index === tabs.length - 1,
+      isActiveStep: index === 0,
+      node: {
+        name: tab.props.name,
+      },
+    }
+  })
+  return placeholderTabs
+}
+
 /**
  * Creates a new multi-step plugin.
  *
@@ -259,10 +279,18 @@ export function createMultiStepPlugin(
   const multiStepPlugin = (node: FormKitNode) => {
     if (node.props.type === 'multi-step') {
       if (!node.context) return
-      isFirstStep = true // reset variable, next step will be first step in multistep
-      node.addProps(['steps', 'activeStep'])
 
-      node.props.steps = []
+      isFirstStep = true // reset variable, next step will be first step in multistep
+      node.addProps(['steps', 'tabs', 'activeStep'])
+
+      // call the default slot to pre-render child steps
+      // for SSR support
+      if (node.context.slots.default) {
+        node.props.tabs = node.context.slots.default()
+      }
+
+      node.props.steps =
+        node.props.steps || createSSRStepsFromTabs(node.props.tabs)
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete
@@ -279,37 +307,26 @@ export function createMultiStepPlugin(
       node.context.handlers.showStepErrors = showStepErrors
 
       node.on('created', () => {
-        // call the default slot to pre-render child steps
-        // for SSR support
-        console.log('multi-step node created')
-        if (
-          node?.context?.slots &&
-          typeof node.context.slots.default === 'function'
-        ) {
-          console.log('!!!! calling default slot', node.context.slots.default())
-          node.context.slots.default()
-          // node.context.slots.default()
-          // node.context.slots.default()
-          // node.context.slots.default()
-          // node.context.slots.default()
-        } else {
-          console.log('no default slot')
-        }
+        if (!node.context) return
+
         whenAvailable(`${node.props.id}`, (el) => {
-          console.log('multi-step mounted to DOM')
           initEvents(node, el)
         })
       })
 
       node.on('child', ({ payload: childNode }) => {
+        // remove placeholder steps
+        if (node.props.steps && node.props.steps.length) {
+          node.props.steps = node.props.steps.filter(
+            (step: Record<string, any>) => !step.__isPlaceholder
+          )
+        }
         node.props.steps =
           Array.isArray(node.props.steps) && node.props.steps.length > 0
             ? [...node.props.steps, childNode.context]
             : [childNode.context]
         node.props.steps = orderSteps(node.props.steps)
         setNodePositionProps(node.props.steps)
-
-        console.log('child node added, steps: ', node.props.steps.length)
 
         childNode.props.stepName =
           childNode.props.label || camel2title(childNode.name)
@@ -384,6 +401,8 @@ export function createMultiStepPlugin(
       const parentNode = node.parent
 
       node.on('created', () => {
+        if (!node.context || !parentNode.context) return
+
         whenAvailable(`${node.props.id}`, () => {
           parentNode.props.steps = orderSteps(parentNode.props.steps)
           setNodePositionProps(parentNode.props.steps)

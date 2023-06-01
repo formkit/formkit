@@ -229,8 +229,6 @@ export function useInput(
   const parent = initialProps.ignore
     ? null
     : props.parent || inject(parentSymbol, null)
-
-  console.log('createNode', props.name)
   const node = createNode(
     extend(
       config || {},
