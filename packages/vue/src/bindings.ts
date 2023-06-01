@@ -256,6 +256,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     node: markRaw(node),
     options: node.props.options,
     defaultMessagePlacement: true,
+    slots: node.props.__slots,
     state: {
       blurred: false,
       complete: isComplete,

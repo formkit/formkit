@@ -199,6 +199,7 @@ export function useInput(
     const initialProps: Record<string, any> = {
       ...nodeProps(props),
       ...listeners,
+      __slots: context.slots,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
     if (!attrs.key) attrs.key = token()

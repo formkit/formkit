@@ -279,12 +279,15 @@ export function createMultiStepPlugin(
       node.context.handlers.showStepErrors = showStepErrors
 
       node.on('created', () => {
+        console.log(node.context?.slots?.default())
         whenAvailable(`${node.props.id}`, (el) => {
+          console.log('whenAvailable did run')
           initEvents(node, el)
         })
       })
 
       node.on('child', ({ payload: childNode }) => {
+        console.log('child did run')
         node.props.steps =
           Array.isArray(node.props.steps) && node.props.steps.length > 0
             ? [...node.props.steps, childNode.context]
