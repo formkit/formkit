@@ -84,7 +84,7 @@ function showStepErrors(step: FormKitFrameworkContext) {
  * @param currentStep - The current step
  * @param targetStep - The target step
  */
-function isTargetStepAllowed(
+async function isTargetStepAllowed(
   currentStep: FormKitFrameworkContext,
   targetStep: FormKitFrameworkContext
 ) {
@@ -99,7 +99,7 @@ function isTargetStepAllowed(
     currentStep.node.parent?.props.beforeStepChange
 
   if (beforeStepChange && typeof beforeStepChange === 'function') {
-    const result = beforeStepChange({
+    const result = await beforeStepChange({
       currentStep,
       targetStep,
       delta: targetStepIndex - currentStepIndex,
@@ -136,7 +136,7 @@ function isTargetStepAllowed(
  *
  * @param targetStep - The target step
  */
-function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
+async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   if (e) {
     e.preventDefault()
   }
@@ -145,7 +145,7 @@ function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
       (step: FormKitFrameworkContext) =>
         step.node.name === targetStep.node.parent?.props.activeStep
     )
-    const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
+    const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
     if (stepIsAllowed && targetStep.node.parent.context) {
       targetStep.node.parent.props.activeStep = targetStep.node.name
@@ -159,7 +159,7 @@ function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
  * @param delta - The number of steps to increment or decrement
  * @param step - The current step
  */
-function incrementStep(
+async function incrementStep(
   delta: number,
   currentStep: FormKitFrameworkContextWithSteps
 ) {
@@ -169,7 +169,7 @@ function incrementStep(
       stepIndex,
     }: { steps: FormKitFrameworkContext[]; stepIndex: number } = currentStep
     const targetStep = steps[stepIndex + delta]
-    const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
+    const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
     if (targetStep && stepIsAllowed) {
       currentStep.node.parent.props.activeStep = targetStep.node.name
@@ -350,8 +350,8 @@ export function createMultiStepPlugin(
               delta: number,
               stepNode: FormKitFrameworkContextWithSteps
             ) => incrementStep.bind(null, delta, stepNode)
-            node.context.makeActive = () => {
-              setActiveStep(node.context as FormKitFrameworkContext)
+            node.context.makeActive = async () => {
+              await setActiveStep(node.context as FormKitFrameworkContext)
             }
             node.context.handlers.next = () =>
               incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
