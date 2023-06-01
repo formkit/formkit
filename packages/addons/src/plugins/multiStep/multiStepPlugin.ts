@@ -281,13 +281,22 @@ export function createMultiStepPlugin(
       node.on('created', () => {
         // call the default slot to pre-render child steps
         // for SSR support
+        console.log('multi-step node created')
         if (
           node?.context?.slots &&
           typeof node.context.slots.default === 'function'
         ) {
-          node.context?.slots?.default()
+          console.log('!!!! calling default slot', node.context.slots.default())
+          node.context.slots.default()
+          // node.context.slots.default()
+          // node.context.slots.default()
+          // node.context.slots.default()
+          // node.context.slots.default()
+        } else {
+          console.log('no default slot')
         }
         whenAvailable(`${node.props.id}`, (el) => {
+          console.log('multi-step mounted to DOM')
           initEvents(node, el)
         })
       })
@@ -299,6 +308,8 @@ export function createMultiStepPlugin(
             : [childNode.context]
         node.props.steps = orderSteps(node.props.steps)
         setNodePositionProps(node.props.steps)
+
+        console.log('child node added, steps: ', node.props.steps.length)
 
         childNode.props.stepName =
           childNode.props.label || camel2title(childNode.name)
