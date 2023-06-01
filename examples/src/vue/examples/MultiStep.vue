@@ -3,7 +3,7 @@ import { reactive } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
 
 const multiStepFormSchema = [
-{
+  {
     $formkit: 'multi-step',
     beforeStepChange: '$log',
     allowIncomplete: false,
@@ -29,7 +29,7 @@ const multiStepFormSchema = [
             label: 'favorie color',
             validation: 'required',
           },
-        ]
+        ],
       },
       {
         $formkit: 'step',
@@ -40,38 +40,31 @@ const multiStepFormSchema = [
             label: 'favorite memory',
             validation: 'required',
           },
-        ]
+        ],
       },
     ],
   },
 ]
 
-const log = console.log
+async function log(statement) {
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+  console.log(statement)
+}
 
 const schemaData = reactive({
   showStepTwo: true,
-  log
+  log,
 })
 </script>
 
 <template>
-  <FormKitSchema
-    :schema="multiStepFormSchema"
-    :data="schemaData"
-  />
+  <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" />
 
-  <FormKit
-    v-slot="{ value }"
-    type="form"
-  >
+  <FormKit v-slot="{ value }" type="form">
     <!-- should not render as it is not inside a multi-step -->
     <FormKit type="step" />
 
-    <FormKit
-      type="multi-step"
-      tab-style="progress"
-      valid-step-icon="star"
-    >
+    <FormKit type="multi-step" tab-style="progress" valid-step-icon="star">
       <FormKit
         type="step"
         name="personalInfo"
@@ -91,20 +84,22 @@ const schemaData = reactive({
           validation="required"
         />
       </FormKit>
-    
+
       <FormKit
         v-if="schemaData.showStepTwo"
         type="step"
         label="2. References"
         name="references"
-        :before-step-change="({ currentStep, targetStep, delta }) => {
-          if (delta > 0) {
-            if (currentStep.value.supply === '1') {
-              log('stops next')
-              return false
+        :before-step-change="
+          ({ currentStep, targetStep, delta }) => {
+            if (delta > 0) {
+              if (currentStep.value.supply === '1') {
+                log('stops next')
+                return false
+              }
             }
           }
-        }"
+        "
       >
         <FormKit
           type="textarea"
@@ -114,18 +109,12 @@ const schemaData = reactive({
         />
 
         <template #stepNext="{ handlers }">
-          <div
-            class="custom-next"
-            @click="handlers.next"
-          >
+          <div class="custom-next" @click="handlers.next">
             My Custom Step Next
           </div>
         </template>
         <template #stepPrevious="{ handlers }">
-          <div
-            class="custom-next"
-            @click="handlers.previous"
-          >
+          <div class="custom-next" @click="handlers.previous">
             My Custom Step Previous
           </div>
         </template>
@@ -137,7 +126,7 @@ const schemaData = reactive({
         label="3. Supplemental"
         previous-label="Go back"
         :previous-attrs="{
-          'data-something': 'some data'
+          'data-something': 'some data',
         }"
       >
         <FormKit
@@ -173,7 +162,6 @@ const schemaData = reactive({
     <pre>{{ value }}</pre>
   </FormKit>
 </template>
-
 
 <style scoped>
 .custom-next {

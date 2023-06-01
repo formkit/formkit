@@ -1,5 +1,12 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { $if, wrapper, defaultIcon, $extend, localize } from '@formkit/inputs'
+import {
+  $if,
+  wrapper,
+  defaultIcon,
+  $extend,
+  localize,
+  disablesChildren,
+} from '@formkit/inputs'
 import {
   badge,
   stepPrevious,
@@ -70,7 +77,7 @@ export const multiStep: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [defaultIcon('validStep', 'check')],
+  features: [defaultIcon('validStep', 'check'), disablesChildren],
 }
 
 export const step: FormKitTypeDefinition = {
@@ -104,5 +111,5 @@ export const step: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [localize('next'), localize('prev')],
+  features: [localize('next'), localize('prev'), disablesChildren],
 }
