@@ -176,7 +176,7 @@ describe('multistep', () => {
         },
       },
     })
-    expect(console.warn).toHaveBeenCalledTimes(1)
+    expect(console.warn).toHaveBeenCalledTimes(2) // once for step, once for Vue warning about default slot call
     expect(console.warn).toBeCalledWith(
       'Invalid FormKit input location. <FormKit type="multi-step"> should only have <FormKit type="step"> inputs as immediate children. Failure to wrap child inputs in <FormKit type="step"> can lead to undesired behaviors.'
     )
