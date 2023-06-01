@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
 
 const multiStepFormSchema = [
@@ -55,6 +55,8 @@ const schemaData = reactive({
   showStepTwo: true,
   log,
 })
+
+const multiStepNode = ref(null)
 </script>
 
 <template>
@@ -64,7 +66,12 @@ const schemaData = reactive({
     <!-- should not render as it is not inside a multi-step -->
     <FormKit type="step" />
 
-    <FormKit type="multi-step" tab-style="progress" valid-step-icon="star">
+    <FormKit
+      type="multi-step"
+      tab-style="progress"
+      valid-step-icon="star"
+      @node="(node) => (multiStepNode = node)"
+    >
       <FormKit
         type="step"
         name="personalInfo"
@@ -151,6 +158,19 @@ const schemaData = reactive({
         </template>
       </FormKit>
     </FormKit>
+
+    <button type="button" @click="multiStepNode.next()">
+      External Next Step Control</button
+    ><br />
+    <button type="button" @click="multiStepNode.previous()">
+      External Previous Step Control</button
+    ><br />
+    <button type="button" @click="multiStepNode.goTo(2)">
+      Go to step 3 by index</button
+    ><br />
+    <button type="button" @click="multiStepNode.goTo('Supplemental')">
+      Go to step 3 by name</button
+    ><br />
 
     <button
       type="button"

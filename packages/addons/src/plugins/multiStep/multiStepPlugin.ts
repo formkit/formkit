@@ -8,6 +8,17 @@ import {
 import { whenAvailable } from '@formkit/utils'
 import { multiStep, step } from './schema'
 
+/**
+ * Extend FormKitNode with Multi-step helper functions.
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    next(): void
+    previous(): void
+    goTo(step: number | string): void
+  }
+}
+
 const isBrowser = typeof window !== 'undefined'
 
 /**
@@ -187,11 +198,10 @@ async function incrementStep(
   currentStep: FormKitFrameworkContextWithSteps
 ) {
   if (currentStep && currentStep.node.name && currentStep.node.parent) {
-    const {
-      steps,
-      stepIndex,
-    }: { steps: FormKitFrameworkContext[]; stepIndex: number } = currentStep
+    const steps = currentStep.node.parent.props.steps
+    const stepIndex = currentStep.stepIndex
     const targetStep = steps[stepIndex + delta]
+    if (!targetStep) return
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
     if (targetStep && stepIsAllowed) {
@@ -309,6 +319,43 @@ export function createMultiStepPlugin(
       node.on('created', () => {
         if (!node.context) return
 
+        node.extend('next', {
+          get: (node) => () => {
+            incrementStep(
+              1,
+              node?.props?.steps.find(
+                (step: Record<string, any>) => step.isActiveStep
+              )
+            )
+          },
+          set: false,
+        })
+        node.extend('previous', {
+          get: (node) => () => {
+            incrementStep(
+              -1,
+              node?.props?.steps.find(
+                (step: Record<string, any>) => step.isActiveStep
+              )
+            )
+          },
+          set: false,
+        })
+        node.extend('goTo', {
+          get: (node) => (target: number | string) => {
+            if (typeof target === 'number') {
+              const targetStep = node.props.steps[target]
+              setActiveStep(targetStep)
+            } else if (typeof target === 'string') {
+              const targetStep = node.props.steps.find(
+                (step: Record<string, any>) => step.node.name === target
+              )
+              setActiveStep(targetStep)
+            }
+          },
+          set: false,
+        })
+
         whenAvailable(`${node.props.id}`, (el) => {
           initEvents(node, el)
         })
@@ -369,6 +416,7 @@ export function createMultiStepPlugin(
             return false
           }
         )
+        setNodePositionProps(node.props.steps)
         // if the child that was removed was the active step
         // then fallback to the next available step
         if (node.props.activeStep === childNode.name) {
