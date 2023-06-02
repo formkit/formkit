@@ -2,7 +2,13 @@ import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
   h,
   ref,
+  VNode,
+  VNodeProps,
+  RendererNode,
+  RendererElement,
   defineComponent,
+  AllowedComponentProps,
+  ComponentCustomProps,
   InjectionKey,
   ConcreteComponent,
   SetupContext,
@@ -10,6 +16,55 @@ import {
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import { props } from './props'
+import {
+  FormKitInputs,
+  FormKitInputEvents,
+  FormKitInputSlots,
+} from '@formkit/inputs'
+
+// export type Inputs =
+//   | FormKitInputs[keyof FormKitInputs]
+//   | Exclude<Partial<FormKitInputs['text']>, 'type'>
+
+type Events<Props extends FormKitInputs> =
+  Props['type'] extends keyof FormKitInputEvents<Props>
+    ? FormKitInputEvents<Props>[Props['type']]
+    : {}
+
+type Slots<Props extends FormKitInputs> =
+  Props['type'] extends keyof FormKitInputSlots<Props>
+    ? FormKitInputSlots<Props>[Props['type']]
+    : {}
+
+/**
+ * The TypeScript definition for the FormKit component.
+ */
+export type FormKit = <P extends FormKitInputs>(
+  props: P & VNodeProps & AllowedComponentProps & ComponentCustomProps,
+  context?: FormKitSetupContext<P>,
+  setup?: FormKitSetupContext<P>
+) => VNode<
+  RendererNode,
+  RendererElement,
+  {
+    [key: string]: any
+  }
+> & { __ctx?: FormKitSetupContext<P> }
+
+type RecordToEventFns<T extends Record<string, (...args: any[]) => any>> = {
+  (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
+}
+
+/**
+ * Type definition for the FormKit component Vue context.
+ */
+interface FormKitSetupContext<P extends FormKitInputs> {
+  props: {} & P
+  expose(exposed: {}): void
+  attrs: any
+  slots: Slots<P>
+  emit: RecordToEventFns<Events<P>>
+}
 
 /**
  * Flag to determine if we are running on the server.
@@ -42,19 +97,9 @@ export const getCurrentSchemaNode = () => currentSchemaNode
  *
  * @public
  */
-export const FormKit = defineComponent({
+export const formkitComponent = defineComponent({
+  // Add runtime props:
   props,
-  emits: {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
-    input: (_value: any, _node: FormKitNode) => true,
-    inputRaw: (_value: any, _node: FormKitNode) => true,
-    'update:modelValue': (_value: any) => true,
-    node: (node: FormKitNode) => !!node,
-    submit: (_data: any, _node?: FormKitNode) => true,
-    submitRaw: (_event: Event, _node?: FormKitNode) => true,
-    submitInvalid: (_node?: FormKitNode) => true,
-    /* eslint-enable @typescript-eslint/no-unused-vars */
-  },
   inheritAttrs: false,
   setup(props, context) {
     const node = useInput(props, context as SetupContext<any>)
@@ -112,6 +157,10 @@ export const FormKit = defineComponent({
         { ...context.slots }
       )
   },
-})
+}) as unknown as FormKit
+// ☝️ Type inference for generic props to their slot and event types is not
+// yet fully supported as of this release, but this allows us to have nearly
+// complete type safety for the FormKit component itself with discriminated
+// union types.
 
-export default FormKit
+export default formkitComponent

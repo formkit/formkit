@@ -1,4 +1,78 @@
 /**
+ * This is the base interface for providing prop definitions to the FormKit
+ * component. It is used to define the props that are available to the each
+ * component in the FormKit library by using a discriminated union type. The
+ * structure of this interface is:
+ *
+ * ```ts
+ * interface FormKitInputProps {
+ *  typeString: { type: 'string'; value?: string } // <-- All unique props
+ * }
+ * ```
+ *
+ * All inputs will also inherit all props from FormKitBaseInputProps.
+ * @public
+ */
+export interface FormKitInputProps {
+  text: { type: 'text'; value: string }
+  number: { type: 'number'; value: number }
+}
+
+/**
+ * @public
+ */
+export type MergedProps = {
+  [K in keyof FormKitInputProps]: FormKitInputProps[K] &
+    Partial<FormKitBaseProps>
+}
+
+/**
+ * All FormKit inputs should be included for this type.
+ * @public
+ */
+export type FormKitInputs = MergedProps[keyof MergedProps]
+
+/**
+ * Unique events emitted by each FormKit input. The shape of this interface is:
+ *
+ * ```ts
+ * interface FormKitInputEvents<Props extends Inputs> {
+ *   typeString: { customEvent: (value: Props['value']) => any } // <-- All unique events
+ * }
+ * ```
+ *
+ * All inputs will also inherit all events from FormKitBaseInputEvents.
+ * @public
+ */
+export interface FormKitInputEvents<Props extends FormKitInputs> {
+  text: {
+    input: (value: Props['value']) => any
+  }
+}
+
+/**
+ * Slots provided by each FormKit input. The shape of this interface is:
+ *
+ * ```ts
+ * interface FormKitInputSlots<Props extends Inputs> {
+ *   typeString: { default: (value: Props['value']) => any } // <-- All unique slots
+ * }
+ * ```
+ *
+ * There is no automatic inheritance of slots — each slot must be explicitly
+ * defined for each input.
+ * @public
+ */
+export interface FormKitInputSlots<Props extends FormKitInputs> {
+  text: {
+    default: (value: Props['value']) => any
+  }
+  number: {
+    default: (value: Props['value']) => any
+  }
+}
+
+/**
  * Options should always be formatted as an array of objects with label and value
  * properties.
  *
@@ -50,7 +124,7 @@ export type FormKitOptionsProp =
  *
  * @public
  */
-export interface FormKitSyntheticPropsExtensions {
+export interface FormKitBaseProps {
   /**
    * HTML Attribute, read more here: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#accept
    */
@@ -71,13 +145,4 @@ export interface FormKitSyntheticPropsExtensions {
   preserve: string | boolean
   preserveErrors: string | boolean
   dirtyBehavior: 'touched' | 'compare'
-}
-
-/**
- * The synthetic prop types.
- *
- * @public
- */
-export type FormKitSyntheticProps = {
-  [Property in keyof FormKitSyntheticPropsExtensions]: FormKitSyntheticPropsExtensions[Property]
 }

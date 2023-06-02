@@ -1,8 +1,8 @@
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
-import FormKit from '../src/FormKit'
-import { plugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import FormKit from '../../src/FormKit'
+import { plugin } from '../../src/plugin'
+import defaultConfig from '../../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { vi } from 'vitest'
 import { nextTick } from 'vue'
@@ -19,6 +19,7 @@ describe('text classification', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'text',
+        value: 133,
       },
       ...global,
     })

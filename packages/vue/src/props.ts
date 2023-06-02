@@ -1,4 +1,4 @@
-import { FormKitSyntheticProps } from '@formkit/inputs'
+import { FormKitBaseProps } from '@formkit/inputs'
 import {
   FormKitNode,
   FormKitPlugin,
@@ -14,15 +14,15 @@ import { PropType } from 'vue'
  * should be treated as props to the outside world.
  */
 type FormKitSyntheticVueProps = {
-  [Property in keyof FormKitSyntheticProps]: {
-    type: PropType<FormKitSyntheticProps[Property] | undefined>
+  [Property in keyof FormKitBaseProps]: {
+    type: PropType<FormKitBaseProps[Property] | undefined>
   }
 }
 
 /**
  * All the explicit FormKit props.
  */
-const nativeProps = {
+const runtimeProps = {
   config: {
     type: Object as PropType<Record<string, any>>,
     default: {},
@@ -120,10 +120,10 @@ const nativeProps = {
  * The FormKit props merged with synthetics.
  * @internal
  */
-export type FormKitProps = typeof nativeProps & FormKitSyntheticVueProps
+export type FormKitProps = typeof runtimeProps & FormKitSyntheticVueProps
 
 /**
  * The FormKit props object.
  * @internal
  */
-export const props = nativeProps as FormKitProps
+export const props = runtimeProps as FormKitProps

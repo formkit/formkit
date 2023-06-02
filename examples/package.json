@@ -15,13 +15,11 @@
     "@formkit/themes": "workspace:^0.17.0",
     "@formkit/vue": "workspace:^0.17.0",
     "@formkit/zod": "workspace:^0.17.0",
-    "@types/react-dom": "^17.0.9",
-    "@vitejs/plugin-vue": "^1.4.0",
-    "vite": "^2.4.4",
-    "vue-router": "4"
+    "@vitejs/plugin-vue": "^4.2.0",
+    "vite": "^4.3.5",
+    "vue-router": "4.2.2"
   },
   "devDependencies": {
-    "@types/react": "^17.0.19",
     "sass": "^1.45.1",
     "zod": "^3.21.4"
   }

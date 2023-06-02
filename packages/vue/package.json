@@ -44,8 +44,10 @@
     "@formkit/utils": "0.17.2",
     "@formkit/validation": "0.17.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "vue": "^3.3.4"
+  },
   "peerDependencies": {
-    "vue": "^3.2.1"
+    "vue": "^3.3.4"
   }
 }

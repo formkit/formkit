@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
-import { plugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import { plugin } from '../../src/plugin'
+import defaultConfig from '../../src/defaultConfig'
 import { nextTick } from 'vue'
 import { token } from '@formkit/utils'
 import { getNode, reset } from '@formkit/core'
