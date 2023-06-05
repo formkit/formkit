@@ -2,69 +2,78 @@ import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
   h,
   ref,
-  VNode,
-  VNodeProps,
-  RendererNode,
-  RendererElement,
   defineComponent,
-  AllowedComponentProps,
-  ComponentCustomProps,
   InjectionKey,
   ConcreteComponent,
-  SetupContext,
+  FunctionalComponent,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
-import { props } from './props'
+// import { props } from './props'
 import {
   FormKitInputs,
   FormKitInputEvents,
   FormKitInputSlots,
+  FormKitBaseEvents,
+  runtimeProps,
 } from '@formkit/inputs'
 
 // export type Inputs =
 //   | FormKitInputs[keyof FormKitInputs]
 //   | Exclude<Partial<FormKitInputs['text']>, 'type'>
 
-type Events<Props extends FormKitInputs> =
-  Props['type'] extends keyof FormKitInputEvents<Props>
-    ? FormKitInputEvents<Props>[Props['type']]
-    : {}
+// type Events<Props extends FormKitInputs<Props>> =
+//   Props['type'] extends keyof FormKitInputEvents<Props>
+//     ? FormKitInputEvents<Props>[Props['type']] & FormKitBaseEvents<Props>
+//     : FormKitBaseEvents<Props>
 
-type Slots<Props extends FormKitInputs> =
+type Slots<Props extends FormKitInputs<Props>> =
   Props['type'] extends keyof FormKitInputSlots<Props>
     ? FormKitInputSlots<Props>[Props['type']]
     : {}
 
-/**
- * The TypeScript definition for the FormKit component.
- */
-export type FormKit = <P extends FormKitInputs>(
-  props: P & VNodeProps & AllowedComponentProps & ComponentCustomProps,
-  context?: FormKitSetupContext<P>,
-  setup?: FormKitSetupContext<P>
-) => VNode<
-  RendererNode,
-  RendererElement,
-  {
-    [key: string]: any
-  }
-> & { __ctx?: FormKitSetupContext<P> }
+// type RecordToEventFns<T extends Record<string, (...args: any[]) => any>> = {
+//   (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
+// }
 
-type RecordToEventFns<T extends Record<string, (...args: any[]) => any>> = {
-  (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
+interface FormKit {
+  <P extends FormKitInputs<P>>(): FunctionalComponent<
+    P,
+    FormKitBaseEvents<P>,
+    Slots<P>
+  >
 }
+const y: FormKitBaseEvents<FormKitInputs<{ type: 'text'; value: string }>> =
+  {} as FormKitBaseEvents<FormKitInputs<{ type: 'text'; value: string }>>
+const x: Record<string, (...args: any[]) => any> = y
 
-/**
- * Type definition for the FormKit component Vue context.
- */
-interface FormKitSetupContext<P extends FormKitInputs> {
-  props: {} & P
-  expose(exposed: {}): void
-  attrs: any
-  slots: Slots<P>
-  emit: RecordToEventFns<Events<P>>
-}
+x
+
+// /**
+//  * The TypeScript definition for the FormKit component.
+//  */
+// export type FormKit = <P extends FormKitInputs>(
+//   props: P & VNodeProps & AllowedComponentProps & ComponentCustomProps,
+//   context?: Pick<FormKitSetupContext<P>, "attrs" | "emit" | "slots">,
+//   setup?: FormKitSetupContext<P>
+// ) => VNode<
+//   RendererNode,
+//   RendererElement,
+//   {
+//     [key: string]: any
+//   }
+// > & { __ctx?: FormKitSetupContext<P> }
+
+// /**
+//  * Type definition for the FormKit component Vue context.
+//  */
+// interface FormKitSetupContext<P extends FormKitInputs> {
+//   props: {} & P
+//   expose(exposed: {}): void
+//   attrs: any
+//   slots: Slots<P>
+//   emit: RecordToEventFns<Events<P>>
+// }
 
 /**
  * Flag to determine if we are running on the server.
@@ -97,12 +106,12 @@ export const getCurrentSchemaNode = () => currentSchemaNode
  *
  * @public
  */
-export const formkitComponent = defineComponent({
-  // Add runtime props:
-  props,
-  inheritAttrs: false,
-  setup(props, context) {
-    const node = useInput(props, context as SetupContext<any>)
+export const formkitComponent = defineComponent(
+  function setup<P extends FormKitInputs>(
+    props: P,
+    context: FormKitSetupContext<P>
+  ) {
+    const node = useInput(props, context)
     if (!node.props.definition) error(600, node)
     if (node.props.definition.component) {
       return () =>
@@ -157,7 +166,8 @@ export const formkitComponent = defineComponent({
         { ...context.slots }
       )
   },
-}) as unknown as FormKit
+  { props: runtimeProps, inheritAttrs: false }
+) as FormKit satisfies FunctionalComponent<any, any, any>
 // ☝️ Type inference for generic props to their slot and event types is not
 // yet fully supported as of this release, but this allows us to have nearly
 // complete type safety for the FormKit component itself with discriminated

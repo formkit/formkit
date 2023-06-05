@@ -5,5 +5,5 @@ export default defineConfig({
     environment: 'jsdom',
     // singleThread: true,
     exclude: ['**/node_modules/**', '**/e2e/**'],
-  },
+  }
 })
