@@ -21,6 +21,7 @@ import { execa } from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
+import { remove, move } from 'fs-extra'
 import {
   getPackages,
   getThemes,
@@ -137,7 +138,7 @@ export async function buildPackage(p) {
   if (p === 'icons') {
     const icons = getIcons()
     await fs.mkdir(
-      `${rootDir}/packages/icons/dist/icons`,
+      resolve(packagesDir, 'icons/dist/icons'),
       { recursive: true },
       (err) => {
         if (err) throw err
@@ -145,7 +146,7 @@ export async function buildPackage(p) {
     )
     Object.keys(icons).forEach(async (icon) => {
       await fs.writeFile(
-        `${rootDir}/packages/icons/dist/icons/${icon}.svg`,
+        resolve(packagesDir, 'icons/dist/icons', `${icon}.svg`),
         icons[icon]
       )
     })
@@ -235,15 +236,18 @@ async function themesBuildExtras() {
  * Special considerations for building the addons package.
  */
 async function addonsBuildExtras() {
-  const addonsCSS = await fs.readdir(packagesDir + '/addons/src/css')
-  fs.mkdir(packagesDir + '/addons/dist/css/', { recursive: true }, (err) => {
-    if (err) throw err
-  })
-  await addonsCSS.forEach(async (css) => {
-    console.log(packagesDir + '/addons/src/css/' + css)
+  const addonsCSS = await fs.readdir(resolve(packagesDir, 'addons/src/css'))
+  await fs.mkdir(
+    resolve(packagesDir, 'addons/dist/css'),
+    { recursive: true },
+    (err) => {
+      if (err) throw err
+    }
+  )
+  addonsCSS.forEach(async (css) => {
     await fs.copyFile(
-      packagesDir + '/addons/src/css/' + css,
-      packagesDir + '/addons/dist/css/' + css
+      resolve(packagesDir, 'addons/src/css/', css),
+      resolve(packagesDir, 'addons/dist/css/', css)
     )
   })
 }
@@ -332,9 +336,10 @@ async function declarations(p, plugin = '') {
   }
   // Annoyingly even though we tell @rollup/plugin-typescript
   // emitDeclarationOnly it still outputs an index.js — is this a bug?
-  const artifactToDelete = `${packagesDir}/${p}/dist/${
-    plugin ? plugin + '/' : ''
-  }index.js`
+  const artifactToDelete = resolve(
+    packagesDir,
+    `${p}/dist/${plugin ? plugin + '/' : ''}index.js`
+  )
   let shouldDelete
   try {
     shouldDelete = await fs.stat(artifactToDelete)
@@ -346,14 +351,14 @@ async function declarations(p, plugin = '') {
   }
   if (plugin) {
     msg.loader.text = `Emitting type declarations for ${plugin}`
-    await execa('mv', [
-      `${rootDir}/packages/themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`,
-      `${rootDir}/packages/themes/dist/${plugin}/index.d.ts`,
-    ])
-    await execa('rm', [
-      '-rf',
-      `${rootDir}/packages/themes/dist/${plugin}/packages`,
-    ])
+    await move(
+      resolve(
+        packagesDir,
+        `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`
+      ),
+      resolve(packagesDir, `themes/dist/${plugin}/index.d.ts`)
+    )
+    await remove(resolve(packagesDir, `themes/dist/${plugin}/packages`))
   } else {
     msg.loader.text = `Rolling up type declarations`
     await apiExtractor(p)
@@ -365,14 +370,14 @@ async function declarations(p, plugin = '') {
  * Use API Extractor to rollup the type declarations.
  */
 async function apiExtractor(p) {
-  const configPath = `${packagesDir}/${p}/api-extractor.json`
+  const configPath = resolve(packagesDir, `${p}/api-extractor.json`)
   const config = ExtractorConfig.loadFileAndPrepare(configPath)
   const result = Extractor.invoke(config, {
     localBuild: true,
     showVerboseMessages: false,
   })
   if (result.succeeded) {
-    const distRoot = `${packagesDir}/${p}/dist`
+    const distRoot = resolve(packagesDir, `${p}/dist`)
     const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
     await Promise.all(
       distFiles.map((file) => {
