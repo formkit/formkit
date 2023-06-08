@@ -21,7 +21,7 @@ import { FormKitClasses } from '@formkit/core'
  * @public
  */
 export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-  text: { type: 'text'; value: string }
+  text: { type: 'text'; foo: number; value: string }
   number: { type: 'number'; value: number }
 }
 
@@ -55,7 +55,10 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  */
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
   text: {
-    custom: (value: Props['value']) => any
+    (event: 'custom', value: Props['value']): any
+  }
+  number: {
+    (event: 'custom', base: 'base10' | 'base2' | 'base16'): any
   }
 }
 
@@ -64,13 +67,13 @@ export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
  * @public
  */
 export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
-  input: (value: Props['value'], node: FormKitNode) => any
-  inputRaw: (value: Props['value'], node: FormKitNode) => any
-  'update:modelValue': (value: Props['value']) => any
-  node: (node: FormKitNode) => any
-  submit: (data: Props['value'], node: FormKitNode) => any
-  submitRaw: (event: Event, node: FormKitNode) => any
-  submitInvalid: (node: FormKitNode) => any
+  (event: 'input', value: Props['value'], node: FormKitNode): any
+  (event: 'inputRaw', value: Props['value'], node: FormKitNode): any
+  (event: 'update:modelValue', value: Props['value']): any
+  (event: 'node', node: FormKitNode): any
+  (event: 'submit', data: Props['value'], node: FormKitNode): any
+  (event: 'submitRaw', e: Event, node: FormKitNode): any
+  (event: 'submitInvalid', node: FormKitNode): any
 }
 
 /**
@@ -173,6 +176,7 @@ export const runtimeProps = [
  * Warning: As of writing these are only specific to Vue’s runtime prop
  * requirements and should not be used as any kind of external API as they are
  * subject to change.
+ * @public
  */
 export interface FormKitRuntimeProps {
   config: Record<string, any>

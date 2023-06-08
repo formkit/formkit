@@ -32,17 +32,17 @@ import {
   inject,
   provide,
   watch,
-  SetupContext,
   getCurrentInstance,
   computed,
   ref,
   WatchStopHandle,
   onBeforeUnmount,
   onMounted,
+  SetupContext,
 } from 'vue'
+import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-
 /**
  * FormKit props of a component
  *
@@ -54,14 +54,14 @@ export interface FormKitComponentProps {
   validation?: any
   modelValue?: any
   parent?: FormKitNode
-  errors: string[]
-  inputErrors: Record<string, string | string[]>
+  errors?: string[]
+  inputErrors?: Record<string, string | string[]>
   index?: number
-  config: Record<string, any>
+  config?: Record<string, any>
   sync?: boolean
   dynamic?: boolean
   classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
-  plugins: FormKitPlugin[]
+  plugins?: FormKitPlugin[]
 }
 
 interface FormKitComponentListeners {
@@ -144,11 +144,10 @@ function onlyListeners(
  *
  * @public
  */
-export function useInput(
-  props: FormKitComponentProps,
-  context: SetupContext<any>,
-  options: FormKitOptions = {}
-): FormKitNode {
+export function useInput<
+  Props extends FormKitInputs<Props>,
+  Context extends SetupContext<any, any>
+>(props: Props, context: Context, options: FormKitOptions = {}): FormKitNode {
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
@@ -236,7 +235,7 @@ export function useInput(
         name: props.name || undefined,
         value,
         parent,
-        plugins: (config.plugins || []).concat(props.plugins),
+        plugins: (config.plugins || []).concat(props.plugins ?? []),
         config: props.config,
         props: initialProps,
         index: props.index,
@@ -354,7 +353,7 @@ export function useInput(
    * Add any/all "prop" errors to the store.
    */
   watchEffect(() => {
-    const messages = props.errors.map((error) =>
+    const messages = (props.errors ?? []).map((error) =>
       createMessage({
         key: slugify(error),
         type: 'error',
@@ -374,10 +373,11 @@ export function useInput(
   if (node.type !== 'input') {
     const sourceKey = `${node.name}-prop`
     watchEffect(() => {
-      const keys = Object.keys(props.inputErrors)
+      const inputErrors = props.inputErrors ?? {}
+      const keys = Object.keys(inputErrors)
       if (!keys.length) node.clearErrors(true, sourceKey)
       const messages = keys.reduce((messages, key) => {
-        let value = props.inputErrors[key]
+        let value = inputErrors[key]
         if (typeof value === 'string') value = [value]
         if (Array.isArray(value)) {
           messages[key] = value.map((error) =>

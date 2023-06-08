@@ -26,6 +26,8 @@ export * from './plugin'
  */
 export {
   default as FormKit,
+  FormKitComponent,
+  FormKitSetupContext,
   parentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'

@@ -44,7 +44,7 @@ function createPlugin(
   options: FormKitOptions & Record<string, any>
 ): FormKitVuePlugin {
   app
-    .component(options.alias || 'FormKit', FormKit)
+    .component(options.alias || 'FormKit', FormKit as any)
     .component(options.schemaAlias || 'FormKitSchema', FormKitSchema)
   return {
     get: getNode,

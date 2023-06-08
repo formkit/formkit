@@ -56,9 +56,9 @@ describe('text classification', () => {
   })
 
   it('throws an error when provided input type is not in library', () => {
-    const consoleWarnMock = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => {})
+    const consoleWarnMock = vi.spyOn(console, 'warn').mockImplementation(() => {
+      // nothing
+    })
     expect(() =>
       mount(FormKit, { props: { type: 'foobar' }, ...global })
     ).toThrow(Error)

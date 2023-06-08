@@ -92,7 +92,7 @@ function createPluginsConfig() {
     )
   }
   // This commented out code is used for compiling
-  // .vue SFC files — current we dont have any:
+  // .vue SFC files — current we dont have any:
   // if (pkg === 'vue') {
   //   plugins.push(typescript2(tsConfig))
   //   plugins.push(
