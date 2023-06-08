@@ -41,6 +41,9 @@ export function createLocalStoragePlugin(
     // to 'form' and 'group' inputs — as well as any add-on inputs
     // registered of FormKit type 'group' (eg. 'multi-step').
     if (node.type !== 'group') return
+    
+    // enable SSR support
+    if (typeof window === "undefined") return
 
     const shouldUseLocalStorage = (controlNode: FormKitNode | undefined) => {
       let controlFieldValue = true
