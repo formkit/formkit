@@ -5,15 +5,15 @@ import {
   defineComponent,
   InjectionKey,
   ConcreteComponent,
-  // FunctionalComponent,
-  VNodeProps,
-  AllowedComponentProps,
-  ComponentCustomProps,
+  // VNodeProps,
+  // AllowedComponentProps,
+  // ComponentCustomProps,
   VNode,
   RendererNode,
   RendererElement,
   SetupContext,
   RenderFunction,
+  SlotsType,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
@@ -40,7 +40,7 @@ type Slots<Props extends FormKitInputs<Props>> =
     ? FormKitInputSlots<Props>[Props['type']]
     : {}
 
-type AsRecord<T> = Record<string, (...args: any[]) => any> & T
+// type AsRecord<T> = Record<string, (...args: any[]) => any> & T
 
 export type EventFns<T extends Record<string, (...args: any[]) => any>> = {
   (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
@@ -70,32 +70,30 @@ export type EventFns<T extends Record<string, (...args: any[]) => any>> = {
  * The TypeScript definition for the FormKit component.
  * @public
  */
-export type FormKitComponent = <P extends FormKitInputs<P>>(
-  props: P & VNodeProps & AllowedComponentProps & ComponentCustomProps,
-  context?: Pick<FormKitSetupContext<P>, 'attrs' | 'emit' | 'slots'>,
-  setup?: FormKitSetupContext<P>
+export type FormKitComponent = <Props extends FormKitInputs<Props>>(
+  props: Props /*& VNodeProps & AllowedComponentProps & ComponentCustomProps*/,
+  context?: Pick<FormKitSetupContext<Props>, 'attrs' | 'emit' | 'slots'>,
+  setup?: FormKitSetupContext<Props>
 ) => VNode<
   RendererNode,
   RendererElement,
   {
     [key: string]: any
   }
-> & { __ctx?: FormKitSetupContext<P> }
+> & { __ctx?: FormKitSetupContext<Props> }
 
 /**
  * Type definition for the FormKit component Vue context.
  * @public
  */
-export interface FormKitSetupContext<P extends FormKitInputs<P>> {
-  props: {} & P
+export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
+  props: {} & Props
   expose(exposed: {}): void
   attrs: any
-  slots: Slots<P>
-  // emit: FormKitBaseEvents<P>
-  // emit: EventFns<P, Events<P>>
-  emit: P['type'] extends keyof FormKitInputEvents<P>
-    ? FormKitInputEvents<P>[P['type']] | FormKitBaseEvents<P>
-    : FormKitBaseEvents<P>
+  slots: Slots<Props>
+  emit: Props['type'] extends keyof FormKitInputEvents<Props>
+    ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[Props['type']]
+    : FormKitBaseEvents<Props>
 }
 
 /**
@@ -140,7 +138,7 @@ export const getCurrentSchemaNode = () => currentSchemaNode
 
 function setup<Props extends FormKitInputs<Props>>(
   props: Props,
-  context: SetupContext<{}, AsRecord<Slots<Props>>>
+  context: SetupContext<{}, SlotsType<Slots<Props>>>
 ): RenderFunction {
   const node = useInput<Props, any>(props, context)
   if (!node.props.definition) error(600, node)

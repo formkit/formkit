@@ -12,6 +12,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-extra-semi': 0,
     '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/no-empty-interface': 0,
     '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
     '@typescript-eslint/ban-types': 0,
     'tsdoc/syntax': 'warn',

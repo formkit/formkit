@@ -3,11 +3,7 @@
 </script>
 
 <template>
-  <FormKit type="number" :value="123" :foo="123" @custom="(value) => value">
-    <template #default="foo">
-      {{ foo }}
-    </template>
-  </FormKit>
+  <FormKit type="checkbox" @input="(value, node) => value && node" />
 </template>
 
 <style scoped>

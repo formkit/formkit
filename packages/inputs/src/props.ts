@@ -1,9 +1,22 @@
-import { FormKitPlugin } from '@formkit/core'
+import { FormKitPlugin, FormKitGroupValue } from '@formkit/core'
 import { FormKitSchemaCondition } from '@formkit/core'
 import { FormKitTypeDefinition } from '@formkit/core'
 import { FormKitSchemaNode } from '@formkit/core'
 import { FormKitNode } from '@formkit/core'
 import { FormKitClasses } from '@formkit/core'
+
+/**
+ * These are props that are used as conditionals in one or more inputs, and as
+ * such they need to be defined on all input types. These should all be defined
+ * explicitly as "undefined" here, and then defined as their specific type
+ * in the FormKitInputProps interface only on the inputs that use them.
+ * @public
+ */
+export interface FormKitConditionalProps {
+  onValue: undefined
+  offValue: undefined
+  options: undefined
+}
 
 /**
  * This is the base interface for providing prop definitions to the FormKit
@@ -18,20 +31,61 @@ import { FormKitClasses } from '@formkit/core'
  * ```
  *
  * All inputs will also inherit all props from FormKitBaseInputProps.
+ *
+ * Note: It is important that all inputs provide a type and a value prop.
  * @public
  */
 export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-  text: { type: 'text'; foo: number; value: string }
-  number: { type: 'number'; value: number }
+  text: { type: 'text' }
+  color: { type: 'color' }
+  date: { type: 'date' }
+  datetimeLocal: { type: 'datetimeLocal' }
+  email: { type: 'email' }
+  month: { type: 'month' }
+  password: { type: 'password' }
+  search: { type: 'search' }
+  tel: { type: 'tel' }
+  time: { type: 'time' }
+  url: { type: 'url' }
+  week: { type: 'week' }
+  range: { type: 'range' }
+  number: { type: 'number' }
+  button: { type: 'button' }
+  submit: { type: 'submit' }
+  checkbox: {
+    type: 'checkbox'
+    options?: FormKitOptionsProp
+    onValue?: Props['onValue'] extends unknown ? true : Props['onValue']
+    offValue?: Props['offValue'] extends unknown ? false : Props['offValue']
+    value?: Props['options'] extends Record<infer T, string>
+      ? T[]
+      : Props['options'] extends FormKitOptionsItem[]
+      ? Props['options'][number]['value']
+      : Props['options'] extends Array<infer T>
+      ? T[]
+      : Props['onValue'] | Props['offValue']
+  }
+  file: { type: 'file' }
+  form: { type: 'form'; value?: FormKitGroupValue }
+  group: { type: 'group'; value?: FormKitGroupValue }
+  hidden: { type: 'hidden' }
+  list: { type: 'list'; value?: unknown[] }
+  radio: { type: 'radio' }
+  select: { type: 'select' }
+  textarea: { type: 'textarea' }
 }
 
 /**
  * @public
  */
 export type MergedProps<Props extends FormKitInputs<Props>> = {
-  [K in keyof FormKitInputProps<Props>]: FormKitInputProps<Props>[K] &
-    Partial<FormKitBaseProps> &
-    Partial<FormKitRuntimeProps>
+  [K in keyof FormKitInputProps<Props>]: Omit<
+    Partial<FormKitBaseProps>,
+    keyof FormKitInputProps<Props>[K]
+  > &
+    Omit<Partial<FormKitRuntimeProps>, keyof FormKitInputProps<Props>[K]> &
+    Omit<Partial<FormKitConditionalProps>, keyof FormKitInputProps<Props>[K]> &
+    FormKitInputProps<Props>[K]
 }
 
 /**
@@ -46,7 +100,7 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  *
  * ```ts
  * interface FormKitInputEvents<Props extends Inputs> {
- *   typeString: { customEvent: (value: Props['value']) => any } // <-- All unique events
+ *   typeString: { customEvent: (value: PropType<Props, 'value'>) => any } // <-- All unique events
  * }
  * ```
  *
@@ -54,25 +108,42 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  * @public
  */
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
-  text: {
-    (event: 'custom', value: Props['value']): any
-  }
-  number: {
-    (event: 'custom', base: 'base10' | 'base2' | 'base16'): any
+  form: {
+    (
+      event: 'submit',
+      data: PropType<Props, 'value'>,
+      node: FormKitNode<PropType<Props, 'value'>>
+    ): any
+    (
+      event: 'submitRaw',
+      e: Event,
+      node: FormKitNode<PropType<Props, 'value'>>
+    ): any
   }
 }
+
+type PropType<
+  Props extends FormKitInputs<Props>,
+  T extends keyof FormKitInputs<Props>
+> = Extract<FormKitInputs<Props>, { type: Props['type'] }>[T]
 
 /**
  * General input events available to all FormKit inputs.
  * @public
  */
 export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
-  (event: 'input', value: Props['value'], node: FormKitNode): any
-  (event: 'inputRaw', value: Props['value'], node: FormKitNode): any
-  (event: 'update:modelValue', value: Props['value']): any
+  (
+    event: 'input',
+    value: PropType<Props, 'value'>,
+    node: FormKitNode<PropType<Props, 'value'>>
+  ): any
+  (
+    event: 'inputRaw',
+    value: PropType<Props, 'value'>,
+    node: FormKitNode<PropType<Props, 'value'>>
+  ): any
+  (event: 'update:modelValue', value: PropType<Props, 'value'>): any
   (event: 'node', node: FormKitNode): any
-  (event: 'submit', data: Props['value'], node: FormKitNode): any
-  (event: 'submitRaw', e: Event, node: FormKitNode): any
   (event: 'submitInvalid', node: FormKitNode): any
 }
 
@@ -81,7 +152,7 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  *
  * ```ts
  * interface FormKitInputSlots<Props extends Inputs> {
- *   typeString: { default: (value: Props['value']) => any } // <-- All unique slots
+ *   typeString: { default: (value: PropType<Props, 'value'>) => any } // <-- All unique slots
  * }
  * ```
  *
@@ -91,10 +162,10 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  */
 export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
   text: {
-    default: (value: Props['value']) => any
+    default: (value: PropType<Props, 'value'>) => any
   }
   number: {
-    default: (value: Props['value']) => any
+    default: (value: PropType<Props, 'value'>) => any
   }
 }
 
@@ -145,18 +216,19 @@ export type FormKitOptionsProp =
   FormKitOptionsPropExtensions[keyof FormKitOptionsPropExtensions]
 
 /**
- * All the explicit FormKit props.
+ * All the explicit FormKit props that need to be passed to FormKit’s Vue
+ * component instance.
  * @public
  */
 export const runtimeProps = [
-  'config',
   'classes',
+  'config',
   'delay',
   'dynamic',
   'errors',
-  'inputErrors',
-  'index',
   'id',
+  'index',
+  'inputErrors',
   'modelValue',
   'name',
   'parent',
@@ -165,9 +237,9 @@ export const runtimeProps = [
   'sync',
   'type',
   'validation',
+  'validationLabel',
   'validationMessages',
   'validationRules',
-  'validationLabel',
 ]
 
 /**
@@ -176,135 +248,102 @@ export const runtimeProps = [
  * Warning: As of writing these are only specific to Vue’s runtime prop
  * requirements and should not be used as any kind of external API as they are
  * subject to change.
+ *
  * @public
  */
 export interface FormKitRuntimeProps {
+  /**
+   * An object of configuration data for the input and its children.
+   */
   config: Record<string, any>
+  /**
+   * An object of classes to be applied to the input.
+   */
   classes: Record<string, string | Record<string, boolean> | FormKitClasses>
+  /**
+   * Amount of time to debounce input before committing.
+   */
   delay: number
+  /**
+   * A boolean indicating whether the list input is dynamic.
+   */
   dynamic: boolean
+  /**
+   * An array of errors for the input.
+   */
   errors: string[]
+  /**
+   * A object of values
+   */
   inputErrors: Record<string, string[]>
+  /**
+   * An explicit index to mount a child of a list at.
+   */
   index: number
+  /**
+   * A globally unique identifier for the input — this passes through to the
+   * id attribute.
+   */
   id: string
+  /**
+   * The dynamic value of the input.
+   */
   modelValue: string
+  /**
+   * The name of the input.
+   */
   name: string
+  /**
+   * An explicit parent node for the input.
+   */
   parent: FormKitNode
+  /**
+   * An array of plugins to apply to the input.
+   */
   plugins: FormKitPlugin[]
+  /**
+   * An object of sections to merge with the input’s internal schema.
+   */
   sectionsSchema: Record<
     string,
     Partial<FormKitSchemaNode> | FormKitSchemaCondition
   >
+  /**
+   * A boolean indicating whether the input should be synced with the model.
+   */
   sync: boolean | undefined
+  /**
+   * The type of the input.
+   */
   type: string | FormKitTypeDefinition
+  /**
+   * A validation string or array of validation rules.
+   */
   validation: string | Array<[rule: string, ...args: any]>
+  /**
+   * An object of validation messages to use for the input.
+   */
   validationMessages: Record<
     string,
     string | ((ctx: { node: FormKitNode; name: string; args: any[] }) => string)
   >
+  /**
+   * An object of additional validation rules to use for the input.
+   */
   validationRules: Record<
     string,
     (node: FormKitNode) => boolean | Promise<boolean>
   >
+  /**
+   * Use this to override the default validation label in validation messages.
+   */
   validationLabel: string | ((node: FormKitNode) => string)
 }
 
-//   config: {
-//     type: Object as PropType<Record<string, any>>,
-//     default: {},
-//   },
-//   classes: {
-//     type: Object as PropType<
-//       Record<string, string | Record<string, boolean> | FormKitClasses>
-//     >,
-//     required: false,
-//   },
-//   delay: {
-//     type: Number,
-//     required: false,
-//   },
-//   dynamic: {
-//     type: Boolean as PropType<boolean | undefined>,
-//     required: false,
-//   },
-//   errors: {
-//     type: Array as PropType<string[]>,
-//     default: [],
-//   },
-//   inputErrors: {
-//     type: Object as PropType<Record<string, string[]>>,
-//     default: () => ({}),
-//   },
-//   index: {
-//     type: Number,
-//     required: false,
-//   },
-//   id: {
-//     type: String,
-//     required: false,
-//   },
-//   modelValue: {
-//     required: false,
-//   },
-//   name: {
-//     type: String,
-//     required: false,
-//   },
-//   parent: {
-//     type: Object as PropType<FormKitNode>,
-//     required: false,
-//   },
-//   plugins: {
-//     type: Array as PropType<FormKitPlugin[]>,
-//     default: [],
-//   },
-//   sectionsSchema: {
-//     type: Object as PropType<
-//       Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
-//     >,
-//     default: {},
-//   },
-//   sync: {
-//     type: Boolean as PropType<boolean | undefined>,
-//     required: false,
-//   },
-//   type: {
-//     type: [String, Object] as PropType<string | FormKitTypeDefinition>,
-//     default: 'text',
-//   },
-//   validation: {
-//     type: [String, Array] as PropType<
-//       string | Array<[rule: string, ...args: any]>
-//     >,
-//     required: false,
-//   },
-//   validationMessages: {
-//     type: Object as PropType<
-//       Record<
-//         string,
-//         | string
-//         | ((ctx: { node: FormKitNode; name: string; args: any[] }) => string)
-//       >
-//     >,
-//     required: false,
-//   },
-//   validationRules: {
-//     type: Object as PropType<
-//       Record<string, (node: FormKitNode) => boolean | Promise<boolean>>
-//     >,
-//     required: false,
-//   },
-//   validationLabel: {
-//     type: [String, Function] as PropType<
-//       string | ((node: FormKitNode) => string)
-//     >,
-//     required: false,
-//   },
-// }
-
 /**
- * Synthetic props are props that are not explicitly declared as props, but
- * should be treated as props to the outside world.
+ * Base props that should be applied to all FormKit inputs. These are not actual
+ * runtime props and are pulled from the context.attrs object. Many of these are
+ * just html attributes that are passed through to the input element.
  *
  * @public
  */
@@ -313,20 +352,21 @@ export interface FormKitBaseProps {
    * HTML Attribute, read more here: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#accept
    */
   accept: string
-  actions: boolean
   action: string
-  label: string
-  method: string
-  ignore: string | boolean
-  enctype: string
-  options: FormKitOptionsProp
-  help: string
-  min: string | number
-  max: string | number
-  step: string | number
-  multiple: string | boolean
+  actions: boolean
+  dirtyBehavior: 'touched' | 'compare'
   disabled: string | boolean
+  enctype: string
+  help: string
+  ignore: string | boolean
+  label: string
+  max: string | number
+  method: string
+  min: string | number
+  multiple: string | boolean
   preserve: string | boolean
   preserveErrors: string | boolean
-  dirtyBehavior: 'touched' | 'compare'
+  placeholder: string
+  step: string | number
+  value: string
 }
