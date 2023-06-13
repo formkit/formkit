@@ -18,6 +18,15 @@ export interface FormKitConditionalProps {
   options: undefined
 }
 
+type AllReals =
+  | number
+  | string
+  | boolean
+  | CallableFunction
+  | Array<any>
+  | null
+  | Record<any, any>
+
 /**
  * This is the base interface for providing prop definitions to the FormKit
  * component. It is used to define the props that are available to the each
@@ -55,15 +64,17 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   checkbox: {
     type: 'checkbox'
     options?: FormKitOptionsProp
-    onValue?: Props['onValue'] extends unknown ? true : Props['onValue']
-    offValue?: Props['offValue'] extends unknown ? false : Props['offValue']
+    onValue?: any
+    offValue?: any
     value?: Props['options'] extends Record<infer T, string>
       ? T[]
       : Props['options'] extends FormKitOptionsItem[]
       ? Props['options'][number]['value']
       : Props['options'] extends Array<infer T>
       ? T[]
-      : Props['onValue'] | Props['offValue']
+      :
+          | (Props['onValue'] extends AllReals ? Props['onValue'] : true)
+          | (Props['offValue'] extends AllReals ? Props['offValue'] : false)
   }
   file: { type: 'file' }
   form: { type: 'form'; value?: FormKitGroupValue }
@@ -216,33 +227,6 @@ export type FormKitOptionsProp =
   FormKitOptionsPropExtensions[keyof FormKitOptionsPropExtensions]
 
 /**
- * All the explicit FormKit props that need to be passed to FormKit’s Vue
- * component instance.
- * @public
- */
-export const runtimeProps = [
-  'classes',
-  'config',
-  'delay',
-  'dynamic',
-  'errors',
-  'id',
-  'index',
-  'inputErrors',
-  'modelValue',
-  'name',
-  'parent',
-  'plugins',
-  'sectionsSchema',
-  'sync',
-  'type',
-  'validation',
-  'validationLabel',
-  'validationMessages',
-  'validationRules',
-]
-
-/**
  * Typings for all the built in runtime props.
  *
  * Warning: As of writing these are only specific to Vue’s runtime prop
@@ -370,3 +354,30 @@ export interface FormKitBaseProps {
   step: string | number
   value: string
 }
+
+/**
+ * All the explicit FormKit props that need to be passed to FormKit’s Vue
+ * component instance.
+ * @public
+ */
+export const runtimeProps = [
+  'classes',
+  'config',
+  'delay',
+  'dynamic',
+  'errors',
+  'id',
+  'index',
+  'inputErrors',
+  'modelValue',
+  'name',
+  'parent',
+  'plugins',
+  'sectionsSchema',
+  'sync',
+  'type',
+  'validation',
+  'validationLabel',
+  'validationMessages',
+  'validationRules',
+]
