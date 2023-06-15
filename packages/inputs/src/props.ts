@@ -119,7 +119,7 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   submit: { type: 'submit' }
   tel: { type: 'tel' }
-  text: { type: 'text' }
+  text: { type: 'text' } | {}
   textarea: { type: 'textarea' }
   time: { type: 'time' }
   url: { type: 'url' }
@@ -146,7 +146,7 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
  * @public
  */
 export type FormKitInputs<Props extends FormKitInputs<Props>> =
-  MergedProps<Props>[keyof MergedProps<Props>]
+  | MergedProps<Props>[keyof MergedProps<Props>]
 
 /**
  * Unique events emitted by each FormKit input. The shape of this interface is:
@@ -174,7 +174,10 @@ export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
 export type PropType<
   Props extends FormKitInputs<Props>,
   T extends keyof FormKitInputs<Props>
-> = Extract<FormKitInputs<Props>, { type: Props['type'] }>[T]
+> = Extract<
+  FormKitInputs<Props>,
+  { type: Props['type'] extends string ? Props['type'] : 'text' }
+>[T]
 
 /**
  * General input events available to all FormKit inputs.

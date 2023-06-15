@@ -7,6 +7,7 @@ const options = ref({ a: '123', b: '546' })
 </script>
 
 <template>
+  <FormKit />
   <FormKit type="form" @submit="foobar">
     <FormKit
       type="checkbox"

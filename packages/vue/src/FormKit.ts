@@ -36,8 +36,8 @@ import {
 //     : FormKitBaseEvents<Props>
 
 type Slots<Props extends FormKitInputs<Props>> =
-  Props['type'] extends keyof FormKitInputSlots<Props>
-    ? FormKitInputSlots<Props>[Props['type']]
+  InputType<Props> extends keyof FormKitInputSlots<Props>
+    ? FormKitInputSlots<Props>[InputType<Props>]
     : {}
 
 // type AsRecord<T> = Record<string, (...args: any[]) => any> & T
@@ -45,6 +45,9 @@ type Slots<Props extends FormKitInputs<Props>> =
 export type EventFns<T extends Record<string, (...args: any[]) => any>> = {
   (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
 }
+
+type InputType<Props extends FormKitInputs<Props>> =
+  Props['type'] extends string ? Props['type'] : 'text'
 
 // type EventFns<P extends FormKitInputs<P>, T extends Events<P>> = ToFns<{
 //   [P in keyof T]: (
@@ -91,8 +94,8 @@ export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
   expose(exposed: {}): void
   attrs: any
   slots: Slots<Props>
-  emit: Props['type'] extends keyof FormKitInputEvents<Props>
-    ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[Props['type']]
+  emit: InputType<Props> extends keyof FormKitInputEvents<Props>
+    ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[InputType<Props>]
     : FormKitBaseEvents<Props>
 }
 
