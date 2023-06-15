@@ -5,19 +5,14 @@ import {
   defineComponent,
   InjectionKey,
   ConcreteComponent,
-  // VNodeProps,
-  // AllowedComponentProps,
-  // ComponentCustomProps,
   VNode,
   RendererNode,
   RendererElement,
   SetupContext,
   RenderFunction,
-  SlotsType,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
-// import { props } from './props'
 import {
   FormKitInputs,
   FormKitInputEvents,
@@ -26,48 +21,23 @@ import {
   runtimeProps,
 } from '@formkit/inputs'
 
-// export type Inputs =
-//   | FormKitInputs[keyof FormKitInputs]
-//   | Exclude<Partial<FormKitInputs['text']>, 'type'>
-
-// type Events<Props extends FormKitInputs<Props>> =
-//   Props['type'] extends keyof FormKitInputEvents<Props>
-//     ? FormKitInputEvents<Props>[Props['type']] | FormKitBaseEvents<Props>
-//     : FormKitBaseEvents<Props>
-
-type Slots<Props extends FormKitInputs<Props>> =
+/**
+ * The type definition for the FormKit’s slots, this is not intended to be used
+ * directly.
+ * @public
+ */
+export type Slots<Props extends FormKitInputs<Props>> =
   InputType<Props> extends keyof FormKitInputSlots<Props>
     ? FormKitInputSlots<Props>[InputType<Props>]
     : {}
 
-// type AsRecord<T> = Record<string, (...args: any[]) => any> & T
-
-export type EventFns<T extends Record<string, (...args: any[]) => any>> = {
-  (event: keyof T, ...args: Parameters<T[keyof T]>): ReturnType<T[keyof T]>
-}
-
-type InputType<Props extends FormKitInputs<Props>> =
-  Props['type'] extends string ? Props['type'] : 'text'
-
-// type EventFns<P extends FormKitInputs<P>, T extends Events<P>> = ToFns<{
-//   [P in keyof T]: (
-//     event: P,
-//     ...args: T[P] extends (...args: any[]) => any ? Parameters<T[P]> : any[]
-//   ) => ReturnType<T[P] extends (...args: any[]) => any ? T[P] : () => any>
-// }>
-
-// type ToFns<T extends Record<string, (...args: any[]) => any>> = T[keyof T]
-
 /**
- * The FormKit component.
+ * Selects the "type" from the props if it exists, otherwise it defaults to
+ * "text".
+ * @public
  */
-// export interface FormKit {
-//   <P extends FormKitInputs<P>>(p: P): FunctionalComponent<
-//     P,
-//     AsRecord<Events<P>>,
-//     AsRecord<Slots<P>>
-//   >
-// }
+export type InputType<Props extends FormKitInputs<Props>> =
+  Props['type'] extends string ? Props['type'] : 'text'
 
 /**
  * The TypeScript definition for the FormKit component.
@@ -133,7 +103,7 @@ export const getCurrentSchemaNode = () => currentSchemaNode
  */
 function setup<Props extends FormKitInputs<Props>>(
   props: Props,
-  context: SetupContext<{}, SlotsType<Slots<Props>>>
+  context: SetupContext<{}, {}>
 ): RenderFunction {
   const node = useInput<Props, any>(props, context)
   if (!node.props.definition) error(600, node)
@@ -173,7 +143,10 @@ function setup<Props extends FormKitInputs<Props>>(
 
   // // If someone emits the schema event, we re-generate the schema
   if (!isServer) {
-    node.on('schema', generateSchema)
+    node.on('schema', () => {
+      memoKey += '♻️'
+      generateSchema()
+    })
   }
 
   context.emit('node', node)

@@ -9,7 +9,7 @@
 /**
  * The useInput composable.
  */
-export { useInput, FormKitComponentProps } from './composables/useInput'
+export { useInput } from './composables/useInput'
 
 /**
  * Shorthand for creating inputs with standard FormKit features.
@@ -28,6 +28,8 @@ export {
   default as FormKit,
   FormKitComponent,
   FormKitSetupContext,
+  Slots,
+  InputType,
   parentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'

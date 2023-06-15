@@ -17,7 +17,7 @@ export const list: FormKitTypeDefinition = {
   /**
    * An array of extra props to accept for this input.
    */
-  props: [],
+  props: ['sync', 'dynamic'],
   /**
    * Additional features that should be added to your input
    */

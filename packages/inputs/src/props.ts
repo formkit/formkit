@@ -89,7 +89,12 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   group: { type: 'group'; value?: FormKitGroupValue }
   hidden: { type: 'hidden' }
-  list: { type: 'list'; value?: unknown[] }
+  list: {
+    type: 'list'
+    value?: unknown[]
+    dynamic?: boolean | 'true' | 'false'
+    sync?: boolean | 'true' | 'false'
+  }
   month: { type: 'month' }
   number: { type: 'number' }
   password: { type: 'password' }
@@ -163,6 +168,7 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
   form: {
     (event: 'submit-raw', e: Event, node: FormKitNode): any
+    (event: 'submit-invalid', node: FormKitNode): any
     (event: 'submit', data: any, node: FormKitNode): any
   }
 }
@@ -196,7 +202,6 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
   ): any
   (event: 'update:modelValue', value: PropType<Props, 'value'>): any
   (event: 'node', node: FormKitNode): any
-  (event: 'submitInvalid', node: FormKitNode): any
 }
 
 /**
@@ -431,10 +436,6 @@ export interface FormKitRuntimeProps {
    */
   delay: number
   /**
-   * A boolean indicating whether the list input is dynamic.
-   */
-  dynamic: boolean
-  /**
    * An array of errors for the input.
    */
   errors: string[]
@@ -546,20 +547,27 @@ export const runtimeProps = [
   'classes',
   'config',
   'delay',
-  'dynamic',
   'errors',
   'id',
   'index',
   'inputErrors',
   'modelValue',
+  'onUpdate:modelValue',
   'name',
   'parent',
   'plugins',
   'sectionsSchema',
-  'sync',
   'type',
   'validation',
   'validationLabel',
   'validationMessages',
   'validationRules',
+  // Runtime event props:
+  'onInput',
+  'onInputRaw',
+  'onUpdate:modelValue',
+  'onNode',
+  'onSubmit',
+  'onSubmitInvalid',
+  'onSubmitRaw',
 ]

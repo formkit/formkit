@@ -1880,11 +1880,12 @@ describe('exposures', () => {
       slots: {
         default() {
           return [
-            h(FormKit, {
+            h(FormKit as any, {
+              type: 'text',
               name: 'child',
               value: 'foobar',
             }),
-            h(FormKit, {
+            h(FormKit as any, {
               name: 'child2',
               value: 'barfoo',
             }),

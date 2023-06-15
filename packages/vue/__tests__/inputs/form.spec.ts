@@ -144,7 +144,9 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {
+      // noop
+    })
     const wrapper = mount(
       {
         setup() {
@@ -763,7 +765,7 @@ describe('form submission', () => {
     )
     const button = wrapper.find('button')
     wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
     expect(
       wrapper.findAll('input').map((input) => input.element.disabled)
@@ -889,7 +891,9 @@ describe('programmatic submission', () => {
     const id = 'programmatic-form-test'
     const submit = vi.fn()
     const submitRaw = vi.fn()
-    const warning = vi.fn(() => {})
+    const warning = vi.fn(() => {
+      // noop
+    })
     const mock = vi.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
       {

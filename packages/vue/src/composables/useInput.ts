@@ -3,13 +3,11 @@ import {
   error,
   createNode,
   FormKitNode,
-  FormKitClasses,
   FormKitOptions,
-  FormKitPlugin,
   FormKitMessage,
   createMessage,
-  FormKitTypeDefinition,
 } from '@formkit/core'
+import { FormKitRuntimeProps } from '@formkit/inputs'
 import {
   nodeProps,
   except,
@@ -43,26 +41,6 @@ import {
 import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-/**
- * FormKit props of a component
- *
- * @public
- */
-export interface FormKitComponentProps {
-  type?: string | FormKitTypeDefinition
-  name?: string
-  validation?: any
-  modelValue?: any
-  parent?: FormKitNode
-  errors?: string[]
-  inputErrors?: Record<string, string | string[]>
-  index?: number
-  config?: Record<string, any>
-  sync?: boolean
-  dynamic?: boolean
-  classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
-  plugins?: FormKitPlugin[]
-}
 
 interface FormKitComponentListeners {
   onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
@@ -198,6 +176,7 @@ export function useInput<
     const initialProps: Record<string, any> = {
       ...nodeProps(props),
       ...listeners,
+      type: props.type ?? 'text',
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
     if (!attrs.key) attrs.key = token()
@@ -236,10 +215,10 @@ export function useInput<
         value,
         parent,
         plugins: (config.plugins || []).concat(props.plugins ?? []),
-        config: props.config,
+        config: props.config || {},
         props: initialProps,
         index: props.index,
-        sync: props.sync || props.dynamic,
+        sync: !!undefine(context.attrs.sync || context.attrs.dynamic),
       },
       false,
       true
@@ -294,10 +273,10 @@ export function useInput<
   const passThrough = nodeProps(props)
   for (const prop in passThrough) {
     watch(
-      () => props[prop as keyof FormKitComponentProps],
+      () => props[prop as keyof FormKitRuntimeProps],
       () => {
-        if (props[prop as keyof FormKitComponentProps] !== undefined) {
-          node.props[prop] = props[prop as keyof FormKitComponentProps]
+        if (props[prop as keyof FormKitRuntimeProps] !== undefined) {
+          node.props[prop] = props[prop as keyof FormKitRuntimeProps]
         }
       }
     )
