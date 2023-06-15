@@ -1,9 +1,15 @@
-import { FormKitPlugin, FormKitGroupValue } from '@formkit/core'
-import { FormKitSchemaCondition } from '@formkit/core'
-import { FormKitTypeDefinition } from '@formkit/core'
-import { FormKitSchemaNode } from '@formkit/core'
-import { FormKitNode } from '@formkit/core'
-import { FormKitClasses } from '@formkit/core'
+import {
+  FormKitPlugin,
+  FormKitGroupValue,
+  FormKitSchemaCondition,
+  FormKitTypeDefinition,
+  FormKitSchemaNode,
+  FormKitNode,
+  FormKitClasses,
+  FormKitFrameworkContext,
+  FormKitMessage,
+} from '@formkit/core'
+import { FormKitFile } from './index'
 
 /**
  * These are props that are used as conditionals in one or more inputs, and as
@@ -18,7 +24,14 @@ export interface FormKitConditionalProps {
   options: undefined
 }
 
-type AllReals =
+/**
+ * An attempt to capture all non-undefined values. This is used to define
+ * various conditionals where undefined is not a concrete type, but all other
+ * values need to take one logical branch.
+ *
+ * @public
+ */
+export type AllReals =
   | number
   | string
   | boolean
@@ -45,22 +58,7 @@ type AllReals =
  * @public
  */
 export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-  text: { type: 'text' }
-  color: { type: 'color' }
-  date: { type: 'date' }
-  datetimeLocal: { type: 'datetimeLocal' }
-  email: { type: 'email' }
-  month: { type: 'month' }
-  password: { type: 'password' }
-  search: { type: 'search' }
-  tel: { type: 'tel' }
-  time: { type: 'time' }
-  url: { type: 'url' }
-  week: { type: 'week' }
-  range: { type: 'range' }
-  number: { type: 'number' }
   button: { type: 'button' }
-  submit: { type: 'submit' }
   checkbox: {
     type: 'checkbox'
     options?: FormKitOptionsProp
@@ -69,24 +67,68 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     value?: Props['options'] extends Record<infer T, string>
       ? T[]
       : Props['options'] extends FormKitOptionsItem[]
-      ? Props['options'][number]['value']
+      ? Array<Props['options'][number]['value']>
       : Props['options'] extends Array<infer T>
       ? T[]
       :
           | (Props['onValue'] extends AllReals ? Props['onValue'] : true)
           | (Props['offValue'] extends AllReals ? Props['offValue'] : false)
   }
+  color: { type: 'color' }
+  date: { type: 'date' }
+  datetimeLocal: { type: 'datetimeLocal' }
+  email: { type: 'email' }
   file: { type: 'file' }
-  form: { type: 'form'; value?: FormKitGroupValue }
+  form: {
+    type: 'form'
+    value?: FormKitGroupValue
+    actions?: boolean | string
+    submitAttrs?: Record<string, any>
+    submitBehavior?: 'disabled' | 'live'
+    incompleteMessage?: false | string
+  }
   group: { type: 'group'; value?: FormKitGroupValue }
   hidden: { type: 'hidden' }
   list: { type: 'list'; value?: unknown[] }
-  radio: { type: 'radio' }
-  select: { type: 'select' }
+  month: { type: 'month' }
+  number: { type: 'number' }
+  password: { type: 'password' }
+  radio: {
+    type: 'radio'
+    options: FormKitOptionsProp
+    value?: Props['options'] extends Record<infer T, string>
+      ? T
+      : Props['options'] extends FormKitOptionsItem[]
+      ? Props['options'][number]['value']
+      : Props['options'] extends Array<infer T>
+      ? T
+      : boolean
+  }
+  range: { type: 'range' }
+  search: { type: 'search' }
+  select: {
+    type: 'select'
+    options?: FormKitOptionsProp
+    value?: Props['options'] extends Record<infer T, string>
+      ? T
+      : Props['options'] extends FormKitOptionsItem[]
+      ? Props['options'][number]['value']
+      : Props['options'] extends Array<infer T>
+      ? T
+      : string
+  }
+  submit: { type: 'submit' }
+  tel: { type: 'tel' }
+  text: { type: 'text' }
   textarea: { type: 'textarea' }
+  time: { type: 'time' }
+  url: { type: 'url' }
+  week: { type: 'week' }
 }
 
 /**
+ * A merger of input props, base props, and conditional props. This is then
+ * used as the structure for the FormKitInputs type.
  * @public
  */
 export type MergedProps<Props extends FormKitInputs<Props>> = {
@@ -120,20 +162,16 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  */
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
   form: {
-    (
-      event: 'submit',
-      data: PropType<Props, 'value'>,
-      node: FormKitNode<PropType<Props, 'value'>>
-    ): any
-    (
-      event: 'submitRaw',
-      e: Event,
-      node: FormKitNode<PropType<Props, 'value'>>
-    ): any
+    (event: 'submit-raw', e: Event, node: FormKitNode): any
+    (event: 'submit', data: any, node: FormKitNode): any
   }
 }
 
-type PropType<
+/**
+ * Extracts the type from a given prop.
+ * @public
+ */
+export type PropType<
   Props extends FormKitInputs<Props>,
   T extends keyof FormKitInputs<Props>
 > = Extract<FormKitInputs<Props>, { type: Props['type'] }>[T]
@@ -159,6 +197,116 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
 }
 
 /**
+ * The shape of the context object that is passed to each slot.
+ * @public
+ */
+export interface FormKitSlotData<
+  Props extends FormKitInputs<Props>,
+  E extends Record<string, any> = {}
+> {
+  (context: FormKitFrameworkContext<PropType<Props, 'value'>> & E): any
+}
+
+/**
+ * Nearly all inputs in FormKit have a "base" set of slots. This is the
+ * "sandwich" around the input itself, like the wrappers, help text, error
+ * messages etc. Several other input’s slots extend this base interface.
+ * @public
+ */
+export interface FormKitBaseSlots<Props extends FormKitInputs<Props>> {
+  help: FormKitSlotData<Props>
+  inner: FormKitSlotData<Props>
+  input: FormKitSlotData<Props>
+  label: FormKitSlotData<Props>
+  message: FormKitSlotData<Props, { message: FormKitMessage }>
+  messages: FormKitSlotData<Props>
+  prefix: FormKitSlotData<Props>
+  prefixIcon: FormKitSlotData<Props>
+  suffix: FormKitSlotData<Props>
+  suffixIcon: FormKitSlotData<Props>
+  wrapper: FormKitSlotData<Props>
+}
+
+/**
+ * The slots available to the FormKitText input, these extend the base slots.
+ * @public
+ */
+export interface FormKitTextSlots<Props extends FormKitInputs<Props>>
+  extends FormKitBaseSlots<Props> {}
+
+/**
+ * The data available to slots that have an option in scope.
+ * @public
+ */
+export interface OptionSlotData<Props extends FormKitInputs<Props>> {
+  option: FormKitOptionsItem<PropType<Props, 'value'>>
+}
+
+/**
+ * The slots available to the sekect input, these extend the base slots.
+ * @public
+ */
+export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
+  extends FormKitBaseSlots<Props> {
+  default: FormKitSlotData<Props>
+  option: FormKitSlotData<Props, OptionSlotData<Props>>
+  selectIcon: FormKitSlotData<Props>
+}
+
+/**
+ * The slots available to the radio and checkbox inputs when options are
+ * provided.
+ * @public
+ */
+export interface FormKitBoxSlots<Props extends FormKitInputs<Props>> {
+  fieldset: FormKitSlotData<Props>
+  legend: FormKitSlotData<Props>
+  help: FormKitSlotData<Props>
+  options: FormKitSlotData<Props>
+  option: FormKitSlotData<Props, OptionSlotData<Props>>
+  wrapper: FormKitSlotData<Props, OptionSlotData<Props>>
+  inner: FormKitSlotData<Props, OptionSlotData<Props>>
+  input: FormKitSlotData<Props, OptionSlotData<Props>>
+  label: FormKitSlotData<Props, OptionSlotData<Props>>
+  prefix: FormKitSlotData<Props, OptionSlotData<Props>>
+  suffix: FormKitSlotData<Props, OptionSlotData<Props>>
+  decorator: FormKitSlotData<Props, OptionSlotData<Props>>
+  decoratorIcon: FormKitSlotData<Props, OptionSlotData<Props>>
+  optionHelp: FormKitSlotData<Props, OptionSlotData<Props>>
+  box: FormKitSlotData<Props, OptionSlotData<Props>>
+  icon: FormKitSlotData<Props, OptionSlotData<Props>>
+  message: FormKitSlotData<Props, { message: FormKitMessage }>
+  messages: FormKitSlotData<Props>
+}
+
+/**
+ * The slots available to the file input, these extend the base slots.
+ * @public
+ */
+export interface FormKitFileSlots<Props extends FormKitInputs<Props>>
+  extends FormKitBaseSlots<Props> {
+  fileList: FormKitSlotData<Props>
+  fileItem: FormKitSlotData<Props, { file: FormKitFile }>
+  fileItemIcon: FormKitSlotData<Props, { file: FormKitFile }>
+  fileName: FormKitSlotData<Props, { file: FormKitFile }>
+  fileRemove: FormKitSlotData<Props, { file: FormKitFile }>
+  fileRemoveIcon: FormKitSlotData<Props, { file: FormKitFile }>
+  noFiles: FormKitSlotData<Props>
+}
+
+/**
+ * The slots available to the button input, these extend the base slots.
+ *
+ * @public
+ */
+export type FormKitButtonSlots<Props extends FormKitInputs<Props>> = Omit<
+  FormKitBaseSlots<Props>,
+  'input' | 'help'
+> & {
+  default: FormKitSlotData<Props>
+}
+
+/**
  * Slots provided by each FormKit input. The shape of this interface is:
  *
  * ```ts
@@ -172,12 +320,43 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  * @public
  */
 export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
-  text: {
-    default: (value: PropType<Props, 'value'>) => any
+  text: FormKitTextSlots<Props>
+  color: FormKitTextSlots<Props>
+  date: FormKitTextSlots<Props>
+  datetimeLocal: FormKitTextSlots<Props>
+  email: FormKitTextSlots<Props>
+  month: FormKitTextSlots<Props>
+  number: FormKitTextSlots<Props>
+  password: FormKitTextSlots<Props>
+  search: FormKitTextSlots<Props>
+  tel: FormKitTextSlots<Props>
+  time: FormKitTextSlots<Props>
+  url: FormKitTextSlots<Props>
+  week: FormKitTextSlots<Props>
+  range: FormKitTextSlots<Props>
+  // Technically textarea has a unique schema, but the slots are the same:
+  textarea: FormKitTextSlots<Props>
+  select: FormKitSelectSlots<Props>
+  radio: Props['options'] extends AllReals
+    ? FormKitBoxSlots<Props>
+    : FormKitBaseSlots<Props>
+  list: { default: FormKitSlotData<Props> }
+  hidden: { input: FormKitSlotData<Props> }
+  group: { default: FormKitSlotData<Props> }
+  form: {
+    form: FormKitSlotData<Props>
+    default: FormKitSlotData<Props>
+    message: FormKitSlotData<Props, { message: FormKitMessage }>
+    messages: FormKitSlotData<Props>
+    actions: FormKitSlotData<Props>
+    submit: FormKitSlotData<Props>
   }
-  number: {
-    default: (value: PropType<Props, 'value'>) => any
-  }
+  file: FormKitFileSlots<Props>
+  checkbox: Props['options'] extends AllReals
+    ? FormKitBoxSlots<Props>
+    : FormKitBaseSlots<Props>
+  submit: FormKitButtonSlots<Props>
+  button: FormKitButtonSlots<Props>
 }
 
 /**
@@ -186,9 +365,9 @@ export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
  *
  * @public
  */
-export interface FormKitOptionsItem {
+export interface FormKitOptionsItem<V = unknown> {
   label: string
-  value: unknown
+  value: V
   attrs?: {
     disabled?: boolean
   } & Record<string, any>
@@ -337,19 +516,19 @@ export interface FormKitBaseProps {
    */
   accept: string
   action: string
-  actions: boolean
+  actions: 'true' | 'false' | boolean
   dirtyBehavior: 'touched' | 'compare'
-  disabled: string | boolean
+  disabled: 'true' | 'false' | boolean
   enctype: string
   help: string
-  ignore: string | boolean
+  ignore: 'true' | 'false' | boolean
   label: string
   max: string | number
   method: string
   min: string | number
-  multiple: string | boolean
-  preserve: string | boolean
-  preserveErrors: string | boolean
+  multiple: 'true' | 'false' | boolean
+  preserve: 'true' | 'false' | boolean
+  preserveErrors: 'true' | 'false' | boolean
   placeholder: string
   step: string | number
   value: string

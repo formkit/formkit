@@ -122,20 +122,12 @@ let currentSchemaNode: FormKitNode | null = null
  */
 export const getCurrentSchemaNode = () => currentSchemaNode
 
-// type?: string | FormKitTypeDefinition
-// name?: string
-// validation?: any
-// modelValue?: any
-// parent?: FormKitNode
-// errors: string[]
-// inputErrors: Record<string, string | string[]>
-// index?: number
-// config: Record<string, any>
-// sync?: boolean
-// dynamic?: boolean
-// classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
-// plugins: FormKitPlugin[]
-
+/**
+ * The actual runtime setup function for the FormKit component.
+ *
+ * @param props - The props passed to the component.
+ * @param context - The context passed to the component.
+ */
 function setup<Props extends FormKitInputs<Props>>(
   props: Props,
   context: SetupContext<{}, SlotsType<Slots<Props>>>
@@ -197,7 +189,17 @@ function setup<Props extends FormKitInputs<Props>>(
 }
 
 /**
- * The root FormKit component.
+ * The root FormKit component. Use it to craft all inputs and structure of your
+ * forms. For example:
+ *
+ * ```vue
+ * <FormKit
+ *  type="text"
+ *  label="Name"
+ *  help="Please enter your name"
+ *  validation="required|length:2"
+ * />
+ * ```
  *
  * @public
  */

@@ -1,9 +1,32 @@
 <script setup lang="ts">
-// Nothing here yet, but it's coming soon!
+import { ref } from 'vue'
+function foobar(data: { a: 123 }) {
+  console.log(data.a)
+}
+const options = ref({ a: '123', b: '546' })
 </script>
 
 <template>
-  <FormKit type="checkbox" @input="(value, node) => value && node" />
+  <FormKit type="form" @submit="foobar">
+    <FormKit
+      type="checkbox"
+      :options="[
+        { label: 'a', value: '123' },
+        { label: 'b', value: null },
+      ]"
+      @input="(value, node) => value && node"
+    />
+    <FormKit type="text">
+      <template #label="{ value }">
+        {{ value }}
+      </template>
+    </FormKit>
+    <FormKit type="select" :options="options">
+      <template #default="{ value }">
+        {{ value }}
+      </template>
+    </FormKit>
+  </FormKit>
 </template>
 
 <style scoped>

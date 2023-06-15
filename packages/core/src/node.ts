@@ -416,12 +416,12 @@ export interface FormKitContext {
  *
  * @public
  */
-export interface FormKitFrameworkContext {
+export interface FormKitFrameworkContext<T = any> {
   [index: string]: unknown
   /**
    * The current "live" value of the input. Not debounced.
    */
-  _value: any
+  _value: T
   /**
    * An object of attributes that (generally) should be applied to the root
    * <input> element.
@@ -495,7 +495,7 @@ export interface FormKitFrameworkContext {
    * The current committed value of the input. This is the value that should be
    * used for most use cases.
    */
-  value: any
+  value: T
 }
 
 /**
