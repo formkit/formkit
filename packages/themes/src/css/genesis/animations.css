@@ -1,10 +1,10 @@
-@keyframes rotate {
+@keyframes fk-rotate {
   100% {
     transform: rotate(360deg);
   }
 }
 
-@keyframes glow {
+@keyframes fk-glow {
   0% {
     box-shadow: 0 0 0 0.1em var(--fk-color-primary);
   }

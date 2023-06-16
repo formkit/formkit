@@ -227,6 +227,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     handlers: {
       blur: (e?: Event) => {
+        if (typeof node === 'undefined') return
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         )
@@ -256,6 +257,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     node: markRaw(node),
     options: node.props.options,
     defaultMessagePlacement: true,
+    slots: node.props.__slots,
     state: {
       blurred: false,
       complete: isComplete,
@@ -284,7 +286,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       triggerRef(value)
       triggerRef(_value)
     }
-    ;(async () => {
+    ; (async () => {
       await node.settled
       if (node) node.props._init = cloneAny(node.value)
     })()

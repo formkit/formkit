@@ -7,7 +7,7 @@ import { createSection } from '@formkit/inputs'
  */
 export const stepNext = createSection('stepNext', () => ({
   $el: 'div',
-  if: '$isLastStep === false',
+  if: '$isLastStep === false || $stepIndex === 0',
   children: [
     {
       $cmp: 'FormKit',

@@ -8,6 +8,17 @@ import {
 import { whenAvailable } from '@formkit/utils'
 import { multiStep, step } from './schema'
 
+/**
+ * Extend FormKitNode with Multi-step helper functions.
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    next(): void
+    previous(): void
+    goTo(step: number | string): void
+  }
+}
+
 const isBrowser = typeof window !== 'undefined'
 
 /**
@@ -33,23 +44,29 @@ type FormKitFrameworkContextWithSteps = FormKitFrameworkContext & {
  * @param str - The string to convert
  * @returns string
  */
-const camel2title = (str: string) =>
-  str
+const camel2title = (str: string) => {
+  if (!str) return str
+  return str
     .replace(/([A-Z])/g, (match: string) => ` ${match}`)
     .replace(/^./, (match: string) => match.toUpperCase())
     .trim()
+}
 
 /**
  * Compares steps to DOM order and reorders steps if needed
  */
 function orderSteps(steps: FormKitFrameworkContext[]) {
-  const orderedSteps = steps.sort((a, b) => {
+  if (!isBrowser || !steps) return steps
+  const orderedSteps = [...steps]
+  orderedSteps.sort((a, b) => {
     const aEl = document.getElementById(a.id)
     const bEl = document.getElementById(b.id)
     if (!aEl || !bEl) return 0
     return aEl.compareDocumentPosition(bEl) === 2 ? 1 : -1
   })
-  steps.map((step) => (step.ordered = true))
+  orderedSteps.map((step) => {
+    step.ordered = true
+  })
   return orderedSteps
 }
 
@@ -60,6 +77,7 @@ function orderSteps(steps: FormKitFrameworkContext[]) {
  * @param steps - The steps to iterate through
  */
 function setNodePositionProps(steps: FormKitFrameworkContext[]) {
+  if (!steps) return
   steps.forEach((step: FormKitFrameworkContext, index: number) => {
     step.isFirstStep = index === 0
     step.isLastStep = index === steps.length - 1
@@ -84,10 +102,11 @@ function showStepErrors(step: FormKitFrameworkContext) {
  * @param currentStep - The current step
  * @param targetStep - The target step
  */
-function isTargetStepAllowed(
+async function isTargetStepAllowed(
   currentStep: FormKitFrameworkContext,
   targetStep: FormKitFrameworkContext
-) {
+): Promise<boolean> {
+  if (currentStep === targetStep) return true
   const { allowIncomplete } = currentStep.node.parent?.props || {}
   const parentNode = currentStep.node.parent
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
@@ -99,11 +118,27 @@ function isTargetStepAllowed(
     currentStep.node.parent?.props.beforeStepChange
 
   if (beforeStepChange && typeof beforeStepChange === 'function') {
-    const result = beforeStepChange({
+    if (parentNode) {
+      parentNode?.store.set(
+        createMessage({
+          key: 'loading',
+          value: true,
+          visible: false,
+        })
+      )
+      parentNode.props.disabled = true
+      currentStep.disabled = true
+    }
+    const result = await beforeStepChange({
       currentStep,
       targetStep,
       delta: targetStepIndex - currentStepIndex,
     })
+    if (parentNode) {
+      parentNode?.store.remove('loading')
+      parentNode.props.disabled = false
+      currentStep.disabled = false
+    }
     if (typeof result === 'boolean' && !result) return false
   }
 
@@ -136,7 +171,7 @@ function isTargetStepAllowed(
  *
  * @param targetStep - The target step
  */
-function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
+async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   if (e) {
     e.preventDefault()
   }
@@ -145,8 +180,7 @@ function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
       (step: FormKitFrameworkContext) =>
         step.node.name === targetStep.node.parent?.props.activeStep
     )
-    const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
-
+    const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
     if (stepIsAllowed && targetStep.node.parent.context) {
       targetStep.node.parent.props.activeStep = targetStep.node.name
     }
@@ -159,17 +193,16 @@ function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
  * @param delta - The number of steps to increment or decrement
  * @param step - The current step
  */
-function incrementStep(
+async function incrementStep(
   delta: number,
   currentStep: FormKitFrameworkContextWithSteps
 ) {
   if (currentStep && currentStep.node.name && currentStep.node.parent) {
-    const {
-      steps,
-      stepIndex,
-    }: { steps: FormKitFrameworkContext[]; stepIndex: number } = currentStep
+    const steps = currentStep.node.parent.props.steps
+    const stepIndex = currentStep.stepIndex
     const targetStep = steps[stepIndex + delta]
-    const stepIsAllowed = isTargetStepAllowed(currentStep, targetStep)
+    if (!targetStep) return
+    const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
     if (targetStep && stepIsAllowed) {
       currentStep.node.parent.props.activeStep = targetStep.node.name
@@ -222,6 +255,23 @@ function initEvents(node: FormKitNode, el: Element) {
   })
 }
 
+function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
+  if (!tabs || !tabs.length) return []
+  const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
+    return {
+      __isPlaceholder: true,
+      stepName: tab.props.label || camel2title(tab.props.name),
+      isFirstStep: index === 0,
+      isLastStep: index === tabs.length - 1,
+      isActiveStep: index === 0,
+      node: {
+        name: tab.props.name,
+      },
+    }
+  })
+  return placeholderTabs
+}
+
 /**
  * Creates a new multi-step plugin.
  *
@@ -234,10 +284,23 @@ function initEvents(node: FormKitNode, el: Element) {
 export function createMultiStepPlugin(
   options?: MultiStepOptions
 ): FormKitPlugin {
+  let isFirstStep = true
+
   const multiStepPlugin = (node: FormKitNode) => {
     if (node.props.type === 'multi-step') {
-      node.addProps(['steps', 'activeStep'])
+      if (!node.context) return
 
+      isFirstStep = true // reset variable, next step will be first step in multistep
+      node.addProps(['steps', 'tabs', 'activeStep'])
+
+      // call the default slot to pre-render child steps
+      // for SSR support
+      if (node.context.slots.default) {
+        node.props.tabs = node.context.slots.default()
+      }
+
+      node.props.steps =
+        node.props.steps || createSSRStepsFromTabs(node.props.tabs)
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete
@@ -250,14 +313,80 @@ export function createMultiStepPlugin(
           : options?.hideProgressLabels || false
       node.props.tabStyle = node.props.tabStyle || options?.tabStyle || 'tab'
 
+      node.context.handlers.triggerStepValidations = triggerStepValidations
+      node.context.handlers.showStepErrors = showStepErrors
+
       node.on('created', () => {
         if (!node.context) return
-        node.context.handlers.triggerStepValidations = triggerStepValidations
-        node.context.handlers.showStepErrors = showStepErrors
+
+        node.extend('next', {
+          get: (node) => () => {
+            incrementStep(
+              1,
+              node?.props?.steps.find(
+                (step: Record<string, any>) => step.isActiveStep
+              )
+            )
+          },
+          set: false,
+        })
+        node.extend('previous', {
+          get: (node) => () => {
+            incrementStep(
+              -1,
+              node?.props?.steps.find(
+                (step: Record<string, any>) => step.isActiveStep
+              )
+            )
+          },
+          set: false,
+        })
+        node.extend('goTo', {
+          get: (node) => (target: number | string) => {
+            if (typeof target === 'number') {
+              const targetStep = node.props.steps[target]
+              setActiveStep(targetStep)
+            } else if (typeof target === 'string') {
+              const targetStep = node.props.steps.find(
+                (step: Record<string, any>) => step.node.name === target
+              )
+              setActiveStep(targetStep)
+            }
+          },
+          set: false,
+        })
 
         whenAvailable(`${node.props.id}`, (el) => {
           initEvents(node, el)
         })
+      })
+
+      node.on('child', ({ payload: childNode }) => {
+        // remove placeholder steps
+        if (node.props.steps && node.props.steps.length) {
+          node.props.steps = node.props.steps.filter(
+            (step: Record<string, any>) => !step.__isPlaceholder
+          )
+        }
+        node.props.steps =
+          Array.isArray(node.props.steps) && node.props.steps.length > 0
+            ? [...node.props.steps, childNode.context]
+            : [childNode.context]
+        node.props.steps = orderSteps(node.props.steps)
+        setNodePositionProps(node.props.steps)
+
+        childNode.props.stepName =
+          childNode.props.label || camel2title(childNode.name)
+        childNode.props.errorCount = 0
+        childNode.props.blockingCount = 0
+        childNode.props.isActiveStep = isFirstStep
+        isFirstStep = false
+
+        node.props.activeStep = node.props.activeStep
+          ? node.props.activeStep
+          : node.props.steps[0]
+          ? node.props.steps[0].node.name
+          : ''
       })
 
       node.on('prop:activeStep', ({ payload }) => {
@@ -277,6 +406,7 @@ export function createMultiStepPlugin(
 
       node.on('childRemoved', ({ payload: childNode }) => {
         let removedStepIndex = -1
+        childNode.props.ordered = false
         node.props.steps = node.props.steps.filter(
           (step: FormKitFrameworkContext, index: number) => {
             if (step.node.name !== childNode.name) {
@@ -286,6 +416,7 @@ export function createMultiStepPlugin(
             return false
           }
         )
+        setNodePositionProps(node.props.steps)
         // if the child that was removed was the active step
         // then fallback to the next available step
         if (node.props.activeStep === childNode.name) {
@@ -294,16 +425,14 @@ export function createMultiStepPlugin(
             ? node.props.steps[targetIndex].node.name
             : ''
         }
-
-        // recompute step positions
-        orderSteps(node.props.steps)
-        setNodePositionProps(node.props.steps)
       })
     }
     if (
       node.props.type === 'step' &&
       node.parent?.props.type === 'multi-step'
     ) {
+      if (!node.context || !node.parent || !node.parent.context) return
+
       node.addProps([
         'isActiveStep',
         'isFirstStep',
@@ -317,52 +446,33 @@ export function createMultiStepPlugin(
         'hasBeenVisited',
         'ordered',
       ])
+      const parentNode = node.parent
+
       node.on('created', () => {
-        if (!node.context) return
-        if (node.parent && node.parent.context) {
-          node.props.stepName = node.props.label || camel2title(node.name)
-          node.props.errorCount = 0
-          node.props.blockingCount = 0
-          node.props.isActiveStep = false
+        if (!node.context || !parentNode.context) return
 
-          const parentNode = node.parent
-
-          parentNode.props.steps = Array.isArray(parentNode.props.steps)
-            ? [...parentNode.props.steps, node.context]
-            : [node.context]
-
-          whenAvailable(`${node.props.id}`, () => {
-            parentNode.props.steps = orderSteps(parentNode.props.steps)
-            setNodePositionProps(parentNode.props.steps)
-
-            parentNode.props.activeStep = parentNode.props.activeStep
-              ? parentNode.props.activeStep
-              : parentNode.props.steps[0]
-              ? parentNode.props.steps[0].node.name
-              : ''
-          })
-
-          if (node.context && parentNode.context) {
-            parentNode.context.handlers.setActiveStep = (
-              stepNode: FormKitFrameworkContext
-            ) => setActiveStep.bind(null, stepNode)
-            node.context.handlers.incrementStep = (
-              delta: number,
-              stepNode: FormKitFrameworkContextWithSteps
-            ) => incrementStep.bind(null, delta, stepNode)
-            node.context.makeActive = () => {
-              setActiveStep(node.context as FormKitFrameworkContext)
-            }
-            node.context.handlers.next = () =>
-              incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
-            node.context.handlers.previous = () =>
-              incrementStep(
-                -1,
-                node.context as FormKitFrameworkContextWithSteps
-              )
-          }
-        }
+        whenAvailable(`${node.props.id}`, () => {
+          parentNode.props.steps = orderSteps(parentNode.props.steps)
+          setNodePositionProps(parentNode.props.steps)
+        })
       })
+
+      if (node.context && parentNode.context) {
+        parentNode.context.handlers.setActiveStep = (
+          stepNode: FormKitFrameworkContext
+        ) => setActiveStep.bind(null, stepNode)
+        node.context.handlers.incrementStep = (
+          delta: number,
+          stepNode: FormKitFrameworkContextWithSteps
+        ) => incrementStep.bind(null, delta, stepNode)
+        node.context.makeActive = () => {
+          setActiveStep(node.context as FormKitFrameworkContext)
+        }
+        node.context.handlers.next = () =>
+          incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
+        node.context.handlers.previous = () =>
+          incrementStep(-1, node.context as FormKitFrameworkContextWithSteps)
+      }
 
       node.on('count:errors', ({ payload: count }) => {
         node.props.errorCount = count

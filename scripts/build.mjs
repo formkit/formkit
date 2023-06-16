@@ -52,10 +52,24 @@ declare module 'vue' {
   zod: `
 /**
  * Extend FormKitNode with setZodErrors.
+ * @public
  */
 declare module '@formkit/core' {
   interface FormKitNodeExtensions {
     setZodErrors(zodError: z.ZodError | undefined): FormKitNode
+  }
+}
+`,
+  addons: `
+/**
+ * Extend FormKitNode with supporting multi-step methods.
+ * @public
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    next(): void
+    previous(): void
+    goTo(step: number | string): void
   }
 }
 `,
