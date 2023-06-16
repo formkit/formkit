@@ -71,6 +71,13 @@ export default function files(node: FormKitNode): void {
 
   node.hook.input((value, next) => next(Array.isArray(value) ? value : []))
 
+  node.on('reset', () => {
+    if (node.props.id && isBrowser) {
+      const el = document.getElementById(node.props.id)
+      if (el) (el as HTMLInputElement).value = ''
+    }
+  })
+
   node.on('created', () => {
     if (!Array.isArray(node.value)) node.input([], false)
 
