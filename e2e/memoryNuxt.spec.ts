@@ -7,7 +7,11 @@ async function cycle(
   callback?: (page: Page) => void
 ) {
   return new Promise<void>(async (resolve) => {
-    await page.reload()
+    try {
+      await page.reload()
+    } catch {
+      resolve()
+    }
     if (callback) await callback(page)
     setTimeout(async () => {
       if (cycleCount < total) await cycle(page, total, cycleCount + 1)

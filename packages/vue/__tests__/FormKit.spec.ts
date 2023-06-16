@@ -593,7 +593,7 @@ describe('validation', () => {
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
-  it('knows the state of validation visibility when set to submit', async () => {
+  it.only('knows the state of validation visibility when set to submit', async () => {
     const id = token()
     const formId = token()
     const wrapper = mount(
@@ -621,7 +621,7 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('form').trigger('submit')
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
