@@ -17,18 +17,6 @@
     ],
     "baseUrl": "..",
     "paths": {
-      "~~": [
-        "."
-      ],
-      "~~/*": [
-        "./*"
-      ],
-      "@@": [
-        "."
-      ],
-      "@@/*": [
-        "./*"
-      ],
       "~": [
         "."
       ],
@@ -41,6 +29,18 @@
       "@/*": [
         "./*"
       ],
+      "~~": [
+        "."
+      ],
+      "~~/*": [
+        "./*"
+      ],
+      "@@": [
+        "."
+      ],
+      "@@/*": [
+        "./*"
+      ],
       "assets": [
         "assets"
       ],
@@ -48,16 +48,16 @@
         "public"
       ],
       "#app": [
-        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app"
+        "../../../node_modules/.pnpm/nuxt@3.5.2_vvuornxxl5hsnfji2czpt7mdfq/node_modules/nuxt/dist/app"
       ],
       "#app/*": [
-        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app/*"
+        "../../../node_modules/.pnpm/nuxt@3.5.2_vvuornxxl5hsnfji2czpt7mdfq/node_modules/nuxt/dist/app/*"
       ],
       "vue-demi": [
-        "../../../node_modules/.pnpm/nuxt@3.3.2_5v5fhw66uehklgxmcvwgstryt4/node_modules/nuxt/dist/app/compat/vue-demi"
+        "../../../node_modules/.pnpm/nuxt@3.5.2_vvuornxxl5hsnfji2czpt7mdfq/node_modules/nuxt/dist/app/compat/vue-demi"
       ],
-      "@vueuse/head": [
-        "../../../node_modules/.pnpm/@unhead+vue@1.1.25_vue@3.2.47/node_modules/@unhead/vue/dist/index"
+      "#vue-router": [
+        ".nuxt/vue-router"
       ],
       "#imports": [
         ".nuxt/imports"
