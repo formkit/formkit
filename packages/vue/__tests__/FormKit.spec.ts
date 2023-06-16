@@ -593,7 +593,7 @@ describe('validation', () => {
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
-  it.only('knows the state of validation visibility when set to submit', async () => {
+  it('knows the state of validation visibility when set to submit', async () => {
     const id = token()
     const formId = token()
     const wrapper = mount(
