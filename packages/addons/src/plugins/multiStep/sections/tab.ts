@@ -9,6 +9,7 @@ export const tab = createSection('tab', () => ({
   $el: 'button',
   for: ['step', 'index', '$steps'],
   attrs: {
+    key: '$step.id',
     type: 'button',
     onClick: '$step.makeActive',
     'data-active': '$step.isActiveStep',
@@ -22,11 +23,6 @@ export const tab = createSection('tab', () => ({
       if: '$step.isActiveStep',
       then: '0',
       else: '-1',
-    },
-    style: {
-      if: '$step.ordered',
-      then: '',
-      else: 'display: none',
     },
   },
 }))

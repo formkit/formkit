@@ -3,13 +3,13 @@
 exports[`multistep > Allows step advancment when current step is invalid but allowIncomplete is true 1`] = `
 "<div class=\\"formkit-outer\\" id=\\"input_0\\" data-family=\\"multi-step\\" data-type=\\"multi-step\\">
   <div class=\\"formkit-wrapper\\" data-tab-style=\\"progress\\" data-hide-labels=\\"true\\">
-    <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"false\\" aria-controls=\\"input_1\\" tabindex=\\"-1\\" style=\\"\\">
+    <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"false\\" aria-controls=\\"input_1\\" tabindex=\\"-1\\">
         <!----><span class=\\"formkit-badge\\" role=\\"presentation\\">1</span>
         <!---->
-      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"true\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_1\\" aria-selected=\\"true\\" aria-controls=\\"input_5\\" tabindex=\\"0\\" style=\\"\\" data-visited=\\"true\\">
+      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"true\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_1\\" aria-selected=\\"true\\" aria-controls=\\"input_4\\" tabindex=\\"0\\" data-visited=\\"true\\">
         <!---->
         <!----><span class=\\"formkit-badge\\" role=\\"presentation\\"><!----></span>
-      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_2\\" aria-selected=\\"false\\" aria-controls=\\"input_3\\" tabindex=\\"-1\\" style=\\"\\">
+      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_2\\" aria-selected=\\"false\\" aria-controls=\\"input_6\\" tabindex=\\"-1\\">
         <!---->
         <!---->
         <!---->
@@ -38,7 +38,7 @@ exports[`multistep > Allows step advancment when current step is invalid but all
           <div class=\\"formkit-step-next\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_6\\" id=\\"input_8\\">
+              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_3\\" id=\\"input_3\\">
                   <!---->
                   <!---->Next
                   <!---->
@@ -49,7 +49,7 @@ exports[`multistep > Allows step advancment when current step is invalid but all
           </div>
         </div>
       </div>
-      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_3\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_2\\" hidden=\\"\\">
+      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_4\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_1\\">
         <div class=\\"formkit-step-inner\\">
           <!---->
         </div>
@@ -57,27 +57,7 @@ exports[`multistep > Allows step advancment when current step is invalid but all
           <div class=\\"formkit-step-previous\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_3\\" id=\\"input_4\\">
-                  <!---->
-                  <!---->Previous
-                  <!---->
-                  <!---->
-                </button></div>
-              <!---->
-            </div>
-          </div>
-          <!---->
-        </div>
-      </div>
-      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_5\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_1\\">
-        <div class=\\"formkit-step-inner\\">
-          <!---->
-        </div>
-        <div class=\\"formkit-step-actions\\">
-          <div class=\\"formkit-step-previous\\">
-            <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
-              <!---->
-              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_4\\" id=\\"input_6\\">
+              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_4\\" id=\\"input_5\\">
                   <!---->
                   <!---->Previous
                   <!---->
@@ -89,7 +69,7 @@ exports[`multistep > Allows step advancment when current step is invalid but all
           <div class=\\"formkit-step-next\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_5\\" id=\\"input_7\\">
+              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_6\\" id=\\"input_8\\">
                   <!---->
                   <!---->Next
                   <!---->
@@ -100,6 +80,26 @@ exports[`multistep > Allows step advancment when current step is invalid but all
           </div>
         </div>
       </div>
+      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_6\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_2\\" hidden=\\"\\">
+        <div class=\\"formkit-step-inner\\">
+          <!---->
+        </div>
+        <div class=\\"formkit-step-actions\\">
+          <div class=\\"formkit-step-previous\\">
+            <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
+              <!---->
+              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_5\\" id=\\"input_7\\">
+                  <!---->
+                  <!---->Previous
+                  <!---->
+                  <!---->
+                </button></div>
+              <!---->
+            </div>
+          </div>
+          <!---->
+        </div>
+      </div>
     </div>
   </div>
 </div>"
@@ -108,12 +108,12 @@ exports[`multistep > Allows step advancment when current step is invalid but all
 exports[`multistep > Does not allow step advancment when current step is invalid 1`] = `
 "<div class=\\"formkit-outer\\" id=\\"input_0\\" data-family=\\"multi-step\\" data-type=\\"multi-step\\">
   <div class=\\"formkit-wrapper\\" data-tab-style=\\"tab\\" data-hide-labels=\\"false\\">
-    <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"true\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"true\\" aria-controls=\\"input_1\\" tabindex=\\"0\\" style=\\"\\"><span class=\\"formkit-tab-label\\">Step One</span><span class=\\"formkit-badge\\" role=\\"presentation\\">1</span>
+    <div class=\\"formkit-tabs\\" role=\\"tablist\\"><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"true\\" data-valid=\\"false\\" data-visited=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_0\\" aria-selected=\\"true\\" aria-controls=\\"input_1\\" tabindex=\\"0\\"><span class=\\"formkit-tab-label\\">Step One</span><span class=\\"formkit-badge\\" role=\\"presentation\\">1</span>
         <!---->
-      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_1\\" aria-selected=\\"false\\" aria-controls=\\"input_5\\" tabindex=\\"-1\\" style=\\"\\"><span class=\\"formkit-tab-label\\">Step Three</span>
+      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_1\\" aria-selected=\\"false\\" aria-controls=\\"input_4\\" tabindex=\\"-1\\"><span class=\\"formkit-tab-label\\">Step Two</span>
         <!---->
         <!---->
-      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_2\\" aria-selected=\\"false\\" aria-controls=\\"input_3\\" tabindex=\\"-1\\" style=\\"\\"><span class=\\"formkit-tab-label\\">Step Two</span>
+      </button><button class=\\"formkit-tab\\" type=\\"button\\" data-active=\\"false\\" data-valid=\\"true\\" role=\\"tab\\" id=\\"input_0_tab_2\\" aria-selected=\\"false\\" aria-controls=\\"input_6\\" tabindex=\\"-1\\"><span class=\\"formkit-tab-label\\">Step Three</span>
         <!---->
         <!---->
       </button></div>
@@ -141,7 +141,7 @@ exports[`multistep > Does not allow step advancment when current step is invalid
           <div class=\\"formkit-step-next\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_6\\" id=\\"input_8\\">
+              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_3\\" id=\\"input_3\\">
                   <!---->
                   <!---->Next
                   <!---->
@@ -152,7 +152,7 @@ exports[`multistep > Does not allow step advancment when current step is invalid
           </div>
         </div>
       </div>
-      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_3\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_2\\" hidden=\\"\\">
+      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_4\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_1\\" hidden=\\"\\">
         <div class=\\"formkit-step-inner\\">
           <!---->
         </div>
@@ -160,27 +160,7 @@ exports[`multistep > Does not allow step advancment when current step is invalid
           <div class=\\"formkit-step-previous\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_3\\" id=\\"input_4\\">
-                  <!---->
-                  <!---->Previous
-                  <!---->
-                  <!---->
-                </button></div>
-              <!---->
-            </div>
-          </div>
-          <!---->
-        </div>
-      </div>
-      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_5\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_1\\" hidden=\\"\\">
-        <div class=\\"formkit-step-inner\\">
-          <!---->
-        </div>
-        <div class=\\"formkit-step-actions\\">
-          <div class=\\"formkit-step-previous\\">
-            <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
-              <!---->
-              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_4\\" id=\\"input_6\\">
+              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_4\\" id=\\"input_5\\">
                   <!---->
                   <!---->Previous
                   <!---->
@@ -192,7 +172,7 @@ exports[`multistep > Does not allow step advancment when current step is invalid
           <div class=\\"formkit-step-next\\">
             <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
               <!---->
-              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_5\\" id=\\"input_7\\">
+              <div class=\\"formkit-wrapper\\"><button data-next=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_6\\" id=\\"input_8\\">
                   <!---->
                   <!---->Next
                   <!---->
@@ -201,6 +181,26 @@ exports[`multistep > Does not allow step advancment when current step is invalid
               <!---->
             </div>
           </div>
+        </div>
+      </div>
+      <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_6\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_2\\" hidden=\\"\\">
+        <div class=\\"formkit-step-inner\\">
+          <!---->
+        </div>
+        <div class=\\"formkit-step-actions\\">
+          <div class=\\"formkit-step-previous\\">
+            <div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"button\\">
+              <!---->
+              <div class=\\"formkit-wrapper\\"><button data-prev=\\"true\\" class=\\"formkit-input\\" type=\\"button\\" name=\\"button_5\\" id=\\"input_7\\">
+                  <!---->
+                  <!---->Previous
+                  <!---->
+                  <!---->
+                </button></div>
+              <!---->
+            </div>
+          </div>
+          <!---->
         </div>
       </div>
     </div>
