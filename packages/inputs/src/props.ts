@@ -141,7 +141,10 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
     Partial<FormKitBaseProps>,
     keyof FormKitInputProps<Props>[K]
   > &
-    Omit<Partial<FormKitRuntimeProps>, keyof FormKitInputProps<Props>[K]> &
+    Omit<
+      Partial<FormKitRuntimeProps<Props>>,
+      keyof FormKitInputProps<Props>[K]
+    > &
     Omit<Partial<FormKitConditionalProps>, keyof FormKitInputProps<Props>[K]> &
     FormKitInputProps<Props>[K]
 }
@@ -422,7 +425,7 @@ export type FormKitOptionsProp =
  *
  * @public
  */
-export interface FormKitRuntimeProps {
+export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * An object of configuration data for the input and its children.
    */
@@ -455,7 +458,7 @@ export interface FormKitRuntimeProps {
   /**
    * The dynamic value of the input.
    */
-  modelValue: string
+  modelValue: PropType<Props, 'value'>
   /**
    * The name of the input.
    */

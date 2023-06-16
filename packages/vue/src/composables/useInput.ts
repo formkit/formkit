@@ -273,10 +273,10 @@ export function useInput<
   const passThrough = nodeProps(props)
   for (const prop in passThrough) {
     watch(
-      () => props[prop as keyof FormKitRuntimeProps],
+      () => props[prop as keyof FormKitRuntimeProps<Props>],
       () => {
-        if (props[prop as keyof FormKitRuntimeProps] !== undefined) {
-          node.props[prop] = props[prop as keyof FormKitRuntimeProps]
+        if (props[prop as keyof FormKitRuntimeProps<Props>] !== undefined) {
+          node.props[prop] = props[prop as keyof FormKitRuntimeProps<Props>]
         }
       }
     )

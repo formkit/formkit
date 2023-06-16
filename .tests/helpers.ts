@@ -1,5 +1,7 @@
 import { createNode, FormKitNode } from '../packages/core/src/node'
 
+export function expectType<T>(_value: T): void {}
+
 /*
  * Creates a node tree and returns the parent with a nested child
  */
