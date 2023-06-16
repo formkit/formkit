@@ -2,12 +2,18 @@
 import { createLocalStoragePlugin } from '@formkit/addons'
 import { ref } from 'vue'
 
-const submitHandler = async function () {
+const submitHandler = async function (payload, node) {
   await new Promise((r) => setTimeout(r, 2000))
-  alert(
-    'Form submitted!, localStorage values have been cleared. Page will now reload.'
-  )
-  window.location.reload()
+  node.reset()
+}
+const failingSubmitHandler = async function (payload, node) {
+  await new Promise((r) => setTimeout(r, 2000))
+  node.setErrors(['Something went wrong'], {
+    name: 'Somebody else already has that name',
+    email: 'That email is dumb',
+    message: 'Nobody cares what you have to say',
+  })
+  node.restoreCache()
 }
 
 const mockUserId = 2
@@ -64,7 +70,7 @@ async function beforeLoad(payload) {
     <pre>{{ value }}</pre>
   </FormKit>
 
-  <h2>Test on a non-form 'group' input</h2>
+  <h1>Test on a non-form 'group' input</h1>
   <FormKit
     type="group"
     :plugins="[createLocalStoragePlugin()]"
@@ -72,5 +78,20 @@ async function beforeLoad(payload) {
   >
     <FormKit type="text" label="Subject" />
     <FormKit type="textarea" label="Message" />
+  </FormKit>
+
+  <h1>Test restoring cache on failed submit</h1>
+  <FormKit
+    v-slot="{ value }"
+    type="form"
+    :plugins="[createLocalStoragePlugin()]"
+    name="restoreForm"
+    use-local-storage
+    @submit="failingSubmitHandler"
+  >
+    <FormKit type="text" name="name" label="Your name" />
+    <FormKit type="text" name="email" label="Your email" />
+    <FormKit type="textarea" name="message" label="Your message" />
+    <pre>{{ value }}</pre>
   </FormKit>
 </template>

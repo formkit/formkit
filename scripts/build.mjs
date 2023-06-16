@@ -52,10 +52,24 @@ declare module 'vue' {
   zod: `
 /**
  * Extend FormKitNode with setZodErrors.
+ * @public
  */
 declare module '@formkit/core' {
   interface FormKitNodeExtensions {
     setZodErrors(zodError: z.ZodError | undefined): FormKitNode
+  }
+}
+`,
+  addons: `
+/**
+ * Extend FormKitNode with supporting multi-step methods.
+ * @public
+ */
+declare module '@formkit/core' {
+  interface FormKitNodeExtensions {
+    next(): void
+    previous(): void
+    goTo(step: number | string): void
   }
 }
 `,
@@ -237,14 +251,14 @@ async function themesBuildExtras() {
  */
 async function addonsBuildExtras() {
   const addonsCSS = await fs.readdir(resolve(packagesDir, 'addons/src/css'))
-  fs.mkdir(
+  await fs.mkdir(
     resolve(packagesDir, 'addons/dist/css'),
     { recursive: true },
     (err) => {
       if (err) throw err
     }
   )
-  await addonsCSS.forEach(async (css) => {
+  addonsCSS.forEach(async (css) => {
     await fs.copyFile(
       resolve(packagesDir, 'addons/src/css/', css),
       resolve(packagesDir, 'addons/dist/css/', css)

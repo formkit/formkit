@@ -177,6 +177,7 @@ export function useInput<
       ...nodeProps(props),
       ...listeners,
       type: props.type ?? 'text',
+      __slots: context.slots,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
     if (!attrs.key) attrs.key = token()
@@ -206,7 +207,6 @@ export function useInput<
   const parent = initialProps.ignore
     ? null
     : props.parent || inject(parentSymbol, null)
-
   const node = createNode(
     extend(
       config || {},
