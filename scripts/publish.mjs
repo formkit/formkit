@@ -311,7 +311,7 @@ function publishAffectedPackages() {
     // const version = prePublished[pkg].newVersion
     const tagStatement = tag ? `--tag=${tag} ` : ''
     try {
-      execSync(`pnpm publish ${tagStatement}./packages/${pkg}/`)
+      execSync(`pnpm publish ./packages/${pkg}/ --no-git-checks${tagStatement}`)
     } catch (e) {
       didPublish = false
       msg.error(`An error occurred publishing ${pkg}:`)
