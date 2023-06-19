@@ -315,7 +315,8 @@ function publishAffectedPackages() {
     } catch (e) {
       didPublish = false
       msg.error(`An error occurred publishing ${pkg}:`)
-      console.log(e)
+      e.stdout && console.log(e.stdout.toString())
+      e.stderr && console.log(e.stderr.toString())
     }
   }
   return didPublish
