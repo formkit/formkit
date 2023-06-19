@@ -309,7 +309,7 @@ function publishAffectedPackages() {
   while (packages.length) {
     const pkg = packages.shift()
     // const version = prePublished[pkg].newVersion
-    const tagStatement = tag ? `--tag=${tag} ` : ''
+    const tagStatement = tag ? ` --tag=${tag}` : ''
     try {
       execSync(`pnpm publish ./packages/${pkg}/ --no-git-checks${tagStatement}`)
     } catch (e) {
