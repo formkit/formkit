@@ -314,7 +314,8 @@ function publishAffectedPackages() {
       execSync(`pnpm publish ${tagStatement}./packages/${pkg}/`)
     } catch (e) {
       didPublish = false
-      msg.error(`a new version of ${pkg} was not published`)
+      msg.error(`An error occurred publishing ${pkg}:`)
+      console.log(e)
     }
   }
   return didPublish
