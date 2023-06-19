@@ -51,9 +51,10 @@ let tag = false
  * Main entry point to the build process
  */
 async function publishPackages(force = false) {
-  if (!/npm-cli\.js$/.test(process.env.npm_execpath)) {
-    msg.error(`⚠️ You must run this command with npm instead of yarn or pnpm.`)
-    msg.info('Please try again with:\n\n» npm run publish\n\n')
+  console.log(process.env.npm_execpath)
+  if (!/pnpm\.cjs$/.test(process.env.npm_execpath)) {
+    msg.error(`⚠️ You must run this command with pnpm instead of npm or yarn.`)
+    msg.info('Please try again with:\n\n» pnpm run publish\n\n')
     return
   }
 
@@ -310,7 +311,7 @@ function publishAffectedPackages() {
     // const version = prePublished[pkg].newVersion
     const tagStatement = tag ? `--tag=${tag} ` : ''
     try {
-      execSync(`npm publish ${tagStatement}./packages/${pkg}/`)
+      execSync(`pnpm publish ${tagStatement}./packages/${pkg}/`)
     } catch (e) {
       didPublish = false
       msg.error(`a new version of ${pkg} was not published`)
