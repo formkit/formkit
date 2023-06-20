@@ -64,6 +64,11 @@ export function createFloatingLabelsPlugin(
                 'data-has-value': '$_value !== "" && $_value !== undefined',
               },
             }
+            extensions.input = {
+              attrs: {
+                "data-has-value": '$_value !== "" && $_value !== undefined',
+              },
+            };
 
             const inputSchema = originalSchema(extensions)
             const finalSchema = Array.isArray(inputSchema)
