@@ -29,7 +29,6 @@ export {
   FormKitComponent,
   FormKitSetupContext,
   Slots,
-  InputType,
   parentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'

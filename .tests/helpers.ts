@@ -1,6 +1,18 @@
 import { createNode, FormKitNode } from '../packages/core/src/node'
 
-export function expectType<T>(_value: T): void {}
+export type BaseSlots =
+  | 'outer'
+  | 'wrapper'
+  | 'label'
+  | 'inner'
+  | 'prefixIcon'
+  | 'prefix'
+  | 'input'
+  | 'suffixIcon'
+  | 'suffix'
+  | 'help'
+  | 'messages'
+  | 'message'
 
 /*
  * Creates a node tree and returns the parent with a nested child

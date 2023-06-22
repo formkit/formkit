@@ -16,7 +16,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "paths": {
       "@components": [

@@ -58,7 +58,7 @@ export type AllReals =
  * @public
  */
 export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-  button: { type: 'button' }
+  button: { type: 'button'; value?: undefined }
   checkbox: {
     type: 'checkbox'
     options?: FormKitOptionsProp
@@ -74,11 +74,11 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
           | (Props['onValue'] extends AllReals ? Props['onValue'] : true)
           | (Props['offValue'] extends AllReals ? Props['offValue'] : false)
   }
-  color: { type: 'color' }
-  date: { type: 'date' }
-  datetimeLocal: { type: 'datetimeLocal' }
-  email: { type: 'email' }
-  file: { type: 'file' }
+  color: { type: 'color'; value?: string }
+  date: { type: 'date'; value?: string }
+  datetimeLocal: { type: 'datetimeLocal'; value?: string }
+  email: { type: 'email'; value?: string }
+  file: { type: 'file'; value?: FormKitFile[] }
   form: {
     type: 'form'
     value?: FormKitGroupValue
@@ -88,16 +88,16 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     incompleteMessage?: false | string
   }
   group: { type: 'group'; value?: FormKitGroupValue }
-  hidden: { type: 'hidden' }
+  hidden: { type: 'hidden'; value?: string }
   list: {
     type: 'list'
     value?: unknown[]
     dynamic?: boolean | 'true' | 'false'
     sync?: boolean | 'true' | 'false'
   }
-  month: { type: 'month' }
-  number: { type: 'number' }
-  password: { type: 'password' }
+  month: { type: 'month'; value?: string }
+  number: { type: 'number'; value?: string }
+  password: { type: 'password'; value?: string }
   radio: {
     type: 'radio'
     options: FormKitOptionsProp
@@ -109,8 +109,8 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
       ? T
       : boolean
   }
-  range: { type: 'range' }
-  search: { type: 'search' }
+  range: { type: 'range'; value?: string }
+  search: { type: 'search'; value?: string }
   select: {
     type: 'select'
     options?: FormKitOptionsProp
@@ -122,13 +122,21 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
       ? T
       : string
   }
-  submit: { type: 'submit' }
-  tel: { type: 'tel' }
-  text: { type: 'text' } | {}
-  textarea: { type: 'textarea' }
-  time: { type: 'time' }
-  url: { type: 'url' }
-  week: { type: 'week' }
+  submit: { type: 'submit'; value?: string }
+  tel: { type: 'tel'; value?: string }
+  text: { type: 'text'; value?: string }
+  textarea: { type: 'textarea'; value?: string }
+  time: { type: 'time'; value?: string }
+  url: { type: 'url'; value?: string }
+  week: { type: 'week'; value?: string }
+  // This fallthrough is for inputs that do not have their type set. These
+  // are effectively "text" inputs.
+  _: {
+    type?: Props['type'] extends keyof FormKitInputProps<Props>
+      ? never
+      : Props['type']
+    value?: string
+  }
 }
 
 /**
@@ -150,6 +158,44 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
 }
 
 /**
+ * Merge all events into a single type. This is then used as the structure for
+ *
+ * @public
+ */
+// export type MergedEvents<Props extends FormKitInputs<Props>> =
+//   InputType<Props> extends keyof FormKitInputEvents<Props>
+//     ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[InputType<Props>]
+//     : FormKitBaseEvents<Props>
+
+export type MergedEvents<Props extends FormKitInputs<Props>> =
+  FormKitBaseEvents<Props> &
+    (Props['type'] extends keyof FormKitInputEvents<Props>
+      ? FormKitInputEvents<Props>[Props['type']]
+      : {})
+
+type EventFns<Events extends Record<string, any[]>> = {
+  [K in keyof Events]: (event: K, ...args: Events[K]) => any
+}[keyof Events]
+
+/**
+ * Selects the "type" from the props if it exists, otherwise it defaults to
+ * "text".
+ *
+ * @public
+ */
+export type InputType<Props extends FormKitInputs<Props>> =
+  Props['type'] extends string ? Props['type'] : 'text'
+
+/**
+ * All FormKit events should be included for a given set of props.
+ *
+ * @public
+ */
+export type FormKitEvents<Props extends FormKitInputs<Props>> = EventFns<
+  MergedEvents<Props>
+>
+
+/**
  * All FormKit inputs should be included for this type.
  * @public
  */
@@ -169,10 +215,15 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  * @public
  */
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
+  // form: {
+  //   (event: 'submit-raw', e: Event, node: FormKitNode): any
+  //   (event: 'submit-invalid', node: FormKitNode): any
+  //   (event: 'submit', data: any, node: FormKitNode): any
+  // }
   form: {
-    (event: 'submit-raw', e: Event, node: FormKitNode): any
-    (event: 'submit-invalid', node: FormKitNode): any
-    (event: 'submit', data: any, node: FormKitNode): any
+    submit: [data: any, node: FormKitNode]
+    'submit-raw': [e: Event, node: FormKitNode]
+    'submit-invalid': [node: FormKitNode]
   }
 }
 
@@ -193,18 +244,28 @@ export type PropType<
  * @public
  */
 export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
-  (
-    event: 'input',
+  // (
+  //   event: 'input',
+  //   value: PropType<Props, 'value'>,
+  //   node: FormKitNode<PropType<Props, 'value'>>
+  // ): any
+  // (
+  //   event: 'inputRaw',
+  //   value: PropType<Props, 'value'>,
+  //   node: FormKitNode<PropType<Props, 'value'>>
+  // ): any
+  // (event: 'update:modelValue', value: PropType<Props, 'value'>): any
+  // (event: 'node', node: FormKitNode): any
+  input: [
     value: PropType<Props, 'value'>,
     node: FormKitNode<PropType<Props, 'value'>>
-  ): any
-  (
-    event: 'inputRaw',
+  ]
+  inputRaw: [
     value: PropType<Props, 'value'>,
     node: FormKitNode<PropType<Props, 'value'>>
-  ): any
-  (event: 'update:modelValue', value: PropType<Props, 'value'>): any
-  (event: 'node', node: FormKitNode): any
+  ]
+  'update:modelValue': [value: PropType<Props, 'value'>]
+  node: [node: FormKitNode<PropType<Props, 'value'>>]
 }
 
 /**
@@ -231,6 +292,7 @@ export interface FormKitBaseSlots<Props extends FormKitInputs<Props>> {
   label: FormKitSlotData<Props>
   message: FormKitSlotData<Props, { message: FormKitMessage }>
   messages: FormKitSlotData<Props>
+  outer: FormKitSlotData<Props>
   prefix: FormKitSlotData<Props>
   prefixIcon: FormKitSlotData<Props>
   suffix: FormKitSlotData<Props>
@@ -297,7 +359,7 @@ export interface FormKitBoxSlots<Props extends FormKitInputs<Props>> {
 export interface FormKitFileSlots<Props extends FormKitInputs<Props>>
   extends FormKitBaseSlots<Props> {
   fileList: FormKitSlotData<Props>
-  fileItem: FormKitSlotData<Props, { file: FormKitFile }>
+  fileItem: FormKitSlotData<Props>
   fileItemIcon: FormKitSlotData<Props, { file: FormKitFile }>
   fileName: FormKitSlotData<Props, { file: FormKitFile }>
   fileRemove: FormKitSlotData<Props, { file: FormKitFile }>
@@ -538,7 +600,6 @@ export interface FormKitBaseProps {
   preserveErrors: 'true' | 'false' | boolean
   placeholder: string
   step: string | number
-  value: string
 }
 
 /**

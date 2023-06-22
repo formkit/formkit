@@ -23,6 +23,7 @@ declare module '@formkit/inputs' {
   interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     'multi-step': {
       type: 'multi-step'
+      value?: Record<string, any>
       allowIncomplete?: boolean
       tabStyle?: 'tab' | 'progress'
       hideProgressLabels?: boolean

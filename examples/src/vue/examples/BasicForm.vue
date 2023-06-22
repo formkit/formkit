@@ -45,7 +45,7 @@ function setNode(n: FormKitNode) {
 
 <template>
   <h1>Basic Form</h1>
-  <FormKit v-model="data" type="form" @submit="submitHandler">
+  <FormKit v-model="data" type="form" @submit="(value, node) => value && node">
     <FormKit
       type="number"
       label="Age"
@@ -62,7 +62,9 @@ function setNode(n: FormKitNode) {
       validation-visibility="live"
       outer-class="my-class !formkit-outer"
       @node="setNode"
+      @input="(value) => value"
     />
+    <FormKit type="file" />
     <FormKit
       type="file"
       name="file"

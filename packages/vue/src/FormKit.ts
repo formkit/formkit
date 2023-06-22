@@ -15,11 +15,17 @@ import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import {
   FormKitInputs,
-  FormKitInputEvents,
   FormKitInputSlots,
-  FormKitBaseEvents,
+  // FormKitEvents,
+  InputType,
   runtimeProps,
 } from '@formkit/inputs'
+
+export type UnionToIntersection<U> = (
+  U extends any ? (k: U) => void : never
+) extends (k: infer I) => void
+  ? I
+  : never
 
 /**
  * The type definition for the FormKit’s slots, this is not intended to be used
@@ -30,14 +36,6 @@ export type Slots<Props extends FormKitInputs<Props>> =
   InputType<Props> extends keyof FormKitInputSlots<Props>
     ? FormKitInputSlots<Props>[InputType<Props>]
     : {}
-
-/**
- * Selects the "type" from the props if it exists, otherwise it defaults to
- * "text".
- * @public
- */
-export type InputType<Props extends FormKitInputs<Props>> =
-  Props['type'] extends string ? Props['type'] : 'text'
 
 /**
  * The TypeScript definition for the FormKit component.
@@ -64,9 +62,8 @@ export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
   expose(exposed: {}): void
   attrs: any
   slots: Slots<Props>
-  emit: InputType<Props> extends keyof FormKitInputEvents<Props>
-    ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[InputType<Props>]
-    : FormKitBaseEvents<Props>
+  emit: ((event: 'submit', value: string, other: number) => any) &
+    ((event: 'input', value: number, other: string) => any) // UnionToIntersection<FormKitEvents<Props>>
 }
 
 /**
