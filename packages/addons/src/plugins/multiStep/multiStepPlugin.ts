@@ -19,6 +19,61 @@ declare module '@formkit/core' {
   }
 }
 
+declare module '@formkit/inputs' {
+  interface FormKitInputProps<Props extends FormKitInputs<Props>> {
+    'multi-step': {
+      type: 'multi-step'
+      allowIncomplete?: boolean
+      tabStyle?: 'tab' | 'progress'
+      hideProgressLabels?: boolean
+      validStepIcon?: string
+      beforeStepChange?: (
+        currentStep: FormKitFrameworkContext,
+        nextStep: FormKitFrameworkContext,
+        delta: number
+      ) => any
+    }
+    step: {
+      type: 'step'
+      previousLabel?: string
+      nextLabel?: string
+      previousAttrs?: Record<string, any>
+      nextAttrs?: Record<string, any>
+      validStepIcon?: string
+      beforeStepChange?: (
+        currentStep: FormKitFrameworkContext,
+        nextStep: FormKitFrameworkContext,
+        delta: number
+      ) => any
+    }
+  }
+
+  interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
+    'multi-step': {
+      multiStepOuter: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[] }
+      >
+      wrapper: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+      tabs: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+      tab: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+      tabLabel: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
+      badge: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
+      validStepIcon: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
+    }
+    steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+  }
+}
+
 const isBrowser = typeof window !== 'undefined'
 
 /**

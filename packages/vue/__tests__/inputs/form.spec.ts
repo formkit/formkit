@@ -419,7 +419,7 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           german() {
-            this.$formkit.setLocale('de')
+            ;(this as any).$formkit.setLocale('de')
           },
         },
       },
@@ -455,7 +455,7 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           handle() {
-            this.$formkit.setErrors('form', [error])
+            ;(this as any).$formkit.setErrors('form', [error])
           },
         },
       },
@@ -481,7 +481,10 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           handle() {
-            this.$formkit.setErrors('form', { email: error1, second: [error2] })
+            ;(this as any).$formkit.setErrors('form', {
+              email: error1,
+              second: [error2],
+            })
           },
         },
       },
@@ -910,7 +913,7 @@ describe('programmatic submission', () => {
       `,
         methods: {
           submit() {
-            this.$formkit.submit(id)
+            ;(this as any).$formkit.submit(id)
           },
           submitHandler(data: any) {
             submit(data)
@@ -1241,7 +1244,7 @@ describe('FormKitMessages', () => {
         methods: {
           handler,
           setNode(node: FormKitNode) {
-            this.node = node
+            ;(this as any).node = node
           },
         },
         components: {
@@ -1285,7 +1288,7 @@ describe('FormKitMessages', () => {
         methods: {
           handler,
           setNode(node: FormKitNode) {
-            this.node = node
+            ;(this as any).node = node
           },
         },
         components: {
