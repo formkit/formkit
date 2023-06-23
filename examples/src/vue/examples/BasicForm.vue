@@ -53,7 +53,7 @@ function setNode(n: FormKitNode) {
       validation-visibility="live"
     />
     <FormKit
-      type="email"
+      type="text"
       name="email"
       label="Email address"
       help="What is your email address?"
@@ -63,6 +63,7 @@ function setNode(n: FormKitNode) {
       outer-class="my-class !formkit-outer"
       @node="setNode"
       @input="(value) => value"
+      @input-raw="(value, node) => value"
     />
     <FormKit type="file" />
     <FormKit

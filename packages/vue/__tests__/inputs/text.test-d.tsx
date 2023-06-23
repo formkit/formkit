@@ -35,6 +35,12 @@ describe('describe text input types', () => {
   })
 
   it('has an input event', () => {
-    assertType(<FormKit type="text" onInput={(foo) => foo} />)
+    assertType(
+      <FormKit
+        type="checkbox"
+        options={[123, 456, 789]}
+        onInput={(value) => value}
+      />
+    )
   })
 })
