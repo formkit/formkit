@@ -34,13 +34,9 @@ describe('describe text input types', () => {
     assertType(<FormKit type="text" value={123} />)
   })
 
-  it('has an input event', () => {
-    assertType(
-      <FormKit
-        type="checkbox"
-        options={[123, 456, 789]}
-        onInput={(value) => value}
-      />
-    )
+  it('has an input event with an unknown value', () => {
+    // @ts-expect-error - value is unknown not a string
+    assertType(<FormKit type="text" onInput={(value: string) => value} />)
+    assertType(<FormKit type="text" onInput={(value: unknown) => value} />)
   })
 })

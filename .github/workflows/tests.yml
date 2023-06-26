@@ -15,36 +15,37 @@ jobs:
       - run: pnpm build all
       - name: Run Vitest
         run: pnpm test
+      - name: Run Typecheck
+        run: pnpm run test typecheck
   Playwright:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18
-    - uses: pnpm/action-setup@v2
-      with:
-        version: 7
-    - run: pnpm install --frozen-lockfile
-    - run: pnpm build all
-    - name: Get installed Playwright version
-      id: playwright-version
-      run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
-    - uses: actions/cache@v3
-      name: Check for Playwright browsers cache
-      id: playwright-cache
-      with:
-        path: |
-          ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
-    - name: Run Playwright tests
-      run: pnpm run playwright
-    - uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
-
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build all
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        name: Check for Playwright browsers cache
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Run Playwright tests
+        run: pnpm run playwright
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

@@ -10,22 +10,19 @@ import {
   RendererElement,
   SetupContext,
   RenderFunction,
+  VNodeProps,
+  AllowedComponentProps,
+  ComponentCustomProps,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import {
   FormKitInputs,
   FormKitInputSlots,
-  // FormKitEvents,
+  FormKitEvents,
   InputType,
   runtimeProps,
 } from '@formkit/inputs'
-
-export type UnionToIntersection<U> = (
-  U extends any ? (k: U) => void : never
-) extends (k: infer I) => void
-  ? I
-  : never
 
 /**
  * The type definition for the FormKit’s slots, this is not intended to be used
@@ -42,7 +39,7 @@ export type Slots<Props extends FormKitInputs<Props>> =
  * @public
  */
 export type FormKitComponent = <Props extends FormKitInputs<Props>>(
-  props: Props /*& VNodeProps & AllowedComponentProps & ComponentCustomProps*/,
+  props: Props & VNodeProps & AllowedComponentProps & ComponentCustomProps,
   context?: Pick<FormKitSetupContext<Props>, 'attrs' | 'emit' | 'slots'>,
   setup?: FormKitSetupContext<Props>
 ) => VNode<
@@ -58,12 +55,11 @@ export type FormKitComponent = <Props extends FormKitInputs<Props>>(
  * @public
  */
 export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
-  props: {} & Props
+  props: {} & Props & { onInput: (value: any) => void }
   expose(exposed: {}): void
   attrs: any
   slots: Slots<Props>
-  emit: ((event: 'submit', value: string, other: number) => any) &
-    ((event: 'input', value: number, other: string) => any) // UnionToIntersection<FormKitEvents<Props>>
+  emit: FormKitEvents<Props>
 }
 
 /**

@@ -77,7 +77,10 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   color: { type: 'color'; value?: string }
   date: { type: 'date'; value?: string }
   datetimeLocal: { type: 'datetimeLocal'; value?: string }
-  email: { type: 'email'; value?: string }
+  email: {
+    type: 'email'
+    value?: string
+  }
   file: { type: 'file'; value?: FormKitFile[] }
   form: {
     type: 'form'
@@ -154,6 +157,15 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
       keyof FormKitInputProps<Props>[K]
     > &
     Omit<Partial<FormKitConditionalProps>, keyof FormKitInputProps<Props>[K]> &
+    Partial<
+      K extends keyof FormKitInputEventsAsProps<Props>
+        ? Omit<
+            FormKitEventsAsProps,
+            keyof FormKitInputEventsAsProps<Props>[K]
+          > &
+            FormKitInputEventsAsProps<Props>[K]
+        : FormKitEventsAsProps
+    > &
     FormKitInputProps<Props>[K]
 }
 
@@ -162,20 +174,10 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
  *
  * @public
  */
-// export type MergedEvents<Props extends FormKitInputs<Props>> =
-//   InputType<Props> extends keyof FormKitInputEvents<Props>
-//     ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[InputType<Props>]
-//     : FormKitBaseEvents<Props>
-
 export type MergedEvents<Props extends FormKitInputs<Props>> =
-  FormKitBaseEvents<Props> &
-    (Props['type'] extends keyof FormKitInputEvents<Props>
-      ? FormKitInputEvents<Props>[Props['type']]
-      : {})
-
-type EventFns<Events extends Record<string, any[]>> = {
-  [K in keyof Events]: (event: K, ...args: Events[K]) => any
-}[keyof Events]
+  InputType<Props> extends keyof FormKitInputEvents<Props>
+    ? FormKitBaseEvents<Props> & FormKitInputEvents<Props>[InputType<Props>]
+    : FormKitBaseEvents<Props>
 
 /**
  * Selects the "type" from the props if it exists, otherwise it defaults to
@@ -191,16 +193,15 @@ export type InputType<Props extends FormKitInputs<Props>> =
  *
  * @public
  */
-export type FormKitEvents<Props extends FormKitInputs<Props>> = EventFns<
+export type FormKitEvents<Props extends FormKitInputs<Props>> =
   MergedEvents<Props>
->
 
 /**
  * All FormKit inputs should be included for this type.
  * @public
  */
 export type FormKitInputs<Props extends FormKitInputs<Props>> =
-  | MergedProps<Props>[keyof MergedProps<Props>]
+  MergedProps<Props>[keyof MergedProps<Props>]
 
 /**
  * Unique events emitted by each FormKit input. The shape of this interface is:
@@ -215,15 +216,10 @@ export type FormKitInputs<Props extends FormKitInputs<Props>> =
  * @public
  */
 export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
-  // form: {
-  //   (event: 'submit-raw', e: Event, node: FormKitNode): any
-  //   (event: 'submit-invalid', node: FormKitNode): any
-  //   (event: 'submit', data: any, node: FormKitNode): any
-  // }
   form: {
-    submit: [data: any, node: FormKitNode]
-    'submit-raw': [e: Event, node: FormKitNode]
-    'submit-invalid': [node: FormKitNode]
+    (event: 'submit-raw', e: Event, node: FormKitNode): any
+    (event: 'submit-invalid', node: FormKitNode): any
+    (event: 'submit', data: any, node: FormKitNode): any
   }
 }
 
@@ -244,28 +240,53 @@ export type PropType<
  * @public
  */
 export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
-  // (
-  //   event: 'input',
-  //   value: PropType<Props, 'value'>,
-  //   node: FormKitNode<PropType<Props, 'value'>>
-  // ): any
-  // (
-  //   event: 'inputRaw',
-  //   value: PropType<Props, 'value'>,
-  //   node: FormKitNode<PropType<Props, 'value'>>
-  // ): any
-  // (event: 'update:modelValue', value: PropType<Props, 'value'>): any
-  // (event: 'node', node: FormKitNode): any
-  input: [
-    value: PropType<Props, 'value'>,
-    node: FormKitNode<PropType<Props, 'value'>>
-  ]
-  inputRaw: [
-    value: PropType<Props, 'value'>,
-    node: FormKitNode<PropType<Props, 'value'>>
-  ]
-  'update:modelValue': [value: PropType<Props, 'value'>]
-  node: [node: FormKitNode<PropType<Props, 'value'>>]
+  (event: 'input', value: PropType<Props, 'value'>, node: FormKitNode): any
+  (event: 'inputRaw', value: PropType<Props, 'value'>, node: FormKitNode): any
+  (event: 'input-raw', value: PropType<Props, 'value'>, node: FormKitNode): any
+  (event: 'update:modelValue', value: PropType<Props, 'value'>): any
+  (event: 'update:model-value', value: PropType<Props, 'value'>): any
+  (event: 'node', node: FormKitNode): any
+}
+
+/**
+ * In a perfect world this interface would not be required at all. However, Vue
+ * expects the interfaces to be defined as method overloads. Unfortunately since
+ * our events interface uses generics UnionToIntersection is not able to be used
+ * meaning that we loose event data if we store the events as a standard
+ * interface with property keys. The only way we have found to reliably get
+ * Volar (as of June 2023) to properly recognize all defined events is to use
+ * a the "standard" method overload approach (see FormKitBaseEvents).
+ *
+ * (Basically we cannot use the events in this interface to automatically
+ * produce the FormKitBaseEvents without Volar loosing event data)
+ *
+ * This means we have no way to get the event names out of the interface so we
+ * cannot properly use them in our props. This matters for things like TSX
+ * support where the event names need to be available as `onEventName` props.
+ *
+ * This interface is used to manually patch that gap in the type system. These
+ * types should match up 1-1 with the events defined in FormKitBaseEvents as
+ * well as FormKitInputEvents.
+ */
+export interface FormKitEventsAsProps {
+  onInput: (value: unknown, node: FormKitNode) => any
+  onInputRaw: (value: unknown, node: FormKitNode) => any
+  'onUpdate:modelValue': (value: unknown, node: FormKitNode) => any
+  onNode: (node: FormKitNode) => any
+}
+
+/**
+ * See the comment tome on {@link FormKitEventsAsProps} for why this type is
+ * necessary.
+ *
+ * @public
+ */
+export interface FormKitInputEventsAsProps<Props extends FormKitInputs<Props>> {
+  form: {
+    onSubmitRaw: (e: Event, node: FormKitNode) => any
+    onSubmitInvalid: (node: FormKitNode) => any
+    onSubmit: (data: any, node: FormKitNode) => any
+  }
 }
 
 /**
