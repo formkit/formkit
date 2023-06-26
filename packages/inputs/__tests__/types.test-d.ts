@@ -1,39 +1,42 @@
 import { describe, assertType, it } from 'vitest'
 import { FormKitEvents } from '../src/props'
+import { createNode } from '@formkit/core'
+
+declare const textEvent: FormKitEvents<{ type: 'text' }>
+declare const formEvent: FormKitEvents<{ type: 'form' }>
 
 describe('base events', () => {
   it('has an input event', () => {
-    const inputEvent = (event: 'input', value: string | undefined) =>
-      event && value
-    assertType<FormKitEvents<{}>>(inputEvent)
+    assertType(textEvent('input', 'foo', createNode()))
   })
 
   it('the input event provides the correct value', () => {
-    const inputEvent = (event: 'input', value: number | undefined) =>
-      event && value
     // @ts-expect-error - string is not assignable to number
-    assertType<FormKitEvents<{}>>(inputEvent)
+    assertType(textEvent('input', 123, createNode()))
   })
 
   it('does not have foobar event', () => {
-    const inputEvent = (event: 'foobar', value: string | undefined) =>
-      event && value
     // @ts-expect-error - foobar is not a valid event
-    assertType<FormKitEvents<{}>>(inputEvent)
+    assertType(textEvent('foobar', 'foo', createNode()))
   })
 
   it('does not have submit event', () => {
-    const inputEvent = (event: 'submit', value: string | undefined) =>
-      event && value
-    // @ts-expect-error - foobar is not a valid event
-    assertType<FormKitEvents<{ type: 'select' }>>(inputEvent)
+    // @ts-expect-error - submit is not a valid event
+    assertType(textEvent('submit', 'foo', createNode()))
   })
 })
 
 describe('form events', () => {
   it('should have input event', () => {
-    const inputEvent = (event: 'submit', value: string | undefined) =>
-      event && value
-    assertType<FormKitEvents<{ type: 'form' }>>(inputEvent)
+    assertType(formEvent('input', {}, createNode()))
+  })
+
+  it('should have input event that does not allow strings', () => {
+    // @ts-expect-error - string is not assignable to object
+    assertType(formEvent('input', '12312', createNode()))
+  })
+
+  it('should have a submit event', () => {
+    assertType(formEvent('submit', {}, createNode()))
   })
 })
