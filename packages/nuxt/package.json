@@ -26,7 +26,9 @@
     "@formkit/core": "0.17.2",
     "@formkit/i18n": "0.17.2",
     "@formkit/vue": "0.17.2",
-    "@nuxt/kit": "^3.3.1"
+    "@nuxt/kit": "^3.3.1",
+    "chokidar": "^3.5.3",
+    "pathe": "^1.1.1"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.1",
