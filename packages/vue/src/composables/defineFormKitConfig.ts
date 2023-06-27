@@ -1,7 +1,7 @@
 import { DefaultConfigOptions } from '../index'
 
 export function defineFormKitConfig(
-  config: DefaultConfigOptions = {}
+  config: DefaultConfigOptions | (() => DefaultConfigOptions)
 ): () => DefaultConfigOptions {
-  return () => config
+  return () => (typeof config === 'function' ? config() : config)
 }
