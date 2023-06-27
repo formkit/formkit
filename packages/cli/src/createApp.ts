@@ -294,18 +294,18 @@ function buildFormKitConfig(options: CreateAppOptions): string {
   }
   config += `${config ? ',\n' : ''}  icons: { ...genesisIcons }`
 
-  const viteExport = `
-export default const config${
+  const viteExport = `const config${
     options.lang === 'ts' ? ': DefaultConfigOptions' : ''
   } = {
 ${config}
 }
-`
-  const nuxtExport = `
-export default defineFormKitConfig({
+
+export default config`
+
+  const nuxtExport = `export default defineFormKitConfig({
 ${config}
-})
-`
+})`
+
   let defaultExport = ''
   if (options.framework === 'nuxt') {
     defaultExport = nuxtExport
@@ -317,6 +317,7 @@ ${config}
 ${setup.join('\n')}
 ${defaultExport}
 `
+
   return rawConfig
 }
 
