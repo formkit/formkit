@@ -12,7 +12,11 @@ import {
   en,
 } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
-import { createThemePlugin, FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes'
+import {
+  createThemePlugin,
+  FormKitIconLoader,
+  FormKitIconLoaderUrl,
+} from '@formkit/themes'
 import bindings from './bindings'
 import '@formkit/dev'
 
@@ -26,6 +30,7 @@ export interface PluginConfigs {
   locales: FormKitLocaleRegistry
   inputs: FormKitLibrary
   messages: Record<string, Partial<FormKitLocale>>
+  locale: string
   theme: string
   iconLoaderUrl: FormKitIconLoaderUrl
   iconLoader: FormKitIconLoader
