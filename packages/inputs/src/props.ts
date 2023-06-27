@@ -104,26 +104,14 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   radio: {
     type: 'radio'
     options: FormKitOptionsProp
-    value?: Props['options'] extends Record<infer T, string>
-      ? T
-      : Props['options'] extends FormKitOptionsItem[]
-      ? Props['options'][number]['value']
-      : Props['options'] extends Array<infer T>
-      ? T
-      : boolean
+    value?: FormKitOptionsValue<Props['options']>
   }
   range: { type: 'range'; value?: string }
   search: { type: 'search'; value?: string }
   select: {
     type: 'select'
     options?: FormKitOptionsProp
-    value?: Props['options'] extends Record<infer T, string>
-      ? T
-      : Props['options'] extends FormKitOptionsItem[]
-      ? Props['options'][number]['value']
-      : Props['options'] extends Array<infer T>
-      ? T
-      : string
+    value?: FormKitOptionsValue<Props['options']>
   }
   submit: { type: 'submit'; value?: string }
   tel: { type: 'tel'; value?: string }
@@ -234,6 +222,16 @@ export type PropType<
   FormKitInputs<Props>,
   { type: Props['type'] extends string ? Props['type'] : 'text' }
 >[T]
+
+export type FormKitOptionsValue<Options> = Options extends FormKitOptionsProp
+  ? Options extends Record<infer T, string>
+    ? T
+    : Options extends FormKitOptionsItem[]
+    ? Options[number]['value']
+    : Options extends Array<infer T>
+    ? T
+    : unknown
+  : unknown
 
 /**
  * General input events available to all FormKit inputs.
