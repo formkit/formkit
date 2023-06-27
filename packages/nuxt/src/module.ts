@@ -47,7 +47,6 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     if (nuxt.options.dev) {
       const watcher = watch([`${configBase}.{ts,mjs,js}`, configBase])
       watcher.on('all', (event) => {
-        console.log(configBase, event)
         if (event === 'add' || event === 'unlink') {
           updateTemplates({
             filter: (template) => template.filename === 'formkitPlugin.mjs',
@@ -79,12 +78,6 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
 
         ${configPathExists ? `import importedConfig from '${configPath}'` : ''}
 
-        // if (import.meta.hot) {
-        //   import.meta.hot.accept('${configPath}', (config) => {
-        //     // Object.assign()
-        //   })
-        // }
-
         export default defineNuxtPlugin((nuxtApp) => {
           const config = ${
             configPathExists
@@ -100,7 +93,6 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
         })
         `
       },
-      write: true,
       filename: 'formkitPlugin.mjs',
     })
   },
