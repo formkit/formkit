@@ -65,10 +65,3 @@
   transition: opacity 0.25s ease-out;
 }
 
-/* mask & datepicker - display value on inital state */
-[data-floating-label="true"][data-type="mask"]:not(:focus-within)
-  input[data-has-value="true"],
-[data-floating-label="true"][data-type="datepicker"]
-  input[data-has-value="true"] {
-  color: inherit;
-}

@@ -57,16 +57,12 @@ export function createFloatingLabelsPlugin(
             extensions.outer = {
               attrs: {
                 'data-floating-label': 'true',
+                "data-complete": '$_value !== "" && $_value !== undefined',
               },
             }
             extensions.label = {
               attrs: {
                 'data-has-value': '$_value !== "" && $_value !== undefined',
-              },
-            }
-            extensions.input = {
-              attrs: {
-                "data-has-value": '$_value !== "" && $_value !== undefined',
               },
             }
 
