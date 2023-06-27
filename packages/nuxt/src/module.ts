@@ -93,7 +93,6 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
         })
         `
       },
-      write: true,
       filename: 'formkitPlugin.mjs',
     })
   },
