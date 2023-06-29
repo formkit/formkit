@@ -124,7 +124,7 @@ describe('v-model', () => {
     )
   })
 
-  it.only('Works with both v-model and model-value', async () => {
+  it('Works with both v-model and model-value', async () => {
     const data1 = ref('abc')
     const data2 = ref('xyz')
 
