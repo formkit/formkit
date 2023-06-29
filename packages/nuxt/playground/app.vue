@@ -10,7 +10,7 @@ if (typeof window === 'undefined') {
   <div class="my-form">
     <label>
       Server memory
-      <input id="memory" :value="memoryValue">
+      <input id="memory" :value="memoryValue" />
     </label>
     <FormKit
       type="form"
