@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`v-model > Works with both v-model and model-value 1`] = `
+"{
+  \\"text-vmodel\\": \\"foo\\",
+  \\"text-model-value\\": \\"xyz\\"
+}"
+`;
+
+exports[`v-model > Works with both v-model and model-value 2`] = `
+"{
+  \\"text-vmodel\\": \\"foo\\",
+  \\"text-model-value\\": \\"bar\\"
+}"
+`;
