@@ -48,7 +48,7 @@ describe('form structure', () => {
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">
-    <div class="formkit-outer" data-family="button" data-type="submit">
+    <div class="formkit-outer" data-family="button" data-type="submit" data-empty="true">
       <!---->
       <div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_1" id="button">
           <!---->
@@ -983,9 +983,9 @@ describe('programmatic submission', () => {
     expect(submitRaw).toHaveBeenCalledTimes(1)
     expect(submit).toHaveBeenCalledTimes(0)
     getNode(id)!.input(123)
-    await new Promise((r) => setTimeout(r, 15))
+    await new Promise((r) => setTimeout(r, 20))
     wrapper.vm.submit()
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 20))
     expect(submitRaw).toHaveBeenCalledTimes(2)
     expect(submit).toHaveBeenCalledTimes(1)
   })

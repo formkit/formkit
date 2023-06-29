@@ -1063,7 +1063,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-invalid="true">
+      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-empty="true" data-invalid="true">
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->
