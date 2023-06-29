@@ -227,7 +227,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     handlers: {
       blur: (e?: Event) => {
-        if (typeof node === 'undefined') return
+        if (!node) return
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         )
