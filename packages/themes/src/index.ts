@@ -274,14 +274,12 @@ export function createIconHandler(
   return (
     iconName: string | boolean
   ): string | undefined | Promise<string | undefined> => {
-    if (typeof iconName === 'boolean') {
-      return // do nothing if we're dealing with a boolean
-    }
+    // bail if we got something that wasn't string
+    if (typeof iconName !== 'string') return
     // if we're dealing with an inline SVG, just use it as-is
     if (iconName.startsWith('<svg')) {
       return iconName
     }
-    if (typeof iconName !== 'string') return // bail if we got something that wasn't a boolean or string
 
     // is this a default icon that should only load from a stylesheet?
     const isDefault = iconName.startsWith('default:')
