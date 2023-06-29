@@ -6,7 +6,7 @@ import {
   plugin,
   defaultConfig,
   resetCount,
-} from '../../../packages/vue/src'
+} from '@formkit/vue'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
