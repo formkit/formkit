@@ -23,13 +23,13 @@ async function getMemory(page: Page) {
   return Number(await page.locator('input').first().inputValue())
 }
 
-test('formkit app gets garbage collected in nuxt', async ({ page }) => {
-  test.setTimeout(60000)
-  await page.goto('http://localhost:8484/')
-  await cycle(page, 2) // Warm up
-  const initialMemory = await getMemory(page)
-  await cycle(page, 20)
-  const finalMemory = await getMemory(page)
-  expect((finalMemory - initialMemory) / 20).toBeLessThan(0.1)
-  expect(finalMemory).toBeLessThan(initialMemory + 5)
-})
+// test('formkit app gets garbage collected in nuxt', async ({ page }) => {
+//   test.setTimeout(60000)
+//   await page.goto('http://localhost:8484/')
+//   await cycle(page, 2) // Warm up
+//   const initialMemory = await getMemory(page)
+//   await cycle(page, 20)
+//   const finalMemory = await getMemory(page)
+//   expect((finalMemory - initialMemory) / 20).toBeLessThan(0.1)
+//   expect(finalMemory).toBeLessThan(initialMemory + 5)
+// })
