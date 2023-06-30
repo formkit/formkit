@@ -204,7 +204,7 @@ export default {
     chartBar: 'absolute bottom-0 h-full bg-gray-400 opacity-[.66] data-[active="false"]:opacity-[.25]',
   },
   taglist: {
-    input: 'px-1 py-1 w-[0%] grow',
+    input: '$remove:w-full px-1 pl-1 grow w-[0%] min-w-[30%]',
     removeSelection: 'w-2.5 mx-1 self-center text-black leading-none',
     tag: 'flex items-center my-1 p-1 bg-gray-200 text-xs rounded-full',
     tagWrapper: 'mr-1 focus:outline-none focus:text-white [&>div]:focus:bg-blue-500 [&>div>button]:focus:text-white',
