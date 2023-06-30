@@ -247,28 +247,28 @@ importers:
     dependencies:
       '@formkit/auto-animate':
         specifier: latest
-        version: 1.0.0-beta.6
+        version: 0.7.0
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../inputs
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../inputs
       axios:
         specifier: ^0.27.2
@@ -293,16 +293,16 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
     devDependencies:
       '@formkit/vue':
@@ -312,50 +312,56 @@ importers:
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/i18n':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../i18n
       '@formkit/vue':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.3.1
         version: 3.3.2
+      chokidar:
+        specifier: ^3.5.3
+        version: 3.5.3
+      pathe:
+        specifier: ^1.1.1
+        version: 1.1.1
     devDependencies:
       '@nuxt/module-builder':
         specifier: ^0.2.1
@@ -367,28 +373,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../themes
     devDependencies:
       '@types/tailwindcss':
@@ -398,7 +404,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
 
   packages/utils: {}
@@ -406,49 +412,49 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/observer':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../observer
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
       '@formkit/dev':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../dev
       '@formkit/i18n':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../inputs
       '@formkit/observer':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../observer
       '@formkit/rules':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../rules
       '@formkit/themes':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../themes
       '@formkit/utils':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../validation
 
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.2
+        specifier: 0.17.3
         version: link:../core
 
 packages:
@@ -2283,8 +2289,13 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
+  /@formkit/auto-animate@0.7.0:
+    resolution: {integrity: sha512-RczHUr0AhRPssREoNdRjLfk2b/id9/DFnbIq18QM8L7E4zNV3XH+WO480EZ46BQHDEsv76YPJ0JbG2Y2i3GfXw==}
+    dev: false
+
   /@formkit/auto-animate@1.0.0-beta.6:
     resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
+    dev: true
 
   /@formkit/core@0.16.5:
     resolution: {integrity: sha512-cr2HT3JtTaEWnrjiXkxrsbdMjLLJc73sgkX9HhgNsWMBjVdRxFlk1NHJzACsX4F/tMujCMJC6FiayIEfVC93xA==}
@@ -2672,7 +2683,7 @@ packages:
       launch-editor: 2.6.0
       nuxt: 3.3.2(@types/node@18.15.10)(eslint@8.36.0)(rollup@2.79.1)(stylelint@14.16.1)(terser@5.16.8)(typescript@4.4.3)
       pacote: 15.1.1
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       rc9: 2.0.1
       unimport: 2.2.4(rollup@2.79.1)
@@ -2700,7 +2711,7 @@ packages:
       knitwork: 1.0.0
       lodash.template: 4.5.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       semver: 7.3.8
@@ -2727,7 +2738,7 @@ packages:
       knitwork: 1.0.0
       lodash.template: 4.5.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       semver: 7.3.8
@@ -2754,7 +2765,7 @@ packages:
       knitwork: 1.0.0
       lodash.template: 4.5.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       semver: 7.3.8
@@ -2786,7 +2797,7 @@ packages:
       consola: 2.15.3
       mlly: 1.2.0
       mri: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       unbuild: 1.2.1
     transitivePeerDependencies:
       - sass
@@ -2802,7 +2813,7 @@ packages:
       defu: 6.1.2
       hookable: 5.5.2
       jiti: 1.18.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       postcss-import-resolver: 2.0.0
       scule: 1.0.0
@@ -2823,7 +2834,7 @@ packages:
       defu: 6.1.2
       hookable: 5.5.2
       jiti: 1.18.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       postcss-import-resolver: 2.0.0
       scule: 1.0.0
@@ -2845,7 +2856,7 @@ packages:
       defu: 6.1.2
       hookable: 5.5.2
       jiti: 1.18.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       postcss-import-resolver: 2.0.0
       scule: 1.0.0
@@ -2917,7 +2928,7 @@ packages:
       magic-string: 0.30.0
       mlly: 1.2.0
       ohash: 1.0.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       perfect-debounce: 0.1.3
       pkg-types: 1.0.2
       postcss: 8.4.21
@@ -3676,7 +3687,7 @@ packages:
       consola: 2.15.3
       fast-glob: 3.2.12
       magic-string: 0.30.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       perfect-debounce: 0.1.3
     transitivePeerDependencies:
       - rollup
@@ -3910,14 +3921,14 @@ packages:
       '@vitest/utils': 0.31.0
       concordance: 5.0.4
       p-limit: 4.0.0
-      pathe: 1.1.0
+      pathe: 1.1.1
     dev: true
 
   /@vitest/snapshot@0.31.0:
     resolution: {integrity: sha512-5dTXhbHnyUMTMOujZPB0wjFjQ6q5x9c8TvAsSPUNKjp1tVU7i9pbqcKPqntyu2oXtmVxKbuHCqrOd+Ft60r4tg==}
     dependencies:
       magic-string: 0.30.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pretty-format: 27.5.1
     dev: true
 
@@ -4527,7 +4538,7 @@ packages:
       giget: 1.1.2
       jiti: 1.18.2
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       rc9: 2.0.1
     transitivePeerDependencies:
@@ -6264,7 +6275,7 @@ packages:
     dependencies:
       enhanced-resolve: 5.12.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       ufo: 1.1.1
     dev: true
 
@@ -6590,7 +6601,7 @@ packages:
       https-proxy-agent: 5.0.1
       mri: 1.2.0
       node-fetch-native: 1.0.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       tar: 6.1.13
     transitivePeerDependencies:
       - supports-color
@@ -8088,7 +8099,7 @@ packages:
       jiti: 1.18.2
       mlly: 1.2.0
       mri: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       typescript: 5.0.4
     dev: true
 
@@ -8104,7 +8115,7 @@ packages:
     resolution: {integrity: sha512-Rn+ai4G+CQXptDFSRNnChEgNr+xAEauYhwRvpPl/UHStTlgkIftplgJRsA2OXPuoUn86K4XAjB26+x5CEvVb6A==}
     dependencies:
       acorn: 8.8.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       ufo: 1.1.1
     dev: true
@@ -8113,7 +8124,7 @@ packages:
     resolution: {integrity: sha512-+c7A3CV0KGdKcylsI6khWyts/CYrGTrRVo4R/I7u/cUsy0Conxa6LUhiEzVKIw14lc2L5aiO4+SeVe4TeGRKww==}
     dependencies:
       acorn: 8.8.2
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       ufo: 1.1.1
 
@@ -8212,7 +8223,7 @@ packages:
       node-fetch-native: 1.0.2
       ofetch: 1.0.1
       ohash: 1.0.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       perfect-debounce: 0.1.3
       pkg-types: 1.0.2
       pretty-bytes: 6.1.0
@@ -8505,7 +8516,7 @@ packages:
       nuxi: 3.3.2
       ofetch: 1.0.1
       ohash: 1.0.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       perfect-debounce: 0.1.3
       scule: 1.0.0
       strip-literal: 1.0.1
@@ -8879,8 +8890,8 @@ packages:
     resolution: {integrity: sha512-6Y6s0vT112P3jD8dGfuS6r+lpa0qqNrLyHPOwvXMnyNTQaYiwgau2DP3aNDsR13xqtGj7rrPo+jFUATpU6/s+g==}
     dev: true
 
-  /pathe@1.1.0:
-    resolution: {integrity: sha512-ODbEPR0KKHqECXW1GoxdDb+AZvULmXjVPy4rt+pGo2+TnjJTIPJQSVS6N63n8T2Ip+syHhbn52OewKicV0373w==}
+  /pathe@1.1.1:
+    resolution: {integrity: sha512-d+RQGp0MAYTIaDBIMmOfMwz3E+LOZnxx1HZd5R18mmCZY0QBlK0LDZfPc8FW8Ed2DlvsuE6PRjroDY+wg4+j/Q==}
 
   /pathval@1.1.1:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
@@ -8927,7 +8938,7 @@ packages:
     dependencies:
       jsonc-parser: 3.2.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
 
   /playwright-core@1.32.1:
     resolution: {integrity: sha512-KZYUQC10mXD2Am1rGlidaalNGYk3LU1vZqqNk0gT4XPty1jOqgup8KDP8l2CUlqoNKhXM5IfGjWgW37xvGllBA==}
@@ -10941,7 +10952,7 @@ packages:
       mkdist: 1.2.0(typescript@5.0.4)
       mlly: 1.2.0
       mri: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       pretty-bytes: 6.1.0
       rollup: 3.20.2
@@ -10980,7 +10991,7 @@ packages:
       defu: 6.1.2
       mime: 3.0.0
       node-fetch-native: 1.0.2
-      pathe: 1.1.0
+      pathe: 1.1.1
     dev: true
 
   /unhead@1.1.25:
@@ -11001,7 +11012,7 @@ packages:
       local-pkg: 0.4.3
       magic-string: 0.27.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       strip-literal: 1.0.1
@@ -11019,7 +11030,7 @@ packages:
       local-pkg: 0.4.3
       magic-string: 0.30.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       strip-literal: 1.0.1
@@ -11036,7 +11047,7 @@ packages:
       local-pkg: 0.4.3
       magic-string: 0.30.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       strip-literal: 1.0.1
@@ -11054,7 +11065,7 @@ packages:
       local-pkg: 0.4.3
       magic-string: 0.30.0
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       pkg-types: 1.0.2
       scule: 1.0.0
       strip-literal: 1.0.1
@@ -11269,7 +11280,7 @@ packages:
       cac: 6.7.14
       debug: 4.3.4
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       picocolors: 1.0.0
       vite: 4.2.1(@types/node@18.15.10)(terser@5.16.8)
     transitivePeerDependencies:
@@ -11290,7 +11301,7 @@ packages:
       cac: 6.7.14
       debug: 4.3.4
       mlly: 1.2.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       picocolors: 1.0.0
       vite: 4.2.1(@types/node@18.15.10)(terser@5.16.8)
     transitivePeerDependencies:
@@ -11502,7 +11513,7 @@ packages:
       jsdom: 21.1.1
       local-pkg: 0.4.3
       magic-string: 0.30.0
-      pathe: 1.1.0
+      pathe: 1.1.1
       picocolors: 1.0.0
       std-env: 3.3.2
       strip-literal: 1.0.1
