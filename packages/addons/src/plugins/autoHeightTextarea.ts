@@ -12,16 +12,26 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
   const autoHeightTextareaPlugin = (node: FormKitNode) => {
     if (node.props.type !== 'textarea') return
     node.addProps(['autoHeight'])
+    node.addProps(['maxAutoHeight'])
 
     node.on('created', () => {
       const autoHeight = undefine(node.props.autoHeight)
+      const maxAutoHeight = node.props.maxAutoHeight
       if (!autoHeight || !node.context) return
       let inputElement: null | HTMLElement = null
+
+      if (maxAutoHeight && typeof maxAutoHeight !== 'number') {
+        console.warn(
+          'Invalid FormKit maxAutoHeight. <FormKit type="textarea" max-auto-height> must be a number.'
+        )
+        return
+      }
 
       whenAvailable(node.context.id, () => {
         inputElement = document.getElementById(
           node?.context?.id ? node.context.id : ''
         )
+
         calculateHeight()
 
         node.on('input', () => {
@@ -33,7 +43,10 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           let scrollHeight = (inputElement as HTMLElement).scrollHeight
           inputElement?.setAttribute('style', `min-height: 0px`)
           scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
+          const h = maxAutoHeight
+            ? Math.min(scrollHeight, maxAutoHeight)
+            : scrollHeight
+          inputElement?.setAttribute('style', `min-height: ${h}px`)
         }
       })
     })
