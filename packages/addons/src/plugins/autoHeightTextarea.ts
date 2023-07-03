@@ -15,7 +15,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
 
     node.on('created', () => {
       const autoHeight = undefine(node.props.autoHeight)
-      const maxAutoHeight = node.props.maxAutoHeight
+      const maxAutoHeight = Number.isFinite(node.props.maxAutoHeight) ? parseInt(node.props.maxAutoHeight) :  undefined
       if (!autoHeight || !node.context) return
       let inputElement: null | HTMLElement = null
 
