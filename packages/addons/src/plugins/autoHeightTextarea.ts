@@ -19,12 +19,6 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
       if (!autoHeight || !node.context) return
       let inputElement: null | HTMLElement = null
 
-      if (maxAutoHeight && typeof maxAutoHeight !== 'number') {
-        console.warn(
-          'Invalid FormKit maxAutoHeight. <FormKit type="textarea" max-auto-height> must be a number.'
-        )
-        return
-      }
 
       whenAvailable(node.context.id, () => {
         inputElement = document.getElementById(
