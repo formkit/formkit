@@ -11,8 +11,7 @@ import { undefine, whenAvailable } from '@formkit/utils'
 export function createAutoHeightTextareaPlugin(): FormKitPlugin {
   const autoHeightTextareaPlugin = (node: FormKitNode) => {
     if (node.props.type !== 'textarea') return
-    node.addProps(['autoHeight'])
-    node.addProps(['maxAutoHeight'])
+    node.addProps(['autoHeight', 'maxAutoHeight'])
 
     node.on('created', () => {
       const autoHeight = undefine(node.props.autoHeight)
