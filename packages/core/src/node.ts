@@ -483,6 +483,11 @@ export interface FormKitFrameworkContext {
    */
   defaultMessagePlacement: boolean
   /**
+   * A record of slots that have been passed into the top level component
+   * responsible for creating the node.
+   */
+  slots: Record<string, CallableFunction>
+  /**
    * A collection of state trackers/details about the input.
    */
   state: FormKitFrameworkContextState

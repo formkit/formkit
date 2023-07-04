@@ -259,8 +259,8 @@ importers:
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: 0.16.5
-        version: 0.16.5
+        specifier: 0.17.2
+        version: link:../vue
 
   packages/cli:
     dependencies:

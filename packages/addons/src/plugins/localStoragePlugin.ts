@@ -45,6 +45,8 @@ export function createLocalStoragePlugin(
     // enable SSR support
     if (typeof window === "undefined") return
 
+    let cachedLocalStorageData: string | null = ''
+
     const shouldUseLocalStorage = (controlNode: FormKitNode | undefined) => {
       let controlFieldValue = true
       if (controlNode) {
@@ -54,8 +56,17 @@ export function createLocalStoragePlugin(
     }
 
     node.on('created', async () => {
-      node.addProps(['useLocalStorage'])
       await node.settled
+
+      node.addProps(['useLocalStorage'])
+      node.extend('restoreCache', {
+        get: (node) => async () => {
+          if (!cachedLocalStorageData) return
+          await node.settled
+          loadValue(cachedLocalStorageData)
+        },
+        set: false,
+      })
 
       // if the user provided a control field, then we need to listen for changes
       // and use it to determine whether or not to use local storage
@@ -84,8 +95,8 @@ export function createLocalStoragePlugin(
       const key = localStorageOptions?.key ? `-${localStorageOptions.key}` : '' // for scoping to a specific user
       const storageKey = `${prefix}${key}-${node.name}`
 
-      const loadValue = async () => {
-        const value = localStorage.getItem(storageKey)
+      const loadValue = async (forceValue?: string) => {
+        const value = forceValue || localStorage.getItem(storageKey)
         if (!value) return
         const loadValue = JSON.parse(value)
         if (typeof localStorageOptions?.beforeLoad === 'function') {
@@ -145,6 +156,9 @@ export function createLocalStoragePlugin(
       })
 
       node.hook.submit((payload, next) => {
+        // cache data in case the user wants to restore
+        cachedLocalStorageData = localStorage.getItem(storageKey)
+        // remove from the localStorage cache
         localStorage.removeItem(storageKey)
         return next(payload)
       })

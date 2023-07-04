@@ -87,7 +87,9 @@ export function createFloatingLabelsPlugin(
           }
 
           inputDefinition.schema = higherOrderSchema
-          inputDefinition.schemaMemoKey += '-floating-label'
+          if (inputDefinition.schemaMemoKey) {
+            inputDefinition.schemaMemoKey += '-floating-label'
+          }
           node.props.definition = inputDefinition
         }
       })
