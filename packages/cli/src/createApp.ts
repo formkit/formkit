@@ -277,8 +277,10 @@ function buildFormKitConfig(options: CreateAppOptions): string {
     'import "@formkit/themes/genesis"',
     'import { genesisIcons } from "@formkit/icons"',
   ]
-  if (options.lang === 'ts') {
+  if (options.lang === 'ts' && options.framework === 'vite') {
     imports.push("import { DefaultConfigOptions } from '@formkit/vue'")
+  } else if (options.lang === 'ts' && options.framework === 'nuxt') {
+    imports.push("import { defineFormKitConfig } from '@formkit/vue'")
   }
   const setup = []
   let config = ''
@@ -292,14 +294,30 @@ function buildFormKitConfig(options: CreateAppOptions): string {
   }
   config += `${config ? ',\n' : ''}  icons: { ...genesisIcons }`
 
-  const rawConfig = `${imports.join('\n')}
-${setup.join('\n')}
-const config${options.lang === 'ts' ? ': DefaultConfigOptions' : ''} = {
+  const viteExport = `const config${
+    options.lang === 'ts' ? ': DefaultConfigOptions' : ''
+  } = {
 ${config}
 }
 
-export default config
+export default config`
+
+  const nuxtExport = `export default defineFormKitConfig({
+${config}
+})`
+
+  let defaultExport = ''
+  if (options.framework === 'nuxt') {
+    defaultExport = nuxtExport
+  } else if (options.framework === 'vite') {
+    defaultExport = viteExport
+  }
+
+  const rawConfig = `${imports.join('\n')}
+${setup.join('\n')}
+${defaultExport}
 `
+
   return rawConfig
 }
 
