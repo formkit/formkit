@@ -295,8 +295,13 @@ export function createMultiStepPlugin(
 
       // call the default slot to pre-render child steps
       // for SSR support
-      if (node.context.slots.default) {
-        node.props.tabs = node.context.slots.default()
+      if (
+        node.context.slots &&
+        (node.context.slots as Record<string, () => any>).default
+      ) {
+        node.props.tabs = (
+          node.context.slots as Record<string, () => any>
+        ).default()
       }
 
       node.props.steps =
