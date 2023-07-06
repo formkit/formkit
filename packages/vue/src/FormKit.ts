@@ -57,7 +57,7 @@ export const FormKit = defineComponent({
   },
   inheritAttrs: false,
   setup(props, context) {
-    const node = useInput(props, context as SetupContext<any>)
+    const node = useInput(props as any, context as SetupContext<any>)
     if (!node.props.definition) error(600, node)
     if (node.props.definition.component) {
       return () =>
