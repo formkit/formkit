@@ -11,17 +11,20 @@ import { undefine, whenAvailable } from '@formkit/utils'
 export function createAutoHeightTextareaPlugin(): FormKitPlugin {
   const autoHeightTextareaPlugin = (node: FormKitNode) => {
     if (node.props.type !== 'textarea') return
-    node.addProps(['autoHeight'])
+    node.addProps(['autoHeight', 'maxAutoHeight'])
 
     node.on('created', () => {
       const autoHeight = undefine(node.props.autoHeight)
+      const maxAutoHeight = Number.isFinite(node.props.maxAutoHeight) ? parseInt(node.props.maxAutoHeight) :  undefined
       if (!autoHeight || !node.context) return
       let inputElement: null | HTMLElement = null
+
 
       whenAvailable(node.context.id, () => {
         inputElement = document.getElementById(
           node?.context?.id ? node.context.id : ''
         )
+
         calculateHeight()
 
         node.on('input', () => {
@@ -33,7 +36,10 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           let scrollHeight = (inputElement as HTMLElement).scrollHeight
           inputElement?.setAttribute('style', `min-height: 0px`)
           scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
+          const h = maxAutoHeight
+            ? Math.min(scrollHeight, maxAutoHeight)
+            : scrollHeight
+          inputElement?.setAttribute('style', `min-height: ${h}px`)
         }
       })
     })

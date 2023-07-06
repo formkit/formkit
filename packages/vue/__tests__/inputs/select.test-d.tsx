@@ -31,7 +31,7 @@ describe('describe file input types', () => {
 
   it('does not allow a number as a value', () => {
     // @ts-expect-error - value cannot be a number
-    assertType(<FormKit type="select" value={123} />)
+    assertType(<FormKit type="select" options={['A', 'B']} value={123} />)
   })
 
   it('does not require a value', () => {

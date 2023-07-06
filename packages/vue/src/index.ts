@@ -17,6 +17,11 @@ export { useInput } from './composables/useInput'
 export { createInput } from './composables/createInput'
 
 /**
+ * The defineFormKitConfig composable.
+ */
+export { defineFormKitConfig } from './composables/defineFormKitConfig'
+
+/**
  * The plugin and plugin types.
  */
 export * from './plugin'

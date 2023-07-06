@@ -28,23 +28,37 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
+### 💎 Platinum sponsors
+<p style="margin-bottom: 1em;">
+  <a href="https://vueschool.io?friend=formkit">
+    <img src="https://cdn.formk.it/web-assets/sponsors/vueschool.png" alt="Vue School logo" style="width: 25%;">
+  </a>
+</p>
+
+### 🥇 Gold sponsors
+<p style="margin-bottom: 1em;">
+  <a href="https://fieldman.co?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/fieldman-logo.svg" alt="Fieldman logo" style="width: 22%;">
+  </a>
+</p>
+
 ### 🥈 Silver sponsors
 <p style="margin-bottom: 1em;">
-  <a href="https://www.peakcrypto.com">
-    <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto" style="width: 20%;">
+  <a href="https://www.peakcrypto.com?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto logo" style="width: 18%;">
   </a>
 </p>
 
 ### 🥉 Bronze sponsors
 
 <p style="margin-bottom: 1em;">
-  <a href="https://www.perbyte.com">
+  <a href="https://www.perbyte.com?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
   </a>
 </p>
 
 <p style="margin-bottom: 1em;">
-  <a href="https://zammad.com">
+  <a href="https://zammad.com?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/zammad_logo-transparent.png" alt="Zammad logo" style="width: 14%;">
   </a>
 </p>
