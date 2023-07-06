@@ -813,7 +813,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+ * emit: (event: string, payload?: any, bubble?: boolean, meta: Record<string, unknown>) => FormKitNode
  * ```
  *
  * #### Parameters
@@ -1286,7 +1286,12 @@ export type FormKitNode<V = unknown> = {
   /**
    * Emit an event from the node.
    */
-  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+  emit: (
+    event: string,
+    payload?: any,
+    bubble?: boolean,
+    meta?: Record<string, unknown>
+  ) => FormKitNode
   /**
    * Extend the core node by giving it a key and a trap.
    */

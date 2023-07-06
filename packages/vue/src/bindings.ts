@@ -286,7 +286,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       triggerRef(value)
       triggerRef(_value)
     }
-    ; (async () => {
+    ;(async () => {
       await node.settled
       if (node) node.props._init = cloneAny(node.value)
     })()
@@ -378,8 +378,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * same value"
    */
   node.on('commitRaw', ({ payload }) => {
-    // value.value = _value.value = payload
-    // triggerRef(value)
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       value.value = _value.value = shallowClone(payload)
     } else {

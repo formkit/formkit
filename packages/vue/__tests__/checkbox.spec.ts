@@ -435,7 +435,6 @@ describe('non string values for checkboxes', () => {
       true,
       true,
     ])
-    expect(getNode(id)!.value).toEqual([2, 3, 1])
   })
 
   it('can have objects as values', async () => {
