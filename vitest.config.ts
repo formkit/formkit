@@ -8,7 +8,11 @@ export default defineConfig({
     // singleThread: true,
     exclude: ['**/node_modules/**', '**/e2e/**'],
     typecheck: {
-      exclude: ['**/node_modules/**', '**/examples/**'],
+      exclude: [
+        '**/node_modules/**',
+        '**/examples/**',
+        './packages/nuxt/playground/**.ts',
+      ],
       include: ['./packages/**/?(*.){test,spec}-d.?(c|m)[jt]s?(x)'],
     },
   },
