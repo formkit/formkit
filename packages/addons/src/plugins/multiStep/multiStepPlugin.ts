@@ -260,12 +260,12 @@ function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
   const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
     return {
       __isPlaceholder: true,
-      stepName: tab.props.label || camel2title(tab.props.name),
+      stepName: tab.props?.label || camel2title(tab.props?.name),
       isFirstStep: index === 0,
       isLastStep: index === tabs.length - 1,
       isActiveStep: index === 0,
       node: {
-        name: tab.props.name,
+        name: tab.props?.name,
       },
     }
   })

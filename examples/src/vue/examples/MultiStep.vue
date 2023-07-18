@@ -2,6 +2,8 @@
 import { reactive, ref } from 'vue'
 import { FormKitSchema } from '@formkit/vue'
 
+const sections = ['Section 1', 'Section 2', 'Section 3']
+
 const multiStepFormSchema = [
   {
     $formkit: 'multi-step',
@@ -46,6 +48,70 @@ const multiStepFormSchema = [
   },
 ]
 
+const schemaWithConditional = [
+  {
+    $formkit: 'multi-step',
+    'tab-style': 'progress',
+    'valid-step-icon': 'check',
+    'allow-incomplete': true,
+    children: [
+      {
+        $formkit: 'step',
+        name: 'contact',
+        children: [
+          {
+            $formkit: 'text',
+            id: 'last_name',
+            name: 'last_name',
+            label: 'Last name',
+            validation: 'required',
+            help: 'set me to "test" to show address step.',
+          },
+          {
+            $formkit: 'text',
+            name: 'first_name',
+            label: 'First name',
+            validation: 'required',
+          },
+        ],
+      },
+      {
+        $formkit: 'step',
+        name: 'address',
+        if: "$get(last_name).value == 'test'",
+        children: [
+          {
+            $formkit: 'text',
+            name: 'address',
+            label: 'Adresse',
+          },
+          {
+            $formkit: 'text',
+            name: 'postal_code',
+            label: 'Code postal',
+          },
+          {
+            $formkit: 'text',
+            name: 'city',
+            label: 'Ville',
+          },
+        ],
+        // use sectionsSchema to override default markup in schema.
+        sectionsSchema: {
+          stepNext: {
+            if: 'true', // forcibly enable to override default schema conditonal.
+            children: [
+              {
+                $formkit: 'submit',
+              },
+            ],
+          },
+        },
+      },
+    ],
+  },
+]
+
 async function log(statement) {
   await new Promise((resolve) => setTimeout(resolve, 1000))
   console.log(statement)
@@ -61,6 +127,20 @@ const multiStepNode = ref(null)
 
 <template>
   <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" />
+
+  <FormKitSchema :schema="schemaWithConditional" />
+
+  <!-- v-for on `step` -->
+  <FormKit type="multi-step">
+    <FormKit
+      v-for="section in sections"
+      :key="section"
+      type="step"
+      :name="section"
+    >
+      Step content
+    </FormKit>
+  </FormKit>
 
   <FormKit v-slot="{ value }" type="form">
     <!-- should not render as it is not inside a multi-step -->
