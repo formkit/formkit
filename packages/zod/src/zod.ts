@@ -125,7 +125,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
     if (!zodResults.success) {
       setFormValidations(zodResults.error, node)
     } else {
-      await submitCallback(payload as z.infer<Z>, node)
+      await submitCallback(zodResults.data, node)
     }
   }
 
