@@ -30,7 +30,7 @@ const zodSchemaMinimal = z.object({
   email: z
     .string()
     .email()
-    .transform(() => 'andrew@formkt.com'),
+    .transform(() => 'andrew@formkit.com'),
   arrayMin: z.string().array().min(2),
 })
 
