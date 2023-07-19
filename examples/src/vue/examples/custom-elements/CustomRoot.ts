@@ -1,6 +1,7 @@
 import CustomElementApp from './CustomElementApp.vue'
 import { defineCustomElement, createApp, h, getCurrentInstance } from 'vue'
 import { plugin, defaultConfig } from '@formkit/vue'
+import { createMultiStepPlugin } from '@formkit/addons'
 
 export default defineCustomElement({
   styles: [
@@ -17,7 +18,12 @@ export default defineCustomElement({
   ],
   setup() {
     const app = createApp(CustomElementApp)
-    app.use(plugin, defaultConfig)
+    app.use(
+      plugin,
+      defaultConfig({
+        plugins: [createMultiStepPlugin()],
+      })
+    )
 
     const inst = getCurrentInstance()
     if (inst) {

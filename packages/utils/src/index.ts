@@ -840,31 +840,20 @@ function applyExplicit<T extends object | any[]>(
 export function whenAvailable(
   childId: string,
   callback: (el: Element) => void,
-  rootElProvider?: (onEl: (root: Document) => void) => void
+  root?: Document | ShadowRoot
 ): void {
-  let observer: MutationObserver | undefined
-
-  /**
-   * Create the mutation observer.
-   * @param root - The root element to observe.
-   */
-  function observe(root: Document) {
-    const el = root.getElementById(childId)
-    if (el) return callback(el)
-    if (observer) observer.disconnect()
-    observer = new MutationObserver(() => {
-      const el = root.getElementById(childId)
-      if (el) {
-        observer?.disconnect()
-        callback(el)
-      }
-    })
-    observer.observe(root.body, { childList: true, subtree: true })
-  }
-
-  if (isBrowser) {
-    rootElProvider ? rootElProvider((root) => observe(root)) : observe(document)
-  }
+  if (!isBrowser) return
+  if (!root) root = document
+  const el = root.getElementById(childId)
+  if (el) return callback(el)
+  const observer = new MutationObserver(() => {
+    const el = root?.getElementById(childId)
+    if (el) {
+      observer?.disconnect()
+      callback(el)
+    }
+  })
+  observer.observe(root, { childList: true, subtree: true })
 }
 
 /**

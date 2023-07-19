@@ -18,24 +18,29 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
       if (!autoHeight || !node.context) return
       let inputElement: null | HTMLElement = null
 
-      whenAvailable(node.context.id, () => {
-        inputElement = document.getElementById(
-          node?.context?.id ? node.context.id : ''
-        )
-        calculateHeight()
-
-        node.on('input', () => {
+      whenAvailable(
+        node.context.id,
+        () => {
+          const root = node.props.__root!
+          inputElement = root.getElementById(
+            node?.context?.id ? node.context.id : ''
+          )
           calculateHeight()
-        })
 
-        function calculateHeight() {
-          if (!inputElement) return
-          let scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: 0px`)
-          scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
-        }
-      })
+          node.on('input', () => {
+            calculateHeight()
+          })
+
+          function calculateHeight() {
+            if (!inputElement) return
+            let scrollHeight = (inputElement as HTMLElement).scrollHeight
+            inputElement?.setAttribute('style', `min-height: 0px`)
+            scrollHeight = (inputElement as HTMLElement).scrollHeight
+            inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
+          }
+        },
+        node.props.__root
+      )
     })
   }
 
