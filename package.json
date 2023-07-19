@@ -1,4 +1,5 @@
 {
+  "name": "formkit",
   "private": true,
   "devDependencies": {
     "@aws-sdk/client-cloudfront": "^3.45.0",
