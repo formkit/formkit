@@ -6,9 +6,8 @@ import { defineComponent } from 'vue'
  *
  * @public
  */
-export const rootSymbol: InjectionKey<
-  Ref<Document | ShadowRoot | null | undefined>
-> = Symbol()
+export const rootSymbol: InjectionKey<Ref<Document | ShadowRoot | undefined>> =
+  Symbol()
 
 /**
  * The FormKitRoot wrapper component used to provide context to FormKit about
@@ -31,7 +30,7 @@ export const rootSymbol: InjectionKey<
 export const FormKitRoot = defineComponent((_p, context) => {
   const boundary = ref<null | HTMLElement>(null)
   const showBody = ref(false)
-  const shadowRoot = ref<Document | ShadowRoot | null>(null)
+  const shadowRoot = ref<Document | ShadowRoot | undefined>(undefined)
 
   const stopWatch = watch(boundary, (el) => {
     let parent: Node | null | undefined = el
