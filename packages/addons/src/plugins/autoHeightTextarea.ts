@@ -28,6 +28,10 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           calculateHeight()
         })
 
+        node.on('reset', () => {
+          calculateHeight()
+        })
+
         function calculateHeight() {
           if (!inputElement) return
           let scrollHeight = (inputElement as HTMLElement).scrollHeight
