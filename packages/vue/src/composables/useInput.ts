@@ -71,6 +71,8 @@ interface FormKitComponentListeners {
   onSubmitInvalid?: (node?: Node) => unknown
 }
 
+const isBrowser = typeof window !== 'undefined'
+
 /**
  * Props that are extracted from the attrs object.
  * TODO: Currently local, this should probably exported to a inputs or another
@@ -159,7 +161,7 @@ export function useInput(
   /**
    * The root element — generally this is either a Document or ShadowRoot.
    */
-  const __root = inject(rootSymbol, ref(document || null))
+  const __root = inject(rootSymbol, ref(isBrowser ? document : undefined))
 
   /**
    * The current instance.
