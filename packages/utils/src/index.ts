@@ -432,7 +432,7 @@ export function assignDeep<
   for (const key in a) {
     if (
       has(b, key) &&
-      a[key] !== b[key] &&
+      (a[key] as any) !== b[key] &&
       !(isPojo(a[key]) && isPojo(b[key]))
     ) {
       a[key] = b[key]
@@ -794,7 +794,7 @@ export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
     // eslint-disable-next-line @typescript-eslint/ban-types
     return applyExplicit(
       obj as Record<PropertyKey, any> | any[],
-      spread,
+      spread as any,
       explicit
     ) as unknown as T
   }
@@ -839,19 +839,31 @@ function applyExplicit<T extends object | any[]>(
  */
 export function whenAvailable(
   childId: string,
-  callback: (el: Element) => void
+  callback: (el: Element) => void,
+  rootElProvider?: (onEl: (root: Document) => void) => void
 ): void {
-  if (isBrowser) {
-    const el = document.getElementById(childId)
+  let observer: MutationObserver | undefined
+
+  /**
+   * Create the mutation observer.
+   * @param root - The root element to observe.
+   */
+  function observe(root: Document) {
+    const el = root.getElementById(childId)
     if (el) return callback(el)
-    const observer = new MutationObserver(() => {
-      const el = document.getElementById(childId)
+    if (observer) observer.disconnect()
+    observer = new MutationObserver(() => {
+      const el = root.getElementById(childId)
       if (el) {
-        observer.disconnect()
+        observer?.disconnect()
         callback(el)
       }
     })
-    observer.observe(document.body, { childList: true, subtree: true })
+    observer.observe(root.body, { childList: true, subtree: true })
+  }
+
+  if (isBrowser) {
+    rootElProvider ? rootElProvider((root) => observe(root)) : observe(document)
   }
 }
 

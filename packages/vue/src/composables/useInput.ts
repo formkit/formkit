@@ -1,4 +1,5 @@
 import { parentSymbol } from '../FormKit'
+import { rootSymbol } from '../FormKitRoot'
 import {
   error,
   createNode,
@@ -156,6 +157,11 @@ export function useInput(
   const config = Object.assign({}, inject(optionsSymbol) || {}, options)
 
   /**
+   * The root element — generally this is either a Document or ShadowRoot.
+   */
+  const __root = inject(rootSymbol, ref(document || null))
+
+  /**
    * The current instance.
    */
   const instance = getCurrentInstance()
@@ -170,7 +176,9 @@ export function useInput(
    * {@link https://github.com/LinusBorg | Thorsten Lünborg}
    * for coming up with this solution.
    */
-  const isVModeled = ['modelValue', 'model-value'].some(prop => prop in (instance?.vnode.props ?? {}))
+  const isVModeled = ['modelValue', 'model-value'].some(
+    (prop) => prop in (instance?.vnode.props ?? {})
+  )
 
   // Track if the input has mounted or not.
   let isMounted = false
@@ -199,6 +207,7 @@ export function useInput(
     const initialProps: Record<string, any> = {
       ...nodeProps(props),
       ...listeners,
+      __root: __root.value,
       __slots: context.slots,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
@@ -303,6 +312,11 @@ export function useInput(
       }
     )
   }
+
+  // Ensure the root always stays up to date.
+  watchEffect(() => {
+    node.props.__root = __root.value
+  })
 
   /**
    * Watch "pseudoProp" attributes explicitly.
