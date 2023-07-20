@@ -35,7 +35,8 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           scrollHeight = (inputElement as HTMLElement).scrollHeight
           inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
         }
-      })
+      },
+      node.props.__root)
     })
   }
 

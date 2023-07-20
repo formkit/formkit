@@ -27,16 +27,19 @@ const zodSchemaMinimal = z.object({
     firstName: z.string().min(3).max(25),
     lastName: z.string().min(3).max(25),
   }),
-  email: z.string().email(),
+  email: z
+    .string()
+    .email()
+    .transform(() => 'andrew@formkit.com'),
   arrayMin: z.string().array().min(2),
 })
 
 const [zodPluginMinimal, submitHandlerMinimal] = createZodPlugin(
   zodSchemaMinimal,
   async (formData) => {
+    console.log(formData)
     await new Promise((r) => setTimeout(r, 2000))
     alert('Form was submitted!')
-    console.log(formData)
   }
 )
 

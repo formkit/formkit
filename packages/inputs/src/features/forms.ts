@@ -1,6 +1,12 @@
 import { createMessage, FormKitNode } from '@formkit/core'
 import { has, clone } from '@formkit/utils'
 
+const loading = createMessage({
+  key: 'loading',
+  value: true,
+  visible: false,
+})
+
 /**
  * Handle the submit event.
  *
@@ -9,8 +15,19 @@ import { has, clone } from '@formkit/utils'
  * @internal
  */
 async function handleSubmit(node: FormKitNode, submitEvent: Event) {
+  const submitNonce = Math.random()
+  node.props._submitNonce = submitNonce
   submitEvent.preventDefault()
   await node.settled
+
+  if (node.ledger.value('validating')) {
+    // There are validation rules still pending.
+    node.store.set(loading)
+    await node.ledger.settled('validating')
+    node.store.remove('loading')
+    // If this was not the same submit event, bail out.
+    if (node.props._submitNonce !== submitNonce) return
+  }
   // Set the submitted state on all children
   const setSubmitted = (n: FormKitNode) =>
     n.store.set(
@@ -60,13 +77,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
           node.props.disabled === undefined &&
           node.props.submitBehavior !== 'live'
         if (autoDisable) node.props.disabled = true
-        node.store.set(
-          createMessage({
-            key: 'loading',
-            value: true,
-            visible: false,
-          })
-        )
+        node.store.set(loading)
         await retVal
         if (autoDisable) node.props.disabled = false
         node.store.remove('loading')
@@ -88,6 +99,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
  */
 export default function form(node: FormKitNode): void {
   node.props.isForm = true
+  node.ledger.count('validating', (m) => m.key === 'validating')
   node.on('created', () => {
     if (node.context?.handlers) {
       node.context.handlers.submit = handleSubmit.bind(null, node)
