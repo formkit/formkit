@@ -25,7 +25,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
         calculateHeight()
 
         node.on('input', () => {
-          calculateHeight()
+          Promise.resolve().then(() => calculateHeight())
         })
 
         function calculateHeight() {
