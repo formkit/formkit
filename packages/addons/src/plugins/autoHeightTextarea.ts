@@ -16,26 +16,32 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
     node.on('created', () => {
       const autoHeight = undefine(node.props.autoHeight)
       if (!autoHeight || !node.context) return
-      let inputElement: null | HTMLElement = null
+      let inputElement: HTMLElement | undefined | null = null
 
-      whenAvailable(node.context.id, () => {
-        inputElement = document.getElementById(
-          node?.context?.id ? node.context.id : ''
-        )
-        calculateHeight()
+      whenAvailable(
+        node.context.id,
+        () => {
+          inputElement = node.props.__root?.getElementById(
+            node?.context?.id ? node.context.id : ''
+          )
+          if (!(inputElement instanceof HTMLTextAreaElement)) return
 
-        node.on('input', () => {
           calculateHeight()
-        })
 
-        function calculateHeight() {
-          if (!inputElement) return
-          let scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: 0px`)
-          scrollHeight = (inputElement as HTMLElement).scrollHeight
-          inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
-        }
-      })
+          node.on('commit', async () => {
+            await Promise.resolve()
+            calculateHeight()
+          })
+
+          function calculateHeight() {
+            if (!inputElement) return
+            inputElement?.setAttribute('style', `min-height: 0px`)
+            const scrollHeight = (inputElement as HTMLElement).scrollHeight
+            inputElement?.setAttribute('style', `min-height: ${scrollHeight}px`)
+          }
+        },
+        node.props.__root
+      )
     })
   }
 

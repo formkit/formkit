@@ -55,12 +55,12 @@ const camel2title = (str: string) => {
 /**
  * Compares steps to DOM order and reorders steps if needed
  */
-function orderSteps(steps: FormKitFrameworkContext[]) {
+function orderSteps(node: FormKitNode, steps: FormKitFrameworkContext[]) {
   if (!isBrowser || !steps) return steps
   const orderedSteps = [...steps]
   orderedSteps.sort((a, b) => {
-    const aEl = document.getElementById(a.id)
-    const bEl = document.getElementById(b.id)
+    const aEl = node.props.__root?.getElementById(a.id)
+    const bEl = node.props.__root?.getElementById(b.id)
     if (!aEl || !bEl) return 0
     return aEl.compareDocumentPosition(bEl) === 2 ? 1 : -1
   })
@@ -260,12 +260,12 @@ function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
   const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
     return {
       __isPlaceholder: true,
-      stepName: tab.props.label || camel2title(tab.props.name),
+      stepName: tab.props?.label || camel2title(tab.props?.name),
       isFirstStep: index === 0,
       isLastStep: index === tabs.length - 1,
       isActiveStep: index === 0,
       node: {
-        name: tab.props.name,
+        name: tab.props?.name,
       },
     }
   })
@@ -361,9 +361,13 @@ export function createMultiStepPlugin(
           set: false,
         })
 
-        whenAvailable(`${node.props.id}`, (el) => {
-          initEvents(node, el)
-        })
+        whenAvailable(
+          `${node.props.id}`,
+          (el) => {
+            initEvents(node, el)
+          },
+          node.props.__root
+        )
       })
 
       node.on('child', ({ payload: childNode }) => {
@@ -377,7 +381,7 @@ export function createMultiStepPlugin(
           Array.isArray(node.props.steps) && node.props.steps.length > 0
             ? [...node.props.steps, childNode.context]
             : [childNode.context]
-        node.props.steps = orderSteps(node.props.steps)
+        node.props.steps = orderSteps(node, node.props.steps)
         setNodePositionProps(node.props.steps)
 
         childNode.props.stepName =
@@ -399,7 +403,7 @@ export function createMultiStepPlugin(
           if (isPlaceholder(child)) return
           child.props.isActiveStep = child.name === payload
           if (isBrowser && child.name === payload) {
-            const el = document.querySelector(
+            const el = node.props.__root?.querySelector(
               `[aria-controls="${child.props.id}"]`
             )
             if (el instanceof HTMLButtonElement) {
@@ -456,10 +460,14 @@ export function createMultiStepPlugin(
       node.on('created', () => {
         if (!node.context || !parentNode.context) return
 
-        whenAvailable(`${node.props.id}`, () => {
-          parentNode.props.steps = orderSteps(parentNode.props.steps)
-          setNodePositionProps(parentNode.props.steps)
-        })
+        whenAvailable(
+          `${node.props.id}`,
+          () => {
+            parentNode.props.steps = orderSteps(node, parentNode.props.steps)
+            setNodePositionProps(parentNode.props.steps)
+          },
+          node.props.__root
+        )
       })
 
       if (node.context && parentNode.context) {

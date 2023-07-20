@@ -290,6 +290,7 @@ export interface FormKitConfig {
  * @public
  */
 export type FormKitProps = {
+  __root?: Document | ShadowRoot
   delay: number
   id: string
   validationLabelStrategy?: (node?: FormKitNode) => string
@@ -422,6 +423,11 @@ export interface FormKitFrameworkContext {
    * The current "live" value of the input. Not debounced.
    */
   _value: any
+  /**
+   * The root document or shadow root the input is inside. This can be set by
+   * using a higher-order `<FormKitRoot>` component.
+   */
+  __root?: Document | ShadowRoot
   /**
    * An object of attributes that (generally) should be applied to the root
    * <input> element.

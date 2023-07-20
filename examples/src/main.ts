@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, defineCustomElement } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr, tr } from '@formkit/i18n'
 import { createMultiStepPlugin } from '@formkit/addons'
@@ -25,8 +25,13 @@ import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import SyncedLists from './vue/examples/SyncedLists.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
 import Zod from './vue/examples/Zod.vue'
+import CustomRoot from './vue/examples/custom-elements/CustomRoot'
+import CustomElements from './vue/examples/CustomElements.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
+
+// Setup custom element
+customElements.define('custom-root', CustomRoot)
 
 const myInput = createInput(CurrencyInput)
 
@@ -65,6 +70,10 @@ const router = createRouter({
     {
       path: '/',
       component: BasicForm,
+    },
+    {
+      path: '/custom-elements',
+      component: CustomElements,
     },
     {
       path: '/auto-animate',

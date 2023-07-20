@@ -287,6 +287,7 @@ function run(
     const newDeps = node.stopObserve()
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       // Event callback for when the deps change:
+      node.store.set(validatingMessage)
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
       state.rerun = setTimeout(
