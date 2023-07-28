@@ -81,7 +81,7 @@
     "dev-build": "vite build --config ./examples/vite.config.ts",
     "deploy": "node scripts/cli.mjs --script=deploy",
     "playwright": "playwright test --config ./playwright.config.ts",
-    "playwright-build": "vite build --config ./examples/vite.config.ts",
+    "playwright-build": "NODE_ENV=production vite build --config ./examples/vite.config.ts",
     "playwright-server": "vite preview --config ./examples/vite.config.ts --port 8787 --host",
     "nuxt-pack": "cd packages/nuxt && pnpm prepack",
     "nuxt-dev": "cd packages/nuxt && pnpm dev",
