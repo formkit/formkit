@@ -2167,4 +2167,35 @@ describe('schema changed', () => {
     await nextTick()
     expect(wrapper.html()).toContain('Input A')
   })
+
+  it('can use array syntax for validation rules (#852)', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: '',
+          }
+        },
+        template: `
+          <FormKit
+            type="text"
+            v-model="value"
+            :delay="0"
+            :validation="[['required'], ['length', 3]]"
+          />
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    wrapper.find('input').setValue('f')
+    await new Promise((r) => setTimeout(r, 5))
+    wrapper.find('input').setValue('fo')
+    await new Promise((r) => setTimeout(r, 5))
+    wrapper.find('input').setValue('foo')
+  })
 })

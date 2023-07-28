@@ -188,7 +188,7 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
     const state = { input: token(), rerun: null, isPassing: true }
     let validation = cloneAny(node.props.validation)
     // If the node's validation props change, reboot:
-    node.on('prop:validation', ({ payload }) => reboot(payload, availableRules))
+    node.on('prop:validation', ({ payload }) => reboot(payload, propRules))
     node.on('prop:validationRules', ({ payload }) =>
       reboot(validation, payload)
     )
@@ -287,7 +287,9 @@ function run(
     const newDeps = node.stopObserve()
     applyListeners(node, diffDeps(validation.deps, newDeps), () => {
       // Event callback for when the deps change:
-      node.store.set(validatingMessage)
+      try {
+        node.store.set(validatingMessage)
+      } catch (e) {}
       validation.queued = true
       if (state.rerun) clearTimeout(state.rerun)
       state.rerun = setTimeout(
