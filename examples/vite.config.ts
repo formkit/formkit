@@ -4,7 +4,18 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 export default defineConfig({
   root: './examples',
-  plugins: [vue(), vueJsx()],
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => {
+            return tag.startsWith('custom-')
+          },
+        },
+      },
+    }),
+    vueJsx(),
+  ],
   build: {
     minify: false,
   },

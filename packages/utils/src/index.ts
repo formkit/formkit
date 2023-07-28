@@ -839,20 +839,21 @@ function applyExplicit<T extends object | any[]>(
  */
 export function whenAvailable(
   childId: string,
-  callback: (el: Element) => void
+  callback: (el: Element) => void,
+  root?: Document | ShadowRoot
 ): void {
-  if (isBrowser) {
-    const el = document.getElementById(childId)
-    if (el) return callback(el)
-    const observer = new MutationObserver(() => {
-      const el = document.getElementById(childId)
-      if (el) {
-        observer.disconnect()
-        callback(el)
-      }
-    })
-    observer.observe(document.body, { childList: true, subtree: true })
-  }
+  if (!isBrowser) return
+  if (!root) root = document
+  const el = root.getElementById(childId)
+  if (el) return callback(el)
+  const observer = new MutationObserver(() => {
+    const el = root?.getElementById(childId)
+    if (el) {
+      observer?.disconnect()
+      callback(el)
+    }
+  })
+  observer.observe(root, { childList: true, subtree: true })
 }
 
 /**

@@ -39,6 +39,12 @@ export {
 } from './FormKit'
 
 /**
+ * The FormKitRoot wrapper component used to provide context to FormKit
+ * about whether a FormKit input is booting in a Document or ShadowRoot.
+ */
+export { FormKitRoot, rootSymbol } from './FormKitRoot'
+
+/**
  * The FormKitMessages component.
  * @public
  */

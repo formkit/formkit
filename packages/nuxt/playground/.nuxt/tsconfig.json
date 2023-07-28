@@ -68,6 +68,9 @@
       "#build/*": [
         "/Users/justinschroeder/Projects/formkit/packages/nuxt/playground/.nuxt/*"
       ],
+      "#build/*": [
+        ".nuxt/*"
+      ],
       "#components": [
         ".nuxt/components"
       ]

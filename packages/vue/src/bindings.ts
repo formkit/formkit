@@ -322,6 +322,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   const rootProps = () => {
     const props = [
+      '__root',
       'help',
       'label',
       'disabled',

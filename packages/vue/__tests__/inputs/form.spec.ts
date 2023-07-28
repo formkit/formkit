@@ -206,13 +206,13 @@ describe('form submission', () => {
           submitHandler,
         },
         template: `<FormKit type="form" @submit="submitHandler">
-        <FormKit validation="required|email" value="foo@bar.com" />
+        <FormKit validation="required|email" value="foo@bar.com" id="foo" />
       </FormKit>`,
       },
       global
     )
     wrapper.find('form').trigger('submit')
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     expect(submitHandler).toHaveBeenCalledTimes(1)
   })
 
@@ -932,7 +932,7 @@ describe('programmatic submission', () => {
     )
     wrapper.vm.submit()
     mock.mockRestore()
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     expect(warning).toHaveBeenCalledTimes(0)
     expect(submitRaw).toHaveBeenCalledTimes(1)
     const form = getNode(id)
@@ -986,7 +986,7 @@ describe('programmatic submission', () => {
       }
     )
     wrapper.vm.submit()
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     expect(submitRaw).toHaveBeenCalledTimes(1)
     expect(submit).toHaveBeenCalledTimes(0)
     getNode(id)!.input(123)
@@ -1113,7 +1113,7 @@ describe('submit hook', () => {
       return next(payload)
     })
     wrapper.find('form').trigger('submit')
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 5))
     expect(submitHandler).toHaveBeenCalledWith({
       email: 'modifiedfoo@bar.com',
       newField: 'my new field',
@@ -1367,5 +1367,44 @@ describe('FormKitMessages', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('form > div.formkit-messages').exists()).toBe(true)
+  })
+
+  it('awaits validation rules that are not yet complete before submitting', async () => {
+    const submitHandler = vi.fn()
+    const id = token()
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler,
+        },
+        components: {
+          FormKitMessages,
+        },
+        template: `
+        <FormKit type="form" @submit="submitHandler" id="form-${id}">
+          <FormKit
+            type="text"
+            name="name"
+            validation="required"
+          />
+        </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    wrapper.find('input').setValue('a')
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(submitHandler).toHaveBeenCalledTimes(1)
+    expect(submitHandler).toHaveBeenLastCalledWith(
+      { name: 'a' },
+      getNode(`form-${id}`)
+    )
   })
 })

@@ -258,26 +258,26 @@ importers:
         specifier: latest
         version: 0.7.0
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../inputs
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../inputs
       axios:
         specifier: ^0.27.2
@@ -302,16 +302,16 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
     devDependencies:
       '@formkit/vue':
@@ -321,46 +321,46 @@ importers:
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/i18n':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../i18n
       '@formkit/vue':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.5.3
@@ -382,28 +382,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../themes
     devDependencies:
       '@types/tailwindcss':
@@ -413,7 +413,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
 
   packages/utils: {}
@@ -421,43 +421,43 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/observer':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../observer
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
       '@formkit/dev':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../dev
       '@formkit/i18n':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../inputs
       '@formkit/observer':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../observer
       '@formkit/rules':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../rules
       '@formkit/themes':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../themes
       '@formkit/utils':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../validation
       vue:
         specifier: ^3.3.4
@@ -466,7 +466,7 @@ importers:
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 0.17.4
+        specifier: 0.17.5
         version: link:../core
 
 packages:
