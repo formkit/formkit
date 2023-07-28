@@ -12,7 +12,9 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-extra-semi': 0,
     '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/no-empty-interface': 0,
     '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_' }],
+    '@typescript-eslint/ban-types': 0,
     'tsdoc/syntax': 'warn',
   },
   ignorePatterns: ['dist.*'],
@@ -35,7 +37,7 @@ module.exports = {
       },
     },
     {
-      files: '**/__tests__/**.ts',
+      files: ['**/__tests__/**.ts'],
       rules: {
         '@typescript-eslint/no-empty-function': 0,
         '@typescript-eslint/no-non-null-assertion': 0,
@@ -47,6 +49,7 @@ module.exports = {
         'plugin:vue/vue3-recommended',
         'eslint:recommended',
         '@vue/typescript/recommended',
+        'prettier',
       ],
       globals: {
         defineProps: 'readonly',

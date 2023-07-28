@@ -379,8 +379,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * same value"
    */
   node.on('commitRaw', ({ payload }) => {
-    // value.value = _value.value = payload
-    // triggerRef(value)
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       value.value = _value.value = shallowClone(payload)
     } else {

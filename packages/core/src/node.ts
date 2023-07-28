@@ -416,12 +416,12 @@ export interface FormKitContext {
  *
  * @public
  */
-export interface FormKitFrameworkContext {
+export interface FormKitFrameworkContext<T = any> {
   [index: string]: unknown
   /**
    * The current "live" value of the input. Not debounced.
    */
-  _value: any
+  _value: T
   /**
    * An object of attributes that (generally) should be applied to the root
    * <input> element.
@@ -500,7 +500,7 @@ export interface FormKitFrameworkContext {
    * The current committed value of the input. This is the value that should be
    * used for most use cases.
    */
-  value: any
+  value: T
 }
 
 /**
@@ -813,7 +813,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+ * emit: (event: string, payload?: any, bubble?: boolean, meta: Record<string, unknown>) => FormKitNode
  * ```
  *
  * #### Parameters
@@ -1286,7 +1286,12 @@ export type FormKitNode<V = unknown> = {
   /**
    * Emit an event from the node.
    */
-  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+  emit: (
+    event: string,
+    payload?: any,
+    bubble?: boolean,
+    meta?: Record<string, unknown>
+  ) => FormKitNode
   /**
    * Extend the core node by giving it a key and a trap.
    */

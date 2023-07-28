@@ -525,10 +525,12 @@ export function compile(expr: string): FormKitCompilerOutput {
   const compiled = parseLogicals(
     expr.startsWith('$:') ? expr.substring(2) : expr
   )
+
   /**
    * Convert compiled requirements to an array.
    */
   const reqs = Array.from(requirements)
+
   /**
    * Provides token values via callback to compiled output.
    * @param callback - A callback that needs to provide all token requirements
@@ -538,9 +540,12 @@ export function compile(expr: string): FormKitCompilerOutput {
     callback: (requirements: string[]) => Record<string, () => any>
   ): FormKitCompilerOutput {
     provideTokens = callback
-    return Object.assign(compiled.bind(null, callback(reqs)), {
-      provide,
-    })
+    return Object.assign(
+      // @ts-ignore - @rollup/plugin-typescript for some reason will not allow
+      // this binding. I’ve been unable to reproduce it.
+      compiled.bind(null, callback(reqs)),
+      { provide }
+    )
   }
   return Object.assign(compiled, {
     provide,

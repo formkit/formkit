@@ -1,8 +1,8 @@
 import { createSection } from '../src/createSection'
 import { $if, $for, $attrs, $extend, $root, eachSection } from '../src/compose'
 import { describe, expect, it, vi } from 'vitest'
-import { FormKitSchemaDefinition, isDOM } from 'packages/core/src'
-import { FormKitSchemaDOMNode } from '@formkit/core'
+import { FormKitSchemaDefinition } from 'packages/core/src'
+import { FormKitSchemaComponent, FormKitSchemaDOMNode } from '@formkit/core'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {
@@ -140,7 +140,7 @@ describe('eachSection', () => {
 
     eachSection(
       finalSchema as FormKitSchemaDefinition,
-      (section: FormKitSchemaDOMNode) => {
+      (section: FormKitSchemaDOMNode | FormKitSchemaComponent) => {
         iteration++
         const sectionName = section.meta?.section
         if (iteration === 1) {
@@ -175,7 +175,7 @@ describe('eachSection', () => {
 
     eachSection(
       finalSchema as FormKitSchemaDefinition,
-      (section: FormKitSchemaDOMNode) => {
+      (section: FormKitSchemaDOMNode | FormKitSchemaComponent) => {
         const sectionName = section.meta?.section
         spy()
         if (sectionName === 'label') {

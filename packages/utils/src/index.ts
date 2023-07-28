@@ -432,7 +432,7 @@ export function assignDeep<
   for (const key in a) {
     if (
       has(b, key) &&
-      a[key] !== b[key] &&
+      (a[key] as any) !== b[key] &&
       !(isPojo(a[key]) && isPojo(b[key]))
     ) {
       a[key] = b[key]
@@ -794,7 +794,7 @@ export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
     // eslint-disable-next-line @typescript-eslint/ban-types
     return applyExplicit(
       obj as Record<PropertyKey, any> | any[],
-      spread,
+      spread as Record<PropertyKey, any>,
       explicit
     ) as unknown as T
   }

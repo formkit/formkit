@@ -1,8 +1,13 @@
+<script lang="ts" setup>
+import { ref } from 'vue'
+const formValues = ref({
+  fruit: ['Strawberry', 'Banana'],
+})
+const emailCount = ref(1)
+</script>
+
 <template>
-  <FormKit
-    v-model="formValues"
-    type="form"
-  >
+  <FormKit v-model="formValues" type="form">
     <FormKit
       type="text"
       name="first"
@@ -12,12 +17,7 @@
     <FormKit
       type="checkbox"
       name="fruit"
-      :options="[
-        'Apple',
-        'Strawberry',
-        'Banana',
-        'Grape'
-      ]"
+      :options="['Apple', 'Strawberry', 'Banana', 'Grape']"
     />
     <FormKit
       type="list"
@@ -32,18 +32,8 @@
         :label="`Email ${index}`"
         validation="email"
       />
-      <button type="button" @click="emailCount++">
-        + Add email
-      </button>
+      <button type="button" @click="emailCount++">+ Add email</button>
     </FormKit>
   </FormKit>
   <pre>{{ formValues }}</pre>
 </template>
-
-<script lang="ts" setup>
-import { ref } from 'vue'
-const formValues = ref({
-  fruit: ['Strawberry', 'Banana']
-})
-const emailCount = ref(1)
-</script>

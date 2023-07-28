@@ -5,6 +5,7 @@ import {
   FormKitSchemaNode,
   FormKitSchemaCondition,
   FormKitSchemaDefinition,
+  FormKitSchemaComponent,
   isComponent,
   isDOM,
   isConditional,
@@ -29,7 +30,6 @@ import {
   message,
   help,
 } from './sections'
-import { FormKitSchemaComponent } from 'packages/core/src'
 
 /**
  * Either a schema node, or a function that returns a schema node.

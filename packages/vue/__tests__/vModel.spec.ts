@@ -5,13 +5,14 @@ import defaultConfig from '../src/defaultConfig'
 import { plugin } from '../src/plugin'
 import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
+import { SetupContext } from 'vue'
 
 describe('v-model', () => {
   it('detects changes to arrays that are v-modeled', async () => {
     const usersId = token()
     const wrapper = mount(
       {
-        setup(_props, context) {
+        setup(_: Record<string, any>, context: SetupContext<any, any>) {
           const values = ref<{ users: any[] }>({
             users: [{ name: 'foo' }, { name: 'bar' }],
           })

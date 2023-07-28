@@ -11,6 +11,7 @@ import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
+import { ConcreteComponent } from 'vue'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -190,7 +191,7 @@ describe('props', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             name: 'child',
             value: 'foobar',
           })
@@ -211,7 +212,7 @@ describe('props', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             name: 'child',
             value: 'foobar',
             ignore: true,
@@ -621,7 +622,7 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('form').trigger('submit')
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
@@ -1880,11 +1881,12 @@ describe('exposures', () => {
       slots: {
         default() {
           return [
-            h(FormKit, {
+            h(FormKit as any, {
+              type: 'text',
               name: 'child',
               value: 'foobar',
             }),
-            h(FormKit, {
+            h(FormKit as any, {
               name: 'child2',
               value: 'barfoo',
             }),

@@ -115,4 +115,18 @@ describe('emitting and listening to events', () => {
     expect(bar).toHaveBeenCalledTimes(1)
     expect(foo).toHaveBeenCalledWith(expect.objectContaining({ payload: 223 }))
   })
+
+  it('can emit an event with custom meta', () => {
+    const node = createNode()
+    const listener = vi.fn()
+    node.on('foo', listener)
+    node.emit('foo', 123, false, { here: 'there' })
+    expect(listener).toHaveBeenCalledWith({
+      payload: 123,
+      name: 'foo',
+      bubble: false,
+      origin: node,
+      meta: { here: 'there' },
+    })
+  })
 })

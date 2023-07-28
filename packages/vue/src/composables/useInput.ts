@@ -3,13 +3,11 @@ import {
   error,
   createNode,
   FormKitNode,
-  FormKitClasses,
   FormKitOptions,
-  FormKitPlugin,
   FormKitMessage,
   createMessage,
-  FormKitTypeDefinition,
 } from '@formkit/core'
+import { FormKitRuntimeProps } from '@formkit/inputs'
 import {
   nodeProps,
   except,
@@ -32,37 +30,17 @@ import {
   inject,
   provide,
   watch,
-  SetupContext,
   getCurrentInstance,
   computed,
   ref,
   WatchStopHandle,
   onBeforeUnmount,
   onMounted,
+  SetupContext,
 } from 'vue'
+import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
-
-/**
- * FormKit props of a component
- *
- * @public
- */
-export interface FormKitComponentProps {
-  type?: string | FormKitTypeDefinition
-  name?: string
-  validation?: any
-  modelValue?: any
-  parent?: FormKitNode
-  errors: string[]
-  inputErrors: Record<string, string | string[]>
-  index?: number
-  config: Record<string, any>
-  sync?: boolean
-  dynamic?: boolean
-  classes?: Record<string, string | Record<string, boolean> | FormKitClasses>
-  plugins: FormKitPlugin[]
-}
 
 interface FormKitComponentListeners {
   onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
@@ -144,11 +122,10 @@ function onlyListeners(
  *
  * @public
  */
-export function useInput(
-  props: FormKitComponentProps,
-  context: SetupContext<any>,
-  options: FormKitOptions = {}
-): FormKitNode {
+export function useInput<
+  Props extends FormKitInputs<Props>,
+  Context extends SetupContext<any, any>
+>(props: Props, context: Context, options: FormKitOptions = {}): FormKitNode {
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
@@ -199,6 +176,7 @@ export function useInput(
     const initialProps: Record<string, any> = {
       ...nodeProps(props),
       ...listeners,
+      type: props.type ?? 'text',
       __slots: context.slots,
     }
     const attrs = except(nodeProps(context.attrs), pseudoProps)
@@ -236,11 +214,11 @@ export function useInput(
         name: props.name || undefined,
         value,
         parent,
-        plugins: (config.plugins || []).concat(props.plugins),
-        config: props.config,
+        plugins: (config.plugins || []).concat(props.plugins ?? []),
+        config: props.config || {},
         props: initialProps,
         index: props.index,
-        sync: props.sync || props.dynamic,
+        sync: !!undefine(context.attrs.sync || context.attrs.dynamic),
       },
       false,
       true
@@ -295,10 +273,10 @@ export function useInput(
   const passThrough = nodeProps(props)
   for (const prop in passThrough) {
     watch(
-      () => props[prop as keyof FormKitComponentProps],
+      () => props[prop as keyof FormKitRuntimeProps<Props>],
       () => {
-        if (props[prop as keyof FormKitComponentProps] !== undefined) {
-          node.props[prop] = props[prop as keyof FormKitComponentProps]
+        if (props[prop as keyof FormKitRuntimeProps<Props>] !== undefined) {
+          node.props[prop] = props[prop as keyof FormKitRuntimeProps<Props>]
         }
       }
     )
@@ -354,7 +332,7 @@ export function useInput(
    * Add any/all "prop" errors to the store.
    */
   watchEffect(() => {
-    const messages = props.errors.map((error) =>
+    const messages = (props.errors ?? []).map((error) =>
       createMessage({
         key: slugify(error),
         type: 'error',
@@ -374,10 +352,11 @@ export function useInput(
   if (node.type !== 'input') {
     const sourceKey = `${node.name}-prop`
     watchEffect(() => {
-      const keys = Object.keys(props.inputErrors)
+      const inputErrors = props.inputErrors ?? {}
+      const keys = Object.keys(inputErrors)
       if (!keys.length) node.clearErrors(true, sourceKey)
       const messages = keys.reduce((messages, key) => {
-        let value = props.inputErrors[key]
+        let value = inputErrors[key]
         if (typeof value === 'string') value = [value]
         if (Array.isArray(value)) {
           messages[key] = value.map((error) =>
