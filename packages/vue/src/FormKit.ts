@@ -176,6 +176,7 @@ export const formkitComponent = defineComponent(setup as any, {
   props: runtimeProps as any,
   inheritAttrs: false,
 }) as FormKitComponent
+
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow
 // for runtime "prop" creation).

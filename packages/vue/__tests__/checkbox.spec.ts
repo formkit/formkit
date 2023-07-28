@@ -227,7 +227,7 @@ describe('multiple checkboxes', () => {
       ...global,
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-family="box" data-type="checkbox" data-multiple="true">
+      .toBe(`<div class="formkit-outer" data-family="box" data-type="checkbox" data-multiple="true" data-empty="true">
   <fieldset class="formkit-fieldset" id="my-id" aria-describedby="help-my-id">
     <legend class="formkit-legend">All checkboxes</legend>
     <div class="formkit-help" id="help-my-id">help-text</div>
@@ -429,7 +429,7 @@ describe('non string values for checkboxes', () => {
     ])
     checkboxes[0].element.checked = false
     checkboxes[0].trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(checkboxes.map((input) => input.element.checked)).toEqual([
       true,
       true,

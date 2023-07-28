@@ -227,7 +227,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
     handlers: {
       blur: (e?: Event) => {
-        if (typeof node === 'undefined') return
+        if (!node) return
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         )
@@ -262,6 +262,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       blurred: false,
       complete: isComplete,
       dirty: false,
+      empty: empty(value),
       submitted: false,
       settled: node.isSettled,
       valid: isValid,
@@ -390,7 +391,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   /**
    * Watch for input commits from core.
    */
-  node.on('commit', () => {
+  node.on('commit', ({ payload }) => {
     // The input is dirty after a value has been input by a user
     if (
       (!context.state.dirty || context.dirtyBehavior === 'compare') &&
@@ -413,6 +414,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type === 'list' && node.sync) {
       items.value = node.children.map((child) => child.uid)
     }
+    context.state.empty = empty(payload)
   })
 
   /**

@@ -1064,7 +1064,7 @@ describe('classes', () => {
       },
     })
     expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-invalid="true">
+      .toBe(`<div class="formkit-outer" data-family="text" data-type="text" data-empty="true" data-invalid="true">
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->
@@ -2168,5 +2168,33 @@ describe('schema changed', () => {
     showA.value = true
     await nextTick()
     expect(wrapper.html()).toContain('Input A')
+  })
+
+  it('compares against reset values when using dirty-behavior="compare" (#791)', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit id="resetFormNode" type="form" dirty-behavior="compare" #default="{ state: { dirty }}">
+        <FormKit type="text" name="user" value="abc" :delay="0" />
+        <pre>{{ dirty}}</pre>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('input').setValue('def')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('true')
+    getNode('resetFormNode')?.reset({ user: 'ghi' })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
+    wrapper.find('input').setValue('abc')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('true')
+    wrapper.find('input').setValue('ghi')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
   })
 })

@@ -54,6 +54,7 @@ export function reset(
 
     if (resetTo && !empty(resetTo)) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
+      node.props._init = node.props.initial
     }
     node.input(initial(node), false)
     // Set children back to basics in case they were additive (had their own value for example)

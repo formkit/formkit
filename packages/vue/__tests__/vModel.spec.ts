@@ -124,4 +124,45 @@ describe('v-model', () => {
       '{\n  "group": {\n    "text": "foo"\n  }\n}'
     )
   })
+
+  it('Works with both v-model and model-value', async () => {
+    const data1 = ref('abc')
+    const data2 = ref('xyz')
+
+    const wrapper = mount(
+      {
+        setup() {
+          return { data1, data2 }
+        },
+        template: `
+          <FormKit type="form" #default="{ value }">
+            <FormKit
+              v-model="data1"
+              type="text"
+              name="text-vmodel"
+              :delay="0"
+            />
+            <FormKit
+              :model-value="data2"
+              type="text"
+              name="text-model-value"
+              :delay="0"
+            />
+
+            <pre wrap>{{ value }}</pre>
+          </FormKit>
+        `,
+      },
+      {
+        global: { plugins: [[plugin, defaultConfig]] },
+      }
+    )
+
+    data1.value = 'foo'
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toMatchSnapshot()
+    data2.value = 'bar'
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toMatchSnapshot()
+  })
 })

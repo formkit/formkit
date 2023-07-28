@@ -147,7 +147,7 @@ export function useInput<
    * {@link https://github.com/LinusBorg | Thorsten Lünborg}
    * for coming up with this solution.
    */
-  const isVModeled = 'modelValue' in (instance?.vnode.props ?? {})
+  const isVModeled = ['modelValue', 'model-value'].some(prop => prop in (instance?.vnode.props ?? {}))
 
   // Track if the input has mounted or not.
   let isMounted = false
