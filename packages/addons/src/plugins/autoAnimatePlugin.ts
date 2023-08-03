@@ -144,9 +144,8 @@ export function createAutoAnimatePlugin(
                   typeof sectionName === 'string'
                 ) {
                   if (
-                    animationTargets.global.includes(sectionName) ||
-                    (animationTargets[node.props.type] &&
-                      animationTargets[node.props.type].includes(sectionName))
+                    animationTargets.global?.includes(sectionName) ||
+                    animationTargets[node.props.type]?.includes(sectionName)
                   ) {
                     isAnimationTarget = true
                   }
