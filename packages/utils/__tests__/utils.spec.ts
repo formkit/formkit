@@ -116,7 +116,16 @@ describe('eq', () => {
   it('can compare date objects', () => {
     const date = new Date()
     expect(eq(date, date)).toBe(true)
-    expect(eq(new Date(), new Date())).toBe(false)
+    expect(eq(new Date('2012-01-01'), new Date('2012-01-01'))).toBe(true)
+    expect(
+      eq(new Date('2012-01-01T01:00:01'), new Date('2012-01-0101:00:02'))
+    ).toBe(false)
+    expect(
+      eq(
+        new Date('2012-01-01T01:00:01'),
+        new Date('2012-01-01T01:00:01').getTime()
+      )
+    ).toBe(false)
   })
 
   it('can explicitly look at certain keys that are not enumerable', () => {
@@ -124,6 +133,14 @@ describe('eq', () => {
     const b = Object.defineProperty({ foo: 'bar' }, '_id', { value: 'bar' })
     expect(eq(a, b)).toBe(true)
     expect(eq(a, b, true, ['_id'])).toBe(false)
+  })
+
+  it('can compare regex', () => {
+    expect(eq(/^foo/, /^foo/)).toBe(true)
+    expect(eq({ a: /^foo/ }, { a: /^foo/ })).toBe(true)
+    expect(eq({ a: /^foo/g }, { a: /^foo/ })).toBe(false)
+    expect(eq({ a: /^foo/g }, { a: /^foo/g })).toBe(true)
+    expect(eq({ a: /^fo[o]/g }, { a: /^foo/g })).toBe(false)
   })
 })
 
