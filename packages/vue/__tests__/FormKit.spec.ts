@@ -2229,3 +2229,37 @@ describe('schema changed', () => {
     wrapper.find('input').setValue('foo')
   })
 })
+
+describe('nested inputs', () => {
+  it('does not become dirty when inputs are inside nested components (#870)', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: '',
+          }
+        },
+        components: {
+          MyComponent: {
+            template: `
+              <FormKit type="text" name="myInput" />
+            `,
+          },
+        },
+        template: `
+          <FormKit type="form" #default="{ state }">
+            <MyComponent />
+            <pre>{{ state.dirty }}</pre>
+          </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.find('pre').text()).toBe('false')
+  })
+})
