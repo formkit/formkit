@@ -360,6 +360,46 @@ describe('form submission', () => {
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
   })
 
+  it('can disable nested inputs in a form', async () => {
+    const disabled = ref(true)
+    const wrapper = mount(
+      {
+        setup() {
+          return { disabled }
+        },
+        template: `<FormKit
+          type="form"
+          :disabled="disabled"
+        >
+          <FormKit type="email" />
+          <FormKit type="radio" :options="['A', 'B', 'C']" />
+          <FormKit type="group">
+            <FormKit type="radio" />
+            <FormKit type="text" />
+          </FormKit>
+          <FormKit type="list">
+            <FormKit type="radio" />
+            <FormKit type="text" />
+          </FormKit>
+        </FormKit>`,
+      },
+      global
+    )
+    const disabledStates: Array<string | undefined> = []
+    disabledStates.length = 0
+    wrapper.findAll('.formkit-outer').forEach((input) => {
+      disabledStates.push(input.attributes('data-disabled'))
+    })
+    expect(disabledStates).toEqual(new Array(7).fill('true'))
+    disabled.value = false
+    await nextTick()
+    disabledStates.length = 0
+    wrapper.findAll('.formkit-outer').forEach((input) => {
+      disabledStates.push(input.attributes('data-disabled'))
+    })
+    expect(disabledStates).toEqual(new Array(7).fill(undefined))
+  })
+
   it('can reactively disable and enable all inputs in a form', async () => {
     const wrapper = mount(
       {
