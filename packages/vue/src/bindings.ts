@@ -71,7 +71,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * A flag that determines when validation messages should be displayed.
    */
   const validationVisibility = ref<string>(
-    node.props.validationVisibility || 'blur'
+    node.props.validationVisibility ||
+      (node.props.type === 'checkbox' ? 'dirty' : 'blur')
   )
   node.on('prop:validationVisibility', ({ payload }) => {
     validationVisibility.value = payload

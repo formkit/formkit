@@ -483,3 +483,29 @@ describe('non string values for checkboxes', () => {
     expect(wrapper.find('div').findAll('.should-appear-once').length).toBe(1)
   })
 })
+
+describe('validation', () => {
+  it('uses dirty validation-visibility by default', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        delay: 0,
+        id: 'checkbox-dirty-test',
+        type: 'checkbox',
+        value: [{ zip: '02108' }],
+        options: [
+          { value: 'a', label: 'Atlanta' },
+          { value: 'b', label: 'Boston' },
+          { value: 'd', label: 'Denver' },
+        ],
+        validation: 'required|min:2',
+      },
+      ...global,
+    })
+    await nextTick()
+    expect(wrapper.find('.formkit-messages').exists()).toBe(false)
+    const node = getNode('checkbox-dirty-test')!
+    node.input(['b', 'd'], false)
+    await nextTick()
+    expect(wrapper.find('.formkit-messages').exists()).toBe(true)
+  })
+})

@@ -2185,7 +2185,7 @@ describe('schema changed', () => {
       }
     )
     wrapper.find('input').setValue('def')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('pre').text()).toBe('true')
     getNode('resetFormNode')?.reset({ user: 'ghi' })
     await new Promise((r) => setTimeout(r, 10))

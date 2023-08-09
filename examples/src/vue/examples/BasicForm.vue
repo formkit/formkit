@@ -30,6 +30,11 @@ const countries = [
     value: 'de',
     help: 'This is the cleanest one',
   },
+  {
+    label: 'Slovakia',
+    value: 'sl',
+    help: 'This is the most Slovak one',
+  },
 ]
 
 const submitHandler = async function (data: { email: string }) {
@@ -45,13 +50,13 @@ function setNode(n: FormKitNode) {
 
 <template>
   <h1>Basic Form</h1>
-  <FormKit v-model="data" type="form" @submit="(value, node) => value && node">
-    <FormKit
-      type="number"
-      label="Age"
-      validation="between:21,18"
-      validation-visibility="live"
-    />
+  <FormKit
+    v-model="data"
+    type="form"
+    :config="{ validationVisibility: 'dirty' }"
+    @submit="(value, node) => value && node"
+  >
+    <FormKit type="number" label="Age" validation="between:21,18" />
     <FormKit
       type="text"
       name="email"
@@ -112,11 +117,14 @@ function setNode(n: FormKitNode) {
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
+      validation="required"
+      validation-visibility="dirty"
     />
     <FormKit
       type="checkbox"
       label="Do you agree to our terms?"
       help="You need to do this"
+      validation="required|accepted"
     />
     <FormKit
       v-model="fruit"
