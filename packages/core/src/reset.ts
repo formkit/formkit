@@ -51,12 +51,12 @@ export function reset(
     node._e.pause(node)
     // Set it back to basics
     const resetValue = cloneAny(resetTo)
-
     if (resetTo && !empty(resetTo)) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
       node.props._init = node.props.initial
     }
     node.input(initial(node), false)
+
     // Set children back to basics in case they were additive (had their own value for example)
     node.walk((child) => child.input(initial(child), false))
     // Finally we need to lay any values back on top (if it is a group/list) since group values
@@ -65,6 +65,19 @@ export function reset(
       empty(resetValue) && resetValue ? resetValue : initial(node),
       false
     )
+
+    // If this is a deep reset, we need to make sure the "initial" state of all
+    // children are also reset. Fixes https://github.com/formkit/formkit/issues/791#issuecomment-1651213253
+    const isDeepReset =
+      node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
+    if (isDeepReset) {
+      node.walk((child) => {
+        child.props.initial = isObject(child.value)
+          ? init(child.value)
+          : child.value
+        child.props._init = node.props.initial
+      })
+    }
     // release the events.
     node._e.play(node)
     clearState(node)

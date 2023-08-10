@@ -643,6 +643,41 @@ describe('form submission', () => {
     expect((wrapper.find(`#${id}`).element as HTMLInputElement).value).toBe('')
   })
 
+  it('can resets the child’s initial value during a reset', async () => {
+    const id = `a_${token()}`
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            key: 'abc',
+          }
+        },
+        methods: {
+          reset(data: any, node: FormKitNode) {
+            node.reset(data)
+          },
+        },
+        template: `<FormKit type="form" @submit="reset">
+        <FormKit type="text" name="name" id="${id}" value="123" :delay="0" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find(`#${id}`).setValue('foobar')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.context!.state.dirty).toBe(true)
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(getNode(id)!.context!.state.dirty).toBe(false)
+    wrapper.find(`#${id}`).setValue('123')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.context!.state.dirty).toBe(true)
+  })
+
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       {
