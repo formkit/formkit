@@ -13,7 +13,7 @@ export const outer = createSection('outer', () => ({
     'data-type': '$type',
     'data-multiple':
       '$attrs.multiple || ($type != "select" && $options != undefined) || undefined',
-    'data-disabled': '$disabled || undefined',
+    'data-disabled': '$: ($disabled !== "false" && $disabled) || undefined',
     'data-empty': '$state.empty || undefined',
     'data-complete': '$state.complete || undefined',
     'data-invalid':

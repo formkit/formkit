@@ -67,6 +67,26 @@ describe('node', () => {
     expect(child.props.flavor).toBe('cherry')
   })
 
+  it('changes inherited config by changing parent', () => {
+    const child = createNode()
+    createNode({
+      type: 'group',
+      config: {
+        size: 'large',
+      },
+      children: [child],
+    })
+    const secondParent = createNode({
+      type: 'group',
+      config: {
+        size: 'small',
+      },
+    })
+    expect(child.props.size).toBe('large')
+    secondParent.add(child)
+    expect(child.props.size).toBe('small')
+  })
+
   it('emits config:{property} events when configuration options change', () => {
     const node = createNode({
       config: { locale: 'en' },
