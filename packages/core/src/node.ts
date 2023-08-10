@@ -275,10 +275,10 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
 export interface FormKitConfig {
   delimiter: string
   classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
-  rootClasses: (
+  rootClasses: ((
     sectionKey: string,
     node: FormKitNode
-  ) => Record<string, boolean>
+  ) => Record<string, boolean>) | false
   rootConfig?: FormKitRootConfig
   [index: string]: any
 }

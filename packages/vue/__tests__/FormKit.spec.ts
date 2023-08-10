@@ -1253,6 +1253,28 @@ describe('classes', () => {
     expect(wrapper.html()).toContain('class="foo-outer"')
   })
 
+  it('does not throw errors if rootClasses is false', () => {
+    expect(() =>
+      mount(FormKit, {
+        props: {
+          name: 'classTest',
+        },
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                config: {
+                  rootClasses: false,
+                },
+              }),
+            ],
+          ],
+        },
+      })
+    ).not.toThrow()
+  })
+
   it('does not throw errors if rootClasses returns undefined', () => {
     expect(() =>
       mount(FormKit, {
