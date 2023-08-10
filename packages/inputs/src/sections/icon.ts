@@ -17,7 +17,7 @@ export const icon = (
       if: `$${sectionKey}Icon && $${rawIconProp}`,
       $el: `${el ? el : 'span'}`,
       attrs: {
-        class: `$classes.${sectionKey}Icon + " formkit-icon"`,
+        class: `$classes.${sectionKey}Icon + " " + $classes.icon`,
         innerHTML: `$${rawIconProp}`,
         onClick: `$handlers.iconClick(${sectionKey})`,
         for: {
