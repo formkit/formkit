@@ -1,42 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-async function foobar(data: { a: 123 }) {
-  await new Promise((r) => setTimeout(r, 200))
-  console.log(data.a)
+// ESM imports are supported from URLs (https://cdn...)
+// as well as secondary playground files (./OtherFile.vue).
+
+async function submit() {
+  console.log('submit')
+  await new Promise((resolve) => setTimeout(resolve, 3000))
 }
-const options = ref({ a: '123', b: '546' })
+
+async function log() {
+  console.log('click')
+}
 </script>
 
 <template>
-  <FormKit type="form" @submit="foobar" #default="{ value }">
-    <pre>{{ value }}</pre>
-    <FormKit
-      type="checkbox"
-      :options="[
-        { label: 'a', value: '123' },
-        { label: 'b', value: null },
-      ]"
-      @input="(value, node) => value && node"
-    />
-    <FormKit type="text">
-      <template #label="{ value }">
-        {{ value }}
-      </template>
+  <div data-loading="true">
+    <FormKit type="form" @submit="submit">
+      <FormKit
+        type="text"
+        label="FormKit Input"
+        help="edit me to get started"
+      />
+      <FormKit type="submit" label="Submit" @click="log" />
+      <FormKit type="submit" label="Submit" disabled @click="log" />
     </FormKit>
-    <FormKit type="select" :options="options">
-      <template #default="{ value }">
-        {{ value }}
-      </template>
-    </FormKit>
-    <FormKit type="group">
-      <FormKit type="text" />
-      <FormKit type="text" />
-    </FormKit>
-    <FormKit type="list">
-      <FormKit type="text" />
-      <FormKit type="text" />
-    </FormKit>
-  </FormKit>
+  </div>
 </template>
 
 <style scoped>

@@ -52,9 +52,6 @@
 
 [data-loading] {
   & [data-type="submit"] .formkit-input {
-    filter: brightness(1.1);
-    pointer-events: none;
-
     &::before {
       animation: fk-rotate 0.5s linear infinite;
       width: 1.28571428em;
@@ -62,6 +59,11 @@
       border-right-color: transparent;
       margin-right: 0.75em;
     }
+  }
+
+  & .formkit-actions [data-type="submit"] .formkit-input {
+    filter: brightness(1.1);
+    pointer-events: none;
   }
 }
 
