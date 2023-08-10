@@ -279,6 +279,9 @@ importers:
       '@formkit/inputs':
         specifier: 0.17.5
         version: link:../inputs
+      '@formkit/utils':
+        specifier: 0.17.5
+        version: link:../utils
       axios:
         specifier: ^0.27.2
         version: 0.27.2
