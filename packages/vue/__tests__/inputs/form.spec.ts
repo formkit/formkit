@@ -1,7 +1,7 @@
-import FormKit from '../src/FormKit'
-import { FormKitMessages } from '../src/FormKitMessages'
-import { plugin, FormKitVuePlugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import FormKit from '../../src/FormKit'
+import { FormKitMessages } from '../../src/FormKitMessages'
+import { plugin, FormKitVuePlugin } from '../../src/plugin'
+import defaultConfig from '../../src/defaultConfig'
 import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
@@ -144,7 +144,9 @@ describe('value propagation', () => {
   })
 
   it('can set the state of text input from a v-model using vue reactive object', async () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {
+      // noop
+    })
     const wrapper = mount(
       {
         setup() {
@@ -358,6 +360,46 @@ describe('form submission', () => {
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
   })
 
+  it('can disable nested inputs in a form', async () => {
+    const disabled = ref(true)
+    const wrapper = mount(
+      {
+        setup() {
+          return { disabled }
+        },
+        template: `<FormKit
+          type="form"
+          :disabled="disabled"
+        >
+          <FormKit type="email" />
+          <FormKit type="radio" :options="['A', 'B', 'C']" />
+          <FormKit type="group">
+            <FormKit type="radio" />
+            <FormKit type="text" />
+          </FormKit>
+          <FormKit type="list">
+            <FormKit type="radio" />
+            <FormKit type="text" />
+          </FormKit>
+        </FormKit>`,
+      },
+      global
+    )
+    const disabledStates: Array<string | undefined> = []
+    disabledStates.length = 0
+    wrapper.findAll('.formkit-outer').forEach((input) => {
+      disabledStates.push(input.attributes('data-disabled'))
+    })
+    expect(disabledStates).toEqual(new Array(7).fill('true'))
+    disabled.value = false
+    await nextTick()
+    disabledStates.length = 0
+    wrapper.findAll('.formkit-outer').forEach((input) => {
+      disabledStates.push(input.attributes('data-disabled'))
+    })
+    expect(disabledStates).toEqual(new Array(7).fill(undefined))
+  })
+
   it('can reactively disable and enable all inputs in a form', async () => {
     const wrapper = mount(
       {
@@ -417,7 +459,7 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           german() {
-            this.$formkit.setLocale('de')
+            ;(this as any).$formkit.setLocale('de')
           },
         },
       },
@@ -453,7 +495,7 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           handle() {
-            this.$formkit.setErrors('form', [error])
+            ;(this as any).$formkit.setErrors('form', [error])
           },
         },
       },
@@ -479,7 +521,10 @@ describe('form submission', () => {
       </FormKit>`,
         methods: {
           handle() {
-            this.$formkit.setErrors('form', { email: error1, second: [error2] })
+            ;(this as any).$formkit.setErrors('form', {
+              email: error1,
+              second: [error2],
+            })
           },
         },
       },
@@ -596,6 +641,41 @@ describe('form submission', () => {
     await nextTick()
     expect(wrapper.find('pre').text()).toBe(`{}`)
     expect((wrapper.find(`#${id}`).element as HTMLInputElement).value).toBe('')
+  })
+
+  it('can resets the child’s initial value during a reset', async () => {
+    const id = `a_${token()}`
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            key: 'abc',
+          }
+        },
+        methods: {
+          reset(data: any, node: FormKitNode) {
+            node.reset(data)
+          },
+        },
+        template: `<FormKit type="form" @submit="reset">
+        <FormKit type="text" name="name" id="${id}" value="123" :delay="0" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    wrapper.find(`#${id}`).setValue('foobar')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.context!.state.dirty).toBe(true)
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(getNode(id)!.context!.state.dirty).toBe(false)
+    wrapper.find(`#${id}`).setValue('123')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.context!.state.dirty).toBe(true)
   })
 
   it('keeps data with preserve prop', async () => {
@@ -763,7 +843,7 @@ describe('form submission', () => {
     )
     const button = wrapper.find('button')
     wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
     expect(
       wrapper.findAll('input').map((input) => input.element.disabled)
@@ -889,7 +969,9 @@ describe('programmatic submission', () => {
     const id = 'programmatic-form-test'
     const submit = vi.fn()
     const submitRaw = vi.fn()
-    const warning = vi.fn(() => {})
+    const warning = vi.fn(() => {
+      // noop
+    })
     const mock = vi.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
       {
@@ -906,7 +988,7 @@ describe('programmatic submission', () => {
       `,
         methods: {
           submit() {
-            this.$formkit.submit(id)
+            ;(this as any).$formkit.submit(id)
           },
           submitHandler(data: any) {
             submit(data)
@@ -1237,7 +1319,7 @@ describe('FormKitMessages', () => {
         methods: {
           handler,
           setNode(node: FormKitNode) {
-            this.node = node
+            ;(this as any).node = node
           },
         },
         components: {
@@ -1281,7 +1363,7 @@ describe('FormKitMessages', () => {
         methods: {
           handler,
           setNode(node: FormKitNode) {
-            this.node = node
+            ;(this as any).node = node
           },
         },
         components: {

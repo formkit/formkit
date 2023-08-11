@@ -7,7 +7,11 @@ async function cycle(
   callback?: (page: Page) => void
 ) {
   return new Promise<void>(async (resolve) => {
-    await page.reload()
+    try {
+      await page.reload()
+    } catch {
+      resolve()
+    }
     if (callback) await callback(page)
     setTimeout(async () => {
       if (cycleCount < total) await cycle(page, total, cycleCount + 1)
@@ -23,13 +27,13 @@ async function getMemory(page: Page) {
   return Number(await page.locator('input').first().inputValue())
 }
 
-// test('formkit app gets garbage collected in nuxt', async ({ page }) => {
-//   test.setTimeout(60000)
-//   await page.goto('http://localhost:8484/')
-//   await cycle(page, 2) // Warm up
-//   const initialMemory = await getMemory(page)
-//   await cycle(page, 20)
-//   const finalMemory = await getMemory(page)
-//   expect((finalMemory - initialMemory) / 20).toBeLessThan(0.1)
-//   expect(finalMemory).toBeLessThan(initialMemory + 5)
-// })
+test.skip('formkit app gets garbage collected in nuxt', async ({ page }) => {
+  test.setTimeout(60000)
+  await page.goto('http://localhost:8484/')
+  await cycle(page, 2) // Warm up
+  const initialMemory = await getMemory(page)
+  await cycle(page, 20)
+  const finalMemory = await getMemory(page)
+  expect((finalMemory - initialMemory) / 20).toBeLessThan(0.1)
+  expect(finalMemory).toBeLessThan(initialMemory + 5)
+})

@@ -275,10 +275,10 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
 export interface FormKitConfig {
   delimiter: string
   classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
-  rootClasses: (
+  rootClasses: ((
     sectionKey: string,
     node: FormKitNode
-  ) => Record<string, boolean>
+  ) => Record<string, boolean>) | false
   rootConfig?: FormKitRootConfig
   [index: string]: any
 }
@@ -417,12 +417,12 @@ export interface FormKitContext {
  *
  * @public
  */
-export interface FormKitFrameworkContext {
+export interface FormKitFrameworkContext<T = any> {
   [index: string]: unknown
   /**
    * The current "live" value of the input. Not debounced.
    */
-  _value: any
+  _value: T
   /**
    * The root document or shadow root the input is inside. This can be set by
    * using a higher-order `<FormKitRoot>` component.
@@ -506,7 +506,7 @@ export interface FormKitFrameworkContext {
    * The current committed value of the input. This is the value that should be
    * used for most use cases.
    */
-  value: any
+  value: T
 }
 
 /**
@@ -819,7 +819,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+ * emit: (event: string, payload?: any, bubble?: boolean, meta: Record<string, unknown>) => FormKitNode
  * ```
  *
  * #### Parameters
@@ -1292,7 +1292,12 @@ export type FormKitNode<V = unknown> = {
   /**
    * Emit an event from the node.
    */
-  emit: (event: string, payload?: any, bubble?: boolean) => FormKitNode
+  emit: (
+    event: string,
+    payload?: any,
+    bubble?: boolean,
+    meta?: Record<string, unknown>
+  ) => FormKitNode
   /**
    * Extend the core node by giving it a key and a trap.
    */

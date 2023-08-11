@@ -1,4 +1,4 @@
-import { h, reactive } from 'vue'
+import { ConcreteComponent, h, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
   FormKit,
@@ -114,7 +114,7 @@ describe('multistep', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             type: 'step',
           })
         },
@@ -170,7 +170,7 @@ describe('multistep', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             type: 'text',
           })
         },

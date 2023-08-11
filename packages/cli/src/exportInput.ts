@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { FORMKIT_VERSION } from '@formkit/core'
 import { inputs } from '@formkit/inputs'
+import { token } from '@formkit/utils'
 import { resolve, relative, isAbsolute } from 'path'
 import { access, mkdir, writeFile, readFile } from 'fs/promises'
 import { error, info, warning, green, __dirname } from './index'
@@ -113,7 +114,15 @@ function guessDir() {
 function transformSource(exportData: string, type: string): string | never {
   if (exportData) {
     // Change the exports from relative to npm package based.
-    exportData = exportData.replace("} from '../'", "} from '@formkit/inputs'")
+    exportData = exportData.replace(
+      /(}\sfrom\s['"])\.\.\/(?:index)?(['"])?/g,
+      '$1@formkit/inputs$2'
+    )
+    const memoKey = token()
+    exportData = exportData.replace(
+      /(schemaMemoKey:\s?['"])[a-zA-Z0-9]+(['"])/g,
+      `$1${memoKey}$2`
+    )
     // Inject the forceTypeProp in the definition.
     exportData = exportData.replace(
       /^  props: \[(.*)\],/gm,

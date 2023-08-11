@@ -30,6 +30,18 @@ export type FormKitCompilerProvider = (
 ) => FormKitCompilerOutput
 
 /**
+ * The operand is a value that can be used in a logical operation.
+ *
+ * @internal
+ */
+type Operand =
+  | string
+  | number
+  | boolean
+  | undefined
+  | ((...args: any[]) => boolean | number | string | CallableFunction)
+
+/**
  * Logical operations are always a left/right fn
  *
  * @internal
@@ -251,8 +263,7 @@ export function compile(expr: string): FormKitCompilerOutput {
     let depth = 0
     let quote: false | string = false
     let op: null | ((l: any, r: any) => boolean | number | string) = null
-    let operand: string | number | boolean | (() => boolean | number | string) =
-      ''
+    let operand: Operand = ''
     let left: null | ((r?: any) => boolean | number | string) = null
     let operation: false | undefined | string
     let lastChar = ''
@@ -340,7 +351,12 @@ export function compile(expr: string): FormKitCompilerOutput {
           if (lStep === -1 && rStep === -1) {
             // This parenthetical was unnecessarily wrapped at the root, or
             // these are args of a function call.
-            operand = evaluate(parenthetical, -1, fn, tail) as string
+            operand = evaluate(parenthetical, -1, fn, tail)
+            // If the operand is still a string after evaluation, then it was a
+            // quoted string like ("1 + 2") which should actually evaluate to
+            // a literal of "1 + 2". It will be cleaned/trimmed as a string a
+            // little further on in this block at `if (!op && operand)`.
+            if (typeof operand === 'string') operand = parenthetical
           } else if (op && (lStep >= rStep || rStep === -1) && step === lStep) {
             // has a left hand operator with a higher order of operation
             left = op.bind(null, evaluate(parenthetical, -1, fn, tail))
@@ -428,20 +444,11 @@ export function compile(expr: string): FormKitCompilerOutput {
    * @returns
    */
   function evaluate(
-    operand:
-      | string
-      | number
-      | boolean
-      | ((...args: any[]) => boolean | number | string),
+    operand: Operand,
     step: number,
     fnToken?: string,
     tail?: string //eslint-disable-line
-  ):
-    | boolean
-    | undefined
-    | string
-    | number
-    | ((...args: any[]) => boolean | number | string | CallableFunction) {
+  ): Operand {
     if (fnToken) {
       const fn = evaluate(fnToken, operatorRegistry.length)
       let userFuncReturn: unknown
@@ -525,10 +532,12 @@ export function compile(expr: string): FormKitCompilerOutput {
   const compiled = parseLogicals(
     expr.startsWith('$:') ? expr.substring(2) : expr
   )
+
   /**
    * Convert compiled requirements to an array.
    */
   const reqs = Array.from(requirements)
+
   /**
    * Provides token values via callback to compiled output.
    * @param callback - A callback that needs to provide all token requirements
@@ -538,9 +547,11 @@ export function compile(expr: string): FormKitCompilerOutput {
     callback: (requirements: string[]) => Record<string, () => any>
   ): FormKitCompilerOutput {
     provideTokens = callback
-    return Object.assign(compiled.bind(null, callback(reqs)), {
-      provide,
-    })
+    return Object.assign(
+      // @ts-ignore - @rollup/plugin-typescript doesn't like this
+      compiled.bind(null, callback(reqs)),
+      { provide }
+    )
   }
   return Object.assign(compiled, {
     provide,

@@ -1,7 +1,6 @@
-
 <script setup lang="ts">
 import { FormKitNode } from '@formkit/core'
-import { setErrors, FormKitMessages } from '@formkit/vue'
+import { setErrors } from '@formkit/vue'
 import { ref } from 'vue'
 const data = ref({})
 
@@ -9,8 +8,8 @@ const date = new Date()
 const month = date.getMonth() + 1
 const day = date.getDate()
 const year = date.getFullYear()
-const fruit = ref(null)
-const addYear = month > 6 ? 1 : (month === 6 ? (day > 21 ? 1 : 0) : 0)
+const fruit = ref('123')
+const addYear = month > 6 ? 1 : month === 6 ? (day > 21 ? 1 : 0) : 0
 const summerStart = new Date(`${year + addYear}-6-21`)
 const summerEnd = new Date(`${year + addYear}-9-22`)
 
@@ -18,23 +17,28 @@ const countries = [
   {
     label: 'Italy',
     value: 'it',
-    help: 'This is the best one'
+    help: 'This is the best one',
   },
   {
     label: 'France',
     value: 'fr',
     attrs: { disabled: true },
-    help: 'This is smelliest one'
+    help: 'This is smelliest one',
   },
   {
     label: 'Germany',
     value: 'de',
     help: 'This is the cleanest one',
   },
+  {
+    label: 'Slovakia',
+    value: 'sl',
+    help: 'This is the most Slovak one',
+  },
 ]
 
 const submitHandler = async function (data: { email: string }) {
-  await new Promise(r => setTimeout(r, 2000))
+  await new Promise((r) => setTimeout(r, 2000))
   console.log(data)
   setErrors('form', ['This isn’t setup to actually do anything.'])
 }
@@ -49,16 +53,13 @@ function setNode(n: FormKitNode) {
   <FormKit
     v-model="data"
     type="form"
-    @submit="submitHandler"
+    :config="{ validationVisibility: 'dirty' }"
+    @submit="(value, node) => value && node"
+    disabled
   >
+    <FormKit type="number" label="Age" validation="between:21,18" />
     <FormKit
-      type="number"
-      label="Age"
-      validation="between:21,18"
-      validation-visibility="live"
-    />
-    <FormKit
-      type="email"
+      type="text"
       name="email"
       label="Email address"
       help="What is your email address?"
@@ -67,7 +68,10 @@ function setNode(n: FormKitNode) {
       validation-visibility="live"
       outer-class="my-class !formkit-outer"
       @node="setNode"
+      @input="(value) => value"
+      @input-raw="(value, node) => value"
     />
+    <FormKit type="file" />
     <FormKit
       type="file"
       name="file"
@@ -86,7 +90,7 @@ function setNode(n: FormKitNode) {
       :options="{
         apple: 'Apple pie',
         pumpkin: 'Pumpkin pie',
-        peach: 'Peach cobbler'
+        peach: 'Peach cobbler',
       }"
     />
     <FormKit
@@ -104,10 +108,7 @@ function setNode(n: FormKitNode) {
       type="date"
       label="Departure date"
       help="Select a date next summer"
-      :validation="[
-        ['required'],
-        ['date_between', summerStart, summerEnd]
-      ]"
+      :validation="[['required'], ['date_between', summerStart, summerEnd]]"
       validation-visibility="live"
     />
     <FormKit
@@ -117,11 +118,14 @@ function setNode(n: FormKitNode) {
       help="Hello help text!"
       placeholder="Select the best country"
       :options="countries"
+      validation="required"
+      validation-visibility="dirty"
     />
     <FormKit
       type="checkbox"
       label="Do you agree to our terms?"
       help="You need to do this"
+      validation="required|accepted"
     />
     <FormKit
       v-model="fruit"
@@ -145,8 +149,16 @@ function setNode(n: FormKitNode) {
       type="select"
       name="planet"
       placeholder="Select the best planet"
-      :options="['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune']"
+      :options="[
+        'Mercury',
+        'Venus',
+        'Earth',
+        'Mars',
+        'Jupiter',
+        'Saturn',
+        'Uranus',
+        'Neptune',
+      ]"
     />
   </FormKit>
 </template>
-

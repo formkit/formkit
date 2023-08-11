@@ -48,11 +48,11 @@ export default defineConfig({
       url: 'http://localhost:8585',
       reuseExistingServer: false,
     },
-    {
-      command:
-        'pnpm nuxt-build && NITRO_PORT=8484 node --expose-gc packages/nuxt/playground/.output/server/index.mjs',
-      url: 'http://localhost:8484',
-      reuseExistingServer: false,
-    },
+    // {
+    //   command:
+    //     'pnpm nuxt-build && NITRO_PORT=8484 node --expose-gc packages/nuxt/playground/.output/server/index.mjs',
+    //   url: 'http://localhost:8484',
+    //   reuseExistingServer: false,
+    // },
   ],
 })

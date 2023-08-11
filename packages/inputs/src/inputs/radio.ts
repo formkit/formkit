@@ -22,7 +22,6 @@ import {
   $if,
   $extend,
   defaultIcon,
-  disablesChildren as disables,
 } from '../compose'
 
 /**
@@ -41,7 +40,9 @@ export const radio: FormKitTypeDefinition = {
        */
       boxWrapper(
         inner(prefix(), box(), decorator(icon('decorator')), suffix()),
-        $if('$label', boxLabel('$label'))
+        $extend(boxLabel('$label'), {
+          if: '$label',
+        })
       ),
       /**
        * Multi radio structure.
@@ -94,12 +95,7 @@ export const radio: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [
-    disables,
-    options,
-    radios,
-    defaultIcon('decorator', 'radioDecorator'),
-  ],
+  features: [options, radios, defaultIcon('decorator', 'radioDecorator')],
   /**
    * The key used to memoize the schema.
    */

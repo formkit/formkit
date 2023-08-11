@@ -1,4 +1,4 @@
-import { createApp, defineCustomElement } from 'vue'
+import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr, tr } from '@formkit/i18n'
 import { createMultiStepPlugin } from '@formkit/addons'
@@ -14,10 +14,9 @@ import CustomInput from './vue/examples/custom-input/CustomInput.vue'
 import CurrencyInput from './vue/examples/custom-input/CurrencyInput.vue'
 import FileUpload from './vue/examples/FileUpload.vue'
 import GroupInput from './vue/examples/Group.vue'
-import TSXExample from './vue/examples/TSXExample.tsx'
 import ModifySchema from './vue/examples/ModifySchema.vue'
 import MultiStep from './vue/examples/MultiStep.vue'
-import Playground from './vue/examples/Playground.vue'
+import Playground from './vue/examples/PlaygroundWorld.vue'
 import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
@@ -110,10 +109,6 @@ const router = createRouter({
     {
       path: '/group',
       component: GroupInput,
-    },
-    {
-      path: '/tsx',
-      component: TSXExample,
     },
     {
       path: '/plugin-schema',

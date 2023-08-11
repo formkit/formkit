@@ -167,6 +167,28 @@ describe('logic compiler', () => {
     expect(compile('(3) * 5')()).toBe(15)
   })
 
+  it('handles quoted strings inside parenthesis', () => {
+    expect(compile('123 + ("hello")')()).toBe('123hello')
+  })
+
+  it('handles quoted strings inside parenthesis', () => {
+    expect(compile('123 + ("456")')()).toBe('123456')
+    expect(compile('123 + (456)')()).toBe(579)
+  })
+
+  it('does not perform math on quoted strings', () => {
+    expect(compile('(123 + "456")')()).toBe('123456')
+    expect(compile('("123 + 456")')()).toBe('123 + 456')
+  })
+
+  it('evaluates parenthetical function calls with expression-like strings as arguments', () => {
+    expect(
+      compile('$fn("123 + 456")').provide(() => {
+        return { fn: () => (str: any) => str }
+      })()
+    ).toBe('123 + 456')
+  })
+
   it('can handle double quoted string', () => {
     expect(compile('(andrew === "andrew")')()).toBe(true)
     expect(compile('"(first \\"name\\")"')()).toBe('(first "name")')

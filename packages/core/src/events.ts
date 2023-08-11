@@ -21,6 +21,7 @@ export interface FormKitEvent {
   name: string
   bubble: boolean
   origin: FormKitNode
+  meta?: Record<string, unknown>
 }
 
 /**
@@ -204,13 +205,15 @@ export function emit(
   context: FormKitContext,
   name: string,
   payload?: any, // eslint-disable-line @typescript-eslint/explicit-module-boundary-types,
-  bubble = true
+  bubble = true,
+  meta?: Record<string, unknown>
 ): FormKitNode {
   context._e(node, {
     payload,
     name,
     bubble,
     origin: node,
+    meta,
   })
   return node
 }

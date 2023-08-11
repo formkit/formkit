@@ -124,7 +124,10 @@ export function eq(
   if (typeof valB === 'object' && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
-    if (valA instanceof Date) return false
+    if (valA instanceof Date && valB instanceof Date)
+      return valA.getTime() === valB.getTime()
+    if (valA instanceof RegExp && valB instanceof RegExp)
+      return eqRegExp(valA, valB)
     if (valA === null || valB === null) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
     for (const k of explicit) {
@@ -138,6 +141,18 @@ export function eq(
     return true
   }
   return false
+}
+
+/**
+ * A regular expression to test for a valid date string.
+ * @param x - A RegExp to compare.
+ * @param y - A RegExp to compare.
+ */
+export function eqRegExp(x: RegExp, y: RegExp): boolean {
+  return (
+    x.source === y.source &&
+    x.flags.split('').sort().join('') === y.flags.split('').sort().join('')
+  )
 }
 
 /**
@@ -794,7 +809,7 @@ export function spread<T>(obj: T, explicit: string[] = explicitKeys): T {
     // eslint-disable-next-line @typescript-eslint/ban-types
     return applyExplicit(
       obj as Record<PropertyKey, any> | any[],
-      spread as any,
+      spread as Record<PropertyKey, any>,
       explicit
     ) as unknown as T
   }

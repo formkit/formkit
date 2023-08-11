@@ -10,8 +10,12 @@ import { undefine } from '@formkit/utils'
  */
 export default function disables(node: FormKitNode): void {
   node.on('created', () => {
-    node.props.disabled = undefine(node.props.disabled)
-    node.config.disabled = undefine(node.props.disabled)
+    // If the disabled prop belongs to this *actual* node (not inherited), then
+    // perform an `undefine` on it, if not then we'll let the prop be inherited.
+    if ('disabled' in node.props) {
+      node.props.disabled = undefine(node.props.disabled)
+      node.config.disabled = undefine(node.props.disabled)
+    }
   })
   node.hook.prop(({ prop, value }, next) => {
     value = prop === 'disabled' ? undefine(value) : value

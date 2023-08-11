@@ -11,6 +11,7 @@ import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
+import { ConcreteComponent } from 'vue'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -190,7 +191,7 @@ describe('props', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             name: 'child',
             value: 'foobar',
           })
@@ -211,7 +212,7 @@ describe('props', () => {
       },
       slots: {
         default() {
-          return h(FormKit, {
+          return h(FormKit as ConcreteComponent, {
             name: 'child',
             value: 'foobar',
             ignore: true,
@@ -621,7 +622,7 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('form').trigger('submit')
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
@@ -1252,6 +1253,28 @@ describe('classes', () => {
     expect(wrapper.html()).toContain('class="foo-outer"')
   })
 
+  it('does not throw errors if rootClasses is false', () => {
+    expect(() =>
+      mount(FormKit, {
+        props: {
+          name: 'classTest',
+        },
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                config: {
+                  rootClasses: false,
+                },
+              }),
+            ],
+          ],
+        },
+      })
+    ).not.toThrow()
+  })
+
   it('does not throw errors if rootClasses returns undefined', () => {
     expect(() =>
       mount(FormKit, {
@@ -1880,11 +1903,12 @@ describe('exposures', () => {
       slots: {
         default() {
           return [
-            h(FormKit, {
+            h(FormKit as any, {
+              type: 'text',
               name: 'child',
               value: 'foobar',
             }),
-            h(FormKit, {
+            h(FormKit as any, {
               name: 'child2',
               value: 'barfoo',
             }),
@@ -2168,6 +2192,34 @@ describe('schema changed', () => {
     expect(wrapper.html()).toContain('Input A')
   })
 
+  it('compares against reset values when using dirty-behavior="compare" (#791)', async () => {
+    const wrapper = mount(
+      {
+        template: `<FormKit id="resetFormNode" type="form" dirty-behavior="compare" #default="{ state: { dirty }}">
+        <FormKit type="text" name="user" value="abc" :delay="0" />
+        <pre>{{ dirty}}</pre>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('input').setValue('def')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.find('pre').text()).toBe('true')
+    getNode('resetFormNode')?.reset({ user: 'ghi' })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
+    wrapper.find('input').setValue('abc')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('true')
+    wrapper.find('input').setValue('ghi')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('pre').text()).toBe('false')
+  })
+
   it('can use array syntax for validation rules (#852)', async () => {
     const wrapper = mount(
       {
@@ -2197,5 +2249,39 @@ describe('schema changed', () => {
     wrapper.find('input').setValue('fo')
     await new Promise((r) => setTimeout(r, 5))
     wrapper.find('input').setValue('foo')
+  })
+})
+
+describe('nested inputs', () => {
+  it('does not become dirty when inputs are inside nested components (#870)', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: '',
+          }
+        },
+        components: {
+          MyComponent: {
+            template: `
+              <FormKit type="text" name="myInput" />
+            `,
+          },
+        },
+        template: `
+          <FormKit type="form" #default="{ state }">
+            <MyComponent />
+            <pre>{{ state.dirty }}</pre>
+          </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 50))
+    expect(wrapper.find('pre').text()).toBe('false')
   })
 })
