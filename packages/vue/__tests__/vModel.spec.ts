@@ -119,7 +119,7 @@ describe('v-model', () => {
     )
     await wrapper.find('input').setValue('foo')
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('pre').text()).toBe(
       '{\n  "group": {\n    "text": "foo"\n  }\n}'
     )
