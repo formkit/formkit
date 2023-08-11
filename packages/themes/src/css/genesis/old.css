@@ -29,6 +29,8 @@
 }
 
 .formkit-outer[data-disabled] {
+  opacity: .5;
+
   &:not([data-type="checkbox"]):not([data-type="radio"]):not([data-type="range"]) {
     & .formkit-inner {
       background-color: var(--fk-color-disabled);
