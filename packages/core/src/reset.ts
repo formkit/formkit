@@ -58,7 +58,11 @@ export function reset(
     node.input(initial(node), false)
 
     // Set children back to basics in case they were additive (had their own value for example)
-    node.walk((child) => child.input(initial(child), false))
+    node.walk((child) => {
+      // Skip resetting synced lists to default.
+      if (child.type === 'list' && child.sync) return
+      child.input(initial(child), false)
+    })
     // Finally we need to lay any values back on top (if it is a group/list) since group values
     // take precedence over child values.
     node.input(

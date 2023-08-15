@@ -5,7 +5,7 @@ import { FormKitNode } from '@formkit/core'
 
 async function submit (data: unknown, node: FormKitNode) {
     await new Promise((r) => setTimeout(r, 5))
-    node.reset(data)
+    node.input(data, false)
   }
 </script>
 

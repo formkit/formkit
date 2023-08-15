@@ -293,7 +293,7 @@ describe('standard lists', () => {
     })
   })
 
-  it.only('can reset a synced list (#731)', async () => {
+  it('can reset a synced list (#731)', async () => {
     const submit = vi.fn(async (data: any, node: FormKitNode) => {
       await new Promise((r) => setTimeout(r, 5))
       node.reset(data)
