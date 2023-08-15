@@ -1,4 +1,4 @@
-import { FormKitMiddleware, getNode, reset } from '@formkit/core'
+import { FormKitMiddleware, getNode, reset, FormKitNode } from '@formkit/core'
 import defaultConfig from '../../src/defaultConfig'
 import { plugin } from '../../src/plugin'
 import { mount } from '@vue/test-utils'
@@ -291,5 +291,64 @@ describe('standard lists', () => {
     wrapper.findAll('input').forEach((input) => {
       expect(input.element.value).toBe('123')
     })
+  })
+
+  it.only('can reset a synced list (#731)', async () => {
+    const submit = vi.fn(async (data: any, node: FormKitNode) => {
+      await new Promise((r) => setTimeout(r, 5))
+      node.reset(data)
+    })
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            values: ['123', '123'],
+          }
+        },
+        methods: {
+          submit,
+        },
+        template: `
+        <FormKit
+          type="form"
+          @submit="submit"
+          :value="{ users: ['Foobar', 'Biz baz'] }"
+        >
+          <FormKit
+            type="list"
+            name="users"
+            dynamic
+            #default="{ items }"
+          >
+            <FormKit
+              v-for="(item, index) in items"
+              :key="item"
+              :index="index"
+              type="text"
+              name="name"
+            />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.findAll('input').length).toBe(2)
+    expect(async () => {
+      wrapper.find('form').trigger('submit')
+      await new Promise((r) => setTimeout(r, 40))
+      expect(submit).toBeCalledTimes(1)
+    }).not.toThrow()
+    await new Promise((r) => setTimeout(r, 40))
+    const values: string[] = []
+    wrapper
+      .findAll('input')
+      .forEach((input) => values.push(input.element.value))
+    expect(values).toEqual(['Foobar', 'Biz baz'])
   })
 })

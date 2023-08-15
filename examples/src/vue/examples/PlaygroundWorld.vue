@@ -1,29 +1,36 @@
 <script setup lang="ts">
+import { FormKitNode } from '@formkit/core'
 // ESM imports are supported from URLs (https://cdn...)
 // as well as secondary playground files (./OtherFile.vue).
 
-async function submit() {
-  console.log('submit')
-  await new Promise((resolve) => setTimeout(resolve, 3000))
-}
-
-async function log() {
-  console.log('click')
-}
+async function submit (data: unknown, node: FormKitNode) {
+    await new Promise((r) => setTimeout(r, 5))
+    node.reset(data)
+  }
 </script>
 
 <template>
-  <div data-loading="true">
-    <FormKit type="form" @submit="submit">
+  <FormKit
+    type="form"
+    :value="{ users: ['Foobar', 'Biz baz'] }"
+    @submit="submit"
+  >
+    <FormKit
+    v-slot="{ items, id }"
+    type="list"
+    name="users"
+    dynamic
+    >
+      {{ id }}
       <FormKit
+        v-for="(item, index) in items"
+        :key="item"
+        :index="index"
         type="text"
-        label="FormKit Input"
-        help="edit me to get started"
+        name="name"
       />
-      <FormKit type="submit" label="Submit" @click="log" />
-      <FormKit type="submit" label="Submit" disabled @click="log" />
     </FormKit>
-  </div>
+  </FormKit>
 </template>
 
 <style scoped>
