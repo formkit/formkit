@@ -1,6 +1,6 @@
 import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { FormKitSchemaNode } from '@formkit/core'
+import { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
@@ -1084,6 +1084,30 @@ describe('rendering components', () => {
     })
     await nextTick()
     expect(wrapper.findAll('.formkit-outer').length).toBe(2)
+  })
+
+  it('replaces the instance scope when re-parsing schema (#610)', async () => {
+    const schema: FormKitSchemaDOMNode[] = reactive([
+      {
+        $el: 'div',
+        for: ['item', 'index', '$items'],
+        children: ['$item', '$index'],
+      },
+    ])
+    const data = reactive({
+      items: ['a', 'b', 'c'],
+    })
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema,
+        data,
+      },
+    })
+    expect(wrapper.text()).toBe('a0b1c2')
+    ;(schema[0].children as string[]).splice(1, 0, '-')
+    await nextTick()
+    expect(wrapper.text()).toBe('a-0b-1c-2')
   })
 
   it('can use shorthand for $formkit', () => {
