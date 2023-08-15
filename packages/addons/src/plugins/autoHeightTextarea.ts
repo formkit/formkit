@@ -29,17 +29,45 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           )
           if (!(inputElement instanceof HTMLTextAreaElement)) return
 
-          calculateHeight()
+          const hiddenTextarea = inputElement.cloneNode(
+            false
+          ) as HTMLTextAreaElement
+          hiddenTextarea.setAttribute(
+            'style',
+            'height: 0; min-height: 0; position: absolute; padding-top: 0; padding-bottom: 0; display: block; pointer-events: none; opacity: 0;  left: -9999px;'
+          )
+          hiddenTextarea.removeAttribute('name')
+          hiddenTextarea.removeAttribute('id')
+          const isBorderBox =
+            getComputedStyle(inputElement).boxSizing === 'border-box'
+          const paddingY =
+            parseInt(getComputedStyle(inputElement).paddingTop) +
+            parseInt(getComputedStyle(inputElement).paddingBottom)
+          const paddingX =
+            parseInt(getComputedStyle(inputElement).paddingTop) +
+            parseInt(getComputedStyle(inputElement).paddingBottom)
 
-          function calculateHeight() {
+          inputElement.after(hiddenTextarea)
+          calculateHeight({ payload: node._value as string })
+
+          node.on('input', calculateHeight)
+
+          function calculateHeight({ payload }: { payload: string }) {
             if (!inputElement) return
-            let scrollHeight = (inputElement as HTMLElement).scrollHeight
-            inputElement?.setAttribute('style', `min-height: 0px`)
-            scrollHeight = (inputElement as HTMLElement).scrollHeight
-            const h = maxAutoHeight
-              ? Math.min(scrollHeight, maxAutoHeight)
-              : scrollHeight
-            inputElement?.setAttribute('style', `min-height: ${h}px`)
+            hiddenTextarea.value = payload
+
+            const width = isBorderBox
+              ? inputElement.offsetWidth
+              : inputElement.offsetWidth - paddingX
+            hiddenTextarea.style.width = `${width}px`
+
+            const scrollHeight = hiddenTextarea.scrollHeight
+            const height = isBorderBox ? scrollHeight + paddingY : scrollHeight
+            const h = maxAutoHeight ? Math.min(height, maxAutoHeight) : height
+            if (!inputElement.style.height) {
+              inputElement.style.height = `0px`
+            }
+            inputElement.style.minHeight = `${h}px`
           }
         },
         node.props.__root
