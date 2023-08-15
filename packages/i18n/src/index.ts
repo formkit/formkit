@@ -31,6 +31,7 @@ import * as ja from './locales/ja'
 import * as kk from './locales/kk'
 import * as ko from './locales/ko'
 import * as lt from './locales/lt'
+import * as lv from './locales/lv'
 import * as mn from './locales/mn'
 import * as nb from './locales/nb'
 import * as nl from './locales/nl'
@@ -42,6 +43,7 @@ import * as sk from './locales/sk'
 import * as sl from './locales/sl'
 import * as sr from './locales/sr'
 import * as sv from './locales/sv'
+import * as tet from './locales/tet'
 import * as tg from './locales/tg'
 import * as th from './locales/th'
 import * as tr from './locales/tr'
@@ -85,6 +87,7 @@ export const locales = {
   kk,
   ko,
   lt,
+  lv,
   nb,
   nl,
   pl,
@@ -95,6 +98,7 @@ export const locales = {
   sl,
   sr,
   sv,
+  tet,
   tg,
   th,
   tr,
@@ -134,6 +138,7 @@ export {
   kk,
   ko,
   lt,
+  lv,
   nb,
   nl,
   pl,
@@ -144,6 +149,7 @@ export {
   sl,
   sr,
   sv,
+  tet,
   tg,
   th,
   tr,
