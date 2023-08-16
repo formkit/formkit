@@ -1521,6 +1521,7 @@ describe('FormKitMessages', () => {
     await new Promise((r) => setTimeout(r, 25))
     expect(formNode.ledger.value('blocking')).toBe(0)
     wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
     expect(submitHandler).toHaveBeenCalledTimes(1)
   })
 })
