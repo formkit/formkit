@@ -1482,4 +1482,45 @@ describe('FormKitMessages', () => {
       getNode(`form-${id}`)
     )
   })
+
+  it.only('clears the blocking messages of children in unmounted groups (#892)', async () => {
+    const submitHandler = vi.fn()
+    const id = `a${token()}`
+    const wrapper = mount(
+      {
+        methods: {
+          submitHandler,
+        },
+        data() {
+          return {
+            showGroup: true,
+          }
+        },
+        template: `
+        <FormKit type="form" @submit="submitHandler" id="${id}">
+          <FormKit type="group" v-if="showGroup">
+            <FormKit type="text" name="name" validation="required" />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    const formNode = getNode(id)!
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(formNode.ledger.value('blocking')).toBe(1)
+    expect(submitHandler).not.toHaveBeenCalled()
+    wrapper.vm.showGroup = false
+    await new Promise((r) => setTimeout(r, 25))
+    expect(formNode.ledger.value('blocking')).toBe(0)
+    wrapper.find('form').trigger('submit')
+    expect(submitHandler).toHaveBeenCalledTimes(1)
+  })
 })

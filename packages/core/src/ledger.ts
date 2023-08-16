@@ -201,15 +201,16 @@ function merge(
   child: FormKitNode,
   remove = false
 ) {
+  const originalParent = parent
   for (const key in ledger) {
     const condition = ledger[key].condition
     if (!remove) child.ledger.count(key, condition)
     const increment = child.ledger.value(key) * (remove ? -1 : 1)
-
     if (!parent) continue
     do {
       parent.ledger.count(key, condition, increment)
       parent = parent.parent
     } while (parent)
+    parent = originalParent
   }
 }
