@@ -20,13 +20,13 @@ function changeProgramatically(node: FormKitNode) {
     @node="changeProgramatically"
   />
 
-  <!-- <FormKit
+  <FormKit
     type="textarea"
     label="I have an auto-height plugin with a max auto height of 200px"
     help="This textarea will grow as you type"
     auto-height
-    :max-auto-height="50"
+    :max-auto-height="300"
     :plugins="[createAutoHeightTextareaPlugin()]"
     :value="value"
-  /> -->
+  />
 </template>
