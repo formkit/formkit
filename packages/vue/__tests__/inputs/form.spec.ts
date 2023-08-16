@@ -1483,7 +1483,7 @@ describe('FormKitMessages', () => {
     )
   })
 
-  it.only('clears the blocking messages of children in unmounted groups (#892)', async () => {
+  it('clears the blocking messages of children in unmounted groups (#892)', async () => {
     const submitHandler = vi.fn()
     const id = `a${token()}`
     const wrapper = mount(
