@@ -1,7 +1,7 @@
 {
   "name": "@formkit/addons",
   "type": "module",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Optional features you can add to your FormKit inputs.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -38,9 +38,9 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "latest",
-    "@formkit/core": "0.18.0",
-    "@formkit/inputs": "0.18.0",
-    "@formkit/utils": "0.18.0"
+    "@formkit/core": "0.18.1",
+    "@formkit/inputs": "0.18.1",
+    "@formkit/utils": "0.18.1"
   },
   "devDependencies": {
     "@formkit/vue": "0.18.0"
