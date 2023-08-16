@@ -393,7 +393,7 @@ export interface FormKitFileSlots<Props extends FormKitInputs<Props>>
  */
 export type FormKitButtonSlots<Props extends FormKitInputs<Props>> = Omit<
   FormKitBaseSlots<Props>,
-  'input' | 'help'
+  'inner'
 > & {
   default: FormKitSlotData<Props>
 }
