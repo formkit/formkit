@@ -29,17 +29,68 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           )
           if (!(inputElement instanceof HTMLTextAreaElement)) return
 
-          calculateHeight()
+          if (!document.getElementById('formkit-auto-height-textarea-style')) {
+            const scrollbarStyle = document.createElement('style')
+            scrollbarStyle.setAttribute(
+              'id',
+              'formkit-auto-height-textarea-style'
+            )
+            scrollbarStyle.textContent = `.formkit-auto-height-textarea { scrollbar-width: none; } .formkit-auto-height-textarea::-webkit-scrollbar { display: none; }`
+            document.body.appendChild(scrollbarStyle)
+          }
 
-          function calculateHeight() {
+          const hiddenTextarea = inputElement.cloneNode(
+            false
+          ) as HTMLTextAreaElement
+          hiddenTextarea.classList.add('formkit-auto-height-textarea')
+          if (!maxAutoHeight) {
+            inputElement.classList.add('formkit-auto-height-textarea')
+          }
+
+          hiddenTextarea.setAttribute(
+            'style',
+            'height: 0; min-height: 0; pointer-events: none; opacity: 0;  left: -9999px; padding-top: 0; padding-bottom: 0; position: absolute; display: block; top: 0; z-index: -1; scrollbar-width: none;'
+          )
+          hiddenTextarea.removeAttribute('name')
+          hiddenTextarea.removeAttribute('id')
+          hiddenTextarea.removeAttribute('aria-describedby')
+          const isBorderBox =
+            getComputedStyle(inputElement).boxSizing === 'border-box'
+          const paddingY =
+            parseInt(getComputedStyle(inputElement).paddingTop) +
+            parseInt(getComputedStyle(inputElement).paddingBottom)
+
+          const paddingX =
+            parseInt(getComputedStyle(inputElement).paddingTop) +
+            parseInt(getComputedStyle(inputElement).paddingBottom)
+          let lastValue = node._value
+
+          inputElement.after(hiddenTextarea)
+          calculateHeight({ payload: node._value as string })
+
+          node.on('input', calculateHeight)
+          async function calculateHeight({ payload }: { payload: string }) {
+            lastValue = payload
             if (!inputElement) return
-            let scrollHeight = (inputElement as HTMLElement).scrollHeight
-            inputElement?.setAttribute('style', `min-height: 0px`)
-            scrollHeight = (inputElement as HTMLElement).scrollHeight
-            const h = maxAutoHeight
-              ? Math.min(scrollHeight, maxAutoHeight)
-              : scrollHeight
-            inputElement?.setAttribute('style', `min-height: ${h}px`)
+            await new Promise((r) => setTimeout(r, 10))
+
+            // If the current value is not the one we enqueued, just ignore.
+            if (lastValue !== payload) return
+
+            hiddenTextarea.value = payload
+
+            const width = isBorderBox
+              ? inputElement.offsetWidth
+              : inputElement.offsetWidth - paddingX
+            hiddenTextarea.style.width = `${width}px`
+
+            const scrollHeight = hiddenTextarea.scrollHeight
+            const height = isBorderBox ? scrollHeight + paddingY : scrollHeight
+            const h = maxAutoHeight ? Math.min(height, maxAutoHeight) : height
+            if (!inputElement.style.height) {
+              inputElement.style.height = `0px`
+            }
+            inputElement.style.minHeight = `${h}px`
           }
         },
         node.props.__root

@@ -879,6 +879,7 @@ export const FormKitSchema = defineComponent({
         (newSchema, oldSchema) => {
           const oldKey = instanceKey
           instanceKey = {}
+          instanceScopes.set(instanceKey, [])
           provider = parseSchema(props.library, props.schema, props.memoKey)
           render = createRenderFn(provider, data, instanceKey)
           if (newSchema === oldSchema) {

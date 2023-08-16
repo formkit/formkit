@@ -444,4 +444,36 @@ describe('synced lists', () => {
       })
     }).not.toThrow()
   })
+
+  it('can reset a form with synced lists (#731)', async () => {
+    const form = createNode({
+      type: 'group',
+      value: { users: ['A', 'B'] },
+    })
+    const list = createNode({
+      type: 'list',
+      name: 'users',
+      sync: true,
+      parent: form,
+    })
+    const childA = createNode({
+      type: 'input',
+      parent: list,
+      index: 0,
+    })
+    const childB = createNode({
+      type: 'input',
+      parent: list,
+      index: 1,
+    })
+    // Confirm the child nodes received the inherited values
+    expect(childA._value).toBe('A')
+    expect(childB._value).toBe('B')
+    // Confirm the placeholders were swapped with true nodes
+    expect(list.children).toEqual([childA, childB])
+    form.reset({ users: ['C', 'D'] })
+    expect(list.children).toEqual([childA, childB])
+    expect(childA.value).toBe('C')
+    expect(childB.value).toBe('D')
+  })
 })

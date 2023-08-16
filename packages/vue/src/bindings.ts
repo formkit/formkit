@@ -93,6 +93,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * The current visibility state of validation messages.
    */
   const validationVisible = computed<boolean>(() => {
+    if (!context.state) return false
     if (context.state.submitted) return true
     if (!hasShownErrors.value && !context.state.settled) {
       return false
@@ -113,7 +114,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Determines if the input should be considered "complete".
    */
   const isComplete = computed<boolean>(() => {
-    return hasValidation.value
+    return context && hasValidation.value
       ? isValid.value && !hasErrors.value
       : context.state.dirty && !empty(context.value)
   })
