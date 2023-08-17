@@ -70,8 +70,18 @@ declare module '@formkit/inputs' {
         Props,
         { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
       >
+      steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+      step: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
     }
-    steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
+    step: {
+      stepNext: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
+    }
   }
 }
 

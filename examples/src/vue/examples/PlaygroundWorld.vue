@@ -1,42 +1,24 @@
-<script setup lang="ts">
-import { FormKitNode } from '@formkit/core'
-// ESM imports are supported from URLs (https://cdn...)
-// as well as secondary playground files (./OtherFile.vue).
-
-async function submit (data: unknown, node: FormKitNode) {
-    await new Promise((r) => setTimeout(r, 5))
-    node.input(data, false)
-  }
-</script>
-
 <template>
-  <FormKit
-    type="form"
-    :value="{ users: ['Foobar', 'Biz baz'] }"
-    @submit="submit"
-  >
-    <FormKit
-    v-slot="{ items, id }"
-    type="list"
-    name="users"
-    dynamic
-    >
-      {{ id }}
-      <FormKit
-        v-for="(item, index) in items"
-        :key="item"
-        :index="index"
-        type="text"
-        name="name"
-      />
+  <FormKit type="form" :actions="false">
+    <FormKit type="multi-step" tab-style="tab">
+      <template #badge> </template>
+      <template #steps> </template>
+      <FormKit type="step" name="personalInfo">
+        <!-- component for example brevity. -->
+        <StepOne />
+      </FormKit>
+
+      <template #step> </template>
+
+      <FormKit type="step" name="Supplemental">
+        <!-- component for example brevity. -->
+        <StepThree />
+
+        <!-- using step slot for submit button-->
+        <template #stepNext="{ handlers }">
+          <FormKit type="submit" @click="handlers.incrementStep" />
+        </template>
+      </FormKit>
     </FormKit>
   </FormKit>
 </template>
-
-<style scoped>
-/*
-vanilla CSS can go here.
-Keep styles scoped to avoid multiple files
-overwriting each other in the render output.
-*/
-</style>
