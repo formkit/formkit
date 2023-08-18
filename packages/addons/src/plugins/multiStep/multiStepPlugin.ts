@@ -8,6 +8,8 @@ import {
 import { whenAvailable } from '@formkit/utils'
 import { multiStep, step } from './schema'
 
+/* <declare> */
+
 /**
  * Extend FormKitNode with Multi-step helper functions.
  */
@@ -18,7 +20,9 @@ declare module '@formkit/core' {
     goTo(step: number | string): void
   }
 }
+/* </declare> */
 
+/* <declare> */
 declare module '@formkit/inputs' {
   interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     'multi-step': {
@@ -84,6 +88,8 @@ declare module '@formkit/inputs' {
     }
   }
 }
+
+/* </declare> */
 
 const isBrowser = typeof window !== 'undefined'
 

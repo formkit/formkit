@@ -22,6 +22,7 @@ import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
 import { remove, move } from 'fs-extra'
+import { readFileSync } from 'fs'
 import {
   getPackages,
   getThemes,
@@ -33,7 +34,13 @@ import {
 } from './utils.mjs'
 import { exec } from 'child_process'
 
-const augmentations = {
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const rootDir = resolve(__dirname, '../')
+const packagesDir = resolve(__dirname, '../packages')
+const rollup = `${rootDir}/node_modules/.bin/rollup`
+
+let augmentations = {
   vue: `
 /**
  * Augment Vue’s globalProperties.
@@ -60,91 +67,29 @@ declare module '@formkit/core' {
   }
 }
 `,
-  addons: `
-/**
- * Extend FormKitNode with supporting multi-step methods.
- * @public
- */
-declare module '@formkit/core' {
-  interface FormKitNodeExtensions {
-    next(): void
-    previous(): void
-    goTo(step: number | string): void
-  }
-}
-declare module '@formkit/inputs' {
-  interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-    'multi-step': {
-      type: 'multi-step'
-      value?: Record<string, any>
-      allowIncomplete?: boolean
-      tabStyle?: 'tab' | 'progress'
-      hideProgressLabels?: boolean
-      validStepIcon?: string
-      beforeStepChange?: (
-        currentStep: FormKitFrameworkContext,
-        nextStep: FormKitFrameworkContext,
-        delta: number
-      ) => any
-    }
-    step: {
-      type: 'step'
-      previousLabel?: string
-      nextLabel?: string
-      previousAttrs?: Record<string, any>
-      nextAttrs?: Record<string, any>
-      validStepIcon?: string
-      beforeStepChange?: (
-        currentStep: FormKitFrameworkContext,
-        nextStep: FormKitFrameworkContext,
-        delta: number
-      ) => any
-    }
-  }
-
-  interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
-    'multi-step': {
-      multiStepOuter: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[] }
-      >
-      wrapper: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tabs: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tab: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tabLabel: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      badge: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      validStepIcon: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      step: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-    }
-    step: {
-      stepNext: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-    }
-  }
-}
-`,
+  addons: ``,
 }
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-const rootDir = resolve(__dirname, '../')
-const packagesDir = resolve(__dirname, '../packages')
-const rollup = `${rootDir}/node_modules/.bin/rollup`
+// For Multi-step plugin
+const multiStepFile = readFileSync(
+  resolve(
+    rootDir,
+    'packages/addons/src/plugins/multiStep',
+    'multiStepPlugin.ts'
+  ),
+  'utf8'
+)
+const matches = multiStepFile.match(
+  /\/\* <declare> \*\/(.*?)\/\* <\/declare> \*\//gmsu
+)
+if (matches.length !== 2) {
+  error(
+    `Could not find augmentations, should have found 2 but found ${matches.length}.`
+  )
+  process.exit()
+} else {
+  augmentations.addons = matches.join('\n')
+}
 
 /**
  * Prompt a user to select a package.
