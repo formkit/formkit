@@ -88,7 +88,7 @@ if (matches.length !== 2) {
   )
   process.exit()
 } else {
-  augmentations.addons = matches.join('\n')
+  augmentations.addons = matches.join('\n').replaceAll('/* @ts-ignore */', '')
 }
 
 /**

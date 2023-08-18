@@ -25,6 +25,7 @@ declare module '@formkit/core' {
 /* <declare> */
 declare module '@formkit/inputs' {
   interface FormKitInputProps<Props extends FormKitInputs<Props>> {
+    /* @ts-ignore */
     'multi-step': {
       type: 'multi-step'
       value?: Record<string, any>
@@ -38,6 +39,7 @@ declare module '@formkit/inputs' {
         delta: number
       ) => any
     }
+    /* @ts-ignore */
     step: {
       type: 'step'
       previousLabel?: string
@@ -54,6 +56,7 @@ declare module '@formkit/inputs' {
   }
 
   interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
+    /* @ts-ignore */
     'multi-step': {
       multiStepOuter: FormKitSlotData<
         Props,
@@ -64,24 +67,45 @@ declare module '@formkit/inputs' {
       tab: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
       tabLabel: FormKitSlotData<
         Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+        {
+          steps: FormKitFrameworkContext[]
+          step: FormKitFrameworkContext
+          index: number
+        }
       >
       badge: FormKitSlotData<
         Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+        {
+          steps: FormKitFrameworkContext[]
+          step: FormKitFrameworkContext
+          index: number
+        }
       >
-      validStepIcon: FormKitSlotData<
+      stepIcon: FormKitSlotData<
         Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+        {
+          steps: FormKitFrameworkContext[]
+          step: FormKitFrameworkContext
+          index: number
+        }
       >
       steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      step: FormKitSlotData<
+    }
+    /* @ts-ignore */
+    step: {
+      stepInner: FormKitSlotData<
         Props,
         { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
       >
-    }
-    step: {
+      stepActions: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
       stepNext: FormKitSlotData<
+        Props,
+        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
+      >
+      stepPrevious: FormKitSlotData<
         Props,
         { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
       >
