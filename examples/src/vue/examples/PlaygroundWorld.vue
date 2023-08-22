@@ -15,8 +15,11 @@
         <StepThree />
 
         <!-- using step slot for submit button-->
-        <template #stepNext="{ handlers }">
-          <FormKit type="submit" @click="handlers.incrementStep" />
+        <template #stepNext="{ handlers, node }">
+          <FormKit
+            type="submit"
+            @click="handlers.incrementStep(1, node.context)()"
+          />
         </template>
       </FormKit>
     </FormKit>

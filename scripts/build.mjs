@@ -34,6 +34,11 @@ import {
 } from './utils.mjs'
 import { exec } from 'child_process'
 
+const info = (m) => console.log(chalk.blue(m))
+const error = (m) => console.log(chalk.red(m))
+const success = (m) => console.log(chalk.green(m))
+const details = (m) => console.log(chalk.yellow(m))
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const rootDir = resolve(__dirname, '../')
