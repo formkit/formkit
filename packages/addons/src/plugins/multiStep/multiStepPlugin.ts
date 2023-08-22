@@ -26,7 +26,6 @@ declare module '@formkit/core' {
 /* <declare> */
 declare module '@formkit/inputs' {
   interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-    /* @ts-ignore */
     'multi-step': {
       type: 'multi-step'
       value?: Record<string, any>
@@ -40,7 +39,7 @@ declare module '@formkit/inputs' {
         delta: number
       ) => any
     }
-    /* @ts-ignore */
+
     step: {
       type: 'step'
       previousLabel?: string
@@ -57,21 +56,19 @@ declare module '@formkit/inputs' {
   }
 
   interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
-    /* @ts-ignore */
     'multi-step': FormKitMultiStepSlots<Props>
     step: FormKitStepSlots<Props>
   }
 }
 
 export interface MultiStepSlotData {
-  /* @ts-ignore */
   steps: FormKitFrameworkContext[]
 }
 
 export interface StepSlotData {
-  /* @ts-ignore */
   step: FormKitFrameworkContext
   index: number
+  node: FormKitNode & { context: FormKitFrameworkContextWithSteps }
   handlers: FormKitFrameworkContext['handlers'] & {
     incrementStep: (
       delta: number,
@@ -81,7 +78,6 @@ export interface StepSlotData {
 }
 
 export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
-  /* @ts-ignore */
   multiStepOuter: FormKitSlotData<Props, MultiStepSlotData>
   wrapper: FormKitSlotData<Props, MultiStepSlotData>
   tabs: FormKitSlotData<Props, MultiStepSlotData>
@@ -94,7 +90,6 @@ export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
 }
 
 export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
-  /* @ts-ignore */
   stepInner: FormKitSlotData<Props, StepSlotData>
   stepActions: FormKitSlotData<Props, StepSlotData>
   stepNext: FormKitSlotData<Props, StepSlotData>
