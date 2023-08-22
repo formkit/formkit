@@ -6,6 +6,7 @@ import {
   isPlaceholder,
 } from '@formkit/core'
 import { whenAvailable } from '@formkit/utils'
+import type { FormKitSlotData, FormKitInputs } from '@formkit/inputs'
 import { multiStep, step } from './schema'
 
 /* <declare> */
@@ -25,7 +26,6 @@ declare module '@formkit/core' {
 /* <declare> */
 declare module '@formkit/inputs' {
   interface FormKitInputProps<Props extends FormKitInputs<Props>> {
-    /* @ts-ignore */
     'multi-step': {
       type: 'multi-step'
       value?: Record<string, any>
@@ -39,7 +39,7 @@ declare module '@formkit/inputs' {
         delta: number
       ) => any
     }
-    /* @ts-ignore */
+
     step: {
       type: 'step'
       previousLabel?: string
@@ -56,61 +56,44 @@ declare module '@formkit/inputs' {
   }
 
   interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
-    /* @ts-ignore */
-    'multi-step': {
-      multiStepOuter: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[] }
-      >
-      wrapper: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tabs: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tab: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-      tabLabel: FormKitSlotData<
-        Props,
-        {
-          steps: FormKitFrameworkContext[]
-          step: FormKitFrameworkContext
-          index: number
-        }
-      >
-      badge: FormKitSlotData<
-        Props,
-        {
-          steps: FormKitFrameworkContext[]
-          step: FormKitFrameworkContext
-          index: number
-        }
-      >
-      stepIcon: FormKitSlotData<
-        Props,
-        {
-          steps: FormKitFrameworkContext[]
-          step: FormKitFrameworkContext
-          index: number
-        }
-      >
-      steps: FormKitSlotData<Props, { steps: FormKitFrameworkContext[] }>
-    }
-    /* @ts-ignore */
-    step: {
-      stepInner: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      stepActions: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      stepNext: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-      stepPrevious: FormKitSlotData<
-        Props,
-        { steps: FormKitFrameworkContext[]; step: FormKitFrameworkContext }
-      >
-    }
+    'multi-step': FormKitMultiStepSlots<Props>
+    step: FormKitStepSlots<Props>
   }
+}
+
+export interface MultiStepSlotData {
+  steps: FormKitFrameworkContext[]
+}
+
+export interface StepSlotData {
+  step: FormKitFrameworkContext
+  index: number
+  node: FormKitNode & { context: FormKitFrameworkContextWithSteps }
+  handlers: FormKitFrameworkContext['handlers'] & {
+    incrementStep: (
+      delta: number,
+      currentStep: FormKitFrameworkContext | undefined
+    ) => () => void
+  }
+}
+
+export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
+  multiStepOuter: FormKitSlotData<Props, MultiStepSlotData>
+  wrapper: FormKitSlotData<Props, MultiStepSlotData>
+  tabs: FormKitSlotData<Props, MultiStepSlotData>
+  tab: FormKitSlotData<Props, MultiStepSlotData>
+  tabLabel: FormKitSlotData<Props, MultiStepSlotData>
+  badge: FormKitSlotData<Props, MultiStepSlotData>
+  stepIcon: FormKitStepSlots<Props>
+  steps: FormKitSlotData<Props, MultiStepSlotData>
+  default: FormKitSlotData<Props, MultiStepSlotData>
+}
+
+export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
+  stepInner: FormKitSlotData<Props, StepSlotData>
+  stepActions: FormKitSlotData<Props, StepSlotData>
+  stepNext: FormKitSlotData<Props, StepSlotData>
+  stepPrevious: FormKitSlotData<Props, StepSlotData>
 }
 
 /* </declare> */
@@ -129,10 +112,12 @@ export interface MultiStepOptions {
   tabStyle?: 'tab' | 'progress'
 }
 
-type FormKitFrameworkContextWithSteps = FormKitFrameworkContext & {
-  steps: FormKitFrameworkContext[]
-  stepIndex: number
-}
+type FormKitFrameworkContextWithSteps =
+  | (FormKitFrameworkContext & {
+      steps: FormKitFrameworkContext[]
+      stepIndex: number
+    })
+  | undefined
 
 /**
  * Coverts a camelCase string to a title case string
