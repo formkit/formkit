@@ -86,7 +86,7 @@ export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
   badge: FormKitSlotData<Props, MultiStepSlotData>
   stepIcon: FormKitStepSlots<Props>
   steps: FormKitSlotData<Props, MultiStepSlotData>
-  step: FormKitStepSlots<Props>
+  default: FormKitSlotData<Props, MultiStepSlotData>
 }
 
 export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
