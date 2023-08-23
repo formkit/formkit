@@ -17,9 +17,9 @@ describe('describe file input types', () => {
 
   it('does not allow a string as a value', () => {
     assertType(
+      // @ts-expect-error - value cannot be a string if options are numbers
       <FormKit
         type="select"
-        // @ts-expect-error - value cannot be a string if options are numbers
         value="1"
         options={[
           { label: 'A', value: 1 },
