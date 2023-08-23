@@ -359,7 +359,7 @@ export const validation: FormKitValidationMessages = {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
       return `${s(
         name
-      )} moet ${max} of minder tekens bevatten.`
+      )} mag maximaal ${max} tekens lang zijn.`
       /* </i18n> */
     }
     if (min === max) {
@@ -369,11 +369,11 @@ export const validation: FormKitValidationMessages = {
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} moet ${min} of meer tekens bevatten.`
+      return `${s(name)} moet minimaal ${min} tekens lang zijn.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
-    return `${s(name)} moet tussen de ${min} en ${max} tekens bevatten.`
+    return `${s(name)} moet tussen de ${min} en ${max} tekens zijn.`
     /* </i18n> */
   },
 
