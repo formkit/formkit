@@ -33,25 +33,25 @@ declare module '@formkit/inputs' {
       tabStyle?: 'tab' | 'progress'
       hideProgressLabels?: boolean
       validStepIcon?: string
-      beforeStepChange?: (
-        currentStep: FormKitFrameworkContext,
-        nextStep: FormKitFrameworkContext,
+      beforeStepChange?: (data: {
+        currentStep: FormKitFrameworkContext
+        nextStep: FormKitFrameworkContext
         delta: number
-      ) => any
+      }) => any
     }
-
     step: {
-      type: 'step'
-      previousLabel?: string
+      beforeStepChange?: (data: {
+        currentStep: FormKitFrameworkContext
+        nextStep: FormKitFrameworkContext
+        delta: number
+      }) => any
+      nextAttrs?: Record<string, any>
       nextLabel?: string
       previousAttrs?: Record<string, any>
-      nextAttrs?: Record<string, any>
+      previousLabel?: string
+      type: 'step'
       validStepIcon?: string
-      beforeStepChange?: (
-        currentStep: FormKitFrameworkContext,
-        nextStep: FormKitFrameworkContext,
-        delta: number
-      ) => any
+      value?: Record<string, any>
     }
   }
 
@@ -61,19 +61,64 @@ declare module '@formkit/inputs' {
   }
 }
 
-export interface MultiStepSlotData {
-  steps: FormKitFrameworkContext[]
+export type FormKitMultiStepNode = FormKitNode & MultiStepNodeAdditions
+export interface MultiStepNodeAdditions {
+  next: () => void
+  previous: () => void
+  goTo: (target: number | string) => void
 }
 
-export interface StepSlotData {
-  step: FormKitFrameworkContext
-  index: number
-  node: FormKitNode & { context: FormKitFrameworkContextWithSteps }
+export interface MultiStepSlotData {
+  steps: Array<FormKitFrameworkContext<Record<string, any>> & StepSlotData>
+  allowIncomplete?: boolean
+  tabStyle: 'tab' | 'progress'
+  hideProgressLabels: boolean
+  validStepIcon: string | undefined
+  activeStep: string
+  beforeStepChange?: (data: {
+    currentStep: FormKitFrameworkContext
+    nextStep: FormKitFrameworkContext
+    delta: number
+  }) => any
+  node: FormKitMultiStepNode
   handlers: FormKitFrameworkContext['handlers'] & {
     incrementStep: (
       delta: number,
       currentStep: FormKitFrameworkContext | undefined
     ) => () => void
+    triggerStepValidations: (step: FormKitFrameworkContext) => void
+    showStepErrors: (step: FormKitFrameworkContext) => boolean | undefined
+    setActiveStep: (step: FormKitFrameworkContext) => (e?: Event) => void
+  }
+}
+
+export interface StepSlotData {
+  beforeStepChange?: (data: {
+    currentStep: FormKitFrameworkContext
+    nextStep: FormKitFrameworkContext
+    delta: number
+  }) => any
+  makeActive: () => void
+  blockingCount: number
+  errorCount: number
+  hasBeenVisited: true | undefined
+  isActiveStep: boolean
+  isFirstStep: boolean
+  isLastStep: boolean
+  isValid: boolean
+  nextAttrs?: Record<string, any>
+  nextLabel?: string
+  ordered: boolean
+  previousAttrs?: Record<string, any>
+  previousLabel?: string
+  showStepErrors: boolean
+  stepName: string
+  totalErrorCount: number
+  validStepIcon?: string
+  handlers: FormKitFrameworkContext['handlers'] & {
+    incrementStep: (delta: number) => () => void
+    next: () => void
+    previous: () => void
   }
 }
 
@@ -82,9 +127,27 @@ export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
   wrapper: FormKitSlotData<Props, MultiStepSlotData>
   tabs: FormKitSlotData<Props, MultiStepSlotData>
   tab: FormKitSlotData<Props, MultiStepSlotData>
-  tabLabel: FormKitSlotData<Props, MultiStepSlotData>
-  badge: FormKitSlotData<Props, MultiStepSlotData>
-  stepIcon: FormKitStepSlots<Props>
+  tabLabel: FormKitSlotData<
+    Props,
+    MultiStepSlotData & {
+      step: FormKitFrameworkContext
+      index: number
+    }
+  >
+  badge: FormKitSlotData<
+    Props,
+    MultiStepSlotData & {
+      step: FormKitFrameworkContext
+      index: number
+    }
+  >
+  validStepIcon: FormKitSlotData<
+    Props,
+    MultiStepSlotData & {
+      step: FormKitFrameworkContext
+      index: number
+    }
+  >
   steps: FormKitSlotData<Props, MultiStepSlotData>
   default: FormKitSlotData<Props, MultiStepSlotData>
 }
@@ -94,6 +157,7 @@ export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
   stepActions: FormKitSlotData<Props, StepSlotData>
   stepNext: FormKitSlotData<Props, StepSlotData>
   stepPrevious: FormKitSlotData<Props, StepSlotData>
+  default: FormKitSlotData<Props, StepSlotData>
 }
 
 /* </declare> */
@@ -112,12 +176,12 @@ export interface MultiStepOptions {
   tabStyle?: 'tab' | 'progress'
 }
 
-type FormKitFrameworkContextWithSteps =
-  | (FormKitFrameworkContext & {
-      steps: FormKitFrameworkContext[]
-      stepIndex: number
-    })
-  | undefined
+//type FormKitFrameworkContextWithSteps =
+//  | (FormKitFrameworkContext & {
+//      steps: FormKitFrameworkContext[]
+//      stepIndex: number
+//    })
+//  | undefined
 
 /**
  * Coverts a camelCase string to a title case string
@@ -276,12 +340,12 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
  */
 async function incrementStep(
   delta: number,
-  currentStep: FormKitFrameworkContextWithSteps
+  currentStep: FormKitFrameworkContext
 ) {
   if (currentStep && currentStep.node.name && currentStep.node.parent) {
     const steps = currentStep.node.parent.props.steps
     const stepIndex = currentStep.stepIndex
-    const targetStep = steps[stepIndex + delta]
+    const targetStep = steps[(stepIndex as number) + delta]
     if (!targetStep) return
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
@@ -326,10 +390,7 @@ function initEvents(node: FormKitNode, el: Element) {
           (step) => !isPlaceholder(step) && step.name === node.props.activeStep
         ) as FormKitNode | undefined
         if (activeStepContext && activeStepContext.context) {
-          incrementStep(
-            1,
-            activeStepContext.context as FormKitFrameworkContextWithSteps
-          )
+          incrementStep(1, activeStepContext.context)
         }
       }
     }
@@ -516,8 +577,7 @@ export function createMultiStepPlugin(
             : ''
         }
       })
-    }
-    if (
+    } else if (
       node.props.type === 'step' &&
       node.parent?.props.type === 'multi-step'
     ) {
@@ -555,17 +615,21 @@ export function createMultiStepPlugin(
         parentNode.context.handlers.setActiveStep = (
           stepNode: FormKitFrameworkContext
         ) => setActiveStep.bind(null, stepNode)
-        node.context.handlers.incrementStep = (
-          delta: number,
-          stepNode: FormKitFrameworkContextWithSteps
-        ) => incrementStep.bind(null, delta, stepNode)
+
+        //node.context.handlers.incrementStep = (
+        //  delta: number,
+        //  stepNode: FormKitFrameworkContextWithSteps
+        //) => incrementStep.bind(null, delta, stepNode)
+        node.context.handlers.incrementStep = (delta: number) => () =>
+          incrementStep(delta, node.context!)
         node.context.makeActive = () => {
           setActiveStep(node.context as FormKitFrameworkContext)
         }
+
         node.context.handlers.next = () =>
-          incrementStep(1, node.context as FormKitFrameworkContextWithSteps)
+          incrementStep(1, node.context as FormKitFrameworkContext)
         node.context.handlers.previous = () =>
-          incrementStep(-1, node.context as FormKitFrameworkContextWithSteps)
+          incrementStep(-1, node.context as FormKitFrameworkContext)
       }
 
       node.on('count:errors', ({ payload: count }) => {

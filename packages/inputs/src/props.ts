@@ -98,6 +98,7 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     dynamic?: boolean | 'true' | 'false'
     sync?: boolean | 'true' | 'false'
   }
+  meta: { type: 'meta'; value?: any }
   month: { type: 'month'; value?: string }
   number: { type: 'number'; value?: string }
   password: { type: 'password'; value?: string }
@@ -223,6 +224,10 @@ export type PropType<
   { type: Props['type'] extends string ? Props['type'] : 'text' }
 >[T]
 
+/**
+ * The proper shape of data to be passed to options prop.
+ * @public
+ */
 export type FormKitOptionsValue<Options> = Options extends FormKitOptionsProp
   ? Options extends Record<infer T, string>
     ? T
@@ -250,7 +255,7 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  * In a perfect world this interface would not be required at all. However, Vue
  * expects the interfaces to be defined as method overloads. Unfortunately since
  * our events interface uses generics UnionToIntersection is not able to be used
- * meaning that we loose event data if we store the events as a standard
+ * meaning that we lose event data if we store the events as a standard
  * interface with property keys. The only way we have found to reliably get
  * Volar (as of June 2023) to properly recognize all defined events is to use
  * a the "standard" method overload approach (see FormKitBaseEvents).
@@ -265,6 +270,8 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  * This interface is used to manually patch that gap in the type system. These
  * types should match up 1-1 with the events defined in FormKitBaseEvents as
  * well as FormKitInputEvents.
+ *
+ * @public
  */
 export interface FormKitEventsAsProps {
   onInput: (value: unknown, node: FormKitNode) => any
@@ -434,6 +441,7 @@ export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
     : FormKitBaseSlots<Props>
   list: { default: FormKitSlotData<Props> }
   hidden: { input: FormKitSlotData<Props> }
+  meta: { wrapper: FormKitSlotData<Props> }
   group: { default: FormKitSlotData<Props> }
   form: {
     form: FormKitSlotData<Props>

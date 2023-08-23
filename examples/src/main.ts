@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { plugin, defaultConfig, createInput } from '@formkit/vue'
 import { de, fr, tr } from '@formkit/i18n'
-import { createMultiStepPlugin } from '@formkit/addons'
+import { createMultiStepPlugin } from '../../packages/addons/src/plugins/multiStep/multiStepPlugin'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'

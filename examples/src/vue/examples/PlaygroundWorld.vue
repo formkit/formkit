@@ -1,6 +1,13 @@
+<script setup lang="ts">
+import type { FormKitNode } from '@formkit/core'
+
+function setNode(node: FormKitNode) {
+  console.log(node.next)
+}
+</script>
 <template>
   <FormKit type="form" :actions="false">
-    <FormKit type="multi-step" tab-style="tab">
+    <FormKit type="multi-step" tab-style="tab" @node="setNode">
       <template #badge> </template>
       <template #steps> </template>
       <template #default>
@@ -14,15 +21,11 @@
           <StepThree />
 
           <!-- using step slot for submit button-->
-          <template #stepNext="{ handlers, node }">
-            <FormKit
-              type="submit"
-              @click="handlers.incrementStep(1, node.context)()"
-            />
+          <template #stepNext="{ handlers }">
+            <FormKit type="submit" @click="handlers.incrementStep(1)()" />
           </template>
         </FormKit>
       </template>
     </FormKit>
-
   </FormKit>
 </template>
