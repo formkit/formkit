@@ -170,18 +170,10 @@ const isBrowser = typeof window !== 'undefined'
  * @public
  */
 export interface MultiStepOptions {
-  // flattenValues?: boolean
   allowIncomplete?: boolean
   hideProgressLabels?: boolean
   tabStyle?: 'tab' | 'progress'
 }
-
-//type FormKitFrameworkContextWithSteps =
-//  | (FormKitFrameworkContext & {
-//      steps: FormKitFrameworkContext[]
-//      stepIndex: number
-//    })
-//  | undefined
 
 /**
  * Coverts a camelCase string to a title case string
@@ -616,12 +608,9 @@ export function createMultiStepPlugin(
           stepNode: FormKitFrameworkContext
         ) => setActiveStep.bind(null, stepNode)
 
-        //node.context.handlers.incrementStep = (
-        //  delta: number,
-        //  stepNode: FormKitFrameworkContextWithSteps
-        //) => incrementStep.bind(null, delta, stepNode)
         node.context.handlers.incrementStep = (delta: number) => () =>
           incrementStep(delta, node.context!)
+
         node.context.makeActive = () => {
           setActiveStep(node.context as FormKitFrameworkContext)
         }
