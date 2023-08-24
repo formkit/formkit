@@ -191,3 +191,93 @@ describe('text classification', () => {
     expect(wrapper.find('input').element.value).toBe('')
   })
 })
+
+describe('the number feature', () => {
+  it('casts initial values to numbers', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        number: true,
+        value: '123',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(123)
+  })
+  it('allows strings to be used when they do not cast to numbers', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        number: true,
+        value: 'abc',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe('abc')
+  })
+  it('forces initial values to undefined on a number input', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: true,
+        value: 'abc',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(undefined)
+  })
+  it('forces initial values to a float on a number input by default', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: true,
+        value: '123.123',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(123.123)
+  })
+  it('forces initial values to an integer on a number input', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: 'integer',
+        value: '123.123',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(123)
+  })
+  it('forces initial values to an integer on a number input', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        number: 'integer',
+        delay: 0,
+      },
+      ...global,
+    })
+    await nextTick()
+    wrapper.find('input').setValue('12345.22abcdef')
+    await new Promise((r) => setTimeout(r, 10))
+    const node = getNode(id)!
+    expect(node.value).toBe(12345)
+  })
+})

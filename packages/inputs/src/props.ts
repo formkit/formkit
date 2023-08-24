@@ -22,6 +22,7 @@ export interface FormKitConditionalProps {
   onValue: undefined
   offValue: undefined
   options: undefined
+  number: undefined
 }
 
 /**
@@ -91,7 +92,11 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
     incompleteMessage?: false | string
   }
   group: { type: 'group'; value?: FormKitGroupValue }
-  hidden: { type: 'hidden'; value?: string }
+  hidden: {
+    type: 'hidden'
+    value?: Props['number'] extends AllReals ? number : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
   list: {
     type: 'list'
     value?: unknown[]
@@ -100,23 +105,43 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   meta: { type: 'meta'; value?: any }
   month: { type: 'month'; value?: string }
-  number: { type: 'number'; value?: string }
+  number: {
+    type: 'number'
+    value?: Props['number'] extends AllReals ? number : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
   password: { type: 'password'; value?: string }
   radio: {
     type: 'radio'
     options: FormKitOptionsProp
     value?: FormKitOptionsValue<Props['options']>
   }
-  range: { type: 'range'; value?: string }
-  search: { type: 'search'; value?: string }
+  range: {
+    type: 'range'
+    value?: Props['number'] extends AllReals ? number : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
+  search: {
+    type: 'search'
+    value?: Props['number'] extends AllReals ? number | string : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
   select: {
     type: 'select'
     options?: FormKitOptionsProp
     value?: FormKitOptionsValue<Props['options']>
   }
   submit: { type: 'submit'; value?: string }
-  tel: { type: 'tel'; value?: string }
-  text: { type: 'text'; value?: string }
+  tel: {
+    type: 'tel'
+    value?: Props['number'] extends AllReals ? number | string : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
+  text: {
+    type: 'text'
+    value?: Props['number'] extends AllReals ? number | string : string
+    number?: 'integer' | 'float' | 'true' | true
+  }
   textarea: { type: 'textarea'; value?: string }
   time: { type: 'time'; value?: string }
   url: { type: 'url'; value?: string }
@@ -645,6 +670,7 @@ export const runtimeProps = [
   'modelValue',
   'onUpdate:modelValue',
   'name',
+  'number',
   'parent',
   'plugins',
   'sectionsSchema',

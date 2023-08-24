@@ -11,6 +11,7 @@ import {
   prefix,
   suffix,
   textInput,
+  casts,
 } from '../compose'
 
 /**
@@ -51,7 +52,7 @@ export const text: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [casts],
   /**
    * The key used to memoize the schema.
    */

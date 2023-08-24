@@ -39,4 +39,12 @@ describe('describe text input types', () => {
     assertType(<FormKit type="text" onInput={(value: string) => value} />)
     assertType(<FormKit type="text" onInput={(value: unknown) => value} />)
   })
+
+  it('changes its value type when the number prop is applied', () => {
+    assertType(<FormKit type="text" number value="string" />)
+    assertType(<FormKit type="text" number value={123431} />)
+    assertType(<FormKit type="text" number value={undefined} />)
+    // @ts-expect-error - value cannot be a boolean
+    assertType(<FormKit type="text" number value={true} />)
+  })
 })

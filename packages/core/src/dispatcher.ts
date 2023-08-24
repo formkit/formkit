@@ -7,7 +7,7 @@
  */
 export type FormKitMiddleware<T = unknown> = (
   payload: T,
-  next: (payload?: T) => T
+  next: (payload: T) => T
 ) => T
 
 /**
@@ -37,11 +37,9 @@ export default function createDispatcher<T>(): FormKitDispatcher<T> {
   const dispatch = (payload: T): T => {
     const current = middleware[currentIndex]
     if (typeof current === 'function') {
-      return current(payload, (explicitPayload?: T) => {
+      return current(payload, (explicitPayload: T) => {
         currentIndex++
-        return dispatch(
-          explicitPayload === undefined ? payload : explicitPayload
-        )
+        return dispatch(explicitPayload)
       })
     }
     currentIndex = 0

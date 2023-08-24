@@ -6,7 +6,7 @@ describe('dispatcher', () => {
     const dispatcher = createDispatcher<{ value: number }>()
     dispatcher(function (payload, next) {
       payload.value += 5
-      return next()
+      return next(payload)
     })
     expect(dispatcher.dispatch({ value: 123 })).toEqual({ value: 128 })
   })
@@ -15,17 +15,17 @@ describe('dispatcher', () => {
     const dispatcher = createDispatcher<{ value: number }>()
     dispatcher(function (payload, next) {
       payload.value = payload.value / 5
-      return next()
+      return next(payload)
     })
     dispatcher(function (payload, next) {
       payload.value -= 2
-      const after = next()
+      const after = next(payload)
       after.value += 2
       return after
     })
     dispatcher(function (payload, next) {
       payload.value += 5
-      return next()
+      return next(payload)
     })
     // (20 / 5) - 2 + 5 + 2 = 9
     expect(dispatcher.dispatch({ value: 20 })).toEqual({ value: 9 })
