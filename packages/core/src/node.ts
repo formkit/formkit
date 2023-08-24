@@ -440,7 +440,7 @@ export interface FormKitFrameworkContext<T = any> {
    * Event handlers.
    */
   handlers: {
-    blur: () => void
+    blur: (e?: FocusEvent) => void
     touch: () => void
     DOMInput: (e: Event) => void
   } & Record<string, (...args: any[]) => void>
