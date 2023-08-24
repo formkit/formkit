@@ -210,7 +210,7 @@ importers:
   e2e:
     dependencies:
       '@formkit/vue':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/vue
 
   examples:
@@ -219,25 +219,25 @@ importers:
         specifier: ^3.1.1
         version: 3.1.2
       '@formkit/addons':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/addons
       '@formkit/core':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/core
       '@formkit/i18n':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/i18n
       '@formkit/inputs':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/inputs
       '@formkit/themes':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/themes
       '@formkit/vue':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/vue
       '@formkit/zod':
-        specifier: workspace:^0.18.4
+        specifier: workspace:^0.18.5
         version: link:../packages/zod
       '@vitejs/plugin-vue':
         specifier: ^4.2.0
@@ -262,29 +262,29 @@ importers:
         specifier: latest
         version: 0.7.0
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../inputs
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/inputs':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../inputs
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
       axios:
         specifier: ^0.27.2
@@ -309,65 +309,65 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^0.18.4
+        specifier: ^0.18.5
         version: link:../vue
 
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/i18n':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../i18n
       '@formkit/vue':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.5.3
@@ -389,28 +389,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
@@ -423,7 +423,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       tailwindcss:
         specifier: ^3.2.0
@@ -440,43 +440,43 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/observer':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../observer
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       '@formkit/dev':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../dev
       '@formkit/i18n':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../inputs
       '@formkit/observer':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../observer
       '@formkit/rules':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../rules
       '@formkit/themes':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../themes
       '@formkit/utils':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../validation
       vue:
         specifier: ^3.3.4
@@ -485,7 +485,7 @@ importers:
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 0.18.4
+        specifier: 0.18.5
         version: link:../core
       zod:
         specifier: ^3.0.0
