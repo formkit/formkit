@@ -803,7 +803,8 @@ describe('classes hook', () => {
 
 describe('commit hook', () => {
   it('can change the value being assigned', async () => {
-    const commitMiddleware: FormKitMiddleware<string> = vi.fn(phoneMask)
+    const commitMiddleware: FormKitMiddleware<string | undefined> =
+      vi.fn(phoneMask)
     const phonePlugin: FormKitPlugin = function (node) {
       if (node.type === 'input') {
         node.hook.commit(commitMiddleware)

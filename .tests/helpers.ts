@@ -122,10 +122,10 @@ export function createShippingTree() {
  */
 export function phoneMask(
   value: string | undefined,
-  next: (payload?: string) => string
-): string {
+  next: (payload?: string) => string | undefined
+): string | undefined {
   if (value === undefined) {
-    return next()
+    return next(undefined)
   }
   const digits = value.replace(/[^0-9]/g, '')
   let phone = ''
