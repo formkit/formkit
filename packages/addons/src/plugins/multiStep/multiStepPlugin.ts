@@ -33,18 +33,10 @@ declare module '@formkit/inputs' {
       tabStyle?: 'tab' | 'progress'
       hideProgressLabels?: boolean
       validStepIcon?: string
-      beforeStepChange?: (data: {
-        currentStep: FormKitFrameworkContext
-        nextStep: FormKitFrameworkContext
-        delta: number
-      }) => any
+      beforeStepChange?: BeforeStepChange
     }
     step: {
-      beforeStepChange?: (data: {
-        currentStep: FormKitFrameworkContext
-        nextStep: FormKitFrameworkContext
-        delta: number
-      }) => any
+      beforeStepChange?: BeforeStepChange
       nextAttrs?: Record<string, any>
       nextLabel?: string
       previousAttrs?: Record<string, any>
@@ -61,25 +53,35 @@ declare module '@formkit/inputs' {
   }
 }
 
+/**
+ * The node type that is augmented with next and previous and goTo functions.
+ *
+ * @public
+ */
 export type FormKitMultiStepNode = FormKitNode & MultiStepNodeAdditions
+
+/**
+ * Additional arguments that are added to the FormKitNode of a multistep input.
+ *
+ * @public
+ */
 export interface MultiStepNodeAdditions {
   next: () => void
   previous: () => void
   goTo: (target: number | string) => void
 }
 
+/**
+ * @public
+ */
 export interface MultiStepSlotData {
-  steps: Array<FormKitFrameworkContext<Record<string, any>> & StepSlotData>
+  steps: Array<FormKitMultiStepSlotData>
   allowIncomplete?: boolean
   tabStyle: 'tab' | 'progress'
   hideProgressLabels: boolean
   validStepIcon: string | undefined
   activeStep: string
-  beforeStepChange?: (data: {
-    currentStep: FormKitFrameworkContext
-    nextStep: FormKitFrameworkContext
-    delta: number
-  }) => any
+  beforeStepChange?: BeforeStepChange
   node: FormKitMultiStepNode
   handlers: FormKitFrameworkContext['handlers'] & {
     incrementStep: (
@@ -92,12 +94,13 @@ export interface MultiStepSlotData {
   }
 }
 
+/**
+ * Slot data unique to the step input.
+ *
+ * @public
+ */
 export interface StepSlotData {
-  beforeStepChange?: (data: {
-    currentStep: FormKitFrameworkContext
-    nextStep: FormKitFrameworkContext
-    delta: number
-  }) => any
+  beforeStepChange?: BeforeStepChange
   makeActive: () => void
   blockingCount: number
   errorCount: number
@@ -113,6 +116,8 @@ export interface StepSlotData {
   previousLabel?: string
   showStepErrors: boolean
   stepName: string
+  steps: Array<FormKitMultiStepSlotData>
+  stepIndex: number
   totalErrorCount: number
   validStepIcon?: string
   handlers: FormKitFrameworkContext['handlers'] & {
@@ -122,6 +127,9 @@ export interface StepSlotData {
   }
 }
 
+/**
+ * @public
+ */
 export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
   multiStepOuter: FormKitSlotData<Props, MultiStepSlotData>
   wrapper: FormKitSlotData<Props, MultiStepSlotData>
@@ -152,6 +160,9 @@ export interface FormKitMultiStepSlots<Props extends FormKitInputs<Props>> {
   default: FormKitSlotData<Props, MultiStepSlotData>
 }
 
+/**
+ * @public
+ */
 export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
   stepInner: FormKitSlotData<Props, StepSlotData>
   stepActions: FormKitSlotData<Props, StepSlotData>
@@ -163,6 +174,28 @@ export interface FormKitStepSlots<Props extends FormKitInputs<Props>> {
 /* </declare> */
 
 const isBrowser = typeof window !== 'undefined'
+
+/**
+ * The typing for the beforeStepChange function.
+ *
+ * @public
+ */
+export interface BeforeStepChange {
+  (data: {
+    currentStep: FormKitFrameworkContext
+    nextStep: FormKitFrameworkContext
+    delta: number
+  }): any
+}
+
+/**
+ * The typing for the slot data for a FormKit multi-step input.
+ * @public
+ */
+export type FormKitMultiStepSlotData = FormKitFrameworkContext<
+  Record<string, any>
+> &
+  StepSlotData
 
 /**
  * The options to be passed to {@link createMultiStepPlugin | createMultiStepPlugin}
