@@ -19,7 +19,7 @@ export default function normalizeBoxes(
         if (!option.attrs?.id) {
           return extend(option, {
             attrs: {
-              id: `${node.name}-option-${slugify(String(option.value))}`,
+              id: `${node.props.id}-option-${slugify(String(option.value))}`,
             },
           })
         }

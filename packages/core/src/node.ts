@@ -2863,20 +2863,6 @@ function clearErrors(
 }
 
 /**
- * Middleware to assign default prop values as issued by core.
- *
- * @param node - A {@link FormKitNode | FormKitNode}
- *
- * @returns A {@link FormKitNode | FormKitNode}
- *
- * @internal
- */
-function defaultProps(node: FormKitNode): FormKitNode {
-  if (!has(node.props, 'id')) node.props.id = `input_${idCount++}`
-  return node
-}
-
-/**
  * Create props based on initial values
  *
  * @param initial - An initial value to be transformed
@@ -3018,11 +3004,18 @@ function nodeInit<V>(
   node: FormKitNode,
   options: FormKitOptions
 ): FormKitNode<V> {
+  const hasInitialId = options.props?.id
+  if (!hasInitialId) delete options.props?.id
   // Set the internal node on the props, config, ledger and store
   node.ledger.init((node.store._n = node.props._n = node.config._n = node))
   // Apply given in options to the node.
   node.props._emit = false
-  if (options.props) Object.assign(node.props, options.props)
+  // Sets the initial props and initial ID if not provided.
+  Object.assign(
+    node.props,
+    hasInitialId ? {} : { id: `input_${idCount++}` },
+    options.props ?? {}
+  )
   node.props._emit = true
   // Attempt to find a definition from the pre-existing plugins.
   findDefinition(
@@ -3039,8 +3032,6 @@ function nodeInit<V>(
       use(node, node._c, plugin, true, false)
     }
   }
-  // Initialize the default props
-  defaultProps(node)
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
@@ -3052,7 +3043,7 @@ function nodeInit<V>(
   // Release the store buffer
   node.store.release()
   // Register the node globally if someone explicitly gave it an id
-  if (options.props?.id) register(node)
+  if (hasInitialId) register(node)
   // Our node is finally ready, emit it to the world
   node.emit('created', node)
   node.isCreated = true

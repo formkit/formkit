@@ -23,9 +23,7 @@ describe('radios', () => {
       },
       ...global,
     })
-    expect(wrapper.html()).toContain(
-      '<input class="formkit-input" type="radio" name="radio_1" id="radio_1-option-foo" value="Foo">'
-    )
+    expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('can select and unselect radio inputs', async () => {
