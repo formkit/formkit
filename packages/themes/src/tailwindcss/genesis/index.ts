@@ -12,7 +12,7 @@ export default {
     messages: 'list-none p-0 mt-1 mb-0',
     outer: 'mb-4 formkit-disabled:opacity-50',
     prefixIcon: 'w-10 flex self-stretch grow-0 shrink-0 rounded-tl rounded-bl border-r border-gray-400 bg-white bg-gradient-to-b from-transparent to-gray-200 [&>svg]:w-full [&>svg]:max-w-[1em] [&>svg]:max-h-[1em] [&>svg]:m-auto',
-    suffixIcon: 'w-7 pr-3 flex self-stretch grow-0 shrink-0 [&>svg]:w-full [&>svg]:max-w-[1em] [&>svg]:max-h-[1em] [&>svg]:m-auto'
+    suffixIcon: 'w-7 pr-3 p-3 flex self-stretch grow-0 shrink-0 [&>svg]:w-full [&>svg]:max-w-[1em] [&>svg]:max-h-[1em] [&>svg]:m-auto'
   },
 
   // Family styles apply to all inputs that share a common family
@@ -32,21 +32,22 @@ export default {
     suffixIcon: '$reset block w-4 ml-2 stretch',
   },
   'family:dropdown': {
-    dropdownWrapper: 'my-2 w-full drop-shadow-lg rounded [&::-webkit-scrollbar]:hidden',
+    dropdownWrapper: 'my-2 w-full shadow-lg rounded [&::-webkit-scrollbar]:hidden',
     emptyMessageInner: 'flex items-center justify-center text-sm p-2 text-center w-full text-gray-500 [&>span]:mr-3 [&>span]:ml-0',
     inner: 'max-w-md relative flex ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 rounded mb-1 formkit-disabled:focus-within:ring-gray-400 formkit-disabled:focus-within:ring-1 [&>span:first-child]:focus-within:text-blue-500',
     input: 'w-full px-3 py-2',
-    listbox: 'bg-white drop-shadow-lg rounded overflow-hidden',
+    listbox: 'bg-white shadow-lg rounded overflow-hidden',
     listboxButton: 'flex w-12 self-stretch justify-center mx-auto',
-    listitem: 'pl-7 relative hover:bg-gray-300 data-[is-active="true"]:bg-gray-300 data-[is-active="true"]:aria-selected:bg-blue-600 aria-selected:bg-blue-600 aria-selected:text-white',
+    listitem: 'pl-7 relative hover:bg-gray-300 data-[is-active="true"]:bg-gray-300 aria-selected:bg-blue-600 aria-selected:text-white data-[is-active="true"]:aria-selected:bg-blue-600 data-[is-active="true"]:aria-selected:bg-blue-700',
     loaderIcon: 'ml-auto',
     loadMoreInner: 'flex items-center justify-center text-sm p-2 text-center w-full text-blue-500 formkit-loading:text-gray-500 cursor-pointer [&>span]:mr-3 [&>span]:ml-0',
     option: 'p-2.5',
-    optionLoading: 'text-gray-500',
+    optionLoading: 'pl-2.5 text-gray-400',
     placeholder: 'p-2.5 text-gray-400',
-    selector: 'flex w-full justify-between items-center [&u]',
+    selector: 'flex w-full justify-between items-center min-h-[2.625em] [&u] cursor-default',
+    selection: 'flex w-full',
     selectedIcon: 'block absolute top-1/2 left-2 w-3 -translate-y-1/2',
-    selectIcon: 'flex box-content w-4 px-2 self-stretch grow-0 shrink-0',
+    selectIcon: 'flex box-content w-4 px-2 self-stretch grow-0 shrink-0 [&>svg]:w-[1em] cursor-pointer',
   },
   'family:text': {
     inner: 'flex items-center max-w-md ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>label:first-child]:focus-within:text-blue-500 rounded mb-1',
@@ -88,7 +89,7 @@ export default {
   select: {
     inner: 'flex relative max-w-md items-center rounded mb-1 ring-1 ring-gray-400 focus-within:ring-blue-500 focus-within:ring-2 [&>span:first-child]:focus-within:text-blue-500',
     input: 'w-full pl-3 pr-8 py-2 border-none text-base text-gray-700 placeholder-gray-400 formkit-multiple:p-0 data-[placeholder="true"]:text-gray-400 formkit-multiple:data-[placeholder="true"]:text-inherit',
-    selectIcon: 'flex p-[3px] shrink-0 w-5 mr-2 -ml-[1.5em] h-full pointer-events-none',
+    selectIcon: 'flex p-[3px] shrink-0 w-5 mr-2 -ml-[1.5em] h-full pointer-events-none [&>svg]:w-[1em]',
     option: 'formkit-multiple:p-3 formkit-multiple:text-sm text-gray-700'
   },
   textarea: {
@@ -105,7 +106,7 @@ export default {
   },
   datepicker: {
     inner: 'relative',
-    panelWrapper: 'absolute top-[calc(100%_+_0.5em)] drop-shadow-[0_0_1.25em_rgba(0,0,0,.25)] rounded-md p-5 bg-white z-10',
+    panelWrapper: 'absolute top-[calc(100%_+_0.5em)] shadow-[0_0_1.25em_rgba(0,0,0,.25)] rounded-md p-5 bg-white z-10',
     panelHeader: 'grid grid-cols-[2.5em_1fr_2.5em] justify-center items-center border-b-2 mb-4 pb-4',
     input: 'selection:bg-blue-400',
     monthsHeader: 'flex items-center justify-center col-start-2 col-end-2',
@@ -160,6 +161,17 @@ export default {
       focus-visible:outline-none focus-visible:text-white focus-visible:bg-blue-500
     `,
     calendarIcon: 'flex w-8 grow-0 shrink-0 self-stretch select-none [&>svg]:w-full [&>svg]:m-auto [&>svg]:max-h-[1em] [&>svg]:max-w-[1em]',
+  },
+  dropdown: {
+    tagsWrapper: 'max-w-[calc(100%_-_35px)]',
+    tags: 'flex items-center flex-wrap gap-1 mx-2 my-1.5',
+    tag: 'flex items-center rounded-full bg-gray-200 text-xs text-black py-1 px-2.5 cursor-default',
+    tagLabel: 'px-1',
+    selectionsWrapper: 'flex w-[calc(100%_-_35px)] overflow-hidden',
+    selections: 'inline-flex items-center px-2.5',
+    selectionsItem: 'whitespace-nowrap mr-1 last:mr-0',
+    truncationCount: 'flex items-center whitespace-nowrap justify-center rounded text-white bg-gray-500 font-bold text-xs px-1 py-0.5',
+    removeSelection: 'block w-2.5 my-1 cursor-pointer',
   },
   rating: {
     inner: 'relative flex items-center w-[8em] formkit-disabled:bg-transparent',
