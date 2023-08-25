@@ -226,41 +226,7 @@ describe('multiple checkboxes', () => {
       },
       ...global,
     })
-    expect(wrapper.html())
-      .toBe(`<div class="formkit-outer" data-family="box" data-type="checkbox" data-multiple="true" data-empty="true">
-  <fieldset class="formkit-fieldset" id="my-id" aria-describedby="help-my-id">
-    <legend class="formkit-legend">All checkboxes</legend>
-    <div class="formkit-help" id="help-my-id">help-text</div>
-    <ul class="formkit-options">
-      <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="my-id-option-foo" value="foo"><span class="formkit-decorator" aria-hidden="true"><!----></span>
-            <!---->
-          </div><span class="formkit-label">foo</span>
-        </label>
-        <!---->
-      </li>
-      <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="my-id-option-bar" value="bar"><span class="formkit-decorator" aria-hidden="true"><!----></span>
-            <!---->
-          </div><span class="formkit-label">bar</span>
-        </label>
-        <!---->
-      </li>
-      <li class="formkit-option"><label class="formkit-wrapper">
-          <div class="formkit-inner">
-            <!----><input class="formkit-input" type="checkbox" name="mybox" id="my-id-option-baz" value="baz"><span class="formkit-decorator" aria-hidden="true"><!----></span>
-            <!---->
-          </div><span class="formkit-label">baz</span>
-        </label>
-        <!---->
-      </li>
-    </ul>
-  </fieldset>
-  <!---->
-  <!---->
-</div>`)
+    expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('multi-checkboxes set array values immediately', () => {
@@ -329,16 +295,7 @@ describe('multiple checkboxes', () => {
       },
       ...global,
     })
-    expect(wrapper.find('li').html()).toBe(
-      `<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper">
-    <div class="formkit-inner">
-      <!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="input_14-option-it" aria-describedby="help-input_14-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"><!----></span>
-      <!---->
-    </div><span class="formkit-label">Italy</span>
-  </label>
-  <div class="formkit-option-help" id="help-input_14-option-it">Good food here</div>
-</li>`
-    )
+    expect(wrapper.find('li').html()).toMatchSnapshot()
   })
 
   it('can set the default value from a v-modeled form', () => {

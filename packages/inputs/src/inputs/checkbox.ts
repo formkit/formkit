@@ -1,7 +1,7 @@
 import { FormKitTypeDefinition } from '@formkit/core'
 import {
   outer,
-  inner,
+  boxInner,
   help,
   boxHelp,
   messages,
@@ -39,7 +39,7 @@ export const checkbox: FormKitTypeDefinition = {
        * Single checkbox structure.
        */
       boxWrapper(
-        inner(prefix(), box(), decorator(icon('decorator')), suffix()),
+        boxInner(prefix(), box(), decorator(icon('decorator')), suffix()),
         $extend(boxLabel('$label'), {
           if: '$label',
         })
@@ -53,7 +53,7 @@ export const checkbox: FormKitTypeDefinition = {
         boxOptions(
           boxOption(
             boxWrapper(
-              inner(
+              boxInner(
                 prefix(),
                 $extend(box(), {
                   bind: '$option.attrs',

@@ -55,7 +55,6 @@ function setNode(n: FormKitNode) {
     type="form"
     :config="{ validationVisibility: 'dirty' }"
     @submit="(value, node) => value && node"
-    disabled
   >
     <FormKit type="number" label="Age" validation="between:21,18" />
     <FormKit
