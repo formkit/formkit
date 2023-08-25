@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { fragment, disablesChildren } from '../compose'
+import { fragment, disablesChildren, renamesRadios } from '../compose'
 
 /**
  * Input definition for a list.
@@ -21,5 +21,5 @@ export const list: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [disablesChildren],
+  features: [disablesChildren, renamesRadios],
 }

@@ -351,4 +351,59 @@ describe('standard lists', () => {
       .forEach((input) => values.push(input.element.value))
     expect(values).toEqual(['Foobar', 'Biz baz'])
   })
+
+  it('dynamic list automatically uses the altName for radio inputs', async () => {
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            items: [{ test: 'a' }, { test: 'b' }],
+          }
+        },
+        template: `
+        <FormKit
+          v-model="items"
+          type="list"
+          name="users"
+          dynamic
+          #default="{ items }"
+        >
+          <FormKit
+            v-for="(item, index) in items"
+            :key="item"
+            :index="index"
+            type="group"
+          >
+            <FormKit
+              type="radio"
+              name="test"
+              :options="[
+                {
+                  value: 'a',
+                  label: 'This is A.',
+                },
+                {
+                  value: 'b',
+                  label: 'This is B.',
+                },
+              ]"
+            />
+          </FormKit>
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 40))
+    expect(wrapper.findAll('input').length).toBe(4)
+    const radios = wrapper.findAll('input[type="radio"]')
+    radios.forEach((radio, index) => {
+      const myIndex = Math.floor(index / 2)
+      expect(radio.attributes('name')).toBe(`test_${myIndex}`)
+    })
+  })
 })
