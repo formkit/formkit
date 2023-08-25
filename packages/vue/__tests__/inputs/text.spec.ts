@@ -249,6 +249,20 @@ describe('the number feature', () => {
     const node = getNode(id)!
     expect(node.value).toBe(123.123)
   })
+  it('forces initial values to a float on a hidden input by default', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'hidden',
+        number: true,
+        value: '123.123',
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    expect(node.value).toBe(123.123)
+  })
   it('forces initial values to an integer on a number input', async () => {
     const id = `a${token()}`
     mount(FormKit, {

@@ -1,5 +1,5 @@
 import { FormKitTypeDefinition } from '@formkit/core'
-import { textInput } from '../compose'
+import { textInput, casts } from '../compose'
 
 /**
  * Input definition for a hidden input.
@@ -21,5 +21,5 @@ export const hidden: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [],
+  features: [casts],
 }
