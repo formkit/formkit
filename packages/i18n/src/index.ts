@@ -10,6 +10,7 @@
 import * as ar from './locales/ar'
 import * as az from './locales/az'
 import * as bg from './locales/bg'
+import * as bs from './locales/bs'
 import * as ca from './locales/ca'
 import * as cs from './locales/cs'
 import * as da from './locales/da'
@@ -67,6 +68,7 @@ export const locales = {
   ar,
   az,
   bg,
+  bs,
   ca,
   cs,
   da,
@@ -118,6 +120,7 @@ export {
   ar,
   az,
   bg,
+  bs,
   ca,
   cs,
   da,
