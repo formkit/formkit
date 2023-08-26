@@ -206,7 +206,7 @@ importers:
   e2e:
     dependencies:
       '@formkit/vue':
-        specifier: workspace:^0.19.0
+        specifier: workspace:0.19.0
         version: link:../packages/vue
 
   examples:
@@ -318,7 +318,7 @@ importers:
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^0.19.0
+        specifier: 0.19.0
         version: link:../vue
 
   packages/formkit:
