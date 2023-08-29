@@ -1,4 +1,4 @@
-import { execa } from 'execa'
+import { execa, execaCommand } from 'execa'
 import { readFile, writeFile, readdir } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
@@ -247,7 +247,19 @@ export async function createApp(
     )
   } else {
     options.lang = 'ts'
-    await execa('npx', ['--yes', 'nuxi', 'create', appName])
+    info('Fetching nuxi cli...')
+    const subprocess = execaCommand(
+      `npx --yes nuxi@latest init --no-install $APP_NAME`,
+      {
+        cwd: process.cwd(),
+        shell: true,
+        stdio: 'inherit',
+        env: { APP_NAME: appName },
+      }
+    )
+    subprocess.stdout?.pipe(process.stdout)
+    subprocess.stderr?.pipe(process.stderr)
+    await subprocess
     await writeFile(
       resolve(cwd(), `./${appName}/formkit.config.ts`),
       buildFormKitConfig(options as CreateAppOptions)
