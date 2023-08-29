@@ -3,12 +3,177 @@ import { readFile, writeFile, readdir } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
 import prompts from 'prompts'
-import { error, green, __dirname } from './index'
+import { error, green, __dirname, info } from './index'
+import ora from 'ora'
+import http from 'http'
+import open from 'open'
 
+const APP_URL = 'http://pro.formkitdev.com'
 interface CreateAppOptions {
   lang: 'ts' | 'js'
   framework: 'nuxt' | 'vite'
   pro?: string
+}
+
+async function parseBody(req: http.IncomingMessage) {
+  return new Promise<unknown>((resolve, reject) => {
+    const chunks: Buffer[] = []
+    req.on('data', (chunk: Buffer) => {
+      chunks.push(chunk)
+    })
+    req.on('end', () => {
+      const body = JSON.parse(Buffer.concat(chunks).toString())
+      if (body) resolve(body)
+      else reject('No body found.')
+    })
+  })
+}
+
+async function login() {
+  const spinner = ora(`To login visit: ${APP_URL}/cli-login`).start()
+  await open(`${APP_URL}/cli-login`)
+  const token = await new Promise((resolve, reject) => {
+    http
+      .createServer(async (req, res) => {
+        let status = true
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.setHeader('Access-Control-Allow-Headers', '*')
+        res.setHeader('Content-Type', 'application/json')
+        if (req.method === 'POST') {
+          try {
+            const body = await parseBody(req)
+            if (typeof body === 'object' && body && 'token' in body) {
+              resolve(body.token)
+            }
+          } catch {
+            res.statusCode = 400
+            status = false
+            reject('Login failed.')
+          }
+        }
+        const jsonContent = JSON.stringify({
+          status,
+        })
+        res.end(jsonContent)
+      })
+      .listen(5479)
+  })
+  spinner.stop()
+  return token
+}
+
+async function createTeam(token: string) {
+  const res = await prompts({
+    type: 'text',
+    name: 'name',
+    message: 'Please enter a new team name:',
+    initial: 'My team',
+  })
+  const response = await fetch(`${APP_URL}/api/teams`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      name: res.name,
+    }),
+  })
+  return await response.json()
+}
+
+async function createProject(token: string, team: number) {
+  const res = await prompts({
+    type: 'text',
+    name: 'name',
+    message: 'Please enter a new project name:',
+    initial: 'My new project',
+  })
+  const response = await fetch(`${APP_URL}/api/teams/${team}/projects`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      name: res.name,
+      license: 'development',
+    }),
+  })
+  if (!response.ok) {
+    error('Failed to create project.')
+  }
+  const data = await response.json()
+  if (data.data) {
+    info(
+      `Your project was created successfully with a development license — to upgrade to a production license visit ${APP_URL}`
+    )
+  }
+  return data.data
+}
+
+async function selectProProject() {
+  try {
+    const token = (await login()) as string
+    const spinner = ora('Fetching account...').start()
+    const response = await fetch(`${APP_URL}/api/account`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    })
+    console.log(response)
+    const data = await response.json()
+    console.log(data)
+    spinner.stop()
+
+    const res = await prompts({
+      type: 'select',
+      name: 'team',
+      message: 'Select a team:',
+      choices: data.teams
+        .map(
+          (team: {
+            id: number
+            name: string
+            projects: Array<{ name: string; api_key: string }>
+          }) => ({
+            title: team.name,
+            value: team,
+          })
+        )
+        .concat([{ title: 'Create a new team', value: 'new' }]),
+    })
+
+    if (res.team === 'new') {
+      const team = await createTeam(token)
+      return await createProject(token, team.id)
+    } else {
+      const { project } = await prompts({
+        type: 'select',
+        name: 'project',
+        message: 'Select a project:',
+        choices: res.team.projects
+          .map((team: { id: number; name: string }) => ({
+            title: team.name,
+            value: team.id,
+          }))
+          .concat([{ title: 'Create a new project', value: 'new' }]),
+      })
+
+      if (project === 'new') {
+        return await createProject(token, res.team.id)
+      }
+      return project
+    }
+  } catch (err) {
+    console.log(err)
+    error('Login failed.')
+  }
+  return 'test'
 }
 
 export async function createApp(
@@ -19,7 +184,7 @@ export async function createApp(
     const res = await prompts({
       type: 'text',
       name: 'name',
-      message: 'Please enter a name for the project:',
+      message: 'Please enter a directory name for the project:',
       initial: 'formkit-app',
     })
     appName = res.name as string
@@ -68,13 +233,10 @@ export async function createApp(
         initial: true,
         inactive: 'no',
       },
-      {
-        type: (prev) => (prev ? 'text' : null),
-        name: 'pro',
-        message: 'Enter a project key from https://pro.formkit.com:',
-      },
     ])
-    options.pro = res.pro as string
+    if (res.install_pro) {
+      options.pro = await selectProProject()
+    }
   }
 
   if (options.framework === 'vite') {
