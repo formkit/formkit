@@ -6,58 +6,42 @@ import prompts from 'prompts'
 import { error, green, __dirname, info } from './index'
 import ora from 'ora'
 import http from 'http'
+import url from 'url'
 import open from 'open'
 
-const APP_URL = 'http://pro.formkitdev.com'
+const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
   lang: 'ts' | 'js'
   framework: 'nuxt' | 'vite'
   pro?: string
 }
 
-async function parseBody(req: http.IncomingMessage) {
-  return new Promise<unknown>((resolve, reject) => {
-    const chunks: Buffer[] = []
-    req.on('data', (chunk: Buffer) => {
-      chunks.push(chunk)
-    })
-    req.on('end', () => {
-      const body = JSON.parse(Buffer.concat(chunks).toString())
-      if (body) resolve(body)
-      else reject('No body found.')
-    })
-  })
-}
-
-async function login() {
+async function login(): Promise<string> {
   const spinner = ora(`To login visit: ${APP_URL}/cli-login`).start()
   await open(`${APP_URL}/cli-login`)
-  const token = await new Promise((resolve, reject) => {
-    http
-      .createServer(async (req, res) => {
-        let status = true
-        res.setHeader('Access-Control-Allow-Origin', '*')
-        res.setHeader('Access-Control-Allow-Headers', '*')
-        res.setHeader('Content-Type', 'application/json')
-        if (req.method === 'POST') {
-          try {
-            const body = await parseBody(req)
-            if (typeof body === 'object' && body && 'token' in body) {
-              resolve(body.token)
-            }
-          } catch {
-            res.statusCode = 400
-            status = false
-            reject('Login failed.')
-          }
+  let server: http.Server | undefined
+  const token = await new Promise<string>((resolve, reject) => {
+    server = http
+      .createServer((req, res) => {
+        const urlObj = url.parse(req.url!, true)
+        const token = urlObj.query.token as string | undefined
+
+        if (token) {
+          resolve(token)
+          res.writeHead(302, {
+            Location: `${APP_URL}/cli-login?success=true`,
+          })
+          res.end()
+        } else {
+          res.writeHead(302, {
+            Location: `${APP_URL}/cli-login?success=false`,
+          })
+          reject('Login failed.')
         }
-        const jsonContent = JSON.stringify({
-          status,
-        })
-        res.end(jsonContent)
       })
       .listen(5479)
   })
+  server?.close()
   spinner.stop()
   return token
 }
@@ -125,9 +109,7 @@ async function selectProProject() {
         Accept: 'application/json',
       },
     })
-    console.log(response)
     const data = await response.json()
-    console.log(data)
     spinner.stop()
 
     const res = await prompts({
@@ -150,24 +132,25 @@ async function selectProProject() {
 
     if (res.team === 'new') {
       const team = await createTeam(token)
-      return await createProject(token, team.id)
+      const project = await createProject(token, team.id)
+      return project.api_key
     } else {
-      const { project } = await prompts({
+      let { project } = await prompts({
         type: 'select',
         name: 'project',
         message: 'Select a project:',
         choices: res.team.projects
           .map((team: { id: number; name: string }) => ({
             title: team.name,
-            value: team.id,
+            value: team,
           }))
           .concat([{ title: 'Create a new project', value: 'new' }]),
       })
 
       if (project === 'new') {
-        return await createProject(token, res.team.id)
+        project = await createProject(token, res.team.id)
       }
-      return project
+      return project.api_key
     }
   } catch (err) {
     console.log(err)
