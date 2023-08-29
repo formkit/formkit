@@ -83,17 +83,18 @@ export interface MultiStepSlotData {
   activeStep: string
   beforeStepChange?: BeforeStepChange
   node: FormKitMultiStepNode
-  handlers: FormKitFrameworkContext['handlers'] & {
-    incrementStep: (
-      delta: number,
-      currentStep: FormKitFrameworkContext | undefined
-    ) => () => void
-    triggerStepValidations: (step: FormKitFrameworkContext) => void
-    showStepErrors: (step: FormKitFrameworkContext) => boolean | undefined
-    setActiveStep: (step: FormKitFrameworkContext) => (e?: Event) => void
-  }
+  handlers: FormKitFrameworkContext['handlers'] & MultiStepHandlers
 }
 
+export interface MultiStepHandlers {
+  incrementStep: (
+    delta: number,
+    currentStep: FormKitFrameworkContext | undefined
+  ) => () => void
+  triggerStepValidations: (step: FormKitFrameworkContext) => void
+  showStepErrors: (step: FormKitFrameworkContext) => boolean | undefined
+  setActiveStep: (step: FormKitFrameworkContext) => (e?: Event) => void
+}
 /**
  * Slot data unique to the step input.
  *
@@ -120,11 +121,13 @@ export interface StepSlotData {
   stepIndex: number
   totalErrorCount: number
   validStepIcon?: string
-  handlers: FormKitFrameworkContext['handlers'] & {
-    incrementStep: (delta: number) => () => void
-    next: () => void
-    previous: () => void
-  }
+  handlers: FormKitFrameworkContext['handlers'] & StepHandlers
+}
+
+export interface StepHandlers {
+  incrementStep: (delta: number) => () => void
+  next: () => void
+  previous: () => void
 }
 
 /**
@@ -181,11 +184,13 @@ const isBrowser = typeof window !== 'undefined'
  * @public
  */
 export interface BeforeStepChange {
-  (data: {
-    currentStep: FormKitFrameworkContext
-    nextStep: FormKitFrameworkContext
-    delta: number
-  }): any
+  (data: BeforeStepChangeData): any
+}
+
+export interface BeforeStepChangeData<T = unknown> {
+  currentStep: FormKitFrameworkContext<T>
+  nextStep: FormKitFrameworkContext<T>
+  delta: number
 }
 
 /**
