@@ -1,9 +1,10 @@
 import { describe, assertType, it } from 'vitest'
-import { FormKitEvents } from '../src/props'
+import { FormKitEvents, FormKitInputSlots } from '../src/props'
 import { createNode } from '@formkit/core'
 
 declare const textEvent: FormKitEvents<{ type: 'text' }>
 declare const formEvent: FormKitEvents<{ type: 'form' }>
+declare const textSlots: FormKitInputSlots<{ type: 'text' }>['text']
 
 describe('base events', () => {
   it('has an input event', () => {
@@ -38,5 +39,24 @@ describe('form events', () => {
 
   it('should have a submit event', () => {
     assertType(formEvent('submit', {}, createNode()))
+  })
+})
+
+describe('base slots', () => {
+  it('has all the base slots', () => {
+    assertType(textSlots.outer)
+    assertType(textSlots.wrapper)
+    assertType(textSlots.label)
+    assertType(textSlots.inner)
+    assertType(textSlots.input)
+    assertType(textSlots.help)
+    assertType(textSlots.messages)
+    assertType(textSlots.message)
+    assertType(textSlots.suffixIcon)
+    assertType(textSlots.prefixIcon)
+  })
+  it('does not allow the default slot', () => {
+    // @ts-expect-error - default is not a valid slot
+    assertType(textSlots.default)
   })
 })

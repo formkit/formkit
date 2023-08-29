@@ -447,7 +447,7 @@ export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
   text: FormKitTextSlots<Props>
   color: FormKitTextSlots<Props>
   date: FormKitTextSlots<Props>
-  datetimeLocal: FormKitTextSlots<Props>
+  'datetime-local': FormKitTextSlots<Props>
   email: FormKitTextSlots<Props>
   month: FormKitTextSlots<Props>
   number: FormKitTextSlots<Props>
