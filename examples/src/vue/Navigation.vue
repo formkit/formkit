@@ -72,6 +72,9 @@
       <li>
         <router-link to="/zod"> Zod </router-link>
       </li>
+      <li>
+        <router-link to="/accessibility-test"> Accessibility </router-link>
+      </li>
     </ul>
   </nav>
 </template>
