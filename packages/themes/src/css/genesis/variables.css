@@ -63,6 +63,8 @@
   --fk-color-submit-hover: var(--fk-color-button-hover);
   --fk-color-range-track: var(--fk-color-border);
   --fk-color-range-thumb: var(--fk-color-primary);
+  --fk-focus-ring-color: rgb(50 100 203 / 31%);
+
 
   --fk-bg-input: transparent;
   --fk-bg-disabled: rgba(0 0 0 / 5%);
@@ -99,6 +101,7 @@
   --fk-border-radius-br: 0.25em;
   --fk-border-radius: var(--fk-border-radius-tl, 0.25em) var(--fk-border-radius-tr, 0.25em) var(--fk-border-radius-br, 0.25em) var(--fk-border-radius-bl, 0.25em);
   --fk-border-radius-full: 999em;
+  --fk-focus-ring: 0.25em;
 
   /* Padding */
   --fk-padding-base: 0.25em;
