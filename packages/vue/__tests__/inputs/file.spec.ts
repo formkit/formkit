@@ -29,7 +29,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
-      '<li class="formkit-file-item"><!----><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove"><!---->Remove</button></li>'
+      '<li class="formkit-file-item"><!----><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove"><!---->Remove test.pdf</button></li>'
     )
   })
 
@@ -52,7 +52,7 @@ describe('file inputs', () => {
       }
     )
     expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
-      `<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove</button></li>`
+      `<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove test.jpg</button></li>`
     )
   })
 
