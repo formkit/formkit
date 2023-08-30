@@ -77,7 +77,7 @@
   --fk-border-width-decorator: var(--fk-border-width);
   --fk-border-width-focus: 2px;
   --fk-border-width-checked: 1px;
-  --fk-border-width-decorator-checked: 1px;
+  --fk-border-width-decorator-checked: 2px;
   --fk-border-width-decorator-focus: var(--fk-border-width-decorator-checked);
   --fk-border-width-decorator-focus-visible: var(--fk-border-width-focus);
   --fk-border-style: solid;
