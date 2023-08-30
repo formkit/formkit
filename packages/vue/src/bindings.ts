@@ -310,7 +310,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   function observeProps(observe: string[]) {
     observe.forEach((prop) => {
       prop = camel(prop)
-      if (!has(context, prop) && has(node.props, prop)) {
+      if (!has(context, prop)) {
         context[prop] = node.props[prop]
       }
       node.on(`prop:${prop}`, ({ payload }) => {

@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils'
-import { plugin } from '../../src/plugin'
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig, plugin } from '../../src'
 import { nextTick } from 'vue'
 import { token } from '@formkit/utils'
-import { getNode, reset } from '@formkit/core'
+import { getNode, reset, FormKitTypeDefinition } from '@formkit/core'
 import { describe, expect, it } from 'vitest'
 
 describe('group', () => {
@@ -339,5 +338,47 @@ describe('clearing values', () => {
     expect(wrapper.html()).toBe(
       '<fieldset class="formkit-wrapper">Hello</fieldset>'
     )
+  })
+
+  it('can inherit definition added prop values from config', () => {
+    const custom: FormKitTypeDefinition = {
+      type: 'input',
+      schema: [{ $el: 'div', children: '$fooBar' }],
+      props: ['fooBar'],
+    }
+    const wrapper = mount(
+      {
+        template: `<FormKit type="group" :config="{ fooBar: 'hello world' }">
+        <FormKit type="custom" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { custom } })]],
+        },
+      }
+    )
+    expect(wrapper.html()).toBe('<div>hello world</div>')
+  })
+
+  it('can inherit late-added prop values from config', () => {
+    const custom: FormKitTypeDefinition = {
+      type: 'input',
+      schema: [{ $el: 'div', children: '$fooBar' }],
+      features: [(node) => node.addProps(['fooBar'])],
+    }
+    const wrapper = mount(
+      {
+        template: `<FormKit type="group" :config="{ fooBar: 'hello world' }">
+        <FormKit type="custom" />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { custom } })]],
+        },
+      }
+    )
+    expect(wrapper.html()).toBe('<div>hello world</div>')
   })
 })
