@@ -43,7 +43,7 @@
   --fk-box-size: 1.25em;
 
   /* Colors */
-  --fk-color-primary: #0275ff;
+  --fk-color-primary: #006ff9;
   --fk-color-checked: var(--fk-color-primary);
   --fk-color-input: #000;
   --fk-color-input-selection: rgba(0, 122, 255, 25%);
