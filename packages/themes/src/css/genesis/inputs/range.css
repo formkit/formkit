@@ -4,6 +4,11 @@
     box-shadow: none;
   }
 
+  & .formkit-inner:focus-within {
+    border: 0;
+    box-shadow: none;
+  }
+
   & input {
     padding-left: 0;
     padding-right: 0;
@@ -46,16 +51,20 @@
       border: 1px solid var(--fk-color-range-thumb);
     }
 
+    &:focus::-webkit-slider-thumb {
+      outline: var(--fk-focus-ring) solid var(--fk-focus-ring-color);
+    }
+
+    &:focus::-moz-range-thumb {
+      outline: var(--fk-focus-ring) solid var(--fk-focus-ring-color);
+    }
+
     &[disabled]::-webkit-slider-thumb {
       background-color: var(--fk-color-border);
     }
 
     &[disabled]::-moz-slider-thumb {
       background-color: var(--fk-color-border);
-    }
-
-    &:focus-visible {
-      outline: var(--fk-border-width) var(--fk-border-style) var(--fk-color-border-focus);
     }
   }
 }
