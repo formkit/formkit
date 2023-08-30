@@ -8,6 +8,7 @@ import { createSection } from '../createSection'
 export const fileRemove = createSection('fileRemove', () => ({
   $el: 'button',
   attrs: {
+    type: 'button',
     onClick: '$handlers.resetFiles',
   },
 }))

@@ -282,6 +282,7 @@ const resetState = () => {
         label="Your résumé"
         accept=".pdf,.doc,.md,.jpg,.jpeg,.png"
         help="Upload your résumé if you have one."
+        multiple
       />
 
       <FormKit
