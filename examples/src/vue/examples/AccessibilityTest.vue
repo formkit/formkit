@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref } from 'vue'
 import { reset, submitForm, FormKitNode } from '@formkit/core'
+import { FormKitSummary } from '@formkit/vue'
 
 const submitError = ref(false)
 const submitted = ref(false)
@@ -61,43 +62,6 @@ const resetState = () => {
   failure.value = false
 }
 
-/**
----- Not yet used
-- ✅ Button
-- ✅ Checkbox
-- ✅ Color
-- ✅ Date
-- ✅ Datetime
-- ✅ Email
-- ✅ File
-- ✅ Group
-- ✅ Hidden
-- ✅ List
-- ✅ Month
-- ✅ Number
-- ✅ Password
-- ✅ Radio
-- ✅ Range
-- ✅ Search
-- ✅ Select
-- ✅ Select (multiple)
-- ✅ Submit
-- ✅ Telephone
-- ✅ Text
-- ✅ Textarea
-- ✅ Time
-- ✅ URL
-- ✅ Week
-
-
-
----- Features
-- Error states
-- Form submission
-- ✅ Conditional fields
-- ✅ Slots
-
- */
 </script>
 
 <template>
@@ -121,6 +85,7 @@ const resetState = () => {
       incomplete-message="Sorry. The application was not submitted because not all fields are filled out correctly."
       @submit="submitApplication"
     >
+      <FormKitSummary />
       <h2>Personal Information</h2>
       <FormKit name="contact_info" type="group">
         <FormKit
@@ -138,6 +103,7 @@ const resetState = () => {
           validation="required"
           help="Enter your last name only."
           outer-class="side-by-side"
+          :errors="['Foobar son, foobar i tell you.']"
         />
         <FormKit
           name="date_of_birth"
@@ -289,6 +255,7 @@ const resetState = () => {
         name="interests"
         label="What are your areas of interest?"
         type="checkbox"
+        validation="required|min:2"
         :options="[
           'Accessibility',
           'Form error handling',

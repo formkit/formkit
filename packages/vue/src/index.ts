@@ -51,6 +51,12 @@ export { FormKitRoot, rootSymbol } from './FormKitRoot'
 export { FormKitMessages } from './FormKitMessages'
 
 /**
+ * The FormKitSummary component.
+ * @public
+ */
+export { FormKitSummary, FormKitSummaryMessage } from './FormKitSummary'
+
+/**
  * The FormKitSchema component.
  */
 export {
