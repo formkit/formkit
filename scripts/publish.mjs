@@ -326,6 +326,15 @@ function publishAffectedPackages() {
  * Prompts the user for a commit message and commits all changes
  */
 async function promptForGitCommit() {
+  const { confirm } = await prompts({
+    type: 'text',
+    name: 'confirm',
+    message: `✅   All packages published. Do you want to commit? `,
+  })
+  if (!confirm) {
+    msg.info('» Cool, you do that committing on your own then ✌️')
+    return false
+  }
   try {
     msg.info('» Staging and committing changed files')
     execSync(`git add .`)
