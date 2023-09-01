@@ -145,8 +145,6 @@ export const FormKitSummary = defineComponent({
       if (typeof window !== 'undefined') {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
         if (summaries.value[0]) {
-          console.log(summaries.value[0])
-          console.log(document.getElementById(summaries.value[0].key))
           document.getElementById(summaries.value[0].key)?.focus()
         }
       }

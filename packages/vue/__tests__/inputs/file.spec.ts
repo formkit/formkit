@@ -52,7 +52,6 @@ describe('file inputs', () => {
         },
       }
     )
-    console.log(wrapper.html())
     expect(wrapper.html().replace(/\s\s+/g, '')).toMatchSnapshot()
   })
 
