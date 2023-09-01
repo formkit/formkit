@@ -23,6 +23,7 @@ import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import SyncedLists from './vue/examples/SyncedLists.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
+import AccessibilityTest from './vue/examples/AccessibilityTest.vue'
 import Zod from './vue/examples/Zod.vue'
 import CustomRoot from './vue/examples/custom-elements/CustomRoot'
 import CustomElements from './vue/examples/CustomElements.vue'
@@ -176,6 +177,10 @@ const router = createRouter({
     {
       path: '/zod',
       component: Zod,
+    },
+    {
+      path: '/accessibility-test',
+      component: AccessibilityTest,
     },
   ],
 })

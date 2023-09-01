@@ -71,6 +71,7 @@ export const FormKitMessages = defineComponent({
       },
       { immediate: true }
     )
+
     const schema = definition(props.sectionsSchema || {})
     const data = computed(() => {
       return {

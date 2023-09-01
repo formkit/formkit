@@ -502,6 +502,11 @@ export interface FormKitFrameworkContext<T = any> {
    */
   type: string
   /**
+   * Translated ui messages that are not validation related. These are generally
+   * used for interface messages like "loading" or "saving".
+   */
+  ui: Record<string, FormKitMessage>
+  /**
    * The current committed value of the input. This is the value that should be
    * used for most use cases.
    */

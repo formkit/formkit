@@ -8,6 +8,7 @@ function setNode(node: FormKitNode) {
 <template>
   <FormKit type="form" :actions="false" #default="{ value }">
     {{ value }}
+    <FormKit type="number" number="integer" value="abc" />
     <FormKit type="multi-step" tab-style="tab" @node="setNode">
       <template #badge> </template>
       <template #steps> </template>

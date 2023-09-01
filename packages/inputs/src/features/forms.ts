@@ -40,6 +40,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   node.walk(setSubmitted)
   setSubmitted(node)
 
+  node.emit('submit-raw')
   if (typeof node.props.onSubmitRaw === 'function') {
     node.props.onSubmitRaw(submitEvent, node)
   }

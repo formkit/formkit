@@ -11,11 +11,13 @@ import { describe, expect, it } from 'vitest'
 
 describe('file inputs', () => {
   it('can rehydrate a file input using an array', () => {
+    const id = 'super-unique-id-2'
     const wrapper = mount(
       {
         template: `
         <FormKit
           type="file"
+          id="${id}"
           :value="[
             { name: 'test.pdf' }
           ]"
@@ -28,16 +30,15 @@ describe('file inputs', () => {
         },
       }
     )
-    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
-      '<li class="formkit-file-item"><!----><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove"><!---->Remove</button></li>'
-    )
+    expect(wrapper.html()).toMatchSnapshot()
   })
 
   it('can rehydrate a file from the form', () => {
+    const id = 'super-unique-id'
     const wrapper = mount(
       {
         template: `
-        <FormKit type="form" :value="{ file: [{ name: 'test.jpg' }] }">
+        <FormKit type="form" id="${id}" :value="{ file: [{ name: 'test.jpg' }] }">
           <FormKit
             type="file"
             name="file"
@@ -51,9 +52,7 @@ describe('file inputs', () => {
         },
       }
     )
-    expect(wrapper.html().replace(/\s\s+/g, '')).toContain(
-      `<li class=\"formkit-file-item\"><!----><span class=\"formkit-file-name\">test.jpg</span><button class=\"formkit-file-remove\"><!---->Remove</button></li>`
-    )
+    expect(wrapper.html().replace(/\s\s+/g, '')).toMatchSnapshot()
   })
 
   it('can override the class for a file’s name', () => {

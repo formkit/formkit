@@ -53,12 +53,25 @@
   &:focus-within {
     box-shadow: var(--fk-border-box-shadow-focus);
   }
+  /*
+  @nest [data-invalid] &, [data-errors] & {
+    box-shadow: var(--fk-border-box-shadow-invalid);
+  }
+
+  @nest [data-invalid] &:focus-within, [data-errors] &:focus-within {
+    outline: var(--fk-error-ring) solid var(--fk-error-ring-focus-color);
+    outline-offset: var(--fk-error-ring-offset);
+  } */
 
   /* border removal for checkbox and radio inputs */
   @nest [data-type='checkbox'] &, [data-type='radio'] & {
     border: none;
     box-shadow: none;
     display: inline-block;
+
+    @nest [data-invalid] &:focus-within, [data-errors] &:focus-within {
+      outline: none;
+    }
   }
 }
 

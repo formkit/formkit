@@ -1,0 +1,25 @@
+.formkit-summary {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.formkit-summary-inner {
+  padding: var(--fk-margin-outer-b);
+  border: var(--fk-error-ring) solid var(--fk-error-ring-color);
+  border-radius: 0.5em;
+}
+
+.formkit-summary-header {
+  font-size: var(--fk-font-size-summary);
+  margin: 0 0 var(--fk-margin-outer-b) 0;
+}
+
+.formkit-message-link {
+  color: var(--fk-color-danger);
+  text-decoration: none;
+}
+
+.formkit-message-link:focus {
+  outline: var(--fk-error-ring) solid var(--fk-error-ring-color);
+}

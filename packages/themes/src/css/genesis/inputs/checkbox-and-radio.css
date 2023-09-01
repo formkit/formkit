@@ -70,6 +70,7 @@
 
   & .formkit-input:focus ~ .formkit-decorator {
     box-shadow: var(--fk-border-box-shadow-decorator-focus);
+    outline: var(--fk-focus-ring) solid var(--fk-focus-ring-color);
   }
 
   & .formkit-input:focus-visible ~ .formkit-decorator {

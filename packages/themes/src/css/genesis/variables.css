@@ -28,6 +28,7 @@
   --fk-font-size-option: 0.9em;
   --fk-font-size-message: 0.8125em;
   --fk-font-size-button: 0.875em;
+  --fk-font-size-summary: 1.25em;
 
   --fk-line-height: 1.1;
   --fk-line-height-label: var(--fk-line-height);
@@ -43,7 +44,7 @@
   --fk-box-size: 1.25em;
 
   /* Colors */
-  --fk-color-primary: #0275ff;
+  --fk-color-primary: #006ff9;
   --fk-color-checked: var(--fk-color-primary);
   --fk-color-input: #000;
   --fk-color-input-selection: rgba(0, 122, 255, 25%);
@@ -63,6 +64,11 @@
   --fk-color-submit-hover: var(--fk-color-button-hover);
   --fk-color-range-track: var(--fk-color-border);
   --fk-color-range-thumb: var(--fk-color-primary);
+  --fk-focus-ring-color: rgb(50 100 203 / 31%);
+  --fk-error-ring-color: rgb(235 0 0 / 60%);
+  --fk-error-ring-focus-color: rgb(235 0 0 / 30%);
+
+
 
   --fk-bg-input: transparent;
   --fk-bg-disabled: rgba(0 0 0 / 5%);
@@ -77,7 +83,7 @@
   --fk-border-width-decorator: var(--fk-border-width);
   --fk-border-width-focus: 2px;
   --fk-border-width-checked: 1px;
-  --fk-border-width-decorator-checked: 1px;
+  --fk-border-width-decorator-checked: 2px;
   --fk-border-width-decorator-focus: var(--fk-border-width-decorator-checked);
   --fk-border-width-decorator-focus-visible: var(--fk-border-width-focus);
   --fk-border-style: solid;
@@ -93,12 +99,16 @@
   --fk-border-box-shadow-decorator-focus: 0 0 0 var(--fk-border-width-decorator-focus) var(--fk-color-border-focus);
   --fk-border-box-shadow-decorator-focus-visible: 0 0 0 var(--fk-border-width-decorator-focus-visible) var(--fk-color-border-focus);
   --fk-border-box-shadow-decorator-checked: 0 0 0 var(--fk-border-width-decorator-checked) var(--fk-color-border-focus);
+  --fk-border-box-shadow-invalid: 0 0 0 var(--fk-border-width-decorator-focus-visible) var(--fk-error-ring-color);
   --fk-border-radius-tl: 0.25em;
   --fk-border-radius-tr: 0.25em;
   --fk-border-radius-bl: 0.25em;
   --fk-border-radius-br: 0.25em;
   --fk-border-radius: var(--fk-border-radius-tl, 0.25em) var(--fk-border-radius-tr, 0.25em) var(--fk-border-radius-br, 0.25em) var(--fk-border-radius-bl, 0.25em);
   --fk-border-radius-full: 999em;
+  --fk-focus-ring: 0.25em;
+  --fk-error-ring: 3px;
+  --fk-error-ring-offset: 2px;
 
   /* Padding */
   --fk-padding-base: 0.25em;

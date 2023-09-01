@@ -89,6 +89,7 @@ export default function files(node: FormKitNode): void {
       if (node.props.id && isBrowser) {
         const el = document.getElementById(node.props.id)
         if (el) (el as HTMLInputElement).value = ''
+        el?.focus()
       }
     }
 
