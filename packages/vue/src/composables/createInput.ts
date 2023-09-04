@@ -38,7 +38,8 @@ function isComponent(obj: any): obj is Component {
  */
 export function createInput(
   schemaOrComponent: FormKitSchemaNode | FormKitSection | Component,
-  definitionOptions: Partial<FormKitTypeDefinition> = {}
+  definitionOptions: Partial<FormKitTypeDefinition> = {},
+  wrappingSchema: typeof useSchema = useSchema
 ): FormKitTypeDefinition {
   const definition: FormKitTypeDefinition = {
     type: 'input',
@@ -60,8 +61,8 @@ export function createInput(
     schema = createSection('input', () => cloneAny(schemaOrComponent))
   }
 
-  // Use the default wrapping schema
-  definition.schema = useSchema(schema || 'Schema undefined')
+  // Use the user-provided or default wrapping schema
+  definition.schema = wrappingSchema(schema || 'Schema undefined')
   if (!definition.schemaMemoKey) {
     definition.schemaMemoKey = `${Math.random()}`
   }
