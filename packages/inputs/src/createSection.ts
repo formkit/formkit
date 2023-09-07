@@ -74,6 +74,7 @@ export function createSection(
   fragment: false
 ): FormKitSection<FormKitSchemaExtendableSection>
 
+/*@__NO_SIDE_EFFECTS__*/
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
@@ -127,6 +128,7 @@ export function createSection(
  *
  * @internal
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function createRoot(
   rootSection: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
@@ -168,6 +170,7 @@ export function isSchemaObject(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function extendSchema(
   schema: FormKitSchemaNode,
   extension: Partial<FormKitSchemaNode> = {}
