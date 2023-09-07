@@ -2,14 +2,14 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import { fragment } from '../compose'
 
 /**
- * Input definition for a hidden input.
+ * Input definition for a meta input.
  * @public
  */
 export const meta: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: fragment(),
+  schema: /*#__PURE__*/ fragment(),
   /**
    * The type of node, can be a list, group, or input.
    */
