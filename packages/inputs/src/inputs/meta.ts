@@ -9,7 +9,7 @@ export const meta: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: /*#__PURE__*/ fragment(),
+  schema: fragment(),
   /**
    * The type of node, can be a list, group, or input.
    */

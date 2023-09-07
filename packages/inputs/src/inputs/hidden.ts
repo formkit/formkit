@@ -9,7 +9,7 @@ export const hidden: FormKitTypeDefinition = {
   /**
    * The actual schema of the input, or a function that returns the schema.
    */
-  schema: /*#__PURE__*/ textInput(),
+  schema: textInput(),
   /**
    * The type of node, can be a list, group, or input.
    */

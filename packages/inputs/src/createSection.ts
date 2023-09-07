@@ -82,7 +82,10 @@ export function createSection(
 ): FormKitSection<
   FormKitExtendableSchemaRoot | FormKitSchemaExtendableSection
 > {
-  return (...children: Array<FormKitSchemaExtendableSection | string>) => {
+  /*@__NO_SIDE_EFFECTS__*/
+  const callableSchema = (
+    ...children: Array<FormKitSchemaExtendableSection | string>
+  ) => {
     const extendable = (
       extensions: Record<string, Partial<FormKitSchemaNode>>
     ) => {
@@ -117,6 +120,7 @@ export function createSection(
     extendable._s = section
     return fragment ? createRoot(extendable) : extendable
   }
+  return callableSchema
 }
 
 /**
