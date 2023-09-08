@@ -501,6 +501,14 @@ export interface FormKitOptionsItem<V = unknown> {
 }
 
 /**
+ * Option groups should always be formatted as an array of objects with group and nested options
+ */
+export interface FormKitOptionsGroup {
+  group: string
+  options: FormKitOptionsProp
+}
+
+/**
  * An array of option items.
  *
  * @public
@@ -529,6 +537,14 @@ export interface FormKitOptionsPropExtensions {
  */
 export type FormKitOptionsProp =
   FormKitOptionsPropExtensions[keyof FormKitOptionsPropExtensions]
+
+/**
+ * The types of options that can be passed to the options prop.
+ *
+ * @public
+ */
+export type FormKitOptionsPropWithGroups = FormKitOptionsProp &
+  FormKitOptionsGroup
 
 /**
  * Typings for all the built in runtime props.

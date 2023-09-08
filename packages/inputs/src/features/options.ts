@@ -1,5 +1,5 @@
 import { FormKitNode } from '@formkit/core'
-import { FormKitOptionsProp, FormKitOptionsList } from '../props'
+import { FormKitOptionsPropWithGroups, FormKitOptionsList } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
@@ -13,7 +13,7 @@ import { eq, isPojo } from '@formkit/utils'
  * @public
  */
 export function normalizeOptions(
-  options: FormKitOptionsProp
+  options: FormKitOptionsPropWithGroups
 ): FormKitOptionsList {
   let i = 1
   if (Array.isArray(options)) {
