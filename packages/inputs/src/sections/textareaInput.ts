@@ -4,6 +4,7 @@ import { createSection } from '../createSection'
  * Input section used by textarea inputs
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export const textareaInput = createSection('input', () => ({
   $el: 'textarea',

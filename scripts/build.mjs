@@ -312,6 +312,8 @@ async function bundle(p, format, subPackage) {
   }
   await execa(rollup, [
     '-c',
+    '--configPlugin',
+    'typescript',
     '--environment',
     args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])
@@ -347,7 +349,9 @@ async function declarations(p, plugin = '') {
   ]
   if (plugin) args.push({ name: 'PLUGIN', value: plugin })
   const output = await execa(rollup, [
-    '-c',
+  '-c',
+  '--configPlugin',
+  'typescript',
     '--environment',
     args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])

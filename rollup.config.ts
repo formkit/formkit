@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import { PluginPure } from 'rollup-plugin-pure'
 import postcss from 'rollup-plugin-postcss'
 import postcssNesting from 'postcss-nesting'
 import autoprefixer from 'autoprefixer'
@@ -8,12 +9,15 @@ import atImport from 'postcss-import'
 // import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-
+// import * as sections from './packages/inputs/src/sections'
+import { defineConfig } from 'rollup'
+import type { OutputOptions, ModuleFormat } from 'rollup'
+import { readdirSync } from 'fs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const pkg = process.env.PKG
-const format = process.env.FORMAT
+const pkg = process.env.PKG as string
+const format = process.env.FORMAT as ModuleFormat
 const declarations = process.env.DECLARATIONS ? true : false
 const theme = process.env.THEME || false
 const plugin = process.env.PLUGIN || false
@@ -24,12 +28,12 @@ if (!format) throw Error('Please include a bundle format')
 const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
-export default {
+export default defineConfig({
+  output: createOutputConfig(),
   external: ['vue', 'react', 'unocss', 'tailwindcss', 'windicss'],
   input: createInputPath(),
-  output: createOutputConfig(),
   plugins: createPluginsConfig(),
-}
+})
 
 /**
  * Create the expected path for the input file.
@@ -44,9 +48,9 @@ function createInputPath() {
 /**
  * Creates rollup output configuration.
  */
-function createOutputConfig() {
+function createOutputConfig(): OutputOptions {
   if (!declarations) {
-    const extras = {}
+    const extras: Partial<OutputOptions> = {}
     let fileName =
       format !== 'iife'
         ? `index.${format === 'esm' ? 'mjs' : format}`
@@ -62,7 +66,7 @@ function createOutputConfig() {
       file: `${rootPath}/dist/${fileName}`,
       name:
         format === 'iife'
-          ? `FormKit${pkg[0].toUpperCase()}${pkg.substr(1)}`
+          ? `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`
           : `@formkit/${pkg}`,
       format,
       ...extras,
@@ -85,11 +89,27 @@ function createPluginsConfig() {
   if (pkg === 'themes') {
     plugins.push(
       postcss({
-        from: `${rootPath}/src/css/${theme}/${theme}.css`,
+        // from: `${rootPath}/src/css/${theme}/${theme}.css`,
         plugins: [atImport(), postcssNesting(), autoprefixer()],
         extract: true,
       })
     )
+  }
+
+  if (pkg === 'inputs') {
+    const functions = readdirSync(resolve(rootPath, 'src/sections'))
+      .map((file) => file.substring(0, file.length - 3))
+      .filter((file) => file !== 'index')
+      .concat([
+        'defaultIcon',
+        `[$]attrs`,
+        `[$]if`,
+        '[$]for',
+        '[$]extend',
+        '[$]root',
+      ])
+    console.log(functions)
+    plugins.push(PluginPure({ functions }))
   }
   // This commented out code is used for compiling
   // .vue SFC files — current we dont have any:
