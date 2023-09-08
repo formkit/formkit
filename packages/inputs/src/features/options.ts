@@ -1,5 +1,12 @@
 import { FormKitNode } from '@formkit/core'
-import { FormKitOptionsPropWithGroups, FormKitOptionsList } from '../props'
+import {
+  FormKitOptionsPropWithGroups,
+  FormKitOptionsListWithGroups,
+  FormKitOptionsItem,
+  FormKitOptionsGroupItem,
+  FormKitOptionsList,
+  FormKitOptionsProp,
+} from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**
@@ -12,28 +19,35 @@ import { eq, isPojo } from '@formkit/utils'
  *
  * @public
  */
-export function normalizeOptions(
-  options: FormKitOptionsPropWithGroups
-): FormKitOptionsList {
+export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
+  options: T
+): T extends FormKitOptionsProp
+  ? FormKitOptionsList
+  : FormKitOptionsListWithGroups {
   let i = 1
   if (Array.isArray(options)) {
-    return options.map((option) => {
-      if (typeof option === 'string' || typeof option === 'number') {
-        return {
-          label: String(option),
-          value: String(option),
+    return options.map(
+      (option): FormKitOptionsItem | FormKitOptionsGroupItem => {
+        if (typeof option === 'string' || typeof option === 'number') {
+          return {
+            label: String(option),
+            value: String(option),
+          }
         }
-      }
-      if (typeof option == 'object') {
-        if ('value' in option && typeof option.value !== 'string') {
-          Object.assign(option, {
-            value: `__mask_${i++}`,
-            __original: option.value,
-          })
+        if (typeof option == 'object') {
+          if ('group' in option) {
+            option.options = normalizeOptions(option.options)
+            return option
+          } else if ('value' in option && typeof option.value !== 'string') {
+            Object.assign(option, {
+              value: `__mask_${i++}`,
+              __original: option.value,
+            })
+          }
         }
+        return option
       }
-      return option
-    })
+    ) as any
   }
   return Object.keys(options).map((value) => {
     return {
