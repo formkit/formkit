@@ -387,13 +387,16 @@ importers:
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3
+      nuxi:
+        specifier: ^3.8.0
+        version: 3.8.0
       pathe:
         specifier: ^1.1.1
         version: 1.1.1
     devDependencies:
       '@nuxt/module-builder':
         specifier: ^0.4.0
-        version: 0.4.0(@nuxt/kit@3.6.5)(nuxi@3.6.5)
+        version: 0.4.0(@nuxt/kit@3.6.5)(nuxi@3.8.0)
       '@nuxt/schema':
         specifier: ^3.5.3
         version: 3.6.5(rollup@3.27.0)
@@ -2719,6 +2722,25 @@ packages:
       - supports-color
     dev: true
 
+  /@nuxt/module-builder@0.4.0(@nuxt/kit@3.6.5)(nuxi@3.8.0):
+    resolution: {integrity: sha512-B+UAYgFV1Hkc2ZcD7GaiKZ3SNHhyxFlXzZoBWTc9ulE0Z/+rq6RTa9fNm13BZyGhVhDCl5FN/wF/yYa1O/D2iw==}
+    hasBin: true
+    peerDependencies:
+      '@nuxt/kit': ^3.5.0
+      nuxi: ^3.5.0
+    dependencies:
+      '@nuxt/kit': 3.6.5(rollup@3.27.0)
+      consola: 3.1.0
+      mlly: 1.4.0
+      mri: 1.2.0
+      nuxi: 3.8.0
+      pathe: 1.1.1
+      unbuild: 1.2.1
+    transitivePeerDependencies:
+      - sass
+      - supports-color
+    dev: true
+
   /@nuxt/schema@3.3.2(rollup@3.27.0):
     resolution: {integrity: sha512-M2X/iwdX4hct31A7LA2+e41F91VZUXmwS5sZ03G49RnZdEXHMOKBO67e1d+5uxYmRD6eM/EyxWdPVgyLf6wocw==}
     engines: {node: ^14.18.0 || ^16.10.0 || ^17.0.0 || ^18.0.0 || ^19.0.0}
@@ -4716,7 +4738,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
@@ -6654,6 +6676,14 @@ packages:
 
   /fsevents@2.3.2:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
@@ -8630,7 +8660,7 @@ packages:
     engines: {node: ^14.18.0 || ^16.10.0 || ^17.0.0 || ^18.0.0 || ^19.0.0}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /nuxi@3.6.5:
@@ -8638,8 +8668,15 @@ packages:
     engines: {node: ^14.18.0 || >=16.10.0}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
+
+  /nuxi@3.8.0:
+    resolution: {integrity: sha512-SdeSKuKXTGZD5kbQR7eoM56/P30zK/FWp8QAgUzeI2ZlMyali53LvCh0UzvgCurSor9p66wm2o6FIqh3Avnjzg==}
+    engines: {node: ^14.18.0 || >=16.10.0}
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.3.3
 
   /nuxt@3.3.2(@types/node@18.15.10)(eslint@8.36.0)(rollup@3.27.0)(stylelint@14.16.1)(terser@5.16.8)(typescript@5.1.3):
     resolution: {integrity: sha512-9xNd9+7M03oYktHnuEEgNRJYfkFwjlLvRi1NsEuEyzcc0SgazGZT89CBsQnlWI3wFMhoxoYPGJ8rc4sJAhJ1Gg==}
@@ -10619,7 +10656,7 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: false
 
   /rollup@3.27.0:
@@ -10627,7 +10664,7 @@ packages:
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /rrweb-cssom@0.6.0:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
@@ -11523,7 +11560,7 @@ packages:
       '@esbuild-kit/core-utils': 3.1.0
       '@esbuild-kit/esm-loader': 2.5.5
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /tuf-js@1.1.2:
@@ -12205,7 +12242,7 @@ packages:
       resolve: 1.22.1
       rollup: 2.77.3
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: false
 
   /vite@4.2.1(@types/node@18.15.10)(terser@5.16.8):
@@ -12240,7 +12277,7 @@ packages:
       rollup: 3.27.0
       terser: 5.16.8
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /vite@4.3.9(@types/node@18.15.10)(terser@5.16.8):
@@ -12274,7 +12311,7 @@ packages:
       rollup: 3.27.0
       terser: 5.16.8
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /vite@4.4.7(@types/node@18.15.10)(sass@1.60.0)(terser@5.16.8):
@@ -12312,7 +12349,7 @@ packages:
       sass: 1.60.0
       terser: 5.16.8
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /vitest@0.33.0(jsdom@21.1.1)(terser@5.16.8):
     resolution: {integrity: sha512-1CxaugJ50xskkQ0e969R/hW47za4YXDUfWJDxip1hwbnhUjYolpfUn2AMOulqG/Dtd9WYAtkHmM/m3yKVrEejQ==}
