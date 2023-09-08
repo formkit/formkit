@@ -320,6 +320,7 @@ export function isPojo(o: any): o is Record<string, any> {
  * @returns `Record<string, any> | string | null`
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export function extend(
   original: Record<string, any>,
