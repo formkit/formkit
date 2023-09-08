@@ -100,15 +100,19 @@ function createPluginsConfig() {
     const functions = readdirSync(resolve(rootPath, 'src/sections'))
       .map((file) => file.substring(0, file.length - 3))
       .filter((file) => file !== 'index')
-      .concat([
-        'defaultIcon',
-        `[$]attrs`,
-        `[$]if`,
-        '[$]for',
-        '[$]extend',
-        '[$]root',
-      ])
-    console.log(functions)
+      .concat(['defaultIcon', `$attrs`, `$if`, '$for', '$extend', '$root'])
+    plugins.push(PluginPure({ functions }))
+  }
+
+  if (pkg === 'vue') {
+    const functions = [
+      'message',
+      'messages',
+      'summary',
+      'summaryInner',
+      'summaryHeader',
+      'messageLink',
+    ]
     plugins.push(PluginPure({ functions }))
   }
   // This commented out code is used for compiling
