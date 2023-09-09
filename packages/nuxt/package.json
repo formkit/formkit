@@ -28,12 +28,13 @@
     "@formkit/vue": "1.0.0",
     "@nuxt/kit": "^3.5.3",
     "chokidar": "^3.5.3",
-    "nuxi": "^3.8.0",
+    "nuxi": "^3.8.1",
     "pathe": "^1.1.1"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "^0.4.0",
-    "@nuxt/schema": "^3.5.3",
-    "@nuxt/ui-templates": "^1.3.1"
+    "@nuxt/module-builder": "^0.5.1",
+    "@nuxt/schema": "^3.7.1",
+    "@nuxt/ui-templates": "^1.3.1",
+    "nuxt": "^3.7.1"
   }
 }
