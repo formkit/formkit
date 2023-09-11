@@ -1,7 +1,7 @@
 import { defineComponent, SetupContext } from 'vue'
 import { FormKitOptions, createConfig } from '@formkit/core'
 import { optionsSymbol, configSymbol } from './plugin'
-import { provide, h } from 'vue'
+import { provide } from 'vue'
 
 export interface FormKitProviderProps {
   config?: FormKitOptions | ((...args: any[]) => FormKitOptions)
