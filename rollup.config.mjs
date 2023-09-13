@@ -11,13 +11,12 @@ import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 // import * as sections from './packages/inputs/src/sections'
 import { defineConfig } from 'rollup'
-import type { OutputOptions, ModuleFormat } from 'rollup'
 import { readdirSync } from 'fs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const pkg = process.env.PKG as string
-const format = process.env.FORMAT as ModuleFormat
+const pkg = process.env.PKG
+const format = process.env.FORMAT
 const declarations = process.env.DECLARATIONS ? true : false
 const theme = process.env.THEME || false
 const plugin = process.env.PLUGIN || false
@@ -48,9 +47,9 @@ function createInputPath() {
 /**
  * Creates rollup output configuration.
  */
-function createOutputConfig(): OutputOptions {
+function createOutputConfig() {
   if (!declarations) {
-    const extras: Partial<OutputOptions> = {}
+    const extras = {}
     let fileName =
       format !== 'iife'
         ? `index.${format === 'esm' ? 'mjs' : format}`
