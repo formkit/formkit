@@ -95,28 +95,33 @@ export const FormKitConfigLoader = defineComponent(
  *    which will render the children once the config has been loaded by using
  *    the FormKitConfigLoader component.
  */
-export const FormKitLazyProvider = defineComponent(function FormKitLazyProvider(
-  props: ConfigLoaderProps,
-  context: SetupContext<typeof Suspense>
-) {
-  const config = inject(optionsSymbol, null)
-  if (config) {
-    // If there is already a config provided, render the children immediately.
-    return () => (context.slots?.default ? context.slots.default() : null)
+export const FormKitLazyProvider = defineComponent(
+  function FormKitLazyProvider(
+    props: ConfigLoaderProps,
+    context: SetupContext<typeof Suspense>
+  ) {
+    const config = inject(optionsSymbol, null)
+    if (config) {
+      // If there is already a config provided, render the children immediately.
+      return () => (context.slots?.default ? context.slots.default() : null)
+    }
+    const instance = getCurrentInstance() as ComponentInternalInstance & {
+      suspense?: boolean
+    }
+    if (instance.suspense) {
+      // If there is a suspense boundary already in place, we can render the
+      // config loader without another suspense boundary.
+      return () => h(FormKitConfigLoader, props, context.slots)
+    }
+    // If there is no suspense boundary, and no config, we render the suspense
+    // boundary and the config loader.
+    return () =>
+      h(Suspense, null, {
+        ...context.slots,
+        default: () => h(FormKitConfigLoader, props, context.slots),
+      })
+  },
+  {
+    props: ['defaultConfig', 'configFile'],
   }
-  const instance = getCurrentInstance() as ComponentInternalInstance & {
-    suspense?: boolean
-  }
-  if (instance.suspense) {
-    // If there is a suspense boundary already in place, we can render the
-    // config loader without another suspense boundary.
-    return () => h(FormKitConfigLoader, props, context.slots)
-  }
-  // If there is no suspense boundary, and no config, we render the suspense
-  // boundary and the config loader.
-  return () =>
-    h(Suspense, null, {
-      ...context.slots,
-      default: () => h(FormKitConfigLoader, props, context.slots),
-    })
-})
+)
