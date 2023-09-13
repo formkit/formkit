@@ -4,6 +4,8 @@ import { optionsSymbol, configSymbol } from './plugin'
 import { provide, inject } from 'vue'
 import { h } from 'vue'
 import { Suspense } from 'vue'
+import { getCurrentInstance } from 'vue'
+import { ComponentInternalInstance } from 'vue'
 
 export function useConfig(
   config?: FormKitOptions | ((...args: any[]) => FormKitOptions)
@@ -74,7 +76,7 @@ export const FormKitConfigLoader = defineComponent(
     }
     const useDefaultConfig = props.defaultConfig ?? true
     if (useDefaultConfig) {
-      const { defaultConfig } = await import('@formkit/vue')
+      const { defaultConfig } = await import('./defaultConfig')
       config = defaultConfig(config)
     }
     return () => h(FormKitProvider, { config }, context.slots)
@@ -95,17 +97,26 @@ export const FormKitConfigLoader = defineComponent(
  */
 export const FormKitLazyProvider = defineComponent(function FormKitLazyProvider(
   props: ConfigLoaderProps,
-  context
+  context: SetupContext<typeof Suspense>
 ) {
   const config = inject(optionsSymbol, null)
-  return config
-    ? // If there is already a config provided, render the children immediately.
-      () => (context.slots?.default ? context.slots.default() : null)
-    : // If there is no config provided, render a Suspense component that will
-      // render the children once the config has been loaded.
-      () =>
-        h(Suspense, null, {
-          ...context.slots,
-          default: () => h(FormKitConfigLoader, props, context.slots),
-        })
+  if (config) {
+    // If there is already a config provided, render the children immediately.
+    return () => (context.slots?.default ? context.slots.default() : null)
+  }
+  const instance = getCurrentInstance() as ComponentInternalInstance & {
+    suspense?: boolean
+  }
+  if (instance.suspense) {
+    // If there is a suspense boundary already in place, we can render the
+    // config loader without another suspense boundary.
+    return () => h(FormKitConfigLoader, props, context.slots)
+  }
+  // If there is no suspense boundary, and no config, we render the suspense
+  // boundary and the config loader.
+  return () =>
+    h(Suspense, null, {
+      ...context.slots,
+      default: () => h(FormKitConfigLoader, props, context.slots),
+    })
 })

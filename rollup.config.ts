@@ -59,6 +59,7 @@ function createOutputConfig(): OutputOptions {
       extras.globals = {
         vue: 'Vue',
       }
+      extras.inlineDynamicImports = true
     }
     if (theme) fileName = theme + '/theme.js'
     if (plugin) fileName = `${plugin}/${fileName}`

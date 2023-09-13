@@ -1,7 +1,7 @@
 import { ref, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import defaultConfig from '../src/defaultConfig'
+import defaultConfig from '../src'
 import { plugin } from '../src/plugin'
 import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'

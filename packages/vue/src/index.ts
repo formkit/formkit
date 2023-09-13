@@ -84,7 +84,7 @@ export {
  * The default configuration.
  */
 export {
-  default as defaultConfig,
+  defaultConfig,
   DefaultConfigOptions,
   PluginConfigs,
 } from './defaultConfig'

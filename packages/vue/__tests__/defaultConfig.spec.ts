@@ -1,6 +1,6 @@
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import defaultConfig from '../src'
 import { mount } from '@vue/test-utils'
 import { FormKitValidationRule } from '@formkit/validation'
 import { getNode, FormKitPlugin } from '@formkit/core'
