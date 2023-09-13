@@ -54,7 +54,12 @@ export { FormKitMessages } from './FormKitMessages'
  * The FormKitProvider component.
  * @public
  */
-export { FormKitProvider } from './FormKitProvider'
+export {
+  FormKitProvider,
+  FormKitLazyProvider,
+  FormKitConfigLoader,
+  useConfig,
+} from './FormKitProvider'
 
 /**
  * The FormKitSummary component.

@@ -1,7 +1,7 @@
 import { defineComponent, SetupContext } from 'vue'
 import { FormKitOptions, createConfig } from '@formkit/core'
 import { optionsSymbol, configSymbol } from './plugin'
-import { provide } from 'vue'
+import { provide, inject } from 'vue'
 import { h } from 'vue'
 import { Suspense } from 'vue'
 
@@ -39,7 +39,7 @@ export interface FormKitProviderProps {
 }
 
 export interface ConfigLoaderProps {
-  defaultConfig: boolean
+  defaultConfig?: boolean
   configFile?: string
 }
 
@@ -72,12 +72,12 @@ export const FormKitConfigLoader = defineComponent(
     if (props.configFile) {
       config = await import(props.configFile)
     }
-    if (props.defaultConfig) {
+    const useDefaultConfig = props.defaultConfig ?? true
+    if (useDefaultConfig) {
       const { defaultConfig } = await import('@formkit/vue')
       config = defaultConfig(config)
     }
-    useConfig(config)
-    return () => (context.slots.default ? context.slots.default(config) : null)
+    return () => h(FormKitProvider, { config }, context.slots)
   },
   {
     props: ['defaultConfig', 'configFile'],
@@ -97,5 +97,15 @@ export const FormKitLazyProvider = defineComponent(function FormKitLazyProvider(
   props: ConfigLoaderProps,
   context
 ) {
-  return () => h(Suspense, null, h(FormKitConfigLoader, props, context.slots))
+  const config = inject(optionsSymbol, null)
+  return config
+    ? // If there is already a config provided, render the children immediately.
+      () => (context.slots?.default ? context.slots.default() : null)
+    : // If there is no config provided, render a Suspense component that will
+      // render the children once the config has been loaded.
+      () =>
+        h(Suspense, null, {
+          ...context.slots,
+          default: () => h(FormKitConfigLoader, props, context.slots),
+        })
 })

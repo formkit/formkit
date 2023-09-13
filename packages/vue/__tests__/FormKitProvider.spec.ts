@@ -1,4 +1,10 @@
-import { FormKit, FormKitProvider, defaultConfig, plugin } from '../src'
+import {
+  FormKit,
+  FormKitProvider,
+  FormKitLazyProvider,
+  defaultConfig,
+  plugin,
+} from '../src'
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { FormKitNode } from '@formkit/core'
@@ -64,5 +70,47 @@ describe('FormKitProvider', () => {
     )
     expect(wrapper.find('input').exists()).toBe(false)
     expect(wrapper.html()).toContain('<h1>This is a custom text input</h1>')
+  })
+
+  it('does not interfere when no config is provided', () => {
+    const wrapper = mount(
+      {
+        components: {
+          FormKit,
+          FormKitProvider,
+        },
+        template: `
+          <FormKitProvider>
+            <FormKit type="text" name="foo" />
+          </FormKitProvider>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input.formkit-input').exists()).toBe(true)
+  })
+
+  it('can use a custom FormKitLazyProvider to automatically inject a defaultConfig', async () => {
+    const wrapper = mount({
+      components: {
+        FormKit,
+        FormKitLazyProvider,
+      },
+      methods: {
+        defaultConfig,
+      },
+      template: `
+          <FormKitLazyProvider>
+            <FormKit type="text" name="foo" />
+          </FormKitLazyProvider>
+        `,
+    })
+    // Need to provide enough time for the Suspense component to render.
+    await new Promise((r) => setTimeout(r, 100))
+    expect(wrapper.find('input').exists()).toBe(true)
   })
 })
