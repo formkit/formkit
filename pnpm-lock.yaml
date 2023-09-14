@@ -361,11 +361,7 @@ importers:
         specifier: 1.0.0
         version: link:../vue
       '@nuxt/kit':
-<<<<<<< HEAD
-        specifier: ^3.5.3
-=======
         specifier: ^3.7.1
->>>>>>> 58ae041 (chore: updates nxut deps)
         version: 3.7.1(rollup@3.29.0)
       chokidar:
         specifier: ^3.5.3
@@ -494,6 +490,10 @@ importers:
       zod:
         specifier: ^3.0.0
         version: 3.21.4
+    devDependencies:
+      '@formkit/vue':
+        specifier: 1.0.0
+        version: link:../vue
 
 packages:
 

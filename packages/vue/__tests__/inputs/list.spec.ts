@@ -1,5 +1,5 @@
 import { FormKitMiddleware, getNode, reset, FormKitNode } from '@formkit/core'
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig } from '../../src/defaultConfig'
 import { plugin } from '../../src/plugin'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
