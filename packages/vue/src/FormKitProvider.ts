@@ -112,7 +112,10 @@ export const FormKitLazyProvider = defineComponent(
     if (instance.suspense) {
       // If there is a suspense boundary already in place, we can render the
       // config loader without another suspense boundary.
-      return () => h(FormKitConfigLoader, props, context.slots)
+      return () =>
+        h(FormKitConfigLoader, props, {
+          default: context.slots?.default ? context.slots.default() : null,
+        })
     }
     // If there is no suspense boundary, and no config, we render the suspense
     // boundary and the config loader.
