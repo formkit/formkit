@@ -72,7 +72,8 @@ export const FormKitConfigLoader = defineComponent(
   async function FormKitConfigLoader(props: ConfigLoaderProps, context) {
     let config = {}
     if (props.configFile) {
-      config = await import(props.configFile)
+      const configFile = await import(props.configFile)
+      config = 'default' in configFile ? configFile.default : configFile
     }
     const useDefaultConfig = props.defaultConfig ?? true
     if (useDefaultConfig) {
