@@ -94,7 +94,7 @@ export const getCurrentSchemaNode = () => currentSchemaNode
  * @param props - The props passed to the component.
  * @param context - The context passed to the component.
  */
-function setup<Props extends FormKitInputs<Props>>(
+function FormKit<Props extends FormKitInputs<Props>>(
   props: Props,
   context: SetupContext<{}, {}>
 ): RenderFunction {
@@ -172,7 +172,7 @@ function setup<Props extends FormKitInputs<Props>>(
  *
  * @public
  */
-export const formkitComponent = defineComponent(setup as any, {
+export const formkitComponent = defineComponent(FormKit as any, {
   props: runtimeProps as any,
   inheritAttrs: false,
 }) as FormKitComponent
