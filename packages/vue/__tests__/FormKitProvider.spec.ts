@@ -4,6 +4,7 @@ import {
   FormKitLazyProvider,
   defaultConfig,
   plugin,
+  createInput,
 } from '../src'
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -112,5 +113,48 @@ describe('FormKitProvider', () => {
     // Need to provide enough time for the Suspense component to render.
     await new Promise((r) => setTimeout(r, 100))
     expect(wrapper.find('input').exists()).toBe(true)
+  })
+
+  it('can sub-render a FormKit component that is not registered globally', () => {
+    const library = () => {}
+    library.library = (node: FormKitNode) => {
+      if (node.props.type === 'sub-render') {
+        node.define(
+          createInput({
+            $cmp: 'FormKit',
+            props: {
+              type: 'child',
+            },
+          })
+        )
+      }
+      if (node.props.type === 'child') {
+        node.define(
+          createInput({
+            $el: 'h1',
+            children: 'I am a child',
+          })
+        )
+      }
+    }
+    const wrapper = mount({
+      components: {
+        FormKit,
+        FormKitProvider,
+      },
+      data() {
+        return {
+          config: {
+            plugins: [library],
+          },
+        }
+      },
+      template: `
+          <FormKitProvider :config="config">
+            <FormKit type="sub-render" />
+          </FormKitProvider>
+        `,
+    })
+    expect(wrapper.find('h1').text()).toBe('I am a child')
   })
 })

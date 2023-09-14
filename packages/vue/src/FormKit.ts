@@ -13,6 +13,7 @@ import {
   VNodeProps,
   AllowedComponentProps,
   ComponentCustomProps,
+  markRaw,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
@@ -143,9 +144,10 @@ function FormKit<Props extends FormKitInputs<Props>>(
   }
 
   context.emit('node', node)
-  const library = node.props.definition.library as
+  const definitionLibrary = node.props.definition.library as
     | Record<string, ConcreteComponent>
     | undefined
+  const library = { FormKit: markRaw(formkitComponent), ...definitionLibrary }
 
   // // Expose the FormKitNode to template refs.
   context.expose({ node })
