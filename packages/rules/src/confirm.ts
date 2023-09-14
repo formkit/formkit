@@ -3,7 +3,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 const hasConfirm = /(_confirm(?:ed)?)$/
 
 /**
- * Determine if the given input's value matches another input's value
+ * Determine if the given input's value matches another input's value.
  * @param context - The FormKitValidationContext
  * @public
  */

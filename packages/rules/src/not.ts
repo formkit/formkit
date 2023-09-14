@@ -2,7 +2,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 import { eq } from '@formkit/utils'
 
 /**
- * Determine if the given input's value is not in a given stack
+ * Determine if the given input's value is not in a given stack.
  * @param context - The FormKitValidationContext
  * @public
  */

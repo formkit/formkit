@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value before a given date.
+ * Determine if the given input's value is before a given date.
  * @param context - The FormKitValidationContext
  * @public
  */

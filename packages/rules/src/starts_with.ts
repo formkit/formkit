@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value starts with a substring
+ * Determine if the given input's value starts with a substring.
  * @param context - The FormKitValidationContext
  * @public
  */

@@ -37,6 +37,9 @@ describe('alphanumeric', () => {
       alphanumeric(createNode({ value: 'àáâäï123123íôöÆ' }), 'latin')
     ).toBe(false))
 
+  it('passes with simple string if latin', () =>
+    expect(alphanumeric(createNode({ value: 'azAZ123' }), 'latin')).toBe(true))
+
   it('fails with decimals in', () =>
     expect(alphanumeric(createNode({ value: 'abcABC99.123' }))).toBe(false))
 })

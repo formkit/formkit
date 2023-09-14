@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value contain symbol.
+ * Determine if the given input's value contains symbol characters.
  * @param context - The FormKitValidationContext
  * @public
  */

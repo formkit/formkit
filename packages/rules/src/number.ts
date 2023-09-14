@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value is numeric
+ * Determine if the given input's value is numeric.
  * @param context - The FormKitValidationContext
  * @public
  */

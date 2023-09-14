@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value ends with a given string
+ * Determine if the given input's value ends with a given string.
  * @param context - The FormKitValidationContext
  * @public
  */
