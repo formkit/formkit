@@ -80,7 +80,7 @@ export const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
     const useDefaultConfig = props.defaultConfig ?? true
     if (useDefaultConfig) {
       const { defaultConfig } = await import('./defaultConfig')
-      config = defaultConfig(config)
+      config = /* @__PURE__ */ defaultConfig(config)
     }
     return () => h(FormKitProvider, { config }, context.slots)
   },
