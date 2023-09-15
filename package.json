@@ -53,7 +53,7 @@
     "prompts": "^2.4.1",
     "rollup": "^3.23.1",
     "rollup-plugin-postcss": "^4.0.1",
-    "rollup-plugin-pure": "^0.2.0",
+    "rollup-plugin-pure": "^0.2.1",
     "rollup-plugin-vue": "^6.0.0",
     "stylelint": "^14.0.1",
     "stylelint-config-standard": "^23.0.0",
