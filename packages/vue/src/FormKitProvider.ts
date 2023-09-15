@@ -48,7 +48,7 @@ export interface ConfigLoaderProps {
 /**
  * The FormKitProvider component provides the FormKit config to the children.
  */
-export const FormKitProvider = defineComponent(
+export const FormKitProvider = /* #__PURE__ */ defineComponent(
   function FormKitProvider<
     P extends FormKitProviderProps,
     S extends { default: FormKitOptions }
@@ -68,7 +68,7 @@ export const FormKitProvider = defineComponent(
  * grandparent Suspense component to render) that loads the FormKit config and
  * provides it to the children.
  */
-export const FormKitConfigLoader = defineComponent(
+export const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
   async function FormKitConfigLoader(props: ConfigLoaderProps, context) {
     let config = {}
     if (props.configFile) {
@@ -98,7 +98,7 @@ export const FormKitConfigLoader = defineComponent(
  *    which will render the children once the config has been loaded by using
  *    the FormKitConfigLoader component.
  */
-export const FormKitLazyProvider = defineComponent(
+export const FormKitLazyProvider = /* #__PURE__ */ defineComponent(
   function FormKitLazyProvider(
     props: ConfigLoaderProps,
     context: SetupContext<typeof Suspense>

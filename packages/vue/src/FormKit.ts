@@ -147,7 +147,11 @@ function FormKit<Props extends FormKitInputs<Props>>(
   const definitionLibrary = node.props.definition.library as
     | Record<string, ConcreteComponent>
     | undefined
-  const library = { FormKit: markRaw(formkitComponent), ...definitionLibrary }
+
+  const library = {
+    FormKit: markRaw(formkitComponent),
+    ...definitionLibrary,
+  }
 
   // // Expose the FormKitNode to template refs.
   context.expose({ node })
@@ -174,10 +178,13 @@ function FormKit<Props extends FormKitInputs<Props>>(
  *
  * @public
  */
-export const formkitComponent = defineComponent(FormKit as any, {
-  props: runtimeProps as any,
-  inheritAttrs: false,
-}) as FormKitComponent
+export const formkitComponent = /* #__PURE__ */ defineComponent(
+  FormKit as any,
+  {
+    props: runtimeProps as any,
+    inheritAttrs: false,
+  }
+) as FormKitComponent
 
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow

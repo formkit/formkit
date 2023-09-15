@@ -27,7 +27,7 @@ export const rootSymbol: InjectionKey<Ref<Document | ShadowRoot | undefined>> =
  *
  * @public
  */
-export const FormKitRoot = defineComponent((_p, context) => {
+export const FormKitRoot = /* #__PURE__ */ defineComponent((_p, context) => {
   const boundary = ref<null | HTMLElement>(null)
   const showBody = ref(false)
   const shadowRoot = ref<Document | ShadowRoot | undefined>(undefined)
