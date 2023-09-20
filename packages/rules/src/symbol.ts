@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value is only alpha characters.
+ * Determine if the given input's value contains only symbol characters.
  * @param context - The FormKitValidationContext
  * @public
  */

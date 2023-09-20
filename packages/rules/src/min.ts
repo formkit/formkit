@@ -1,8 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value is greater than or equal to a certain
- * value.
+ * Determine if the given input's value is greater than or equal to the minimum.
  * @param context - The FormKitValidationContext
  * @public
  */
