@@ -845,7 +845,7 @@ function clean(
  *
  * @public
  */
-export const FormKitSchema = defineComponent({
+export const FormKitSchema = /* #__PURE__ */ defineComponent({
   name: 'FormKitSchema',
   props: {
     schema: {

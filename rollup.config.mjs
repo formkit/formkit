@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import { PluginPure } from 'rollup-plugin-pure'
 import postcss from 'rollup-plugin-postcss'
 import postcssNesting from 'postcss-nesting'
 import autoprefixer from 'autoprefixer'
@@ -8,7 +9,9 @@ import atImport from 'postcss-import'
 // import vue from 'rollup-plugin-vue'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-
+// import * as sections from './packages/inputs/src/sections'
+import { defineConfig } from 'rollup'
+import { readdirSync } from 'fs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -24,12 +27,12 @@ if (!format) throw Error('Please include a bundle format')
 const rootPath = resolve(__dirname, `packages/${pkg}`)
 const tsConfig = createTypeScriptConfig()
 
-export default {
+export default defineConfig({
+  output: createOutputConfig(),
   external: ['vue', 'react', 'unocss', 'tailwindcss', 'windicss'],
   input: createInputPath(),
-  output: createOutputConfig(),
   plugins: createPluginsConfig(),
-}
+})
 
 /**
  * Create the expected path for the input file.
@@ -55,6 +58,7 @@ function createOutputConfig() {
       extras.globals = {
         vue: 'Vue',
       }
+      extras.inlineDynamicImports = true
     }
     if (theme) fileName = theme + '/theme.js'
     if (plugin) fileName = `${plugin}/${fileName}`
@@ -62,7 +66,7 @@ function createOutputConfig() {
       file: `${rootPath}/dist/${fileName}`,
       name:
         format === 'iife'
-          ? `FormKit${pkg[0].toUpperCase()}${pkg.substr(1)}`
+          ? `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`
           : `@formkit/${pkg}`,
       format,
       ...extras,
@@ -85,11 +89,31 @@ function createPluginsConfig() {
   if (pkg === 'themes') {
     plugins.push(
       postcss({
-        from: `${rootPath}/src/css/${theme}/${theme}.css`,
+        // from: `${rootPath}/src/css/${theme}/${theme}.css`,
         plugins: [atImport(), postcssNesting(), autoprefixer()],
         extract: true,
       })
     )
+  }
+
+  if (pkg === 'inputs') {
+    const functions = readdirSync(resolve(rootPath, 'src/sections'))
+      .map((file) => file.substring(0, file.length - 3))
+      .filter((file) => file !== 'index')
+      .concat(['defaultIcon', `$attrs`, `$if`, '$for', '$extend', '$root'])
+    plugins.push(PluginPure({ functions }))
+  }
+
+  if (pkg === 'vue') {
+    const functions = [
+      'message',
+      'messages',
+      'summary',
+      'summaryInner',
+      'summaryHeader',
+      'messageLink',
+    ]
+    plugins.push(PluginPure({ functions }))
   }
   // This commented out code is used for compiling
   // .vue SFC files — current we dont have any:

@@ -5,6 +5,6 @@ export default defineFormKitConfig(() => {
   const config = useRuntimeConfig()
 
   return {
-    theme: config.theme,
+    // theme: config.theme,
   }
 })

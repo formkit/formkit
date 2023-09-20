@@ -74,6 +74,7 @@ export function createSection(
   fragment: false
 ): FormKitSection<FormKitSchemaExtendableSection>
 
+/*@__NO_SIDE_EFFECTS__*/
 export function createSection(
   section: string,
   el: string | null | (() => FormKitSchemaNode),
@@ -81,7 +82,10 @@ export function createSection(
 ): FormKitSection<
   FormKitExtendableSchemaRoot | FormKitSchemaExtendableSection
 > {
-  return (...children: Array<FormKitSchemaExtendableSection | string>) => {
+  /*@__NO_SIDE_EFFECTS__*/
+  const callableSchema = (
+    ...children: Array<FormKitSchemaExtendableSection | string>
+  ) => {
     const extendable = (
       extensions: Record<string, Partial<FormKitSchemaNode>>
     ) => {
@@ -116,6 +120,7 @@ export function createSection(
     extendable._s = section
     return fragment ? createRoot(extendable) : extendable
   }
+  return callableSchema
 }
 
 /**
@@ -127,6 +132,7 @@ export function createSection(
  *
  * @internal
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function createRoot(
   rootSection: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
@@ -168,6 +174,7 @@ export function isSchemaObject(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function extendSchema(
   schema: FormKitSchemaNode,
   extension: Partial<FormKitSchemaNode> = {}

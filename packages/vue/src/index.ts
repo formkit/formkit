@@ -51,6 +51,17 @@ export { FormKitRoot, rootSymbol } from './FormKitRoot'
 export { FormKitMessages } from './FormKitMessages'
 
 /**
+ * The FormKitProvider component.
+ * @public
+ */
+export {
+  FormKitProvider,
+  FormKitLazyProvider,
+  FormKitConfigLoader,
+  useConfig,
+} from './FormKitProvider'
+
+/**
  * The FormKitSummary component.
  * @public
  */
@@ -73,7 +84,7 @@ export {
  * The default configuration.
  */
 export {
-  default as defaultConfig,
+  defaultConfig,
   DefaultConfigOptions,
   PluginConfigs,
 } from './defaultConfig'

@@ -1,6 +1,6 @@
 import FormKitIcon from '../src/FormKitIcon'
 import { plugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import { defaultConfig } from '../src'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 

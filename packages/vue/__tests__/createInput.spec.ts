@@ -6,7 +6,7 @@ import CustomCompositionInput from './mocks/CustomCompositionInput'
 import CustomOptionsInput from './mocks/CustomOptionsInput'
 import FormKit from '../src/FormKit'
 import { plugin } from '../src/plugin'
-import defaultConfig from '../src/defaultConfig'
+import { defaultConfig } from '../src'
 import { nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 

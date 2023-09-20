@@ -1,7 +1,7 @@
 import {
   FormKitOptions,
   FormKitNode,
-  FormKitConfig,
+  FormKitRootConfig,
   getNode,
   createConfig,
   setErrors,
@@ -73,7 +73,7 @@ export const optionsSymbol: InjectionKey<FormKitOptions> =
  *
  * @public
  */
-export const configSymbol: InjectionKey<FormKitConfig> =
+export const configSymbol: InjectionKey<FormKitRootConfig> =
   Symbol.for('FormKitConfig')
 
 /**
@@ -116,6 +116,6 @@ export const plugin: Plugin = {
     /**
      * Provide the root config to the application.
      */
-    app.provide(configSymbol, rootConfig as FormKitConfig)
+    app.provide(configSymbol, rootConfig)
   },
 }

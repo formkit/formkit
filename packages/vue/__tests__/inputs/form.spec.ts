@@ -1,7 +1,7 @@
 import FormKit from '../../src/FormKit'
 import { FormKitMessages } from '../../src/FormKitMessages'
 import { plugin, FormKitVuePlugin } from '../../src/plugin'
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig } from '../../src/defaultConfig'
 import { getNode, setErrors, FormKitNode, reset } from '@formkit/core'
 import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'

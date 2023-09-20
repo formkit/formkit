@@ -39,7 +39,7 @@ const definition = messages(message('$message.value'))
  * Renders the messages for a parent node, or any node explicitly passed to it.
  * @public
  */
-export const FormKitMessages = defineComponent({
+export const FormKitMessages = /* #__PURE__ */ defineComponent({
   props: {
     node: {
       type: Object as PropType<FormKitNode> | undefined,

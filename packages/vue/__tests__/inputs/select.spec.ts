@@ -1,7 +1,7 @@
 import FormKit from '../../src/FormKit'
 import FormKitSchema from '../../src/FormKitSchema'
 import { plugin } from '../../src/plugin'
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig } from '../../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'

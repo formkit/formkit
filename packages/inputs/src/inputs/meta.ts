@@ -2,7 +2,7 @@ import { FormKitTypeDefinition } from '@formkit/core'
 import { fragment } from '../compose'
 
 /**
- * Input definition for a hidden input.
+ * Input definition for a meta input.
  * @public
  */
 export const meta: FormKitTypeDefinition = {

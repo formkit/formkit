@@ -9,29 +9,29 @@ import { FormKitIconLoader, createIconHandler } from '@formkit/themes'
  *
  * @public
  */
-export const FormKitIcon = defineComponent({
+export const FormKitIcon = /* #__PURE__ */ defineComponent({
   name: 'FormKitIcon',
   props: {
     icon: {
       type: String,
-      default: ''
+      default: '',
     },
     iconLoader: {
       type: Function as PropType<FormKitIconLoader>,
-      default: null
+      default: null,
     },
     iconLoaderUrl: {
-      type: Function as PropType<((iconName: string) => string)>,
-      default: null
-    }
+      type: Function as PropType<(iconName: string) => string>,
+      default: null,
+    },
   },
-  setup (props) {
-    const icon = ref<undefined|string>(undefined)
+  setup(props) {
+    const icon = ref<undefined | string>(undefined)
     const config = inject(optionsSymbol, {})
     const parent = inject(parentSymbol, null)
     let iconHandler: FormKitIconLoader | undefined = undefined
 
-    function loadIcon () {
+    function loadIcon() {
       if (!iconHandler || typeof iconHandler !== 'function') return
       const iconOrPromise = iconHandler(props.icon)
       if (iconOrPromise instanceof Promise) {
@@ -49,35 +49,42 @@ export const FormKitIcon = defineComponent({
     } else if (parent && parent.props?.iconLoader) {
       // otherwise try to inherit from a parent
       iconHandler = createIconHandler(parent.props.iconLoader)
-    } else if (props.iconLoaderUrl && typeof props.iconLoaderUrl === 'function') {
+    } else if (
+      props.iconLoaderUrl &&
+      typeof props.iconLoaderUrl === 'function'
+    ) {
       iconHandler = createIconHandler(iconHandler, props.iconLoaderUrl)
     } else {
       // grab our iconHandler from the global config
-      const iconPlugin = config?.plugins?.find(plugin => {
-        return typeof (plugin as FormKitPlugin & { iconHandler: FormKitIconLoader }).iconHandler === 'function'
-      }) as FormKitPlugin & { iconHandler: FormKitIconLoader } | undefined
+      const iconPlugin = config?.plugins?.find((plugin) => {
+        return (
+          typeof (plugin as FormKitPlugin & { iconHandler: FormKitIconLoader })
+            .iconHandler === 'function'
+        )
+      }) as (FormKitPlugin & { iconHandler: FormKitIconLoader }) | undefined
       if (iconPlugin) {
         iconHandler = iconPlugin.iconHandler
       }
     }
-    
-    watch(() => props.icon, () => {
-      loadIcon()
-    }, { immediate: true })
+
+    watch(
+      () => props.icon,
+      () => {
+        loadIcon()
+      },
+      { immediate: true }
+    )
 
     return () => {
       if (props.icon && icon.value) {
-        return h(
-          'span',
-          {
-            class: 'formkit-icon',
-            innerHTML: icon.value
-          }
-        )
+        return h('span', {
+          class: 'formkit-icon',
+          innerHTML: icon.value,
+        })
       }
       return null
     }
-  }
+  },
 })
 
 export default FormKitIcon

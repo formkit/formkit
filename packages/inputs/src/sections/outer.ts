@@ -4,6 +4,7 @@ import { createSection } from '../createSection'
  * Outer section where most data attributes are assigned.
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export const outer = createSection('outer', () => ({
   $el: 'div',
