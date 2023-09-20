@@ -38,6 +38,6 @@
     "@formkit/utils": "1.1.0"
   },
   "devDependencies": {
-    "@formkit/vue": "^1.0.0"
+    "@formkit/vue": "^1.1.0"
   }
 }

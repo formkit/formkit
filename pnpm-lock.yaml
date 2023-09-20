@@ -204,7 +204,7 @@ importers:
   e2e:
     dependencies:
       '@formkit/vue':
-        specifier: workspace:1.0.0
+        specifier: workspace:1.1.0
         version: link:../packages/vue
 
   examples:
@@ -254,31 +254,31 @@ importers:
     dependencies:
       '@formkit/auto-animate':
         specifier: latest
-        version: 0.7.0
+        version: 0.8.0
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../inputs
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../inputs
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
       axios:
         specifier: ^0.27.2
@@ -309,65 +309,65 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.0.0
+        specifier: ^1.1.0
         version: link:../vue
 
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/i18n':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../i18n
       '@formkit/vue':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.7.1
@@ -398,28 +398,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
@@ -432,7 +432,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       tailwindcss:
         specifier: ^3.2.0
@@ -449,43 +449,43 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/observer':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../observer
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       '@formkit/dev':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../dev
       '@formkit/i18n':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../inputs
       '@formkit/observer':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../observer
       '@formkit/rules':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../rules
       '@formkit/themes':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../themes
       '@formkit/utils':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../validation
       vue:
         specifier: ^3.3.4
@@ -494,14 +494,14 @@ importers:
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../core
       zod:
         specifier: ^3.0.0
         version: 3.21.4
     devDependencies:
       '@formkit/vue':
-        specifier: 1.0.0
+        specifier: 1.1.0
         version: link:../vue
 
 packages:
@@ -2750,8 +2750,8 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formkit/auto-animate@0.7.0:
-    resolution: {integrity: sha512-RczHUr0AhRPssREoNdRjLfk2b/id9/DFnbIq18QM8L7E4zNV3XH+WO480EZ46BQHDEsv76YPJ0JbG2Y2i3GfXw==}
+  /@formkit/auto-animate@0.8.0:
+    resolution: {integrity: sha512-G8f7489ka0mWyi+1IEZT+xgIwcpWtRMmE2x+IrVoQ+KM1cP6VDj/TbujZjwxdb0P8w8b16/qBfViRmydbYHwMw==}
     dev: false
 
   /@formkit/auto-animate@1.0.0-beta.6:
