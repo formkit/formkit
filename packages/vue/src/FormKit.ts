@@ -56,7 +56,7 @@ export type FormKitComponent = <Props extends FormKitInputs<Props>>(
  * @public
  */
 export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
-  props: {} & Props & { onInput: (value: any) => void }
+  props: {} & Props
   expose(exposed: {}): void
   attrs: any
   slots: Slots<Props>
