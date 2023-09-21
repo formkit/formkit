@@ -13,6 +13,7 @@ import {
   selectInput,
   option,
   optionSlot,
+  optGroup,
   $if,
   options,
   selects,
@@ -37,7 +38,13 @@ export const select: FormKitTypeDefinition = {
           $if(
             '$slots.default',
             () => '$slots.default',
-            $if('$slots.option', optionSlot, option('$option.label'))
+            optionSlot(
+              $if(
+                '$option.group',
+                optGroup(optionSlot(option('$option.label'))),
+                option('$option.label')
+              )
+            )
           )
         ),
         $if('$attrs.multiple !== undefined', () => '', icon('select')),

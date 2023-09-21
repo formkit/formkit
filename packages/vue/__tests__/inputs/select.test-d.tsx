@@ -29,6 +29,36 @@ describe('describe file input types', () => {
     )
   })
 
+  it('allows groups', () => {
+    assertType(
+      <FormKit
+        type="select"
+        value="1"
+        options={[
+          { group: 'Group 1', options: [
+            { label: 'A', value: 1 },
+            { label: 'B', value: 2 },
+          ]}
+        ]}
+      />
+    )
+  })
+
+  it('allows group attrs arbitrary properties of groups', () => {
+    assertType(
+      <FormKit
+        type="select"
+        value="1"
+        options={[
+          { group: 'Group 1', attrs: { 'data-foo': 'bar' },   options: [
+            { label: 'A', value: 1 },
+            { label: 'B', value: 2 },
+          ]}
+        ]}
+      />
+    )
+  })
+
   it('does not allow a number as a value', () => {
     // @ts-expect-error - value cannot be a number
     assertType(<FormKit type="select" options={['A', 'B']} value={123} />)

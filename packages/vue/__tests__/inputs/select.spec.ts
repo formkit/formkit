@@ -388,6 +388,69 @@ describe('select', () => {
     expect(wrapper.html()).toContain('<option value="m">mars</option>')
   })
 
+  it('can render groups of options', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const options = [
+            { label: 'Earth', value: 'earth' },
+            {
+              group: 'Other Planets',
+              options: {
+                v: 'venus',
+                m: 'mars',
+                j: 'jupiter',
+              },
+            },
+          ]
+          return {
+            options,
+          }
+        },
+        template: `
+          <FormKit :delay="0" name="select_with_groups" id="select_with_groups" type="select" :options="options"></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('can render groups of options as the first item', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const options = [
+            {
+              group: 'Other Planets',
+              options: {
+                v: 'venus',
+                m: 'mars',
+                j: 'jupiter',
+              },
+            },
+            { label: 'Earth', value: 'earth' },
+          ]
+          return {
+            options,
+          }
+        },
+        template: `
+          <FormKit :delay="0" value="m" type="select" :options="options"></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('select').element.value).toBe('m')
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
   it('can v-model its data', async () => {
     const wrapper = mount(
       {
@@ -502,6 +565,8 @@ describe('select', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'select',
+        name: 'select_foo',
+        id: 'select_foo',
         options: [],
       },
       global: {
@@ -509,7 +574,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').html()).toBe(
-      '<select class="formkit-input" id="input_11" name="select_10"></select>'
+      '<select class="formkit-input" id="select_foo" name="select_foo"></select>'
     )
   })
 
