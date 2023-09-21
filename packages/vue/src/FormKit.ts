@@ -13,6 +13,7 @@ import {
   VNodeProps,
   AllowedComponentProps,
   ComponentCustomProps,
+  markRaw,
 } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
@@ -55,7 +56,7 @@ export type FormKitComponent = <Props extends FormKitInputs<Props>>(
  * @public
  */
 export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
-  props: {} & Props & { onInput: (value: any) => void }
+  props: {} & Props
   expose(exposed: {}): void
   attrs: any
   slots: Slots<Props>
@@ -94,7 +95,7 @@ export const getCurrentSchemaNode = () => currentSchemaNode
  * @param props - The props passed to the component.
  * @param context - The context passed to the component.
  */
-function setup<Props extends FormKitInputs<Props>>(
+function FormKit<Props extends FormKitInputs<Props>>(
   props: Props,
   context: SetupContext<{}, {}>
 ): RenderFunction {
@@ -143,9 +144,14 @@ function setup<Props extends FormKitInputs<Props>>(
   }
 
   context.emit('node', node)
-  const library = node.props.definition.library as
+  const definitionLibrary = node.props.definition.library as
     | Record<string, ConcreteComponent>
     | undefined
+
+  const library = {
+    FormKit: markRaw(formkitComponent),
+    ...definitionLibrary,
+  }
 
   // // Expose the FormKitNode to template refs.
   context.expose({ node })
@@ -172,10 +178,13 @@ function setup<Props extends FormKitInputs<Props>>(
  *
  * @public
  */
-export const formkitComponent = defineComponent(setup as any, {
-  props: runtimeProps as any,
-  inheritAttrs: false,
-}) as FormKitComponent
+export const formkitComponent = /* #__PURE__ */ defineComponent(
+  FormKit as any,
+  {
+    props: runtimeProps as any,
+    inheritAttrs: false,
+  }
+) as FormKitComponent
 
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow

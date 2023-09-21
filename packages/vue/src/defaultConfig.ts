@@ -52,7 +52,9 @@ export type DefaultConfigOptions = FormKitOptions &
  *
  * @public
  */
-const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
+export const defaultConfig = (
+  options: DefaultConfigOptions = {}
+): FormKitOptions => {
   const {
     rules = {},
     locales = {},
@@ -102,5 +104,3 @@ const defaultConfig = (options: DefaultConfigOptions = {}): FormKitOptions => {
     true
   ) as FormKitOptions
 }
-
-export default defaultConfig

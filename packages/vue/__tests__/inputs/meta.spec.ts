@@ -1,5 +1,5 @@
 import { plugin } from '../../src/plugin'
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig } from '../../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 

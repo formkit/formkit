@@ -1,4 +1,4 @@
-import defaultConfig from '../../src/defaultConfig'
+import { defaultConfig } from '../../src/defaultConfig'
 import { plugin } from '../../src/plugin'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'

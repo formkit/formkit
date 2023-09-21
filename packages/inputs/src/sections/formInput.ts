@@ -4,6 +4,7 @@ import { createSection } from '../createSection'
  * Form section
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export const formInput = createSection('form', () => ({
   $el: 'form',

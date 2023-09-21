@@ -2,7 +2,7 @@ import { has } from '@formkit/utils'
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value contain lowercase.
+ * Determine if the given input's value contains lowercase characters.
  * @param context - The FormKitValidationContext
  * @public
  */
@@ -11,7 +11,7 @@ const contains_lowercase: FormKitValidationRule = function (
   set = 'default'
 ) {
   const sets = {
-    default: /[\p{Ll}]/u,
+    default: /\p{Ll}/u,
     latin: /[a-z]/,
   }
   const selectedSet: 'default' | 'latin' = has(sets, set) ? set : 'default'

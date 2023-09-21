@@ -4,6 +4,7 @@ import { createSection } from '../createSection'
  * Option section used to show options
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export const option = createSection('option', () => ({
   $el: 'option',

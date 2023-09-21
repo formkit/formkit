@@ -59,6 +59,7 @@ export type FormKitInputSchema =
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function isSlotCondition(node: FormKitSchemaNode): node is {
   if: string
   then: string
@@ -87,6 +88,7 @@ export function isSlotCondition(node: FormKitSchemaNode): node is {
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function findSection(
   schema: FormKitSchemaDefinition,
   target: string
@@ -118,6 +120,7 @@ export function findSection(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function eachSection<T>(
   schema: FormKitSchemaDefinition,
   callback: (
@@ -175,6 +178,7 @@ export function eachSection<T>(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function useSchema(
   inputSection: FormKitSection
 ): FormKitSchemaExtendableSection {
@@ -199,6 +203,7 @@ export function useSchema(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function $attrs(
   attrs: FormKitSchemaAttributes | (() => FormKitSchemaAttributes),
   section: FormKitSchemaExtendableSection
@@ -231,6 +236,7 @@ export function $attrs(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function $if(
   condition: string,
   then: FormKitSchemaExtendableSection,
@@ -275,6 +281,7 @@ export function $if(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function $for(
   varName: string,
   inName: string,
@@ -303,6 +310,7 @@ export function $for(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function $extend(
   section: FormKitSchemaExtendableSection,
   extendWith: Partial<FormKitSchemaNode>
@@ -337,6 +345,7 @@ export function $extend(
  *
  * @public
  */
+/*@__NO_SIDE_EFFECTS__*/
 export function $root(
   section: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {

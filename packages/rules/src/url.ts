@@ -1,7 +1,7 @@
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if the given input's value is an http url
+ * Determine if the given input's value is a URL.
  * @param context - The FormKitValidationContext
  * @public
  */

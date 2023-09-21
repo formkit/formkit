@@ -4,6 +4,7 @@ import { createSection } from '../createSection'
  * Wrapper section for options
  *
  * @public
+ * @__NO_SIDE_EFFECTS__
  */
 export const boxWrapper = createSection('wrapper', () => ({
   $el: 'label',

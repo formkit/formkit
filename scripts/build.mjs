@@ -104,7 +104,7 @@ async function selectPackage() {
       value: name,
     })),
   })
-  buildPackage(selection)
+  await buildPackage(selection)
 }
 
 /**
@@ -129,6 +129,7 @@ export async function buildPackage(p) {
   if (!packages.includes(p)) {
     msg.error(`${p} is not an valid package name.`)
   }
+  const startTime = performance.now()
   await cleanDist(p)
   msg.info('» bundling distributions')
   msg.loader.start()
@@ -174,7 +175,7 @@ export async function buildPackage(p) {
   }
 
   msg.loader.stop()
-  msg.success(`📦 build complete`)
+  msg.success(`📦 build complete (${Math.round(performance.now() - startTime) / 1000}s)`)
 }
 
 /**
@@ -347,7 +348,7 @@ async function declarations(p, plugin = '') {
   ]
   if (plugin) args.push({ name: 'PLUGIN', value: plugin })
   const output = await execa(rollup, [
-    '-c',
+  '-c',
     '--environment',
     args.map(({ name, value }) => `${name}:${value}`).join(','),
   ])

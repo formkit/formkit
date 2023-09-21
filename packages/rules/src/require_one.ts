@@ -2,7 +2,7 @@ import { empty } from '@formkit/utils'
 import { FormKitValidationRule } from '@formkit/validation'
 
 /**
- * Determine if one of the given input's value was required.
+ * Determine if any of the given inputs have a value.
  * @param context - The FormKitValidationContext
  * @public
  */

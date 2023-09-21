@@ -52,4 +52,9 @@ describe('contains_alphanumeric', () => {
     expect(
       contains_alphanumeric(createNode({ value: 'àáâäïíôöÆ' }), 'latin')
     ).toBe(false))
+
+  it('passes with accented and latin characters if latin', () =>
+    expect(
+      contains_alphanumeric(createNode({ value: 'àáâäïíôöÆazAZ123' }), 'latin')
+    ).toBe(true))
 })

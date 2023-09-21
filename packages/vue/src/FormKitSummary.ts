@@ -82,7 +82,7 @@ export interface FormKitSummaryMessage {
  * Renders the messages for a parent node, or any node explicitly passed to it.
  * @public
  */
-export const FormKitSummary = defineComponent({
+export const FormKitSummary = /* #__PURE__ */ defineComponent({
   props: {
     node: {
       type: Object as PropType<FormKitNode> | undefined,
