@@ -6,6 +6,7 @@ import {
   FormKitOptionsGroupItem,
   FormKitOptionsList,
   FormKitOptionsProp,
+  isGroupOption,
 } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
@@ -36,8 +37,8 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
         }
         if (typeof option == 'object') {
           if ('group' in option) {
-            option.options = normalizeOptions(option.options)
-            return option
+            option.options = normalizeOptions(option.options || [])
+            return option as FormKitOptionsGroupItem
           } else if ('value' in option && typeof option.value !== 'string') {
             Object.assign(option, {
               value: `__mask_${i++}`,
@@ -45,11 +46,11 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
             })
           }
         }
-        return option
+        return option as FormKitOptionsItem
       }
     ) as any
   }
-  return Object.keys(options).map((value) => {
+  return Object.keys(options).map((value: string) => {
     return {
       label: options[value],
       value,
@@ -58,9 +59,9 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
 }
 
 /**
- * Given an {@link FormKitOptionsList | FormKitOptionsList}, find the real value in the options.
+ * Given an {@link FormKitOptionsList | FormKitOptionsListWithGroups}, find the real value in the options.
  *
- * @param options - The {@link FormKitOptionsList | FormKitOptionsList} to check for a given value
+ * @param options - The {@link FormKitOptionsList | FormKitOptionsListWithGroups} to check for a given value
  * @param value - The value to return
  *
  * @returns `unknown`
@@ -68,12 +69,18 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
  * @public
  */
 export function optionValue(
-  options: FormKitOptionsList,
+  options: FormKitOptionsListWithGroups,
   value: string
 ): unknown {
   if (Array.isArray(options)) {
     for (const option of options) {
-      if (value == option.value) {
+      if (typeof option !== 'object' && option) continue
+      if (isGroupOption(option)) {
+        const found = optionValue(option.options, value)
+        if (found !== undefined) {
+          return found
+        }
+      } else if (value == option.value) {
         return '__original' in option ? option.__original : option.value
       }
     }

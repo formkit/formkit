@@ -128,7 +128,7 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   select: {
     type: 'select'
-    options?: FormKitOptionsProp
+    options?: FormKitOptionsPropWithGroups
     value?: FormKitOptionsValue<Props['options']>
   }
   submit: { type: 'submit'; value?: string }
@@ -503,9 +503,19 @@ export interface FormKitOptionsItem<V = unknown> {
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
  */
-export interface FormKitOptionsGroupItem {
+export interface FormKitOptionsGroupItemProp {
   group: string
   options: FormKitOptionsProp
+  attrs?: Record<string, any>
+}
+
+/**
+ * Option groups should always be formatted as an array of objects with group and nested options
+ */
+export interface FormKitOptionsGroupItem {
+  group: string
+  options: FormKitOptionsList
+  attrs?: Record<string, any>
 }
 
 /**
@@ -522,6 +532,14 @@ export type FormKitOptionsList = FormKitOptionsItem[]
  */
 export type FormKitOptionsListWithGroups = Array<
   FormKitOptionsItem | FormKitOptionsGroupItem
+>
+
+/**
+ * An array of option items with a group support — where the `option` of the
+ * groups can be any valid FormKitOptionsProp type.
+ */
+export type FormKitOptionsListWithGroupsProp = Array<
+  FormKitOptionsItem | FormKitOptionsGroupItemProp
 >
 
 /**
@@ -554,7 +572,7 @@ export type FormKitOptionsProp =
  */
 export type FormKitOptionsPropWithGroups =
   | FormKitOptionsProp
-  | FormKitOptionsListWithGroups
+  | FormKitOptionsListWithGroupsProp
 
 /**
  * Typings for all the built in runtime props.
@@ -714,3 +732,21 @@ export const runtimeProps = [
   'onSubmitInvalid',
   'onSubmitRaw',
 ]
+
+/**
+ * A helper to determine if an option is a group or an option.
+ * @param option - An option
+ */
+export function isGroupOption(
+  option:
+    | FormKitOptionsItem
+    | FormKitOptionsGroupItem
+    | FormKitOptionsGroupItemProp
+): option is FormKitOptionsGroupItem {
+  return (
+    option &&
+    typeof option === 'object' &&
+    'group' in option &&
+    Array.isArray(option)
+  )
+}

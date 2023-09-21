@@ -1,8 +1,12 @@
-import { FormKitOptionsItem } from './../props'
+import {
+  FormKitOptionsItem,
+  FormKitOptionsGroupItem,
+  FormKitOptionsListWithGroups,
+} from './../props'
 import { FormKitNode } from '@formkit/core'
 import { undefine, eq } from '@formkit/utils'
 import { shouldSelect, optionValue } from './options'
-import { FormKitOptionsList } from '../props'
+import { FormKitOptionsList, isGroupOption } from '../props'
 
 /**
  * Checks if a the given option should have the selected attribute.
@@ -11,24 +15,40 @@ import { FormKitOptionsList } from '../props'
  * @returns
  * @public
  */
-function isSelected(node: FormKitNode, option: FormKitOptionsItem) {
+function isSelected(
+  node: FormKitNode,
+  option: FormKitOptionsItem | FormKitOptionsGroupItem
+) {
+  if (isGroupOption(option)) return false
   // Here we trick reactivity (if at play) to watch this function.
   node.context && node.context.value
   const optionValue = '__original' in option ? option.__original : option.value
-  function hasNoNullOption() {
-    return !node.props.options.some(
-      (option: FormKitOptionsItem) =>
-        ('__original' in option ? option.__original : option.value) === null
-    )
-  }
   return Array.isArray(node._value)
     ? node._value.some((optionA) => shouldSelect(optionA, optionValue))
     : (node._value === undefined ||
-        (node._value === null && hasNoNullOption())) &&
+        (node._value === null && !containsValue(node.props.options, null))) &&
       option.attrs &&
       option.attrs['data-is-placeholder']
     ? true
     : shouldSelect(optionValue, node._value)
+}
+
+/**
+ * Checks to see if a given value is anywhere in the options list.
+ */
+function containsValue(
+  options: FormKitOptionsListWithGroups,
+  value: unknown
+): boolean {
+  return options.some((option) => {
+    if (isGroupOption(option)) {
+      return containsValue(option.options, value)
+    } else {
+      return (
+        ('__original' in option ? option.__original : option.value) === value
+      )
+    }
+  })
 }
 
 /**
@@ -84,6 +104,17 @@ function applyPlaceholder(options: FormKitOptionsList, placeholder: string) {
     ]
   }
   return options
+}
+
+/**
+ * Given an options list, find the first true value.
+ * @param options - An options list (with groups)
+ */
+function firstValue(options: FormKitOptionsListWithGroups): unknown {
+  const option = options.length > 0 ? options[0] : undefined
+  if (!option) return undefined
+  if (isGroupOption(option)) return firstValue(option.options)
+  return '__original' in option ? option.__original : option.value
 }
 
 /**
@@ -158,10 +189,7 @@ export default function select(node: FormKitNode): void {
       node.props.options.length &&
       !undefine(node.props?.attrs?.multiple)
     ) {
-      value =
-        '__original' in node.props.options[0]
-          ? node.props.options[0].__original
-          : node.props.options[0].value
+      value = firstValue(node.props.options)
     }
     return next(value)
   })

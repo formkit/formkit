@@ -8,6 +8,7 @@ import {
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
 } from '@formkit/core'
+import { FormKitSchemaCondition } from 'packages/core/src'
 
 /**
  * A function that is called with an extensions argument and returns a valid
@@ -27,7 +28,11 @@ export interface FormKitSchemaExtendableSection {
  * @public
  */
 export interface FormKitSection<T = FormKitSchemaExtendableSection> {
-  (...children: Array<FormKitSchemaExtendableSection | string>): T
+  (
+    ...children: Array<
+      FormKitSchemaExtendableSection | string | FormKitSchemaCondition
+    >
+  ): T
 }
 
 /**
@@ -81,7 +86,11 @@ export function createSection(
 ): FormKitSection<
   FormKitExtendableSchemaRoot | FormKitSchemaExtendableSection
 > {
-  return (...children: Array<FormKitSchemaExtendableSection | string>) => {
+  return (
+    ...children: Array<
+      FormKitSchemaExtendableSection | string | FormKitSchemaCondition
+    >
+  ) => {
     const extendable = (
       extensions: Record<string, Partial<FormKitSchemaNode>>
     ) => {
@@ -93,7 +102,7 @@ export function createSection(
         if (children.length && !node.children) {
           node.children = [
             ...children.map((child) =>
-              typeof child === 'string' ? child : child(extensions)
+              typeof child === 'function' ? child(extensions) : child
             ),
           ]
         }
