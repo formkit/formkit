@@ -101,10 +101,6 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is something to close
    */
   close: 'Close',
-  /*
-   * SHown when there is something to toggle
-   */
-  toggle: 'Toggle',
 }
 
 /**
