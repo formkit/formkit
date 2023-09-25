@@ -7,10 +7,10 @@ import {
   star,
   trash,
   fastForward,
-  rewind
+  rewind,
 } from './icons/application'
 import { arrowDown, arrowUp, down, right, left } from './icons/directional'
-import { date } from './icons/input'
+import { date, color } from './icons/input'
 import { fileDoc } from './icons/file'
 
 /**
@@ -38,6 +38,7 @@ const genesisIcons = {
   right,
   left,
   rewind,
+  color,
 }
 
 export default genesisIcons

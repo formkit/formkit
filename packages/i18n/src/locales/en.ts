@@ -97,6 +97,14 @@ export const ui: FormKitLocaleMessages = {
    * errors and the developer has implemented `<FormKitSummary />`.
    */
   summaryHeader: 'There were errors in your form.',
+  /*
+   * Shown when there is something to close
+   */
+  close: 'Close',
+  /*
+   * SHown when there is something to toggle
+   */
+  toggle: 'Toggle',
 }
 
 /**
