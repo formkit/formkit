@@ -92,6 +92,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Valin dagsetning er ógild',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Loka',
 }
 
 /**

@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -89,6 +92,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Odabrani datum je nevažeći.',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Zatvori',
 }
 
 /**
@@ -299,7 +306,9 @@ export const validation: FormKitValidationMessages = {
   date_format({ name, args }) {
     if (Array.isArray(args) && args.length) {
       /* <i18n case="Shown when the user-provided date does not satisfy the date format supplied to the rule."> */
-      return `${s(name)} nije ispravan datum, molimo koristite format ${args[0]}`
+      return `${s(name)} nije ispravan datum, molimo koristite format ${
+        args[0]
+      }`
       /* </i18n> */
     }
     /* <i18n case="Shown when no date argument was supplied to the rule."> */
@@ -455,13 +464,15 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
   require_one: ({ name, node, args: inputNames }) => {
-    const labels = inputNames.map(name => {
-      const dependentNode = node.at(name)
-      if (dependentNode) {
-        return createMessageName(dependentNode)
-      }
-      return false
-    }).filter(name => !!name)
+    const labels = inputNames
+      .map((name) => {
+        const dependentNode = node.at(name)
+        if (dependentNode) {
+          return createMessageName(dependentNode)
+        }
+        return false
+      })
+      .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
     return `${labels.join(' ili ')} je obavezno.`

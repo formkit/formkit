@@ -89,6 +89,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Сонгосон огноо буруу байна.',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Хаах',
 }
 
 /**

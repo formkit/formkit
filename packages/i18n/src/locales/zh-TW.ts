@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -89,6 +92,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: '選取的日期無效',
+  /**
+   * Shown when there is something to close
+   */
+  close: '關閉',
 }
 
 /**
@@ -354,19 +361,21 @@ export const validation: FormKitValidationMessages = {
    * Require one field.
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
-    require_one: ({ name, node, args: inputNames }) => {
-      const labels = inputNames.map(name => {
+  require_one: ({ name, node, args: inputNames }) => {
+    const labels = inputNames
+      .map((name) => {
         const dependentNode = node.at(name)
         if (dependentNode) {
           return createMessageName(dependentNode)
         }
         return false
-      }).filter(name => !!name)
-      labels.unshift(name)
-      /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
-      return `${labels.join('或')}${labels}需要。`
-      /* </i18n> */
-    },
+      })
+      .filter((name) => !!name)
+    labels.unshift(name)
+    /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
+    return `${labels.join('或')}${labels}需要。`
+    /* </i18n> */
+  },
 
   /**
    * Required field.
