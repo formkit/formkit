@@ -1,10 +1,11 @@
-import { defineFormKitConfig } from '@formkit/vue'
+import { createInput, defineFormKitConfig } from '@formkit/vue'
 
 export default defineFormKitConfig(() => {
-  // @ts-ignore - needed for vitest typecheck
-  const config = useRuntimeConfig()
-
   return {
+    inputs: {
+      foo: createInput({ $el: 'h1', children: 'FOOBAR!' }),
+    },
+    theme: 'genesis',
     // theme: config.theme,
   }
 })
