@@ -423,11 +423,11 @@ importers:
         version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
-        version: 3.2.7(postcss@8.4.27)(ts-node@10.9.1)
+        version: 3.2.7(postcss@8.4.30)(ts-node@10.9.1)
     devDependencies:
       '@types/tailwindcss':
         specifier: ^3.0.10
-        version: 3.1.0(postcss@8.4.27)(ts-node@10.9.1)
+        version: 3.1.0(postcss@8.4.30)(ts-node@10.9.1)
 
   packages/themes:
     dependencies:
@@ -436,7 +436,7 @@ importers:
         version: link:../core
       tailwindcss:
         specifier: ^3.2.0
-        version: 3.2.7(postcss@8.4.27)(ts-node@10.9.1)
+        version: 3.2.7(postcss@8.4.30)(ts-node@10.9.1)
       unocss:
         specifier: ^0.31.0
         version: 0.31.0(vite@2.9.16)
@@ -3293,6 +3293,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     dev: true
     bundledDependencies:
       - napi-wasm
@@ -3547,21 +3548,6 @@ packages:
       rollup: 3.27.0
     dev: true
 
-  /@rollup/pluginutils@5.0.2(rollup@3.29.2):
-    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0
-    peerDependenciesMeta:
-      rollup:
-        optional: true
-    dependencies:
-      '@types/estree': 1.0.0
-      estree-walker: 2.0.2
-      picomatch: 2.3.1
-      rollup: 3.29.2
-    dev: true
-
   /@rollup/pluginutils@5.0.4(rollup@3.27.0):
     resolution: {integrity: sha512-0KJnIoRI8A+a1dqOYLxH8vBf8bphDmty5QvIm2hqm7oFCFYKCAZWWd2hXgMibaPsNDhI0AtpYfQZJG47pt/k4g==}
     engines: {node: '>=14.0.0'}
@@ -3732,11 +3718,11 @@ packages:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
     dev: true
 
-  /@types/tailwindcss@3.1.0(postcss@8.4.27)(ts-node@10.9.1):
+  /@types/tailwindcss@3.1.0(postcss@8.4.30)(ts-node@10.9.1):
     resolution: {integrity: sha512-JxPzrm609hzvF4nmOI3StLjbBEP3WWQxDDJESqR1nh94h7gyyy3XSl0hn5RBMJ9mPudlLjtaXs5YEBtLw7CnPA==}
     deprecated: This is a stub types definition. tailwindcss provides its own type definitions, so you do not need this installed.
     dependencies:
-      tailwindcss: 3.2.7(postcss@8.4.27)(ts-node@10.9.1)
+      tailwindcss: 3.2.7(postcss@8.4.30)(ts-node@10.9.1)
     transitivePeerDependencies:
       - postcss
       - ts-node
@@ -5104,7 +5090,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /chownr@2.0.0:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
@@ -6879,6 +6865,7 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /fsevents@2.3.3:
@@ -8328,6 +8315,10 @@ packages:
     hasBin: true
     dev: true
 
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
+    dev: true
+
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
     dev: true
@@ -9178,13 +9169,13 @@ packages:
       resolve: 1.22.1
     dev: true
 
-  /postcss-import@14.1.0(postcss@8.4.27):
+  /postcss-import@14.1.0(postcss@8.4.30):
     resolution: {integrity: sha512-flwI+Vgm4SElObFVPpTIT7SU7R3qk2L7PyduMcokiaVKuWv9d/U+Gm/QAd8NDLuykTWTkcrjOeD2Pp1rMeBTGw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       postcss: ^8.0.0
     dependencies:
-      postcss: 8.4.27
+      postcss: 8.4.30
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.1
@@ -9211,14 +9202,14 @@ packages:
       postcss: 8.4.21
     dev: true
 
-  /postcss-js@4.0.1(postcss@8.4.27):
+  /postcss-js@4.0.1(postcss@8.4.30):
     resolution: {integrity: sha512-dDLF8pEO191hJMtlHFPRa8xsizHaM82MLfNkUHdUtVEV3tgTp5oj+8qbEqYM57SLfc74KSbw//4SeJma2LRVIw==}
     engines: {node: ^12 || ^14 || >= 16}
     peerDependencies:
       postcss: ^8.4.21
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.27
+      postcss: 8.4.30
 
   /postcss-load-config@3.1.4(postcss@8.4.21)(ts-node@10.9.1):
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
@@ -9238,7 +9229,7 @@ packages:
       yaml: 1.10.2
     dev: true
 
-  /postcss-load-config@3.1.4(postcss@8.4.27)(ts-node@10.9.1):
+  /postcss-load-config@3.1.4(postcss@8.4.30)(ts-node@10.9.1):
     resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
     engines: {node: '>= 10'}
     peerDependencies:
@@ -9251,7 +9242,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.1.0
-      postcss: 8.4.27
+      postcss: 8.4.30
       ts-node: 10.9.1(@types/node@18.15.10)(typescript@5.1.3)
       yaml: 1.10.2
 
@@ -9462,13 +9453,13 @@ packages:
       postcss-selector-parser: 6.0.11
     dev: true
 
-  /postcss-nested@6.0.0(postcss@8.4.27):
+  /postcss-nested@6.0.0(postcss@8.4.30):
     resolution: {integrity: sha512-0DkamqrPcmkBDsLn+vQDIrtkSbNkv5AD/M322ySo9kqFkCIYklym2xEmWkwo+Y3/qZo34tzEPNUw4y7yMCdv5w==}
     engines: {node: '>=12.0'}
     peerDependencies:
       postcss: ^8.2.14
     dependencies:
-      postcss: 8.4.27
+      postcss: 8.4.30
       postcss-selector-parser: 6.0.11
 
   /postcss-nesting@10.2.0(postcss@8.4.21):
@@ -9828,7 +9819,6 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
-    dev: true
 
   /prelude-ls@1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
@@ -10192,7 +10182,7 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: false
 
   /rollup@3.27.0:
@@ -10200,14 +10190,14 @@ packages:
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /rollup@3.29.2:
     resolution: {integrity: sha512-CJouHoZ27v6siztc21eEQGo0kIcE5D1gVPA571ez0mMYb25LGYGKnVNXpEj5MGlepmDWGXNjDB5q7uNiPHC11A==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
     hasBin: true
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /rrweb-cssom@0.6.0:
     resolution: {integrity: sha512-APM0Gt1KoXBz0iIkkdB/kfvGOwC4UuJFeG/c+yV7wSc7q96cG/kJ0HiYCnzivD9SB53cLV1MlHFNfOuPaadYSw==}
@@ -10814,7 +10804,7 @@ packages:
       detective: 5.2.1
       didyoumean: 1.2.2
       dlv: 1.1.3
-      fast-glob: 3.2.12
+      fast-glob: 3.3.1
       glob-parent: 6.0.2
       is-glob: 4.0.3
       lilconfig: 2.1.0
@@ -10835,7 +10825,7 @@ packages:
       - ts-node
     dev: true
 
-  /tailwindcss@3.2.7(postcss@8.4.27)(ts-node@10.9.1):
+  /tailwindcss@3.2.7(postcss@8.4.30)(ts-node@10.9.1):
     resolution: {integrity: sha512-B6DLqJzc21x7wntlH/GsZwEXTBttVSl1FtCzC8WP4oBc/NKef7kaax5jeihkkCEWc831/5NDJ9gRNDK6NEioQQ==}
     engines: {node: '>=12.13.0'}
     hasBin: true
@@ -10856,11 +10846,11 @@ packages:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.0.0
-      postcss: 8.4.27
-      postcss-import: 14.1.0(postcss@8.4.27)
-      postcss-js: 4.0.1(postcss@8.4.27)
-      postcss-load-config: 3.1.4(postcss@8.4.27)(ts-node@10.9.1)
-      postcss-nested: 6.0.0(postcss@8.4.27)
+      postcss: 8.4.30
+      postcss-import: 14.1.0(postcss@8.4.30)
+      postcss-js: 4.0.1(postcss@8.4.30)
+      postcss-load-config: 3.1.4(postcss@8.4.30)(ts-node@10.9.1)
+      postcss-nested: 6.0.0(postcss@8.4.30)
       postcss-selector-parser: 6.0.11
       postcss-value-parser: 4.2.0
       quick-lru: 5.1.1
@@ -11330,7 +11320,7 @@ packages:
         optional: true
     dependencies:
       '@babel/types': 7.22.19
-      '@rollup/pluginutils': 5.0.2(rollup@3.29.2)
+      '@rollup/pluginutils': 5.0.4(rollup@3.29.2)
       '@vue-macros/common': 1.8.0(rollup@3.29.2)(vue@3.3.4)
       ast-walker-scope: 0.4.2
       chokidar: 3.5.3
@@ -11599,11 +11589,11 @@ packages:
         optional: true
     dependencies:
       esbuild: 0.14.54
-      postcss: 8.4.27
+      postcss: 8.4.30
       resolve: 1.22.1
       rollup: 2.77.3
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: false
 
   /vite@4.4.7(@types/node@18.15.10)(sass@1.60.0)(terser@5.16.8):
@@ -11641,7 +11631,7 @@ packages:
       sass: 1.60.0
       terser: 5.16.8
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
 
   /vite@4.4.9(@types/node@18.15.10)(terser@5.16.8):
     resolution: {integrity: sha512-2mbUn2LlUmNASWwSCNSJ/EG2HuSRTnVNaydp6vMCm5VIqJsjMfbIWtbH2kDuwUVW5mMUKKZvGPX/rqeqVvv1XA==}
@@ -11677,7 +11667,7 @@ packages:
       rollup: 3.29.2
       terser: 5.16.8
     optionalDependencies:
-      fsevents: 2.3.2
+      fsevents: 2.3.3
     dev: true
 
   /vitest@0.33.0(jsdom@21.1.1)(terser@5.16.8):
