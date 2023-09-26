@@ -73,11 +73,17 @@ export const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
     let config = {}
     if (props.configFile) {
       const configFile = await import(
-        /*@__formkit.config.ts__*/ props.configFile
+        /*@__formkit.config.ts__*/ /* @vite-ignore */ props.configFile
       )
       config = 'default' in configFile ? configFile.default : configFile
     }
     const useDefaultConfig = props.defaultConfig ?? true
+
+    // Ensure this a factory function for runtimeConfig in nuxt.
+    if (typeof config === 'function') {
+      config = config()
+    }
+
     if (useDefaultConfig) {
       const { defaultConfig } = await import('./defaultConfig')
       config = /* @__PURE__ */ defaultConfig(config)
