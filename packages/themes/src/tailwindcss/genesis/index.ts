@@ -570,7 +570,7 @@ export default {
     help: 'mt-0 mb-1',
     sliderInner:
       'flex items-center py-1 [&>.formkit-max-value]:mb-0 [&>.formkit-max-value]:ml-8 [&>.formkit-max-value]:shrink [&>.formkit-max-value]:grow-0 [&>.formkit-icon]:bg-none [&>.formkit-icon]:border-none [&>.formkit-icon]:p-0 [&>.formkit-icon]:w-4 [&>.formkit-prefix-icon]:mr-2 [&>.formkit-suffix-icon]:ml-2 [&[data-has-mark-labels="true"]_.formkit-track]:mb-4',
-    track: 'grow relative z-[3] py-1',
+    track: 'grow relative z-[3] py-1 user-select-none',
     trackWrapper: 'px-[2px] rounded-full bg-gray-200',
     trackInner: 'h-[6px] mx-[2px] relative',
     fill: 'h-full rounded-full absolute top-0 mx-[-4px] bg-blue-500',
