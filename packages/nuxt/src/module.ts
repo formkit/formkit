@@ -52,6 +52,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     autoImport: false,
   },
   async setup(options, nuxt) {
+    nuxt.options.build.transpile.push('@formkit/vue')
     if (options.autoImport) {
       useAutoImport(options, nuxt)
     } else {
@@ -130,7 +131,6 @@ const useAutoImport = async function installLazy(options, nuxt) {
   )
 
   nuxt.hook('vite:extendConfig', (config) => {
-    console.log(options)
     const plugin = unpluginFormKit({
       defaultConfig: options.defaultConfig,
       configFile: configBase,
@@ -161,7 +161,6 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
 
   const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
   nuxt.options.build.transpile.push(runtimeDir)
-  nuxt.options.build.transpile.push('@formkit/vue')
 
   const configBase = resolve(
     nuxt.options.rootDir,
