@@ -23,9 +23,9 @@
     "build": "nuxi build playground"
   },
   "dependencies": {
-    "@formkit/core": "workspace:*",
-    "@formkit/i18n": "workspace:*",
-    "@formkit/vue": "workspace:*",
+    "@formkit/core": "1.1.0",
+    "@formkit/i18n": "1.1.0",
+    "@formkit/vue": "1.1.0",
     "@nuxt/kit": "^3.7.4",
     "chokidar": "^3.5.3",
     "nuxi": "^3.9.0",
