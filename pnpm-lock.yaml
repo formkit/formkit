@@ -361,13 +361,13 @@ importers:
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: workspace:*
+        specifier: 1.1.0
         version: link:../core
       '@formkit/i18n':
-        specifier: workspace:*
+        specifier: 1.1.0
         version: link:../i18n
       '@formkit/vue':
-        specifier: workspace:*
+        specifier: 1.1.0
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.7.4
