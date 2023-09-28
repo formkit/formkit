@@ -114,7 +114,14 @@ const decodeErrors: FormKitMiddleware<FormKitHandlerPayload> = (
   return next(error)
 }
 
-if (!registered) errorHandler(decodeErrors)
+/**
+ * Register the dev handler (idempotent).
+ *
+ * @public
+ */
+function register() {
+  if (!registered) errorHandler(decodeErrors)
+}
 
 /**
  * Decodes an error that is being emitted and console logs it.
@@ -138,4 +145,4 @@ if (!registered) warningHandler(decodeWarnings)
 registered = true
 
 // Some bundlers need to see an export:
-export { errors, warnings }
+export { errors, warnings, register }

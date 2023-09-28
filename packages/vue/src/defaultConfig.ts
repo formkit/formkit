@@ -18,7 +18,7 @@ import {
   FormKitIconLoaderUrl,
 } from '@formkit/themes'
 import bindings from './bindings'
-import '@formkit/dev'
+import { register as registerDevHandler } from '@formkit/dev'
 
 /**
  * Configuration for plugins
@@ -55,6 +55,7 @@ export type DefaultConfigOptions = FormKitOptions &
 export const defaultConfig = (
   options: DefaultConfigOptions = {}
 ): FormKitOptions => {
+  registerDevHandler()
   const {
     rules = {},
     locales = {},
