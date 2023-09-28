@@ -85,13 +85,13 @@ const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
     if (typeof config === 'function') {
       config = config()
     }
-    /* @__unplugin-formkit-default-config__ */
+    /* @__default-config__ */
     const useDefaultConfig = props.defaultConfig ?? true
     if (useDefaultConfig) {
       const { defaultConfig } = await import('./defaultConfig')
       config = /* @__PURE__ */ defaultConfig(config)
     }
-    /* @__unplugin-formkit-default-config__ */
+    /* @__default-config__ */
     return () => h(FormKitProvider, { config }, context.slots)
   },
   {
