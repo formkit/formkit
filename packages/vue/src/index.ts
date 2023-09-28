@@ -57,7 +57,6 @@ export { FormKitMessages } from './FormKitMessages'
 export {
   FormKitProvider,
   FormKitLazyProvider,
-  FormKitConfigLoader,
   useConfig,
 } from './FormKitProvider'
 
