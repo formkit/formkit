@@ -493,6 +493,10 @@ importers:
       vue:
         specifier: ^3.3.4
         version: 3.3.4
+    devDependencies:
+      '@formkit/icons':
+        specifier: workspace:1.1.0
+        version: link:../icons
 
   packages/zod:
     dependencies:
