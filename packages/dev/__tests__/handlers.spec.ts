@@ -8,8 +8,13 @@ import {
 } from '@formkit/vue'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import '../src/index'
+import { register } from '../src/index'
 import radios from '../../inputs/src/features/radios'
+
+// beforeEach(() => {
+//   register()
+// })
+register()
 
 describe('core error interception', () => {
   it('decodes E100', () => {

@@ -47,6 +47,8 @@ export interface ConfigLoaderProps {
 
 /**
  * The FormKitProvider component provides the FormKit config to the children.
+ *
+ * @public
  */
 export const FormKitProvider = /* #__PURE__ */ defineComponent(
   function FormKitProvider<
@@ -67,21 +69,29 @@ export const FormKitProvider = /* #__PURE__ */ defineComponent(
  * The FormKitConfigLoader is an async component (meaning it needs a parent or
  * grandparent Suspense component to render) that loads the FormKit config and
  * provides it to the children.
+ *
+ * @internal
  */
-export const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
+const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
   async function FormKitConfigLoader(props: ConfigLoaderProps, context) {
     let config = {}
     if (props.configFile) {
       const configFile = await import(
-        /*@__formkit.config.ts__*/ props.configFile
+        /*@__formkit.config.ts__*/ /* @vite-ignore */ props.configFile
       )
       config = 'default' in configFile ? configFile.default : configFile
     }
+    // Ensure this a factory function for runtimeConfig in nuxt.
+    if (typeof config === 'function') {
+      config = config()
+    }
+    /* @__default-config__ */
     const useDefaultConfig = props.defaultConfig ?? true
     if (useDefaultConfig) {
       const { defaultConfig } = await import('./defaultConfig')
       config = /* @__PURE__ */ defaultConfig(config)
     }
+    /* @__default-config__ */
     return () => h(FormKitProvider, { config }, context.slots)
   },
   {
@@ -97,6 +107,8 @@ export const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
  * 2. If a config has not been provided, it will render a Suspense component
  *    which will render the children once the config has been loaded by using
  *    the FormKitConfigLoader component.
+ *
+ * @public
  */
 export const FormKitLazyProvider = /* #__PURE__ */ defineComponent(
   function FormKitLazyProvider(

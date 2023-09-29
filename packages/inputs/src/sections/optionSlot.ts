@@ -1,13 +1,12 @@
-import { FormKitSchemaExtendableSection } from '../createSection'
+import { createSection } from '../createSection'
 
 /**
  * Options slot section that displays options when used with slots
  *
  * @public
  */
-export const optionSlot: FormKitSchemaExtendableSection = () => ({
+export const optionSlot = createSection('options', () => ({
   $el: null,
   if: '$options.length',
-  for: ['option', '$options'],
-  children: '$slots.option',
-})
+  for: ['option', '$option.options || $options'],
+}))

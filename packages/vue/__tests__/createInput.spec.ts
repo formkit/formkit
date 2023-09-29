@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { token } from '@formkit/utils'
 import { FormKitNode } from '@formkit/core'
+import { happy, sad } from '@formkit/icons'
 import { createInput } from '../src/composables/createInput'
 import CustomCompositionInput from './mocks/CustomCompositionInput'
 import CustomOptionsInput from './mocks/CustomOptionsInput'
@@ -102,6 +103,22 @@ describe('schema based inputs', () => {
     })
     expect(wrapper.find('header').exists()).toBe(true)
     expect(wrapper.find('footer').exists()).toBe(true)
+  })
+
+  it('has prefix and suffix icon support', () => {
+    const foo = createInput('FooBar')
+    const wrapper = mount(FormKit, {
+      props: {
+        type: foo,
+        name: 'custom',
+        prefixIcon: 'happy',
+        suffixIcon: 'sad',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { happy, sad } })]],
+      },
+    })
+    expect(wrapper.html()).toMatchSnapshot()
   })
 })
 

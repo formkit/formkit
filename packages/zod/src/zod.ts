@@ -196,7 +196,7 @@ export function createZodPlugin<Z extends z.ZodTypeAny>(
   ): [string[], Record<string, string>] {
     const fieldErrors: Record<string, string> = {}
     const formErrors: string[] = []
-    zodError.errors.forEach((error) => {
+    zodError.issues.forEach((error) => {
       const path = error.path.join('.')
       const targetNode = node.at(path)
       if (targetNode) {

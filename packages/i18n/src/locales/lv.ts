@@ -89,6 +89,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Izvēlētais datums ir nepareizs.',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Aizvērt',
 }
 
 /**
