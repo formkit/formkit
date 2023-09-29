@@ -30,7 +30,7 @@
     "chokidar": "^3.5.3",
     "nuxi": "^3.9.0",
     "pathe": "^1.1.1",
-    "unplugin-formkit": "^0.2.6"
+    "unplugin-formkit": "^0.2.7"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.5.1",
