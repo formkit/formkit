@@ -13,7 +13,8 @@
   <a href="https://formkit.com">Documentation website</a>
 </p>
 
-# FormKit (Beta)
+# FormKit
+
 <h2><img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3 form development. 10x faster.</h2>
 
 FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
@@ -29,6 +30,7 @@ open source project. Please consider [sponsoring FormKit](https://github.com/spo
 and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
 
 ### 💎 Platinum sponsors
+
 <p style="margin-bottom: 1em;">
   <a href="https://vueschool.io?friend=formkit">
     <img src="https://cdn.formk.it/web-assets/sponsors/vueschool.png" alt="Vue School logo" style="width: 25%;">
@@ -36,6 +38,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 </p>
 
 ### 🥇 Gold sponsors
+
 <p style="margin-bottom: 1em;">
   <a href="https://fieldman.co?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/fieldman-logo.svg" alt="Fieldman logo" style="width: 22%;">
@@ -43,6 +46,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 </p>
 
 ### 🥈 Silver sponsors
+
 <p style="margin-bottom: 1em;">
   <a href="https://www.peakcrypto.com?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto logo" style="width: 18%;">
@@ -117,8 +121,8 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 </table>
 
 ## Contributing
-Thank you for your willingness to contribute to this free and open source project! When contributing, consider first discussing your desired change with the core team via [GitHub issues](https://github.com/formkit/formkit/issues), [Discord](https://discord.gg/Vhu97pAC76), or other method.
 
+Thank you for your willingness to contribute to this free and open source project! When contributing, consider first discussing your desired change with the core team via [GitHub issues](https://github.com/formkit/formkit/issues), [Discord](https://discord.gg/Vhu97pAC76), or other method.
 
 ### Contributors
 
