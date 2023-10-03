@@ -7,11 +7,12 @@ import {
   addPluginTemplate,
   createResolver,
   updateTemplates,
+  addComponent,
   addImports,
+  addPlugin,
 } from '@nuxt/kit'
 import { NuxtModule } from '@nuxt/schema'
 import unpluginFormKit from 'unplugin-formkit/vite'
-import { addComponent } from '@nuxt/kit'
 
 export interface ModuleOptions {
   defaultConfig?: boolean
@@ -124,11 +125,17 @@ const useAutoImport = async function installLazy(options, nuxt) {
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
+  const { resolve } = createResolver(import.meta.url)
 
   const configBase = resolve(
     nuxt.options.rootDir,
     options.configFile || 'formkit.config'
   )
+
+  addPlugin({
+    mode: 'server',
+    src: resolve('./runtime/formkitSSRPlugin.ts'),
+  })
 
   nuxt.hook('vite:extendConfig', (config) => {
     const plugin = unpluginFormKit({
