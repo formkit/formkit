@@ -134,7 +134,7 @@ const useAutoImport = async function installLazy(options, nuxt) {
 
   addPlugin({
     mode: 'server',
-    src: resolve('./runtime/formkitSSRPlugin.ts'),
+    src: resolve('./runtime/formkitSSRPlugin.mjs'),
   })
 
   nuxt.hook('vite:extendConfig', (config) => {
