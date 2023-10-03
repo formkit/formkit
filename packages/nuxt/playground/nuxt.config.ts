@@ -7,4 +7,7 @@ export default defineNuxtConfig({
     },
   },
   modules: ['../src/module'],
+  formkit: {
+    autoImport: true,
+  },
 })

@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`select > can render groups of options 1`] = `
+"<div class=\\"formkit-outer\\" data-type=\\"select\\">
+  <div class=\\"formkit-wrapper\\">
+    <!---->
+    <div class=\\"formkit-inner\\">
+      <!---->
+      <!----><select class=\\"formkit-input\\" id=\\"select_with_groups\\" name=\\"select_with_groups\\">
+        <option class=\\"formkit-option\\" value=\\"earth\\">Earth</option>
+        <optgroup class=\\"formkit-opt-group\\" label=\\"Other Planets\\">
+          <option class=\\"formkit-option\\" value=\\"v\\">venus</option>
+          <option class=\\"formkit-option\\" value=\\"m\\">mars</option>
+          <option class=\\"formkit-option\\" value=\\"j\\">jupiter</option>
+        </optgroup>
+      </select>
+      <!---->
+      <!---->
+      <!---->
+    </div>
+  </div>
+  <!---->
+  <!---->
+</div>"
+`;
+
+exports[`select > can render groups of options as the first item 1`] = `
+"<div class=\\"formkit-outer\\" data-type=\\"select\\">
+  <div class=\\"formkit-wrapper\\">
+    <!---->
+    <div class=\\"formkit-inner\\">
+      <!---->
+      <!----><select class=\\"formkit-input\\" id=\\"input_9\\" name=\\"select_7\\">
+        <optgroup class=\\"formkit-opt-group\\" label=\\"Other Planets\\">
+          <option class=\\"formkit-option\\" value=\\"v\\">venus</option>
+          <option class=\\"formkit-option\\" value=\\"m\\">mars</option>
+          <option class=\\"formkit-option\\" value=\\"j\\">jupiter</option>
+        </optgroup>
+        <option class=\\"formkit-option\\" value=\\"earth\\">Earth</option>
+      </select>
+      <!---->
+      <!---->
+      <!---->
+    </div>
+  </div>
+  <!---->
+  <!---->
+</div>"
+`;

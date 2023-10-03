@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -89,6 +92,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Tanlangan sana yaroqsiz.',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Yopish',
 }
 
 /**
@@ -463,13 +470,15 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
   require_one: ({ name, node, args: inputNames }) => {
-    const labels = inputNames.map(name => {
-      const dependentNode = node.at(name)
-      if (dependentNode) {
-        return createMessageName(dependentNode)
-      }
-      return false
-    }).filter(name => !!name)
+    const labels = inputNames
+      .map((name) => {
+        const dependentNode = node.at(name)
+        if (dependentNode) {
+          return createMessageName(dependentNode)
+        }
+        return false
+      })
+      .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
     return `${labels.join(' yoki ')} kerak.`

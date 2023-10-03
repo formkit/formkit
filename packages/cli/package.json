@@ -1,6 +1,6 @@
 {
   "name": "@formkit/cli",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
@@ -38,9 +38,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.1.0",
-    "@formkit/inputs": "1.1.0",
-    "@formkit/utils": "1.1.0",
+    "@formkit/core": "1.2.1",
+    "@formkit/inputs": "1.2.1",
+    "@formkit/utils": "1.2.1",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",

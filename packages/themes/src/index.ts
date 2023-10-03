@@ -111,7 +111,8 @@ let documentThemeLinkTag: HTMLElement | null = null
 let themeDidLoad: (value?: unknown) => void
 let themeHasLoaded = false
 let themeWasRequested = false
-const themeLoaded = new Promise<void>((res) => {
+
+const themeLoaded = /* #__PURE__ */ new Promise<void>((res) => {
   themeDidLoad = () => {
     themeHasLoaded = true
     res()
@@ -123,7 +124,7 @@ const themeLoaded = new Promise<void>((res) => {
  */
 const isClient = typeof window !== 'undefined' && typeof fetch !== 'undefined'
 documentStyles = isClient
-  ? getComputedStyle(document.documentElement)
+  ? /* #__PURE__ */ getComputedStyle(document.documentElement)
   : undefined
 
 /**

@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -11,11 +14,19 @@ import { FormKitLocaleMessages } from '../i18n'
 /**
  * By the given quantity it returns singular or plural with the correct suffix in Lithuanian
  */
-function getByQuantity(quantity: number, vienetas: string, vienetai: string, vienetu: string): string {
+function getByQuantity(
+  quantity: number,
+  vienetas: string,
+  vienetai: string,
+  vienetu: string
+): string {
   const lastTwoDigits = quantity.toString().slice(-2)
   const parsedQuantity = parseInt(lastTwoDigits)
 
-  if ((parsedQuantity > 10 && parsedQuantity < 20) || parsedQuantity % 10 === 0) {
+  if (
+    (parsedQuantity > 10 && parsedQuantity < 20) ||
+    parsedQuantity % 10 === 0
+  ) {
     return vienetu
   }
 
@@ -107,6 +118,10 @@ export const ui: FormKitLocaleMessages = {
    * Shown when the date is invalid.
    */
   invalidDate: 'Pasirinkta data yra netinkama.',
+  /**
+   * Shown when there is something to close
+   */
+  close: 'Uždaryti',
 }
 
 /**
@@ -375,17 +390,32 @@ export const validation: FormKitValidationMessages = {
     }
     if (min == 0 && max) {
       /* <i18n case="Shown when first argument supplied to the rule is 0, and the user-provided value is longer than the max (the 2nd argument) supplied to the rule."> */
-      return `${s(name)} turi būti mažiau arba lygiai ${max} ${getByQuantity(max, 'simbolis', 'simboliai', 'simbolių')}.`
+      return `${s(name)} turi būti mažiau arba lygiai ${max} ${getByQuantity(
+        max,
+        'simbolis',
+        'simboliai',
+        'simbolių'
+      )}.`
       /* </i18n> */
     }
     if (min === max) {
       /* <i18n case="Shown when first and second argument supplied to the rule are the same, and the user-provided value is not any of the arguments supplied to the rule."> */
-      return `${s(name)} turi būti iš ${max} ${getByQuantity(max, 'simbolio', 'simbolių', 'simbolių')}.`
+      return `${s(name)} turi būti iš ${max} ${getByQuantity(
+        max,
+        'simbolio',
+        'simbolių',
+        'simbolių'
+      )}.`
       /* </i18n> */
     }
     if (min && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is less than the minimum supplied to the rule and there is no maximum supplied to the rule."> */
-      return `${s(name)} turi būti daugiau arba lygiai ${min} ${getByQuantity(min, 'simbolis', 'simboliai', 'simbolių')}.`
+      return `${s(name)} turi būti daugiau arba lygiai ${min} ${getByQuantity(
+        min,
+        'simbolis',
+        'simboliai',
+        'simbolių'
+      )}.`
       /* </i18n> */
     }
     /* <i18n case="Shown when the length of the user-provided value is between the two lengths supplied to the rule."> */
@@ -473,13 +503,15 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
   require_one: ({ name, node, args: inputNames }) => {
-    const labels = inputNames.map(name => {
-      const dependentNode = node.at(name)
-      if (dependentNode) {
-        return createMessageName(dependentNode)
-      }
-      return false
-    }).filter(name => !!name)
+    const labels = inputNames
+      .map((name) => {
+        const dependentNode = node.at(name)
+        if (dependentNode) {
+          return createMessageName(dependentNode)
+        }
+        return false
+      })
+      .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
     return `${labels.join(' arba ')} yra privaloma.`

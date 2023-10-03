@@ -724,7 +724,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * at: (address: FormKitAddress | string) => FormKitNode | undefined
+ * at: (address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})) => FormKitNode | undefined
  * ```
  *
  * #### Parameters
@@ -1249,7 +1249,7 @@ export type FormKitNode<V = unknown> = {
    * - $parent - Selects the parent node
    * - $self — Selects the current node
    */
-  at: (address: FormKitAddress | string) => FormKitNode | undefined
+  at: (address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})) => FormKitNode | undefined
   /**
    * The address of the current node from the root of the tree.
    */

@@ -419,7 +419,7 @@ async function addNuxtModule(dirName: string) {
   const raw = await readFile(nuxtConfigPath, 'utf-8')
   const configWithFormKit = raw.replace(
     /(defineNuxtConfig\({\n).*?(\n}\))/g,
-    "$1  modules: ['@formkit/nuxt']$2"
+    "$1  modules: ['@formkit/nuxt'],\n  formkit: {\n    autoImport: true\n  }$2"
   )
   await writeFile(nuxtConfigPath, configWithFormKit)
 }

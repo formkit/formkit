@@ -29,6 +29,7 @@ import {
   messages,
   message,
   help,
+  icon,
 } from './sections'
 
 /**
@@ -183,7 +184,10 @@ export function useSchema(
   inputSection: FormKitSection
 ): FormKitSchemaExtendableSection {
   return outer(
-    wrapper(label('$label'), inner(prefix(), inputSection(), suffix())),
+    wrapper(
+      label('$label'),
+      inner(icon('prefix'), prefix(), inputSection(), suffix(), icon('suffix'))
+    ),
     help('$help'),
     messages(message('$message.value'))
   )

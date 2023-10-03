@@ -1,6 +1,6 @@
 import { createNode } from '@formkit/core'
 import { createLibraryPlugin } from '../src/index'
-import formatsOptions from '../src/features/options'
+import formatsOptions, { normalizeOptions } from '../src/features/options'
 import { describe, expect, it } from 'vitest'
 
 describe('options', () => {
@@ -30,6 +30,56 @@ describe('options', () => {
       {
         label: 'bar',
         value: 'bar',
+      },
+    ])
+  })
+  it('can recursively handle options with nested groups', () => {
+    const testOptionsWithGroups = [
+      {
+        group: 'FormKit',
+        options: ['#ff985d', '#f7ce68', '#FFFFFF', '#2b2b35'],
+      },
+      {
+        group: 'Other',
+        options: [
+          {
+            label: 'Red',
+            value: '#ff0000',
+          },
+        ],
+      },
+    ]
+    const normalizedOptionsWithGroups = normalizeOptions(testOptionsWithGroups)
+    expect(normalizedOptionsWithGroups).toEqual([
+      {
+        group: 'FormKit',
+        options: [
+          {
+            label: '#ff985d',
+            value: '#ff985d',
+          },
+          {
+            label: '#f7ce68',
+            value: '#f7ce68',
+          },
+          {
+            label: '#FFFFFF',
+            value: '#FFFFFF',
+          },
+          {
+            label: '#2b2b35',
+            value: '#2b2b35',
+          },
+        ],
+      },
+      {
+        group: 'Other',
+        options: [
+          {
+            label: 'Red',
+            value: '#ff0000',
+          },
+        ],
       },
     ])
   })

@@ -6,8 +6,6 @@ import {
 } from '@formkit/core'
 import { FormKitMiddleware } from 'packages/core/src'
 
-let registered = false
-
 /**
  * Catalog of the error message codes in FormKit.
  * @public
@@ -114,7 +112,20 @@ const decodeErrors: FormKitMiddleware<FormKitHandlerPayload> = (
   return next(error)
 }
 
-if (!registered) errorHandler(decodeErrors)
+let registered = false
+
+/**
+ * Register the dev handler (idempotent).
+ *
+ * @public
+ */
+function register() {
+  if (!registered) {
+    errorHandler(decodeErrors)
+    warningHandler(decodeWarnings)
+    registered = true
+  }
+}
 
 /**
  * Decodes an error that is being emitted and console logs it.
@@ -133,9 +144,5 @@ const decodeWarnings: FormKitMiddleware<FormKitHandlerPayload> = (
   return next(warning)
 }
 
-if (!registered) warningHandler(decodeWarnings)
-
-registered = true
-
 // Some bundlers need to see an export:
-export { errors, warnings }
+export { errors, warnings, register }
