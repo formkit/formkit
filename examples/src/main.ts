@@ -5,6 +5,7 @@ import { createMultiStepPlugin } from '../../packages/addons/src/plugins/multiSt
 import { createRouter, createWebHashHistory } from 'vue-router'
 import './assets/styles/main.scss'
 import App from './vue/App.vue'
+import KitchenSink from './vue/examples/KitchenSink.vue'
 import BasicForm from './vue/examples/BasicForm.vue'
 import AutoAnimate from './vue/examples/AutoAnimate.vue'
 import ThemePlugin from './vue/examples/ThemePlugin.vue'
@@ -67,6 +68,10 @@ app.use(plugin, config)
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
+    {
+      path: '/kitchen-sink',
+      component: KitchenSink,
+    },
     {
       path: '/',
       component: BasicForm,

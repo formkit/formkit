@@ -45,6 +45,11 @@ export {
 export { FormKitRoot, rootSymbol } from './FormKitRoot'
 
 /**
+ * The FormKitKitchenSink component.
+ */
+export { FormKitKitchenSink } from './FormKitKitchenSink'
+
+/**
  * The FormKitMessages component.
  * @public
  */
