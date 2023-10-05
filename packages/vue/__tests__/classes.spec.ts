@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { FormKitConfig, FormKitNode } from '@formkit/core'
+import { FormKitConfig } from '@formkit/core'
 import { describe, it, expect } from 'vitest'
 import { defaultConfig, plugin } from '../src/index'
 import { inject, nextTick } from 'vue'
