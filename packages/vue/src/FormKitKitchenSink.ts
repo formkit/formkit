@@ -64,11 +64,24 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
     const inputKeys = Object.keys(inputs).sort()
     const inputComponents = inputKeys.map((input: string) => {
       const schemas = inputs[input]
-      return schemas.map((schema: FormKitSchemaDefinition) => {
-        return h(FormKitSchema, {
-          schema,
-        })
+      const schemaRenders = schemas.map((schema: FormKitSchemaDefinition) => {
+        return h(
+          'div',
+          {
+            class: 'formkit-schema-section',
+            'data-type': input,
+          },
+          [
+            h(FormKitSchema, {
+              schema: schema,
+            }),
+          ]
+        )
       })
+      return h('div', { class: 'formkit-kitchen-sink' }, [
+        h('span', { class: 'formkit-input-type' }, input),
+        h('div', schemaRenders),
+      ])
     })
 
     return () => {
