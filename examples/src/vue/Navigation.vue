@@ -2,6 +2,9 @@
   <nav>
     <ul>
       <li>
+        <router-link to="/kitchen-sink"> Kitchen Sink </router-link>
+      </li>
+      <li>
         <router-link to="/basic-form"> Basic Form </router-link>
       </li>
       <li>
