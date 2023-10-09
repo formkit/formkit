@@ -378,6 +378,15 @@ export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
 }
 
 /**
+ * The slots available to the checkbox inputs even when options are not provided
+ * @public
+ */
+export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>> {
+  decorator: FormKitSlotData<Props, OptionSlotData<Props>>
+  decoratorIcon: FormKitSlotData<Props, OptionSlotData<Props>>
+}
+
+/**
  * The slots available to the radio and checkbox inputs when options are
  * provided.
  * @public
@@ -479,7 +488,7 @@ export interface FormKitInputSlots<Props extends FormKitInputs<Props>> {
   file: FormKitFileSlots<Props>
   checkbox: Props['options'] extends AllReals
     ? FormKitBoxSlots<Props>
-    : FormKitBaseSlots<Props>
+    : FormKitCheckboxSlots<Props>
   submit: FormKitButtonSlots<Props>
   button: FormKitButtonSlots<Props>
 }
