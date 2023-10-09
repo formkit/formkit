@@ -1,6 +1,6 @@
-import { h, defineComponent } from 'vue'
+import { h, defineComponent, markRaw } from 'vue'
 import { FormKitSchemaDefinition } from '@formkit/core'
-import { FormKitSchema } from './FormKitSchema'
+import { FormKitSchema, FormKit } from './index'
 
 /**
  * Fetches the list of inputs from the remote schema repository
@@ -51,6 +51,9 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       const response = await fetchInputSchema(input)
       inputs[input] = response
     })
+
+    const library = { FormKit: markRaw(FormKit) }
+
     // const proInputPromises = inputList.pro.map(async (input: string) => {
     //   const response = await fetchInputSchema(input)
     //   inputs[input] = response
@@ -67,6 +70,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       return schemas.map((schema: FormKitSchemaDefinition) => {
         return h(FormKitSchema, {
           schema,
+          library,
         })
       })
     })
