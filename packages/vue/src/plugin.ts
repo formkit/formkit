@@ -13,6 +13,11 @@ import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit from './FormKit'
 import FormKitSchema from './FormKitSchema'
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __FORMKIT_CONFIGS__: FormKitRootConfig[]
+}
+
 /**
  * The global instance of the FormKit plugin.
  *
@@ -117,5 +122,11 @@ export const plugin: Plugin = {
      * Provide the root config to the application.
      */
     app.provide(configSymbol, rootConfig)
+    /**
+     * Register the FormKit component globally.
+     */
+    globalThis.__FORMKIT_CONFIGS__ = (
+      globalThis.__FORMKIT_CONFIGS__ || []
+    ).concat([rootConfig])
   },
 }
