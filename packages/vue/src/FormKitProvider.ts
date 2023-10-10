@@ -38,6 +38,14 @@ export function useConfig(
    * Provide the root config to the children.
    */
   provide(configSymbol, rootConfig)
+  /**
+   * Register the FormKit component globally.
+   */
+  if (typeof window !== 'undefined') {
+    globalThis.__FORMKIT_CONFIGS__ = (
+      globalThis.__FORMKIT_CONFIGS__ || []
+    ).concat([rootConfig])
+  }
 }
 
 export interface FormKitProviderProps {

@@ -1,3 +1,4 @@
+import type { FormKitRootConfig } from '@formkit/core'
 /**
  * The official FormKit/Vue integration. This package is responsible for
  * integrating Vue with FormKit core and other first-party packages.
@@ -5,6 +6,11 @@
  *
  * @packageDocumentation
  */
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __FORMKIT_CONFIGS__: FormKitRootConfig[]
+}
 
 /**
  * The useInput composable.
