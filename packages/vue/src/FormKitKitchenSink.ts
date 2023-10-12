@@ -1,6 +1,6 @@
-import { h, defineComponent, markRaw } from 'vue'
+import { h, defineComponent } from 'vue'
 import { FormKitSchemaDefinition } from '@formkit/core'
-import { FormKitSchema, FormKit } from './index'
+import { FormKitSchema } from './index'
 
 /**
  * Fetches the list of inputs from the remote schema repository
@@ -43,40 +43,58 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       default: true,
     },
   },
-  async setup() {
+  async setup(props) {
     const inputList = await fetchInputList()
     const inputs: Record<string, FormKitSchemaDefinition[]> = {}
+    const promises = []
 
     const coreInputPromises = inputList.core.map(async (input: string) => {
       const response = await fetchInputSchema(input)
       inputs[input] = response
     })
+    promises.push(...coreInputPromises)
 
-    const library = { FormKit: markRaw(FormKit) }
+    if (props.pro) {
+      const proInputPromises = inputList.pro.map(async (input: string) => {
+        const response = await fetchInputSchema(input)
+        inputs[input] = response
+      })
+      promises.push(...proInputPromises)
+    }
 
-    // const proInputPromises = inputList.pro.map(async (input: string) => {
-    //   const response = await fetchInputSchema(input)
-    //   inputs[input] = response
-    // })
-
-    await Promise.all([
-      ...coreInputPromises,
-      // ...proInputPromises
-    ])
+    await Promise.all(promises)
 
     const inputKeys = Object.keys(inputs).sort()
     const inputComponents = inputKeys.map((input: string) => {
       const schemas = inputs[input]
-      return schemas.map((schema: FormKitSchemaDefinition) => {
-        return h(FormKitSchema, {
-          schema,
-          library,
-        })
+      const schemaRenders = schemas.map((schema: FormKitSchemaDefinition) => {
+        return h(
+          'div',
+          {
+            class: 'formkit-specimen',
+            'data-type': input,
+          },
+          [
+            h(FormKitSchema, {
+              schema: schema,
+            }),
+          ]
+        )
       })
+      return h('div', { class: 'formkit-input-section' }, [
+        h('span', { class: 'formkit-input-type' }, input),
+        h('div', { class: 'formkit-specimen-group' }, schemaRenders),
+      ])
     })
 
     return () => {
-      return h('div', inputComponents)
+      return h(
+        'div',
+        {
+          class: 'formkit-kitchen-sink',
+        },
+        inputComponents
+      )
     }
   },
 })
