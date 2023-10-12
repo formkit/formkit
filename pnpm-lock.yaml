@@ -204,7 +204,7 @@ importers:
   e2e:
     dependencies:
       '@formkit/vue':
-        specifier: workspace:1.2.1
+        specifier: workspace:1.2.2
         version: link:../packages/vue
 
   examples:
@@ -256,29 +256,29 @@ importers:
         specifier: latest
         version: 0.8.0
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../inputs
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.2.1
+        specifier: ^1.2.2
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../inputs
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
       axios:
         specifier: ^0.27.2
@@ -309,65 +309,65 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.2.1
+        specifier: ^1.2.2
         version: link:../vue
 
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/i18n':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../i18n
       '@formkit/vue':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.7.4
@@ -401,28 +401,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
@@ -435,7 +435,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       tailwindcss:
         specifier: ^3.2.0
@@ -452,56 +452,56 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/observer':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../observer
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       '@formkit/dev':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../dev
       '@formkit/i18n':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../inputs
       '@formkit/observer':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../observer
       '@formkit/rules':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../rules
       '@formkit/themes':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../themes
       '@formkit/utils':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../validation
       vue:
         specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
       '@formkit/icons':
-        specifier: workspace:1.2.1
+        specifier: workspace:1.2.2
         version: link:../icons
 
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 1.2.1
+        specifier: 1.2.2
         version: link:../core
       zod:
         specifier: ^3.0.0
