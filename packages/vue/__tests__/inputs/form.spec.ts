@@ -694,7 +694,6 @@ describe('form submission', () => {
         },
         methods: {
           reset(data: any, node: FormKitNode) {
-            console.log('reset', data)
             node.reset(data)
           },
         },
