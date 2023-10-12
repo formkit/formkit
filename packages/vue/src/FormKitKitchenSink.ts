@@ -71,7 +71,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
         return h(
           'div',
           {
-            class: 'formkit-schema-section',
+            class: 'formkit-specimen',
             'data-type': input,
           },
           [
@@ -81,14 +81,20 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
           ]
         )
       })
-      return h('div', { class: 'formkit-kitchen-sink' }, [
+      return h('div', { class: 'formkit-input-section' }, [
         h('span', { class: 'formkit-input-type' }, input),
-        h('div', schemaRenders),
+        h('div', { class: 'formkit-specimen-group' }, schemaRenders),
       ])
     })
 
     return () => {
-      return h('div', inputComponents)
+      return h(
+        'div',
+        {
+          class: 'formkit-kitchen-sink',
+        },
+        inputComponents
+      )
     }
   },
 })
