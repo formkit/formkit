@@ -43,23 +43,26 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       default: true,
     },
   },
-  async setup() {
+  async setup(props) {
     const inputList = await fetchInputList()
     const inputs: Record<string, FormKitSchemaDefinition[]> = {}
+    const promises = []
 
     const coreInputPromises = inputList.core.map(async (input: string) => {
       const response = await fetchInputSchema(input)
       inputs[input] = response
     })
-    // const proInputPromises = inputList.pro.map(async (input: string) => {
-    //   const response = await fetchInputSchema(input)
-    //   inputs[input] = response
-    // })
+    promises.push(...coreInputPromises)
 
-    await Promise.all([
-      ...coreInputPromises,
-      // ...proInputPromises
-    ])
+    if (props.pro) {
+      const proInputPromises = inputList.pro.map(async (input: string) => {
+        const response = await fetchInputSchema(input)
+        inputs[input] = response
+      })
+      promises.push(...proInputPromises)
+    }
+
+    await Promise.all(promises)
 
     const inputKeys = Object.keys(inputs).sort()
     const inputComponents = inputKeys.map((input: string) => {

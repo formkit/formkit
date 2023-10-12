@@ -4,6 +4,6 @@ import { FormKitKitchenSink } from '@formkit/vue'
 
 <template>
   <Suspense>
-    <FormKitKitchenSink />
+    <FormKitKitchenSink :pro="false" />
   </Suspense>
 </template>
