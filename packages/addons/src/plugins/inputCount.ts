@@ -33,7 +33,6 @@ export function createInputCountPlugin(
     node.addProps(['inputCountString'])
 
     const allowTypes = InputCountOptions?.countTypes || ['text', 'password', 'textarea']
-    console.log(node.props.inputCount)
 
     const useInputCount = undefine(node.props.inputCount) ||
       node.props.inputCount === 'true' ||
