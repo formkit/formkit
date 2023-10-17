@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildTheme > can load a local theme 1`] = `
+"import type { FormKitNode } from '@formkit/core'
+
+/**
+ * These classes have already been merged with globals using tailwind-merge
+ * and are ready to be used directly in the theme.
+ **/
+const classes: Record<string, Record<string, boolean>> = {
+  \\"text__input\\": {
+    \\"border-2\\": true,
+    \\"rounded-md\\": true,
+    \\"p-2\\": true,
+    \\"border-slate-50\\": true
+  },
+  \\"select__inner\\": {
+    \\"border-2\\": true,
+    \\"rounded-md\\": true,
+    \\"p-4\\": true
+  },
+  \\"select__outer\\": {
+    \\"mt-2\\": true,
+    \\"ml-80\\": true,
+    \\"mr-10\\": true,
+    \\"border-green-300\\": true,
+    \\"mb-56\\": true
+  }
+};
+
+/**
+ * Globals are merged prior to generating this file — these are included for
+ * any other non-matching inputs.
+ **/
+const globals: Record<string, Record<string, boolean>> = {
+  \\"outer\\": {
+    \\"mb-64\\": true,
+    \\"mt-2\\": true,
+    \\"ml-80\\": true,
+    \\"mr-10\\": true,
+    \\"border-green-300\\": true
+  }
+};
+
+/**
+ * This is the theme function itself, it should be imported and used as the
+ * config.rootClasses function. For example:
+ *
+ * \`\`\`js
+ * import { theme } from './formkit.theme'
+ * import { defineFormKitConfig } from '@formkit/vue'
+ *
+ * export default defineFormKitConfig({
+ *   config: {
+ *     rootClasses: theme
+ *   }
+ * })
+ * \`\`\`
+ **/
+export function theme (sectionName: string, node: FormKitNode): Record<string, boolean> {
+  const key = \`\${node.props.type}__\${sectionName}\`
+  if (key in classes) return classes[key]
+  if (sectionName in globals) return classes[sectionName]
+  return {}
+}
+"
+`;

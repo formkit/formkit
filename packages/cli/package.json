@@ -47,9 +47,11 @@
     "execa": "6.1.0",
     "open": "^9.1.0",
     "ora": "^7.0.1",
+    "pathe": "^1.1.1",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
+    "@formkit/theme-creator": "^0.8.0",
     "@types/prompts": "^2.0.14"
   }
 }

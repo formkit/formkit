@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import { exportInput } from './exportInput'
 import { createApp } from './createApp'
+import { buildTheme } from './buildTheme'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { execa } from 'execa'
@@ -75,6 +76,30 @@ program
   )
   .description('Creates a new Vue 3 Vite application with FormKit installed.')
   .action(createApp)
+
+program
+  .command('build-theme')
+  .argument(
+    '[name]',
+    'A published theme or local npm theme package identifier.'
+  )
+  .option(
+    '-s',
+    '--semantic',
+    'Build the theme as semantic classes rather than utility classes.'
+  )
+  .option(
+    '--variables <variables>',
+    'A comma separated list of variables to include in the theme. For example: --variables "primaryColor=#221233, padding=10"'
+  )
+  .option(
+    '--api <url>',
+    'An alternative API endpoint to use for theme fetching and generation.'
+  )
+  .description(
+    'Creates a FormKit theme file (formkit.theme.ts) using a known theme and variables.'
+  )
+  .action(buildTheme)
 
 /**
  * @internal
