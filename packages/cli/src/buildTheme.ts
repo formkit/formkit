@@ -119,7 +119,7 @@ export function theme (sectionName${isTS ? ': string' : ''}, node${
   return themeFile
 }
 
-function parseVariables(variables?: string): Record<string, string> {
+function parseVariables(_variables?: string): Record<string, string> {
   return {}
 }
 

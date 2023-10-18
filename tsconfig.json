@@ -5,7 +5,7 @@
     "lib": ["ES2021", "dom"],
     "allowJs": false,
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": false,
     "baseUrl": ".",
     "outDir": "dist",

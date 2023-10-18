@@ -89,5 +89,8 @@
     "windicss": {
       "optional": true
     }
+  },
+  "devDependencies": {
+    "windicss": "^3.5.6"
   }
 }
