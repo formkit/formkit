@@ -17,7 +17,7 @@ export interface InputCountOptions {
 }
 
 /**
- * Creates a new floating label plugin.
+ * Creates a new input count plugin.
  *
  * @param InputCountOptions - The options of {@link InputCountOptions | InputCountOptions} to pass to the plugin
  *
