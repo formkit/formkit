@@ -4,10 +4,10 @@ import {
   FormKitSchemaNode,
   FormKitSchemaCondition,
 } from '@formkit/core'
-import { clone, undefine, whenAvailable } from '@formkit/utils'
+import { clone, undefine } from '@formkit/utils'
 
 /**
- * The options to be passed to {@link createTextareaMaxLengthCountdownPlugin | createTextareaMaxLengthCountdownPlugin}
+ * The options to be passed to {@link createMaxLengthCountdownPlugin | createMaxLengthCountdownPlugin}
  *
  * useAsDefault: boolean - If true, the plugin will be used as default for all designated fields with a maxlength attribute,
  *                       unless the field has the maxlengthCountdown prop set to false
@@ -17,7 +17,7 @@ import { clone, undefine, whenAvailable } from '@formkit/utils'
  * 
  * @public
  */
-export interface TextareaMaxLengthCountdownOptions {
+export interface MaxlengthCountdownOptions {
   useAsDefault?: boolean,
   remainingText?: string,
   fieldTypes?: string[]
@@ -26,24 +26,24 @@ export interface TextareaMaxLengthCountdownOptions {
 /**
  * Creates a textarea max length countdown in the suffix container
  *
- * @param TextareaMaxLengthCountdownOptions - The options of {@link TextareaMaxLengthCountdownOptions | TextareaMaxLengthCountdownOptions} to pass to the plugin
+ * @param MaxlengthCountdownOptions - The options of {@link MaxlengthCountdownOptions | MaxlengthCountdownOptions} to pass to the plugin
  *
  * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}
  *
  * @public
  */
-export function createTextareaMaxLengthCountdownPlugin(
-  TextareaMaxLengthCountdownOptions?: TextareaMaxLengthCountdownOptions
+export function createMaxLengthCountdownPlugin(
+  MaxlengthCountdownOptions?: MaxlengthCountdownOptions
 ): FormKitPlugin {
 
-  const textareaMaxLengthCountdownPlugin = (node: FormKitNode) => {
+  const maxlengthCountdownPlugin = (node: FormKitNode) => {
     node.addProps(['maxlengthCountdown'])
     node.addProps(['maxlengthRemainingText'])
     node.addProps(['maxlengthStringCount'])
 
-    let usePlugin = TextareaMaxLengthCountdownOptions?.useAsDefault === true
+    let usePlugin = MaxlengthCountdownOptions?.useAsDefault === true
 
-    let allowedTypes = TextareaMaxLengthCountdownOptions?.fieldTypes || ['textarea']
+    let allowedTypes = MaxlengthCountdownOptions?.fieldTypes || ['textarea']
     if (typeof allowedTypes === 'string') allowedTypes = [allowedTypes]
     if (!allowedTypes.includes(node.props.type)) {
       usePlugin = false
@@ -109,7 +109,7 @@ export function createTextareaMaxLengthCountdownPlugin(
             let stringLength = parseInt(node.props.attrs.maxlength) - (payload ? payload.length : 0)
             node.props.maxlengthStringCount = Math.max(0, stringLength)
             node.props.maxlengthRemainingText = node.props.maxlengthRemainingText ||
-              TextareaMaxLengthCountdownOptions?.remainingText ||
+              MaxlengthCountdownOptions?.remainingText ||
               'remaining characters'
           }
         }
@@ -117,5 +117,5 @@ export function createTextareaMaxLengthCountdownPlugin(
     }
   }
 
-  return textareaMaxLengthCountdownPlugin
+  return maxlengthCountdownPlugin
 }
