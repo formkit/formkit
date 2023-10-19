@@ -367,7 +367,7 @@ export interface OptionSlotData<Props extends FormKitInputs<Props>> {
 }
 
 /**
- * The slots available to the sekect input, these extend the base slots.
+ * The slots available to the select input, these extend the base slots.
  * @public
  */
 export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
@@ -378,10 +378,11 @@ export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
 }
 
 /**
- * The slots available to the checkbox inputs even when options are not provided
+ * The slots available to the checkbox inputs even when options are not provided, these extend the base slots.
  * @public
  */
-export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>> {
+export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>> 
+  extends FormKitBaseSlots<Props> {
   decorator: FormKitSlotData<Props, OptionSlotData<Props>>
   decoratorIcon: FormKitSlotData<Props, OptionSlotData<Props>>
 }
