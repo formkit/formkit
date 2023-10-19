@@ -678,6 +678,58 @@ describe('form submission', () => {
     expect(getNode(id)!.context!.state.dirty).toBe(true)
   })
 
+  it('resets the child’s initial value so dirty "compare" check passes', async () => {
+    const id = `a_${token()}`
+    const config = defaultConfig({
+      props: {
+        dirtyBehavior: 'compare',
+      },
+    })
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            key: 'abc',
+          }
+        },
+        methods: {
+          reset(data: any, node: FormKitNode) {
+            node.reset(data)
+          },
+        },
+        template: /* html */ `<FormKit id="form" type="form" @submit="reset">
+        <FormKit id="user" type="group" name="user">
+          <FormKit type="text" name="name" id="${id}" value="123" :delay="0" />
+        </FormKit>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, config]],
+        },
+      }
+    )
+    const isDirty = (id: string) => getNode(id)?.context?.state.dirty
+    wrapper.find(`#${id}`).setValue('foobar')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(isDirty(id)).toBe(true)
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(isDirty(id)).toBe(false)
+    wrapper.find(`#${id}`).setValue('123')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(isDirty(id)).toBe(true)
+    wrapper.find(`#${id}`).setValue('foobar')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(getNode('form')!._value).toEqual({ user: { name: 'foobar' } })
+    expect(getNode('user')!._value).toEqual({ name: 'foobar' })
+
+    expect(isDirty('form')).toBe(false)
+    expect(isDirty('user')).toBe(false)
+    expect(isDirty(id)).toBe(false)
+  })
+
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       {

@@ -79,7 +79,7 @@ export function reset(
         child.props.initial = isObject(child.value)
           ? init(child.value)
           : child.value
-        child.props._init = node.props.initial
+        child.props._init = child.props.initial
       })
     }
     // release the events.
