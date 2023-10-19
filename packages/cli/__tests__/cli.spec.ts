@@ -16,7 +16,7 @@ describe('buildTheme', () => {
     consoleMock.mockRestore()
   })
 
-  it('can load a local theme', async () => {
+  it('can generate a local theme', async () => {
     const consoleMock = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined)
@@ -33,6 +33,19 @@ describe('buildTheme', () => {
       2,
       chalk.greenBright('Theme file written to formkit.theme.ts')
     )
+    const fileString = await readFile(
+      resolve(process.cwd(), 'temp/formkit.theme.ts'),
+      'utf-8'
+    )
+    expect(fileString).toMatchSnapshot()
+  })
+
+  it('can override variables in generated theme', async () => {
+    await buildTheme('./packages/cli/__tests__/mocks/localTheme', {
+      outFile: 'temp/formkit.theme.ts',
+      format: 'ts',
+      variables: 'border=border-6,spacing=10',
+    })
     const fileString = await readFile(
       resolve(process.cwd(), 'temp/formkit.theme.ts'),
       'utf-8'
