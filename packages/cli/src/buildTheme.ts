@@ -150,5 +150,12 @@ async function localTheme(
 }
 
 async function apiTheme(themeName: string, endpoint: string): Promise<string> {
-  return `${endpoint}${themeName}`
+  info(`Generating theme: ${themeName}`)
+  const res = await fetch(`${endpoint}/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ theme: themeName }),
+  })
+  const code = await res.text()
+  return code
 }

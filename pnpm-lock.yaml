@@ -307,7 +307,7 @@ importers:
     devDependencies:
       '@formkit/theme-creator':
         specifier: ^0.8.0
-        version: 0.8.0(ts-node@10.9.1)
+        version: 0.8.0
       '@types/prompts':
         specifier: ^2.0.14
         version: 2.4.3
@@ -2997,14 +2997,14 @@ packages:
       '@formkit/validation': 1.1.0
     dev: true
 
-  /@formkit/theme-creator@0.8.0(ts-node@10.9.1):
+  /@formkit/theme-creator@0.8.0:
     resolution: {integrity: sha512-wX52TFlXbDTyjEs2ohJ71/UeK76xIwMCU/NRcIFCLHz55/oIJnnUaRqOG81nj/3pSLUv+qqH8HI6xTrxlF6d5g==}
     dependencies:
       '@formkit/core': 1.2.2
       '@formkit/utils': 1.2.2
       postcss: 8.4.31
       tailwind-merge: 1.14.0
-      tailwindcss: 3.3.3(ts-node@10.9.1)
+      tailwindcss: 3.3.3
     transitivePeerDependencies:
       - ts-node
     dev: true
@@ -9615,7 +9615,7 @@ packages:
       ts-node: 10.9.1(@types/node@18.15.10)(typescript@5.1.3)
       yaml: 1.10.2
 
-  /postcss-load-config@4.0.1(postcss@8.4.31)(ts-node@10.9.1):
+  /postcss-load-config@4.0.1(postcss@8.4.31):
     resolution: {integrity: sha512-vEJIc8RdiBRu3oRAI0ymerOn+7rPuMvRXslTvZUKZonDHFIczxztIyJ1urxM1x9JXEikvpWWTUUqal5j/8QgvA==}
     engines: {node: '>= 14'}
     peerDependencies:
@@ -9629,7 +9629,6 @@ packages:
     dependencies:
       lilconfig: 2.1.0
       postcss: 8.4.31
-      ts-node: 10.9.1(@types/node@18.15.10)(typescript@5.1.3)
       yaml: 2.3.2
     dev: true
 
@@ -11297,7 +11296,7 @@ packages:
     transitivePeerDependencies:
       - ts-node
 
-  /tailwindcss@3.3.3(ts-node@10.9.1):
+  /tailwindcss@3.3.3:
     resolution: {integrity: sha512-A0KgSkef7eE4Mf+nKJ83i75TMyq8HqY3qmFIJSWy8bNt0v1lG7jUcpGpoTFxAwYcWOphcTBLPPJg+bDfhDf52w==}
     engines: {node: '>=14.0.0'}
     hasBin: true
@@ -11319,7 +11318,7 @@ packages:
       postcss: 8.4.31
       postcss-import: 15.1.0(postcss@8.4.31)
       postcss-js: 4.0.1(postcss@8.4.31)
-      postcss-load-config: 4.0.1(postcss@8.4.31)(ts-node@10.9.1)
+      postcss-load-config: 4.0.1(postcss@8.4.31)
       postcss-nested: 6.0.1(postcss@8.4.31)
       postcss-selector-parser: 6.0.13
       resolve: 1.22.8
