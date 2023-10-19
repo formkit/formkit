@@ -1,0 +1,30 @@
+.formkit-input-maxlength-remaining {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  font-size: 10px;
+  cursor: default;
+  padding: 0.15rem;
+  opacity: 0.8;
+  background: #fff;
+  z-index: 2;
+}
+.formkit-input-maxlength-remaining > span {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  white-space: nowrap;
+  background: #000;
+  color: #fff;
+  padding: 0.25em 0.5em;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease-in-out;
+  border-radius: var(--fk-border-radius);
+}
+.formkit-input-maxlength-remaining:hover > span {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
