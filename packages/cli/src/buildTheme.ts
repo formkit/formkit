@@ -44,7 +44,7 @@ function guessFormat() {
   return existsSync(resolve(process.cwd(), 'tsconfig.json')) ? 'ts' : 'mjs'
 }
 
-async function generate(
+export async function generate(
   theme: Theme<ThemeOptions>,
   variables?: string,
   isTS?: boolean,
