@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "@formkit/theme-creator": "^0.8.0",
-    "@types/prompts": "^2.0.14"
+    "@types/prompts": "^2.0.14",
+    "jiti": "^1.20.0"
   }
 }

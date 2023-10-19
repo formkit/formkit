@@ -143,6 +143,7 @@ async function localTheme(
     : extensions.map((ext) => resolve(process.cwd(), themeName + ext))
   const path = getPath(paths)
   if (!path) error(`Could not find ${themeName}.`)
+
   const theme = (await import(path)) as { default: Theme<ThemeOptions> }
   if (typeof theme !== 'object' || !theme.default) error('Invalid theme file.')
   return theme.default
