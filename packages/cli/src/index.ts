@@ -113,6 +113,8 @@ export default async function main(): Promise<void> {
   program.parse()
 }
 
+export * from './buildTheme'
+
 /**
  * @internal
  */

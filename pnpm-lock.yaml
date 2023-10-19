@@ -311,6 +311,9 @@ importers:
       '@types/prompts':
         specifier: ^2.0.14
         version: 2.4.3
+      jiti:
+        specifier: ^1.20.0
+        version: 1.20.0
 
   packages/core:
     dependencies:
