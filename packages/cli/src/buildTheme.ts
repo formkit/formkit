@@ -32,7 +32,13 @@ export async function buildTheme(
         format === 'ts',
         options.semantic
       )
-    : await apiTheme(themeName, endpoint)
+    : await apiTheme(
+        themeName,
+        endpoint,
+        options.variables ?? '',
+        format === 'ts',
+        options.semantic ?? false
+      )
 
   const outFile =
     options.outFile || 'formkit.theme.' + (options.semantic ? 'css' : format)
@@ -149,12 +155,23 @@ async function localTheme(
   return theme.default
 }
 
-async function apiTheme(themeName: string, endpoint: string): Promise<string> {
+async function apiTheme(
+  themeName: string,
+  endpoint: string,
+  variables: string,
+  isTS: boolean,
+  semantic: boolean
+): Promise<string> {
   info(`Generating theme: ${themeName}`)
   const res = await fetch(`${endpoint}/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theme: themeName }),
+    body: JSON.stringify({
+      theme: themeName,
+      variables,
+      ts: String(isTS),
+      semantic: String(semantic),
+    }),
   })
   const code = await res.text()
   return code
