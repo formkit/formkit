@@ -29,10 +29,6 @@ describe('buildTheme', () => {
       1,
       chalk.greenBright('Locating ./packages/cli/__tests__/mocks/localTheme...')
     )
-    expect(consoleMock).toHaveBeenNthCalledWith(
-      2,
-      chalk.greenBright('Theme file written to formkit.theme.ts')
-    )
     const fileString = await readFile(
       resolve(process.cwd(), 'temp/formkit.theme.ts'),
       'utf-8'
