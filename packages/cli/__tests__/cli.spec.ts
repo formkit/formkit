@@ -3,6 +3,7 @@ import { buildTheme } from '../src/buildTheme'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { resolve } from 'pathe'
+import { createNode, FormKitContext } from '@formkit/core'
 
 describe('buildTheme', () => {
   it('can build a local theme', () => {
@@ -47,5 +48,31 @@ describe('buildTheme', () => {
       'utf-8'
     )
     expect(fileString).toMatchSnapshot()
+  })
+
+  it('returns the correct classes for a given input section', async () => {
+    await buildTheme('./packages/cli/__tests__/mocks/localTheme', {
+      outFile: 'temp/formkit.theme.ts',
+      format: 'ts',
+      variables: 'spacing=5',
+    })
+    // @ts-ignore
+    const { rootClasses } = await import(
+      resolve(process.cwd(), 'temp/formkit.theme.ts')
+    )
+    const node = createNode({
+      type: 'input',
+      props: { type: 'text', rootClasses, family: 'text' },
+    })
+
+    // @ts-ignore
+    expect(node.props.rootClasses!('outer', node)).toEqual({
+      'border-green-300': true,
+      'mb-5': true,
+      'ml-80': true,
+      'mr-10': true,
+      'mt-2': true,
+      'text-green-300': true,
+    })
   })
 })

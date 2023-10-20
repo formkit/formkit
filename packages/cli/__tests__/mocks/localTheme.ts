@@ -28,6 +28,9 @@ export default createTheme({
       outer:
         'mb-$spacing mt-$spacing(-100) ml-$spacing(100) mr-$spacing(20, 0, 10) border-green-$borderStrength(3)',
     },
+    'family:text': {
+      outer: 'text-green-300',
+    },
     text: {
       input: '$border $radius p-2 border-slate-$borderStrength(-1)',
     },

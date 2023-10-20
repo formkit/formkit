@@ -8,6 +8,14 @@ exports[`buildTheme > can generate a local theme 1`] = `
  * and are ready to be used directly in the theme.
  **/
 const classes: Record<string, Record<string, boolean>> = {
+  \\"family:text__outer\\": {
+    \\"mb-64\\": true,
+    \\"mt-2\\": true,
+    \\"ml-80\\": true,
+    \\"mr-10\\": true,
+    \\"border-green-300\\": true,
+    \\"text-green-300\\": true
+  },
   \\"text__input\\": {
     \\"border-2\\": true,
     \\"rounded-md\\": true,
@@ -57,11 +65,19 @@ const globals: Record<string, Record<string, boolean>> = {
  * })
  * \`\`\`
  **/
-export function theme (sectionName: string, node: FormKitNode): Record<string, boolean> {
+export function rootClasses (sectionName: string, node: FormKitNode): Record<string, boolean> {
   const key = \`\${node.props.type}__\${sectionName}\`
-  if (key in classes) return classes[key]
-  if (sectionName in globals) return classes[sectionName]
-  return {}
+  const familyKey = node.props.family ? \`family:\${node.props.family}__\${sectionName}\` : ''
+  const memoKey = \`\${key}__\${familyKey}\`
+  if (!(memoKey in classes)) {
+    const sectionClasses = classes[key] ?? globals[sectionName] ?? {}
+    if (familyKey in classes) {
+      classes[memoKey] = { ...classes[familyKey],  ...sectionClasses }
+    } else {
+      classes[memoKey] = sectionClasses
+    }
+  }
+  return classes[memoKey]
 }
 "
 `;
@@ -74,6 +90,14 @@ exports[`buildTheme > can override variables in generated theme 1`] = `
  * and are ready to be used directly in the theme.
  **/
 const classes: Record<string, Record<string, boolean>> = {
+  \\"family:text__outer\\": {
+    \\"mb-10\\": true,
+    \\"mt-2\\": true,
+    \\"ml-80\\": true,
+    \\"mr-10\\": true,
+    \\"border-green-300\\": true,
+    \\"text-green-300\\": true
+  },
   \\"text__input\\": {
     \\"border-6\\": true,
     \\"rounded-md\\": true,
@@ -123,11 +147,19 @@ const globals: Record<string, Record<string, boolean>> = {
  * })
  * \`\`\`
  **/
-export function theme (sectionName: string, node: FormKitNode): Record<string, boolean> {
+export function rootClasses (sectionName: string, node: FormKitNode): Record<string, boolean> {
   const key = \`\${node.props.type}__\${sectionName}\`
-  if (key in classes) return classes[key]
-  if (sectionName in globals) return classes[sectionName]
-  return {}
+  const familyKey = node.props.family ? \`family:\${node.props.family}__\${sectionName}\` : ''
+  const memoKey = \`\${key}__\${familyKey}\`
+  if (!(memoKey in classes)) {
+    const sectionClasses = classes[key] ?? globals[sectionName] ?? {}
+    if (familyKey in classes) {
+      classes[memoKey] = { ...classes[familyKey],  ...sectionClasses }
+    } else {
+      classes[memoKey] = sectionClasses
+    }
+  }
+  return classes[memoKey]
 }
 "
 `;
