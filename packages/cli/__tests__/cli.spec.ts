@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { buildTheme } from '../src/buildTheme'
+import { buildTheme } from '../src/theme'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { resolve } from 'pathe'
@@ -10,7 +10,7 @@ describe('buildTheme', () => {
     const consoleMock = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined)
-    buildTheme('my-theme')
+    buildTheme({ theme: 'my-theme ' })
     expect(consoleMock).toHaveBeenCalledWith(
       chalk.greenBright('Locating my-theme...')
     )
@@ -21,7 +21,8 @@ describe('buildTheme', () => {
     const consoleMock = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined)
-    await buildTheme('./packages/cli/__tests__/mocks/localTheme', {
+    await buildTheme({
+      theme: './packages/cli/__tests__/mocks/localTheme',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
     })
@@ -38,7 +39,8 @@ describe('buildTheme', () => {
   })
 
   it('can override variables in generated theme', async () => {
-    await buildTheme('./packages/cli/__tests__/mocks/localTheme', {
+    await buildTheme({
+      theme: './packages/cli/__tests__/mocks/localTheme',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
       variables: 'border=border-6,spacing=10',
@@ -51,7 +53,8 @@ describe('buildTheme', () => {
   })
 
   it('returns the correct classes for a given input section', async () => {
-    await buildTheme('./packages/cli/__tests__/mocks/localTheme', {
+    await buildTheme({
+      theme: './packages/cli/__tests__/mocks/localTheme',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
       variables: 'spacing=5',

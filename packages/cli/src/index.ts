@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import chalk from 'chalk'
 import { exportInput } from './exportInput'
 import { createApp } from './createApp'
-import { buildTheme } from './buildTheme'
+import { buildTheme } from './theme'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { execa } from 'execa'
@@ -78,9 +78,10 @@ program
   .action(createApp)
 
 program
-  .command('build-theme')
-  .argument(
-    '[name]',
+  .command('theme')
+  .option(
+    '-t',
+    '--theme',
     'A published theme or local npm theme package identifier.'
   )
   .option(
@@ -113,7 +114,7 @@ export default async function main(): Promise<void> {
   program.parse()
 }
 
-export * from './buildTheme'
+export * from './theme'
 
 /**
  * @internal

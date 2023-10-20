@@ -4,9 +4,11 @@ import { resolve } from 'pathe'
 import { error, green, __dirname, info } from './index'
 import { Theme, ThemeOptions } from '@formkit/theme-creator'
 import { stylesheetFromTailwind } from '@formkit/theme-creator/stylesheet'
+import prompts from 'prompts'
 
 interface BuildThemeOptions {
   semantic: boolean
+  theme?: string
   variables?: string
   api?: string
   format?: 'ts' | 'mjs'
@@ -16,10 +18,27 @@ interface BuildThemeOptions {
 const DEFAULT_THEME_API = 'https://themes.formkit.com/api'
 const HAS_EXTENSION_RE = /\.(?:ts|js|mjs|cjs)$/
 
-export async function buildTheme(
-  themeName: string,
-  options: Partial<BuildThemeOptions> = {}
-) {
+export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
+  let themeName = options.theme
+  if (!options.theme) {
+    const res = await fetch(`${DEFAULT_THEME_API}/themes`)
+    const themes = await res.json()
+    const { theme } = await prompts({
+      type: 'select',
+      message: 'Select a theme',
+      name: 'theme',
+      choices: themes.map((theme: any) => ({
+        title: theme.name,
+        value: theme.slug,
+        description:
+          theme.description +
+          (theme.darkMode ? ' 🌜' : '') +
+          (theme.lightMode ? '☀️' : '') +
+          ')',
+      })),
+    })
+    themeName = theme
+  }
   if (!themeName) error('Please provide a theme name or path to a theme file.')
   green(`Locating ${themeName}...`)
   const endpoint = options.api || DEFAULT_THEME_API
