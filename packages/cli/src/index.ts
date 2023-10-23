@@ -80,8 +80,7 @@ program
 program
   .command('theme')
   .option(
-    '-t',
-    '--theme',
+    '--theme <theme>',
     'A published theme or local npm theme package identifier.'
   )
   .option(

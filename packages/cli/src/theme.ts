@@ -200,6 +200,10 @@ async function apiTheme(
       semantic: String(semantic),
     }),
   })
-  const code = await res.text()
-  return code
+  if (res.ok) {
+    const code = await res.text()
+    return code
+  } else {
+    error(`Could not generate theme — ${res.statusText}`)
+  }
 }
