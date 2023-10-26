@@ -42,24 +42,55 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       type: Boolean,
       default: true,
     },
+    schemas: {
+      type: Array,
+      required: false,
+    },
   },
   async setup(props) {
     const inputList = await fetchInputList()
     const inputs: Record<string, FormKitSchemaDefinition[]> = {}
     const promises = []
 
-    const coreInputPromises = inputList.core.map(async (input: string) => {
-      const response = await fetchInputSchema(input)
-      inputs[input] = response
-    })
-    promises.push(...coreInputPromises)
-
-    if (props.pro) {
-      const proInputPromises = inputList.pro.map(async (input: string) => {
+    if (!props.schemas) {
+      const coreInputPromises = inputList.core.map(async (input: string) => {
         const response = await fetchInputSchema(input)
         inputs[input] = response
       })
-      promises.push(...proInputPromises)
+      promises.push(...coreInputPromises)
+
+      if (props.pro) {
+        const proInputPromises = inputList.pro.map(async (input: string) => {
+          const response = await fetchInputSchema(input)
+          inputs[input] = response
+        })
+        promises.push(...proInputPromises)
+      }
+    } else {
+      const schemaPromises = props.schemas.map(async (value: unknown) => {
+        const response = await fetchInputSchema(`${value}`)
+        inputs[`${value}`] = response
+      })
+      promises.push(...schemaPromises)
+    }
+
+    // supporting schema functions for async input states
+    const data = {
+      asyncLoader: async () => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return await new Promise<void>(() => {})
+      },
+      paginatedLoader: async ({
+        page,
+        hasNextPage,
+      }: {
+        page: number
+        hasNextPage: () => void
+      }) => {
+        const base = (page - 1) * 10
+        hasNextPage()
+        return Array.from({ length: 10 }, (_, i) => `Option ${base + i + 1}`)
+      },
     }
 
     await Promise.all(promises)
@@ -72,16 +103,16 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
           'div',
           {
             class: 'formkit-specimen',
-            'data-type': input,
           },
           [
             h(FormKitSchema, {
               schema: schema,
+              data: data,
             }),
           ]
         )
       })
-      return h('div', { class: 'formkit-input-section' }, [
+      return h('div', { class: 'formkit-input-section', 'data-type': input }, [
         h('span', { class: 'formkit-input-type' }, input),
         h('div', { class: 'formkit-specimen-group' }, schemaRenders),
       ])
