@@ -4,6 +4,7 @@ import { resolve } from 'pathe'
 import { error, green, __dirname, info } from './index'
 import { Theme, ThemeOptions } from '@formkit/theme-creator'
 import { stylesheetFromTailwind } from '@formkit/theme-creator/stylesheet'
+import { slugify } from '@formkit/utils'
 import prompts from 'prompts'
 import { createHash } from 'crypto'
 
@@ -109,6 +110,7 @@ export async function generate(
   *
   * @checksum -
   * @variables - ${variables}
+  * @theme - ${slugify(theme.meta.name)}
   **/
 
  /**
