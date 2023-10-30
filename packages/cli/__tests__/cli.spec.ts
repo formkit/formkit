@@ -10,7 +10,7 @@ describe('buildTheme', () => {
     const consoleMock = vi
       .spyOn(console, 'log')
       .mockImplementation(() => undefined)
-    buildTheme({ theme: 'my-theme ' })
+    buildTheme({ theme: 'my-theme' })
     expect(consoleMock).toHaveBeenCalledWith(
       chalk.greenBright('Locating my-theme...')
     )
