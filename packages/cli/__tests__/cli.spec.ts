@@ -3,7 +3,7 @@ import { buildTheme } from '../src/theme'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { resolve } from 'pathe'
-import { createNode, FormKitContext } from '@formkit/core'
+import { createNode } from '@formkit/core'
 
 describe('buildTheme', () => {
   it('can build a local theme', () => {
