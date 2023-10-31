@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { buildTheme } from '../src/theme'
+import { buildTheme, extractThemeData } from '../src/theme'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { resolve } from 'pathe'
@@ -77,5 +77,26 @@ describe('buildTheme', () => {
       'mt-2': true,
       'text-green-300': true,
     })
+  })
+})
+
+describe('extractThemeData', () => {
+  it('can extract basic details about a given theme', async () => {
+    await buildTheme({
+      theme: './packages/cli/__tests__/mocks/localTheme',
+      outFile: 'temp/formkit.theme.ts',
+      format: 'ts',
+      variables: 'spacing=5',
+    })
+    const fileString = await readFile(
+      resolve(process.cwd(), 'temp/formkit.theme.ts'),
+      'utf-8'
+    )
+    const themeData = extractThemeData(fileString)
+    expect(themeData).toEqual([
+      '34e76d5a60cea82d8e83f7b3948333b0cab7c914ffdd792141e8db0a8e8e31da',
+      'spacing=5',
+      'simple',
+    ])
   })
 })
