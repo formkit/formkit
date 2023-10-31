@@ -9,6 +9,7 @@ import { slugify } from '@formkit/utils'
 import prompts from 'prompts'
 import { createHash } from 'crypto'
 import ora from 'ora'
+import open from 'open'
 import { parse as parseUrl } from 'url'
 
 interface BuildThemeOptions {
@@ -98,10 +99,14 @@ async function editTheme(
   variables: string,
   theme: string
 ) {
-  const codeWithoutChecksum = code.replace(checksum, '')
-  if (
-    createHash('sha256').update(codeWithoutChecksum).digest('hex') !== checksum
-  ) {
+  const codeWithoutChecksum = code.replace(
+    `* @checksum - ${checksum}`,
+    '* @checksum -'
+  )
+  const newChecksum = createHash('sha256')
+    .update(codeWithoutChecksum)
+    .digest('hex')
+  if (newChecksum !== checksum) {
     const { confirm } = await prompts({
       type: 'confirm',
       message:
@@ -110,21 +115,20 @@ async function editTheme(
       initial: false,
     })
 
-    if (confirm) {
-      const [newTheme, newVariables] = await editMode(theme, variables)
-      const themeCode = await apiTheme(
-        newTheme,
-        DEFAULT_THEME_API,
-        newVariables,
-        path.endsWith('.ts'),
-        false
-      )
-      await writeFile(path, themeCode)
-      green(`Theme successfully updated!`)
-    } else {
-      error('Aborting.')
+    if (!confirm) {
+      return error('Aborting.')
     }
   }
+  const [newTheme, newVariables] = await editMode(theme, variables)
+  const themeCode = await apiTheme(
+    newTheme,
+    DEFAULT_THEME_API,
+    newVariables,
+    path.endsWith('.ts'),
+    false
+  )
+  await writeFile(path, themeCode)
+  green(`Theme successfully updated!`)
 }
 
 async function editMode(
@@ -139,16 +143,15 @@ async function editMode(
     server = http
       .createServer((req, res) => {
         const urlObj = parseUrl(req.url!, true)
-        const path = urlObj.pathname as string
         const theme = urlObj.query.theme as string | undefined
         const variables = urlObj.query.variables as string | undefined
-        if (path === 'heartbeat') {
-          res.writeHead(200, { 'Content-Type': 'application/json' })
-          res.end('{ "status": "listening" }')
-        } else if (theme && variables) {
+        if (theme && typeof variables !== 'undefined') {
           res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end('{ "status": "complete" }')
           resolve([theme, variables])
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end('{ "status": "listening" }')
         }
       })
       .listen(5479)
