@@ -275,7 +275,7 @@ function getPath(paths: string[]): string | undefined {
 async function localGeneratedTheme(): Promise<[string, string] | undefined> {
   const extensions = ['.ts', '.js', '.mjs', '.cjs']
   const paths = extensions.map((ext) =>
-    resolve(process.cwd(), 'formkit.theme.' + ext)
+    resolve(process.cwd(), 'formkit.theme' + ext)
   )
   const path = getPath(paths)
   if (path) {
