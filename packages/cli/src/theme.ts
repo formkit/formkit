@@ -11,6 +11,8 @@ import { createHash } from 'crypto'
 import ora from 'ora'
 import open from 'open'
 import { parse as parseUrl } from 'url'
+import { token } from '@formkit/utils'
+import { getPort } from 'get-port-please'
 
 interface BuildThemeOptions {
   semantic: boolean
@@ -19,6 +21,11 @@ interface BuildThemeOptions {
   api?: string
   format?: 'ts' | 'mjs'
   outFile?: string
+}
+
+interface ServerResponse {
+  status: 'success' | 'failed'
+  message: string
 }
 
 const DEFAULT_THEME_API = 'https://themes.formkit.com/api'
@@ -135,26 +142,42 @@ async function editMode(
   theme: string,
   variables: string
 ): Promise<[string, string]> {
-  const url = `${DEFAULT_THEME_EDITOR}?theme=${theme}&variables=${variables}`
-  const spinner = ora(`To edit visit: ${url}`).start()
+  const nonce = token()
+  const port = await getPort({
+    portRange: [5480, 5550],
+    host: 'localhost',
+  })
+  const url = `${DEFAULT_THEME_EDITOR}/editor/?theme=${theme}&variables=${variables}&n=${nonce}&p=${port}`
+  info(`Open the theme editor at: ${url}`)
+  const spinner = ora(`Edit in your browser.`).start()
   await open(url)
   let server: http.Server | undefined
   const themeDetails = await new Promise<[string, string]>((resolve) => {
     server = http
       .createServer((req, res) => {
         const urlObj = parseUrl(req.url!, true)
+        const path = urlObj.pathname as string
         const theme = urlObj.query.theme as string | undefined
         const variables = urlObj.query.variables as string | undefined
-        if (theme && typeof variables !== 'undefined') {
-          res.writeHead(200, { 'Content-Type': 'application/json' })
-          res.end('{ "status": "complete" }')
-          resolve([theme, variables])
-        } else {
-          res.writeHead(200, { 'Content-Type': 'application/json' })
-          res.end('{ "status": "listening" }')
+        const resData: ServerResponse = {
+          status: 'failed',
+          message: 'Incorrect token.',
         }
+        if (path === `/${nonce}`) {
+          resData.status = 'success'
+          if (theme && typeof variables !== 'undefined') {
+            resData.message = 'updated'
+            resolve([theme, variables])
+          } else {
+            resData.message = 'listening'
+          }
+        }
+        res.writeHead(resData.status === 'success' ? 200 : 400, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify(resData))
       })
-      .listen(5479)
+      .listen(port)
   })
   server?.close()
   spinner.stop()
