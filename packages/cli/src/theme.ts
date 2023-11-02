@@ -174,6 +174,8 @@ async function editMode(
         }
         res.writeHead(resData.status === 'success' ? 200 : 400, {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          Vary: 'Origin',
         })
         res.end(JSON.stringify(resData))
       })
