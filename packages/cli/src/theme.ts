@@ -8,7 +8,7 @@ import { stylesheetFromTailwind } from '@formkit/theme-creator/stylesheet'
 import { slugify } from '@formkit/utils'
 import prompts from 'prompts'
 import { createHash } from 'crypto'
-import ora from 'ora'
+import ora, { Ora } from 'ora'
 import open from 'open'
 import { parse as parseUrl } from 'url'
 import { token } from '@formkit/utils'
@@ -44,6 +44,7 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
           type: 'confirm',
           message: `Found local theme file for ${theme}, edit this theme?`,
           name: 'editMode',
+          initial: true,
         })
         if (editMode) {
           return await editTheme(path, code, checksum, variables, theme)
@@ -126,35 +127,45 @@ async function editTheme(
       return error('Aborting.')
     }
   }
-  const [newTheme, newVariables] = await editMode(theme, variables)
-  const themeCode = await apiTheme(
-    newTheme,
-    DEFAULT_THEME_API,
-    newVariables,
-    path.endsWith('.ts'),
-    false
-  )
-  await writeFile(path, themeCode)
-  green(`Theme successfully updated!`)
+  await editMode(theme, variables, path)
+}
+
+/**
+ * Use the public formkit url shortener.
+ * @param url - A url to shorten
+ */
+async function shorten(url: string): Promise<string> {
+  const res = await fetch('https://www.formk.it', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  })
+  const data = await res.json()
+  return data.url
 }
 
 async function editMode(
   theme: string,
-  variables: string
-): Promise<[string, string]> {
+  variables: string,
+  filePath: string
+): Promise<void> {
   const nonce = token()
   const port = await getPort({
     portRange: [5480, 5550],
     host: 'localhost',
   })
   const url = `${DEFAULT_THEME_EDITOR}/editor/?theme=${theme}&variables=${variables}&n=${nonce}&p=${port}`
-  info(`Open the theme editor at: ${url}`)
+  const shortUrl = await shorten(url)
+  info(`Open the theme editor at: ${shortUrl}`)
   const spinner = ora(`Edit in your browser.`).start()
   await open(url)
+  let heartBeatTimeout: NodeJS.Timeout | undefined
   let server: http.Server | undefined
-  const themeDetails = await new Promise<[string, string]>((resolve) => {
+  let completedSuccessfully = false
+  let savedAt = 0
+  await new Promise<void>((resolve) => {
     server = http
-      .createServer((req, res) => {
+      .createServer(async (req, res) => {
         const urlObj = parseUrl(req.url!, true)
         const path = urlObj.pathname as string
         const theme = urlObj.query.theme as string | undefined
@@ -164,12 +175,30 @@ async function editMode(
           message: 'Incorrect token.',
         }
         if (path === `/${nonce}`) {
+          clearTimeout(heartBeatTimeout)
           resData.status = 'success'
           if (theme && typeof variables !== 'undefined') {
             resData.message = 'updated'
-            resolve([theme, variables])
+            const themeCode = await apiTheme(
+              theme,
+              DEFAULT_THEME_API,
+              variables,
+              filePath.endsWith('.ts'),
+              false,
+              spinner
+            )
+            await writeFile(filePath, themeCode)
+            spinner.text = `⚡️ theme updated.`
+            savedAt = Date.now()
           } else {
             resData.message = 'listening'
+            if (Date.now() - savedAt > 5000) {
+              spinner.text = `waiting for${savedAt ? ' more' : ''} changes...`
+            }
+            heartBeatTimeout = setTimeout(() => {
+              completedSuccessfully = true
+              resolve()
+            }, 3000)
           }
         }
         res.writeHead(resData.status === 'success' ? 200 : 400, {
@@ -183,7 +212,10 @@ async function editMode(
   })
   server?.close()
   spinner.stop()
-  return themeDetails
+  if (completedSuccessfully) {
+    info('Theme editor session complete, enjoy your theme 🎨')
+    process.exit(0)
+  }
 }
 
 function guessFormat() {
@@ -357,9 +389,14 @@ async function apiTheme(
   endpoint: string,
   variables: string,
   isTS: boolean,
-  semantic: boolean
+  semantic: boolean,
+  spinner?: Ora
 ): Promise<string> {
-  info(`Generating theme: ${themeName}`)
+  if (spinner) {
+    spinner.text = `🔨 building ${themeName}`
+  } else {
+    info(`⚡️ building theme: ${themeName}`)
+  }
   const res = await fetch(`${endpoint}/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
