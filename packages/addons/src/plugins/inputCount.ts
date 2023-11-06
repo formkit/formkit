@@ -88,7 +88,6 @@ export function createInputCountPlugin(
           })
 
           function updateCountValue ({ payload }: { payload: string }) {
-            const maxLength = getMaxLength()
             node.props.inputCountString = `${payload ? payload.length : 0}${maxLength ? `/${maxLength}` : ''}`
           }
 
