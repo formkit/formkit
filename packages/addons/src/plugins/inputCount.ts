@@ -28,7 +28,7 @@ export interface InputCountOptions {
 export function createInputCountPlugin(
   InputCountOptions?: InputCountOptions
 ): FormKitPlugin {
-  const inputCountPlugin = (node: FormKitNode) => {
+  return (node: FormKitNode) => {
     node.addProps(['inputCount', 'inputCountString'])
 
     const allowTypes = InputCountOptions?.countTypes || ['text', 'password', 'textarea']
@@ -88,6 +88,7 @@ export function createInputCountPlugin(
           })
 
           function updateCountValue ({ payload }: { payload: string }) {
+            const maxLength = getMaxLength()
             node.props.inputCountString = `${payload ? payload.length : 0}${maxLength ? `/${maxLength}` : ''}`
           }
 
