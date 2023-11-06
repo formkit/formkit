@@ -105,15 +105,15 @@ describe('options', () => {
       {
         group: 'Foo',
         options: [
-          { __original: 0, label: 'A', value: '__mask_0' },
-          { __original: 1, label: 'B', value: '__mask_1' },
+          { __original: 0, label: 'A', value: '__mask_1' },
+          { __original: 1, label: 'B', value: '__mask_2' },
         ],
       },
       {
         group: 'Bar',
         options: [
-          { __original: 3, label: 'D', value: '__mask_2' },
-          { __original: 4, label: 'E', value: '__mask_3' },
+          { __original: 3, label: 'D', value: '__mask_3' },
+          { __original: 4, label: 'E', value: '__mask_4' },
         ],
       },
     ])

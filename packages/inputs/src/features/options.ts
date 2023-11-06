@@ -22,7 +22,7 @@ import { eq, isPojo } from '@formkit/utils'
  */
 export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
   options: T,
-  i = { count: 0 }
+  i = { count: 1 }
 ): T extends FormKitOptionsProp
   ? FormKitOptionsList
   : FormKitOptionsListWithGroups {
@@ -70,13 +70,14 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
  */
 export function optionValue(
   options: FormKitOptionsListWithGroups,
-  value: string
+  value: string,
+  undefinedIfNotFound = false
 ): unknown {
   if (Array.isArray(options)) {
     for (const option of options) {
       if (typeof option !== 'object' && option) continue
       if (isGroupOption(option)) {
-        const found = optionValue(option.options, value)
+        const found = optionValue(option.options, value, true)
         if (found !== undefined) {
           return found
         }
@@ -85,7 +86,7 @@ export function optionValue(
       }
     }
   }
-  return value
+  return undefinedIfNotFound ? undefined : value
 }
 
 /**

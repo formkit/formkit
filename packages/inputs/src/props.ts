@@ -747,6 +747,6 @@ export function isGroupOption(
     option &&
     typeof option === 'object' &&
     'group' in option &&
-    Array.isArray(option)
+    Array.isArray(option.options)
   )
 }

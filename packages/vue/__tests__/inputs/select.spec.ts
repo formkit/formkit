@@ -451,7 +451,7 @@ describe('select', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it.only('can render a group of options with masked values', () => {
+  it('can render a group of options with masked values', async () => {
     const id = `a${token()}`
     const wrapper = mount(
       {
@@ -487,9 +487,10 @@ describe('select', () => {
         },
       }
     )
-    console.log(wrapper.html())
     expect(getNode(id)!.value).toBe(1)
     wrapper.find('select').setValue('__mask_4')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.value).toBe(3)
   })
 
   it('can v-model its data', async () => {
