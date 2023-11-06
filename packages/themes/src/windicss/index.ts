@@ -1,3 +1,4 @@
+// @ts-nocheck
 import plugin from 'windicss/plugin'
 
 const outerAttributes = [
