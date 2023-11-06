@@ -17,6 +17,7 @@ const outerAttributes = [
 /**
  * The FormKit plugin for WindiCSS
  * @public
+ * @deprecated - Windicss is no longer supported, see: https://windicss.org/posts/sunsetting.html
  */
 const FormKitVariants = plugin(({ addVariant }) => {
   outerAttributes.forEach((attribute) => {
