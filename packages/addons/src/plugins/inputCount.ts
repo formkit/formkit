@@ -77,10 +77,9 @@ export function createInputCountPlugin(
           }
           node.props.definition = inputDefinition
 
-          updateCountValue({ payload: node._value as string })
-          node.on('input', updateCountValue)
-
           let maxLength = getMaxLength()
+          
+          node.on('input', updateCountValue)
           node.on('prop:parsedRules', () => {
             maxLength = getMaxLength()
             // re-run the count value
