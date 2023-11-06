@@ -225,7 +225,7 @@ export async function createApp(
   if (options.framework === 'vite') {
     await execa('npx', [
       '--yes',
-      'create-vite',
+      'create-vite@latest',
       appName,
       '--template',
       `vue${options.lang === 'ts' ? '-ts' : ''}`,

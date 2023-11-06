@@ -2,6 +2,7 @@ import {
   FormKit,
   FormKitProvider,
   FormKitLazyProvider,
+  FormKitSchema,
   defaultConfig,
   plugin,
   createInput,
@@ -9,6 +10,7 @@ import {
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { FormKitNode } from '@formkit/core'
+import { markRaw } from 'vue'
 
 describe('FormKitProvider', () => {
   it('can use a custom FormKitProvider to automatically inject', async () => {
@@ -23,6 +25,30 @@ describe('FormKitProvider', () => {
       template: `
           <FormKitProvider :config="defaultConfig">
             <FormKit type="text" name="foo" />
+          </FormKitProvider>
+        `,
+    })
+    expect(wrapper.find('input').exists()).toBe(true)
+  })
+
+  it('can use a custom FormKitSchema with a provider can load FormKit components from library', async () => {
+    const wrapper = mount({
+      setup() {
+        return { FormKit: markRaw(FormKit) }
+      },
+      components: {
+        FormKitSchema,
+        FormKitProvider,
+      },
+      methods: {
+        defaultConfig,
+      },
+      template: `
+          <FormKitProvider :config="defaultConfig">
+            <FormKitSchema
+              :schema="[{$formkit: 'text', name: 'foo'}]"
+              :library="{ FormKit }"
+            />
           </FormKitProvider>
         `,
     })

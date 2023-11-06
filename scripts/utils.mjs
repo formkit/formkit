@@ -11,6 +11,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 export const packagesDir = resolve(__dirname, '../packages')
 
+const formkitExternals = [
+  '@formkit/auto-animate',
+  '@formkit/theme-creator'
+]
+
 export const msg = {
   error: (m) => console.log(chalk.bold.red(m)),
   info: (m) => console.log(chalk.cyan(m)),
@@ -296,7 +301,9 @@ export function getPackageVersion(pkg) {
 export function getDependencyVersion(pkg, parent) {
   const packageJSON = getPackageJSON(parent)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
-  delete dependencies['@formkit/auto-animate']
+  formkitExternals.forEach(dep => {
+    delete dependencies[dep]
+  })
   const devDependencies = packageJSON.devDependencies
     ? packageJSON.devDependencies
     : []
@@ -314,7 +321,7 @@ export function getDependencyVersion(pkg, parent) {
  */
 export function getFKDependenciesFromObj(dependencies) {
   let matches = Object.keys(dependencies).filter(
-    (key) => key.startsWith('@formkit/') && key !== '@formkit/auto-animate'
+    (key) => key.startsWith('@formkit/') && !formkitExternals.includes(key)
   )
   matches = matches.map((dependency) => dependency.replace('@formkit/', ''))
   return matches

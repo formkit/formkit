@@ -55,6 +55,10 @@ declare module 'vue' {
     FormKitSchema: typeof FormKitSchema
   }
 }
+
+declare global {
+  var __FORMKIT_CONFIGS__: FormKitRootConfig[]
+}
 `,
   zod: `
 /**

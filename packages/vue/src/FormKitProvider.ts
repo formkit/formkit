@@ -7,6 +7,10 @@ import { Suspense } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { ComponentInternalInstance } from 'vue'
 
+/**
+ * A composable to provide a given configuration to all children.
+ * @param config - A FormKit configuration object or a function
+ */
 export function useConfig(
   config?: FormKitOptions | ((...args: any[]) => FormKitOptions)
 ) {
@@ -34,6 +38,14 @@ export function useConfig(
    * Provide the root config to the children.
    */
   provide(configSymbol, rootConfig)
+  /**
+   * Register the FormKit component globally.
+   */
+  if (typeof window !== 'undefined') {
+    globalThis.__FORMKIT_CONFIGS__ = (
+      globalThis.__FORMKIT_CONFIGS__ || []
+    ).concat([rootConfig])
+  }
 }
 
 export interface FormKitProviderProps {
@@ -77,7 +89,7 @@ const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
     let config = {}
     if (props.configFile) {
       const configFile = await import(
-        /*@__formkit.config.ts__*/ /* @vite-ignore */ props.configFile
+        /*@__formkit.config.ts__*/ /* @vite-ignore */ /* webpackIgnore: true */ props.configFile
       )
       config = 'default' in configFile ? configFile.default : configFile
     }

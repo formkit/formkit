@@ -159,7 +159,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
    */
-  const cachedClasses = reactive({})
+  const cachedClasses = reactive<Record<string, string>>({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
       const [target, property] = args
@@ -199,6 +199,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       }
       return className
     },
+  })
+
+  node.on('prop:rootClasses', () => {
+    const keys = Object.keys(cachedClasses)
+    for (const key of keys) {
+      delete cachedClasses[key]
+    }
   })
 
   const describedBy = computed<string | undefined>(() => {
