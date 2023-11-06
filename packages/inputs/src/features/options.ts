@@ -21,11 +21,11 @@ import { eq, isPojo } from '@formkit/utils'
  * @public
  */
 export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
-  options: T
+  options: T,
+  i = { count: 0 }
 ): T extends FormKitOptionsProp
   ? FormKitOptionsList
   : FormKitOptionsListWithGroups {
-  let i = 1
   if (Array.isArray(options)) {
     return options.map(
       (option): FormKitOptionsItem | FormKitOptionsGroupItem => {
@@ -37,11 +37,11 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
         }
         if (typeof option == 'object') {
           if ('group' in option) {
-            option.options = normalizeOptions(option.options || [])
+            option.options = normalizeOptions(option.options || [], i)
             return option as FormKitOptionsGroupItem
           } else if ('value' in option && typeof option.value !== 'string') {
             Object.assign(option, {
-              value: `__mask_${i++}`,
+              value: `__mask_${i.count++}`,
               __original: option.value,
             })
           }

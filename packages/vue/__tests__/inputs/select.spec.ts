@@ -451,6 +451,47 @@ describe('select', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
+  it.only('can render a group of options with masked values', () => {
+    const id = `a${token()}`
+    const wrapper = mount(
+      {
+        setup() {
+          const options = [
+            {
+              group: 'Letter index',
+              options: [
+                { label: 'A', value: 0 },
+                { label: 'B', value: 1 },
+                { label: 'C', value: 2 },
+              ],
+            },
+            {
+              group: 'Emoji index',
+              options: [
+                { label: '👍', value: 3 },
+                { label: '👉', value: 4 },
+                { label: '👀', value: 5 },
+              ],
+            },
+          ]
+          return {
+            options,
+          }
+        },
+        template: `
+          <FormKit :delay="0" :value="1" id="${id}" type="select" :options="options"></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    console.log(wrapper.html())
+    expect(getNode(id)!.value).toBe(1)
+    wrapper.find('select').setValue('__mask_4')
+  })
+
   it('can v-model its data', async () => {
     const wrapper = mount(
       {

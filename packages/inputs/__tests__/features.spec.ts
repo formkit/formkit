@@ -83,6 +83,42 @@ describe('options', () => {
       },
     ])
   })
+  it('can recursively handle options with groups of masked values', () => {
+    expect(
+      normalizeOptions([
+        {
+          group: 'Foo',
+          options: [
+            { label: 'A', value: 0 },
+            { label: 'B', value: 1 },
+          ],
+        },
+        {
+          group: 'Bar',
+          options: [
+            { label: 'D', value: 3 },
+            { label: 'E', value: 4 },
+          ],
+        },
+      ])
+    ).toEqual([
+      {
+        group: 'Foo',
+        options: [
+          { __original: 0, label: 'A', value: '__mask_0' },
+          { __original: 1, label: 'B', value: '__mask_1' },
+        ],
+      },
+      {
+        group: 'Bar',
+        options: [
+          { __original: 3, label: 'D', value: '__mask_2' },
+          { __original: 4, label: 'E', value: '__mask_3' },
+        ],
+      },
+    ])
+  })
+
   it('can take a function and sets the optionsLoader prop and assigns an empty array', () => {
     const node = createNode({
       plugins: [
