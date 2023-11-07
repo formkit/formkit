@@ -10,6 +10,6 @@ export const fileList = createSection('fileList', () => ({
   $el: 'ul',
   if: '$value.length',
   attrs: {
-    'data-has-multiple': '$_dataHasMultiple',
+    'data-has-multiple': '$_hasMultipleFiles',
   },
 }))
