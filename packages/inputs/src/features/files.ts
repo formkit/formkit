@@ -56,6 +56,7 @@ export default function files(node: FormKitNode): void {
   localize('noFiles', 'Select file')(node)
   localize('removeAll', 'Remove all')(node)
   localize('remove')(node)
+  node.addProps(['_hasMultipleFiles'])
 
   if (isBrowser) {
     if (!window._FormKit_File_Drop) {
@@ -68,8 +69,11 @@ export default function files(node: FormKitNode): void {
       window._FormKit_File_Drop = true
     }
   }
-
   node.hook.input((value, next) => next(Array.isArray(value) ? value : []))
+  node.on('input', ({ payload: value }) => {
+    node.props._hasMultipleFiles =
+      Array.isArray(value) && value.length > 1 ? true : undefined
+  })
 
   node.on('reset', () => {
     if (node.props.id && isBrowser) {
