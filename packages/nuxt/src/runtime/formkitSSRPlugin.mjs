@@ -1,4 +1,4 @@
-import { defineNuxtPlugin } from '#app'
+import { defineNuxtPlugin } from '#imports'
 import { ssrComplete, resetCount } from '@formkit/vue'
 
 export default defineNuxtPlugin((nuxtApp) => {
