@@ -96,8 +96,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
 
     await Promise.all(promises)
 
-    // ensure that inputs come back in alphabetical order
-    const inputKeys = Object.keys(schemas).sort()
+    const inputKeys = Object.keys(schemas)
 
     // create friendly labels for use in tabs
     const formNames = inputKeys.map((key: string) => {
@@ -204,7 +203,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
                   'div',
                   {
                     class:
-                      'w-full bg-white rounded border border-neutral-100 shadow-lg max-w-[800px] p-[min(5vw,5rem)]',
+                      'w-full bg-white rounded border border-neutral-100 shadow-lg max-w-[800px] p-[min(5vw,5rem)] dark:bg-neutral-900 dark:border-neutral-800 dark:shadow-3xl',
                   },
                   [
                     h(FormKitSchema, {
