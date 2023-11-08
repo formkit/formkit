@@ -5,7 +5,7 @@ import { FormKitKitchenSink } from '@formkit/vue'
 <template>
   <h2>loading a form:</h2>
   <Suspense>
-    <FormKitKitchenSink :schemas="['form/login']" />
+    <FormKitKitchenSink :schemas="['text', 'form/login']" />
   </Suspense>
   <h2>loading inputs:</h2>
   <Suspense>
