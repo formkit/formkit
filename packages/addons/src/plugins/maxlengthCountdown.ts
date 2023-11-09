@@ -37,9 +37,7 @@ export function createMaxLengthCountdownPlugin(
 ): FormKitPlugin {
 
   return (node: FormKitNode) => {
-    node.addProps(['maxlengthCountdown'])
-    node.addProps(['maxlengthRemainingText'])
-    node.addProps(['maxlengthStringCount'])
+    node.addProps(['maxlengthCountdown', 'maxlengthRemainingText', 'maxlengthStringCount'])
 
     let usePlugin = MaxlengthCountdownOptions?.useAsDefault === true
 
