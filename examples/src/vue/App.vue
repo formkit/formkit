@@ -1,13 +1,9 @@
 <template>
   <header class="header">
-    <img
-      src="/src/assets/logo.svg"
-      alt="FormKit Logo"
-      class="logo"
-    >
+    <img src="/src/assets/logo.svg" alt="FormKit Logo" class="logo" />
     <Navigation />
   </header>
-  <div class="container">
+  <div class="wrapper">
     <router-view />
   </div>
   <VueGriddle />
@@ -17,7 +13,6 @@
 import Navigation from './Navigation.vue'
 import { VueGriddle } from '@braid/griddle'
 </script>
-
 
 <style lang="scss">
 .header {
@@ -45,5 +40,9 @@ import { VueGriddle } from '@braid/griddle'
 
 .container {
   @include container();
+}
+
+.wrapper {
+  padding: 3em;
 }
 </style>

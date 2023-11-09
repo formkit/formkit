@@ -1,4 +1,6 @@
 #!/usr/bin/env node
-import('../dist/index.mjs').then((init) =>
-  typeof init === 'function' ? init() : init.default()
-)
+import jiti from 'jiti'
+import { fileURLToPath } from "node:url";
+const __filename = fileURLToPath(import.meta.url);
+
+jiti(__filename)('../dist/index.mjs').default()

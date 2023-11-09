@@ -17,6 +17,7 @@ import {
   getCurrentInstance,
   ConcreteComponent,
   onUnmounted,
+  markRaw,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -38,6 +39,7 @@ import {
   sugar,
 } from '@formkit/core'
 import { onSSRComplete } from './composables/onSSRComplete'
+import FormKit from './FormKit'
 
 /**
  * A simple flag to tell if we are running on the server or not.
@@ -869,7 +871,8 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
     const instance = getCurrentInstance()
     let instanceKey = {}
     instanceScopes.set(instanceKey, [])
-    let provider = parseSchema(props.library, props.schema, props.memoKey)
+    const library = { FormKit: markRaw(FormKit), ...props.library }
+    let provider = parseSchema(library, props.schema, props.memoKey)
     let render: RenderChildren
     let data: Record<string, any>
     // // Re-parse the schema if it changes:
@@ -880,7 +883,7 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
           const oldKey = instanceKey
           instanceKey = {}
           instanceScopes.set(instanceKey, [])
-          provider = parseSchema(props.library, props.schema, props.memoKey)
+          provider = parseSchema(library, props.schema, props.memoKey)
           render = createRenderFn(provider, data, instanceKey)
           if (newSchema === oldSchema) {
             // In this edge case, someone pushed/modified something in the schema

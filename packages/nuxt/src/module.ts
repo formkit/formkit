@@ -202,7 +202,7 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
         )
       }
 
-      return `import { defineNuxtPlugin } from '#app'
+      return `import { defineNuxtPlugin } from '#imports'
       import { plugin, defaultConfig, ssrComplete } from '@formkit/vue'
       import { resetCount } from '@formkit/core'
 

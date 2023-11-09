@@ -143,6 +143,9 @@ function createTypeScriptConfig() {
   }
   const base = {
     tsconfig: 'tsconfig.json',
+    compilerOptions: {
+      moduleResolution: pkg === 'themes' ? 'node' : 'bundler'
+    },
     rootDir: `./`,
     outDir: out,
     include: [include],

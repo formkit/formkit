@@ -21,11 +21,11 @@ import { eq, isPojo } from '@formkit/utils'
  * @public
  */
 export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
-  options: T
+  options: T,
+  i = { count: 1 }
 ): T extends FormKitOptionsProp
   ? FormKitOptionsList
   : FormKitOptionsListWithGroups {
-  let i = 1
   if (Array.isArray(options)) {
     return options.map(
       (option): FormKitOptionsItem | FormKitOptionsGroupItem => {
@@ -37,11 +37,11 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
         }
         if (typeof option == 'object') {
           if ('group' in option) {
-            option.options = normalizeOptions(option.options || [])
+            option.options = normalizeOptions(option.options || [], i)
             return option as FormKitOptionsGroupItem
           } else if ('value' in option && typeof option.value !== 'string') {
             Object.assign(option, {
-              value: `__mask_${i++}`,
+              value: `__mask_${i.count++}`,
               __original: option.value,
             })
           }
@@ -70,13 +70,14 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
  */
 export function optionValue(
   options: FormKitOptionsListWithGroups,
-  value: string
+  value: string,
+  undefinedIfNotFound = false
 ): unknown {
   if (Array.isArray(options)) {
     for (const option of options) {
       if (typeof option !== 'object' && option) continue
       if (isGroupOption(option)) {
-        const found = optionValue(option.options, value)
+        const found = optionValue(option.options, value, true)
         if (found !== undefined) {
           return found
         }
@@ -85,7 +86,7 @@ export function optionValue(
       }
     }
   }
-  return value
+  return undefinedIfNotFound ? undefined : value
 }
 
 /**

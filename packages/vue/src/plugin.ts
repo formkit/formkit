@@ -117,5 +117,13 @@ export const plugin: Plugin = {
      * Provide the root config to the application.
      */
     app.provide(configSymbol, rootConfig)
+    /**
+     * Register the FormKit component globally.
+     */
+    if (typeof window !== 'undefined') {
+      globalThis.__FORMKIT_CONFIGS__ = (
+        globalThis.__FORMKIT_CONFIGS__ || []
+      ).concat([rootConfig])
+    }
   },
 }

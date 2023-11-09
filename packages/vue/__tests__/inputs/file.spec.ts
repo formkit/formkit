@@ -33,6 +33,30 @@ describe('file inputs', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
+  it('applies data-has-multiple when there are multiple files attached', () => {
+    const id = `a${token}`
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit
+          type="file"
+          id="${id}"
+          :value="[
+            { name: 'test.pdf' },
+            { name: 'other.pdf' },
+          ]"
+        />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
   it('can rehydrate a file from the form', () => {
     const id = 'super-unique-id'
     const wrapper = mount(
