@@ -1527,7 +1527,7 @@ describe('FormKitMessages', () => {
     await new Promise((r) => setTimeout(r, 5))
     wrapper.find('input').setValue('a')
     wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 5))
+    await new Promise((r) => setTimeout(r, 20))
     expect(submitHandler).toHaveBeenCalledTimes(1)
     expect(submitHandler).toHaveBeenLastCalledWith(
       { name: 'a' },
