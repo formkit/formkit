@@ -36,7 +36,7 @@ export function createMaxLengthCountdownPlugin(
   MaxlengthCountdownOptions?: MaxlengthCountdownOptions
 ): FormKitPlugin {
 
-  const maxlengthCountdownPlugin = (node: FormKitNode) => {
+  return (node: FormKitNode) => {
     node.addProps(['maxlengthCountdown'])
     node.addProps(['maxlengthRemainingText'])
     node.addProps(['maxlengthStringCount'])
@@ -101,21 +101,20 @@ export function createMaxLengthCountdownPlugin(
             inputDefinition.schemaMemoKey += '-maxlength-remaining'
           }
           node.props.definition = inputDefinition
+          node.props.maxlengthRemainingText = node.props.maxlengthRemainingText ||
+              MaxlengthCountdownOptions?.remainingText ||
+              'remaining characters'
+
+          let maxlength = parseInt(node.props.attrs.maxlength)
 
           updateCountValue({ payload: node._value as string })
           node.on('input', updateCountValue)
 
           function updateCountValue ({ payload }: { payload: string }) {
-            let stringLength = parseInt(node.props.attrs.maxlength) - (payload ? payload.length : 0)
-            node.props.maxlengthStringCount = Math.max(0, stringLength)
-            node.props.maxlengthRemainingText = node.props.maxlengthRemainingText ||
-              MaxlengthCountdownOptions?.remainingText ||
-              'remaining characters'
+            node.props.maxlengthStringCount = Math.max(0, maxlength - (payload ? payload.length : 0))
           }
         }
       })
     }
   }
-
-  return maxlengthCountdownPlugin
 }
