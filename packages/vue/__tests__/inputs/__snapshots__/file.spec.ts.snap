@@ -9,7 +9,7 @@ exports[`file inputs > applies data-has-multiple when there are multiple files a
       <!----><input class=\\"formkit-input\\" type=\\"file\\" name=\\"file_2\\" id=\\"afunction token() {
     return Math.random().toString(36).substring(2, 15);
 }\\">
-      <ul class=\\"formkit-file-list\\">
+      <ul class=\\"formkit-file-list\\" data-has-multiple=\\"true\\">
         <li class=\\"formkit-file-item\\">
           <!----><span class=\\"formkit-file-name\\">test.pdf</span>
           <!---->
