@@ -283,17 +283,19 @@ export async function generate(
     isTS ? ': FormKitNode' : ''
   })${isTS ? ': Record<string, boolean>' : ''} {
    const key = \`\${node.props.type}__\${sectionName}\`
+   const semanticKey = \`formkit-\${sectionName}\`
    const familyKey = node.props.family ? \`family:\${node.props.family}__\${sectionName}\` : ''
    const memoKey = \`\${key}__\${familyKey}\`
    if (!(memoKey in classes)) {
      const sectionClasses = classes[key] ?? globals[sectionName] ?? {}
+     sectionClasses[semanticKey] = true
      if (familyKey in classes) {
        classes[memoKey] = { ...classes[familyKey],  ...sectionClasses }
      } else {
        classes[memoKey] = sectionClasses
      }
    }
-   return classes[memoKey]
+   return classes[memoKey] ?? { [semanticKey]: true }
  }
 
 /**
