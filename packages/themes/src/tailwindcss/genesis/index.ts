@@ -618,7 +618,7 @@ export default {
   },
   togglebuttons: {
     input: `
-      !text-blue-600 !bg-white
+      !text-black !bg-white
       relative flex ring-1 ring-gray-400 text-center align-center justify-center transition-colors
       group-data-[vertical="true"]/options:w-full
       group-data-[vertical="true"]/options:rounded-none
