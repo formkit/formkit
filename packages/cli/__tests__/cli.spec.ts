@@ -71,6 +71,7 @@ describe('buildTheme', () => {
     // @ts-ignore
     expect(node.props.rootClasses!('outer', node)).toEqual({
       'border-green-300': true,
+      'formkit-outer': true,
       'mb-5': true,
       'ml-80': true,
       'mr-10': true,
@@ -94,7 +95,7 @@ describe('extractThemeData', () => {
     )
     const themeData = extractThemeData(fileString)
     expect(themeData).toEqual([
-      '34e76d5a60cea82d8e83f7b3948333b0cab7c914ffdd792141e8db0a8e8e31da',
+      'b228e4109401cad3607911d25c782981e6c29559db23045621d8ce3193155dbe',
       'spacing=5',
       'simple',
     ])
