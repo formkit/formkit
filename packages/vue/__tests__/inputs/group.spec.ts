@@ -381,4 +381,24 @@ describe('clearing values', () => {
     )
     expect(wrapper.html()).toBe('<div>hello world</div>')
   })
+
+  it('renames radio inputs that are children', () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="group">
+          <FormKit type="radio" name="fiz" :options="['a', 'b']" value="b" />
+        </FormKit>
+        <FormKit type="group">
+          <FormKit type="radio" name="fiz" :options="['a', 'b']" value="a" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toMatchSnapshot()
+  })
 })

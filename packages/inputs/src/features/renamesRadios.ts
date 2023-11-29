@@ -11,11 +11,14 @@ let radioInstance = 0
  * @returns
  */
 export default function renamesRadios(node: FormKitNode) {
-  if (node.sync) node.plugins.add(renamesRadiosPlugin)
+  if (node.type === 'group' || node.type === 'list') {
+    node.plugins.add(renamesRadiosPlugin)
+  }
 }
 
 function renamesRadiosPlugin(node: FormKitNode) {
   if (node.props.type === 'radio') {
+    node.addProps(['altName'])
     node.props.altName = `${node.name}_${radioInstance++}`
   }
 }
