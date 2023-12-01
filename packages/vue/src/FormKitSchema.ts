@@ -725,7 +725,7 @@ function parseSchema(
     providerCallback: SchemaProviderCallback,
     key: object
   ) {
-    memoKey ??= JSON.stringify(schema)
+    memoKey ??= toMemoKey(schema)
     const [render, compiledProviders] = has(memo, memoKey)
       ? memo[memoKey]
       : [createElements(library, schema), providers]
@@ -831,7 +831,7 @@ function clean(
   memoKey: string | undefined,
   instanceKey: object
 ) {
-  memoKey ??= JSON.stringify(schema)
+  memoKey ??= toMemoKey(schema)
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
     delete memoKeys[memoKey]
@@ -840,6 +840,22 @@ function clean(
     providers.length = 0
   }
   instanceScopes.delete(instanceKey)
+}
+
+/**
+ * Convert a schema to a memo key.
+ * @param schema - A schema to convert to a memo key
+ */
+function toMemoKey(schema: FormKitSchemaDefinition) {
+  return JSON.stringify(schema, (_, value) => {
+    // Technically there shouldn’t be any functions in here, but just in case
+    // we want to sniff them out and convert them to strings
+    // See: https://github.com/formkit/formkit/issues/933
+    if (typeof value === 'function') {
+      return value.toString()
+    }
+    return value
+  })
 }
 
 /**
