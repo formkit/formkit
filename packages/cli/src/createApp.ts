@@ -1,5 +1,5 @@
 import { execa, execaCommand } from 'execa'
-import { readFile, writeFile, readdir } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
 import prompts from 'prompts'
@@ -8,6 +8,7 @@ import ora from 'ora'
 import http from 'http'
 import url from 'url'
 import open from 'open'
+import { isDirEmpty } from './utils'
 
 const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
@@ -476,13 +477,4 @@ ${defaultExport}
 `
 
   return rawConfig
-}
-
-async function isDirEmpty(path: string) {
-  try {
-    const entries = await readdir(path)
-    return entries.length === 0
-  } catch (error) {
-    return true
-  }
 }
