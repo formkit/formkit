@@ -7,8 +7,8 @@ import { warn } from './errors'
  *
  * @public
  */
-export function submitForm(id: string): void {
-  const formElement = document.getElementById(id)
+export function submitForm(id: string, root?: ShadowRoot | Document): void {
+  const formElement = (root || document).getElementById(id)
   if (formElement instanceof HTMLFormElement) {
     const event = new Event('submit', { cancelable: true, bubbles: true })
     formElement.dispatchEvent(event)

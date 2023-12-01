@@ -1249,7 +1249,9 @@ export type FormKitNode<V = unknown> = {
    * - $parent - Selects the parent node
    * - $self — Selects the current node
    */
-  at: (address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})) => FormKitNode | undefined
+  at: (
+    address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})
+  ) => FormKitNode | undefined
   /**
    * The address of the current node from the root of the tree.
    */
@@ -2788,7 +2790,7 @@ function submit(node: FormKitNode): void {
     node = node.parent
   } while (node)
   if (node.props.id) {
-    submitForm(node.props.id)
+    submitForm(node.props.id, node.props.__root)
   }
 }
 
