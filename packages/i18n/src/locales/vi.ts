@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Thay đổi ngày',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Ngày đã chọn không hợp lệ.',
-  /**
    * Shown when there is something to close
    */
   close: 'Đóng',
@@ -512,4 +508,8 @@ export const validation: FormKitValidationMessages = {
     return `Vui lòng nhập một URL hợp lệ.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Ngày đã chọn không hợp lệ.',
 }

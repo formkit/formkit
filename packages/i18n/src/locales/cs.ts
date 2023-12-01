@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Změnit datum',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Vybrané datum je neplatné.',
-  /**
    * Shown when there is something to close
    */
   close: 'Zavřít',
@@ -496,4 +492,8 @@ export const validation: FormKitValidationMessages = {
     return `Zadejte prosím platnou adresu URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Vybrané datum je neplatné.',
 }

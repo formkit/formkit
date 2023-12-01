@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Modificați data',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Data selectată este nevalidă.',
-  /**
    * Shown when there is something to close
    */
   close: 'Închide',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Introduceți o adresă URL validă.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Data selectată este nevalidă.',
 }

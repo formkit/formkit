@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: `O'zgartirish sanasi`,
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Tanlangan sana yaroqsiz.',
-  /**
    * Shown when there is something to close
    */
   close: 'Yopish',
@@ -514,4 +510,8 @@ export const validation: FormKitValidationMessages = {
     return `Iltimos, tegishli URL manzilini kiriting.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Tanlangan sana yaroqsiz.',
 }

@@ -85,10 +85,6 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Troka data',
-  /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Data la loos.',
 }
 
 /**
@@ -381,4 +377,8 @@ export const validation: FormKitValidationMessages = {
     return `Favor hakerek URL neebe loos.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Data la loos.',
 }

@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'เปลี่ยนวันที่',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'วันที่ที่เลือกไม่ถูกต้อง',
-  /**
    * Shown when there is something to close
    */
   close: 'ปิด',
@@ -510,4 +506,8 @@ export const validation: FormKitValidationMessages = {
     return `กรุณาระบุที่อยู่ลิงก์ให้ถูกต้อง`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'วันที่ที่เลือกไม่ถูกต้อง',
 }

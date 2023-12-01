@@ -86,10 +86,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Mainīt datumu',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Izvēlētais datums ir nepareizs.',
-  /**
    * Shown when there is something to close
    */
   close: 'Aizvērt',
@@ -383,4 +379,8 @@ export const validation: FormKitValidationMessages = {
     return `Lūdzu pievienojiet pareizu URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Izvēlētais datums ir nepareizs.',
 }

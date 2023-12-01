@@ -115,10 +115,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Pakeisti datą',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Pasirinkta data yra netinkama.',
-  /**
    * Shown when there is something to close
    */
   close: 'Uždaryti',
@@ -547,4 +543,8 @@ export const validation: FormKitValidationMessages = {
     return `Įveskite teisingą URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Pasirinkta data yra netinkama.',
 }

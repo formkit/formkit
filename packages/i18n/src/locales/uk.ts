@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Змінити дату',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Вибрана дата недійсна.',
-  /**
    * Shown when there is something to close
    */
   close: 'Закрити',
@@ -516,4 +512,8 @@ export const validation: FormKitValidationMessages = {
     return `Будь ласка, введіть коректну URL-адресу.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Вибрана дата недійсна.',
 }

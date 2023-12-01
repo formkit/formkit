@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Promenite datum',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Izabrani datum je nevažeći.',
-  /**
    * Shown when there is something to close
    */
   close: 'Zatvori',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Unesite važeću URL adresu.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Izabrani datum je nevažeći.',
 }

@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Skift dato',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Den valgte dato er ugyldig.',
-  /**
    * Shown when there is something to close
    */
   close: 'Luk',
@@ -506,4 +502,8 @@ export const validation: FormKitValidationMessages = {
     return `Indtast en gyldig URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Den valgte dato er ugyldig.',
 }

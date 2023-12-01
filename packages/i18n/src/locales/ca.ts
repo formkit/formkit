@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Canviar data',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'La data seleccionada no és vàlida.',
-  /**
    * Shown when there is something to close
    */
   close: 'Tancar',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Si us plau inclogui una url vàlida.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'La data seleccionada no és vàlida.',
 }

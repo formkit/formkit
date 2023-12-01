@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Change date',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'The selected date is invalid.',
-  /**
    * Shown above error summaries when someone attempts to submit a form with
    * errors and the developer has implemented `<FormKitSummary />`.
    */
@@ -232,7 +228,6 @@ export const validation: FormKitValidationMessages = {
     return `${s(name)} must contain numbers.`
     /* </i18n> */
   },
-
   /**
    * The value is not symbol
    * @see {@link https://formkit.com/essentials/validation#symbol}
@@ -511,4 +506,8 @@ export const validation: FormKitValidationMessages = {
     return `Please enter a valid URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'The selected date is invalid.',
 }

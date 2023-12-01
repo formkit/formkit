@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'تاريخ التغيير',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'التاريخ المحدد غير صالح.',
-  /**
    * Shown when there is something to close
    */
   close: 'أغلق',
@@ -506,4 +502,8 @@ export const validation: FormKitValidationMessages = {
     return `يرجى إدخال عنوان URL صالح.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'التاريخ المحدد غير صالح.',
 }

@@ -86,10 +86,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Огноо өөрчлөх',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Сонгосон огноо буруу байна.',
-  /**
    * Shown when there is something to close
    */
   close: 'Хаах',
@@ -387,4 +383,8 @@ export const validation: FormKitValidationMessages = {
     return `Хүчннтай URL оруулна уу.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Сонгосон огноо буруу байна.',
 }

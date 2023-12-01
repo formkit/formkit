@@ -86,10 +86,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Ändra datum',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Det valda datumet är ogiltigt.',
-  /**
    * Shown when there is something to close
    */
   close: 'Stäng',
@@ -505,4 +501,8 @@ export const validation: FormKitValidationMessages = {
     return `Ange en giltig URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Det valda datumet är ogiltigt.',
 }

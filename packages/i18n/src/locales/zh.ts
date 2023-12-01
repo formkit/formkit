@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: '更改日期',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: '所选日期无效。',
-  /**
    * Shown when there is something to close
    */
   close: '关闭',
@@ -506,4 +502,8 @@ export const validation: FormKitValidationMessages = {
     return `请输入有效的 URL。`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '所选日期无效。',
 }

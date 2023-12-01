@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Dátum módosítása',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'A kiválasztott dátum érvénytelen.',
-  /**
    * Shown when there is something to close
    */
   close: 'Bezárás',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Kérjük, adjon meg egy érvényes URL-t.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'A kiválasztott dátum érvénytelen.',
 }
