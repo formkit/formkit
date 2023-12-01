@@ -8,7 +8,7 @@ import ora from 'ora'
 import http from 'http'
 import url from 'url'
 import open from 'open'
-import { isDirEmpty } from './utils'
+import { isDirEmpty, readPackageJSON, writePackageJSON } from './utils'
 
 const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
@@ -393,14 +393,12 @@ async function addDependency(
   dependency: string,
   version = 'latest'
 ) {
-  const packageJsonPath = resolve(cwd(), `./${dirName}/package.json`)
-  const raw = await readFile(packageJsonPath, 'utf-8')
-  const packageJson = JSON.parse(raw)
+  const packageJson = await readPackageJSON(dirName)
   if (!('dependencies' in packageJson)) {
     packageJson.dependencies = {}
   }
   packageJson.dependencies[dependency] = version
-  await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+  await writePackageJSON(dirName, packageJson)
 }
 
 function buildMain() {
