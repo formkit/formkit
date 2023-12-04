@@ -22,7 +22,7 @@ exports[`multistep > Allows step advancment when current step is invalid but all
               <!---->
               <div class=\\"formkit-inner\\">
                 <!---->
-                <!----><input class=\\"formkit-input\\" type=\\"text\\" name=\\"text_2\\" id=\\"input_2\\" aria-describedby=\\"input_2-rule_required\\">
+                <!----><input class=\\"formkit-input\\" type=\\"text\\" name=\\"text_2\\" id=\\"input_2\\" aria-required=\\"true\\" aria-describedby=\\"input_2-rule_required\\">
                 <!---->
                 <!---->
               </div>
@@ -125,7 +125,7 @@ exports[`multistep > Does not allow step advancment when current step is invalid
               <!---->
               <div class=\\"formkit-inner\\">
                 <!---->
-                <!----><input class=\\"formkit-input\\" type=\\"text\\" name=\\"text_2\\" id=\\"input_2\\" aria-describedby=\\"input_2-rule_required\\">
+                <!----><input class=\\"formkit-input\\" type=\\"text\\" name=\\"text_2\\" id=\\"input_2\\" aria-required=\\"true\\" aria-describedby=\\"input_2-rule_required\\">
                 <!---->
                 <!---->
               </div>

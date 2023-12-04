@@ -551,6 +551,12 @@ export interface FormKitFrameworkContextState {
    */
   errors: boolean
   /**
+   * Whether or not the input includes the "required" validation rule. This rule
+   * is uniquely called out for accessibility reasons and should be used to
+   * power the `aria-required` attribute.
+   */
+  required: boolean
+  /**
    * True when the input has validation rules. Has nothing to do with the
    * state of those validation rules.
    */
