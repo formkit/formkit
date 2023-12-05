@@ -1,6 +1,6 @@
 {
   "name": "@formkit/core",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "type": "module",
   "description": "The framework agnostic core of FormKit",
   "main": "dist/index.cjs",
@@ -34,7 +34,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/utils": "1.3.2"
+    "@formkit/utils": "1.4.0"
   },
   "devDependencies": {}
 }
