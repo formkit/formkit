@@ -51,19 +51,7 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
     }
     // There is still a blocking message in the store.
     if (node.props.incompleteMessage !== false) {
-      node.store.set(
-        createMessage({
-          blocking: false,
-          key: `incomplete`,
-          meta: {
-            localize: node.props.incompleteMessage === undefined,
-            i18nArgs: [{ node }],
-            showAsMessage: true,
-          },
-          type: 'ui',
-          value: node.props.incompleteMessage || 'Form incomplete.',
-        })
-      )
+      setIncompleteMessage(node)
     }
   } else {
     // No blocking messages
@@ -92,6 +80,26 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
 }
 
 /**
+ * Set the incomplete message on a specific node.
+ * @param node - The node to set the incomplete message on.
+ */
+function setIncompleteMessage(node: FormKitNode) {
+  node.store.set(
+    createMessage({
+      blocking: false,
+      key: `incomplete`,
+      meta: {
+        localize: node.props.incompleteMessage === undefined,
+        i18nArgs: [{ node }],
+        showAsMessage: true,
+      },
+      type: 'ui',
+      value: node.props.incompleteMessage || 'Form incomplete.',
+    })
+  )
+}
+
+/**
  * A feature to add a submit handler and actions section.
  *
  * @param node - A {@link @formkit/core#FormKitNode | FormKitNode}.
@@ -108,6 +116,9 @@ export default function form(node: FormKitNode): void {
     if (!has(node.props, 'actions')) {
       node.props.actions = true
     }
+  })
+  node.on('prop:incompleteMessage', () => {
+    if (node.store.incomplete) setIncompleteMessage(node)
   })
   node.on('settled:blocking', () => node.store.remove('incomplete'))
 }
