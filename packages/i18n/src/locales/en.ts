@@ -403,7 +403,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} must be less than or equal to ${args[0]}.`
+    return `${s(name)} must be no more than ${args[0]}.`
     /* </i18n> */
   },
 
@@ -433,7 +433,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `Must be at least ${args[0]} ${name} .`
+    return `${s(name)} must be at least ${args[0]}.`
     /* </i18n> */
   },
 
