@@ -8,7 +8,6 @@ import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { ref, reactive, h, nextTick } from 'vue'
-import { message } from '@formkit/inputs'
 
 const global: Record<string, Record<string, any>> = {
   global: {
