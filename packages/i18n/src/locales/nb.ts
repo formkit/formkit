@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -85,10 +88,6 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Endre dato',
-  /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Den valgte datoen er ugyldig.',
 }
 
 /**
@@ -457,13 +456,15 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
   require_one: ({ name, node, args: inputNames }) => {
-    const labels = inputNames.map(name => {
-      const dependentNode = node.at(name)
-      if (dependentNode) {
-        return createMessageName(dependentNode)
-      }
-      return false
-    }).filter(name => !!name)
+    const labels = inputNames
+      .map((name) => {
+        const dependentNode = node.at(name)
+        if (dependentNode) {
+          return createMessageName(dependentNode)
+        }
+        return false
+      })
+      .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
     return `${labels.join(' eller ')} er nødvendig.`
@@ -499,4 +500,8 @@ export const validation: FormKitValidationMessages = {
     return `Vennligst inkluder en gyldig url.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Den valgte datoen er ugyldig.',
 }

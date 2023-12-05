@@ -872,6 +872,31 @@ describe('form submission', () => {
     expect(wrapper.html()).toContain('Do better on your form please.')
   })
 
+  it('allows a custom dynamic incomplete message (#1047)', async () => {
+    const message = ref('Do better on your form please.')
+    const wrapper = mount(
+      {
+        setup() {
+          return { message }
+        },
+        template: `<FormKit type="form" :incomplete-message="message">
+          <FormKit type="text" name="foo" validation="required" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain('Do better on your form please.')
+    message.value = 'Mach es bitte besser in deiner Form!'
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain('Mach es bitte besser in deiner Form!')
+  })
+
   it('disables the form while in the loading state', async () => {
     const wrapper = mount(
       {

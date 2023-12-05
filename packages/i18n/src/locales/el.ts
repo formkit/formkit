@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Αλλαγή ημερομηνίας',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Η επιλεγμένη ημερομηνία δεν είναι έγκυρη.',
-  /**
    * Shown when there is something to close
    */
   close: 'Κλείσιμο',
@@ -514,4 +510,8 @@ export const validation: FormKitValidationMessages = {
     return `Παρακαλώ εισάγετε ένα έγκυρο URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Η επιλεγμένη ημερομηνία δεν είναι έγκυρη.',
 }

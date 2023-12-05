@@ -1066,7 +1066,7 @@ describe('classes', () => {
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->
-      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
+      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required" aria-required="true">
       <!---->
       <!---->
     </div>

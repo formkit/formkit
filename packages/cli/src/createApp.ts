@@ -1,5 +1,5 @@
 import { execa, execaCommand } from 'execa'
-import { readFile, writeFile, readdir } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { resolve } from 'path'
 import { cwd } from 'node:process'
 import prompts from 'prompts'
@@ -8,6 +8,7 @@ import ora from 'ora'
 import http from 'http'
 import url from 'url'
 import open from 'open'
+import { isDirEmpty, readPackageJSON, writePackageJSON } from './utils'
 
 const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
@@ -392,14 +393,12 @@ async function addDependency(
   dependency: string,
   version = 'latest'
 ) {
-  const packageJsonPath = resolve(cwd(), `./${dirName}/package.json`)
-  const raw = await readFile(packageJsonPath, 'utf-8')
-  const packageJson = JSON.parse(raw)
+  const packageJson = await readPackageJSON(dirName)
   if (!('dependencies' in packageJson)) {
     packageJson.dependencies = {}
   }
   packageJson.dependencies[dependency] = version
-  await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+  await writePackageJSON(dirName, packageJson)
 }
 
 function buildMain() {
@@ -476,13 +475,4 @@ ${defaultExport}
 `
 
   return rawConfig
-}
-
-async function isDirEmpty(path: string) {
-  try {
-    const entries = await readdir(path)
-    return entries.length === 0
-  } catch (error) {
-    return true
-  }
 }

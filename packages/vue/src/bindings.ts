@@ -84,6 +84,19 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const hasShownErrors = ref(validationVisibility.value === 'live')
 
   /**
+   * If the input is required or not, this is the only validation rule that
+   * needs to be explicitly called out since it powers the aria-required attr.
+   */
+  const isRequired = ref<boolean>(false)
+  const checkForRequired = (parsedRules?: Array<{ name: string }>) => {
+    isRequired.value = (parsedRules ?? []).some(
+      (rule) => rule.name === 'required'
+    )
+  }
+  checkForRequired(node.props.parsedRules)
+  node.on('prop:parsedRules', ({ payload }) => checkForRequired(payload))
+
+  /**
    * An array of unique identifiers that should only be used for iterating
    * inside a synced list.
    */
@@ -278,6 +291,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       errors: hasErrors,
       rules: hasValidation,
       validationVisible,
+      required: isRequired,
     },
     type: node.props.type,
     family: node.props.family,

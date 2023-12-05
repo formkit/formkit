@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Cambiar fecha',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'La fecha seleccionada no es válida.',
-  /**
    * Shown when there is something to close
    */
   close: 'Cerrar',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Introduce una URL válida.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'La fecha seleccionada no es válida.',
 }

@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Ubah tanggal',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Tanggal yang dipilih tidak valid.',
-  /**
    * Shown when there is something to close
    */
   close: 'Tutup',
@@ -516,4 +512,8 @@ export const validation: FormKitValidationMessages = {
     return `Harap masukkan URL yang valid.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Tanggal yang dipilih tidak valid.',
 }

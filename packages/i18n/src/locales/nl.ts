@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Datum wijzigen',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'De geselecteerde datum is ongeldig.',
-  /**
    * Shown when there is something to close
    */
   close: 'Sluiten',
@@ -506,4 +502,8 @@ export const validation: FormKitValidationMessages = {
     return `Voer een geldige URL in.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'De geselecteerde datum is ongeldig.',
 }

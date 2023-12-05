@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'שינוי תאריך',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'התאריך שנבחר אינו חוקי.',
-  /**
    * Shown when there is something to close
    */
   close: 'סגור',
@@ -506,4 +502,8 @@ export const validation: FormKitValidationMessages = {
     return `הזן כתובת URL חוקית.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'התאריך שנבחר אינו חוקי.',
 }

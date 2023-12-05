@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: '날짜 변경',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: '선택한 날짜가 잘못되었습니다.',
-  /**
    * Shown when there is something to close
    */
   close: '닫기',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `유효한 URL을 입력하십시오.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '선택한 날짜가 잘못되었습니다.',
 }

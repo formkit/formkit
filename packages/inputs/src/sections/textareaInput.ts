@@ -17,6 +17,7 @@ export const textareaInput = createSection('input', () => ({
     value: '$_value',
     id: '$id',
     'aria-describedby': '$describedBy',
+    'aria-required': '$state.required || undefined',
   },
   children: '$initialValue',
 }))

@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Tarixi dəyişdirin',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Seçilmiş tarix etibarsızdır.',
-  /**
    * Shown when there is something to close
    */
   close: 'Bağlayın',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Xahiş edirik, düzgün URL daxil edin.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Seçilmiş tarix etibarsızdır.',
 }

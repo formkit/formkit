@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Промяна на датата',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Избраната дата е невалидна.',
-  /**
    * Shown when there is something to close
    */
   close: 'Затвори',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Моля, въведете валиден URL адрес.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Избраната дата е невалидна.',
 }

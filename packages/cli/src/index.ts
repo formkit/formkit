@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { exportInput } from './exportInput'
 import { createApp } from './createApp'
 import { buildTheme } from './theme'
+import { createTheme } from './createTheme'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { execa } from 'execa'
@@ -100,6 +101,17 @@ program
     'Creates a FormKit theme file (formkit.theme.ts) using a known theme and variables.'
   )
   .action(buildTheme)
+
+program
+  .command('create-theme')
+  .argument('[name]', 'The public name of the theme, for example "Monokai".')
+  .option(
+    '--package-name <packageName>',
+    'The name of the package on npm, for example formkit-theme-monokai.'
+  )
+  .option('--dir <directory>', 'The relative directory to create the theme in.')
+  .description('Scaffold a new theme from @formkit/theme-starter.')
+  .action(createTheme)
 
 /**
  * @internal

@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: '日付を変更',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: '選択した日付は無効です。',
-  /**
    * Shown when there is something to close
    */
   close: '閉じる',
@@ -510,4 +506,8 @@ export const validation: FormKitValidationMessages = {
     return `有効な URL を入力してください。`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '選択した日付は無効です。',
 }

@@ -17,5 +17,6 @@ export const fileInput = createSection('input', () => ({
     onBlur: '$handlers.blur',
     id: '$id',
     'aria-describedby': '$describedBy',
+    'aria-required': '$state.required || undefined',
   },
 }))

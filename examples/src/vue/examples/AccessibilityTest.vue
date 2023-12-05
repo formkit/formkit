@@ -61,7 +61,6 @@ const resetState = () => {
   success.value = false
   failure.value = false
 }
-
 </script>
 
 <template>

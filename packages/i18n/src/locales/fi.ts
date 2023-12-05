@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Vaihda päivämäärä',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Valittu päivämäärä on virheellinen.',
-  /**
    * Shown when there is something to close
    */
   close: 'Sulje',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Anna kelvollinen URL-osoite.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Valittu päivämäärä on virheellinen.',
 }

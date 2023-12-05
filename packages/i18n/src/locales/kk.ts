@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Өзгерту күні',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Таңдалған күн жарамсыз.',
-  /**
    * Shown when there is something to close
    */
   close: 'Жабу',
@@ -508,4 +504,8 @@ export const validation: FormKitValidationMessages = {
     return `Жарамды URL мекенжайын енгізіңіз.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Таңдалған күн жарамсыз.',
 }

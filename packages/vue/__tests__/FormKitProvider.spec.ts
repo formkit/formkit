@@ -183,4 +183,19 @@ describe('FormKitProvider', () => {
     })
     expect(wrapper.find('h1').text()).toBe('I am a child')
   })
+
+  it('can pass attributes through to children', () => {
+    const wrapper = mount({
+      components: {
+        FormKit,
+        FormKitProvider,
+      },
+      template: `
+          <FormKitProvider class="foo">
+            <div></div>
+          </FormKitProvider>
+        `,
+    })
+    expect(wrapper.find('div').classes()).toContain('foo')
+  })
 })

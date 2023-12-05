@@ -551,6 +551,12 @@ export interface FormKitFrameworkContextState {
    */
   errors: boolean
   /**
+   * Whether or not the input includes the "required" validation rule. This rule
+   * is uniquely called out for accessibility reasons and should be used to
+   * power the `aria-required` attribute.
+   */
+  required: boolean
+  /**
    * True when the input has validation rules. Has nothing to do with the
    * state of those validation rules.
    */
@@ -1249,7 +1255,9 @@ export type FormKitNode<V = unknown> = {
    * - $parent - Selects the parent node
    * - $self — Selects the current node
    */
-  at: (address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})) => FormKitNode | undefined
+  at: (
+    address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})
+  ) => FormKitNode | undefined
   /**
    * The address of the current node from the root of the tree.
    */
@@ -2788,7 +2796,7 @@ function submit(node: FormKitNode): void {
     node = node.parent
   } while (node)
   if (node.props.id) {
-    submitForm(node.props.id)
+    submitForm(node.props.id, node.props.__root)
   }
 }
 

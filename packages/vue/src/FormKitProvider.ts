@@ -6,6 +6,7 @@ import { h } from 'vue'
 import { Suspense } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { ComponentInternalInstance } from 'vue'
+import { VNode } from 'vue'
 
 /**
  * A composable to provide a given configuration to all children.
@@ -66,15 +67,23 @@ export const FormKitProvider = /* #__PURE__ */ defineComponent(
   function FormKitProvider<
     P extends FormKitProviderProps,
     S extends { default: FormKitOptions }
-  >(props: P, { slots }: SetupContext<S>) {
+  >(props: P, { slots, attrs }: SetupContext<S>) {
     const options: FormKitOptions = {}
     if (props.config) {
       useConfig(props.config)
     }
 
-    return () => (slots.default ? slots.default(options) : null)
+    return () =>
+      slots.default
+        ? slots.default(options).map((vnode) => {
+            return h(vnode, {
+              ...attrs,
+              ...vnode.props,
+            })
+          })
+        : null
   },
-  { props: ['config'], name: 'FormKitProvider' }
+  { props: ['config'], name: 'FormKitProvider', inheritAttrs: false }
 )
 
 /**
@@ -104,10 +113,11 @@ const FormKitConfigLoader = /* #__PURE__ */ defineComponent(
       config = /* @__PURE__ */ defaultConfig(config)
     }
     /* @__default-config__ */
-    return () => h(FormKitProvider, { config }, context.slots)
+    return () => h(FormKitProvider, { ...context.attrs, config }, context.slots)
   },
   {
     props: ['defaultConfig', 'configFile'],
+    inheritAttrs: false,
   }
 )
 
@@ -128,9 +138,17 @@ export const FormKitLazyProvider = /* #__PURE__ */ defineComponent(
     context: SetupContext<typeof Suspense>
   ) {
     const config = inject(optionsSymbol, null)
+    /* pass any attrs through */
+    const passthru = (vnode: VNode) => {
+      return h(vnode, {
+        ...context.attrs,
+        ...vnode.props,
+      })
+    }
     if (config) {
       // If there is already a config provided, render the children immediately.
-      return () => (context.slots?.default ? context.slots.default() : null)
+      return () =>
+        context.slots?.default ? context.slots.default().map(passthru) : null
     }
     const instance = getCurrentInstance() as ComponentInternalInstance & {
       suspense?: boolean
@@ -141,7 +159,9 @@ export const FormKitLazyProvider = /* #__PURE__ */ defineComponent(
       return () =>
         h(FormKitConfigLoader, props, {
           default: () =>
-            context.slots?.default ? context.slots.default() : null,
+            context.slots?.default
+              ? context.slots.default().map(passthru)
+              : null,
         })
     }
     // If there is no suspense boundary, and no config, we render the suspense
@@ -149,10 +169,12 @@ export const FormKitLazyProvider = /* #__PURE__ */ defineComponent(
     return () =>
       h(Suspense, null, {
         ...context.slots,
-        default: () => h(FormKitConfigLoader, props, context.slots),
+        default: () =>
+          h(FormKitConfigLoader, { ...context.attrs, ...props }, context.slots),
       })
   },
   {
     props: ['defaultConfig', 'configFile'],
+    inheritAttrs: false,
   }
 )
