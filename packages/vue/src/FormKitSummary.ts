@@ -88,6 +88,10 @@ export const FormKitSummary = /* #__PURE__ */ defineComponent({
       type: Object as PropType<FormKitNode> | undefined,
       required: false,
     },
+    forceShow: {
+      type: Boolean,
+      default: false,
+    },
     sectionsSchema: {
       type: Object as PropType<
         Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
@@ -172,7 +176,7 @@ export const FormKitSummary = /* #__PURE__ */ defineComponent({
         fns: node.value?.context?.fns || {},
         classes: node.value?.context?.classes || {},
         summaries: summaries.value,
-        showSummaries: showSummaries.value,
+        showSummaries: props.forceShow || showSummaries.value,
         summaryHeader: node.value?.context?.ui?.summaryHeader?.value || '',
         jumpLink,
       }
