@@ -3,7 +3,7 @@ import { downloadTemplate } from 'giget'
 import { slugify } from '@formkit/utils'
 import { isDirEmpty } from './utils'
 import { resolve } from 'pathe'
-import { unlink, writeFile } from 'fs/promises'
+import { unlink, writeFile, readFile } from 'fs/promises'
 import ora from 'ora'
 import { green, info } from './index'
 import { readPackageJSON, writePackageJSON, getGitUser } from './utils'
@@ -28,6 +28,8 @@ export async function createTheme(
   await customizePackageJson(settings)
   spinner.text = `Writing LICENSE.txt...`
   await writeLicense(settings)
+  spinner.text = `Updating theme meta...`
+  await updateMeta(settings)
   spinner.stop()
   green('Theme scaffolded successfully!')
   info(
@@ -69,6 +71,23 @@ async function writeLicense(options: CreateThemeOptions) {
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.`
   await writeFile(resolve(options.dir, './LICENSE.txt'), MIT)
+}
+
+async function updateMeta(options: CreateThemeOptions) {
+  const file = await readFile(resolve(options.dir, './src/theme.ts'), 'utf-8')
+  let newFile = file.replace(
+    /name:(?:\s+)?['"](?:.+?)['"]/g,
+    `name: "${options.name}"`
+  )
+  newFile = newFile.replace(
+    'authorName: "FormKit"',
+    `authorName: "${await getGitUser()}"`
+  )
+  newFile = newFile.replace(
+    /description:(?:\s+)?['"](?:.+?)['"]/g,
+    `description: "YOUR THEME DESCRIPTION HERE"`
+  )
+  await writeFile(resolve(options.dir, './src/theme.ts'), newFile)
 }
 
 async function completeOptions(
