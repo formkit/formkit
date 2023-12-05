@@ -46,6 +46,6 @@
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@formkit/icons": "workspace:1.3.2"
+    "@formkit/icons": "workspace:1.4.0"
   }
 }
