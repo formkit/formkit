@@ -4,7 +4,6 @@ import { createSection } from '../createSection'
  * Box section used for grouping options
  *
  * @public
- * @__NO_SIDE_EFFECTS__
  */
 export const box = createSection('input', () => ({
   $el: 'input',
