@@ -7,6 +7,7 @@ import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { nextTick, ref } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { label } from '@formkit/inputs'
 
 describe('select', () => {
   it('renders a select list with an array of objects', () => {
@@ -895,5 +896,42 @@ describe('selects rendered via schema', () => {
   <option class="formkit-option" value="aa">AA</option>
 </select>`
     )
+  })
+
+  it('continues counting the mask value when making modifications (#1046)', async () => {
+    const options = ref([
+      { label: 'A', value: ['a'] },
+      { label: 'B', value: ['b'] },
+      { label: 'C', value: ['c'] },
+    ])
+    const wrapper = mount(
+      {
+        setup() {
+          return { options }
+        },
+        template: `
+        <FormKit type="select" :options="options" />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(options.value).toEqual([
+      { label: 'A', value: '__mask_1', __original: ['a'] },
+      { label: 'B', value: '__mask_2', __original: ['b'] },
+      { label: 'C', value: '__mask_3', __original: ['c'] },
+    ])
+
+    options.value = [...options.value, { label: 'D', value: ['d'] }]
+    await nextTick()
+    expect(options.value).toEqual([
+      { label: 'A', value: '__mask_1', __original: ['a'] },
+      { label: 'B', value: '__mask_2', __original: ['b'] },
+      { label: 'C', value: '__mask_3', __original: ['c'] },
+      { label: 'D', value: '__mask_4', __original: ['d'] },
+    ])
   })
 })
