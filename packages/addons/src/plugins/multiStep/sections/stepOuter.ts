@@ -12,7 +12,6 @@ export const stepOuter = createSection('stepOuter', () => ({
     key: '$id',
     'data-type': 'step',
     'data-disabled': '$disabled || undefined',
-    'data-complete': '$state.complete || undefined',
     'data-invalid':
       '$state.valid === false && $state.validationVisible || undefined',
     'data-errors': '$state.errors || undefined',
