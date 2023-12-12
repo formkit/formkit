@@ -24,7 +24,7 @@ async function login(): Promise<string> {
   const token = await new Promise<string>((resolve, reject) => {
     server = http
       .createServer((req, res) => {
-        const urlObj = url.parse(req.url!, true)
+        const urlObj = url.parse(req.url as string, true)
         const token = urlObj.query.token as string | undefined
 
         if (token) {
@@ -246,16 +246,23 @@ export async function createApp(
       resolve(cwd(), `./${appName}/src/main.${options.lang}`),
       buildMain()
     )
+
+    green(`Created ${appName}!
+
+      To run your new app:
+      📁 cd ${appName}
+      ✅ npm install
+      🚀 npm run dev
+    `)
   } else {
     options.lang = 'ts'
     info('Fetching nuxi cli...')
     const subprocess = execaCommand(
-      `npx --yes nuxi@latest init --no-install $APP_NAME`,
+      `npx --yes nuxi@latest init --no-install ${appName}`,
       {
         cwd: process.cwd(),
         shell: true,
         stdio: 'inherit',
-        env: { APP_NAME: appName },
       }
     )
     subprocess.stdout?.pipe(process.stdout)
@@ -274,13 +281,7 @@ export async function createApp(
     await addInitialApp(appName, 'app.vue', !!options.pro)
   }
 
-  green(`Created ${appName}!
-
-To run your new app:
-📁 cd ${appName}
-✅ npm install
-🚀 npm run dev
-`)
+  process.exit();
 }
 
 async function addInitialApp(dirName: string, component: string, pro: boolean) {
@@ -329,9 +330,8 @@ async function submit() {
         }"
         validation="required|min:2"
       />
-      ${
-        (pro &&
-          `
+      ${(pro &&
+      `
       <FormKit
         type="repeater"
         name="invitees"
@@ -345,8 +345,8 @@ async function submit() {
           validation="required|email"
         />
       </FormKit>`) ||
-        ''
-      }
+    ''
+    }
       <FormKit
         type="checkbox"
         name="agree"
@@ -450,9 +450,8 @@ function buildFormKitConfig(options: CreateAppOptions): string {
   }
   config += `${config ? ',\n' : ''}  icons: { ...genesisIcons }`
 
-  const viteExport = `const config${
-    options.lang === 'ts' ? ': DefaultConfigOptions' : ''
-  } = {
+  const viteExport = `const config${options.lang === 'ts' ? ': DefaultConfigOptions' : ''
+    } = {
 ${config}
 }
 
