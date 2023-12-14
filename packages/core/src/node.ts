@@ -10,6 +10,7 @@ import {
   cloneAny,
   clone,
   isObject,
+  extend as merge,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -66,7 +67,7 @@ export type FormKitTypeDefinition = {
   /**
    * Custom props that should be added to the input.
    */
-  props?: string[]
+  props?: FormKitPseudoProps
   /**
    * The schema used to create the input. Either this or the component is
    * required.
@@ -1246,7 +1247,7 @@ export type FormKitNode<V = unknown> = {
    * Adds props to the given node by removing them from node.props.attrs and
    * moving them to the top-level node.props object.
    */
-  addProps: (props: string[]) => FormKitNode
+  addProps: (props: FormKitPseudoProps) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name. There are a few
@@ -1468,6 +1469,25 @@ export interface FormKitPlaceholderNode<V = unknown> {
    */
   isSettled: boolean
 }
+
+/**
+ * A prop definition for a pseudo prop that defines a type and a default value.
+ * @public
+ */
+export interface FormKitPseudoProp {
+  default?: unknown
+  setter?: (value: unknown, node: FormKitNode) => unknown
+  getter?: (value: unknown, node: FormKitNode) => unknown
+}
+
+/**
+ * Pseudo props are "non-runtime" props. Props that are not initially declared
+ * as props, and are fetch out of the attrs object (in the context of VueJS).
+ * @public
+ */
+export type FormKitPseudoProps =
+  | string[]
+  | Record<PropertyKey, FormKitPseudoProp>
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
@@ -2160,18 +2180,35 @@ function define(
 function addProps(
   node: FormKitNode,
   context: FormKitContext,
-  props: string[]
+  props: FormKitPseudoProps
 ): FormKitNode {
+  const propNames = Array.isArray(props) ? props : Object.keys(props)
+  const defaults: Record<string, unknown> = !Array.isArray(props)
+    ? propNames.reduce((defaults, name) => {
+        if ('default' in props[name]) {
+          defaults[name] = props[name].default
+        }
+        return defaults
+      }, {} as Record<string, unknown>)
+    : {}
   if (node.props.attrs) {
     const attrs = { ...node.props.attrs }
     // Temporarily disable prop emits
     node.props._emit = false
     for (const attr in attrs) {
       const camelName = camel(attr)
-      if (props.includes(camelName)) {
+      if (propNames.includes(camelName)) {
         node.props[camelName] = attrs[attr]
         delete attrs[attr]
       }
+    }
+    // Assign defaults to any props
+    if (!Array.isArray(props)) {
+      propNames.forEach((prop) => {
+        if ('default' in props[prop] && node.props[prop] === undefined) {
+          node.props[prop] = defaults[prop]
+        }
+      })
     }
     const initial = cloneAny(context._value)
     node.props.initial =
@@ -2181,14 +2218,37 @@ function addProps(
     node.props.attrs = attrs
 
     if (node.props.definition) {
-      node.props.definition.props = [
-        ...(node.props.definition?.props || []),
-        ...props,
-      ]
+      node.props.definition.props = mergeProps(
+        node.props.definition?.props || [],
+        props
+      )
     }
   }
   node.emit('added-props', props)
   return node
+}
+
+function toPropsObj(
+  props: FormKitPseudoProps
+): Record<PropertyKey, FormKitPseudoProp> {
+  return !Array.isArray(props)
+    ? props
+    : props.reduce((props, prop) => {
+        props[prop] = {}
+        return props
+      }, {} as Record<PropertyKey, FormKitPseudoProp>)
+}
+
+function mergeProps(
+  props: FormKitPseudoProps,
+  newProps: FormKitPseudoProps
+): FormKitPseudoProps {
+  if (Array.isArray(props) && Array.isArray(newProps))
+    return props.concat(newProps)
+  return merge(toPropsObj(props), toPropsObj(newProps)) as Record<
+    PropertyKey,
+    FormKitPseudoProp
+  >
 }
 
 /**
@@ -2888,13 +2948,25 @@ function createProps(initial: unknown) {
   }
   let node: FormKitNode
   let isEmitting = true
+  let propDefs: Record<PropertyKey, FormKitPseudoProp> = {}
   return new Proxy(props, {
     get(...args) {
       const [_t, prop] = args
-      if (has(props, prop)) return Reflect.get(...args)
-      if (node && typeof prop === 'string' && node.config[prop] !== undefined)
-        return node.config[prop]
-      return undefined
+      let val
+      if (has(props, prop)) {
+        val = Reflect.get(...args)
+      } else if (
+        node &&
+        typeof prop === 'string' &&
+        node.config[prop] !== undefined
+      ) {
+        val = node.config[prop]
+      } else {
+        // default or undefined — but we do not set the value.
+        val = propDefs[prop]?.default
+      }
+      const getter = propDefs[prop]?.getter
+      return getter ? getter(val, node) : val
     },
     set(target, property, originalValue, receiver) {
       if (property === '_n') {
@@ -2915,6 +2987,7 @@ function createProps(initial: unknown) {
         typeof value === 'object'
       ) {
         const didSet = Reflect.set(target, prop, value, receiver)
+        if (prop === 'definition') propDefs = toPropsObj(value)
         if (isEmitting) {
           node.emit('prop', { prop, value })
           if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
