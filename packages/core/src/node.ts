@@ -2977,10 +2977,13 @@ function createProps(initial: unknown) {
         isEmitting = originalValue
         return true
       }
-      const { prop, value } = node.hook.prop.dispatch({
+      // eslint-disable-next-line prefer-const
+      let { prop, value } = node.hook.prop.dispatch({
         prop: property,
         value: originalValue,
       })
+      const setter = propDefs[prop]?.setter
+      value = setter ? setter(value, node) : value
       // Typescript compiler cannot handle a symbol index, even though js can:
       if (
         !eq(props[prop as string], value, false) ||

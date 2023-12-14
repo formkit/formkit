@@ -614,6 +614,27 @@ describe('props system', () => {
       },
     })
   })
+
+  it('can define arbitrary props with defaults and still inherit from parents', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+  })
 })
 
 describe('plugin system', () => {
