@@ -2130,10 +2130,23 @@ function define(
   context: FormKitContext,
   definition: FormKitTypeDefinition
 ) {
+  // Prop definitions that may have been registered before the input was
+  // ever defined, for example with a manual createNode()
   // Assign the type
   context.type = definition.type
   // Assign the definition
-  context.props.definition = clone(definition)
+  const clonedDef = clone(definition)
+  // Merge existing prop defs into the cloned input definition.
+  node.props.__propDefs = mergeProps(
+    node.props.__propDefs,
+    clonedDef?.props || []
+  )
+  // Assign the prop defs to the cloned input definition.
+  clonedDef.props = node.props.__propDefs
+
+  // Assign the definition to the props
+  context.props.definition = clonedDef
+
   // Ensure the type is seeded with the `__init` value.
   context.value = context._value = createValue({
     type: node.type,
@@ -2216,14 +2229,14 @@ function addProps(
     // Re-enable prop emits
     node.props._emit = true
     node.props.attrs = attrs
-
-    if (node.props.definition) {
-      node.props.definition.props = mergeProps(
-        node.props.definition?.props || [],
-        props
-      )
-    }
   }
+  const mergedProps = mergeProps(node.props.__propDefs ?? [], props)
+
+  if (node.props.definition) {
+    node.props.definition.props = mergedProps
+  }
+  node.props.__propDefs = mergedProps
+
   node.emit('added-props', props)
   return node
 }
@@ -2962,7 +2975,7 @@ function createProps(initial: unknown) {
       ) {
         val = node.config[prop]
       } else {
-        // default or undefined — but we do not set the value.
+        // default or undefined
         val = propDefs[prop]?.default
       }
       const getter = propDefs[prop]?.getter
@@ -2990,7 +3003,7 @@ function createProps(initial: unknown) {
         typeof value === 'object'
       ) {
         const didSet = Reflect.set(target, prop, value, receiver)
-        if (prop === 'definition') propDefs = toPropsObj(value)
+        if (prop === '__propDefs') propDefs = toPropsObj(value)
         if (isEmitting) {
           node.emit('prop', { prop, value })
           if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
