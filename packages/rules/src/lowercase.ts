@@ -11,9 +11,10 @@ const lowercase: FormKitValidationRule = function ({ value }, set = 'default') {
     default: /^\p{Ll}+$/u,
     allow_non_alpha: /^[0-9\p{Ll}!-/:-@[-`{-~]+$/u,
     allow_numeric: /^[0-9\p{Ll}]+$/u,
+    allow_numeric_dashes: /^[0-9\p{Ll}-]+$/u,
     latin: /^[a-z]+$/,
   }
-  const selectedSet: 'default' | 'allow_non_alpha' | 'allow_numeric' | 'latin' = has(sets, set) ? set : 'default'
+  const selectedSet: 'default' | 'allow_non_alpha' | 'allow_numeric' | 'allow_numeric_dashes' | 'latin' = has(sets, set) ? set : 'default'
   return sets[selectedSet].test(String(value))
 }
 

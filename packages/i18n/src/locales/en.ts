@@ -257,6 +257,7 @@ export const validation: FormKitValidationMessages = {
     if(Array.isArray(args)) {
       if (args[0] === 'allow_non_alpha') postfix = ', numbers and symbols'
       if (args[0] === 'allow_numeric') postfix = ' and numbers'
+      if (args[0] === 'allow_numeric_dashes') postfix = ', numbers and dashes'
     }
     /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
     return `${s(name)} can only contain lowercase letters${postfix}.`
