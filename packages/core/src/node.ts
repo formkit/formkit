@@ -291,6 +291,7 @@ export interface FormKitConfig {
  */
 export type FormKitProps = {
   __root?: Document | ShadowRoot
+  __propDefs: FormKitPseudoProps
   delay: number
   id: string
   validationLabelStrategy?: (node?: FormKitNode) => string
@@ -2138,7 +2139,7 @@ function define(
   const clonedDef = clone(definition)
   // Merge existing prop defs into the cloned input definition.
   node.props.__propDefs = mergeProps(
-    node.props.__propDefs,
+    node.props.__propDefs ?? [],
     clonedDef?.props || []
   )
   // Assign the prop defs to the cloned input definition.

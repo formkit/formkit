@@ -18,6 +18,7 @@ import {
   slugify,
   shallowClone,
   spread,
+  boolProp,
 } from '../src/index'
 import { describe, expect, it } from 'vitest'
 
@@ -620,4 +621,18 @@ describe('spread', () => {
     expect(spreadArr).toStrictEqual(arr)
     expect(spreadArr).not.toBe(arr)
   })
+})
+
+describe('boolProp', () => {
+  it('returns true for true', () => expect(boolProp(true)).toBe(true))
+  it('returns true for "true"', () => expect(boolProp('true')).toBe(true))
+  it('returns true for "yes"', () => expect(boolProp('yes')).toBe(true))
+  it('returns true for "on"', () => expect(boolProp('on')).toBe(true))
+  it('returns true for "1"', () => expect(boolProp('1')).toBe(true))
+  it('returns undefined for false', () =>
+    expect(boolProp(false)).toBe(undefined))
+  it('returns undefined for "false"', () =>
+    expect(boolProp('false')).toBe(undefined))
+  it('returns true for empty string', () => expect(boolProp('')).toBe(true))
+  it('returns true for undefined', () => expect(boolProp(undefined)).toBe(true))
 })

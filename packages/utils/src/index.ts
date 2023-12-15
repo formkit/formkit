@@ -888,3 +888,13 @@ export function oncePerTick<T extends CallableFunction>(fn: T): T {
     return fn(...args)
   }) as unknown as T
 }
+
+/**
+ * Converts any value to a boolean value — but assumes that the default is true.
+ * This is used on naked attributes like `disabled` or `required`.
+ * @param value - The value to be converted to a boolean.
+ */
+export function boolProp(value: unknown): true | undefined {
+  if (value === 'false' || value === false) return undefined
+  return true
+}

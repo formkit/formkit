@@ -2285,7 +2285,7 @@ describe('nested inputs', () => {
 })
 
 describe('naked attributes', () => {
-  it.only('disables the input when naked disabled attr is used (#989)', () => {
+  it('disables the input when naked disabled attr is used (#989)', () => {
     const wrapper = mount(
       {
         template: '<FormKit type="text" disabled />',
@@ -2296,7 +2296,7 @@ describe('naked attributes', () => {
         },
       }
     )
-    expect(wrapper.find('input').attributes('disabled')).not.toBe('true')
+    expect(wrapper.find('input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled="true"]').exists()).toBe(true)
   })
 })

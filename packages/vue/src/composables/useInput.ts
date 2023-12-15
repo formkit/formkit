@@ -42,6 +42,7 @@ import {
 import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
 import { FormKitGroupValue } from 'packages/core/src'
+import { FormKitPseudoProps } from '@formkit/core'
 
 interface FormKitComponentListeners {
   onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown
@@ -57,11 +58,13 @@ const isBrowser = typeof window !== 'undefined'
  * package.
  */
 const pseudoProps = [
-  'help',
-  'label',
+  // Boolean props
   'ignore',
   'disabled',
   'preserve',
+  // String props
+  'help',
+  'label',
   /^preserve(-e|E)rrors/,
   /^[a-z]+(?:-visibility|Visibility|-behavior|Behavior)$/,
   /^[a-zA-Z-]+(?:-class|Class)$/,
@@ -69,6 +72,8 @@ const pseudoProps = [
   'suffixIcon',
   /^[a-zA-Z-]+(?:-icon|Icon)$/,
 ]
+
+const boolProps = ['disabled', 'ignore', 'preserve']
 
 /**
  * Given some props, map those props to individualized props internally.
@@ -195,6 +200,9 @@ export function useInput<
     initialProps.attrs = attrs
     const propValues = only(nodeProps(context.attrs), pseudoProps)
     for (const propName in propValues) {
+      if (boolProps.includes(propName) && propValues[propName] === '') {
+        propValues[propName] = true
+      }
       initialProps[camel(propName)] = propValues[propName]
     }
     const classesProps = { props: {} }
@@ -246,17 +254,26 @@ export function useInput<
    * which is used to watch the context.attrs object.
    */
   const lateBoundProps = ref<Set<string | RegExp>>(
-    new Set(node.props.definition.props || [])
+    new Set(
+      Array.isArray(node.props.__propDefs)
+        ? node.props.__propDefs
+        : Object.keys(node.props.__propDefs ?? {})
+    )
   )
 
   /**
    * Any additional props added at a "later" time should also be part of the
    * late bound props.
    */
-  node.on('added-props', ({ payload: lateProps }) => {
-    if (Array.isArray(lateProps))
-      lateProps.forEach((newProp) => lateBoundProps.value.add(newProp))
-  })
+  node.on(
+    'added-props',
+    ({ payload: lateProps }: { payload: FormKitPseudoProps }) => {
+      const propNames = Array.isArray(lateProps)
+        ? lateProps
+        : Object.keys(lateProps ?? {})
+      propNames.forEach((newProp) => lateBoundProps.value.add(newProp))
+    }
+  )
 
   /**
    * These prop names must be assigned.
