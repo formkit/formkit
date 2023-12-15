@@ -252,9 +252,14 @@ export const validation: FormKitValidationMessages = {
    * The value is not lowercase
    * @see {@link https://formkit.com/essentials/validation#lowercase}
    */
-  lowercase({ name }) {
+  lowercase({ name, args }) {
+    let postfix = ''
+    if(Array.isArray(args)) {
+      if (args[0] === 'allow_non_alpha') postfix = ', numbers and symbols'
+      if (args[0] === 'allow_numeric') postfix = ' and numbers'
+    }
     /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
-    return `${s(name)} can only contain lowercase letters.`
+    return `${s(name)} can only contain lowercase letters${postfix}.`
     /* </i18n> */
   },
 
