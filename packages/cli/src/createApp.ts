@@ -258,7 +258,7 @@ export async function createApp(
     options.lang = 'ts'
     info('Fetching nuxi cli...')
     const subprocess = execaCommand(
-      `npx --yes nuxi@latest init --no-install ${appName}`,
+      `npx --yes nuxi@latest init --no-install "${appName}"`,
       {
         cwd: process.cwd(),
         shell: true,
