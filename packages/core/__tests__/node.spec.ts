@@ -747,6 +747,83 @@ describe('props system', () => {
     child.props.foo = 'bar'
     expect(child.props.foo).toBe('bar!')
   })
+
+  it('can define a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: '',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(true)
+  })
+
+  it('makes "false" string false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: 'false',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('makes undefined false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: undefined,
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('can define a boolean prop and swap to it', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+    child.props.foo = ''
+    expect(child.props.foo).toBe(true)
+  })
 })
 
 describe('plugin system', () => {

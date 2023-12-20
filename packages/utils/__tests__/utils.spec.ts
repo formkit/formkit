@@ -18,7 +18,7 @@ import {
   slugify,
   shallowClone,
   spread,
-  boolProp,
+  boolGetter,
 } from '../src/index'
 import { describe, expect, it } from 'vitest'
 
@@ -623,16 +623,17 @@ describe('spread', () => {
   })
 })
 
-describe('boolProp', () => {
-  it('returns true for true', () => expect(boolProp(true)).toBe(true))
-  it('returns true for "true"', () => expect(boolProp('true')).toBe(true))
-  it('returns true for "yes"', () => expect(boolProp('yes')).toBe(true))
-  it('returns true for "on"', () => expect(boolProp('on')).toBe(true))
-  it('returns true for "1"', () => expect(boolProp('1')).toBe(true))
+describe('boolGetter', () => {
+  it('returns true for true', () => expect(boolGetter(true)).toBe(true))
+  it('returns true for "true"', () => expect(boolGetter('true')).toBe(true))
+  it('returns true for "yes"', () => expect(boolGetter('yes')).toBe(true))
+  it('returns true for "on"', () => expect(boolGetter('on')).toBe(true))
+  it('returns true for "1"', () => expect(boolGetter('1')).toBe(true))
   it('returns undefined for false', () =>
-    expect(boolProp(false)).toBe(undefined))
+    expect(boolGetter(false)).toBe(undefined))
   it('returns undefined for "false"', () =>
-    expect(boolProp('false')).toBe(undefined))
-  it('returns true for empty string', () => expect(boolProp('')).toBe(true))
-  it('returns true for undefined', () => expect(boolProp(undefined)).toBe(true))
+    expect(boolGetter('false')).toBe(undefined))
+  it('returns true for empty string', () => expect(boolGetter('')).toBe(true))
+  it('returns true for undefined', () =>
+    expect(boolGetter(undefined)).toBe(true))
 })

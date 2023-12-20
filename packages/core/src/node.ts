@@ -10,6 +10,7 @@ import {
   cloneAny,
   clone,
   isObject,
+  boolGetter,
   extend as merge,
 } from '@formkit/utils'
 import {
@@ -1475,11 +1476,19 @@ export interface FormKitPlaceholderNode<V = unknown> {
  * A prop definition for a pseudo prop that defines a type and a default value.
  * @public
  */
-export interface FormKitPseudoProp {
-  default?: unknown
-  setter?: (value: unknown, node: FormKitNode) => unknown
-  getter?: (value: unknown, node: FormKitNode) => unknown
-}
+export type FormKitPseudoProp =
+  | {
+      boolean?: true
+      default?: boolean
+      setter?: undefined
+      getter?: undefined
+    }
+  | {
+      boolean?: undefined
+      default?: unknown
+      setter?: (value: unknown, node: FormKitNode) => unknown
+      getter?: (value: unknown, node: FormKitNode) => unknown
+    }
 
 /**
  * Pseudo props are "non-runtime" props. Props that are not initially declared
@@ -2969,6 +2978,7 @@ function createProps(initial: unknown) {
       let val
       if (has(props, prop)) {
         val = Reflect.get(...args)
+        if (propDefs[prop]?.boolean) val = boolGetter(val)
       } else if (
         node &&
         typeof prop === 'string' &&
@@ -2980,6 +2990,7 @@ function createProps(initial: unknown) {
         val = propDefs[prop]?.default
       }
       const getter = propDefs[prop]?.getter
+      if (propDefs[prop]?.boolean) val = !!val
       return getter ? getter(val, node) : val
     },
     set(target, property, originalValue, receiver) {
