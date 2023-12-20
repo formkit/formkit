@@ -254,7 +254,7 @@ export const validation: FormKitValidationMessages = {
    */
   lowercase({ name, args }) {
     let postfix = ''
-    if(Array.isArray(args)) {
+    if(Array.isArray(args) && args.length) {
       if (args[0] === 'allow_non_alpha') postfix = ', numbers and symbols'
       if (args[0] === 'allow_numeric') postfix = ' and numbers'
       if (args[0] === 'allow_numeric_dashes') postfix = ', numbers and dashes'
