@@ -183,17 +183,20 @@ export interface FormKitSchemaComposable {
 }
 
 /**
+ * The shape of the schema definition overrides/extensions.
+ */
+export type FormKitSectionsSchema = Record<
+  string,
+  Partial<FormKitSchemaNode> | FormKitSchemaCondition | null
+>
+
+/**
  * Defines a function that allows selectively overriding a given schema.
  *
  * @public
  */
 export interface FormKitExtendableSchemaRoot {
-  (
-    extensions: Record<
-      string,
-      Partial<FormKitSchemaNode> | FormKitSchemaCondition
-    >
-  ): FormKitSchemaDefinition
+  (extensions: FormKitSectionsSchema): FormKitSchemaDefinition
   memoKey?: string
 }
 

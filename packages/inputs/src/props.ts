@@ -1,9 +1,8 @@
 import {
   FormKitPlugin,
   FormKitGroupValue,
-  FormKitSchemaCondition,
   FormKitTypeDefinition,
-  FormKitSchemaNode,
+  FormKitSectionsSchema,
   FormKitNode,
   FormKitClasses,
   FormKitFrameworkContext,
@@ -40,7 +39,6 @@ export type AllReals =
   | Array<any>
   | null
   | Record<any, any>
-
 /**
  * This is the base interface for providing prop definitions to the FormKit
  * component. It is used to define the props that are available to the each
@@ -642,10 +640,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * An object of sections to merge with the input’s internal schema.
    */
-  sectionsSchema: Record<
-    string,
-    Partial<FormKitSchemaNode> | FormKitSchemaCondition
-  >
+  sectionsSchema: FormKitSectionsSchema
   /**
    * A boolean indicating whether the input should be synced with the model.
    */
