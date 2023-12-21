@@ -1,5 +1,21 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`createInput sectionSchema > can create an input without a label 1`] = `
+"<div class=\\"formkit-outer\\" data-empty=\\"true\\">
+  <div class=\\"formkit-wrapper\\">
+    <!---->
+    <div class=\\"formkit-inner\\">
+      <!---->
+      <!---->hello
+      <!---->
+      <!---->
+    </div>
+  </div>
+  <!---->
+  <!---->
+</div>"
+`;
+
 exports[`schema based inputs > has prefix and suffix icon support 1`] = `
 "<div class=\\"formkit-outer\\" data-empty=\\"true\\" data-prefix-icon=\\"true\\" data-suffix-icon=\\"true\\">
   <div class=\\"formkit-wrapper\\">
