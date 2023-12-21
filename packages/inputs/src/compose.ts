@@ -1,4 +1,4 @@
-import { isObject, token } from '@formkit/utils'
+import { extend, isObject, token } from '@formkit/utils'
 import {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
@@ -11,6 +11,7 @@ import {
   isConditional,
   warn,
   FormKitSchemaDOMNode,
+  FormKitSectionsSchema,
 } from '@formkit/core'
 import {
   isSchemaObject,
@@ -181,9 +182,10 @@ export function eachSection<T>(
  */
 /*@__NO_SIDE_EFFECTS__*/
 export function useSchema(
-  inputSection: FormKitSection
+  inputSection: FormKitSection,
+  sectionsSchema: FormKitSectionsSchema = {}
 ): FormKitSchemaExtendableSection {
-  return outer(
+  const schema = outer(
     wrapper(
       label('$label'),
       inner(icon('prefix'), prefix(), inputSection(), suffix(), icon('suffix'))
@@ -191,6 +193,8 @@ export function useSchema(
     help('$help'),
     messages(message('$message.value'))
   )
+  return (propSectionsSchema: FormKitSectionsSchema = {}) =>
+    schema(extend(sectionsSchema, propSectionsSchema) as FormKitSectionsSchema)
 }
 
 // ========================================================
@@ -212,9 +216,7 @@ export function $attrs(
   attrs: FormKitSchemaAttributes | (() => FormKitSchemaAttributes),
   section: FormKitSchemaExtendableSection
 ): FormKitSchemaExtendableSection {
-  const extendable = (
-    extensions: Record<string, Partial<FormKitSchemaNode>>
-  ) => {
+  const extendable = (extensions: FormKitSectionsSchema) => {
     const node = section(extensions)
     const attributes = typeof attrs === 'function' ? attrs() : attrs
     if (!isObject(attributes)) return node
@@ -246,9 +248,7 @@ export function $if(
   then: FormKitSchemaExtendableSection,
   otherwise?: FormKitSchemaExtendableSection
 ): FormKitSchemaExtendableSection {
-  const extendable = (
-    extensions: Record<string, Partial<FormKitSchemaNode>>
-  ) => {
+  const extendable = (extensions: FormKitSectionsSchema) => {
     const node = then(extensions)
     if (
       otherwise ||
@@ -291,9 +291,7 @@ export function $for(
   inName: string,
   section: FormKitSchemaExtendableSection
 ) {
-  return (
-    extensions: Record<string, Partial<FormKitSchemaNode>>
-  ): FormKitSchemaNode => {
+  return (extensions: FormKitSectionsSchema): FormKitSchemaNode => {
     const node = section(extensions)
     if (isSlotCondition(node)) {
       Object.assign(node.else, { for: [varName, inName] })
@@ -319,9 +317,7 @@ export function $extend(
   section: FormKitSchemaExtendableSection,
   extendWith: Partial<FormKitSchemaNode>
 ): FormKitSchemaExtendableSection {
-  const extendable = (
-    extensions: Record<string, Partial<FormKitSchemaNode>>
-  ) => {
+  const extendable = (extensions: FormKitSectionsSchema) => {
     const node = section({})
     if (isSlotCondition(node)) {
       if (Array.isArray(node.else)) return node

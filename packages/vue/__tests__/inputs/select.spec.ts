@@ -7,7 +7,6 @@ import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { nextTick, ref } from 'vue'
 import { describe, expect, it } from 'vitest'
-import { label } from '@formkit/inputs'
 
 describe('select', () => {
   it('renders a select list with an array of objects', () => {
@@ -904,7 +903,7 @@ describe('selects rendered via schema', () => {
       { label: 'B', value: ['b'] },
       { label: 'C', value: ['c'] },
     ])
-    const wrapper = mount(
+    mount(
       {
         setup() {
           return { options }

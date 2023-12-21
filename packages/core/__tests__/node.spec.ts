@@ -614,6 +614,216 @@ describe('props system', () => {
       },
     })
   })
+
+  it('can define a default value for a prop', () => {
+    const node = createNode()
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('ted')
+  })
+
+  it('can define a default value for a prop and have it be overridden by local values', () => {
+    const node = createNode({
+      props: {
+        name: 'fred',
+      },
+    })
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('fred')
+  })
+
+  it('can define a default value for a prop and have it be overridden by attr values', () => {
+    const node = createNode({
+      props: {
+        attrs: {
+          name: 'fred',
+        },
+      },
+    })
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('fred')
+  })
+
+  it('can define props with defaults when nested', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('bar')
+  })
+
+  it('can define props with defaults and still inherit from parents', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+  })
+
+  it('can define props with getters', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+              getter: (value) => {
+                return value !== 'foo' ? value + '!' : value
+              },
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+    child.props.foo = 'bar'
+    expect(child.props.foo).toBe('bar!')
+  })
+
+  it('can define props with setters', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+              setter: (value) => {
+                return value !== 'foo' ? value + '!' : value
+              },
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+    child.props.foo = 'bar'
+    expect(child.props.foo).toBe('bar!')
+  })
+
+  it('can define a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: '',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(true)
+  })
+
+  it('makes "false" string false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: 'false',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('makes undefined false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: undefined,
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('can define a boolean prop and swap to it', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+    child.props.foo = ''
+    expect(child.props.foo).toBe(true)
+  })
 })
 
 describe('plugin system', () => {

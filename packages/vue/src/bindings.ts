@@ -28,6 +28,7 @@ import {
   shallowClone,
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
+import { FormKitPseudoProps } from '@formkit/core'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
@@ -328,8 +329,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * object.
    * @param observe - Props to observe and register as context data.
    */
-  function observeProps(observe: string[]) {
-    observe.forEach((prop) => {
+  function observeProps(observe: FormKitPseudoProps) {
+    const propNames = Array.isArray(observe) ? observe : Object.keys(observe)
+    propNames.forEach((prop) => {
       prop = camel(prop)
       if (!has(context, prop)) {
         context[prop] = node.props[prop]

@@ -1,9 +1,5 @@
-import {
-  FormKitNode,
-  FormKitPlugin,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
-} from '@formkit/core'
+import { FormKitSectionsSchema } from '@formkit/core'
+import { FormKitNode, FormKitPlugin } from '@formkit/core'
 import { clone, undefine } from '@formkit/utils'
 
 /**
@@ -12,7 +8,7 @@ import { clone, undefine } from '@formkit/utils'
  * @public
  */
 export interface InputCountOptions {
-  useAsDefault?: boolean,
+  useAsDefault?: boolean
   countTypes?: string[]
 }
 
@@ -31,9 +27,14 @@ export function createInputCountPlugin(
   return (node: FormKitNode) => {
     node.addProps(['inputCount', 'inputCountString'])
 
-    const allowTypes = InputCountOptions?.countTypes || ['text', 'password', 'textarea']
+    const allowTypes = InputCountOptions?.countTypes || [
+      'text',
+      'password',
+      'textarea',
+    ]
 
-    const useInputCount = undefine(node.props.inputCount) ||
+    const useInputCount =
+      undefine(node.props.inputCount) ||
       node.props.inputCount === 'true' ||
       node.props.inputCount === true ||
       InputCountOptions?.useAsDefault === true
@@ -48,12 +49,7 @@ export function createInputCountPlugin(
 
           node.props.inputCountString = ''
 
-          const higherOrderSchema = (
-            extensions: Record<
-              string,
-              Partial<FormKitSchemaNode> | FormKitSchemaCondition
-            >
-          ) => {
+          const higherOrderSchema = (extensions: FormKitSectionsSchema) => {
             extensions.help = {
               if: 'true',
               children: [
@@ -62,10 +58,10 @@ export function createInputCountPlugin(
                   children: `$inputCountString`,
                   attrs: {
                     class: '$classes.inputCounter',
-                  }
+                  },
                 },
-                "$help || ''"
-              ]
+                "$help || ''",
+              ],
             }
 
             return originalSchema(extensions)
@@ -86,15 +82,18 @@ export function createInputCountPlugin(
             updateCountValue({ payload: node._value as string })
           })
 
-          function updateCountValue ({ payload }: { payload: string }) {
-            node.props.inputCountString = `${payload ? payload.length : 0}${maxLength ? `/${maxLength}` : ''}`
+          function updateCountValue({ payload }: { payload: string }) {
+            node.props.inputCountString = `${payload ? payload.length : 0}${
+              maxLength ? `/${maxLength}` : ''
+            }`
           }
 
-          function getMaxLength () {
+          function getMaxLength() {
             const rules = node.props.parsedRules
             if (rules && rules.length > 0) {
               const maxLengthRule = rules.find(
-                (rule: { name: string, args: object[] }) => rule.name === 'length' && rule.args && rule.args.length > 1
+                (rule: { name: string; args: object[] }) =>
+                  rule.name === 'length' && rule.args && rule.args.length > 1
               )
               if (maxLengthRule) {
                 return parseInt(maxLengthRule.args[1])
