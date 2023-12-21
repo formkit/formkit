@@ -358,6 +358,7 @@ describe('form submission', () => {
     )
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] button[disabled]').exists()).toBe(true)
   })
 
   it('can disable nested inputs in a form', async () => {
@@ -1600,5 +1601,21 @@ describe('FormKitMessages', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 20))
     expect(submitHandler).toHaveBeenCalledTimes(1)
+  })
+
+  it('can explicitly disable the submit button with submitAttrs', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="form" :submit-attrs="{ disabled: true }"></FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('button').element.disabled).toBe(true)
   })
 })

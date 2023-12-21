@@ -10,7 +10,6 @@ export const submitInput = createSection('submit', () => ({
   bind: '$submitAttrs',
   props: {
     type: 'submit',
-    disabled: '$disabled',
     label: '$submitLabel',
   },
 }))
