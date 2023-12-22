@@ -118,7 +118,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
     if (!schemaDefinition) error(601, node)
     if (typeof schemaDefinition === 'function') {
       currentSchemaNode = node
-      schema.value = schemaDefinition({ ...props.sectionsSchema })
+      schema.value = schemaDefinition({ ...(props.sectionsSchema || {}) })
       currentSchemaNode = null
       if (
         (memoKey && props.sectionsSchema) ||

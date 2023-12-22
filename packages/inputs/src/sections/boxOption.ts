@@ -9,6 +9,6 @@ export const boxOption = createSection('option', () => ({
   $el: 'li',
   for: ['option', '$options'],
   attrs: {
-    'data-disabled': '$option.attrs.disabled || $disabled',
+    'data-disabled': '$option.attrs.disabled || $disabled || undefined',
   },
 }))
