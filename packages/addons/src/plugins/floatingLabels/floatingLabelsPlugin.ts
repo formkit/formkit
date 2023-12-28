@@ -69,7 +69,11 @@ export function createFloatingLabelsPlugin(
             )
             const [inputParentChildren] = findSection(finalSchema, 'input')
 
-            if (labelParentChildren && labelSection && inputParentChildren) {
+            if (
+              Array.isArray(labelParentChildren) &&
+              labelSection &&
+              Array.isArray(inputParentChildren)
+            ) {
               labelParentChildren.splice(
                 labelParentChildren.indexOf(labelSection),
                 1

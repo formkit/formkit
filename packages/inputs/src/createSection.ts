@@ -8,8 +8,8 @@ import {
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
   FormKitSectionsSchema,
+  FormKitSchemaCondition,
 } from '@formkit/core'
-import { FormKitSchemaCondition } from 'packages/core/src'
 
 /**
  * A function that is called with an extensions argument and returns a valid

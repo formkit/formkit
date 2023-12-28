@@ -510,6 +510,8 @@ export interface FormKitOptionsItem<V = unknown> {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItemProp {
   group: string
@@ -519,6 +521,8 @@ export interface FormKitOptionsGroupItemProp {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItem {
   group: string
@@ -545,6 +549,8 @@ export type FormKitOptionsListWithGroups = Array<
 /**
  * An array of option items with a group support — where the `option` of the
  * groups can be any valid FormKitOptionsProp type.
+ *
+ * @public
  */
 export type FormKitOptionsListWithGroupsProp = Array<
   FormKitOptionsItem | FormKitOptionsGroupItemProp
@@ -741,6 +747,8 @@ export const runtimeProps = [
 /**
  * A helper to determine if an option is a group or an option.
  * @param option - An option
+ *
+ * @public
  */
 export function isGroupOption(
   option:

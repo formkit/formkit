@@ -184,6 +184,7 @@ export interface FormKitSchemaComposable {
 
 /**
  * The shape of the schema definition overrides/extensions.
+ * @public
  */
 export type FormKitSectionsSchema = Record<
   string,
