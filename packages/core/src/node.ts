@@ -2996,11 +2996,12 @@ function setErrors(
  */
 function clearErrors(
   node: FormKitNode,
-  context: FormKitContext,
+  _context: FormKitContext,
   clearChildErrors = true,
   sourceKey?: string
 ) {
-  setErrors(node, context, [])
+  // Clear all local errors:
+  node.store.filter(() => false, 'error')
   if (clearChildErrors) {
     sourceKey = sourceKey || `${node.name}-set`
     node.walk((child) => {
