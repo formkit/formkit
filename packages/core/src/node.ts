@@ -2167,7 +2167,6 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   // flush all messages out
   node.store.filter(() => false)
   if (node.parent) {
-    node.parent.emit('childRemoved', node)
     node.parent.remove(node)
   }
   deregister(node)
@@ -2486,6 +2485,7 @@ function removeChild(
     child.config._rmn = child
   }
   node.ledger.unmerge(child)
+  node.emit('childRemoved', child)
   return node
 }
 
