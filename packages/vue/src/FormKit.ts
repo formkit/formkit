@@ -153,12 +153,25 @@ function FormKit<Props extends FormKitInputs<Props>>(
     ...definitionLibrary,
   }
 
+  /**
+   * Emit the mounted event.
+   */
+  function didMount() {
+    node.emit('mounted')
+  }
+
   // // Expose the FormKitNode to template refs.
   context.expose({ node })
   return () =>
     h(
       FormKitSchema,
-      { schema: schema.value, data: node.context, library, memoKey },
+      {
+        schema: schema.value,
+        data: node.context,
+        onMounted: didMount,
+        library,
+        memoKey,
+      },
       { ...context.slots }
     )
 }

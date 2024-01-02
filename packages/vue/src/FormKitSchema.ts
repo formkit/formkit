@@ -18,6 +18,7 @@ import {
   ConcreteComponent,
   onUnmounted,
   markRaw,
+  onMounted,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import {
@@ -883,6 +884,7 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
       required: false,
     },
   },
+  emits: ['mounted'],
   setup(props, context) {
     const instance = getCurrentInstance()
     let instanceKey = {}
@@ -939,6 +941,8 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
       /* eslint-enable @typescript-eslint/no-non-null-assertion */
     }
 
+    // When the component is mounted, emit the mounted event
+    onMounted(() => context.emit('mounted'))
     // For browser rendering:
     onUnmounted(cleanUp)
     // For SSR rendering:

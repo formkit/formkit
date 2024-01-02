@@ -277,6 +277,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     items,
     label: node.props.label,
     messages,
+    didMount: false,
     node: markRaw(node),
     options: node.props.options,
     defaultMessagePlacement: true,
@@ -315,6 +316,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       await node.settled
       if (node) node.props._init = cloneAny(node.value)
     })()
+  })
+
+  /**
+   * When the node mounts, set the didMount flag.
+   */
+  node.on('mounted', () => {
+    context.didMount = true
   })
 
   /**
