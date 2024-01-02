@@ -275,11 +275,28 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
  * @public
  */
 export interface FormKitConfig {
+  /**
+   * The delimiter character to use for a node’s tree address. By default this
+   * is a dot `.`, but if you use dots in your input names you may want to
+   * change this to something else.
+   */
   delimiter: string
+  /**
+   * Classes to apply on the various sections. These classes are applied after
+   * rootClasses has already run.
+   */
   classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
+  /**
+   * The rootClasses function is called to allocate the base layer of classes
+   * for each section. These classes can be further extended or modified by the
+   * classes config, classes prop, and section-class props.
+   */
   rootClasses:
     | ((sectionKey: string, node: FormKitNode) => Record<string, boolean>)
     | false
+  /**
+   * A root config object. This object is usually the globally defined options.
+   */
   rootConfig?: FormKitRootConfig
   [index: string]: any
 }
@@ -291,20 +308,58 @@ export interface FormKitConfig {
  * @public
  */
 export type FormKitProps = {
+  /**
+   * An instance of the current document’s root. When inside the context of a
+   * custom element, this will be the ShadowRoot. In most other instances this
+   * will be the Document. During SSR and other server-side contexts this will
+   * be undefined.
+   */
   __root?: Document | ShadowRoot
-  __propDefs: FormKitPseudoProps
+  /**
+   * An object or array of "props" that should be applied to the input. When
+   * using Vue, these are pulled from the attrs and placed into the node.props
+   * according to the definition provided here.
+   */
+  readonly __propDefs: FormKitPseudoProps
+  /**
+   * The total amount of time in milliseconds to debounce the input before the
+   * committing the value to the form tree.
+   */
   delay: number
+  /**
+   * The unique id of the input. These should *always* be globally unique.
+   */
   id: string
+  /**
+   * A function that defines how the validationLabel should be provided. By
+   * default this is the validation-label, label, then name in decreasing
+   * specificity.
+   */
   validationLabelStrategy?: (node?: FormKitNode) => string
+  /**
+   * An object of validation rules.
+   */
   validationRules?: Record<
     string,
     (node: FormKitNode) => boolean | Promise<boolean>
   >
+  /**
+   * An object of validation messages.
+   */
   validationMessages?: Record<
     string,
     ((ctx: { name: string; args: any[]; node: FormKitNode }) => string) | string
   >
+  /**
+   * The definition of the node’s input type (if it has one).
+   */
   definition?: FormKitTypeDefinition
+  /**
+   * The framework’s context object. This is how FormKit’s core interacts with
+   * the front end framework (Vue/React/etc). This object is created by the
+   * component and is responsible for providing all the data to the framework
+   * for rendering and interaction.
+   */
   context?: FormKitFrameworkContext
   [index: string]: any
 } & FormKitConfig
@@ -2147,6 +2202,7 @@ function define(
   // Assign the definition
   const clonedDef = clone(definition)
   // Merge existing prop defs into the cloned input definition.
+  // @ts-ignore-next-line
   node.props.__propDefs = mergeProps(
     node.props.__propDefs ?? [],
     clonedDef?.props || []
@@ -2245,6 +2301,8 @@ function addProps(
   if (node.props.definition) {
     node.props.definition.props = mergedProps
   }
+
+  // @ts-ignore-next-line
   node.props.__propDefs = mergedProps
 
   node.emit('added-props', props)
