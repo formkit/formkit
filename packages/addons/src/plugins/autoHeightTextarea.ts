@@ -13,7 +13,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
     if (node.props.type !== 'textarea') return
     node.addProps(['autoHeight', 'maxAutoHeight'])
 
-    node.on('created', () => {
+    node.on('mounted', () => {
       const autoHeight = undefine(node.props.autoHeight)
       const maxAutoHeight = Number.isFinite(node.props.maxAutoHeight)
         ? parseInt(node.props.maxAutoHeight)
