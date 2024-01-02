@@ -397,8 +397,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       unplugin-formkit:
-        specifier: ^0.2.10
-        version: 0.2.10(rollup@3.29.3)(vite@4.4.9)
+        specifier: ^0.2.11
+        version: 0.2.11(rollup@3.29.3)(vite@4.4.9)
     devDependencies:
       '@nuxt/module-builder':
         specifier: ^0.5.1
@@ -11813,8 +11813,8 @@ packages:
       - vite
     dev: true
 
-  /unplugin-formkit@0.2.10(rollup@3.29.3)(vite@4.4.9):
-    resolution: {integrity: sha512-Gcuy06OM1H6M4u6iQIRE4b1pZSjygKEfqrRVDUCThVAkf5ger4mPvUS3HG6zfuFBTvhPni/IMLZkhGwMDf1kPQ==}
+  /unplugin-formkit@0.2.11(rollup@3.29.3)(vite@4.4.9):
+    resolution: {integrity: sha512-Tnb37f/HsG3iBWsMOdElx0r5PdHvhT697+zhLgFyo4Rw36kq3PGDyfazw//V/xetuj4ZVjcMI8o4AbSjYL3V9A==}
     peerDependencies:
       esbuild: '*'
       rollup: ^3
