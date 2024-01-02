@@ -727,7 +727,6 @@ export function getValidationMessages(
       const message = n.store[key]
       if (
         message.type === 'validation' &&
-        message.blocking &&
         message.visible &&
         typeof message.value === 'string'
       ) {
