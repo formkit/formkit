@@ -44,7 +44,6 @@ function findParentWithBackgroundColor(element: HTMLElement): string {
           .trim() || '1'
       backgroundColor = `rgba(${bgColor}, ${opacity})`
     }
-    console.log(backgroundColor)
   }
   return backgroundColor
 }
