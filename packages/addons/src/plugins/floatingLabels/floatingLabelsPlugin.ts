@@ -76,6 +76,7 @@ export function createFloatingLabelsPlugin(
   FloatingLabelsOptions?: FloatingLabelsOptions
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
+    let nodeEl: HTMLElement | null = null
     node.addProps(['floatingLabel', '_labelBackgroundColor'])
 
     const useFloatingLabels =
@@ -88,13 +89,20 @@ export function createFloatingLabelsPlugin(
     if (useFloatingLabels && node.context) {
       whenAvailable(node.context.id, () => {
         if (!node.context) return
-        const nodeEl = document.getElementById(node.context?.id)
+        nodeEl = document.getElementById(node.context?.id)
         if (!nodeEl) return
         setBackgroundColor(node, nodeEl, 100)
       })
 
       node.on('created', () => {
-        if (!node.props || !node.props.definition) return
+        if (!node.props || !node.props.definition || !node.context) return
+
+        // available for users who want to update the background color manually
+        node.context.handlers.updateLabelBackgroundColor = () => {
+          if (!node.context || !nodeEl) return
+          setBackgroundColor(node, nodeEl, 0)
+        }
+
         const inputDefinition = clone(node.props.definition)
         if (
           ['text', 'dropdown'].includes(node.props.family) ||
@@ -110,7 +118,6 @@ export function createFloatingLabelsPlugin(
             }
             extensions.label = {
               attrs: {
-                'data-has-value': '$_value !== "" && $_value !== undefined',
                 style: '$: "background-color: " + $_labelBackgroundColor',
               },
             }
