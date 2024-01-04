@@ -126,7 +126,7 @@ const multiStepNode = ref(null)
 </script>
 
 <template>
-  <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" />
+  <!-- <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" /> -->
 
   <!-- <FormKitSchema :schema="schemaWithConditional" /> -->
 
