@@ -16,7 +16,6 @@ export const multiStepOuter = createSection('multiStepOuter', () => ({
     'data-multiple':
       '$attrs.multiple || ($type != "select" && $options != undefined) || undefined',
     'data-disabled': '$disabled || undefined',
-    'data-complete': '$state.complete || undefined',
     'data-invalid':
       '$state.valid === false && $state.validationVisible || undefined',
     'data-errors': '$state.errors || undefined',

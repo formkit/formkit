@@ -9,6 +9,8 @@ let radioInstance = 0
  * Automatically rename any radio inputs.
  * @param node - A formkit node.
  * @returns
+ *
+ * @public
  */
 export default function renamesRadios(node: FormKitNode) {
   if (node.type === 'group' || node.type === 'list') {

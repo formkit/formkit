@@ -187,4 +187,19 @@ describe('eachSection', () => {
     )
     expect(spy).toHaveBeenCalledTimes(2)
   })
+
+  it('can iterate through both if and else clauses', () => {
+    const outer = createSection('outer', 'div')
+    const left = createSection('left', 'h1')
+    const right = createSection('right', 'h2')
+
+    const schema = outer($if('$: true', left(), right()))
+    const sections: string[] = []
+    eachSection(schema({}), (section) => {
+      if (section && typeof section === 'object') {
+        sections.push(section.meta!.section as string)
+      }
+    })
+    expect(sections).toEqual(['outer', 'left', 'right'])
+  })
 })

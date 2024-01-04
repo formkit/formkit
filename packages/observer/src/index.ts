@@ -137,6 +137,10 @@ export function createObserver(
     if (property === '_value') addDependency('input')
     if (property === 'props') return observeProps(value)
     if (property === 'ledger') return observeLedger(value)
+    if (property === 'children') {
+      addDependency('child')
+      addDependency('childRemoved')
+    }
     return value
   }
 

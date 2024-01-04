@@ -223,4 +223,17 @@ describe('observer', () => {
     node.input('fizbuz')
     expect(watcher).toHaveBeenCalledTimes(1)
   })
+
+  it('can watch children of a group', () => {
+    const parent = createNode({ type: 'group' })
+    const observed = createObserver(parent)
+    const watcher = vi.fn((node: FormKitObservedNode) => node.children.length)
+    observed.watch(watcher)
+    expect(watcher).toHaveNthReturnedWith(1, 0)
+    const child = createNode()
+    parent.add(child)
+    expect(watcher).toHaveNthReturnedWith(2, 1)
+    parent.remove(child)
+    expect(watcher).toHaveNthReturnedWith(3, 0)
+  })
 })
