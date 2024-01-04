@@ -78,6 +78,7 @@
     "./nuxt.d.ts",
     "../**/*",
     "../../../../../../../andre/runtime",
+    "../../../../node_modules/.pnpm/@nuxtjs+tailwindcss@6.10.3/node_modules/@nuxtjs/tailwindcss/runtime",
     "../../../../node_modules/@nuxt/telemetry/runtime",
     "..",
     "../../../../node_modules/.pnpm/nuxt@3.7.4/node_modules/nuxt/dist/app",
@@ -89,6 +90,7 @@
     "../../../../node_modules",
     "../../../../node_modules/.pnpm/nuxt@3.7.4/node_modules/nuxt/node_modules",
     "../../../../../../../andre/runtime/server",
+    "../../../../node_modules/.pnpm/@nuxtjs+tailwindcss@6.10.3/node_modules/@nuxtjs/tailwindcss/runtime/server",
     "../../../../node_modules/@nuxt/telemetry/runtime/server",
     "../dist",
     "../.output"
