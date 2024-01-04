@@ -1618,4 +1618,41 @@ describe('FormKitMessages', () => {
     )
     expect(wrapper.find('button').element.disabled).toBe(true)
   })
+
+  it('does not mutate the node.value when resulting in the same exact value (#1068)', async () => {
+    let node = null as FormKitNode | null
+    const getNode = (n: FormKitNode) => {
+      node = n
+    }
+    const show = ref(true)
+    mount(
+      {
+        setup() {
+          return { getNode, show }
+        },
+        template: `
+        <FormKit type="form" @node="getNode">
+          <FormKit type="text" name="name" value="todd" preserve="true" v-if="show" />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    const initial = node!.context!.value
+    expect(initial).toEqual({ name: 'todd' })
+    node!.children[0].input('fred', false)
+    // At this point it should be a clone of the original, not the same value
+    expect(node!.context!.value).not.toBe(initial)
+    const firstClone = node!.context!.value
+    // removing the value with preserve should not create a new cloned object
+    // since it results in the exact same serialized value (according to eq())
+    show.value = false
+    await nextTick()
+    expect(node!.context!.value).toBe(firstClone)
+  })
 })
