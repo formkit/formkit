@@ -87,7 +87,6 @@ export function createFloatingLabelsPlugin(
         : false
 
     if (useFloatingLabels && node.context) {
-      // use a mouseEnter event to trigger a calculation of the background color
       whenAvailable(node.context.id, () => {
         if (!node.context) return
         const nodeEl = document.getElementById(node.context?.id)
@@ -119,8 +118,6 @@ export function createFloatingLabelsPlugin(
               attrs: {
                 'data-has-value': '$_value !== "" && $_value !== undefined',
                 style: '$: "background-color: " + $_labelBackgroundColor',
-                'data-style':
-                  '$: "background-color: " + $_labelBackgroundColor',
               },
             }
 
