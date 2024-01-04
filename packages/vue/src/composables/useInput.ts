@@ -1,4 +1,4 @@
-import { parentSymbol } from '../FormKit'
+import { parentSymbol, componentSymbol } from '../FormKit'
 import { rootSymbol } from '../FormKitRoot'
 import {
   error,
@@ -146,6 +146,14 @@ export function useInput<
   const __root = inject(rootSymbol, ref(isBrowser ? document : undefined))
 
   /**
+   * The component symbol, this is used to register the node with the "owner"
+   * component.
+   */
+  const __cmpCallback = inject(componentSymbol, () => {
+    /* void */
+  })
+
+  /**
    * The current instance.
    */
   const instance = getCurrentInstance()
@@ -243,6 +251,11 @@ export function useInput<
       true
     ) as Partial<FormKitOptions>
   ) as FormKitNode
+
+  /**
+   * Call the component callback.
+   */
+  __cmpCallback(node)
 
   /**
    * If no definition has been assigned at this point — we're out!

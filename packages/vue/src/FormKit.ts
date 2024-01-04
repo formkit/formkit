@@ -76,6 +76,16 @@ const isServer = typeof window === 'undefined'
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
+ * The symbol that represents the formkit component callback injection value.
+ * This is used by tooling to know which component "owns" this node — some
+ * effects are linked to that component, for example, hot module reloading.
+ *
+ * @internal
+ */
+export const componentSymbol: InjectionKey<(node: FormKitNode) => void> =
+  Symbol('FormKitComponentCallback')
+
+/**
  * This variable is set to the node that is currently having its schema created.
  *
  * @internal
@@ -135,7 +145,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
   }
   generateSchema()
 
-  // // If someone emits the schema event, we re-generate the schema
+  // If someone emits the schema event, we re-generate the schema
   if (!isServer) {
     node.on('schema', () => {
       memoKey += '♻️'

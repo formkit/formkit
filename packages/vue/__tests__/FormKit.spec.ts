@@ -10,6 +10,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
+import { inject } from 'vue'
+import { componentSymbol } from '../src/FormKit'
+import { provide } from 'vue'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -2382,5 +2385,25 @@ describe('naked attributes', () => {
 
     expect(getNode(idA)!.props.exists).toBe(true)
     expect(getNode(idB)!.props.exists).toBe(false)
+  })
+
+  it('allows you to provide a component callback', () => {
+    const componentCallback = vi.fn(() => {})
+    mount(
+      {
+        setup() {
+          provide(componentSymbol, componentCallback)
+        },
+        template: `<FormKit type="group">
+          <FormKit type="text" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(componentCallback).toHaveBeenCalledTimes(2)
   })
 })
