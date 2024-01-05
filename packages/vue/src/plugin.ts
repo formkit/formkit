@@ -10,9 +10,18 @@ import {
   reset,
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
-import FormKit from './FormKit'
+import FormKit, { FormKitComponent } from './FormKit'
 import FormKitSchema from './FormKitSchema'
 
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    $formkit: FormKitVuePlugin
+  }
+  interface GlobalComponents {
+    FormKit: FormKitComponent
+    FormKitSchema: typeof FormKitSchema
+  }
+}
 /**
  * The global instance of the FormKit plugin.
  *

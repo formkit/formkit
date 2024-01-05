@@ -39,6 +39,7 @@ const __dirname = dirname(__filename)
 const rootDir = resolve(__dirname, '../')
 const packagesDir = resolve(__dirname, '../packages')
 const rollup = `${rootDir}/node_modules/.bin/rollup`
+const tsup = `${rootDir}/node_modules/.bin/tsup`
 
 let augmentations = {
   vue: `
@@ -134,33 +135,34 @@ export async function buildPackage(p) {
     msg.error(`${p} is not an valid package name.`)
   }
   const startTime = performance.now()
-  await cleanDist(p)
-  msg.info('» bundling distributions')
+
   msg.loader.start()
+
   if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
-    await bundle(p, 'esm')
-    await bundle(p, 'cjs')
-    if (p === 'vue') {
-      await bundle(p, 'iife')
-    }
+    await bundle(p)
   }
+  //   await bundle(p, 'cjs')
+  //   if (p === 'vue') {
+  //     await bundle(p, 'iife')
+  //   }
+  // }
 
-  msg.loader.stop()
-  msg.info('» extracting type definitions')
-  msg.loader.start()
-  if (p !== 'nuxt') await declarations(p)
+  // msg.loader.stop()
+  // msg.info('» extracting type definitions')
+  // msg.loader.start()
+  // if (p !== 'nuxt') await declarations(p)
 
-  // special case for CSS themes, processing needs to happen AFTER
-  // type declarations are extracted from the non-CSS theme exports
+  // // special case for CSS themes, processing needs to happen AFTER
+  // // type declarations are extracted from the non-CSS theme exports
   if (p === 'themes') await themesBuildExtras()
 
   if (p === 'inputs') await inputsBuildExtras()
 
   if (p === 'addons') await addonsBuildExtras()
 
-  // special case for Icons package
+  // // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
     await fs.mkdir(
@@ -179,7 +181,9 @@ export async function buildPackage(p) {
   }
 
   msg.loader.stop()
-  msg.success(`📦 build complete (${Math.round(performance.now() - startTime) / 1000}s)`)
+  msg.success(
+    `📦 build complete (${Math.round(performance.now() - startTime) / 1000}s)`
+  )
 }
 
 /**
@@ -188,7 +192,6 @@ export async function buildPackage(p) {
 export async function buildAllPackages(packages) {
   const orderedPackages = getBuildOrder(packages)
   msg.info('» Building packages in dependency order:')
-  console.log(orderedPackages)
   for (const [i, p] of orderedPackages.entries()) {
     msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
     await buildPackage(p)
@@ -232,30 +235,28 @@ export async function inputsBuildExtras() {
  * Special considerations for building the themes package.
  */
 async function themesBuildExtras() {
-  const themes = getThemes()
-  await Promise.all(
-    themes.map((theme) => bundle('themes', 'esm', ['theme', theme]))
-  )
-  const plugins = getPlugins()
-  await Promise.all(
-    plugins.map((plugin) =>
-      Promise.all([
-        bundle('themes', 'esm', ['plugin', plugin]),
-        bundle('themes', 'cjs', ['plugin', plugin]),
-        declarations('themes', plugin),
-      ])
-    )
-  )
-  const nestedTailwindPlugins = getPlugins('/themes/src/tailwindcss')
-  await Promise.all(
-    nestedTailwindPlugins.map((plugin) =>
-      Promise.all([
-        bundle('themes', 'esm', ['plugin', `tailwindcss/${plugin}`]),
-        bundle('themes', 'cjs', ['plugin', `tailwindcss/${plugin}`]),
-        declarations('themes', `tailwindcss/${plugin}`),
-      ])
-    )
-  )
+  await bundle('themes', 'tailwindcss')
+  await bundle('themes', 'tailwindcss/genesis')
+  await bundle('themes', 'unocss')
+  await bundle('themes', 'windicss')
+  // const themes = getThemes()
+  // await Promise.all(themes.map((theme) => bundle('themes', theme)))
+  // const plugins = getPlugins()
+
+  // await Promise.all(
+  //   plugins.map((plugin) =>
+  //     Promise.all([bundle('themes', plugin), bundle('themes', plugin)])
+  //   )
+  // )
+  // const nestedTailwindPlugins = getPlugins('/themes/src/tailwindcss')
+  // await Promise.all(
+  //   nestedTailwindPlugins.map((plugin) =>
+  //     Promise.all([
+  //       bundle('themes', `tailwindcss/${plugin}`),
+  //       bundle('themes', `tailwindcss/${plugin}`),
+  //     ])
+  //   )
+  // )
 }
 
 /**
@@ -279,47 +280,28 @@ async function addonsBuildExtras() {
 }
 
 /**
- * Remove the dist directory before building anything.
- */
-async function cleanDist(p) {
-  msg.loader.text = `Removing: ${p}/dist`
-  const distDir = `${packagesDir}/${p}/dist`
-  try {
-    await fs.access(distDir)
-    const files = await fs.readdir(distDir)
-    await Promise.all(
-      files.map((file) => fs.rm(resolve(distDir, file), { recursive: true }))
-    )
-  } catch {
-    // directory is already missing, no need to clean it
-  }
-  msg.info(`» cleaned dist artifacts`)
-}
-
-/**
  * Create a new bundle of a certain format for a certain package.
  * @param p package name
  * @param format the format to create (cjs, esm, umd, etc...)
  */
-async function bundle(p, format, subPackage) {
-  const args = [
-    { name: 'PKG', value: p },
-    { name: 'FORMAT', value: format },
-  ]
-  if (subPackage && subPackage[0] === 'theme') {
-    args.push({ name: 'THEME', value: subPackage[1] })
-    msg.loader.text = `Bundling theme ${subPackage[1]} (${format})`
-  } else if (subPackage && subPackage[0] === 'plugin') {
-    args.push({ name: 'PLUGIN', value: subPackage[1] })
-    msg.loader.text = `Bundling ${subPackage[1]} plugin (${format})`
-  } else {
-    msg.loader.text = `Bundling ${p} as ${format}`
+async function bundle(p, subPackage) {
+  const env = {
+    PKG: p,
   }
-  await execa(rollup, [
-    '-c',
-    '--environment',
-    args.map(({ name, value }) => `${name}:${value}`).join(','),
-  ])
+  console.log(p, subPackage)
+  if (subPackage && p === 'themes') {
+    env.THEME = subPackage
+    msg.loader.text = `Bundling theme ${subPackage}`
+  } else if (subPackage) {
+    env.PLUGIN = subPackage
+    msg.loader.text = `Bundling ${subPackage[1]} plugin`
+  } else {
+    msg.loader.text = `bundling ${p}${
+      subPackage ? ' (' + subPackage + ')' : ''
+    }`
+  }
+
+  await execa(tsup, [], { env })
 }
 
 async function buildNuxtModule() {
@@ -340,100 +322,118 @@ async function buildNuxtModule() {
 }
 
 /**
+ * Remove the dist directory before building anything.
+ */
+// async function cleanDist(p) {
+//   msg.loader.text = `Removing: ${p}/dist`
+//   const distDir = `${packagesDir}/${p}/dist`
+//   try {
+//     await fs.access(distDir)
+//     const files = await fs.readdir(distDir)
+//     await Promise.all(
+//       files.map((file) => fs.rm(resolve(distDir, file), { recursive: true }))
+//     )
+//   } catch {
+//     // directory is already missing, no need to clean it
+//   }
+//   msg.info(`» cleaned dist artifacts`)
+// }
+
+/**
  * Emit type declarations for the package to the dist directory.
  * @param p - package name
  */
-async function declarations(p, plugin = '') {
-  msg.loader.text = `Emitting type declarations`
-  const args = [
-    { name: 'PKG', value: p },
-    { name: 'FORMAT', value: 'esm' },
-    { name: 'DECLARATIONS', value: 1 },
-  ]
-  if (plugin) args.push({ name: 'PLUGIN', value: plugin })
-  const output = await execa(rollup, [
-  '-c',
-    '--environment',
-    args.map(({ name, value }) => `${name}:${value}`).join(','),
-  ])
-  if (output.exitCode) {
-    console.log(output)
-    process.exit()
-  }
-  // Annoyingly even though we tell @rollup/plugin-typescript
-  // emitDeclarationOnly it still outputs an index.js — is this a bug?
-  const artifactToDelete = resolve(
-    packagesDir,
-    `${p}/dist/${plugin ? plugin + '/' : ''}index.js`
-  )
-  let shouldDelete
-  try {
-    shouldDelete = await fs.stat(artifactToDelete)
-  } catch {
-    shouldDelete = false
-  }
-  if (shouldDelete) {
-    await fs.rm(artifactToDelete)
-  }
-  if (plugin) {
-    msg.loader.text = `Emitting type declarations for ${plugin}`
-    await move(
-      resolve(
-        packagesDir,
-        `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`
-      ),
-      resolve(packagesDir, `themes/dist/${plugin}/index.d.ts`)
-    )
-    await remove(resolve(packagesDir, `themes/dist/${plugin}/packages`))
-  } else {
-    msg.loader.text = `Rolling up type declarations`
-    await apiExtractor(p)
-    console.log('done rolling up')
-  }
-}
+// async function declarations(p, plugin = '') {
+//   msg.loader.text = `Emitting type declarations`
+//   const args = [
+//     { name: 'PKG', value: p },
+//     { name: 'FORMAT', value: 'esm' },
+//     { name: 'DECLARATIONS', value: 1 },
+//   ]
+//   if (plugin) args.push({ name: 'PLUGIN', value: plugin })
+//   const output = await execa(rollup, [
+//     '-c',
+//     '--environment',
+//     args.map(({ name, value }) => `${name}:${value}`).join(','),
+//   ])
+//   if (output.exitCode) {
+//     console.log(output)
+//     process.exit()
+//   }
+//   // Annoyingly even though we tell @rollup/plugin-typescript
+//   // emitDeclarationOnly it still outputs an index.js — is this a bug?
+//   const artifactToDelete = resolve(
+//     packagesDir,
+//     `${p}/dist/${plugin ? plugin + '/' : ''}index.js`
+//   )
+//   let shouldDelete
+//   try {
+//     shouldDelete = await fs.stat(artifactToDelete)
+//   } catch {
+//     shouldDelete = false
+//   }
+//   if (shouldDelete) {
+//     await fs.rm(artifactToDelete)
+//   }
+//   if (plugin) {
+//     msg.loader.text = `Emitting type declarations for ${plugin}`
+//     await move(
+//       resolve(
+//         packagesDir,
+//         `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`
+//       ),
+//       resolve(packagesDir, `themes/dist/${plugin}/index.d.ts`)
+//     )
+//     await remove(resolve(packagesDir, `themes/dist/${plugin}/packages`))
+//   } else {
+//     msg.loader.text = `Rolling up type declarations`
+//     await apiExtractor(p)
+//     console.log('done rolling up')
+//   }
+// }
 
 /**
  * Use API Extractor to rollup the type declarations.
  */
-async function apiExtractor(p) {
-  const configPath = resolve(packagesDir, `${p}/api-extractor.json`)
-  const config = ExtractorConfig.loadFileAndPrepare(configPath)
-  const result = Extractor.invoke(config, {
-    localBuild: true,
-    showVerboseMessages: false,
-  })
-  if (result.succeeded) {
-    const distRoot = resolve(packagesDir, `${p}/dist`)
-    const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
-    await Promise.all(
-      distFiles.map((file) => {
-        return file.name !== 'index.all.d.ts' &&
-          (file.isDirectory() || file.name.endsWith('d.ts'))
-          ? fs.rm(resolve(distRoot, file.name), { recursive: true })
-          : Promise.resolve()
-      })
-    )
-    await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
-    await fs.rename(
-      resolve(distRoot, 'index.all.d.ts'),
-      resolve(distRoot, 'index.d.ts')
-    )
-    if (p in augmentations) {
-      msg.loader.text = `Augmenting modules in ${p} type declaration.`
-      const declarations = await fs.readFile(
-        resolve(distRoot, 'index.d.ts'),
-        'utf8'
-      )
-      await fs.writeFile(
-        resolve(distRoot, 'index.d.ts'),
-        declarations.replace('export { }', augmentations[p])
-      )
-    }
-  } else {
-    msg.error('Api extractor failed.')
-    process.exitCode = 1
-  }
-}
+// async function apiExtractor(p) {
+//   const configPath = resolve(packagesDir, `${p}/api-extractor.json`)
+//   const config = ExtractorConfig.loadFileAndPrepare(configPath)
+//   const result = Extractor.invoke(config, {
+//     localBuild: true,
+//     showVerboseMessages: false,
+//   })
+//   if (result.succeeded) {
+//     const distRoot = resolve(packagesDir, `${p}/dist`)
+//     const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
+//     await Promise.all(
+//       distFiles.map((file) => {
+//         return file.name !== 'index.all.d.ts' &&
+//           (file.isDirectory() || file.name.endsWith('d.ts'))
+//           ? fs.rm(resolve(distRoot, file.name), { recursive: true })
+//           : Promise.resolve()
+//       })
+//     )
+//     await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
+//     await fs.rename(
+//       resolve(distRoot, 'index.all.d.ts'),
+//       resolve(distRoot, 'index.d.ts')
+//     )
+//     if (p in augmentations) {
+//       msg.loader.text = `Augmenting modules in ${p} type declaration.`
+//       const declarations = await fs.readFile(
+//         resolve(distRoot, 'index.d.ts'),
+//         'utf8'
+//       )
+//       await fs.writeFile(
+//         resolve(distRoot, 'index.d.ts'),
+//         declarations.replace('export { }', augmentations[p])
+//       )
+//     }
+//   } else {
+//     msg.error('Api extractor failed.')
+//     process.exitCode = 1
+//   }
+// }
 
 /**
  * Filly setup the command line tool and options.
