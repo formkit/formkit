@@ -41,6 +41,10 @@ const packagesDir = resolve(__dirname, '../packages')
 const rollup = `${rootDir}/node_modules/.bin/rollup`
 const tsup = `${rootDir}/node_modules/.bin/tsup`
 
+let isBuilding = false
+let buildAll = false
+let startTime = 0
+
 let augmentations = {
   vue: `
 /**
@@ -118,6 +122,11 @@ async function selectPackage() {
  * @returns
  */
 export async function buildPackage(p) {
+  if (!isBuilding) {
+    msg.loader.start()
+    startTimer()
+    isBuilding = true
+  }
   const packages = getPackages()
   if (!p) {
     return selectPackage()
@@ -127,16 +136,17 @@ export async function buildPackage(p) {
     return
   }
   if (p.includes('build all') || p === 'all') {
-    msg.info('» Building all packages...')
+    buildAll = true
+    startTime = performance.now()
+    msg.loader.text = '» Building all packages...'
     buildAllPackages(packages)
     return
+  } else if (!startTime) {
+    startTime = performance.now()
   }
   if (!packages.includes(p)) {
     msg.error(`${p} is not an valid package name.`)
   }
-  const startTime = performance.now()
-
-  msg.loader.start()
 
   if (p === 'nuxt') {
     await buildNuxtModule()
@@ -180,10 +190,10 @@ export async function buildPackage(p) {
     })
   }
 
-  msg.loader.stop()
-  msg.success(
-    `📦 build complete (${Math.round(performance.now() - startTime) / 1000}s)`
-  )
+  if (!buildAll) {
+    msg.loader.stop()
+    stopTimer()
+  }
 }
 
 /**
@@ -191,18 +201,21 @@ export async function buildPackage(p) {
  */
 export async function buildAllPackages(packages) {
   const orderedPackages = getBuildOrder(packages)
-  msg.info('» Building packages in dependency order:')
   for (const [i, p] of orderedPackages.entries()) {
-    msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
+    msg.loader.text = `» Building ${i + 1}/${
+      orderedPackages.length
+    }: @formkit/${p}`
     await buildPackage(p)
   }
+  msg.loader.stop()
+  stopTimer()
 }
 
 /**
  * Output a typescript input file for each `type` key.
  */
 export async function inputsBuildExtras() {
-  msg.info('» Exporting inputs by type')
+  msg.loader.text = '» Exporting inputs by type'
   const inputs = getInputs()
   const distDir = resolve(packagesDir, 'inputs/dist/exports')
   await fs.mkdir(distDir, { recursive: true })
@@ -235,6 +248,7 @@ export async function inputsBuildExtras() {
  * Special considerations for building the themes package.
  */
 async function themesBuildExtras() {
+  await bundle('themes', 'css/genesis')
   await bundle('themes', 'tailwindcss')
   await bundle('themes', 'tailwindcss/genesis')
   await bundle('themes', 'unocss')
@@ -288,15 +302,14 @@ async function bundle(p, subPackage) {
   const env = {
     PKG: p,
   }
-  console.log(p, subPackage)
   if (subPackage && p === 'themes') {
     env.THEME = subPackage
     msg.loader.text = `Bundling theme ${subPackage}`
   } else if (subPackage) {
     env.PLUGIN = subPackage
-    msg.loader.text = `Bundling ${subPackage[1]} plugin`
+    msg.loader.text = `Bundling plugin ${subPackage}`
   } else {
-    msg.loader.text = `bundling ${p}${
+    msg.loader.text = `Bundling ${p}${
       subPackage ? ' (' + subPackage + ')' : ''
     }`
   }
@@ -313,7 +326,6 @@ async function buildNuxtModule() {
         if (err) {
           reject(stderr)
         } else {
-          console.log(stdout)
           resolve()
         }
       }
@@ -434,6 +446,29 @@ async function buildNuxtModule() {
 //     process.exitCode = 1
 //   }
 // }
+
+let timeout
+function startTimer() {
+  timeout = setTimeout(() => {
+    const message = msg.loader.text.replace(/(.*)? (?:\([0-9.]+s\))$/g, '$1')
+    msg.loader.text =
+      message +
+      ' (' +
+      ((performance.now() - startTime) / 1000).toFixed(2) +
+      's)'
+
+    startTimer()
+  }, 10)
+}
+
+function stopTimer() {
+  clearTimeout(timeout)
+  msg.success(
+    'build complete (' +
+      ((performance.now() - startTime) / 1000).toFixed(2) +
+      's)'
+  )
+}
 
 /**
  * Filly setup the command line tool and options.
