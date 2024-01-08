@@ -10,10 +10,37 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
+import { inject } from 'vue'
+import { componentSymbol } from '../src/FormKit'
+import { provide } from 'vue'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
+  it('loads input definition props before the plugins are executed', () => {
+    const input = createInput('foo', { props: ['exists'] })
+    let propValue = false
+    function myPlugin(node: FormKitNode) {
+      propValue = node.props.exists
+    }
+    mount(
+      {
+        template: `<FormKit type="foo" exists="true" />`,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({ inputs: { foo: input }, plugins: [myPlugin] }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(propValue).toBe('true')
+  })
+
   it('uses the input definition’s forceTypeProp instead of the type', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -2281,5 +2308,102 @@ describe('nested inputs', () => {
     )
     await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('pre').text()).toBe('false')
+  })
+})
+
+describe('naked attributes', () => {
+  it('disables the input when naked disabled attr is used (#989)', () => {
+    const wrapper = mount(
+      {
+        template: '<FormKit type="text" disabled />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled="true"]').exists()).toBe(true)
+  })
+
+  it('respects the ignore prop when it is naked', () => {
+    const id = `a_${token()}`
+    mount(
+      {
+        template: `<FormKit type="form" id="${id}">
+          <FormKit type="text" name="fizz" value="123" />
+          <FormKit type="text" name="buzz" value="456" ignore />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(getNode(id)!.value).toStrictEqual({ fizz: '123' })
+  })
+
+  it('allows boolean props in input definitions', () => {
+    const idA = `a_${token()}`
+    const idB = `a_${token()}`
+    const input = createInput('foo', { props: { exists: { boolean: true } } })
+    mount(
+      {
+        template: `<FormKit type="foo" id="${idA}" /><FormKit type="foo" id="${idB}" exists />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { foo: input } })]],
+        },
+      }
+    )
+
+    expect(getNode(idA)!.props.exists).toBe(false)
+    expect(getNode(idB)!.props.exists).toBe(true)
+  })
+
+  it('allows boolean props to be overridden by parent config', () => {
+    const idA = `a_${token()}`
+    const idB = `a_${token()}`
+    const input = createInput('foo', { props: { exists: { boolean: true } } })
+    mount(
+      {
+        template: `<FormKit type="group" :config="{ exists: true }">
+          <FormKit type="foo" id="${idA}" />
+          <FormKit type="foo" id="${idB}" exists="false" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { foo: input } })]],
+        },
+      }
+    )
+
+    expect(getNode(idA)!.props.exists).toBe(true)
+    expect(getNode(idB)!.props.exists).toBe(false)
+  })
+
+  it('allows you to provide a component callback', () => {
+    const componentCallback = vi.fn(() => {})
+    mount(
+      {
+        setup() {
+          provide(componentSymbol, componentCallback)
+        },
+        template: `<FormKit type="group">
+          <FormKit type="text" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(componentCallback).toHaveBeenCalledTimes(2)
   })
 })

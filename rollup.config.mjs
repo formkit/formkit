@@ -100,7 +100,7 @@ function createPluginsConfig() {
     const functions = readdirSync(resolve(rootPath, 'src/sections'))
       .map((file) => file.substring(0, file.length - 3))
       .filter((file) => file !== 'index')
-      .concat(['defaultIcon', `$attrs`, `$if`, '$for', '$extend', '$root'])
+      .concat(['createSection', 'defaultIcon', `$attrs`, `$if`, '$for', '$extend', '$root'])
     plugins.push(PluginPure({ functions }))
   }
 

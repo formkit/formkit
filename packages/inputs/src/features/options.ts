@@ -125,7 +125,8 @@ export default function options(node: FormKitNode): void {
         node.props.optionsLoader = prop.value
         prop.value = []
       } else {
-        prop.value = normalizeOptions(prop.value)
+        node.props._normalizeCounter ??= { count: 1 }
+        prop.value = normalizeOptions(prop.value, node.props._normalizeCounter)
       }
     }
     return next(prop)

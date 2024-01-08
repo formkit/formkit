@@ -1,8 +1,7 @@
 import {
   FormKitNode,
   FormKitPlugin,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
+  FormKitSectionsSchema,
 } from '@formkit/core'
 import { clone } from '@formkit/utils'
 import { findSection } from '@formkit/inputs'
@@ -48,12 +47,7 @@ export function createFloatingLabelsPlugin(
         ) {
           const originalSchema = inputDefinition.schema
           if (typeof originalSchema !== 'function') return
-          const higherOrderSchema = (
-            extensions: Record<
-              string,
-              Partial<FormKitSchemaNode> | FormKitSchemaCondition
-            >
-          ) => {
+          const higherOrderSchema = (extensions: FormKitSectionsSchema) => {
             extensions.outer = {
               attrs: {
                 'data-floating-label': 'true',
@@ -75,7 +69,11 @@ export function createFloatingLabelsPlugin(
             )
             const [inputParentChildren] = findSection(finalSchema, 'input')
 
-            if (labelParentChildren && labelSection && inputParentChildren) {
+            if (
+              Array.isArray(labelParentChildren) &&
+              labelSection &&
+              Array.isArray(inputParentChildren)
+            ) {
               labelParentChildren.splice(
                 labelParentChildren.indexOf(labelSection),
                 1

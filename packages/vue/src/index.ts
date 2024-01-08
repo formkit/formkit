@@ -41,6 +41,7 @@ export {
   FormKitSetupContext,
   Slots,
   parentSymbol,
+  componentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'
 
