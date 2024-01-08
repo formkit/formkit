@@ -47,7 +47,7 @@ import { reset } from './reset'
  *
  * @public
  */
-export type FormKitTypeDefinition = {
+export type FormKitTypeDefinition<V = unknown> = {
   /**
    * The FormKit core node type. Can only be input | list | group.
    */
@@ -87,7 +87,7 @@ export type FormKitTypeDefinition = {
   /**
    * An array of additional feature functions to load when booting the input.
    */
-  features?: Array<(node: FormKitNode) => void>
+  features?: Array<(node: FormKitNode<V>) => void>
   /**
    * An optional string to use as a comparison key for memoizing the schema.
    */
