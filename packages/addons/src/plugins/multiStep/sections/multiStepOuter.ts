@@ -11,6 +11,7 @@ export const multiStepOuter = createSection('multiStepOuter', () => ({
     key: '$id',
     id: '$id',
     class: '$classes.outer',
+    'data-prerender': '$fns.preRenderSteps()',
     'data-family': '$family || undefined',
     'data-type': '$type',
     'data-multiple':

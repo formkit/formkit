@@ -7,7 +7,7 @@ import { createSection } from '@formkit/inputs'
  */
 export const tab = createSection('tab', () => ({
   $el: 'button',
-  for: ['step', 'index', '$steps'],
+  for: ['step', 'index', '$fns.getSteps()'],
   attrs: {
     key: '$step.id',
     type: 'button',
