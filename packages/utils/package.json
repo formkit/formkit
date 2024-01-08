@@ -1,17 +1,23 @@
 {
   "name": "@formkit/utils",
   "version": "1.4.0",
-  "type": "module",
   "description": "Shared utilities for FormKit packages",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "types": {
+        "import": "./dist/index.d.mts",
+        "require": "./dist/index.d.ts"
+      },
+      "import": {
+        "development": "./dist/index.dev.mjs",
+        "production": "./dist/index.mjs",
+        "default": "./dist/index.mjs"
+      },
+      "require": "./dist/index.js"
     },
     "./*": "./dist/*"
   },
@@ -19,7 +25,11 @@
     "vue",
     "forms",
     "inputs",
-    "validation"
+    "validation",
+    "utilities"
+  ],
+  "files": [
+    "dist"
   ],
   "repository": {
     "type": "git",
@@ -30,9 +40,6 @@
     "Justin Schroeder <justin@formkit.com>"
   ],
   "license": "MIT",
-  "scripts": {
-    "test": "jest"
-  },
   "dependencies": {},
   "devDependencies": {}
 }

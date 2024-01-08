@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* @ts-check */
 
 /**
  * build.mjs
@@ -20,30 +20,38 @@ import fs from 'fs/promises'
 import { execa } from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { remove, move } from 'fs-extra'
 import { readFileSync } from 'fs'
 import {
   getPackages,
-  getThemes,
   getIcons,
   getBuildOrder,
-  getPlugins,
   msg,
   getInputs,
 } from './utils.mjs'
 import { exec } from 'child_process'
+import { createBundle } from './bundle.mjs'
+import { ProgressBar } from '@opentf/cli-pbar'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const rootDir = resolve(__dirname, '../')
 const packagesDir = resolve(__dirname, '../packages')
-const rollup = `${rootDir}/node_modules/.bin/rollup`
-const tsup = `${rootDir}/node_modules/.bin/tsup`
 
 let isBuilding = false
 let buildAll = false
 let startTime = 0
+/**
+ * {typeof import('cli-progress').SingleBar}
+ */
+let progressBar
+
+export const progress = {
+  expectedLogs: 0,
+  logs: [],
+  warnings: {},
+  timeElapsed: 0,
+  step: '',
+}
 
 let augmentations = {
   vue: `
@@ -122,8 +130,9 @@ async function selectPackage() {
  * @returns
  */
 export async function buildPackage(p) {
-  if (!isBuilding) {
-    msg.loader.start()
+  if (p && p !== 'all' && !isBuilding) {
+    progressBar = new ProgressBar({ autoClear: true })
+    progressBar.start({ total: progress.expectedLogs })
     startTimer()
     isBuilding = true
   }
@@ -138,10 +147,10 @@ export async function buildPackage(p) {
   if (p.includes('build all') || p === 'all') {
     buildAll = true
     startTime = performance.now()
-    msg.loader.text = '» Building all packages...'
     buildAllPackages(packages)
     return
   } else if (!startTime) {
+    progress.expectedLogs = estimatedLogs(p)
     startTime = performance.now()
   }
   if (!packages.includes(p)) {
@@ -160,7 +169,7 @@ export async function buildPackage(p) {
   // }
 
   // msg.loader.stop()
-  // msg.info('» extracting type definitions')
+  // msg.info('extracting type definitions')
   // msg.loader.start()
   // if (p !== 'nuxt') await declarations(p)
 
@@ -191,8 +200,7 @@ export async function buildPackage(p) {
   }
 
   if (!buildAll) {
-    msg.loader.stop()
-    stopTimer()
+    buildComplete()
   }
 }
 
@@ -201,21 +209,22 @@ export async function buildPackage(p) {
  */
 export async function buildAllPackages(packages) {
   const orderedPackages = getBuildOrder(packages)
+  orderedPackages.forEach((p) => {
+    progress.expectedLogs += estimatedLogs(p)
+  })
   for (const [i, p] of orderedPackages.entries()) {
-    msg.loader.text = `» Building ${i + 1}/${
-      orderedPackages.length
-    }: @formkit/${p}`
+    progress.step = `Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`
     await buildPackage(p)
   }
   msg.loader.stop()
-  stopTimer()
+  buildComplete()
 }
 
 /**
  * Output a typescript input file for each `type` key.
  */
 export async function inputsBuildExtras() {
-  msg.loader.text = '» Exporting inputs by type'
+  progress.step = 'Exporting inputs by type'
   const inputs = getInputs()
   const distDir = resolve(packagesDir, 'inputs/dist/exports')
   await fs.mkdir(distDir, { recursive: true })
@@ -299,26 +308,18 @@ async function addonsBuildExtras() {
  * @param format the format to create (cjs, esm, umd, etc...)
  */
 async function bundle(p, subPackage) {
-  const env = {
-    PKG: p,
-  }
   if (subPackage && p === 'themes') {
-    env.THEME = subPackage
-    msg.loader.text = `Bundling theme ${subPackage}`
+    progress.step = `Bundling theme ${subPackage}`
   } else if (subPackage) {
-    env.PLUGIN = subPackage
-    msg.loader.text = `Bundling plugin ${subPackage}`
+    progress.step = `Bundling plugin ${subPackage}`
   } else {
-    msg.loader.text = `Bundling ${p}${
-      subPackage ? ' (' + subPackage + ')' : ''
-    }`
+    progress.step = `Bundling ${p}${subPackage ? ' (' + subPackage + ')' : ''}`
   }
-
-  await execa(tsup, [], { env })
+  await createBundle(p, subPackage)
 }
 
 async function buildNuxtModule() {
-  msg.loader.text = `Bundling Nuxt module`
+  progress.step = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
     exec(
       'cd ./packages/nuxt && pnpm prepack && cd ../../',
@@ -348,7 +349,7 @@ async function buildNuxtModule() {
 //   } catch {
 //     // directory is already missing, no need to clean it
 //   }
-//   msg.info(`» cleaned dist artifacts`)
+//   msg.info(`cleaned dist artifacts`)
 // }
 
 /**
@@ -450,24 +451,40 @@ async function buildNuxtModule() {
 let timeout
 function startTimer() {
   timeout = setTimeout(() => {
-    const message = msg.loader.text.replace(/(.*)? (?:\([0-9.]+s\))$/g, '$1')
-    msg.loader.text =
-      message +
-      ' (' +
-      ((performance.now() - startTime) / 1000).toFixed(2) +
-      's)'
-
+    progress.timeElapsed = ((performance.now() - startTime) / 1000).toFixed(2)
+    progressBar.update({
+      value: Math.min(progress.logs.length, progress.expectedLogs),
+      total: progress.expectedLogs,
+      suffix: `${progress.step} | ${progress.timeElapsed}s`,
+    })
     startTimer()
   }, 10)
 }
 
-function stopTimer() {
+function buildComplete() {
+  progressBar.stop()
   clearTimeout(timeout)
+  if (Object.keys(progress.warnings).length) {
+    msg.warn('Build completed with warnings:\n')
+    for (const pkg in progress.warnings) {
+      msg.warn(`----------\n@formkit/${pkg}`)
+      progress.warnings[pkg].forEach((warning) => msg.warn(`\n${warning}\n`))
+    }
+  }
   msg.success(
     'build complete (' +
       ((performance.now() - startTime) / 1000).toFixed(2) +
       's)'
   )
+}
+
+function estimatedLogs(p) {
+  switch (p) {
+    case 'themes':
+      return 17 * 6 // 6 packages to bundle under themes
+    default:
+      return 17
+  }
 }
 
 /**

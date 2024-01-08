@@ -4,6 +4,7 @@ import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { readdirSync } from 'fs'
 import { readFileSync } from 'fs'
+import { replace } from 'esbuild-plugin-replace'
 
 const pkg = process.env.PKG
 const plugin = process.env.THEME || process.env.PLUGIN
@@ -68,6 +69,12 @@ const config: Options = {
   clean: true,
   target: tsconfig.compilerOptions.target,
   dts: true,
+  treeshake: true,
+  esbuildPlugins: [
+    replace({
+      __DEV__: 'true',
+    }),
+  ],
 }
 
 export default defineConfig(config)

@@ -6,6 +6,10 @@
  * @packageDocumentation
  */
 
+if (__DEV__) {
+  console.log('DEV MODE')
+}
+
 const isBrowser = typeof window !== 'undefined'
 
 /**
