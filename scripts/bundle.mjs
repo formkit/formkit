@@ -54,8 +54,10 @@ export async function createBundle(pkg, plugin) {
     if (pkg === 'vue') {
       return ['cjs', 'esm', 'iife']
     }
-    return ['cjs', 'esm']
+    return ['cjs', 'esm', 'esm']
   }
+
+  let devBuild = false
 
   /**
    * @type {import('tsup').Options}
@@ -64,6 +66,15 @@ export async function createBundle(pkg, plugin) {
     format: createFormats(),
     entry: [createEntry()],
     outDir: createOutdir(),
+    outExtension: (ctx) => {
+      const prefix = devBuild ? '.dev' : ''
+      if (ctx.format === 'cjs') return { js: `${prefix}.js` }
+      if (ctx.format === 'esm') {
+        devBuild = true
+        return { js: `${prefix}.mjs` }
+      }
+      return { js: `${prefix}.js` }
+    },
     splitting: false,
     sourcemap: true,
     clean: true,
@@ -72,9 +83,17 @@ export async function createBundle(pkg, plugin) {
     treeshake: true,
     esbuildPlugins: [
       makeAllPackagesExternalPlugin,
-      replace({
-        __DEV__: 'true',
-      }),
+      {
+        name: 'replace',
+        setup(ctx, ...args) {
+          const plugin = replace({
+            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+              ? 'true'
+              : 'false',
+          })
+          return plugin.setup(ctx, ...args)
+        },
+      },
     ],
   }
   const log = console.log
