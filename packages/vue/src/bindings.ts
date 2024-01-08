@@ -380,7 +380,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Once the input is defined, deal with it.
    * @param definition - Type definition.
    */
-  function definedAs(definition: FormKitTypeDefinition) {
+  function definedAs<V = unknown>(definition: FormKitTypeDefinition<V>) {
     if (definition.props) observeProps(definition.props)
   }
 

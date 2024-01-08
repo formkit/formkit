@@ -307,7 +307,7 @@ export interface FormKitConfig {
  *
  * @public
  */
-export type FormKitProps = {
+export type FormKitProps<V = unknown> = {
   /**
    * An instance of the current document’s root. When inside the context of a
    * custom element, this will be the ShadowRoot. In most other instances this
@@ -353,7 +353,7 @@ export type FormKitProps = {
   /**
    * The definition of the node’s input type (if it has one).
    */
-  definition?: FormKitTypeDefinition
+  definition?: FormKitTypeDefinition<V>
   /**
    * The framework’s context object. This is how FormKit’s core interacts with
    * the front end framework (Vue/React/etc). This object is created by the
@@ -1342,7 +1342,7 @@ export type FormKitNode<V = unknown> = {
    * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
-  define: (definition: FormKitTypeDefinition) => void
+  define: (definition: FormKitTypeDefinition<V>) => void
   /**
    * Increments a disturbance. A disturbance is a record that the input or a
    * member of its subtree is no longer "settled". Disturbed nodes are ones
