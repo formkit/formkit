@@ -27,7 +27,7 @@
     "@vue/test-utils": "2.4.0-alpha.1",
     "add": "^2.0.6",
     "autoprefixer": "^10.4.0",
-    "axios": "^0.26.0",
+    "axios": "^1.6.5",
     "cac": "^6.7.3",
     "chalk": "^4.1.1",
     "clipboardy": "^3.0.0",
