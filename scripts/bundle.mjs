@@ -36,7 +36,7 @@ const makeAllPackagesExternalPlugin = {
  * @param {string} pkg the package to create a bundle for
  * @param {string} format the format to create (cjs, esm, umd, etc...)
  */
-export async function createBundle(pkg, plugin) {
+export async function createBundle(pkg, plugin, showLogs = false) {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = dirname(__filename)
   const rootDir = resolve(__dirname, `../packages/${pkg}`)
@@ -128,12 +128,13 @@ export async function createBundle(pkg, plugin) {
     'is using named and default exports together',
     'No name was provided for external module "Vue"',
   ]
-  console.warn = (m) => {
+  console.warn = (...m) => {
     // Shut up the warning about named and default exports.
-    if (silenceWarningSnippets.find((s) => m.indexOf(s) > -1)) return
-    warn(m)
+    if (silenceWarningSnippets.find((s) => m[0].indexOf(s) > -1)) return
+    warn(...m)
   }
-  console.log = (m) => {
+  console.log = (...m) => {
+    if (showLogs) log(...m)
     progress.logs.push(m)
   }
   await build(config)

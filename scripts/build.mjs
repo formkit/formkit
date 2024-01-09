@@ -44,6 +44,7 @@ let startTime = 0
  * {typeof import('cli-progress').SingleBar}
  */
 let progressBar
+let usingProgressBar = false
 
 export const progress = {
   expectedLogs: 0,
@@ -131,8 +132,13 @@ async function selectPackage() {
  */
 export async function buildPackage(p) {
   if (p && p !== 'all' && !isBuilding) {
-    progressBar = new ProgressBar({ autoClear: true })
-    progressBar.start({ total: progress.expectedLogs })
+    try {
+      progressBar = new ProgressBar({ autoClear: true })
+      progressBar.start({ total: progress.expectedLogs })
+      usingProgressBar = true
+    } catch {
+      usingProgressBar = false
+    }
     startTimer()
     isBuilding = true
   }
@@ -160,7 +166,7 @@ export async function buildPackage(p) {
   if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
-    await bundle(p)
+    await bundle(p, undefined, !usingProgressBar)
   }
   if (p === 'themes') await themesBuildExtras()
 
@@ -247,11 +253,11 @@ export async function inputsBuildExtras() {
  * Special considerations for building the themes package.
  */
 async function themesBuildExtras() {
-  await bundle('themes', 'css/genesis')
-  await bundle('themes', 'tailwindcss')
-  await bundle('themes', 'tailwindcss/genesis')
-  await bundle('themes', 'unocss')
-  await bundle('themes', 'windicss')
+  await bundle('themes', 'css/genesis', !usingProgressBar)
+  await bundle('themes', 'tailwindcss', !usingProgressBar)
+  await bundle('themes', 'tailwindcss/genesis', !usingProgressBar)
+  await bundle('themes', 'unocss', !usingProgressBar)
+  await bundle('themes', 'windicss', !usingProgressBar)
 }
 
 /**
@@ -279,7 +285,7 @@ async function addonsBuildExtras() {
  * @param p package name
  * @param format the format to create (cjs, esm, umd, etc...)
  */
-async function bundle(p, subPackage) {
+async function bundle(p, subPackage, showLogs = false) {
   if (subPackage && p === 'themes') {
     progress.step = `Bundling theme ${subPackage}`
   } else if (subPackage) {
@@ -287,7 +293,7 @@ async function bundle(p, subPackage) {
   } else {
     progress.step = `Bundling ${p}${subPackage ? ' (' + subPackage + ')' : ''}`
   }
-  await createBundle(p, subPackage)
+  await createBundle(p, subPackage, showLogs)
 }
 
 async function buildNuxtModule() {
@@ -310,17 +316,21 @@ let timeout
 function startTimer() {
   timeout = setTimeout(() => {
     progress.timeElapsed = ((performance.now() - startTime) / 1000).toFixed(2)
-    progressBar.update({
-      value: Math.min(progress.logs.length, progress.expectedLogs),
-      total: progress.expectedLogs,
-      suffix: `${progress.step} | ${progress.timeElapsed}s`,
-    })
-    startTimer()
+    if (usingProgressBar) {
+      progressBar.update({
+        value: Math.min(progress.logs.length, progress.expectedLogs),
+        total: progress.expectedLogs,
+        suffix: `${progress.step} | ${progress.timeElapsed}s`,
+      })
+      startTimer()
+    }
   }, 10)
 }
 
 function buildComplete() {
-  progressBar.stop()
+  if (usingProgressBar) {
+    progressBar.stop()
+  }
   clearTimeout(timeout)
   if (Object.keys(progress.warnings).length) {
     msg.warn('Build completed with warnings:\n')
