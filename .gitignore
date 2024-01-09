@@ -39,6 +39,7 @@ coverage
 temp
 tsconfig.vitest-temp.json
 formkit.theme.*
+test-results
 
 # VSCode
 .vscode

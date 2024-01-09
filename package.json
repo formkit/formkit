@@ -8,7 +8,6 @@
     "@formkit/auto-animate": "1.0.0-beta.6",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
-    "@microsoft/api-extractor": "^7.39.1",
     "@opentf/cli-pbar": "^0.1.8",
     "@playwright/test": "^1.40.1",
     "@rollup/plugin-node-resolve": "^13.3.0",

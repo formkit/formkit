@@ -13,9 +13,21 @@ const makeAllPackagesExternalPlugin = {
   name: 'make-all-packages-external',
   setup(build) {
     // iife files should be fully bundled.
-    if (build.initialOptions.outExtension['.js'].startsWith('.iife.js')) return
-    let filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
-    build.onResolve({ filter }, (args) => ({ path: args.path, external: true }))
+    if (build.initialOptions.outExtension['.js'].startsWith('.iife.js')) {
+      const filter = /^vue$/
+      build.onResolve({ filter }, () => {
+        return {
+          path: 'Vue',
+          external: true,
+        }
+      })
+    } else {
+      const filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
+      build.onResolve({ filter }, (args) => ({
+        path: args.path,
+        external: true,
+      }))
+    }
   },
 }
 
@@ -88,9 +100,13 @@ export async function createBundle(pkg, plugin) {
     dts: {
       output: {
         exports: 'named',
+        globals: {
+          vue: 'Vue',
+        },
       },
     },
     treeshake: true,
+    external: ['vue'],
     esbuildPlugins: [
       makeAllPackagesExternalPlugin,
       {
@@ -108,9 +124,13 @@ export async function createBundle(pkg, plugin) {
   }
   const log = console.log
   const warn = console.warn
+  const silenceWarningSnippets = [
+    'is using named and default exports together',
+    'No name was provided for external module "Vue"',
+  ]
   console.warn = (m) => {
     // Shut up the warning about named and default exports.
-    if (m.indexOf('is using named and default exports together') > -1) return
+    if (silenceWarningSnippets.find((s) => m.indexOf(s) > -1)) return
     warn(m)
   }
   console.log = (m) => {
