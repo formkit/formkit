@@ -8,11 +8,16 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "import": "./dist/module.mjs",
-      "require": "./dist/module.cjs"
+      "import": {
+        "types": "./dist/module.d.mts",
+        "default": "./dist/module.mjs"
+      },
+      "require": {
+        "types": "./dist/module.d.ts",
+        "default": "./dist/module.cjs"
+      }
     }
   },
-  "module": "./dist/module.mjs",
   "types": "./dist/types.d.ts",
   "files": [
     "dist"

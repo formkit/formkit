@@ -20,7 +20,7 @@ import fs from 'fs/promises'
 import { execa } from 'execa'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { readFileSync } from 'fs'
+import { readFileSync, renameSync } from 'fs'
 import {
   getPackages,
   getIcons,
@@ -232,7 +232,10 @@ export async function inputsBuildExtras() {
     inputs.map(async (input) => {
       // await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
       let fileData = await fs.readFile(input.filePath, { encoding: 'utf8' })
-      fileData = fileData.replace("} from '../compose'", "} from '../index'")
+      fileData = fileData.replace(
+        "} from '../compose'",
+        "} from '../index.mjs'"
+      )
       await fs.writeFile(resolve(distDir, `${input.name}.ts`), fileData)
     })
   )
@@ -484,9 +487,9 @@ function estimatedLogs(p) {
       return 28 // 3 packages to bundle under vue
     }
     case 'themes':
-      return 17 * 8 // 6 packages to bundle under themes
+      return 21 * 6 // 6 packages to bundle under themes
     default:
-      return 17
+      return 21
   }
 }
 

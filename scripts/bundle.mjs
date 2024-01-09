@@ -2,8 +2,7 @@
 import { build } from 'tsup'
 import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
-import { readdirSync } from 'fs'
-import { readFileSync } from 'fs'
+import { renameSync, readFileSync, readdirSync } from 'fs'
 import { replace } from 'esbuild-plugin-replace'
 import { progress } from './build.mjs'
 
@@ -63,13 +62,15 @@ export async function createBundle(pkg, plugin) {
 
   let devBuild = false
 
+  const outDir = createOutdir()
+
   /**
    * @type {import('tsup').Options}
    */
   const config = {
     format: createFormats(),
     entry: [createEntry()],
-    outDir: createOutdir(),
+    outDir,
     outExtension: (ctx) => {
       const prefix = devBuild ? '.dev' : ''
       if (ctx.format === 'cjs') return { js: `${prefix}.cjs` }
@@ -116,6 +117,7 @@ export async function createBundle(pkg, plugin) {
     progress.logs.push(m)
   }
   await build(config)
+  renameSync(resolve(outDir, './index.d.ts'), resolve(outDir, './index.d.cts'))
   console.log = log
   console.warn = warn
 }
