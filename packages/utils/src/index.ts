@@ -6,10 +6,6 @@
  * @packageDocumentation
  */
 
-if (__DEV__) {
-  console.log('DEV MODE')
-}
-
 const isBrowser = typeof window !== 'undefined'
 
 /**
@@ -81,9 +77,6 @@ export function dedupe<T extends any[] | Set<any>, X extends any[] | Set<any>>(
   arr1: T,
   arr2?: X
 ): any[] {
-  if (__DEV__) {
-    console.log('running dedupe')
-  }
   const original = arr1 instanceof Set ? arr1 : new Set(arr1)
   if (arr2) arr2.forEach((item: any) => original.add(item))
   return [...original]

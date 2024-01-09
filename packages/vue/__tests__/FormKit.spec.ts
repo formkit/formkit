@@ -10,7 +10,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
-import { inject } from 'vue'
 import { componentSymbol } from '../src/FormKit'
 import { provide } from 'vue'
 
