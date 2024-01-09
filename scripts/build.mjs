@@ -480,8 +480,11 @@ function buildComplete() {
 
 function estimatedLogs(p) {
   switch (p) {
+    case 'vue': {
+      return 28 // 3 packages to bundle under vue
+    }
     case 'themes':
-      return 17 * 6 // 6 packages to bundle under themes
+      return 17 * 8 // 6 packages to bundle under themes
     default:
       return 17
   }

@@ -7,9 +7,14 @@ import { readFileSync } from 'fs'
 import { replace } from 'esbuild-plugin-replace'
 import { progress } from './build.mjs'
 
+/**
+ * @type {import('tsup').Options['esbuildPlugins'][number]']}
+ */
 const makeAllPackagesExternalPlugin = {
   name: 'make-all-packages-external',
   setup(build) {
+    // iife files should be fully bundled.
+    if (build.initialOptions.outExtension['.js'].startsWith('.iife.js')) return
     let filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
     build.onResolve({ filter }, (args) => ({ path: args.path, external: true }))
   },
@@ -32,7 +37,6 @@ export async function createBundle(pkg, plugin) {
     readFileSync(resolve(__dirname, '../tsconfig.json'), 'utf8')
   )
   if (!pkg) {
-    console.log('package is:', pkg)
     throw new Error('PKG env var is required to build.')
   }
 
@@ -52,7 +56,7 @@ export async function createBundle(pkg, plugin) {
 
   function createFormats() {
     if (pkg === 'vue') {
-      return ['cjs', 'esm', 'iife']
+      return ['iife', 'cjs', 'esm', 'esm']
     }
     return ['cjs', 'esm', 'esm']
   }
@@ -68,18 +72,23 @@ export async function createBundle(pkg, plugin) {
     outDir: createOutdir(),
     outExtension: (ctx) => {
       const prefix = devBuild ? '.dev' : ''
-      if (ctx.format === 'cjs') return { js: `${prefix}.js` }
+      if (ctx.format === 'cjs') return { js: `${prefix}.cjs` }
       if (ctx.format === 'esm') {
         devBuild = true
         return { js: `${prefix}.mjs` }
       }
-      return { js: `${prefix}.js` }
+      return { js: `${prefix}.iife.js` }
     },
     splitting: false,
     sourcemap: true,
     clean: true,
+    globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
-    dts: true,
+    dts: {
+      output: {
+        exports: 'named',
+      },
+    },
     treeshake: true,
     esbuildPlugins: [
       makeAllPackagesExternalPlugin,
@@ -97,9 +106,16 @@ export async function createBundle(pkg, plugin) {
     ],
   }
   const log = console.log
+  const warn = console.warn
+  console.warn = (m) => {
+    // Shut up the warning about named and default exports.
+    if (m.indexOf('is using named and default exports together') > -1) return
+    warn(m)
+  }
   console.log = (m) => {
     progress.logs.push(m)
   }
   await build(config)
   console.log = log
+  console.warn = warn
 }
