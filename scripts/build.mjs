@@ -54,40 +54,6 @@ export const progress = {
   step: '',
 }
 
-let augmentations = {
-  vue: `
-/**
- * Augment Vue’s globalProperties.
- * @public
- */
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $formkit: FormKitVuePlugin
-  }
-  interface GlobalComponents {
-    FormKit: FormKitComponent
-    FormKitSchema: typeof FormKitSchema
-  }
-}
-
-declare global {
-  var __FORMKIT_CONFIGS__: FormKitRootConfig[]
-}
-`,
-  zod: `
-/**
- * Extend FormKitNode with setZodErrors.
- * @public
- */
-declare module '@formkit/core' {
-  interface FormKitNodeExtensions {
-    setZodErrors(zodError: z.ZodError | undefined): FormKitNode
-  }
-}
-`,
-  addons: ``,
-}
-
 // For Multi-step plugin
 const multiStepFile = readFileSync(
   resolve(
@@ -102,8 +68,6 @@ const matches = multiStepFile.match(
 )
 if (matches.length !== 2) {
   process.exit()
-} else {
-  augmentations.addons = matches.join('\n').replaceAll('/* @ts-ignore */', '')
 }
 
 /**
@@ -233,8 +197,17 @@ export async function inputsBuildExtras() {
     })
   )
   const tsconfig = resolve(distDir, 'tsconfig.json')
+
+  const tsConfigStr = await fs.readFile(
+    resolve(rootDir, 'tsconfig.json'),
+    'utf-8'
+  )
+
   const tsData = JSON.parse(
-    await fs.readFile(resolve(rootDir, 'tsconfig.json'))
+    tsConfigStr.replace(
+      './types/globals.d.ts',
+      resolve(rootDir, './types/globals.d.ts')
+    )
   )
   tsData.compilerOptions.outDir = './'
   await fs.writeFile(tsconfig, JSON.stringify(tsData, null, 2))

@@ -188,6 +188,9 @@ importers:
       vite:
         specifier: ^4.5.1
         version: 4.5.1(@types/node@18.19.6)(sass@1.60.0)(terser@5.26.0)
+      vite-plugin-replace:
+        specifier: ^0.1.1
+        version: 0.1.1(vite@4.5.1)
       vitest:
         specifier: ^0.33.0
         version: 0.33.0(jsdom@21.1.2)(terser@5.26.0)
@@ -12671,6 +12674,14 @@ packages:
       vscode-languageserver: 7.0.0
       vscode-languageserver-textdocument: 1.0.11
       vscode-uri: 3.0.7
+    dev: true
+
+  /vite-plugin-replace@0.1.1(vite@4.5.1):
+    resolution: {integrity: sha512-v+okl3JNt2pf1jDYijw+WPVt6h9FWa/atTi+qnSFBqmKThLTDhlesx0r3bh+oFPmxRJmis5tNx9HtN6lGFoqWg==}
+    peerDependencies:
+      vite: ^2
+    dependencies:
+      vite: 4.5.1(@types/node@18.19.6)(sass@1.60.0)(terser@5.26.0)
     dev: true
 
   /vite@2.9.16:
