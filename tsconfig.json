@@ -18,7 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "noErrorTruncation": true,
-    "types": ["node", "vite/client", "./types/global.d.ts"]
+    "types": ["node", "vite/client"]
   },
   "exclude": ["*.vue", "temp/formkit.theme.ts"]
 }
