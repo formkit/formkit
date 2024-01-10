@@ -128,23 +128,24 @@ const multiStepNode = ref(null)
 <template>
   <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" />
 
-  <!-- <FormKitSchema :schema="schemaWithConditional" /> -->
+  <FormKitSchema :schema="schemaWithConditional" />
 
   <!-- v-for on `step` -->
-  <!-- <FormKit type="multi-step">
+  {{ sections }}
+  <FormKit type="multi-step">
     <FormKit
       v-for="section in sections"
       :key="section"
       type="step"
       :name="section"
     >
-      Step content
+      Step content for {{ section }}
     </FormKit>
-  </FormKit> -->
+  </FormKit>
 
   <FormKit v-slot="{ value }" type="form">
     <!-- should not render as it is not inside a multi-step -->
-    <!-- <FormKit type="step" /> -->
+    <FormKit type="step" />
 
     <FormKit
       type="multi-step"
