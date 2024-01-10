@@ -121,7 +121,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
         { ...context.slots }
       )
   }
-  if (__DEV__) {
+  if (__DEV__ && import.meta.hot) {
     const instance = getCurrentInstance()
     let initPreserve: boolean | undefined
     import.meta.hot?.on('vite:beforeUpdate', () => {
