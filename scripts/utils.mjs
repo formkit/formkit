@@ -376,7 +376,7 @@ export function getCurrentHash(suffix = 7) {
  * version that is about to be published
  */
 export function updateFKCoreVersionExport(newVersion) {
-  const fileNames = ['index.cjs', 'index.d.ts', 'index.mjs']
+  const fileNames = ['index.cjs', 'index.d.cts', 'index.mjs']
   const coreBuiltFiles = {}
   fileNames.forEach((fileName) => {
     coreBuiltFiles[fileName] = fs.readFileSync(
