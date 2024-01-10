@@ -151,8 +151,6 @@ export async function buildPackage(p) {
     return
   }
   if (p.includes('build all') || p === 'all') {
-    buildAll = true
-    startTime = performance.now()
     buildAllPackages(packages)
     return
   } else if (!startTime) {
@@ -205,6 +203,8 @@ export async function buildAllPackages(packages) {
   orderedPackages.forEach((p) => {
     progress.expectedLogs += estimatedLogs(p)
   })
+  buildAll = true
+  startTime = performance.now()
   for (const [i, p] of orderedPackages.entries()) {
     progress.step = `Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`
     await buildPackage(p)
