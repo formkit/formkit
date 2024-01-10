@@ -18,6 +18,7 @@ declare module 'vue' {
     $formkit: FormKitVuePlugin
   }
   interface GlobalComponents {
+    // @ts-ignore
     FormKit: FormKitComponent
     FormKitSchema: typeof FormKitSchema
   }

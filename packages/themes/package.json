@@ -8,7 +8,7 @@
   "module": "dist/index.mjs",
   "exports": {
     "./package.json": "./package.json",
-    "./genesis": "./dist/genesis/theme.css",
+    "./genesis": "./dist/css/genesis/index.css",
     "./windicss": {
       "import": {
         "types": "./dist/windicss/index.d.mts",

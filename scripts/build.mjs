@@ -254,10 +254,10 @@ export async function inputsBuildExtras() {
  */
 async function themesBuildExtras() {
   await bundle('themes', 'css/genesis', !usingProgressBar)
-  await bundle('themes', 'tailwindcss', !usingProgressBar)
-  await bundle('themes', 'tailwindcss/genesis', !usingProgressBar)
-  await bundle('themes', 'unocss', !usingProgressBar)
-  await bundle('themes', 'windicss', !usingProgressBar)
+  // await bundle('themes', 'tailwindcss', !usingProgressBar)
+  // await bundle('themes', 'tailwindcss/genesis', !usingProgressBar)
+  // await bundle('themes', 'unocss', !usingProgressBar)
+  // await bundle('themes', 'windicss', !usingProgressBar)
 }
 
 /**
