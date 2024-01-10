@@ -116,7 +116,7 @@ program
 /**
  * @internal
  */
-export default async function main(): Promise<void> {
+export async function cli(): Promise<void> {
   const res = await execa('npx', ['--version'])
   const [major] = res.stdout.trim().split('.')
   if (Number(major) < 7) {

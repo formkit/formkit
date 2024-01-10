@@ -3,8 +3,8 @@ import {
   errorHandler,
   FormKitHandlerPayload,
   FormKitNode,
+  FormKitMiddleware,
 } from '@formkit/core'
-import { FormKitMiddleware } from 'packages/core/src'
 
 /**
  * Catalog of the error message codes in FormKit.

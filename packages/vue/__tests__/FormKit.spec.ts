@@ -10,7 +10,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
-import { inject } from 'vue'
 import { componentSymbol } from '../src/FormKit'
 import { provide } from 'vue'
 
@@ -787,7 +786,7 @@ describe('validation', () => {
     expect(node?.context?.state.complete).toBe(false)
     wrapper.find('input').element.value = 'yes'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.complete).toBe(true)
   })
 
