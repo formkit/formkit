@@ -18,10 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "noErrorTruncation": true,
-    "paths": {
-      "@components": ["packages/vue/src/components/*"]
-    },
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client", "./types/global"]
   },
   "exclude": ["*.vue", "temp/formkit.theme.ts"]
 }

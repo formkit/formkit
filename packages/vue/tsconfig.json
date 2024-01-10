@@ -1,4 +1,0 @@
-{
-  "extend": "../../tsconfig.json",
-  "exclude": "dist"
-}

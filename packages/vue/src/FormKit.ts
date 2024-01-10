@@ -24,6 +24,7 @@ import {
   InputType,
   runtimeProps,
 } from '@formkit/inputs'
+import { getCurrentInstance } from 'vue'
 
 /**
  * The type definition for the FormKit’s slots, this is not intended to be used
@@ -98,7 +99,6 @@ let currentSchemaNode: FormKitNode | null = null
  * @public
  */
 export const getCurrentSchemaNode = () => currentSchemaNode
-
 /**
  * The actual runtime setup function for the FormKit component.
  *
@@ -120,6 +120,18 @@ function FormKit<Props extends FormKitInputs<Props>>(
         },
         { ...context.slots }
       )
+  }
+  if (__DEV__) {
+    const instance = getCurrentInstance()
+    let initPreserve: boolean | undefined
+    import.meta.hot?.on('vite:beforeUpdate', () => {
+      initPreserve = node.props.preserve
+      node.props.preserve = true
+    })
+    import.meta.hot?.on('vite:afterUpdate', () => {
+      instance?.proxy?.$forceUpdate()
+      node.props.preserve = initPreserve
+    })
   }
   const schema = ref<FormKitSchemaDefinition>([])
   let memoKey: string | undefined = node.props.definition.schemaMemoKey
