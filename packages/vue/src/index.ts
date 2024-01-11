@@ -124,6 +124,11 @@ export {
 } from '@formkit/core'
 
 /**
+ * Export the changeLocale function explicitly.
+ */
+export { changeLocale } from '@formkit/i18n'
+
+/**
  * SSR support for cleanup operations relating to SSR.
  */
 export { ssrComplete, onSSRComplete } from './composables/onSSRComplete'
