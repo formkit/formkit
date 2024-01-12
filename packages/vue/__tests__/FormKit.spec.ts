@@ -2406,7 +2406,7 @@ describe('naked attributes', () => {
     expect(componentCallback).toHaveBeenCalledTimes(2)
   })
 
-  it.only('sets state to validating before binding commit hook fires (#1116)', () => {
+  it('sets state to validating before binding commit hook fires (#1116)', () => {
     let validatingOnCommit: boolean | undefined = false
     function checkCommitSequence(node: FormKitNode) {
       node.on('commit', () => {
