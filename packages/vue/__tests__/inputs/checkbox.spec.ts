@@ -454,7 +454,7 @@ describe('validation', () => {
           { value: 'b', label: 'Boston' },
           { value: 'd', label: 'Denver' },
         ],
-        validation: 'required|min:2',
+        validation: 'required|min:3',
       },
       ...global,
     })
@@ -462,7 +462,7 @@ describe('validation', () => {
     expect(wrapper.find('.formkit-messages').exists()).toBe(false)
     const node = getNode('checkbox-dirty-test')!
     node.input(['b', 'd'], false)
-    await nextTick()
+    await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
 })

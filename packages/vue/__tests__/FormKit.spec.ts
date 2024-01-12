@@ -2405,4 +2405,29 @@ describe('naked attributes', () => {
     )
     expect(componentCallback).toHaveBeenCalledTimes(2)
   })
+
+  it.only('sets state to validating before binding commit hook fires (#1116)', () => {
+    let validatingOnCommit: boolean | undefined = false
+    function checkCommitSequence(node: FormKitNode) {
+      node.on('commit', () => {
+        console.log('value', node.value)
+        validatingOnCommit = node.store.validating?.value as boolean
+      })
+    }
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        plugins: [checkCommitSequence],
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig()]],
+      },
+    })
+    const node = getNode(id)
+    node?.input('foo', false)
+    expect(validatingOnCommit).toBe(true)
+  })
 })

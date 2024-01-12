@@ -435,7 +435,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       node.isCreated &&
       hasTicked
     ) {
-      context.handlers.touch()
+      if (!node.store.validating?.value) {
+        context.handlers.touch()
+      } else {
+        const receipt = node.on('message-removed', ({ payload: message }) => {
+          if (message.key === 'validating') {
+            context.handlers.touch()
+            node.off(receipt)
+          }
+        })
+      }
     }
     if (
       isComplete &&

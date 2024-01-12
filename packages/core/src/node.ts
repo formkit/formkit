@@ -1065,7 +1065,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * on: (eventName: string, listener: FormKitEventListener) => string
+ * on: (eventName: string, listener: FormKitEventListener, pos: 'push' | 'unshift') => string
  * ```
  *
  * #### Parameters
@@ -1408,7 +1408,11 @@ export type FormKitNode<V = unknown> = {
    * multiple listeners to all be de-registered with a single off() call if they
    * share the same receipt.
    */
-  on: (eventName: string, listener: FormKitEventListener) => string
+  on: (
+    eventName: string,
+    listener: FormKitEventListener,
+    pos?: 'push' | 'unshift'
+  ) => string
   /**
    * Removes an event listener by its token. Receipts can be shared among many
    * event listeners by explicitly declaring the "receipt" property of the

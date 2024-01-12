@@ -43,7 +43,11 @@ export interface FormKitEventListenerWrapper {
  */
 export interface FormKitEventEmitter {
   (node: FormKitNode, event: FormKitEvent): void
-  on: (eventName: string, listener: FormKitEventListener) => string
+  on: (
+    eventName: string,
+    listener: FormKitEventListener,
+    pos?: 'push' | 'unshift'
+  ) => string
   off: (receipt: string) => void
   pause: (node?: FormKitNode) => void
   play: (node?: FormKitNode) => void
@@ -95,12 +99,20 @@ export function createEmitter(): FormKitEventEmitter {
    *
    * @param eventName - The name of the event to listen to
    * @param listener - The callback
+   * @param pos - The position to add the listener in, can be either 'push' or 'unshift'
    *
    * @returns string
    *
    * @internal
    */
-  emitter.on = (eventName: string, listener: FormKitEventListener) => {
+  emitter.on = (
+    eventName: string,
+    listener: FormKitEventListener,
+    pos: 'push' | 'unshift' = 'push'
+  ) => {
+    if (__DEV__ && pos !== 'push' && pos !== 'unshift') {
+      throw new Error('Event listeners can only be added to the top or bottom')
+    }
     const [event, ...modifiers] = eventName.split('.')
     const receipt = listener.receipt || token()
     const wrapper: FormKitEventListenerWrapper = {
@@ -111,10 +123,10 @@ export function createEmitter(): FormKitEventEmitter {
     }
     /* eslint-disable @typescript-eslint/no-non-null-assertion */
     listeners.has(event)
-      ? listeners.get(event)!.push(wrapper)
+      ? listeners.get(event)![pos](wrapper)
       : listeners.set(event, [wrapper])
     receipts.has(receipt)
-      ? receipts.get(receipt)!.push(event)
+      ? receipts.get(receipt)![pos](event)
       : receipts.set(receipt, [event])
     /* eslint-enable @typescript-eslint/no-non-null-assertion */
     return receipt
@@ -256,9 +268,10 @@ export function on(
   _node: FormKitNode,
   context: FormKitContext,
   name: string,
-  listener: FormKitEventListener
+  listener: FormKitEventListener,
+  pos?: 'push' | 'unshift'
 ): string {
-  return context._e.on(name, listener)
+  return context._e.on(name, listener, pos)
 }
 
 /**
