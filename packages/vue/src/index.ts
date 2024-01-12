@@ -41,6 +41,7 @@ export {
   FormKitSetupContext,
   Slots,
   parentSymbol,
+  componentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'
 
@@ -121,6 +122,11 @@ export {
   submitForm,
   reset,
 } from '@formkit/core'
+
+/**
+ * Export the changeLocale function explicitly.
+ */
+export { changeLocale } from '@formkit/i18n'
 
 /**
  * SSR support for cleanup operations relating to SSR.

@@ -1,4 +1,8 @@
-import { FormKitTypeDefinition, FormKitSchemaNode } from '@formkit/core'
+import {
+  FormKitTypeDefinition,
+  FormKitSchemaNode,
+  FormKitSectionsSchema,
+} from '@formkit/core'
 import { cloneAny } from '@formkit/utils'
 import { createSection, FormKitSection, useSchema } from '@formkit/inputs'
 import { Component, markRaw } from 'vue'
@@ -36,11 +40,12 @@ function isComponent(obj: any): obj is Component {
  *
  * @public
  */
-export function createInput(
+export function createInput<V = unknown>(
   schemaOrComponent: FormKitSchemaNode | FormKitSection | Component,
-  definitionOptions: Partial<FormKitTypeDefinition> = {}
-): FormKitTypeDefinition {
-  const definition: FormKitTypeDefinition = {
+  definitionOptions: Partial<FormKitTypeDefinition<V>> = {},
+  sectionsSchema: FormKitSectionsSchema = {}
+): FormKitTypeDefinition<V> {
+  const definition: FormKitTypeDefinition<V> = {
     type: 'input',
     ...definitionOptions,
   }
@@ -61,7 +66,7 @@ export function createInput(
   }
 
   // Use the default wrapping schema
-  definition.schema = useSchema(schema || 'Schema undefined')
+  definition.schema = useSchema(schema || 'Schema undefined', sectionsSchema)
   if (!definition.schemaMemoKey) {
     definition.schemaMemoKey = `${Math.random()}`
   }

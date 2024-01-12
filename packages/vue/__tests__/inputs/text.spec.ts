@@ -294,4 +294,21 @@ describe('the number feature', () => {
     const node = getNode(id)!
     expect(node.value).toBe(12345)
   })
+  it('knows when it is mounted', async () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        help: 'what happens next?',
+        sectionsSchema: {
+          help: {
+            children: '$didMount && "Mounted" || "Not mounted"',
+          },
+        },
+      },
+      ...global,
+    })
+    expect(wrapper.find('.formkit-help').text()).toBe('Not mounted')
+    await nextTick()
+    expect(wrapper.find('.formkit-help').text()).toBe('Mounted')
+  })
 })

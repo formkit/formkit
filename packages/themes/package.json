@@ -8,31 +8,61 @@
   "module": "dist/index.mjs",
   "exports": {
     "./package.json": "./package.json",
-    "./genesis": "./dist/genesis/theme.css",
+    "./genesis": "./dist/css/genesis/index.css",
     "./windicss": {
-      "types": "./dist/windicss/index.d.ts",
-      "import": "./dist/windicss/index.mjs",
-      "require": "./dist/windicss/index.cjs"
+      "import": {
+        "types": "./dist/windicss/index.d.mts",
+        "development": "./dist/windicss/index.dev.mjs",
+        "default": "./dist/windicss/index.mjs"
+      },
+      "require": {
+        "types": "./dist/windicss/index.d.cts",
+        "default": "./dist/windicss/index.cjs"
+      }
     },
     "./tailwindcss": {
-      "types": "./dist/tailwindcss/index.d.ts",
-      "import": "./dist/tailwindcss/index.mjs",
-      "require": "./dist/tailwindcss/index.cjs"
+      "import": {
+        "types": "./dist/tailwindcss/index.d.mts",
+        "development": "./dist/tailwindcss/index.dev.mjs",
+        "default": "./dist/tailwindcss/index.mjs"
+      },
+      "require": {
+        "types": "./dist/tailwindcss/index.d.cts",
+        "default": "./dist/tailwindcss/index.cjs"
+      }
     },
     "./tailwindcss/genesis": {
-      "types": "./dist/tailwindcss/genesis/index.d.ts",
-      "import": "./dist/tailwindcss/genesis/index.mjs",
-      "require": "./dist/tailwindcss/genesis/index.cjs"
+      "import": {
+        "types": "./dist/tailwindcss/genesis/index.d.mts",
+        "development": "./dist/tailwindcss/genesis/index.dev.mjs",
+        "default": "./dist/tailwindcss/genesis/index.mjs"
+      },
+      "require": {
+        "types": "./dist/tailwindcss/genesis/index.d.cts",
+        "default": "./dist/tailwindcss/genesis/index.cjs"
+      }
     },
     "./unocss": {
-      "types": "./dist/unocss/index.d.ts",
-      "import": "./dist/unocss/index.mjs",
-      "require": "./dist/unocss/index.cjs"
+      "import": {
+        "types": "./dist/unocss/index.d.mts",
+        "development": "./dist/unocss/index.dev.mjs",
+        "default": "./dist/unocss/index.mjs"
+      },
+      "require": {
+        "types": "./dist/unocss/index.d.cts",
+        "default": "./dist/unocss/index.cjs"
+      }
     },
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "development": "./dist/index.dev.mjs",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "typesVersions": {

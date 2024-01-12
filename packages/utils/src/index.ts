@@ -147,6 +147,7 @@ export function eq(
  * A regular expression to test for a valid date string.
  * @param x - A RegExp to compare.
  * @param y - A RegExp to compare.
+ * @public
  */
 export function eqRegExp(x: RegExp, y: RegExp): boolean {
   return (
@@ -320,14 +321,14 @@ export function isPojo(o: any): o is Record<string, any> {
  * @returns `Record<string, any> | string | null`
  *
  * @public
- * @__NO_SIDE_EFFECTS__
+ *
  */
-export function extend(
+export const extend = /*#__NO_SIDE_EFFECTS__*/ (
   original: Record<string, any>,
   additional: Record<string, any> | string | null,
   extendArrays = false,
   ignoreUndefined = false
-): Record<string, any> | string | null {
+): Record<string, any> | string | null => {
   if (additional === null) return null
   const merged: Record<string, any> = {}
   if (typeof additional === 'string') return additional
@@ -887,4 +888,15 @@ export function oncePerTick<T extends CallableFunction>(fn: T): T {
     queueMicrotask(() => (called = false))
     return fn(...args)
   }) as unknown as T
+}
+
+/**
+ * Converts any value to a boolean value — but assumes that the default is true.
+ * This is used on naked attributes like `disabled` or `required`.
+ * @param value - The value to be converted to a boolean.
+ * @public
+ */
+export function boolGetter(value: unknown): true | undefined {
+  if (value === 'false' || value === false) return undefined
+  return true
 }

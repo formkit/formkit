@@ -8,6 +8,7 @@ import {
   nextTick,
   isRef,
   isReactive,
+  toRaw,
 } from 'vue'
 import {
   FormKitPlugin,
@@ -28,6 +29,7 @@ import {
   shallowClone,
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
+import { FormKitPseudoProps } from '@formkit/core'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
@@ -276,6 +278,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     items,
     label: node.props.label,
     messages,
+    didMount: false,
     node: markRaw(node),
     options: node.props.options,
     defaultMessagePlacement: true,
@@ -317,6 +320,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * When the node mounts, set the didMount flag.
+   */
+  node.on('mounted', () => {
+    context.didMount = true
+  })
+
+  /**
    * Sets the settled state.
    */
   node.on('settled', ({ payload: isSettled }) => {
@@ -328,8 +338,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * object.
    * @param observe - Props to observe and register as context data.
    */
-  function observeProps(observe: string[]) {
-    observe.forEach((prop) => {
+  function observeProps(observe: FormKitPseudoProps) {
+    const propNames = Array.isArray(observe) ? observe : Object.keys(observe)
+    propNames.forEach((prop) => {
       prop = camel(prop)
       if (!has(context, prop)) {
         context[prop] = node.props[prop]
@@ -369,7 +380,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Once the input is defined, deal with it.
    * @param definition - Type definition.
    */
-  function definedAs(definition: FormKitTypeDefinition) {
+  function definedAs<V = unknown>(definition: FormKitTypeDefinition<V>) {
     if (definition.props) observeProps(definition.props)
   }
 
@@ -404,7 +415,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.on('commitRaw', ({ payload }) => {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      value.value = _value.value = shallowClone(payload)
+      if (payload === toRaw(value.value) || !eq(payload, value.value)) {
+        value.value = _value.value = shallowClone(payload)
+      }
     } else {
       value.value = _value.value = payload
       triggerRef(value)
@@ -422,7 +435,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       node.isCreated &&
       hasTicked
     ) {
-      context.handlers.touch()
+      if (!node.store.validating?.value) {
+        context.handlers.touch()
+      } else {
+        const receipt = node.on('message-removed', ({ payload: message }) => {
+          if (message.key === 'validating') {
+            context.handlers.touch()
+            node.off(receipt)
+          }
+        })
+      }
     }
     if (
       isComplete &&

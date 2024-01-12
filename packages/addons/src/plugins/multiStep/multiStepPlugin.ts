@@ -429,19 +429,45 @@ function initEvents(node: FormKitNode, el: Element) {
 
 function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
   if (!tabs || !tabs.length) return []
-  const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
-    return {
-      __isPlaceholder: true,
-      stepName: tab.props?.label || camel2title(tab.props?.name),
-      isFirstStep: index === 0,
-      isLastStep: index === tabs.length - 1,
-      isActiveStep: index === 0,
-      node: {
-        name: tab.props?.name,
-      },
+  // if our tabs object is a fragment, then loop over the children
+  // otherwise loop directly
+  const tabsToRender =
+    tabs[0].type == Symbol.for('v-fgt') && tabs[0].children
+      ? tabs[0].children
+      : tabs
+
+  const placeholderTabs = tabsToRender.map(
+    (tab: Record<string, any>, index: number) => {
+      return {
+        __isPlaceholder: true,
+        stepName: tab.props?.label || camel2title(tab.props?.name),
+        isFirstStep: index === 0,
+        isLastStep: index === tabs.length - 1,
+        isActiveStep: index === 0,
+        node: {
+          name: tab.props?.name,
+        },
+      }
     }
-  })
+  )
   return placeholderTabs
+}
+
+function createPreRenderStepsFunction(node: FormKitNode) {
+  return () => {
+    if (!node.context || node.props.steps) return
+    // call the default slot to pre-render child steps
+    // for SSR support
+    let tabs = []
+    if (
+      node.context.slots &&
+      (node.context.slots as Record<string, () => any>).default
+    ) {
+      tabs = (node.context.slots as Record<string, () => any>).default()
+    }
+    node.props.steps = node.props.steps || createSSRStepsFromTabs(tabs)
+    node.context.stepCount = node.props.steps.length
+  }
 }
 
 /**
@@ -465,19 +491,16 @@ export function createMultiStepPlugin(
       isFirstStep = true // reset variable, next step will be first step in multistep
       node.addProps(['steps', 'tabs', 'activeStep'])
 
-      // call the default slot to pre-render child steps
-      // for SSR support
-      if (
-        node.context.slots &&
-        (node.context.slots as Record<string, () => any>).default
-      ) {
-        node.props.tabs = (
-          node.context.slots as Record<string, () => any>
-        ).default()
+      node.context.fns.preRenderSteps = createPreRenderStepsFunction(node)
+      node.context.fns.getStepCount = () => {
+        if (!node.context) return
+        return node.context.stepCount
+      }
+      node.context.fns.getSteps = () => {
+        if (!node.context) return
+        return node.context.steps
       }
 
-      node.props.steps =
-        node.props.steps || createSSRStepsFromTabs(node.props.tabs)
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete

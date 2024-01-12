@@ -64,6 +64,7 @@ async function publishPackages(force = false) {
     )
     return
   }
+
   if (!checkGitIsMasterBranch()) {
     const { confirmTag } = await prompts({
       type: 'select',

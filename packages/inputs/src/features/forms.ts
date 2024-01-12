@@ -109,6 +109,15 @@ function setIncompleteMessage(node: FormKitNode) {
 export default function form(node: FormKitNode): void {
   node.props.isForm = true
   node.ledger.count('validating', (m) => m.key === 'validating')
+
+  node.props.submitAttrs ??= {
+    disabled: node.props.disabled,
+  }
+
+  node.on('prop:disabled', ({ payload: disabled }) => {
+    node.props.submitAttrs = { ...node.props.submitAttrs, disabled }
+  })
+
   node.on('created', () => {
     if (node.context?.handlers) {
       node.context.handlers.submit = handleSubmit.bind(null, node)

@@ -115,7 +115,7 @@ function transformSource(exportData: string, type: string): string | never {
   if (exportData) {
     // Change the exports from relative to npm package based.
     exportData = exportData.replace(
-      /(}\sfrom\s['"])\.\.\/(?:index)?(['"])?/g,
+      /(}\sfrom\s['"])\.\.\/(?:index(?:\.mjs)?)?(['"])?/g,
       '$1@formkit/inputs$2'
     )
     const memoKey = token()
