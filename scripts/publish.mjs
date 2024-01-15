@@ -50,15 +50,14 @@ let tag = false
 /**
  * Main entry point to the build process
  */
-async function publishPackages(force = false) {
-  console.log(process.env.npm_execpath)
+async function publishPackages({ force, skipClean }) {
   if (!/pnpm\.cjs$/.test(process.env.npm_execpath)) {
     msg.error(`⚠️ You must run this command with pnpm instead of npm or yarn.`)
     msg.info('Please try again with:\n\n» pnpm run publish\n\n')
     return
   }
 
-  if (!checkGitCleanWorkingDirectory()) {
+  if (!skipClean && !checkGitCleanWorkingDirectory()) {
     msg.error(
       `⚠️   The current working directory is not clean. Please commit all changes before publishing.`
     )
@@ -624,6 +623,9 @@ export default function () {
   cli.option('--force', 'Bypass failure on error', {
     default: false,
   })
+  cli.option('--skipClean', 'Skip checking if git is clean.', {
+    default: false,
+  })
   cli
     .command(
       '[publish]',
@@ -631,7 +633,7 @@ export default function () {
       { allowUnknownOptions: true }
     )
     .action((dir, options) => {
-      publishPackages(options.force)
+      publishPackages(options)
     })
   cli.help()
   cli.parse()
