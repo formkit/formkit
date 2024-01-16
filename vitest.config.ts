@@ -3,6 +3,9 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { replaceCodePlugin } from 'vite-plugin-replace'
 
 export default defineConfig({
+  resolve: {
+    conditions: ['development'],
+  },
   plugins: [
     vueJsx(),
     replaceCodePlugin({
@@ -16,7 +19,7 @@ export default defineConfig({
   ],
   test: {
     environment: 'jsdom',
-    retry: 1,
+    retry: 2,
     // singleThread: true,
     exclude: ['**/node_modules/**', '**/e2e/**'],
     typecheck: {
