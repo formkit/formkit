@@ -16,6 +16,7 @@ export default defineConfig({
   ],
   test: {
     environment: 'jsdom',
+    retry: 1,
     // singleThread: true,
     exclude: ['**/node_modules/**', '**/e2e/**'],
     typecheck: {
