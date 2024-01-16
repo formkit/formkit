@@ -291,10 +291,13 @@ export async function createApp(
     )
     await addDependency(appName, '@formkit/nuxt', 'latest')
     await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, '@nuxtjs/tailwindcss')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
     await addNuxtModule(appName)
+    await downloadTheme(appName, true)
     await addInitialApp(
       appName,
       'app.vue',
@@ -472,7 +475,7 @@ async function addNuxtModule(dirName: string) {
   const raw = await readFile(nuxtConfigPath, 'utf-8')
   const configWithFormKit = raw.replace(
     /(defineNuxtConfig\({\n).*?(\n}\))/g,
-    "$1  modules: ['@formkit/nuxt'],\n  formkit: {\n    autoImport: true\n  }$2"
+    "$1  modules: ['@formkit/nuxt', '@nuxtjs/tailwindcss'],\n  formkit: {\n    autoImport: true\n  },\n  tailwindcss: {\n    config: {\n      content: ['./formkit.theme.ts']\n    }\n  }$2"
   )
   await writeFile(nuxtConfigPath, configWithFormKit)
 }
