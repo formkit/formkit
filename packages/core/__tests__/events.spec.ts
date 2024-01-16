@@ -129,4 +129,17 @@ describe('emitting and listening to events', () => {
       meta: { here: 'there' },
     })
   })
+
+  it('can add an event listener before another even when defined later', () => {
+    const node = createNode()
+    const callStack: string[] = []
+    const a = () => callStack.push('a')
+    const b = () => callStack.push('b')
+    const c = () => callStack.push('c')
+    node.on('commit', a)
+    node.on('commit', b)
+    node.on('commit', c, 'unshift')
+    node.input('fizz', false)
+    expect(callStack).toEqual(['c', 'a', 'b'])
+  })
 })

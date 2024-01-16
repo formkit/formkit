@@ -1,5 +1,5 @@
 <script setup>
-import { createFloatingLabelsPlugin } from '../../../../packages/addons/src/plugins/floatingLabels/floatingLabelsPlugin'
+import { createFloatingLabelsPlugin } from '@formkit/addons'
 import '@formkit/addons/css/floatingLabels.css'
 
 const countries = [

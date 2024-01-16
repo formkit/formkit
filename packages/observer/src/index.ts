@@ -27,7 +27,8 @@ export interface FormKitObservedNode extends FormKitNode {
   stopObserve: () => FormKitDependencies
   watch: <T extends FormKitWatchable>(
     block: T,
-    after?: (value: ReturnType<T>) => void
+    after?: (value: ReturnType<T>) => void,
+    pos?: 'push' | 'unshift'
   ) => void
 }
 
@@ -137,6 +138,10 @@ export function createObserver(
     if (property === '_value') addDependency('input')
     if (property === 'props') return observeProps(value)
     if (property === 'ledger') return observeLedger(value)
+    if (property === 'children') {
+      addDependency('child')
+      addDependency('childRemoved')
+    }
     return value
   }
 
@@ -156,8 +161,9 @@ export function createObserver(
         case 'watch':
           return <T extends FormKitWatchable>(
             block: T,
-            after?: (value: unknown) => void
-          ) => watch(observed as FormKitObservedNode, block, after)
+            after?: (value: unknown) => void,
+            pos?: 'push' | 'unshift'
+          ) => watch(observed as FormKitObservedNode, block, after, pos)
         case 'observe':
           return () => {
             const old = new Map(deps)
@@ -207,7 +213,8 @@ export function createObserver(
 export function applyListeners(
   node: FormKitObservedNode,
   [toAdd, toRemove]: [FormKitDependencies, FormKitDependencies],
-  callback: FormKitEventListener
+  callback: FormKitEventListener,
+  pos?: 'unshift' | 'push'
 ): void {
   toAdd.forEach((events, depNode) => {
     events.forEach((event) => {
@@ -215,7 +222,7 @@ export function applyListeners(
       node.receipts.set(
         depNode,
         Object.assign(node.receipts.get(depNode) ?? {}, {
-          [event]: depNode.on(event, callback),
+          [event]: depNode.on(event, callback, pos),
         })
       )
     })
@@ -258,12 +265,16 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
 function watch<T extends FormKitWatchable>(
   node: FormKitObservedNode,
   block: T,
-  after?: (value: unknown) => void
+  after?: (value: unknown) => void,
+  pos?: 'push' | 'unshift'
 ): void {
   const doAfterObservation = (res: unknown) => {
     const newDeps = node.stopObserve()
-    applyListeners(node, diffDeps(oldDeps, newDeps), () =>
-      watch(node, block, after)
+    applyListeners(
+      node,
+      diffDeps(oldDeps, newDeps),
+      () => watch(node, block, after, pos),
+      pos
     )
     if (after) after(res)
   }

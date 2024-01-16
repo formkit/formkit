@@ -1,9 +1,14 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { buildTheme, extractThemeData } from '../src/theme'
 import chalk from 'chalk'
 import { readFile } from 'fs/promises'
+import { mkdirSync } from 'fs'
 import { resolve } from 'pathe'
 import { createNode } from '@formkit/core'
+
+beforeAll(() => {
+  mkdirSync(resolve(process.cwd(), 'temp'), { recursive: true })
+})
 
 describe('buildTheme', () => {
   it('can build a local theme', () => {

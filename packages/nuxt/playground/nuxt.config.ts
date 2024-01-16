@@ -1,12 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  runtimeConfig: {
-    public: {
-      theme: process.env.FORMKIT_THEME,
-    },
-  },
-  modules: ['../src/module'],
+  modules: ['../src/module', '@nuxtjs/tailwindcss'],
   formkit: {
     autoImport: true,
   },

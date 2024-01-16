@@ -92,6 +92,7 @@ export {
   FormKitSchemaProps,
   FormKitSchemaTextNode,
   FormKitSchemaDefinition,
+  FormKitSectionsSchema,
   isComponent,
   isConditional,
   isDOM,

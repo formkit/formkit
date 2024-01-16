@@ -896,4 +896,41 @@ describe('selects rendered via schema', () => {
 </select>`
     )
   })
+
+  it('continues counting the mask value when making modifications (#1046)', async () => {
+    const options = ref([
+      { label: 'A', value: ['a'] },
+      { label: 'B', value: ['b'] },
+      { label: 'C', value: ['c'] },
+    ])
+    mount(
+      {
+        setup() {
+          return { options }
+        },
+        template: `
+        <FormKit type="select" :options="options" />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(options.value).toEqual([
+      { label: 'A', value: '__mask_1', __original: ['a'] },
+      { label: 'B', value: '__mask_2', __original: ['b'] },
+      { label: 'C', value: '__mask_3', __original: ['c'] },
+    ])
+
+    options.value = [...options.value, { label: 'D', value: ['d'] }]
+    await nextTick()
+    expect(options.value).toEqual([
+      { label: 'A', value: '__mask_1', __original: ['a'] },
+      { label: 'B', value: '__mask_2', __original: ['b'] },
+      { label: 'C', value: '__mask_3', __original: ['c'] },
+      { label: 'D', value: '__mask_4', __original: ['d'] },
+    ])
+  })
 })

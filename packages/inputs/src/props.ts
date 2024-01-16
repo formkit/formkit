@@ -1,9 +1,8 @@
 import {
   FormKitPlugin,
   FormKitGroupValue,
-  FormKitSchemaCondition,
   FormKitTypeDefinition,
-  FormKitSchemaNode,
+  FormKitSectionsSchema,
   FormKitNode,
   FormKitClasses,
   FormKitFrameworkContext,
@@ -40,7 +39,6 @@ export type AllReals =
   | Array<any>
   | null
   | Record<any, any>
-
 /**
  * This is the base interface for providing prop definitions to the FormKit
  * component. It is used to define the props that are available to the each
@@ -381,7 +379,7 @@ export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
  * The slots available to the checkbox inputs even when options are not provided, these extend the base slots.
  * @public
  */
-export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>> 
+export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>>
   extends FormKitBaseSlots<Props> {
   decorator: FormKitSlotData<Props, OptionSlotData<Props>>
   decoratorIcon: FormKitSlotData<Props, OptionSlotData<Props>>
@@ -512,6 +510,8 @@ export interface FormKitOptionsItem<V = unknown> {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItemProp {
   group: string
@@ -521,6 +521,8 @@ export interface FormKitOptionsGroupItemProp {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItem {
   group: string
@@ -547,6 +549,8 @@ export type FormKitOptionsListWithGroups = Array<
 /**
  * An array of option items with a group support — where the `option` of the
  * groups can be any valid FormKitOptionsProp type.
+ *
+ * @public
  */
 export type FormKitOptionsListWithGroupsProp = Array<
   FormKitOptionsItem | FormKitOptionsGroupItemProp
@@ -593,7 +597,7 @@ export type FormKitOptionsPropWithGroups =
  *
  * @public
  */
-export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
+export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>, V = unknown> {
   /**
    * An object of configuration data for the input and its children.
    */
@@ -642,10 +646,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * An object of sections to merge with the input’s internal schema.
    */
-  sectionsSchema: Record<
-    string,
-    Partial<FormKitSchemaNode> | FormKitSchemaCondition
-  >
+  sectionsSchema: FormKitSectionsSchema
   /**
    * A boolean indicating whether the input should be synced with the model.
    */
@@ -653,7 +654,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * The type of the input.
    */
-  type: string | FormKitTypeDefinition
+  type: string | FormKitTypeDefinition<V>
   /**
    * A validation string or array of validation rules.
    */
@@ -746,6 +747,8 @@ export const runtimeProps = [
 /**
  * A helper to determine if an option is a group or an option.
  * @param option - An option
+ *
+ * @public
  */
 export function isGroupOption(
   option:
