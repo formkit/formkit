@@ -236,4 +236,23 @@ describe('observer', () => {
     parent.remove(child)
     expect(watcher).toHaveNthReturnedWith(3, 0)
   })
+
+  it('can add itself to the front of the event stack', () => {
+    const node = createNode()
+    const observed = createObserver(node)
+    const stack: string[] = []
+    node.on('commit', () => stack.push('a'))
+    observed.watch(
+      (n) => {
+        if (typeof n.value === 'string') {
+          stack.push('b')
+        }
+      },
+      undefined,
+      'unshift'
+    )
+
+    node.input('foo', false)
+    expect(stack).toEqual(['b', 'a'])
+  })
 })

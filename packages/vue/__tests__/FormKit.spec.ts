@@ -10,7 +10,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
-import { inject } from 'vue'
 import { componentSymbol } from '../src/FormKit'
 import { provide } from 'vue'
 
@@ -787,7 +786,7 @@ describe('validation', () => {
     expect(node?.context?.state.complete).toBe(false)
     wrapper.find('input').element.value = 'yes'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.complete).toBe(true)
   })
 
@@ -2405,5 +2404,30 @@ describe('naked attributes', () => {
       }
     )
     expect(componentCallback).toHaveBeenCalledTimes(2)
+  })
+
+  it('sets state to validating before binding commit hook fires (#1116)', () => {
+    let validatingOnCommit: boolean | undefined = false
+    function checkCommitSequence(node: FormKitNode) {
+      node.on('commit', () => {
+        console.log('value', node.value)
+        validatingOnCommit = node.store.validating?.value as boolean
+      })
+    }
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        plugins: [checkCommitSequence],
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig()]],
+      },
+    })
+    const node = getNode(id)
+    node?.input('foo', false)
+    expect(validatingOnCommit).toBe(true)
   })
 })

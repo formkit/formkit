@@ -3,6 +3,28 @@
   "repository": "https://github.com/formkit/formkit",
   "version": "1.4.0",
   "description": "A FormKit plugin for Tailwind that supplies custom variants based on input state",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "development": "./dist/index.dev.mjs",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./*": "./dist/*"
+  },
+  "contributors": [
+    "Andrew Boyd <andrew@formkit.com>",
+    "Gustavo Fenilli <gustavofenilli@gmail.com>"
+  ],
   "keywords": [
     "forms",
     "inputs",
@@ -11,24 +33,7 @@
     "tailwind",
     "tailwindcss"
   ],
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    },
-    "./*": "./dist/*"
-  },
-  "contributors": [
-    "Andrew Boyd <andrew@formkit.com>",
-    "Gustavo Fenilli <gustavofenilli@gmail.com>"
-  ],
   "license": "MIT",
-  "type": "module",
   "peerDependencies": {
     "tailwindcss": "^3.0.0"
   },

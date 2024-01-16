@@ -285,21 +285,26 @@ function run(
     state.isPassing = state.isPassing && !!result
     validation.queued = false
     const newDeps = node.stopObserve()
-    applyListeners(node, diffDeps(validation.deps, newDeps), () => {
-      // Event callback for when the deps change:
-      try {
-        node.store.set(validatingMessage)
-      } catch (e) {}
-      validation.queued = true
-      if (state.rerun) clearTimeout(state.rerun)
-      state.rerun = setTimeout(
-        validate,
-        0,
-        node,
-        validations,
-        state
-      ) as unknown as number
-    })
+    applyListeners(
+      node,
+      diffDeps(validation.deps, newDeps),
+      () => {
+        // Event callback for when the deps change:
+        try {
+          node.store.set(validatingMessage)
+        } catch (e) {}
+        validation.queued = true
+        if (state.rerun) clearTimeout(state.rerun)
+        state.rerun = setTimeout(
+          validate,
+          0,
+          node,
+          validations,
+          state
+        ) as unknown as number
+      },
+      'unshift' // We want these listeners to run before other events are emitted so the 'state.validating' will be reliable.
+    )
     validation.deps = newDeps
 
     if (state.input === currentRun) {

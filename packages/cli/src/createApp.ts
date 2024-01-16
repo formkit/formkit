@@ -9,6 +9,7 @@ import http from 'http'
 import url from 'url'
 import open from 'open'
 import { isDirEmpty, readPackageJSON, writePackageJSON } from './utils'
+import { buildTheme } from './theme'
 
 const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
@@ -231,21 +232,37 @@ export async function createApp(
       '--template',
       `vue${options.lang === 'ts' ? '-ts' : ''}`,
     ])
-    // TODO: add better version matching here:
+    await tailwindConfigForVite(
+      resolve(cwd(), `./${appName}`),
+      options.lang === 'ts'
+    )
     await addDependency(appName, '@formkit/vue', 'latest')
     await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, 'tailwindcss')
+    await addDependency(appName, 'autoprefixer')
+    await addDependency(appName, 'postcss')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
-    await addInitialApp(appName, 'src/App.vue', !!options.pro)
+    await addInitialApp(
+      appName,
+      'src/App.vue',
+      !!options.pro,
+      options.lang === 'ts'
+    )
     await writeFile(
-      resolve(cwd(), `./${appName}/src/formkit.config.${options.lang}`),
+      resolve(
+        cwd(),
+        `./${appName}/formkit.config.${options.lang ? 'ts' : 'mjs'}`
+      ),
       buildFormKitConfig(options as CreateAppOptions)
     )
     await writeFile(
       resolve(cwd(), `./${appName}/src/main.${options.lang}`),
       buildMain()
     )
+
+    await downloadTheme(appName, options.lang === 'ts')
 
     green(`Created ${appName}!
 
@@ -274,21 +291,34 @@ export async function createApp(
     )
     await addDependency(appName, '@formkit/nuxt', 'latest')
     await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, '@nuxtjs/tailwindcss')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
     await addNuxtModule(appName)
-    await addInitialApp(appName, 'app.vue', !!options.pro)
+    await downloadTheme(appName, true)
+    await addInitialApp(
+      appName,
+      'app.vue',
+      !!options.pro,
+      options.lang === 'ts'
+    )
   }
 
-  process.exit();
+  process.exit()
 }
 
-async function addInitialApp(dirName: string, component: string, pro: boolean) {
+async function addInitialApp(
+  dirName: string,
+  component: string,
+  pro: boolean,
+  ts: boolean
+) {
   const appPath = resolve(cwd(), `./${dirName}/${component}`)
   await writeFile(
     appPath,
-    `<script setup>
+    `<script setup${ts ? ' lang="ts"' : ''}>
 async function submit() {
   await new Promise(r => setTimeout(r, 1000))
   alert('Submitted! 🎉')
@@ -296,13 +326,13 @@ async function submit() {
 </script>
 
 <template>
-  <div class="your-first-form">
+  <div class="bg-white rounded-xl shadow-xl p-8 mx-auto my-16 max-w-[450px]">
     <img
       src="https://pro.formkit.com/logo.svg"
       alt="FormKit Logo"
       width="244"
       height="50"
-      class="logo"
+      class="mx-auto mb-8 w-48"
     >
     <FormKit
       type="form"
@@ -330,8 +360,9 @@ async function submit() {
         }"
         validation="required|min:2"
       />
-      ${(pro &&
-      `
+      ${
+        (pro &&
+          `
       <FormKit
         type="repeater"
         name="invitees"
@@ -345,40 +376,17 @@ async function submit() {
           validation="required|email"
         />
       </FormKit>`) ||
-    ''
-    }
+        ''
+      }
       <FormKit
         type="checkbox"
         name="agree"
         label="I agree FormKit is the best form authoring framework."
       />
-      <pre>{{ value }}</pre>
+      <pre class="font-mono text-sm p-4 bg-slate-100 mb-4">{{ value }}</pre>
     </FormKit>
   </div>
 </template>
-
-<style scoped>
-.your-first-form {
-  width: calc(100% - 2em);
-  max-width: 480px;
-  box-sizing: border-box;
-  padding: 2em;
-  box-shadow: 0 0 1em rgba(0, 0, 0, .1);
-  border-radius: .5em;
-  margin: 4em auto;
-}
-
-.logo {
-  width: 150px;
-  height: auto;
-  display: block;
-  margin: 0 auto 2em auto;
-}
-pre {
-  background-color: rgba(0, 100, 250, .1);
-  padding: 1em;
-}
-</style>
 `
   )
 }
@@ -401,11 +409,60 @@ async function addDependency(
   await writePackageJSON(dirName, packageJson)
 }
 
+async function downloadTheme(appName: string, ts: boolean) {
+  process.chdir(resolve(cwd(), `./${appName}`))
+  await buildTheme({
+    theme: 'regenesis',
+    format: ts ? 'ts' : 'mjs',
+  })
+  process.chdir(resolve(cwd(), `../`))
+}
+
+async function tailwindConfigForVite(path: string, ts: boolean) {
+  await writeFile(
+    resolve(path, './postcss.config.cjs'),
+    `module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+  `
+  )
+  await writeFile(
+    resolve(path, './tailwind.config.js'),
+    `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.vue",
+    "./formkit.theme.${ts ? 'ts' : 'mjs'}",
+    "./formkit.config.${ts ? 'ts' : 'mjs'}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+`
+  )
+  await writeFile(
+    resolve(path, './src/assets/main.css'),
+    `@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nbody {\n  @apply bg-gray-100;\n}\n`
+  )
+  let html = await readFile(resolve(path, './index.html'), 'utf-8')
+  html = html.replace(
+    '</head>',
+    `  <link rel="stylesheet" href="/src/assets/main.css">\n  </head>`
+  )
+  await writeFile(resolve(path, './index.html'), html)
+}
+
 function buildMain() {
   return `import { createApp } from 'vue'
 import { plugin, defaultConfig } from '@formkit/vue'
 import App from './App.vue'
-import formKitConfig from './formkit.config'
+import formKitConfig from '../formkit.config'
 
 const app = createApp(App)
 app.use(plugin, defaultConfig(formKitConfig))
@@ -418,7 +475,7 @@ async function addNuxtModule(dirName: string) {
   const raw = await readFile(nuxtConfigPath, 'utf-8')
   const configWithFormKit = raw.replace(
     /(defineNuxtConfig\({\n).*?(\n}\))/g,
-    "$1  modules: ['@formkit/nuxt'],\n  formkit: {\n    autoImport: true\n  }$2"
+    "$1  modules: ['@formkit/nuxt', '@nuxtjs/tailwindcss'],\n  formkit: {\n    autoImport: true\n  },\n  tailwindcss: {\n    config: {\n      content: ['./formkit.theme.ts']\n    }\n  }$2"
   )
   await writeFile(nuxtConfigPath, configWithFormKit)
 }
@@ -429,10 +486,8 @@ async function addNuxtModule(dirName: string) {
  * @returns
  */
 function buildFormKitConfig(options: CreateAppOptions): string {
-  const imports = [
-    'import "@formkit/themes/genesis"',
-    'import { genesisIcons } from "@formkit/icons"',
-  ]
+  const imports = ['import { genesisIcons } from "@formkit/icons"']
+  imports.push('import { rootClasses } from "./formkit.theme"')
   if (options.lang === 'ts' && options.framework === 'vite') {
     imports.push("import { DefaultConfigOptions } from '@formkit/vue'")
   } else if (options.lang === 'ts' && options.framework === 'nuxt') {
@@ -442,24 +497,25 @@ function buildFormKitConfig(options: CreateAppOptions): string {
   let config = ''
   if (options.pro) {
     imports.push("import { createProPlugin, inputs } from '@formkit/pro'")
-    imports.push("import '@formkit/pro/genesis'")
     setup.push('')
     setup.push(`const pro = createProPlugin('${options.pro}', inputs)`)
     setup.push('')
     config += `  plugins: [pro]`
   }
   config += `${config ? ',\n' : ''}  icons: { ...genesisIcons }`
+  config += `${config ? ',\n' : ''}  config: { rootClasses }`
 
-  const viteExport = `const config${options.lang === 'ts' ? ': DefaultConfigOptions' : ''
-    } = {
+  const viteExport = `const config${
+    options.lang === 'ts' ? ': DefaultConfigOptions' : ''
+  } = {
 ${config}
 }
 
 export default config`
 
-  const nuxtExport = `export default defineFormKitConfig({
+  const nuxtExport = `export default defineFormKitConfig(() => ({
 ${config}
-})`
+}))`
 
   let defaultExport = ''
   if (options.framework === 'nuxt') {

@@ -597,7 +597,7 @@ export type FormKitOptionsPropWithGroups =
  *
  * @public
  */
-export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
+export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>, V = unknown> {
   /**
    * An object of configuration data for the input and its children.
    */
@@ -654,7 +654,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * The type of the input.
    */
-  type: string | FormKitTypeDefinition
+  type: string | FormKitTypeDefinition<V>
   /**
    * A validation string or array of validation rules.
    */

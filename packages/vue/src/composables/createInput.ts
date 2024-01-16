@@ -40,12 +40,12 @@ function isComponent(obj: any): obj is Component {
  *
  * @public
  */
-export function createInput(
+export function createInput<V = unknown>(
   schemaOrComponent: FormKitSchemaNode | FormKitSection | Component,
-  definitionOptions: Partial<FormKitTypeDefinition> = {},
+  definitionOptions: Partial<FormKitTypeDefinition<V>> = {},
   sectionsSchema: FormKitSectionsSchema = {}
-): FormKitTypeDefinition {
-  const definition: FormKitTypeDefinition = {
+): FormKitTypeDefinition<V> {
+  const definition: FormKitTypeDefinition<V> = {
     type: 'input',
     ...definitionOptions,
   }

@@ -49,7 +49,7 @@ import { reset } from './reset'
  *
  * @public
  */
-export type FormKitTypeDefinition = {
+export type FormKitTypeDefinition<V = unknown> = {
   /**
    * The FormKit core node type. Can only be input | list | group.
    */
@@ -89,7 +89,7 @@ export type FormKitTypeDefinition = {
   /**
    * An array of additional feature functions to load when booting the input.
    */
-  features?: Array<(node: FormKitNode) => void>
+  features?: Array<(node: FormKitNode<V>) => void>
   /**
    * An optional string to use as a comparison key for memoizing the schema.
    */
@@ -307,7 +307,7 @@ export interface FormKitConfig {
  *
  * @public
  */
-export type FormKitProps = {
+export type FormKitProps<V = unknown> = {
   /**
    * An instance of the current document’s root. When inside the context of a
    * custom element, this will be the ShadowRoot. In most other instances this
@@ -353,7 +353,7 @@ export type FormKitProps = {
   /**
    * The definition of the node’s input type (if it has one).
    */
-  definition?: FormKitTypeDefinition
+  definition?: FormKitTypeDefinition<V>
   /**
    * The framework’s context object. This is how FormKit’s core interacts with
    * the front end framework (Vue/React/etc). This object is created by the
@@ -1065,7 +1065,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * on: (eventName: string, listener: FormKitEventListener) => string
+ * on: (eventName: string, listener: FormKitEventListener, pos: 'push' | 'unshift') => string
  * ```
  *
  * #### Parameters
@@ -1342,7 +1342,7 @@ export type FormKitNode<V = unknown> = {
    * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
-  define: (definition: FormKitTypeDefinition) => void
+  define: (definition: FormKitTypeDefinition<V>) => void
   /**
    * Increments a disturbance. A disturbance is a record that the input or a
    * member of its subtree is no longer "settled". Disturbed nodes are ones
@@ -1408,7 +1408,11 @@ export type FormKitNode<V = unknown> = {
    * multiple listeners to all be de-registered with a single off() call if they
    * share the same receipt.
    */
-  on: (eventName: string, listener: FormKitEventListener) => string
+  on: (
+    eventName: string,
+    listener: FormKitEventListener,
+    pos?: 'push' | 'unshift'
+  ) => string
   /**
    * Removes an event listener by its token. Receipts can be shared among many
    * event listeners by explicitly declaring the "receipt" property of the
