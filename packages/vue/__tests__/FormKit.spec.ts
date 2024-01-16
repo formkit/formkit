@@ -2410,7 +2410,6 @@ describe('naked attributes', () => {
     let validatingOnCommit: boolean | undefined = false
     function checkCommitSequence(node: FormKitNode) {
       node.on('commit', () => {
-        console.log('value', node.value)
         validatingOnCommit = node.store.validating?.value as boolean
       })
     }
