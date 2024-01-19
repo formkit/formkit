@@ -401,4 +401,30 @@ describe('clearing values', () => {
     )
     expect(wrapper.html()).toMatchSnapshot()
   })
+
+  it('can destructure the value of a group (#1133)', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="form" #default="{ value }">
+          <FormKit type="group" name="my-group">
+            <FormKit type="text" name="foo" :delay="0" />
+            <FormKit type="text" name="bar" :delay="0" />
+          </FormKit>
+          <pre>{{ value }}</pre>
+        </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    wrapper.find('input[name="foo"]').setValue('abc')
+    wrapper.find('input[name="bar"]').setValue('def')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.find('pre').html()).toMatchSnapshot()
+  })
 })
