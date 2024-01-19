@@ -53,6 +53,12 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
   </a>
 </p>
 
+<p style="margin-bottom: 1em;">
+  <a href="https://surveyjs.io/?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/surveyjs.svg" alt="SurveyJS logo" style="width: 17%;">
+  </a>
+</p>
+
 ### 🥉 Bronze sponsors
 
 <p style="margin-bottom: 1em;">
