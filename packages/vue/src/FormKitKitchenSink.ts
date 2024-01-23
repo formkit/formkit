@@ -367,6 +367,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
     // supporting schema functions for async input states
     const data = reactive({
       twClasses: classes,
+      basicOptions: Array.from({ length: 15 }, (_, i) => `Option ${i + 1}`),
       asyncLoader: async () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         return await new Promise<void>(() => {})
