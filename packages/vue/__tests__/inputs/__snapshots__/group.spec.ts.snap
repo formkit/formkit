@@ -1,5 +1,14 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`clearing values > can destructure the value of a group (#1133) 1`] = `
+"<pre>{
+  \\"my-group\\": {
+    \\"foo\\": \\"abc\\",
+    \\"bar\\": \\"def\\"
+  }
+}</pre>"
+`;
+
 exports[`clearing values > renames radio inputs that are children 1`] = `
 "<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"radio\\" data-multiple=\\"true\\">
   <fieldset class=\\"formkit-fieldset\\" id=\\"input_33\\">

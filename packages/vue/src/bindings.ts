@@ -8,7 +8,6 @@ import {
   nextTick,
   isRef,
   isReactive,
-  toRaw,
 } from 'vue'
 import {
   FormKitPlugin,
@@ -415,9 +414,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    */
   node.on('commitRaw', ({ payload }) => {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      if (payload === toRaw(value.value) || !eq(payload, value.value)) {
-        value.value = _value.value = shallowClone(payload)
-      }
+      value.value = _value.value = shallowClone(payload)
     } else {
       value.value = _value.value = payload
       triggerRef(value)
