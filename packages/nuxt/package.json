@@ -38,8 +38,8 @@
     "unplugin-formkit": "^0.2.13"
   },
   "devDependencies": {
-    "@formkit/addons": "^1.5.1",
-    "@formkit/icons": "^1.5.1",
+    "@formkit/addons": "^1.5.2",
+    "@formkit/icons": "^1.5.2",
     "@nuxt/module-builder": "^0.5.1",
     "@nuxt/schema": "^3.7.4",
     "@nuxt/ui-templates": "^1.3.1",
