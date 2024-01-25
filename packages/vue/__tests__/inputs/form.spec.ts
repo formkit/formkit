@@ -511,6 +511,22 @@ describe('form submission', () => {
     expect(wrapper.html()).toContain(error)
   })
 
+  it('can display form level errors the errors prop (#1153)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${id}" :errors="['I am an error']" :actions="false"></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.html()).toContain('I am an error')
+  })
+
   it('can display input level errors with setErrors', async () => {
     let error1 = token()
     const error2 = token()

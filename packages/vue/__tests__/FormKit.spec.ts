@@ -2429,4 +2429,32 @@ describe('naked attributes', () => {
     node?.input('foo', false)
     expect(validatingOnCommit).toBe(true)
   })
+
+  it('runs validation rules provided by config in sequence (#1151 - cnd)', async () => {
+    const monday: FormKitValidationRule = (node) => {
+      return node.value === 'monday' || node.value === 'mon'
+    }
+
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form">
+        <FormKit
+          type="text"
+          name="textInput"
+          value="m"
+          label="FormKit Input"
+          validation="required|monday|length:2"
+          validation-visibility="live"
+        />
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ rules: { monday } })]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+  })
 })
