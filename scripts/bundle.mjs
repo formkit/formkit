@@ -107,6 +107,9 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     },
     treeshake: true,
     external: ['vue'],
+    esbuildOptions: (options) => {
+      options.charset = 'utf8'
+    },
     esbuildPlugins: [
       makeAllPackagesExternalPlugin,
       {

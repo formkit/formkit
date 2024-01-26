@@ -966,6 +966,46 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 200))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('runs validation rules provided by config in sequence (#1151 - cnd)', async () => {
+    const monday: FormKitValidationRule = (node) => {
+      return node.value === 'monday' || node.value === 'mon'
+    }
+
+    const wrapper = mount(
+      {
+        setup() {
+          const monday = ref('')
+          setTimeout(() => {
+            monday.value = 'monday|'
+          }, 1)
+          return { monday }
+        },
+        template: ` <FormKit type="form":actions="false"  :value="{textInput: 'm'}">
+        <FormKit
+            type="text"
+            name="textInput"
+            label="FormKit Input"
+            :validation="\`required|\${monday}length:2\`"
+            validation-visibility="live"
+          />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ rules: { monday } })]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 1000))
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+  })
+
+  // it('allows dynamic validation rules to be set (#155)', () => {
+
+  // })
+
+  it('reacts to require_one rule with a dependency', async () => {})
 })
 
 describe('configuration', () => {
@@ -2428,33 +2468,5 @@ describe('naked attributes', () => {
     const node = getNode(id)
     node?.input('foo', false)
     expect(validatingOnCommit).toBe(true)
-  })
-
-  it('runs validation rules provided by config in sequence (#1151 - cnd)', async () => {
-    const monday: FormKitValidationRule = (node) => {
-      return node.value === 'monday' || node.value === 'mon'
-    }
-
-    const wrapper = mount(
-      {
-        template: `<FormKit type="form">
-        <FormKit
-          type="text"
-          name="textInput"
-          value="m"
-          label="FormKit Input"
-          validation="required|monday|length:2"
-          validation-visibility="live"
-        />
-      </FormKit>`,
-      },
-      {
-        global: {
-          plugins: [[plugin, defaultConfig({ rules: { monday } })]],
-        },
-      }
-    )
-    await nextTick()
-    expect(wrapper.findAll('.formkit-message').length).toBe(1)
   })
 })
