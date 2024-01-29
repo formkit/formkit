@@ -114,7 +114,7 @@ export {
   range,
 }
 
-export const input = {
+export const inputs = {
   button,
   submit,
   checkbox,
