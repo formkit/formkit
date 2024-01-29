@@ -258,7 +258,7 @@ describe('observer', () => {
     expect(stack).toEqual(['b', 'a'])
   })
 
-  it('can observer multiple of the same event on the same node and then remove them all (#1155)', () => {
+  it('can observe multiple of the same event on the same node and then remove them all (#1155)', () => {
     const node = createNode()
     const observed = createObserver(node)
     const listenerA = vi.fn(() => {})
