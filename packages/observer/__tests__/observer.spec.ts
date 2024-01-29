@@ -4,6 +4,8 @@ import {
   FormKitWatchable,
   isKilled,
   FormKitObservedNode,
+  removeListeners,
+  applyListeners,
 } from '../src'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -254,5 +256,23 @@ describe('observer', () => {
 
     node.input('foo', false)
     expect(stack).toEqual(['b', 'a'])
+  })
+
+  it('can observer multiple of the same event on the same node and then remove them all (#1155)', () => {
+    const node = createNode()
+    const observed = createObserver(node)
+    const listenerA = vi.fn(() => {})
+    const listenerB = vi.fn()
+    const toAddA = new Map()
+    const toAddB = new Map()
+    toAddA.set(node, new Set(['commit']))
+    toAddB.set(node, new Set(['commit']))
+    applyListeners(observed, [toAddA, new Map()], listenerA)
+    applyListeners(observed, [toAddB, new Map()], listenerB)
+    removeListeners(observed.receipts)
+    node.input('foo', false)
+    expect(listenerB).toHaveBeenCalledTimes(0)
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    expect(observed.receipts.size).toBe(0)
   })
 })

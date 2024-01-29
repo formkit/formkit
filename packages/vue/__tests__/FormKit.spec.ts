@@ -1001,7 +1001,7 @@ describe('validation', () => {
     expect(wrapper.findAll('.formkit-message').length).toBe(1)
   })
 
-  it.only('allows dynamic validation rules to be set (#1155)', async () => {
+  it('allows dynamic validation rules to be set (#1155)', async () => {
     // const id = `a${token()}`
     const id = 'ultra-special-id'
     const wrapper = mount(
@@ -1012,7 +1012,15 @@ describe('validation', () => {
           function setTargetNode(node: FormKitNode) {
             targetNode.value = node
           }
-          return { setTargetNode, targetNode }
+          const after: FormKitValidationRule = function (
+            { value },
+            compare = false
+          ) {
+            const timestamp = Date.parse(compare || new Date())
+            const fieldValue = Date.parse(String(value))
+            return isNaN(fieldValue) ? false : fieldValue > timestamp
+          }
+          return { setTargetNode, targetNode, after }
         },
         template: `
         <FormKit
@@ -1029,7 +1037,8 @@ describe('validation', () => {
           id="${id}"
           name="${id}"
           label="This value should be after the end of the world"
-          :validation="\`required|date_after:\${targetNode?.context.value || new Date()}\`"
+          :validation-rules="{ after }"
+          :validation="\`required|after:\${targetNode?.context.value || new Date()}\`"
           validation-visibility="live"
         />
       `,
@@ -1044,8 +1053,8 @@ describe('validation', () => {
     expect(wrapper.findAll('.formkit-message').length).toBe(1)
     await new Promise((r) => setTimeout(r, 20))
     const node = getNode(id)
-    console.log('input: ', '2024-02-11T18:00')
     node?.input('2024-02-11T18:00', false)
+    getNode(id)
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.findAll('.formkit-message').length).toBe(0)
   })

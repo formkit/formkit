@@ -33,7 +33,7 @@ describe('require_one rule', () => {
   it('passes when target sets a value', () => {
     const form = createNode({ type: 'group' })
     const childA = createNode({ parent: form, name: 'foo' })
-    const childB = createNode({ parent: form, name: 'bar', value: 'baz' })
+    const childB = createNode({ parent: form, name: 'bar' })
     expect(require_one(childA, 'bar')).toBe(false)
     childB.input('value', false)
     expect(require_one(childA, 'bar')).toBe(true)
