@@ -749,3 +749,28 @@ describe('getValidationMessages', () => {
     expect(textMiddleware).toHaveBeenCalledTimes(4)
   })
 })
+
+describe('dynamic rules', () => {
+  it('continues to run validation rules after they have been changes (#1155)', async () => {
+    const validationPlugin = createValidationPlugin({
+      match(node, value) {
+        return node.value === value
+      },
+    })
+    const node = createNode({
+      value: 'initial',
+      props: {
+        validation: 'match:initial',
+      },
+      plugins: [validationPlugin],
+    })
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.store).not.to.toHaveProperty('rule_match')
+    node.props.validation = 'match:changed'
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.store).toHaveProperty('rule_match')
+    node.input('changed', false)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.store).not.toHaveProperty('rule_match')
+  })
+})

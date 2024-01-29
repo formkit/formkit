@@ -341,7 +341,7 @@ export type FormKitProps<V = unknown> = {
    */
   validationRules?: Record<
     string,
-    (node: FormKitNode) => boolean | Promise<boolean>
+    (node: FormKitNode, ...args: any[]) => boolean | Promise<boolean>
   >
   /**
    * An object of validation messages.
