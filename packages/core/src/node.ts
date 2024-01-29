@@ -341,7 +341,7 @@ export type FormKitProps<V = unknown> = {
    */
   validationRules?: Record<
     string,
-    (node: FormKitNode) => boolean | Promise<boolean>
+    (node: FormKitNode, ...args: any[]) => boolean | Promise<boolean>
   >
   /**
    * An object of validation messages.
@@ -3005,7 +3005,9 @@ function clearErrors(
   sourceKey?: string
 ) {
   // Clear all local errors:
-  node.store.filter(() => false, 'error')
+  node.store.filter((m) => {
+    return !(sourceKey === undefined || m.meta.source === sourceKey)
+  }, 'error')
   if (clearChildErrors) {
     sourceKey = sourceKey || `${node.name}-set`
     node.walk((child) => {

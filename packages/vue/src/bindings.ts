@@ -474,7 +474,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     } else if (message.visible) {
       availableMessages[message.key] = message
     } else if (message.type === 'state') {
-      // await node.settled
       context.state[message.key] = !!message.value
     }
   }
