@@ -43,6 +43,6 @@
     "@formkit/utils": "1.5.2"
   },
   "devDependencies": {
-    "@formkit/vue": "^1.5.1"
+    "@formkit/vue": "^1.5.2"
   }
 }
