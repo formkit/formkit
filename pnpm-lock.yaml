@@ -2368,17 +2368,9 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@formkit/addons@1.5.3:
-    resolution: {integrity: sha512-5+n4qALYa2o2JXRo21AK3ufrjgDxXjenbiyD+DnYptgrGsrv3o/9QzitB1iYwTFKfXObbheX9XKv+DAWJZ+pgg==}
-    dependencies:
-      '@formkit/auto-animate': 0.8.1
-      '@formkit/core': 1.5.3
-      '@formkit/inputs': 1.5.3
-      '@formkit/utils': 1.5.3
-    dev: true
-
   /@formkit/auto-animate@0.8.1:
     resolution: {integrity: sha512-0/Z2cuNXWVVIG/l0SpcHAWFhGdvLJ8DRvEfRWvmojtmRWfEy+LWNwgDazbZqY0qQYtkHcoEK3jBLkhiZaB/4Ig==}
+    dev: false
 
   /@formkit/auto-animate@1.0.0-beta.6:
     resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
@@ -2396,12 +2388,6 @@ packages:
       '@formkit/utils': 1.5.3
     dev: false
 
-  /@formkit/core@1.5.3:
-    resolution: {integrity: sha512-aOgtncSwtlHftUwGlF7oMJwSbmv42A/3SryRSwIPdAzJnLRHzPTPeINwCiEMuu7VvJ7kmQfLfxqXSFFsDg/uCA==}
-    dependencies:
-      '@formkit/utils': 1.5.3
-    dev: true
-
   /@formkit/dev@1.1.0:
     resolution: {integrity: sha512-9HOALk5mHEpw8YE2mYGQwL8dompKT02t8NijzIaNmh9+a7P4xcQoK2ty6dQFSt4MS21nNDun7R2eCF/TXtDo6g==}
     dependencies:
@@ -2417,24 +2403,11 @@ packages:
       '@formkit/validation': 1.1.0
     dev: true
 
-  /@formkit/icons@1.5.3:
-    resolution: {integrity: sha512-ymqlEY15Egx0lJudqjhfLIcYpBr1mOa/0V+Ir30sq0/Q9z0fDcfjb980QT433ZOMfBvu771cZCPi+0Nibo+0Uw==}
-    dependencies:
-      '@formkit/core': 1.5.3
-    dev: true
-
   /@formkit/inputs@1.1.0:
     resolution: {integrity: sha512-R55gIS0dATpL6q1mAN5egXU1hruPADWunwfR9Ff42p/iMLEoKg/UxeUP6Lm8rUiZmqa5b6DD3deo6l68afNDAQ==}
     dependencies:
       '@formkit/core': 1.1.0
       '@formkit/utils': 1.1.0
-    dev: true
-
-  /@formkit/inputs@1.5.3:
-    resolution: {integrity: sha512-5xrxUKBGJxI5oji9YNQphT8cmOJOQNqdWUafD+GSGmZQ0foGzh3cZmCbZI9ck7ZnMybQyKbUEVPxbS00Ab9Lug==}
-    dependencies:
-      '@formkit/core': 1.5.3
-      '@formkit/utils': 1.5.3
     dev: true
 
   /@formkit/observer@1.1.0:
@@ -2491,10 +2464,6 @@ packages:
   /@formkit/utils@1.5.3:
     resolution: {integrity: sha512-WmdWYq3rZqI+AXJ7tY1E9ASH8PJ0XSYXhjnoY5wCBepRvKme6kElMaq8PifFMAN+2QBXv2UV1JjQvbCKZxeh9w==}
     dev: false
-
-  /@formkit/utils@1.5.3:
-    resolution: {integrity: sha512-WmdWYq3rZqI+AXJ7tY1E9ASH8PJ0XSYXhjnoY5wCBepRvKme6kElMaq8PifFMAN+2QBXv2UV1JjQvbCKZxeh9w==}
-    dev: true
 
   /@formkit/validation@1.1.0:
     resolution: {integrity: sha512-09HajJ0sONNuUmkomugrqpMnEcPWT2mWB+UeDTZOa70/YI36QGOGrC5l5lLwqNygYqbwQG1r8XporafDnAJU+g==}
