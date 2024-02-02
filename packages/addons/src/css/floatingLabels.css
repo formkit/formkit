@@ -30,6 +30,7 @@
   transform: translateY(-66.666%);
   opacity: 1;
   top: 0;
+  left: 0.5em !important;
   z-index: 2;
   transition-delay: 0s;
   transition-duration: 0.25s;
