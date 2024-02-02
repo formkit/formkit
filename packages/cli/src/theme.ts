@@ -142,8 +142,7 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
     // using dynamic import
     info('Fetching theme from local npm packages')
     try {
-      const modulePath = resolve(process.cwd(), 'node_modules', themeName)
-      const { default: themeFunction } = await import(modulePath)
+      const { default: themeFunction } = await import(themeName)
       theme = await generate(
         themeFunction,
         options.variables,
@@ -152,8 +151,8 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
         themeName
       )
       green(`Found locally installed theme package: ${themeName}`)
-    } catch (_err) {
-      // do nothing
+    } catch (err) {
+      console.error(err)
     }
   }
 
