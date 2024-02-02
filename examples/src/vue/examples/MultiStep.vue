@@ -9,6 +9,15 @@ const multiStepFormSchema = [
     $formkit: 'multi-step',
     beforeStepChange: '$log',
     allowIncomplete: false,
+    sectionsSchema: {
+      // schema overrides!
+      tabs: {
+        $el: 'ul',
+      },
+      tab: {
+        $el: 'li',
+      },
+    },
     children: [
       {
         $formkit: 'step',
