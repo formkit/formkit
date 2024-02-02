@@ -401,30 +401,36 @@ export function updateFKCoreVersionExport(newVersion) {
  * Get all the inputs declared in the inputs/index.ts file.
  */
 export function getInputs() {
-  const inputsDir = resolve(packagesDir, 'inputs/src/inputs')
+  const inputsDir = resolve(packagesDir, 'inputs/src')
   const exportFile = resolve(inputsDir, 'index.ts')
   const file = fs.readFileSync(exportFile, { encoding: 'utf-8' })
-  return file
+  const results = file
     .split(/\r?\n/)
     .filter((line) => !!line.trim())
     .map((line) => {
       const matches = line.match(
-        /^export { ([a-zA-Z ]+) } from '\.\/([a-zA-Z]+)'$/
+        /^import {\s([a-zA-Z ]+)\s} from '\.\/inputs\/([a-zA-Z]+)'$/
       )
       if (matches) {
         const [, rawName, fileName] = matches
-        const names = rawName.split(' ')
-        const name = names[names.length - 1]
-        const filePath = resolve(inputsDir, `${fileName}.ts`)
-        return {
-          name,
-          filePath,
-          fileName,
-        }
-      } else {
-        msg.error(`Failed to parse export from inputs/index.ts: ${line}`)
-        process.exit(1)
+        return { rawName, fileName }
       }
-      return matches
+      return false
     })
+    .filter((value) => !!value)
+    .map(({ rawName, fileName }) => {
+      const names = rawName.split(' ')
+      const name = names[names.length - 1]
+      const filePath = resolve(inputsDir, `./inputs/${fileName}.ts`)
+      return {
+        name,
+        filePath,
+        fileName,
+      }
+    })
+  if (!results.length) {
+    msg.error(`Failed to parse exports from index.ts`)
+    process.exit(1)
+  }
+  return results
 }

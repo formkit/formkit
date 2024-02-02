@@ -597,7 +597,10 @@ export type FormKitOptionsPropWithGroups =
  *
  * @public
  */
-export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>, V = unknown> {
+export interface FormKitRuntimeProps<
+  Props extends FormKitInputs<Props>,
+  V = unknown
+> {
   /**
    * An object of configuration data for the input and its children.
    */
@@ -671,7 +674,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>, V = unk
    */
   validationRules: Record<
     string,
-    (node: FormKitNode) => boolean | Promise<boolean>
+    (node: FormKitNode, ...args: any[]) => boolean | Promise<boolean>
   >
   /**
    * Use this to override the default validation label in validation messages.

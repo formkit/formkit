@@ -966,6 +966,98 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 200))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('runs validation rules provided by config in sequence (#1151 - cnd)', async () => {
+    const monday: FormKitValidationRule = (node) => {
+      return node.value === 'monday' || node.value === 'mon'
+    }
+
+    const wrapper = mount(
+      {
+        setup() {
+          const monday = ref('')
+          setTimeout(() => {
+            monday.value = 'monday|'
+          }, 1)
+          return { monday }
+        },
+        template: ` <FormKit type="form":actions="false"  :value="{textInput: 'm'}">
+        <FormKit
+            type="text"
+            name="textInput"
+            label="FormKit Input"
+            :validation="\`required|\${monday}length:2\`"
+            validation-visibility="live"
+          />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ rules: { monday } })]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 1000))
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+  })
+
+  it('allows dynamic validation rules to be set (#1155)', async () => {
+    // const id = `a${token()}`
+    const id = 'ultra-special-id'
+    const wrapper = mount(
+      {
+        setup() {
+          const targetNode = ref()
+
+          function setTargetNode(node: FormKitNode) {
+            targetNode.value = node
+          }
+          const after: FormKitValidationRule = function (
+            { value },
+            compare = false
+          ) {
+            const timestamp = Date.parse(compare || new Date())
+            const fieldValue = Date.parse(String(value))
+            return isNaN(fieldValue) ? false : fieldValue > timestamp
+          }
+          return { setTargetNode, targetNode, after }
+        },
+        template: `
+        <FormKit
+          type="datetime-local"
+          value="2024-02-10T18:00"
+          label="End of the world"
+          help="When will the end of the world take place?"
+          @node="setTargetNode"
+        />
+
+        <FormKit
+          type="datetime-local"
+          value="2024-02-09T18:00"
+          id="${id}"
+          name="${id}"
+          label="This value should be after the end of the world"
+          :validation-rules="{ after }"
+          :validation="\`required|after:\${targetNode?.context.value || new Date()}\`"
+          validation-visibility="live"
+        />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+    await new Promise((r) => setTimeout(r, 20))
+    const node = getNode(id)
+    node?.input('2024-02-11T18:00', false)
+    getNode(id)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.findAll('.formkit-message').length).toBe(0)
+  })
 })
 
 describe('configuration', () => {

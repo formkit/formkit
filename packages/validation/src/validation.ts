@@ -288,7 +288,7 @@ function run(
     applyListeners(
       node,
       diffDeps(validation.deps, newDeps),
-      () => {
+      function revalidate() {
         // Event callback for when the deps change:
         try {
           node.store.set(validatingMessage)

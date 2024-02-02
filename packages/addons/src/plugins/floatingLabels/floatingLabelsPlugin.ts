@@ -77,7 +77,12 @@ export function createFloatingLabelsPlugin(
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
-    node.addProps(['floatingLabel', '_labelBackgroundColor'])
+    node.addProps([
+      'floatingLabel',
+      '_labelBackgroundColor',
+      '_labelOffset',
+      '_offsetCalculated',
+    ])
 
     const useFloatingLabels =
       typeof node.props.floatingLabel === 'boolean'
@@ -87,13 +92,6 @@ export function createFloatingLabelsPlugin(
         : false
 
     if (useFloatingLabels && node.context) {
-      whenAvailable(node.context.id, () => {
-        if (!node.context) return
-        nodeEl = document.getElementById(node.context?.id)
-        if (!nodeEl) return
-        setBackgroundColor(node, nodeEl, 100)
-      })
-
       node.on('created', () => {
         if (!node.props || !node.props.definition || !node.context) return
 
@@ -118,7 +116,11 @@ export function createFloatingLabelsPlugin(
             }
             extensions.label = {
               attrs: {
-                style: '$: "background-color: " + $_labelBackgroundColor',
+                style: {
+                  if: '$_offsetCalculated',
+                  then: '$: "background-color: " + $_labelBackgroundColor + "; left: " + $_labelOffset + ";"',
+                  else: '$: "transition: none; background-color: " + $_labelBackgroundColor + "; left: " + $_labelOffset + ";"',
+                },
               },
             }
 
@@ -159,6 +161,48 @@ export function createFloatingLabelsPlugin(
           node.props.definition = inputDefinition
         }
       })
+
+      node.on('mounted', () => {
+        if (!node.context) return
+
+        // set a mutation observer on the nodeEl parent to refire calculateLabelOffset
+        // whenever the children are changed
+        const observer = new MutationObserver(() => {
+          if (!nodeEl) return
+          calculateLabelOffset(node, nodeEl)
+
+          // delay the enabling of animations until after
+          // initial label positions are set
+          setTimeout(() => {
+            node.props._offsetCalculated = true
+          }, 100)
+        })
+
+        whenAvailable(node.context.id, () => {
+          if (!node.context) return
+          nodeEl = document.getElementById(node.context?.id)
+          if (!nodeEl) return
+          setBackgroundColor(node, nodeEl, 100)
+          calculateLabelOffset(node, nodeEl)
+          observer.observe(nodeEl.parentNode as Node, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+          })
+        })
+      })
+
+      function calculateLabelOffset(node: FormKitNode, nodeEl: HTMLElement) {
+        const labelEl = nodeEl.parentNode?.querySelector('.formkit-label')
+        const left = nodeEl.offsetLeft
+        const style = window.getComputedStyle(nodeEl)
+        const paddingLeft = parseInt(style.paddingLeft, 10)
+        const offset = left + paddingLeft
+
+        if (labelEl && offset) {
+          node.props._labelOffset = `calc(${offset}px - 0.25em)`
+        }
+      }
     }
   }
   return floatingLabelsPlugin

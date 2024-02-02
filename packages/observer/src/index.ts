@@ -48,7 +48,7 @@ export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
  */
 export type FormKitObserverReceipts = Map<
   FormKitNode,
-  { [index: string]: string }
+  { [index: string]: string[] }
 >
 
 /**
@@ -219,12 +219,10 @@ export function applyListeners(
   toAdd.forEach((events, depNode) => {
     events.forEach((event) => {
       node.receipts.has(depNode) || node.receipts.set(depNode, {})
-      node.receipts.set(
-        depNode,
-        Object.assign(node.receipts.get(depNode) ?? {}, {
-          [event]: depNode.on(event, callback, pos),
-        })
-      )
+      const events = node.receipts.get(depNode) ?? {}
+      events[event] = events[event] ?? []
+      events[event].push(depNode.on(event, callback, pos))
+      node.receipts.set(depNode, events)
     })
   })
   toRemove.forEach((events, depNode) => {
@@ -232,7 +230,7 @@ export function applyListeners(
       if (node.receipts.has(depNode)) {
         const nodeReceipts = node.receipts.get(depNode)
         if (nodeReceipts && has(nodeReceipts, event)) {
-          depNode.off(nodeReceipts[event])
+          nodeReceipts[event].map(depNode.off)
           delete nodeReceipts[event]
           node.receipts.set(depNode, nodeReceipts)
         }
@@ -249,9 +247,10 @@ export function applyListeners(
 export function removeListeners(receipts: FormKitObserverReceipts): void {
   receipts.forEach((events, node) => {
     for (const event in events) {
-      node.off(events[event])
+      events[event].map(node.off)
     }
   })
+  receipts.clear()
 }
 
 /**
