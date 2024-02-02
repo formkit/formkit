@@ -27,14 +27,16 @@ describe('buildTheme', () => {
       .spyOn(console, 'log')
       .mockImplementation(() => undefined)
     await buildTheme({
-      theme: './packages/cli/__tests__/mocks/localTheme',
+      theme: './packages/cli/__tests__/mocks/localTheme.ts',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
     })
 
     expect(consoleMock).toHaveBeenNthCalledWith(
       1,
-      chalk.greenBright('Locating ./packages/cli/__tests__/mocks/localTheme...')
+      chalk.greenBright(
+        'Locating ./packages/cli/__tests__/mocks/localTheme.ts...'
+      )
     )
     const fileString = await readFile(
       resolve(process.cwd(), 'temp/formkit.theme.ts'),
@@ -45,7 +47,7 @@ describe('buildTheme', () => {
 
   it('can override variables in generated theme', async () => {
     await buildTheme({
-      theme: './packages/cli/__tests__/mocks/localTheme',
+      theme: './packages/cli/__tests__/mocks/localTheme.ts',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
       variables: 'border=border-6,spacing=10',
@@ -59,7 +61,7 @@ describe('buildTheme', () => {
 
   it('returns the correct classes for a given input section', async () => {
     await buildTheme({
-      theme: './packages/cli/__tests__/mocks/localTheme',
+      theme: './packages/cli/__tests__/mocks/localTheme.ts',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
       variables: 'spacing=5',
@@ -89,7 +91,7 @@ describe('buildTheme', () => {
 describe('extractThemeData', () => {
   it('can extract basic details about a given theme', async () => {
     await buildTheme({
-      theme: './packages/cli/__tests__/mocks/localTheme',
+      theme: './packages/cli/__tests__/mocks/localTheme.ts',
       outFile: 'temp/formkit.theme.ts',
       format: 'ts',
       variables: 'spacing=5',
