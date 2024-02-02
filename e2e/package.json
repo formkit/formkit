@@ -5,6 +5,6 @@
   "main": "memoryDOM.spec.ts",
   "private": true,
   "dependencies": {
-    "@formkit/vue": "workspace:1.5.3"
+    "@formkit/vue": "workspace:1.5.4"
   }
 }
