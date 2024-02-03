@@ -403,7 +403,7 @@ function parseVariables(variables?: string): Record<string, string> {
 function determineFilePath(fileName: string): string | undefined {
   const extensions = ['.ts', '.js', '.mjs', '.cjs']
   const paths = extensions.map((ext) => resolve(process.cwd(), fileName + ext))
-  return getPath(paths) || fileName
+  return getPath(paths)
 }
 
 function getPath(paths: string[]): string | undefined {
