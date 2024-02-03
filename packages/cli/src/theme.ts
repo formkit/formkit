@@ -41,7 +41,7 @@ async function fetchThemes() {
 }
 
 export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
-  if (!themes) await fetchThemes()
+  if (!themes.length) await fetchThemes()
 
   let themeName = options.theme || ''
 
