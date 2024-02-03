@@ -1,6 +1,6 @@
 {
   "name": "@formkit/dev",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "type": "module",
   "description": "Development tools for FormKit.",
   "main": "dist/index.cjs",
@@ -39,10 +39,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.5.4",
-    "@formkit/utils": "1.5.4"
+    "@formkit/core": "1.5.5",
+    "@formkit/utils": "1.5.5"
   },
   "devDependencies": {
-    "@formkit/vue": "^1.5.4"
+    "@formkit/vue": "^1.5.5"
   }
 }

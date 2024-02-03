@@ -1,6 +1,6 @@
 {
   "name": "@formkit/vue",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "type": "module",
   "description": "Build industry leading Vue forms 10x faster.",
   "main": "dist/index.cjs",
@@ -42,18 +42,18 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.5.4",
-    "@formkit/dev": "1.5.4",
-    "@formkit/i18n": "1.5.4",
-    "@formkit/inputs": "1.5.4",
-    "@formkit/observer": "1.5.4",
-    "@formkit/rules": "1.5.4",
-    "@formkit/themes": "1.5.4",
-    "@formkit/utils": "1.5.4",
-    "@formkit/validation": "1.5.4",
+    "@formkit/core": "1.5.5",
+    "@formkit/dev": "1.5.5",
+    "@formkit/i18n": "1.5.5",
+    "@formkit/inputs": "1.5.5",
+    "@formkit/observer": "1.5.5",
+    "@formkit/rules": "1.5.5",
+    "@formkit/themes": "1.5.5",
+    "@formkit/utils": "1.5.5",
+    "@formkit/validation": "1.5.5",
     "vue": "^3.3.4"
   },
   "devDependencies": {
-    "@formkit/icons": "workspace:1.5.4"
+    "@formkit/icons": "workspace:1.5.5"
   }
 }
