@@ -1,6 +1,6 @@
 {
   "name": "@formkit/icons",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "type": "module",
   "description": "Icons for FormKit inputs.",
   "main": "dist/index.cjs",
@@ -39,6 +39,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.5.5"
+    "@formkit/core": "1.5.6"
   }
 }
