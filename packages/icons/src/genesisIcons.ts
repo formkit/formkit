@@ -8,6 +8,7 @@ import {
   trash,
   fastForward,
   rewind,
+  dragHandle,
 } from './icons/application'
 import { arrowDown, arrowUp, down, right, left } from './icons/directional'
 import { date, color } from './icons/input'
@@ -26,6 +27,7 @@ const genesisIcons = {
   close,
   checkboxDecorator: check,
   date,
+  dragHandle,
   fileItem: fileDoc,
   fileRemove: close,
   noFiles: fileDoc,
