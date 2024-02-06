@@ -42,7 +42,7 @@
     "@formkit/core": "1.5.7"
   },
   "devDependencies": {
-    "@formkit/vue": "1.1.0"
+    "@formkit/vue": "^1.5.7"
   },
   "peerDependencies": {
     "zod": "^3.0.0"

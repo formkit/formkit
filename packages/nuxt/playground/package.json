@@ -1,0 +1,23 @@
+{
+  "name": "formkit-nuxt-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@formkit/nuxt": "latest",
+    "@formkit/vue": "latest",
+    "@formkit/addons": "latest",
+    "@formkit/icons": "latest",
+    "@formkit/themes": "latest",
+    "@nuxtjs/tailwindcss": "latest",
+    "nuxt": "^3.10.1",
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5"
+  }
+}

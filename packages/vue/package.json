@@ -51,7 +51,7 @@
     "@formkit/themes": "1.5.7",
     "@formkit/utils": "1.5.7",
     "@formkit/validation": "1.5.7",
-    "vue": "^3.3.4"
+    "vue": "^3.4.15"
   },
   "devDependencies": {
     "@formkit/icons": "workspace:1.5.7"
