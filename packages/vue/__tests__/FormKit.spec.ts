@@ -1,4 +1,4 @@
-import { nextTick, h, reactive, ref, PropType, mergeProps } from 'vue'
+import { nextTick, h, reactive, ref, PropType, mergeProps, defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
@@ -303,14 +303,14 @@ describe('id', () => {
 describe('v-model', () => {
   it('updates local data when v-model changes', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             name: 'foobar',
           }
         },
         template: `<FormKit v-model="name" :delay="0" />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -328,7 +328,7 @@ describe('v-model', () => {
 
   it('does not perform input events on v-modeled form', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             formData: {} as { username: string; password: string },
@@ -338,7 +338,7 @@ describe('v-model', () => {
           <FormKit type="text" name="username" />
           <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
         </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -381,14 +381,14 @@ describe('v-model', () => {
 describe('events', () => {
   it('emits the node as soon as it is created', () => {
     const wrapper = mount(
-      {
+      defineComponent({
         template: '<FormKit @node="e => { node = e }" />',
         data() {
           return {
             node: null as null | FormKitNode,
           }
         },
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -813,7 +813,7 @@ describe('validation', () => {
 
   it('can dynamically change the validation-visibility', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             visibility: 'blur',
@@ -823,7 +823,7 @@ describe('validation', () => {
         validation="required"
         :validation-visibility="visibility"
       />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -931,7 +931,7 @@ describe('validation', () => {
 
   it('can respond to dynamic validationRules prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         setup() {
           const list = ref(['a', 'b', 'c'])
           const foo = (node: FormKitNode) => node.value !== 'foo'
@@ -954,7 +954,7 @@ describe('validation', () => {
           value="bar"
         />
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -1063,7 +1063,7 @@ describe('validation', () => {
 describe('configuration', () => {
   it('can change configuration options via prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             node1: null as null | FormKitNode,
@@ -1101,7 +1101,7 @@ describe('configuration', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2043,7 +2043,7 @@ describe('exposures', () => {
   it('can set values on a group with values that dont have correlating nodes', async () => {
     const groupId = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             groupValue: { a: 'bar' } as any,
@@ -2052,7 +2052,7 @@ describe('exposures', () => {
         template: `<FormKit type="group" v-model="groupValue" id="${groupId}">
         <FormKit name="a" value="foo" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2071,7 +2071,7 @@ describe('schema changed', () => {
   it('can change an inputs entire schema and force a re-render', async () => {
     const id = token()
     const wrapper = mount(
-      {
+      defineComponent({
         methods: {
           swapSchema() {
             const node = getNode(id)
@@ -2092,7 +2092,7 @@ describe('schema changed', () => {
           },
         },
         template: `<FormKit id="${id}" />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2107,7 +2107,7 @@ describe('schema changed', () => {
 
   it('can use a dynamic default slot. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2121,7 +2121,7 @@ describe('schema changed', () => {
           <template v-else #label><h2>otherwise click me</h2></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2136,7 +2136,7 @@ describe('schema changed', () => {
 
   it('can use a conditional default slot. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2149,7 +2149,7 @@ describe('schema changed', () => {
           <template v-if="first === 'yes'" #label><h1>click me</h1></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2167,7 +2167,7 @@ describe('schema changed', () => {
 
   it('can use a conditional default slot that starts as false. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2180,7 +2180,7 @@ describe('schema changed', () => {
           <template v-if="first === 'yes'" #label><h1>click me</h1></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2241,7 +2241,7 @@ describe('schema changed', () => {
   it('can use v-show to hide a field, tests root node (#528)', async () => {
     const show = ref(true)
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2251,7 +2251,7 @@ describe('schema changed', () => {
         template: `
         <FormKit type="text" label="hi there" v-show="show" />
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],

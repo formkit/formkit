@@ -7,7 +7,7 @@ import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { ref, reactive, h, nextTick } from 'vue'
+import { ref, reactive, h, nextTick, defineComponent } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -78,7 +78,7 @@ describe('form structure', () => {
 describe('value propagation', () => {
   it('can set the state of checkboxes from a v-model on the form', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             options: ['a', 'b', 'c'],
@@ -90,7 +90,7 @@ describe('value propagation', () => {
         template: `<FormKit type="form" v-model="values">
         <FormKit type="checkbox" name="boxes" :options="options" />
       </FormKit>`,
-      },
+      }),
       {
         ...global,
       }
@@ -261,7 +261,7 @@ describe('form submission', () => {
 
   it('clears blocking messages if an input is removed', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             showEmail: true,
@@ -272,7 +272,7 @@ describe('form submission', () => {
         <FormKit type="checkbox" />
         <pre>{{ state.valid }}</pre>
       </FormKit>`,
-      },
+      }),
       global
     )
     await nextTick()
@@ -454,7 +454,7 @@ describe('form submission', () => {
 
   it('can swap languages', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         template: `<FormKit type="form">
         <FormKit type="email" validation-visibility="live" label="Email" validation="required" />
       </FormKit>`,
@@ -463,7 +463,7 @@ describe('form submission', () => {
             ;(this as any).$formkit.setLocale('de')
           },
         },
-      },
+      }),
       {
         global: {
           plugins: [
@@ -602,7 +602,7 @@ describe('form submission', () => {
 
   it('removes values of inputs that are removed', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -613,7 +613,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -632,7 +632,7 @@ describe('form submission', () => {
   it('resets the local value of an input whose key changes', async () => {
     const id = `a_${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             key: 'abc',
@@ -642,7 +642,7 @@ describe('form submission', () => {
         <pre>{{ value }}</pre>
         <FormKit type="text" name="name" id="${id}" :key="key" :delay="0" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -663,7 +663,7 @@ describe('form submission', () => {
   it('can resets the child’s initial value during a reset', async () => {
     const id = `a_${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             key: 'abc',
@@ -677,7 +677,7 @@ describe('form submission', () => {
         template: `<FormKit type="form" @submit="reset">
         <FormKit type="text" name="name" id="${id}" value="123" :delay="0" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -749,7 +749,7 @@ describe('form submission', () => {
 
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -760,7 +760,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" preserve v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -777,7 +777,7 @@ describe('form submission', () => {
 
   it('keeps checks ancestors for preserve prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -788,7 +788,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -1068,7 +1068,7 @@ describe('programmatic submission', () => {
     })
     const mock = vi.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
-      {
+      defineComponent({
         template: `
         <FormKit
           type="form"
@@ -1091,7 +1091,7 @@ describe('programmatic submission', () => {
             submitRaw()
           },
         },
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1121,7 +1121,7 @@ describe('programmatic submission', () => {
     const submit = vi.fn()
     const submitRaw = vi.fn()
     const wrapper = mount(
-      {
+      defineComponent({
         template: `
         <FormKit
           type="form"
@@ -1146,7 +1146,7 @@ describe('programmatic submission', () => {
             submitRaw()
           },
         },
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1172,7 +1172,7 @@ describe('resetting', () => {
     const submitHandler = vi.fn()
     const formId = token()
     const form = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {
@@ -1194,7 +1194,7 @@ describe('resetting', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1581,7 +1581,7 @@ describe('FormKitMessages', () => {
     const submitHandler = vi.fn()
     const id = `a${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         methods: {
           submitHandler,
         },
@@ -1597,7 +1597,7 @@ describe('FormKitMessages', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         attachTo: document.body,
         global: {
