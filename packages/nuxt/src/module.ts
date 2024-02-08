@@ -11,7 +11,7 @@ import {
   addImports,
   addPlugin,
 } from '@nuxt/kit'
-import { NuxtModule } from '@nuxt/schema'
+import type { NuxtModule } from '@nuxt/schema'
 import unpluginFormKit from 'unplugin-formkit/vite'
 
 export interface ModuleOptions {
