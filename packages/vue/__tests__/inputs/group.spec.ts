@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { defaultConfig, plugin } from '../../src'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { token } from '@formkit/utils'
 import { getNode, reset, FormKitTypeDefinition } from '@formkit/core'
 import { describe, expect, it } from 'vitest'
@@ -95,7 +95,7 @@ describe('group', () => {
 
   it('can use v-model to change input values', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             formData: {
@@ -119,7 +119,7 @@ describe('group', () => {
       </FormKit>
       </div>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -183,7 +183,7 @@ describe('clearing values', () => {
   it('can remove values from a group by setting it to an empty object', async () => {
     const emailToken = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             data: {} as Record<string, any>,
@@ -199,7 +199,7 @@ describe('clearing values', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -233,7 +233,7 @@ describe('clearing values', () => {
   it('can reset values to their original state', async () => {
     const formToken = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             data: {
@@ -255,7 +255,7 @@ describe('clearing values', () => {
           </FormKit>
         </div>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
