@@ -92,6 +92,10 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is something to close
    */
   close: '닫기',
+  /**
+   * Shown when there is something to open.
+   */
+  open: '열기',
 }
 
 /**
