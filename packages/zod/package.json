@@ -1,6 +1,6 @@
 {
   "name": "@formkit/zod",
-  "version": "1.5.8",
+  "version": "1.5.9",
   "type": "module",
   "description": "Zod validation for FormKit.",
   "main": "dist/index.cjs",
@@ -39,10 +39,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.5.8"
+    "@formkit/core": "1.5.9"
   },
   "devDependencies": {
-    "@formkit/vue": "^1.5.8"
+    "@formkit/vue": "^1.5.9"
   },
   "peerDependencies": {
     "zod": "^3.0.0"

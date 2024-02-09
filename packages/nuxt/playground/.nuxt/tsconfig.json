@@ -79,7 +79,7 @@
   "include": [
     "./nuxt.d.ts",
     "../**/*",
-    "../../../../../../../sasha/runtime",
+    "../../../../../../../justi/runtime",
     "../../../../node_modules/.pnpm/@nuxtjs+tailwindcss@6.11.3_rollup@3.29.4_ts-node@10.9.2/node_modules/@nuxtjs/tailwindcss/runtime",
     "../@nuxt/devtools/runtime",
     "../@nuxt/telemetry/runtime",
@@ -91,7 +91,7 @@
     "../node_modules",
     "../../../../node_modules",
     "../../../../node_modules/.pnpm/nuxt@3.10.1_@types+node@18.19.6_eslint@8.56.0_rollup@3.29.4_stylelint@14.16.1_terser@5.26.0_typescript@5.1.3_vite@4.5.2/node_modules/nuxt/node_modules",
-    "../../../../../../../sasha/runtime/server",
+    "../../../../../../../justi/runtime/server",
     "../../../../node_modules/.pnpm/@nuxtjs+tailwindcss@6.11.3_rollup@3.29.4_ts-node@10.9.2/node_modules/@nuxtjs/tailwindcss/runtime/server",
     "../@nuxt/devtools/runtime/server",
     "../@nuxt/telemetry/runtime/server",
