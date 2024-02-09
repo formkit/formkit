@@ -207,7 +207,7 @@ importers:
   e2e:
     dependencies:
       '@formkit/vue':
-        specifier: workspace:1.5.7
+        specifier: workspace:1.5.8
         version: link:../packages/vue
 
   examples:
@@ -259,32 +259,32 @@ importers:
         specifier: latest
         version: 0.8.1
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../inputs
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.5.7
+        specifier: ^1.5.8
         version: link:../vue
 
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/inputs':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../inputs
       '@formkit/theme-creator':
         specifier: ^0.9.0
         version: 0.9.0(ts-node@10.9.2)
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
       axios:
         specifier: ^1.6.5
@@ -327,65 +327,65 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.5.7
+        specifier: ^1.5.8
         version: link:../vue
 
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/i18n':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../i18n
       '@formkit/vue':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../vue
       '@nuxt/kit':
         specifier: ^3.7.4
@@ -446,28 +446,28 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
@@ -480,7 +480,7 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       tailwindcss:
         specifier: ^3.2.0
@@ -498,63 +498,63 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/observer':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../observer
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       '@formkit/dev':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../dev
       '@formkit/i18n':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../i18n
       '@formkit/inputs':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../inputs
       '@formkit/observer':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../observer
       '@formkit/rules':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../rules
       '@formkit/themes':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../themes
       '@formkit/utils':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../validation
       vue:
         specifier: ^3.4.15
         version: 3.4.15(typescript@5.1.3)
     devDependencies:
       '@formkit/icons':
-        specifier: workspace:1.5.7
+        specifier: workspace:1.5.8
         version: link:../icons
 
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 1.5.7
+        specifier: 1.5.8
         version: link:../core
       zod:
         specifier: ^3.0.0
         version: 3.22.4
     devDependencies:
       '@formkit/vue':
-        specifier: ^1.5.7
+        specifier: ^1.5.8
         version: link:../vue
 
 packages:
@@ -2436,17 +2436,17 @@ packages:
     resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
     dev: true
 
-  /@formkit/core@1.5.7:
-    resolution: {integrity: sha512-XnETa8TBbw8KqAD6Ey5uyCDzqa4oIVvOiKJt2npaASoWSAH2B2E7YPFM3/MaQKBLp1a+mYsc1F5EokAuOjPq7w==}
+  /@formkit/core@1.5.8:
+    resolution: {integrity: sha512-zyr/IKaqY40SmPSB4Rvdfk773DevcoUhlhhsWf+2xiV18lSahes+JW84w0IkKcCfPs1ynrrGCiKuorxarkAbtA==}
     dependencies:
-      '@formkit/utils': 1.5.7
+      '@formkit/utils': 1.5.8
     dev: false
 
   /@formkit/theme-creator@0.9.0(ts-node@10.9.2):
     resolution: {integrity: sha512-RHLhy3hxe/4cwSP2ZC0j6drE2kbPy1uFapGwvPKoL8jr9bXBF5ZZeZJ7ov7q/bZBgTggI0ZPjiQESGG9OfdODg==}
     dependencies:
-      '@formkit/core': 1.5.7
-      '@formkit/utils': 1.5.7
+      '@formkit/core': 1.5.8
+      '@formkit/utils': 1.5.8
       postcss: 8.4.33
       tailwind-merge: 1.14.0
       tailwindcss: 3.4.1(ts-node@10.9.2)
@@ -2454,8 +2454,8 @@ packages:
       - ts-node
     dev: false
 
-  /@formkit/utils@1.5.7:
-    resolution: {integrity: sha512-rZuP4ynV/XdsNlX2VuuP0lYTLyY0RCczAt4+pIqo9E/6nwzGKxruoYWr9bbi4WHQQ6rrgf34QMDAdfPC9pGbJw==}
+  /@formkit/utils@1.5.8:
+    resolution: {integrity: sha512-rLfwVPCiEwW0pDWFTQERwnFj5OnpnVxLSL48AWebwyw+VIYlpLytJ8Wbjw+TxwRSRp1DHV34dm8LSR5ov1b6Dw==}
     dev: false
 
   /@fortawesome/fontawesome-common-types@6.5.1:
@@ -3151,6 +3151,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     dev: true
     bundledDependencies:
       - napi-wasm
@@ -4962,7 +4963,7 @@ packages:
     resolution: {integrity: sha512-8jkRxz8pNhClAf4Co4ZrpAoFISdvT3nuSkUlY6Ys6rmTpw3DMWG/X3mw3gQ7QJzgCZO9f+zuE2kW57fi09MW7Q==}
     peerDependencies:
       '@vue/server-renderer': ^3.0.1
-      vue: 3.4.15
+      vue: ^3.0.1
     peerDependenciesMeta:
       '@vue/server-renderer':
         optional: true
@@ -9266,6 +9267,10 @@ packages:
     resolution: {integrity: sha512-7ZtY5KTCNheRGfEFxnedV5zFiORN1+Y1N6zvPTnHQd8ENUvfaDBeuJDZb2bN/oXwXxu3qkTXDzy57W5vAmDTBw==}
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
+    dev: true
+
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
     dev: true
 
   /natural-compare-lite@1.4.0:
