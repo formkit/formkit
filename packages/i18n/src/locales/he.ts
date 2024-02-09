@@ -92,6 +92,10 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is something to close
    */
   close: 'סגור',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'פתוח',
 }
 
 /**

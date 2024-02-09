@@ -118,6 +118,10 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is something to close
    */
   close: 'Uždaryti',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Atidaryti',
 }
 
 /**
