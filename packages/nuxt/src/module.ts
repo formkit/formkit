@@ -59,6 +59,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     } else {
       useFormKitPlugin(options, nuxt)
     }
+    useIntegrations(options, nuxt)
   },
 })
 
@@ -224,6 +225,26 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
       `
     },
     filename: 'formkitPlugin.mjs',
+  })
+} satisfies NuxtModule<ModuleOptions>
+/**
+ * Installs any hooks for integration with Nuxt modules.
+ */
+const useIntegrations = function installModuleHooks(options, nuxt) {
+  const resolver = createResolver(import.meta.url)
+
+  const themeBase = resolve(
+    nuxt.options.rootDir,
+    options.configFile || 'formkit.theme'
+  )
+
+  // @ts-expect-error module may not be installed
+  nuxt.hook('tailwindcss:config', async (tailwindConfig) => {
+    const themePath = await resolver.resolvePath(themeBase)
+    if (existsSync(themePath)) {
+      tailwindConfig.content = tailwindConfig.content ?? { files: [] };
+      (Array.isArray(tailwindConfig.content) ? tailwindConfig.content : tailwindConfig.content.files).push(themePath);
+    }
   })
 } satisfies NuxtModule<ModuleOptions>
 
