@@ -238,12 +238,15 @@ const useIntegrations = function installModuleHooks(options, nuxt) {
     options.configFile || 'formkit.theme'
   )
 
-  // @ts-expect-error module may not be installed
+  // @ts-ignore:next-line module may not be installed
   nuxt.hook('tailwindcss:config', async (tailwindConfig) => {
     const themePath = await resolver.resolvePath(themeBase)
     if (existsSync(themePath)) {
-      tailwindConfig.content = tailwindConfig.content ?? { files: [] };
-      (Array.isArray(tailwindConfig.content) ? tailwindConfig.content : tailwindConfig.content.files).push(themePath);
+      tailwindConfig.content = tailwindConfig.content ?? { files: [] }
+      ;(Array.isArray(tailwindConfig.content)
+        ? tailwindConfig.content
+        : tailwindConfig.content.files
+      ).push(themePath)
     }
   })
 } satisfies NuxtModule<ModuleOptions>
