@@ -702,6 +702,7 @@ export interface FormKitBaseProps {
   help: string
   ignore: 'true' | 'false' | boolean
   label: string
+  library: Record<string, any>
   max: string | number
   method: string
   min: string | number
@@ -725,6 +726,7 @@ export const runtimeProps = [
   'id',
   'index',
   'inputErrors',
+  'library',
   'modelValue',
   'onUpdate:modelValue',
   'name',

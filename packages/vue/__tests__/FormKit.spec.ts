@@ -21,6 +21,7 @@ import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
 import { componentSymbol } from '../src/FormKit'
 import { provide } from 'vue'
+import { markRaw } from 'vue'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -2561,5 +2562,43 @@ describe('naked attributes', () => {
     show.value = true
     await nextTick()
     expect(wrapper.html()).not.toContain(' is required.')
+  })
+
+  it('can use a custom component on a FormKit component with library (#1145)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit
+          type="text"
+          :library="library"
+          help="This is working!"
+          :sections-schema="{
+            help: {
+              $el: undefined,
+              $cmp: 'MyComponent',
+              props: {
+                message: '$help'
+              }
+            }
+          }"
+        />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    console.log(wrapper.html())
+    expect(wrapper.html()).toContain('<h2>This is working!</h2>')
   })
 })
