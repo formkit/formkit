@@ -6,6 +6,9 @@ import {
   PropType,
   mergeProps,
   defineComponent,
+  provide,
+  markRaw,
+  ConcreteComponent,
 } from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
@@ -18,10 +21,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
-import { ConcreteComponent } from 'vue'
 import { componentSymbol } from '../src/FormKit'
-import { provide } from 'vue'
-import { markRaw } from 'vue'
+import { FormKitMessages } from '../src/FormKitMessages'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -2598,7 +2599,50 @@ describe('naked attributes', () => {
         },
       }
     )
-    console.log(wrapper.html())
     expect(wrapper.html()).toContain('<h2>This is working!</h2>')
+  })
+
+  it('can use a library on FormKitMessages component (#1137)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        components: {
+          FormKitMessages,
+        },
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit type="form" :errors="['I have 99 issues but components arent one']">
+          <FormKitMessages
+            :library="library"
+            :sections-schema="{
+              message: {
+                $el: undefined,
+                $cmp: 'MyComponent',
+                props: {
+                  message: '$message.value'
+                }
+              }
+            }"
+          />
+          <div>Other context down here</div>
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(
+      '<h2>I have 99 issues but components arent one</h2>'
+    )
   })
 })
