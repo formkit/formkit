@@ -244,7 +244,7 @@ export type PropType<
   T extends keyof FormKitInputs<Props>
 > = Extract<
   FormKitInputs<Props>,
-  { type: Props['type'] extends string ? Props['type'] : 'text' }
+  { type: Props['type'] extends string ? Props['type'] : 'meta' }
 >[T]
 
 /**
