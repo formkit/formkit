@@ -1,4 +1,12 @@
-import { nextTick, h, reactive, ref, PropType, mergeProps, defineComponent } from 'vue'
+import {
+  nextTick,
+  h,
+  reactive,
+  ref,
+  PropType,
+  mergeProps,
+  defineComponent,
+} from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
@@ -8,6 +16,7 @@ import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
+import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
 import { ConcreteComponent } from 'vue'
 import { componentSymbol } from '../src/FormKit'
@@ -2520,5 +2529,37 @@ describe('naked attributes', () => {
     const node = getNode(id)
     node?.input('foo', false)
     expect(validatingOnCommit).toBe(true)
+  })
+
+  it('changes locale for new inputs using changeLocale', async () => {
+    const show = ref(false)
+    const wrapper = mount(
+      {
+        setup() {
+          return { show }
+        },
+        template: `<FormKit type="text" validation="required" validation-visibility="live" />
+        <FormKit type="text" validation="required" validation-visibility="live" v-if="show" />`,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                locales: { de },
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(' is required.')
+    changeLocale('de')
+    await nextTick()
+    expect(wrapper.html()).toContain(' ist erforderlich.')
+    show.value = true
+    await nextTick()
+    expect(wrapper.html()).not.toContain(' is required.')
   })
 })
