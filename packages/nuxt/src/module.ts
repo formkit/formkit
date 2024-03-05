@@ -148,10 +148,7 @@ const useAutoImport = async function installLazy(options, nuxt) {
     const plugin = unpluginFormKit({
       defaultConfig: options.defaultConfig,
       configFile: configBase,
-    }) as any
-    // ☝️ Unfortunately we have this declaration as any right here, this seems
-    // to do with unplugin having a different vite dependency than nuxt, however
-    // this shouldn’t affect runtime.
+    })
     if (Array.isArray(config.plugins)) {
       config.plugins?.unshift(plugin)
     } else {
