@@ -189,7 +189,7 @@ export interface BeforeStepChange {
 
 export interface BeforeStepChangeData<T = unknown> {
   currentStep: FormKitFrameworkContext<T>
-  nextStep: FormKitFrameworkContext<T>
+  targetStep: FormKitFrameworkContext<T>
   delta: number
 }
 

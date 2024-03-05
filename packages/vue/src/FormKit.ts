@@ -173,6 +173,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
   const library = {
     FormKit: markRaw(formkitComponent),
     ...definitionLibrary,
+    ...(props.library ?? {}),
   }
 
   /**
