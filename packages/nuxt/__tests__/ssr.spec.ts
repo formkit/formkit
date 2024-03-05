@@ -1,11 +1,9 @@
-import { fileURLToPath } from 'node:url'
+import { createResolver } from '@nuxt/kit'
 import { describe, expect, it } from 'vitest'
 import { $fetch, createPage, setup, url } from '@nuxt/test-utils/e2e'
 
-const rootDir = fileURLToPath(new URL('../playground', import.meta.url))
-
 await setup({
-  rootDir,
+  rootDir: createResolver(import.meta.url).resolve('../playground'),
   browser: true,
   server: true,
 })
