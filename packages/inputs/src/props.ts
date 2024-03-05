@@ -633,7 +633,7 @@ export interface FormKitRuntimeProps<
   /**
    * The dynamic value of the input.
    */
-  modelValue: PropType<Props, 'value'>
+  modelValue: Props['type'] extends FormKitTypeDefinition<infer T> ? T : PropType<Props, 'value'>
   /**
    * The name of the input.
    */
