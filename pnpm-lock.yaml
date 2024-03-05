@@ -399,6 +399,9 @@ importers:
       pathe:
         specifier: ^1.1.2
         version: 1.1.2
+      unplugin:
+        specifier: ^1.8.1
+        version: 1.8.1
       unplugin-formkit:
         specifier: ^0.2.13
         version: 0.2.13(esbuild@0.19.11)(rollup@3.29.4)(vite@4.5.2)
@@ -2990,7 +2993,7 @@ packages:
       strip-literal: 2.0.0
       ufo: 1.3.2
       unenv: 1.9.0
-      unplugin: 1.6.0
+      unplugin: 1.8.1
       vite: 5.0.12(@types/node@18.19.6)(terser@5.26.0)
       vite-node: 1.2.2(@types/node@18.19.6)(terser@5.26.0)
       vite-plugin-checker: 0.6.4(eslint@8.56.0)(stylelint@14.16.1)(typescript@5.1.3)(vite@5.0.12)
@@ -5637,6 +5640,20 @@ packages:
 
   /chokidar@3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
+    engines: {node: '>= 8.10.0'}
+    dependencies:
+      anymatch: 3.1.3
+      braces: 3.0.2
+      glob-parent: 5.1.2
+      is-binary-path: 2.1.0
+      is-glob: 4.0.3
+      normalize-path: 3.0.0
+      readdirp: 3.6.0
+    optionalDependencies:
+      fsevents: 2.3.3
+
+  /chokidar@3.6.0:
+    resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
     dependencies:
       anymatch: 3.1.3
@@ -9667,7 +9684,7 @@ packages:
       unctx: 2.3.1
       unenv: 1.9.0
       unimport: 3.7.1(rollup@3.29.4)
-      unplugin: 1.6.0
+      unplugin: 1.8.1
       unplugin-vue-router: 0.7.0(rollup@3.29.4)(vue-router@4.2.5)(vue@3.4.15)
       untyped: 1.4.2
       vue: 3.4.15(typescript@5.1.3)
@@ -12595,7 +12612,7 @@ packages:
       acorn: 8.11.3
       estree-walker: 3.0.3
       magic-string: 0.30.6
-      unplugin: 1.6.0
+      unplugin: 1.8.1
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
@@ -12645,7 +12662,7 @@ packages:
       pkg-types: 1.0.3
       scule: 1.2.0
       strip-literal: 1.3.0
-      unplugin: 1.6.0
+      unplugin: 1.8.1
     transitivePeerDependencies:
       - rollup
 
@@ -12664,7 +12681,7 @@ packages:
       pkg-types: 1.0.3
       scule: 1.2.0
       strip-literal: 1.3.0
-      unplugin: 1.6.0
+      unplugin: 1.8.1
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -12771,7 +12788,7 @@ packages:
       esbuild: 0.19.11
       pathe: 1.1.2
       rollup: 3.29.4
-      unplugin: 1.6.0
+      unplugin: 1.8.1
       vite: 4.5.2(@types/node@18.19.6)(sass@1.60.0)(terser@5.26.0)
     dev: false
 
@@ -12794,7 +12811,7 @@ packages:
       mlly: 1.5.0
       pathe: 1.1.2
       scule: 1.2.0
-      unplugin: 1.6.0
+      unplugin: 1.8.1
       vue-router: 4.2.5(vue@3.4.15)
       yaml: 2.3.4
     transitivePeerDependencies:
@@ -12802,11 +12819,11 @@ packages:
       - vue
     dev: true
 
-  /unplugin@1.6.0:
-    resolution: {integrity: sha512-BfJEpWBu3aE/AyHx8VaNE/WgouoQxgH9baAiH82JjX8cqVyi3uJQstqwD5J+SZxIK326SZIhsSZlALXVBCknTQ==}
+  /unplugin@1.8.1:
+    resolution: {integrity: sha512-NDAvOEnZmeSRRmjfD0FoLzfve2/9lqceO5bR4J/2V72zphnFdq7UYo3fg6F1y1HfZEaSHa+7bZgbEN+z5x8ZDQ==}
     dependencies:
       acorn: 8.11.3
-      chokidar: 3.5.3
+      chokidar: 3.6.0
       webpack-sources: 3.2.3
       webpack-virtual-modules: 0.6.1
 
