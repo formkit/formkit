@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "cd .. && pnpm nuxt-module-build build --stub && popd && nuxt prepare"
   },
   "devDependencies": {
     "@formkit/nuxt": "latest",
