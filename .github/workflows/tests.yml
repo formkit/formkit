@@ -5,12 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: corepack enable
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build all
       - name: Run Vitest
@@ -21,12 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: corepack enable
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build all
       - name: Get installed Playwright version
