@@ -126,6 +126,12 @@ const useAutoImport = async function installLazy(options, nuxt) {
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
+  addComponent({
+    name: 'FormKitIcon',
+    export: 'FormKitIcon',
+    filePath: '@formkit/vue',
+    chunkName: '@formkit/vue',
+  })
   const { resolve } = createResolver(import.meta.url)
 
   const configBase = resolve(
