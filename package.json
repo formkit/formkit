@@ -94,5 +94,11 @@
       "limit": "10 KB"
     }
   ],
-  "packageManager": "pnpm@8.15.4"
+  "packageManager": "pnpm@8.15.4",
+  "pnpm": {
+    "patchedDependencies": {
+      "@nuxt/kit@3.10.3": "patches/@nuxt__kit@3.10.3.patch",
+      "@nuxt/kit@3.10.1": "patches/@nuxt__kit@3.10.3.patch"
+    }
+  }
 }
