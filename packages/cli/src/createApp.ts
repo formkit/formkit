@@ -291,7 +291,8 @@ export async function createApp(
     )
     await addDependency(appName, '@formkit/nuxt', 'latest')
     await addDependency(appName, '@formkit/icons', 'latest')
-    await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, '@formkit/core', 'latest')
+    await addDependency(appName, '@formkit/vue', 'latest')
     await addDependency(appName, '@nuxtjs/tailwindcss')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')

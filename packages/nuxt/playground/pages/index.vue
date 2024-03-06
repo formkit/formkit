@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 let memoryValue
-if (typeof window === 'undefined') {
+if (typeof window === 'undefined' && !import.meta.test && !import.meta.dev) {
   if (typeof globalThis.gc === 'function') gc()
   memoryValue = Math.round(process.memoryUsage().heapUsed / 1000 / 100) / 10
 }
