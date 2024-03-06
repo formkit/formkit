@@ -1,15 +1,12 @@
-import { createResolver } from '@nuxt/kit'
+/** @vitest-environment node */
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { $fetch, createPage, setup, url } from '@nuxt/test-utils/e2e'
-import { resolvePackageJSON } from 'pkg-types'
 
-await resolvePackageJSON('nuxt', { url: createResolver(import.meta.url).resolve('../playground') }).catch((e) => console.log({
-  path: createResolver(import.meta.url).resolve('../playground') ,
-  e
-}))
+const rootDir = fileURLToPath(new URL('../playground', import.meta.url))
 
 await setup({
-  rootDir: createResolver(import.meta.url).resolve('../playground'),
+  rootDir,
   browser: true,
   server: true,
 })

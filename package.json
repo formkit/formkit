@@ -94,13 +94,5 @@
       "limit": "10 KB"
     }
   ],
-  "packageManager": "pnpm@8.15.4",
-  "resolutions": {
-    "vue": "3.4.21"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "mlly@1.6.1": "patches/mlly@1.6.1.patch"
-    }
-  }
+  "packageManager": "pnpm@8.15.4"
 }

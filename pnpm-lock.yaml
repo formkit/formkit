@@ -4,14 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  vue: 3.4.21
-
-patchedDependencies:
-  mlly@1.6.1:
-    hash: j6josnffjg2u4xdtpzdpzw3wei
-    path: patches/mlly@1.6.1.patch
-
 importers:
 
   .:
@@ -203,7 +195,7 @@ importers:
         specifier: ^0.33.0
         version: 0.33.0(jsdom@21.1.2)(terser@5.26.0)
       vue:
-        specifier: 3.4.21
+        specifier: ^3.4.15
         version: 3.4.21(typescript@5.1.3)
       windicss:
         specifier: ^3.5.6
@@ -420,9 +412,6 @@ importers:
       '@nuxt/test-utils':
         specifier: ^3.11.0
         version: 3.11.0(@vue/test-utils@2.4.4)(h3@1.11.1)(jsdom@21.1.2)(rollup@3.29.4)(vite@4.5.2)(vitest@0.33.0)(vue-router@4.3.0)(vue@3.4.21)
-      pkg-types:
-        specifier: ^1.0.3
-        version: 1.0.3
 
   packages/nuxt/playground:
     devDependencies:
@@ -448,7 +437,7 @@ importers:
         specifier: ^3.10.3
         version: 3.10.3(@types/node@18.19.6)(eslint@8.56.0)(rollup@3.29.4)(stylelint@14.16.1)(terser@5.26.0)(typescript@5.1.3)(vite@4.5.2)
       vue:
-        specifier: 3.4.21
+        specifier: ^3.4.15
         version: 3.4.21(typescript@5.1.3)
       vue-router:
         specifier: ^4.2.5
@@ -548,7 +537,7 @@ importers:
         specifier: 1.5.9
         version: link:../validation
       vue:
-        specifier: 3.4.21
+        specifier: ^3.4.15
         version: 3.4.21(typescript@5.1.3)
     devDependencies:
       '@formkit/icons':
@@ -2885,7 +2874,7 @@ packages:
       ignore: 5.3.1
       jiti: 1.21.0
       knitwork: 1.0.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       pkg-types: 1.0.3
       scule: 1.3.0
@@ -2908,7 +2897,7 @@ packages:
       '@nuxt/kit': 3.10.3(rollup@3.29.4)
       citty: 0.1.5
       consola: 3.2.3
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       nuxi: 3.10.1
       pathe: 1.1.2
       unbuild: 2.0.0(typescript@5.1.3)
@@ -2978,7 +2967,7 @@ packages:
       playwright-core: ^1.34.3
       vite: '*'
       vitest: ^0.34.6 || ^1.0.0
-      vue: 3.4.21
+      vue: ^3.3.4
       vue-router: ^4.0.0
     peerDependenciesMeta:
       '@cucumber/cucumber':
@@ -3042,7 +3031,7 @@ packages:
     resolution: {integrity: sha512-BqkbrYkEk1AVUJleofbqTRV+ltf2p1CDjGDK78zENPCgrSABlj4F4oK8rze8vmRY5qoH7kMZxgMa2dXVXCp6OA==}
     engines: {node: ^14.18.0 || >=16.10.0}
     peerDependencies:
-      vue: 3.4.21
+      vue: ^3.3.4
     dependencies:
       '@nuxt/kit': 3.10.3(rollup@3.29.4)
       '@rollup/plugin-replace': 5.0.5(rollup@3.29.4)
@@ -3062,7 +3051,7 @@ packages:
       h3: 1.11.1
       knitwork: 1.0.0
       magic-string: 0.30.8
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       ohash: 1.1.3
       pathe: 1.1.2
       perfect-debounce: 1.0.0
@@ -4485,7 +4474,7 @@ packages:
   /@unhead/vue@1.8.10(vue@3.4.21):
     resolution: {integrity: sha512-KF8pftHnxnlBlgNpKXWLTg3ZUtkuDCxRPUFSDBy9CtqRSX/qvAhLZ26mbqRVmHj8KigiRHP/wnPWNyGnUx20Bg==}
     peerDependencies:
-      vue: 3.4.21
+      vue: '>=2.7 || >=3'
     dependencies:
       '@unhead/schema': 1.8.10
       '@unhead/shared': 1.8.10
@@ -4824,7 +4813,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0 || ^5.0.0
-      vue: 3.4.21
+      vue: ^3.0.0
     dependencies:
       '@babel/core': 7.23.7
       '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.7)
@@ -4840,7 +4829,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.0.0 || ^5.0.0
-      vue: 3.4.21
+      vue: ^3.0.0
     dependencies:
       '@babel/core': 7.23.7
       '@babel/plugin-transform-typescript': 7.23.6(@babel/core@7.23.7)
@@ -4856,7 +4845,7 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0
-      vue: 3.4.21
+      vue: ^3.2.25
     dependencies:
       vite: 4.5.2(@types/node@18.19.6)(sass@1.60.0)(terser@5.26.0)
       vue: 3.4.21(typescript@5.1.3)
@@ -4867,7 +4856,7 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0
-      vue: 3.4.21
+      vue: ^3.2.25
     dependencies:
       vite: 5.1.5(@types/node@18.19.6)(terser@5.26.0)
       vue: 3.4.21(typescript@5.1.3)
@@ -4915,7 +4904,7 @@ packages:
     resolution: {integrity: sha512-auDJJzE0z3uRe3867e0DsqcseKImktNf5ojCZgUKqiVxb2yTlwlgOVAYCgoep9oITqxkXQymSvFeKhedi8PhaA==}
     engines: {node: '>=16.14.0'}
     peerDependencies:
-      vue: 3.4.21
+      vue: ^2.7.0 || ^3.2.25
     peerDependenciesMeta:
       vue:
         optional: true
@@ -5046,7 +5035,7 @@ packages:
     resolution: {integrity: sha512-8jkRxz8pNhClAf4Co4ZrpAoFISdvT3nuSkUlY6Ys6rmTpw3DMWG/X3mw3gQ7QJzgCZO9f+zuE2kW57fi09MW7Q==}
     peerDependencies:
       '@vue/server-renderer': ^3.0.1
-      vue: 3.4.21
+      vue: ^3.0.1
     peerDependenciesMeta:
       '@vue/server-renderer':
         optional: true
@@ -5595,7 +5584,7 @@ packages:
       dotenv: 16.4.5
       giget: 1.2.1
       jiti: 1.21.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       ohash: 1.1.3
       pathe: 1.1.2
       perfect-debounce: 1.0.0
@@ -7420,7 +7409,7 @@ packages:
     resolution: {integrity: sha512-LyExtJWKxtgVzmgtEHyQtLFpw1KFhQphF9nTG8TpAIVkiI/xQ3FJh75tRFLYl4hkn7BNIIdLJInuDAavX35pMw==}
     dependencies:
       enhanced-resolve: 5.15.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       ufo: 1.4.0
     dev: true
@@ -8860,7 +8849,7 @@ packages:
       h3: 1.11.1
       http-shutdown: 1.2.2
       jiti: 1.21.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       node-forge: 1.3.1
       pathe: 1.1.2
       std-env: 3.7.0
@@ -8889,7 +8878,7 @@ packages:
     resolution: {integrity: sha512-ok6z3qlYyCDS4ZEU27HaU6x/xZa9Whf8jD4ptH5UZTQYZVYeb9bnZ3ojVhiJNLiXK1Hfc0GNbLXcmZ5plLDDBg==}
     engines: {node: '>=14'}
     dependencies:
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pkg-types: 1.0.3
 
   /locate-path@5.0.0:
@@ -9324,20 +9313,19 @@ packages:
       fs-extra: 11.2.0
       globby: 13.2.2
       jiti: 1.21.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       mri: 1.2.0
       pathe: 1.1.2
       typescript: 5.1.3
     dev: true
 
-  /mlly@1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei):
+  /mlly@1.6.1:
     resolution: {integrity: sha512-vLgaHvaeunuOXHSmEbZ9izxPx3USsk8KCQ8iC+aTlp5sKRSoZvwhHh5L9VbKSaVC6sJDqbyohIS76E2VmHIPAA==}
     dependencies:
       acorn: 8.11.3
       pathe: 1.1.2
       pkg-types: 1.0.3
       ufo: 1.4.0
-    patched: true
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9439,7 +9427,7 @@ packages:
       listhen: 1.5.5
       magic-string: 0.30.8
       mime: 3.0.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       mri: 1.2.0
       node-fetch-native: 1.6.1
       ofetch: 1.3.3
@@ -9752,7 +9740,7 @@ packages:
       klona: 2.0.6
       knitwork: 1.0.0
       magic-string: 0.30.8
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       nitropack: 2.8.1
       nuxi: 3.10.1
       nypm: 0.3.6
@@ -10245,7 +10233,7 @@ packages:
     resolution: {integrity: sha512-nN7pYi0AQqJnoLPC9eHFQ8AcyaixBUOwvqc5TDnIKCMEE6I0y8P7OKA7fPexsXGCGxQDl/cmrLAp26LhcwxZ4A==}
     dependencies:
       jsonc-parser: 3.2.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
 
   /playwright-core@1.40.1:
@@ -12676,7 +12664,7 @@ packages:
       jiti: 1.21.0
       magic-string: 0.30.8
       mkdist: 1.3.0(typescript@5.1.3)
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       pkg-types: 1.0.3
       pretty-bytes: 6.1.1
@@ -12696,7 +12684,7 @@ packages:
       '@antfu/utils': 0.7.7
       defu: 6.1.4
       jiti: 1.21.0
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
 
   /uncrypto@0.1.3:
     resolution: {integrity: sha512-Ql87qFHB3s/De2ClA9e0gsnS6zXG27SkTiSJwjCc9MebbfapQfuPzumMIUMi38ezPZVNFcHI9sUIepeQfw8J8Q==}
@@ -12753,7 +12741,7 @@ packages:
       fast-glob: 3.3.2
       local-pkg: 0.5.0
       magic-string: 0.30.8
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       pkg-types: 1.0.3
       scule: 1.3.0
@@ -12772,7 +12760,7 @@ packages:
       fast-glob: 3.3.2
       local-pkg: 0.5.0
       magic-string: 0.30.8
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       pkg-types: 1.0.3
       scule: 1.3.0
@@ -12904,7 +12892,7 @@ packages:
       fast-glob: 3.3.2
       json5: 2.2.3
       local-pkg: 0.4.3
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       scule: 1.3.0
       unplugin: 1.8.1
@@ -13080,7 +13068,7 @@ packages:
     dependencies:
       cac: 6.7.14
       debug: 4.3.4
-      mlly: 1.6.1(patch_hash=j6josnffjg2u4xdtpzdpzw3wei)
+      mlly: 1.6.1
       pathe: 1.1.2
       picocolors: 1.0.0
       vite: 4.5.2(@types/node@18.19.6)(sass@1.60.0)(terser@5.26.0)
@@ -13482,7 +13470,7 @@ packages:
   /vue-router@4.3.0(vue@3.4.21):
     resolution: {integrity: sha512-dqUcs8tUeG+ssgWhcPbjHvazML16Oga5w34uCUmsk7i0BcnskoLGwjpa15fqMr2Fa5JgVBrdL2MEgqz6XZ/6IQ==}
     peerDependencies:
-      vue: 3.4.21
+      vue: ^3.2.0
     dependencies:
       '@vue/devtools-api': 6.6.1
       vue: 3.4.21(typescript@5.1.3)
