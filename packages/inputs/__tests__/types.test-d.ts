@@ -1,4 +1,4 @@
-import { describe, assertType, it } from 'vitest'
+import { describe, assertType, it, expectTypeOf } from 'vitest'
 import { FormKitEvents, FormKitInputSlots, PropType } from '../src/props'
 import { createNode } from '@formkit/core'
 import type { FormKitTypeDefinition } from '@formkit/core'
@@ -6,7 +6,10 @@ import type { FormKitTypeDefinition } from '@formkit/core'
 declare const textEvent: FormKitEvents<{ type: 'text' }>
 declare const formEvent: FormKitEvents<{ type: 'form' }>
 declare const textSlots: FormKitInputSlots<{ type: 'text' }>['text']
-declare const customInputProps: { type: FormKitTypeDefinition<number> }
+declare const customInputProps: {
+  type: FormKitTypeDefinition<number>
+  modelValue: number
+}
 declare const customInputPropType: PropType<typeof customInputProps, 'value'>
 describe('base events', () => {
   it('has an input event', () => {
@@ -63,6 +66,8 @@ describe('base slots', () => {
   })
 })
 
-describe('custom input type', () => {
-  assertType<number>(customInputPropType)
+describe('custom inputs', () => {
+  it('can infer the correct value type from a custom input definition', () => {
+    expectTypeOf(customInputPropType).toMatchTypeOf<number>(123)
+  })
 })

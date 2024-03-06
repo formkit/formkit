@@ -156,9 +156,9 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
           : never)
     value?: Props['type'] extends FormKitTypeDefinition<infer T>
       ? T
-      : Props['type'] extends never
-      ? string
-      : never
+      : Props['type'] extends AllReals
+      ? never
+      : string
   }
 }
 
@@ -207,7 +207,7 @@ export type MergedEvents<Props extends FormKitInputs<Props>> =
  */
 export type InputType<Props extends FormKitInputs<Props>> =
   Props['type'] extends FormKitTypeDefinition<any>
-    ? '_'
+    ? Props['type']
     : Props['type'] extends string
     ? Props['type']
     : 'text'
@@ -254,16 +254,18 @@ export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
 export type PropType<
   Props extends FormKitInputs<Props>,
   T extends keyof FormKitInputs<Props>
-> = Extract<
-  FormKitInputs<Props>,
-  {
-    type: Props['type'] extends FormKitTypeDefinition<any>
-      ? Props['type']
-      : Props['type'] extends string
-      ? Props['type']
-      : 'text'
-  }
->[T]
+> = Props['type'] extends FormKitTypeDefinition<infer T>
+  ? T extends 'value'
+    ? Props['type']
+    : T
+  : Extract<
+      FormKitInputs<Props>,
+      {
+        type: Props['type'] extends keyof FormKitInputProps<Props>
+          ? Props['type']
+          : 'text'
+      }
+    >[T]
 
 /**
  * The proper shape of data to be passed to options prop.

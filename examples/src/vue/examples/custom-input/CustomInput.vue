@@ -6,7 +6,9 @@
     label="Hello world!"
     help="This is my custom help text"
   />
-  <FormKit type="file" value="123" />
+  <FormKit label="foobar" value="123" />
+  <FormKit type="file" :value="[]" />
+  <FormKit value="123" />
   value: {{ value }}
 </template>
 
@@ -15,8 +17,8 @@ import { ref } from 'vue'
 import { createInput } from '@formkit/vue'
 import CurrencyInput from './CurrencyInput.vue'
 
-const value = ref<number>()
-const currencyInput = createInput<number>(CurrencyInput, {
+const value = ref<{ a: number }>()
+const currencyInput = createInput<{ a: number }>(CurrencyInput, {
   props: ['currency'],
 })
 </script>
