@@ -41,6 +41,7 @@
   "devDependencies": {
     "@nuxt/module-builder": "^0.5.5",
     "@nuxt/schema": "^3.10.3",
-    "@nuxt/test-utils": "^3.11.0"
+    "@nuxt/test-utils": "^3.11.0",
+    "pkg-types": "^1.0.3"
   }
 }
