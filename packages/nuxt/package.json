@@ -36,6 +36,7 @@
     "chokidar": "^3.5.3",
     "nuxi": "^3.10.0",
     "pathe": "^1.1.2",
+    "unplugin": "^1.8.1",
     "unplugin-formkit": "^0.2.13"
   },
   "devDependencies": {

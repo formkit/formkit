@@ -1,5 +1,14 @@
 name: Vitest & Playwright
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - master
+      - release/*
+  workflow_dispatch:
 jobs:
   Vitest:
     runs-on: ubuntu-latest
