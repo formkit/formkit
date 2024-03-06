@@ -153,8 +153,8 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   // are effectively "text" inputs.
   _: {
     type?: Props['type'] extends keyof FormKitInputProps<Props>
-      ? never
-      : Props['type']
+      ? Props['type']
+      : never
     value?: string
   }
 }

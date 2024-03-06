@@ -150,6 +150,7 @@ const useAutoImport = async function installLazy(options, nuxt) {
     defaultConfig: options.defaultConfig,
     configFile: configBase,
   }) as unknown as typeof unpluginFormKit))
+
 } satisfies NuxtModule<ModuleOptions>
 /**
  * Installs FormKit via Nuxt plugin. This registers the FormKit plugin globally
