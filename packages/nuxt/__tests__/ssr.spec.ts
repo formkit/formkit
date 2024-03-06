@@ -1,3 +1,4 @@
+/** @vitest-environment node */
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { $fetch, createPage, setup, url } from '@nuxt/test-utils/e2e'

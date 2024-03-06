@@ -17,7 +17,7 @@
     "@formkit/zod": "workspace:^1.0.0",
     "@vitejs/plugin-vue": "^5.0.3",
     "vite": "^4.5.2",
-    "vue-router": "4.2.5"
+    "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "sass": "^1.45.1",
