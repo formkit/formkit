@@ -220,7 +220,7 @@ export const formkitComponent = /* #__PURE__ */ defineComponent(
     props: runtimeProps as any,
     inheritAttrs: false,
   }
-) as FormKitComponent
+) as unknown as FormKitComponent
 
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow
