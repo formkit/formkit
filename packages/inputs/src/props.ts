@@ -144,18 +144,21 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   time: { type: 'time'; value?: string }
   url: { type: 'url'; value?: string }
   week: { type: 'week'; value?: string }
-  // An input type that is directly applied via prop library.
-  __direct: {
-    type: '__direct'
-    value?: Props['type'] extends FormKitTypeDefinition<infer T> ? T : any
-  }
   // This fallthrough is for inputs that do not have their type set. These
   // are effectively "text" inputs.
   _: {
-    type?: Props['type'] extends keyof FormKitInputProps<Props>
-      ? Props['type']
+    type?:
+      | (Props['type'] extends FormKitTypeDefinition<any>
+          ? Props['type']
+          : never & {})
+      | (Props['type'] extends keyof FormKitInputProps<Props>
+          ? Props['type']
+          : never)
+    value?: Props['type'] extends FormKitTypeDefinition<infer T>
+      ? T
+      : Props['type'] extends never
+      ? string
       : never
-    value?: string
   }
 }
 
@@ -204,7 +207,7 @@ export type MergedEvents<Props extends FormKitInputs<Props>> =
  */
 export type InputType<Props extends FormKitInputs<Props>> =
   Props['type'] extends FormKitTypeDefinition<any>
-    ? '__direct'
+    ? '_'
     : Props['type'] extends string
     ? Props['type']
     : 'text'
@@ -255,7 +258,7 @@ export type PropType<
   FormKitInputs<Props>,
   {
     type: Props['type'] extends FormKitTypeDefinition<any>
-      ? '__direct'
+      ? Props['type']
       : Props['type'] extends string
       ? Props['type']
       : 'text'

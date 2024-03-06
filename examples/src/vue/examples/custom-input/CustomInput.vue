@@ -6,6 +6,7 @@
     label="Hello world!"
     help="This is my custom help text"
   />
+  <FormKit type="file" value="123" />
   value: {{ value }}
 </template>
 
