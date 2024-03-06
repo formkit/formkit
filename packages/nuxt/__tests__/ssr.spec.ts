@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest'
 import { $fetch, createPage, setup, url } from '@nuxt/test-utils/e2e'
 import { resolvePackageJSON } from 'pkg-types'
 
-await resolvePackageJSON('nuxt', { url: createResolver(import.meta.url).resolve('../playground') }).catch((e) => console.log(e))
+await resolvePackageJSON('nuxt', { url: createResolver(import.meta.url).resolve('../playground') }).catch((e) => console.log({
+  path: createResolver(import.meta.url).resolve('../playground') ,
+  e
+}))
 
 await setup({
   rootDir: createResolver(import.meta.url).resolve('../playground'),
