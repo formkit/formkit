@@ -1,0 +1,14 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index a9541e0f283ee7d12a82962d76916cfd09b95d16..58fcdecbbe4502deb20eb456a2ac2b5cbb14a886 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1892,7 +1892,8 @@ function packageResolve(specifier, base, conditions) {
+     // Cross-platform root check.
+   } while (packageJsonPath.length !== lastPath.length)
+ 
+-  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath$1(base), false)
++  console.log({base})
++  throw new ERR_MODULE_NOT_FOUND(packageName, /* fileURLToPath$1(base) */ '', false)
+ }
+ 
+ /**
