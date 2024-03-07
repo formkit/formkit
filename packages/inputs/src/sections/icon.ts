@@ -21,7 +21,7 @@ export const icon = (
         innerHTML: `$${rawIconProp}`,
         onClick: `$handlers.iconClick(${sectionKey})`,
         role: `$fns.iconRole(${sectionKey})`,
-        tabindex: `$fns.iconRole(${sectionKey}) === "button" && "-1" || undefined`,
+        tabindex: `$fns.iconRole(${sectionKey}) === "button" && "0" || undefined`,
         for: {
           if: `${el === 'label'}`,
           then: '$id',
