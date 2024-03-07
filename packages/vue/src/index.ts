@@ -75,7 +75,10 @@ export {
 /**
  * Exports the useFormKitContext composable.
  */
-export { useFormKitContext } from './composables/useContext'
+export {
+  useFormKitContext,
+  useFormKitContextById,
+} from './composables/useContext'
 
 /**
  * The FormKitSummary component.

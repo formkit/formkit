@@ -1,9 +1,5 @@
-import {
-  getNode,
-  type FormKitFrameworkContext,
-  type FormKitGroupValue,
-  watchRegistry,
-} from '@formkit/core'
+import { getNode, watchRegistry, stopWatch } from '@formkit/core'
+import type { FormKitFrameworkContext, FormKitGroupValue } from '@formkit/core'
 import { parentSymbol } from '../FormKit'
 import { ref, inject, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -70,20 +66,26 @@ export function useFormKitContext<T = FormKitGroupValue>(
  * @param id - The id of the node to access the context for.
  * @param effect - An effect callback to run when the context is available.
  */
-// export function useFormKitContextById<T = any>(
-//   id: string,
-//   effect?: (context: FormKitFrameworkContext<T>) => void
-// ): Ref<FormKitFrameworkContext<T> | undefined> {
-//   const context = ref<FormKitFrameworkContext<T> | undefined>()
-//   const targetNode = getNode(id)
-//   if (targetNode)
-//     context.value = targetNode.context as FormKitFrameworkContext<T>
-//   if (!targetNode) {
-//     watchRegistry(id, () => {
-
-//     })
-//   }
-// }
+export function useFormKitContextById<T = any>(
+  id: string,
+  effect?: (context: FormKitFrameworkContext<T>) => void
+): Ref<FormKitFrameworkContext<T> | undefined> {
+  const context = ref<FormKitFrameworkContext<T> | undefined>()
+  const targetNode = getNode(id)
+  if (targetNode)
+    context.value = targetNode.context as FormKitFrameworkContext<T>
+  if (!targetNode) {
+    const receipt = watchRegistry(id, ({ payload: node }) => {
+      if (node) {
+        context.value = node.context as FormKitFrameworkContext<T>
+        stopWatch(receipt)
+        if (effect) effect(context.value)
+      }
+    })
+  }
+  if (context.value && effect) effect(context.value)
+  return context
+}
 
 // export function useFormKitNodeById<T>(
 //   id: string,
