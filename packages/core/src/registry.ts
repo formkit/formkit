@@ -95,7 +95,17 @@ export function resetRegistry(): void {
 export function watchRegistry(
   id: string,
   callback: FormKitEventListener
-): void {
+): string {
   // register a listener
-  receipts.push(emit.on(id, callback))
+  const receipt = emit.on(id, callback)
+  receipts.push(receipt)
+  return receipt
+}
+
+/**
+ * Stop watching the registry for a given receipt.
+ * @param receipt - a receipt to stop watching
+ */
+export function stopWatch(receipt: string): void {
+  emit.off(receipt)
 }
