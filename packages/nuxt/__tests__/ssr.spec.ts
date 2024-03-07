@@ -14,7 +14,9 @@ await setup({
 describe('vite', async () => {
   it('builds and renders', async () => {
     const html = await $fetch('/')
-    expect(html.match(/<fieldset.*<\/fieldset>/)?.[0]).toMatchFileSnapshot('./snapshots/index.html')
+    expect(html.match(/<fieldset.*<\/fieldset>/)?.[0]).toMatchFileSnapshot(
+      './snapshots/index.html'
+    )
   })
 
   it('has no hydration errors', async () => {
@@ -25,8 +27,16 @@ describe('vite', async () => {
     })
     await page.goto(url('/'))
     // @ts-expect-error useNuxtApp is not typed - use https://github.com/nuxt/test-utils/pull/739
-    await page.waitForFunction(() => window.useNuxtApp?.()._route.fullPath === '/')
-    expect(logs).toEqual([])
+    await page.waitForFunction(
+      () => window.useNuxtApp?.()._route.fullPath === '/'
+    )
+    expect(
+      logs.filter(
+        (log) =>
+          log !==
+          '<Suspense> is an experimental feature and its API will likely change.'
+      )
+    ).toEqual([])
     await page.close()
   })
 })

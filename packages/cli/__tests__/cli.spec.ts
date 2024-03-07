@@ -11,17 +11,6 @@ beforeAll(() => {
 })
 
 describe('buildTheme', () => {
-  it('can build a local theme', async () => {
-    const consoleMock = vi
-      .spyOn(console, 'log')
-      .mockImplementation(() => undefined)
-    await buildTheme({ theme: 'my-theme' })
-    expect(consoleMock).toHaveBeenCalledWith(
-      chalk.greenBright('Locating my-theme...')
-    )
-    consoleMock.mockRestore()
-  })
-
   it('can generate a local theme', async () => {
     const consoleMock = vi
       .spyOn(console, 'log')

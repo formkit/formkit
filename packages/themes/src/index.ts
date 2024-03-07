@@ -204,13 +204,13 @@ export function createThemePlugin(
         }
       }
       if (node?.context?.fns) {
-        node.context.fns.iconRole = (sectionKey: string): string => {
+        node.context.fns.iconRole = (sectionKey: string): string | null => {
           const clickHandlerProp = `on${sectionKey
             .charAt(0)
             .toUpperCase()}${sectionKey.slice(1)}IconClick`
           return typeof node.props[clickHandlerProp] === 'function'
             ? 'button'
-            : 'undefined'
+            : null
         }
       }
     })

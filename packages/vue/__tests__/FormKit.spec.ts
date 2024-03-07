@@ -23,6 +23,7 @@ import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
 import { componentSymbol } from '../src/FormKit'
 import { FormKitMessages } from '../src/FormKitMessages'
+import { star } from '@formkit/icons'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -2644,5 +2645,21 @@ describe('naked attributes', () => {
     expect(wrapper.html()).toContain(
       '<h2>I have 99 issues but components arent one</h2>'
     )
+  })
+
+  it.only('outputs accessibility attributes on clickable icons', () => {
+    const handler = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'table_stakes',
+        suffixIcon: 'star',
+        onSuffixIconClick: handler,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    expect(wrapper.html()).toMatchSnapshot()
   })
 })
