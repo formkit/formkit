@@ -203,6 +203,16 @@ export function createThemePlugin(
           return undefined
         }
       }
+      if (node?.context?.fns) {
+        node.context.fns.iconRole = (sectionKey: string): string => {
+          const clickHandlerProp = `on${sectionKey
+            .charAt(0)
+            .toUpperCase()}${sectionKey.slice(1)}IconClick`
+          return typeof node.props[clickHandlerProp] === 'function'
+            ? 'button'
+            : 'undefined'
+        }
+      }
     })
   }
 
