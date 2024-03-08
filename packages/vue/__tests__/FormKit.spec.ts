@@ -2647,7 +2647,7 @@ describe('naked attributes', () => {
     )
   })
 
-  it.only('outputs accessibility attributes on clickable icons', () => {
+  it('outputs accessibility attributes on clickable icons', () => {
     const handler = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
