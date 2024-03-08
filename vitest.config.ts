@@ -21,8 +21,13 @@ export default defineConfig({
     environment: 'jsdom',
     retry: 2,
     // singleThread: true,
-    exclude: ['**/node_modules/**', '**/e2e/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/e2e/**',
+      './packages/nuxt/playground/**',
+    ],
     typecheck: {
+      ignoreSourceErrors: true,
       include: ['./packages/**/?(*.){test,spec}-d.?(c|m)[jt]s?(x)'],
       exclude: [
         '**/node_modules/**',

@@ -2,7 +2,7 @@ import { createInput, defineFormKitConfig } from '@formkit/vue'
 import { createMultiStepPlugin } from '@formkit/addons'
 import { genesisIcons } from '@formkit/icons'
 import '@formkit/addons/css/multistep.css'
-import { rootClasses } from './formkit.theme.mjs'
+import { rootClasses } from './formkit.theme'
 
 export default defineFormKitConfig(() => {
   return {
