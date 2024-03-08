@@ -75,7 +75,7 @@ export function useFormKitContextById<T = any>(
   effect?: (context: FormKitFrameworkContext<T>) => void
 ): Ref<FormKitFrameworkContext<T> | undefined> {
   const context = ref<FormKitFrameworkContext<T> | undefined>()
-  const targetNode = getNode(id)
+  const targetNode = getNode<T>(id)
   if (targetNode)
     context.value = targetNode.context as FormKitFrameworkContext<T>
   if (!targetNode) {
@@ -91,22 +91,30 @@ export function useFormKitContextById<T = any>(
   return context
 }
 
-// export function useFormKitNodeById<T>(
-//   id: string,
-//   effect?: (node: FormKitNode<T>) => void
-// ): Ref<FormKitFrameworkContext | undefined> {
-//   const nodeRef = ref<FormKitNode<T> | undefined>()
-//   const targetNode = getNode(id)
-//   if (targetNode) nodeRef.value = targetNode
-//   if (!targetNode) {
-//     const receipt = watchRegistry(id, ({ payload: node }) => {
-//       if (node) {
-//         nodeRef.value = node
-//         stopWatch(receipt)
-//         if (effect) effect(node)
-//       }
-//     })
-//   }
-//   if (nodeRef.value && effect) effect(nodeRef.value)
-//   return nodeRef
-// }
+/**
+ * Fetches a node by id and returns a ref to the node. The node in question
+ * must have an explicitly assigned id prop. If the node is not available, the
+ * ref will be undefined until the node is available.
+ * @param id - The id of the node to access.
+ * @param effect - An optional effect callback to run when the node is available.
+ * @returns
+ */
+export function useFormKitNodeById<T>(
+  id: string,
+  effect?: (node: FormKitNode<T>) => void
+): Ref<FormKitNode<T> | undefined> {
+  const nodeRef = ref<FormKitNode<T> | undefined>()
+  const targetNode = getNode<T>(id)
+  if (targetNode) nodeRef.value = targetNode
+  if (!targetNode) {
+    const receipt = watchRegistry(id, ({ payload: node }) => {
+      if (node) {
+        nodeRef.value = node
+        stopWatch(receipt)
+        if (effect) effect(node)
+      }
+    })
+  }
+  if (nodeRef.value && effect) effect(nodeRef.value)
+  return nodeRef
+}

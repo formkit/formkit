@@ -78,6 +78,7 @@ export {
 export {
   useFormKitContext,
   useFormKitContextById,
+  useFormKitNodeById,
 } from './composables/useContext'
 
 /**
