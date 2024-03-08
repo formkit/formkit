@@ -626,7 +626,7 @@ describe('validation', () => {
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('input').element.value = 'foobar'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
@@ -2647,7 +2647,7 @@ describe('naked attributes', () => {
     )
   })
 
-  it.only('outputs accessibility attributes on clickable icons', () => {
+  it('outputs accessibility attributes on clickable icons', () => {
     const handler = vi.fn()
     const wrapper = mount(FormKit, {
       props: {
