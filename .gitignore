@@ -37,7 +37,6 @@ coverage
 .nyc_output
 temp
 tsconfig.vitest-temp.json
-formkit.theme.*
 test-results
 
 # VSCode
