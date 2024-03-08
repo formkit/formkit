@@ -1,5 +1,9 @@
 import { getNode, watchRegistry, stopWatch } from '@formkit/core'
-import type { FormKitFrameworkContext, FormKitGroupValue } from '@formkit/core'
+import type {
+  FormKitFrameworkContext,
+  FormKitGroupValue,
+  FormKitNode,
+} from '@formkit/core'
 import { parentSymbol } from '../FormKit'
 import { ref, inject, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -91,5 +95,18 @@ export function useFormKitContextById<T = any>(
 //   id: string,
 //   effect?: (node: FormKitNode<T>) => void
 // ): Ref<FormKitFrameworkContext | undefined> {
-//   // ...
+//   const nodeRef = ref<FormKitNode<T> | undefined>()
+//   const targetNode = getNode(id)
+//   if (targetNode) nodeRef.value = targetNode
+//   if (!targetNode) {
+//     const receipt = watchRegistry(id, ({ payload: node }) => {
+//       if (node) {
+//         nodeRef.value = node
+//         stopWatch(receipt)
+//         if (effect) effect(node)
+//       }
+//     })
+//   }
+//   if (nodeRef.value && effect) effect(nodeRef.value)
+//   return nodeRef
 // }

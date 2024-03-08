@@ -68,8 +68,8 @@ export function deregister(node: FormKitNode): void {
  *
  * @public
  */
-export function getNode(id: string): FormKitNode | undefined {
-  return registry.get(id)
+export function getNode<T = unknown>(id: string): FormKitNode<T> | undefined {
+  return registry.get(id) as FormKitNode<T> | undefined
 }
 
 /**
