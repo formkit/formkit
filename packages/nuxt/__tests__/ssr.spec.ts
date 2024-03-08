@@ -26,8 +26,8 @@ describe('vite', async () => {
       logs.push(msg.text())
     })
     await page.goto(url('/'))
-    // @ts-expect-error useNuxtApp is not typed - use https://github.com/nuxt/test-utils/pull/739
     await page.waitForFunction(
+      // @ts-expect-error useNuxtApp is not typed - use https://github.com/nuxt/test-utils/pull/739
       () => window.useNuxtApp?.()._route.fullPath === '/'
     )
     expect(
