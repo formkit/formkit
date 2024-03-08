@@ -93,5 +93,6 @@
       "path": "dist/packages/core/src/*.js",
       "limit": "10 KB"
     }
-  ]
+  ],
+  "packageManager": "pnpm@8.15.4"
 }

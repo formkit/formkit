@@ -20,6 +20,8 @@ export const icon = (
         class: `$classes.${sectionKey}Icon + " " + $classes.icon`,
         innerHTML: `$${rawIconProp}`,
         onClick: `$handlers.iconClick(${sectionKey})`,
+        role: `$fns.iconRole(${sectionKey})`,
+        tabindex: `$fns.iconRole(${sectionKey}) === "button" && "0" || undefined`,
         for: {
           if: `${el === 'label'}`,
           then: '$id',

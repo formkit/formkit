@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['../src/module', '@nuxtjs/tailwindcss'],
+  modules: ['@formkit/nuxt', '@nuxtjs/tailwindcss'],
   formkit: {
     autoImport: true,
   },

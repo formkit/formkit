@@ -25,7 +25,8 @@
   "scripts": {
     "prepack": "nuxt-module-build",
     "dev": "nuxi dev playground",
-    "build": "nuxi build playground"
+    "build": "nuxi build playground",
+    "test": "vitest"
   },
   "dependencies": {
     "@formkit/core": "1.5.9",
@@ -35,11 +36,12 @@
     "chokidar": "^3.5.3",
     "nuxi": "^3.10.0",
     "pathe": "^1.1.2",
+    "unplugin": "^1.8.1",
     "unplugin-formkit": "^0.2.13"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.5.5",
-    "@nuxt/schema": "^3.10.1",
-    "nuxt": "^3.10.1"
+    "@nuxt/schema": "^3.10.3",
+    "@nuxt/test-utils": "^3.11.0"
   }
 }

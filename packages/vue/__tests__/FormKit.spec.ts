@@ -1,4 +1,15 @@
-import { nextTick, h, reactive, ref, PropType, mergeProps, defineComponent } from 'vue'
+import {
+  nextTick,
+  h,
+  reactive,
+  ref,
+  PropType,
+  mergeProps,
+  defineComponent,
+  provide,
+  markRaw,
+  ConcreteComponent,
+} from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
@@ -8,10 +19,11 @@ import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
+import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
-import { ConcreteComponent } from 'vue'
 import { componentSymbol } from '../src/FormKit'
-import { provide } from 'vue'
+import { FormKitMessages } from '../src/FormKitMessages'
+import { star } from '@formkit/icons'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
@@ -614,7 +626,7 @@ describe('validation', () => {
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('input').element.value = 'foobar'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
@@ -2520,5 +2532,134 @@ describe('naked attributes', () => {
     const node = getNode(id)
     node?.input('foo', false)
     expect(validatingOnCommit).toBe(true)
+  })
+
+  it('changes locale for new inputs using changeLocale', async () => {
+    const show = ref(false)
+    const wrapper = mount(
+      {
+        setup() {
+          return { show }
+        },
+        template: `<FormKit type="text" validation="required" validation-visibility="live" />
+        <FormKit type="text" validation="required" validation-visibility="live" v-if="show" />`,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                locales: { de },
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(' is required.')
+    changeLocale('de')
+    await nextTick()
+    expect(wrapper.html()).toContain(' ist erforderlich.')
+    show.value = true
+    await nextTick()
+    expect(wrapper.html()).not.toContain(' is required.')
+  })
+
+  it('can use a custom component on a FormKit component with library (#1145)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit
+          type="text"
+          :library="library"
+          help="This is working!"
+          :sections-schema="{
+            help: {
+              $el: undefined,
+              $cmp: 'MyComponent',
+              props: {
+                message: '$help'
+              }
+            }
+          }"
+        />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<h2>This is working!</h2>')
+  })
+
+  it('can use a library on FormKitMessages component (#1137)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        components: {
+          FormKitMessages,
+        },
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit type="form" :errors="['I have 99 issues but components arent one']">
+          <FormKitMessages
+            :library="library"
+            :sections-schema="{
+              message: {
+                $el: undefined,
+                $cmp: 'MyComponent',
+                props: {
+                  message: '$message.value'
+                }
+              }
+            }"
+          />
+          <div>Other context down here</div>
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(
+      '<h2>I have 99 issues but components arent one</h2>'
+    )
+  })
+
+  it('outputs accessibility attributes on clickable icons', () => {
+    const handler = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'table_stakes',
+        suffixIcon: 'star',
+        onSuffixIconClick: handler,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    expect(wrapper.html()).toMatchSnapshot()
   })
 })

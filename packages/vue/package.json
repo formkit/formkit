@@ -50,8 +50,10 @@
     "@formkit/rules": "1.5.9",
     "@formkit/themes": "1.5.9",
     "@formkit/utils": "1.5.9",
-    "@formkit/validation": "1.5.9",
-    "vue": "^3.4.15"
+    "@formkit/validation": "1.5.9"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
   },
   "devDependencies": {
     "@formkit/icons": "workspace:1.5.9"
