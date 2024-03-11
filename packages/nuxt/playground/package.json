@@ -10,14 +10,14 @@
     "postinstall": "cd .. && pnpm nuxt-module-build build --stub && cd playground && pnpm nuxt prepare"
   },
   "devDependencies": {
-    "@formkit/nuxt": "latest",
-    "@formkit/vue": "latest",
-    "@formkit/addons": "latest",
-    "@formkit/icons": "latest",
-    "@formkit/themes": "latest",
+    "@formkit/addons": "workspace:latest",
+    "@formkit/icons": "workspace:latest",
+    "@formkit/nuxt": "workspace:latest",
+    "@formkit/themes": "workspace:latest",
+    "@formkit/vue": "workspace:latest",
     "@nuxtjs/tailwindcss": "latest",
     "nuxt": "^3.10.3",
-    "vue": "^3.4.15",
-    "vue-router": "^4.2.5"
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
   }
 }

@@ -7,20 +7,20 @@
   "author": "Justin Schroeder",
   "license": "MIT",
   "dependencies": {
-    "@braid/griddle": "^3.1.1",
-    "@formkit/addons": "workspace:^1.0.0",
-    "@formkit/core": "workspace:^1.0.0",
-    "@formkit/i18n": "workspace:^1.0.0",
-    "@formkit/inputs": "workspace:^1.0.0",
-    "@formkit/themes": "workspace:^1.0.0",
-    "@formkit/vue": "workspace:^1.0.0",
-    "@formkit/zod": "workspace:^1.0.0",
-    "@vitejs/plugin-vue": "^5.0.3",
+    "@braid/griddle": "^3.1.2",
+    "@formkit/addons": "workspace:^",
+    "@formkit/core": "workspace:^",
+    "@formkit/i18n": "workspace:^",
+    "@formkit/inputs": "workspace:^",
+    "@formkit/themes": "workspace:^",
+    "@formkit/vue": "workspace:^",
+    "@formkit/zod": "workspace:^",
+    "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^4.5.2",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "sass": "^1.45.1",
-    "zod": "^3.21.4"
+    "sass": "^1.71.1",
+    "zod": "^3.22.4"
   }
 }

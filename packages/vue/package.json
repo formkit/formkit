@@ -42,20 +42,20 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.0",
-    "@formkit/dev": "1.6.0",
-    "@formkit/i18n": "1.6.0",
-    "@formkit/inputs": "1.6.0",
-    "@formkit/observer": "1.6.0",
-    "@formkit/rules": "1.6.0",
-    "@formkit/themes": "1.6.0",
-    "@formkit/utils": "1.6.0",
-    "@formkit/validation": "1.6.0"
+    "@formkit/core": "workspace:*",
+    "@formkit/dev": "workspace:*",
+    "@formkit/i18n": "workspace:*",
+    "@formkit/inputs": "workspace:*",
+    "@formkit/observer": "workspace:*",
+    "@formkit/rules": "workspace:*",
+    "@formkit/themes": "workspace:*",
+    "@formkit/utils": "workspace:*",
+    "@formkit/validation": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@formkit/icons": "workspace:1.6.0"
+    "@formkit/icons": "workspace:*"
   }
 }

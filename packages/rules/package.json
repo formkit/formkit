@@ -38,10 +38,9 @@
   "scripts": {
     "test": "jest"
   },
-  "devDependencies": {},
   "dependencies": {
-    "@formkit/core": "1.6.0",
-    "@formkit/utils": "1.6.0",
-    "@formkit/validation": "1.6.0"
+    "@formkit/core": "workspace:*",
+    "@formkit/utils": "workspace:*",
+    "@formkit/validation": "workspace:*"
   }
 }
