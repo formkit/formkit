@@ -39,7 +39,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "workspace:*"
+    "@formkit/core": "1.6.0"
   },
   "devDependencies": {
     "@formkit/vue": "workspace:^"

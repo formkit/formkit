@@ -43,9 +43,9 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "latest",
-    "@formkit/core": "workspace:*",
-    "@formkit/inputs": "workspace:*",
-    "@formkit/utils": "workspace:*"
+    "@formkit/core": "1.6.0",
+    "@formkit/inputs": "1.6.0",
+    "@formkit/utils": "1.6.0"
   },
   "devDependencies": {
     "@formkit/vue": "workspace:^"

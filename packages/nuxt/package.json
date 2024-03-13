@@ -29,9 +29,9 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@formkit/core": "workspace:*",
+    "@formkit/core": "1.6.0",
     "@formkit/i18n": "workspace:*",
-    "@formkit/vue": "workspace:*",
+    "@formkit/vue": "1.6.0",
     "@nuxt/kit": "^3.10.3",
     "chokidar": "^3.6.0",
     "nuxi": "^3.10.1",

@@ -39,8 +39,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "workspace:*",
-    "@formkit/utils": "workspace:*",
-    "@formkit/validation": "workspace:*"
+    "@formkit/core": "1.6.0",
+    "@formkit/utils": "1.6.0",
+    "@formkit/validation": "1.6.0"
   }
 }

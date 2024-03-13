@@ -43,10 +43,10 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "workspace:*",
-    "@formkit/inputs": "workspace:*",
+    "@formkit/core": "1.6.0",
+    "@formkit/inputs": "1.6.0",
     "@formkit/theme-creator": "^0.9.1",
-    "@formkit/utils": "workspace:*",
+    "@formkit/utils": "1.6.0",
     "axios": "^1.6.7",
     "chalk": "^5.3.0",
     "commander": "^9.5.0",
