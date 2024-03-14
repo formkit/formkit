@@ -7,36 +7,12 @@ import { replace } from 'esbuild-plugin-replace'
 import { progress } from './build.mjs'
 
 /**
- * @type {import('tsup').Options['esbuildPlugins'][number]']}
- */
-const makeAllPackagesExternalPlugin = {
-  name: 'make-all-packages-external',
-  setup(build) {
-    // iife files should be fully bundled.
-    if (build.initialOptions.outExtension['.js'].startsWith('.iife.js')) {
-      const filter = /^vue$/
-      build.onResolve({ filter }, () => {
-        return {
-          path: 'Vue',
-          external: true,
-        }
-      })
-    } else {
-      const filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
-      build.onResolve({ filter }, (args) => ({
-        path: args.path,
-        external: true,
-      }))
-    }
-  },
-}
-
-/**
  * Create a new bundle of a certain format for a certain package.
  * @param {string} pkg the package to create a bundle for
- * @param {string} format the format to create (cjs, esm, umd, etc...)
+ * @param {string} subPackage the sub package for that bundle
+ * @param {boolean} showLogs if it should show logs
  */
-export async function createBundle(pkg, plugin, showLogs = false) {
+export async function createBundle(pkg, subPackage, showLogs = false) {
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = dirname(__filename)
   const rootDir = resolve(__dirname, `../packages/${pkg}`)
@@ -56,20 +32,23 @@ export async function createBundle(pkg, plugin, showLogs = false) {
   }
 
   function createEntry() {
-    const entry = resolve(rootDir, `src/${plugin ? plugin + '/' : ''}index.ts`)
+    const entry = resolve(rootDir, `src/${subPackage ? subPackage + '/' : ''}index.ts`)
     return entry
   }
 
   function createOutdir() {
-    const entry = resolve(rootDir, 'dist' + (plugin ? '/' + plugin : ''))
+    const entry = resolve(rootDir, 'dist' + (subPackage ? '/' + subPackage : ''))
     return entry
   }
 
+  /**
+   * @returns {import('tsup').Format[]}
+   */
   function createFormats() {
     if (pkg === 'vue') {
-      return ['iife', 'cjs', 'esm', 'esm']
+      return ['iife', 'cjs', 'esm']
     }
-    return ['cjs', 'esm', 'esm']
+    return ['cjs', 'esm']
   }
 
   let devBuild = false
@@ -98,12 +77,12 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
     dts: {
-      output: {
-        exports: 'named',
-        globals: {
-          vue: 'Vue',
-        },
-      },
+      // output: {
+      //   exports: 'named',
+      //   globals: {
+      //     vue: 'Vue',
+      //   },
+      // },
     },
     treeshake: true,
     external: ['vue'],
@@ -111,12 +90,32 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       options.charset = 'utf8'
     },
     esbuildPlugins: [
-      makeAllPackagesExternalPlugin,
+      {
+        name: 'make-all-packages-external',
+        setup(build) {
+          // iife files should be fully bundled.
+          if (build.initialOptions.outExtension?.['.js'].startsWith('.iife.js')) {
+            const filter = /^vue$/
+            build.onResolve({ filter }, () => {
+              return {
+                path: 'Vue',
+                external: true,
+              }
+            })
+          } else {
+            build.onResolve({ filter: /.*/ }, (args) => {
+              if (args.kind !== 'entry-point' && !/^(#|\/|\.\/|\.\.\/)/.test(args.path)) return {
+                external: true,
+              }
+            })
+          }
+        },
+      },
       {
         name: 'replace',
         setup(ctx, ...args) {
           const plugin = replace({
-            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+            __DEV__: ctx.initialOptions.outExtension?.['.js'].startsWith('.dev')
               ? 'true'
               : 'false',
           })

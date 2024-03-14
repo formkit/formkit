@@ -1,12 +1,11 @@
 import prompts from 'prompts'
 import { downloadTemplate } from 'giget'
 import { slugify } from '@formkit/utils'
-import { isDirEmpty } from './utils'
 import { resolve } from 'pathe'
 import { unlink, writeFile, readFile } from 'fs/promises'
 import ora from 'ora'
 import { green, info } from './index'
-import { readPackageJSON, writePackageJSON, getGitUser } from './utils'
+import { isDirEmpty, readPackageJSON, writePackageJSON, getGitUser } from './utils'
 
 interface CreateThemeOptions {
   name: string
