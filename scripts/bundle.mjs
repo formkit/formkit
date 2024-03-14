@@ -77,12 +77,13 @@ export async function createBundle(pkg, subPackage, showLogs = false) {
     globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
     dts: {
-      // output: {
-      //   exports: 'named',
-      //   globals: {
-      //     vue: 'Vue',
-      //   },
-      // },
+      /** @ts-ignore */
+      output: {
+        exports: 'named',
+        globals: {
+          vue: 'Vue',
+        },
+      },
     },
     treeshake: true,
     external: ['vue'],
@@ -103,11 +104,8 @@ export async function createBundle(pkg, subPackage, showLogs = false) {
               }
             })
           } else {
-            build.onResolve({ filter: /.*/ }, (args) => {
-              if (args.kind !== 'entry-point' && !/^(#|\/|\.\/|\.\.\/)/.test(args.path)) return {
-                external: true,
-              }
-            })
+            const filter = /^[^.\/]|^\.[^.\/]|^\.\.[^\/]/ // Must not start with "/" or "./" or "../"
+            build.onResolve({ filter }, args => ({ path: args.path, external: true }))
           }
         },
       },
