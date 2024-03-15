@@ -12,6 +12,7 @@ import {
   isObject,
   boolGetter,
   extend as merge,
+  isRecord,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -298,6 +299,14 @@ export interface FormKitConfig {
    * A root config object. This object is usually the globally defined options.
    */
   rootConfig?: FormKitRootConfig
+
+  /**
+   * The merge strategy is a map of names to merge strategies. The merge
+   * strategy is used to determine how a node’s value should be merged if there
+   * are 2 nodes with the same name.
+   */
+  mergeStrategy?: Record<string | symbol, 'synced'>
+
   [index: string]: any
 }
 
@@ -361,6 +370,13 @@ export type FormKitProps<V = unknown> = {
    * for rendering and interaction.
    */
   context?: FormKitFrameworkContext
+
+  /**
+   * The merge strategy that is applied to this specific node. It can only be
+   * inherited by a parent by using the mergeStrategy config option.
+   */
+  readonly mergeStrategy?: 'synced'
+
   [index: string]: any
 } & FormKitConfig
 
@@ -1854,7 +1870,8 @@ function input(
   if (
     node.isCreated &&
     node.type === 'input' &&
-    eq(context._value, context.value)
+    eq(context._value, context.value) &&
+    !node.props.mergeStrategy
   ) {
     node.emit('commitRaw', context.value)
     // Perform an early return if the value hasn't changed during this input.
@@ -1951,12 +1968,11 @@ function partial(
     )
     return
   }
-  // In this case we know for sure we're dealing with a group, TS doesn't
-  // know that however, so we use some unpleasant casting here
+
   if (value !== valueRemoved) {
-    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
+    ;(context._value as FormKitGroupValue)[name as string] = value
   } else {
-    delete (context._value as unknown as FormKitGroupValue)[name as string]
+    delete (context._value as FormKitGroupValue)[name as string]
   }
 }
 
@@ -2145,8 +2161,11 @@ function calm(
 ) {
   if (value !== undefined && node.type !== 'input') {
     partial(context, value)
+    const shouldHydrate = !!(
+      node.config.mergeStrategy && node.config.mergeStrategy[value.name]
+    )
     // Commit the value up, but do not hydrate back down
-    return commit(node, context, true, false)
+    return commit(node, context, true, shouldHydrate)
   }
   if (context._d > 0) context._d--
   if (context._d === 0) {
@@ -3050,6 +3069,16 @@ function createProps(initial: unknown) {
         node.config[prop] !== undefined
       ) {
         val = node.config[prop]
+        // If we are getting the merge strategy for an input, only retrieve this
+        // actual node’s merge strategy.
+        if (
+          prop === 'mergeStrategy' &&
+          node?.type === 'input' &&
+          isRecord(val) &&
+          node.name in val
+        ) {
+          val = val[node.name]
+        }
       } else {
         // default or undefined
         val = propDefs[prop]?.default
