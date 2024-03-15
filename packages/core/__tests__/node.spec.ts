@@ -1580,7 +1580,7 @@ describe('extend', () => {
   })
 })
 
-describe.only('merge-strategy', () => {
+describe('merge-strategy', () => {
   it('can inherit its own merge strategy', () => {
     const parent = createNode({
       type: 'group',
@@ -1592,6 +1592,7 @@ describe.only('merge-strategy', () => {
     expect(child.props.mergeStrategy).toEqual('synced')
     expect(child.config.mergeStrategy).toEqual({ a: 'synced' })
   })
+
   it('can sync two values of the same name to each other', () => {
     const a = createNode({ value: '', name: 'a' })
     const a2 = createNode({ value: '', name: 'a' })
@@ -1606,15 +1607,4 @@ describe.only('merge-strategy', () => {
     expect(a.value).toBe('bar')
     expect(a2.value).toBe('bar')
   })
-  // it('can merge two values of the same name into an array', () => {
-  //   const a = createNode({ value: 'hello', name: 'a' })
-  //   const a2 = createNode({ value: 'world', name: 'a' })
-  //   const parent = createNode({
-  //     type: 'group',
-  //     config: { mergeStrategy: { a: 'array' } },
-  //   })
-  //   parent.add(a)
-  //   parent.add(a2)
-  //   expect(parent.value).toEqual({ a: 'world' })
-  // })
 })

@@ -305,7 +305,7 @@ export interface FormKitConfig {
    * strategy is used to determine how a node’s value should be merged if there
    * are 2 nodes with the same name.
    */
-  mergeStrategy?: Record<string | symbol, 'synced' | 'array'>
+  mergeStrategy?: Record<string | symbol, 'synced'>
 
   [index: string]: any
 }
@@ -375,7 +375,7 @@ export type FormKitProps<V = unknown> = {
    * The merge strategy that is applied to this specific node. It can only be
    * inherited by a parent by using the mergeStrategy config option.
    */
-  readonly mergeStrategy?: 'synced' | 'array'
+  readonly mergeStrategy?: 'synced'
 
   [index: string]: any
 } & FormKitConfig
