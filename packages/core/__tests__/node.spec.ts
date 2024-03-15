@@ -1579,3 +1579,42 @@ describe('extend', () => {
     expect(user.foo).toBe('new name is foobar')
   })
 })
+
+describe.only('merge-strategy', () => {
+  it('can inherit its own merge strategy', () => {
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    const child = createNode({ name: 'a' })
+    expect(child.props.mergeStrategy).toEqual(undefined)
+    parent.add(child)
+    expect(child.props.mergeStrategy).toEqual('synced')
+    expect(child.config.mergeStrategy).toEqual({ a: 'synced' })
+  })
+  it('can sync two values of the same name to each other', () => {
+    const a = createNode({ value: '', name: 'a' })
+    const a2 = createNode({ value: '', name: 'a' })
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    parent.add(a)
+    parent.add(a2)
+    a.input('bar', false)
+    expect(parent.value).toEqual({ a: 'bar' })
+    expect(a.value).toBe('bar')
+    expect(a2.value).toBe('bar')
+  })
+  // it('can merge two values of the same name into an array', () => {
+  //   const a = createNode({ value: 'hello', name: 'a' })
+  //   const a2 = createNode({ value: 'world', name: 'a' })
+  //   const parent = createNode({
+  //     type: 'group',
+  //     config: { mergeStrategy: { a: 'array' } },
+  //   })
+  //   parent.add(a)
+  //   parent.add(a2)
+  //   expect(parent.value).toEqual({ a: 'world' })
+  // })
+})
