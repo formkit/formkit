@@ -18,7 +18,7 @@ import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
-import { dirname, resolve } from 'path'
+import path, { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { readFileSync } from 'fs'
 import {
@@ -206,7 +206,7 @@ export async function inputsBuildExtras() {
   const tsData = JSON.parse(
     tsConfigStr.replace(
       './types/globals.d.ts',
-      resolve(rootDir, './types/globals.d.ts')
+      resolve(rootDir, './types/globals.d.ts').split(path.sep).join(path.posix.sep)
     )
   )
   tsData.compilerOptions.outDir = './'
@@ -314,8 +314,8 @@ function buildComplete() {
   }
   msg.success(
     'build complete (' +
-      ((performance.now() - startTime) / 1000).toFixed(2) +
-      's)'
+    ((performance.now() - startTime) / 1000).toFixed(2) +
+    's)'
   )
 }
 
