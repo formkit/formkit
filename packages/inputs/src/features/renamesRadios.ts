@@ -5,6 +5,10 @@ import type { FormKitNode } from '@formkit/core'
  */
 let radioInstance = 0
 
+export function resetRadio() {
+  radioInstance = 0
+}
+
 /**
  * Automatically rename any radio inputs.
  * @param node - A formkit node.

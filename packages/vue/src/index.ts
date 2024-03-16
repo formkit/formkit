@@ -121,10 +121,14 @@ export { default as bindings } from './bindings'
 export { FormKitIcon } from './FormKitIcon'
 
 /**
+ * The counter reset for sequential identifiers.
+ */
+export { resetCount } from './utilities/resetCount'
+
+/**
  * Export the reset count explicitly
  */
 export {
-  resetCount,
   errorHandler,
   setErrors,
   clearErrors,

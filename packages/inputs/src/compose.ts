@@ -32,6 +32,7 @@ import {
   help,
   icon,
 } from './sections'
+import { resetRadio } from './features/renamesRadios'
 
 /**
  * Either a schema node, or a function that returns a schema node.
@@ -400,6 +401,10 @@ export function $root(
 ): FormKitExtendableSchemaRoot {
   warn(800, '$root')
   return createRoot(section)
+}
+
+export function resetCounts() {
+  resetRadio()
 }
 
 export * from './features'

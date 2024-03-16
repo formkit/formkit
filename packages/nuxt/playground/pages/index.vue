@@ -36,6 +36,9 @@ if (typeof window === 'undefined' && !import.meta.test && !import.meta.dev) {
         value="This is hydrated"
       />
       <FormKit id="hydration_test" type="textarea" name="hydration_test" />
+      <FormKit type="list">
+        <FormKit type="radio" :options="['a', 'b', 'c']" />
+      </FormKit>
       <FormKit
         label="How much do you like Tailwind?"
         type="radio"
