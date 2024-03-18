@@ -1,8 +1,8 @@
 import { createSection } from '../src/createSection'
-import { $if, $for, $attrs, $extend, $root, eachSection } from '../src/compose'
+import { $if, $for, $attrs, $extend, $root, eachSection, findSection } from '../src/compose'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitSchemaDefinition } from 'packages/core/src'
-import { FormKitSchemaComponent, FormKitSchemaDOMNode } from '@formkit/core'
+import { FormKitNode, FormKitSchemaComponent, FormKitSchemaCondition, FormKitSchemaDOMNode, isConditional } from '@formkit/core'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {
@@ -201,5 +201,37 @@ describe('eachSection', () => {
       }
     })
     expect(sections).toEqual(['outer', 'left', 'right'])
+  })
+})
+
+describe('findSection', () => {
+  it('can find a nested section in a schema', () => {
+    const schema = $extend(createSection('outer', 'div')(), {
+      children: [
+        createSection('nested', 'div')()({}),
+      ],
+    })({}) as FormKitSchemaCondition & { else: { children: FormKitNode[] } }
+
+    const section = findSection(schema, 'nested')
+    expect(section[0]).toEqual(schema.else.children)
+    expect(section[1]).toEqual(schema.else.children[0])
+  })
+
+  it('can find a conditional section in a schema', () => {
+    const thenSection = createSection('then', 'div')()({})
+    const elseSection = createSection('else', 'div')()({})
+    const definition = {
+      if: '$: true',
+      then: thenSection,
+      else: elseSection,
+    }
+
+    const schema =
+      createSection('outer', 'div')(definition)({}) as FormKitSchemaCondition & { else: { children: FormKitNode[] } }
+
+    const section = findSection(schema, 'else')
+    expect(isConditional(schema)).toBeTruthy()
+    expect(section[0]).toEqual(definition)
+    expect(section[1]).toEqual(elseSection)
   })
 })
