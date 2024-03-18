@@ -153,7 +153,7 @@ export function findSection(
  * @public
  */
 export function eachSection<T>(
-  schema: FormKitSchemaNode[] | FormKitSchemaNode,
+  schema: FormKitSchemaDefinition,
   callback: (
     section: FormKitSchemaComponent | FormKitSchemaDOMNode,
     sectionConditional: FormKitSchemaCondition,
@@ -189,12 +189,18 @@ export function eachSection<T>(
       stopOnCallbackReturn
     )
   } else if (isConditional(schema)) {
+    let callbackReturn: T | void = undefined
+
     if (schema.then && typeof schema.then !== 'string') {
-      eachSection(schema.then, callback, stopOnCallbackReturn, schema)
+      callbackReturn = eachSection(schema.then, callback, stopOnCallbackReturn, schema)
     }
 
-    if (schema.else && typeof schema.else !== 'string') {
-      eachSection(schema.else, callback, stopOnCallbackReturn, schema)
+    if (!callbackReturn && schema.else && typeof schema.else !== 'string') {
+      callbackReturn = eachSection(schema.else, callback, stopOnCallbackReturn, schema)
+    }
+
+    if (callbackReturn && stopOnCallbackReturn) {
+      return callbackReturn
     }
   }
 }
