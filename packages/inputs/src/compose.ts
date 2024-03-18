@@ -195,7 +195,7 @@ export function eachSection<T>(
       callbackReturn = eachSection(schema.then, callback, stopOnCallbackReturn, schema)
     }
 
-    if (schema.else && typeof schema.else !== 'string') {
+    if (!callbackReturn && schema.else && typeof schema.else !== 'string') {
       callbackReturn = eachSection(schema.else, callback, stopOnCallbackReturn, schema)
     }
 
