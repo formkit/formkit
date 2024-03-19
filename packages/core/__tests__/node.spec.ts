@@ -1616,7 +1616,7 @@ describe('merge-strategy', () => {
     })
     parent.add(a)
     parent.add(a2)
-    const newValue = []
+    const newValue: string[] = []
     a.input(newValue, false)
     expect(a.value).toBe(newValue)
   })
