@@ -1534,6 +1534,10 @@ export interface FormKitPlaceholderNode<V = unknown> {
    */
   use: (...args: any[]) => void
   /**
+   * Artificial props
+   */
+  props: Record<string, any>
+  /**
    * A name to use.
    */
   name: string
@@ -3276,6 +3280,7 @@ export function createPlaceholder(
     value: options?.value ?? null,
     _value: options?.value ?? null,
     type: options?.type ?? 'input',
+    props: {},
     use: () => {
       // noop
     },
