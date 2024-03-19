@@ -2006,9 +2006,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // don’t send the value down since it will squash the child’s value.
       if (
         !child.isSettled ||
-        (!isObject(childValue) && eq(childValue, child._value))
+        ((!isObject(childValue) || child.props.mergeStrategy) &&
+          eq(childValue, child._value))
       )
         return
+
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
