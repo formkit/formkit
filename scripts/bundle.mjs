@@ -22,11 +22,13 @@ const makeAllPackagesExternalPlugin = {
         }
       })
     } else {
-      const filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
-      build.onResolve({ filter }, (args) => ({
-        path: args.path,
-        external: true,
-      }))
+      const NON_NODE_MODULE_RE = /^[A-Z]:[\\/]|^\.{0,2}[/]|^\.{1,2}$/
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (!NON_NODE_MODULE_RE.test(args.path)) return {
+          path: args.path,
+          external: true,
+        }
+      })
     }
   },
 }
