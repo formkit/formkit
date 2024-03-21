@@ -22,9 +22,8 @@ describe('generateClasses', () => {
     })
 
     const node = createNode({
-      props: {
-        type: 'text'
-      }
+      name: 'text',
+      props: { type: 'text' }
     })
 
     expect(classes).toEqual({
