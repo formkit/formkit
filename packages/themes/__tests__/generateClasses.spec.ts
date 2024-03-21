@@ -1,4 +1,4 @@
-import { createNode } from '../../core'
+import { createNode } from '../../core/src/node'
 import { generateClasses } from '../src'
 import { describe, expect, it } from 'vitest'
 
@@ -22,7 +22,6 @@ describe('generateClasses', () => {
     })
 
     const node = createNode({
-      name: 'text',
       props: { type: 'text' }
     })
 
