@@ -48,18 +48,13 @@ export function generateClasses(
   Object.keys(classes).forEach((type) => {
     Object.keys(classes[type]).forEach((sectionKey) => {
       classesBySectionKey[sectionKey] = classesBySectionKey[sectionKey] || {}
-
-      const sectionClasses = classes[type][sectionKey]
-
-      if(typeof sectionClasses === 'string') {
-        classesBySectionKey[sectionKey][type] = sectionClasses
-        return
-      }
+      let sectionClasses = classes[type][sectionKey]
 
       if(Array.isArray(sectionClasses)) {
-        classesBySectionKey[sectionKey][type] = sectionClasses.join(' ')
-        return
+        sectionClasses = sectionClasses.join(' ')
       }
+
+      classesBySectionKey[sectionKey][type] = sectionClasses
     })
   })
 
