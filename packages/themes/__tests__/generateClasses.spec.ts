@@ -1,4 +1,4 @@
-import { createNode } from '../../core/src/node'
+import { createNode } from '@formkit/core'
 import { generateClasses } from '../src'
 import { describe, expect, it } from 'vitest'
 
@@ -22,8 +22,7 @@ describe('generateClasses', () => {
     })
 
     const node = createNode({
-      props: { type: 'text' },
-      value: 'text'
+      props: { type: 'text' }
     })
 
     expect(classes).toEqual({
