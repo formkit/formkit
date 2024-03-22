@@ -9,6 +9,7 @@
 import {
   FORMKIT_VERSION,
   FormKitNode,
+  FormKitClasses,
   FormKitEvent,
 } from '@formkit/core'
 
@@ -42,7 +43,7 @@ export interface FormKitIconLoaderUrl {
  */
 export function generateClasses(
   classes: Record<string, Record<string, string | string[]>>
-) {
+): Record<string, string | FormKitClasses | Record<string, boolean>> {
   const classesBySectionKey: Record<string, Record<string, string>> = {}
 
   Object.keys(classes).forEach((type) => {
@@ -50,7 +51,7 @@ export function generateClasses(
       classesBySectionKey[sectionKey] = classesBySectionKey[sectionKey] || {}
       let sectionClasses = classes[type][sectionKey]
 
-      if(Array.isArray(sectionClasses)) {
+      if (Array.isArray(sectionClasses)) {
         sectionClasses = sectionClasses.join(' ')
       }
 
@@ -58,13 +59,14 @@ export function generateClasses(
     })
   })
 
-  const functionsBySectionKey: Record<string, ClassFunction> = {}
+  const classFunctions: Record<string, ClassFunction> = {}
 
   Object.keys(classesBySectionKey).forEach((sectionKey) => {
-    functionsBySectionKey[sectionKey] = (node, sectionKey) => addClassesBySection(node, sectionKey, classesBySectionKey[sectionKey])
+    classFunctions[sectionKey] = (node, sectionKey) =>
+      addClassesBySection(node, sectionKey, classesBySectionKey[sectionKey])
   })
 
-  return functionsBySectionKey
+  return classFunctions
 }
 
 /**
