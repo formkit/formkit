@@ -185,7 +185,6 @@ export function createFloatingLabelsPlugin(
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
           setBackgroundColor(node, nodeEl, 100)
-          calculateLabelOffset(node, nodeEl)
           observer.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
