@@ -34,14 +34,14 @@ import '@formkit/addons/css/floatingLabels.css'
       label="test"
     />
     <FormKit
-      :plugins="[createFloatingLabelsPlugin()]"
+      :plugins="[createFloatingLabelsPlugin({ useAsDefault: true })]"
       type="email"
       name="email"
       label="test"
       floating-label="false"
     />
     <FormKit
-      :plugins="[createFloatingLabelsPlugin()]"
+      :plugins="[createFloatingLabelsPlugin({ useAsDefault: true })]"
       type="email"
       name="email"
       label="test"

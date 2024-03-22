@@ -3,7 +3,7 @@ import {
   FormKitPlugin,
   FormKitSectionsSchema,
 } from '@formkit/core'
-import { clone, whenAvailable, undefine } from '@formkit/utils'
+import { clone, whenAvailable } from '@formkit/utils'
 import { findSection } from '@formkit/inputs'
 
 /**
@@ -77,21 +77,17 @@ export function createFloatingLabelsPlugin(
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
-    node.addProps([
-      'floatingLabel',
-      '_labelBackgroundColor',
-      '_labelOffset',
-      '_offsetCalculated',
-    ])
+    node.addProps({
+      floatingLabel: {
+        boolean: true,
+        default: !!FloatingLabelsOptions?.useAsDefault,
+      },
+      _labelBackgroundColor: {},
+      _labelOffset: {},
+      _offsetCalculated: {},
+    })
 
-    node.props.floatingLabel = undefine(node.props.floatingLabel)
-
-    const useFloatingLabels =
-      typeof node.props.floatingLabel === 'boolean'
-        ? node.props.floatingLabel
-        : typeof FloatingLabelsOptions?.useAsDefault === 'boolean'
-        ? FloatingLabelsOptions?.useAsDefault
-        : false
+    const useFloatingLabels = node.props.floatingLabel
 
     if (useFloatingLabels && node.context) {
       node.on('created', () => {
