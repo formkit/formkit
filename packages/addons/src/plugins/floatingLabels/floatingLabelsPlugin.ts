@@ -3,7 +3,7 @@ import {
   FormKitPlugin,
   FormKitSectionsSchema,
 } from '@formkit/core'
-import { clone, whenAvailable } from '@formkit/utils'
+import { clone, whenAvailable, undefine } from '@formkit/utils'
 import { findSection } from '@formkit/inputs'
 
 /**
@@ -83,6 +83,8 @@ export function createFloatingLabelsPlugin(
       '_labelOffset',
       '_offsetCalculated',
     ])
+
+    node.props.floatingLabel = undefine(node.props.floatingLabel)
 
     const useFloatingLabels =
       typeof node.props.floatingLabel === 'boolean'
