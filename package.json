@@ -60,6 +60,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.1.3",
     "unocss": "^0.50.8",
+    "unplugin-pure": "^0.1.0",
     "vite": "^4.5.2",
     "vite-plugin-replace": "^0.1.1",
     "vitest": "^0.33.0",

@@ -185,6 +185,9 @@ importers:
       unocss:
         specifier: ^0.50.8
         version: 0.50.8(postcss@8.4.35)(rollup@3.29.4)(vite@4.5.2)
+      unplugin-pure:
+        specifier: ^0.1.0
+        version: 0.1.0(rollup@3.29.4)
       vite:
         specifier: ^4.5.2
         version: 4.5.2(@types/node@18.19.22)(sass@1.71.1)(terser@5.29.1)
@@ -13143,6 +13146,18 @@ packages:
       unplugin: 1.9.0
       vite: 4.5.2(@types/node@18.19.22)(sass@1.71.1)(terser@5.29.1)
     dev: false
+
+  /unplugin-pure@0.1.0(rollup@3.29.4):
+    resolution: {integrity: sha512-hMzDVh00fgGvznOMlJlRgic6dltcHLA42plNnbNC6Up2JRzHg4htqNV8K6lWu/xEI0UESXU/2VL9m0RPYHS8Zw==}
+    peerDependencies:
+      rollup: ^3.0.0
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      magic-string: 0.30.8
+      rollup: 3.29.4
+      strip-literal: 1.3.0
+      unplugin: 1.9.0
+    dev: true
 
   /unplugin-vue-router@0.7.0(rollup@3.29.4)(vue-router@4.3.0)(vue@3.4.21):
     resolution: {integrity: sha512-ddRreGq0t5vlSB7OMy4e4cfU1w2AwBQCwmvW3oP/0IHQiokzbx4hd3TpwBu3eIAFVuhX2cwNQwp1U32UybTVCw==}

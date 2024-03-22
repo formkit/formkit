@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync } from 'fs'
 import { replace } from 'esbuild-plugin-replace'
 import { progress } from './build.mjs'
+import { esbuildPure } from 'unplugin-pure'
 
 /**
  * @type {import('tsup').Options['esbuildPlugins'][number]']}
@@ -24,10 +25,11 @@ const makeAllPackagesExternalPlugin = {
     } else {
       const NON_NODE_MODULE_RE = /^[A-Z]:[\\/]|^\.{0,2}[/]|^\.{1,2}$/
       build.onResolve({ filter: /.*/ }, (args) => {
-        if (!NON_NODE_MODULE_RE.test(args.path)) return {
-          path: args.path,
-          external: true,
-        }
+        if (!NON_NODE_MODULE_RE.test(args.path))
+          return {
+            path: args.path,
+            external: true,
+          }
       })
     }
   },
@@ -78,6 +80,39 @@ export async function createBundle(pkg, plugin, showLogs = false) {
 
   const outDir = createOutdir()
 
+  const esbuildPlugins = [
+    makeAllPackagesExternalPlugin,
+    {
+      name: 'replace',
+      setup(ctx, ...args) {
+        const plugin = replace({
+          __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+            ? 'true'
+            : 'false',
+        })
+        return plugin.setup(ctx, ...args)
+      },
+    },
+  ]
+
+  const pureFunctions = ['createMessage']
+
+  if (pkg === 'inputs') {
+    pureFunctions.push(
+      ...readdirSync(resolve(__dirname, '../packages/inputs/src/sections')).map(
+        (fileName) => {
+          return fileName.replace(/\.ts$/, '')
+        }
+      )
+    )
+  }
+
+  esbuildPlugins.unshift(
+    esbuildPure({
+      functions: pureFunctions,
+    })
+  )
+
   /**
    * @type {import('tsup').Options}
    */
@@ -112,21 +147,9 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     esbuildOptions: (options) => {
       options.charset = 'utf8'
     },
-    esbuildPlugins: [
-      makeAllPackagesExternalPlugin,
-      {
-        name: 'replace',
-        setup(ctx, ...args) {
-          const plugin = replace({
-            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
-              ? 'true'
-              : 'false',
-          })
-          return plugin.setup(ctx, ...args)
-        },
-      },
-    ],
+    esbuildPlugins,
   }
+
   const log = console.log
   const warn = console.warn
   const silenceWarningSnippets = [
