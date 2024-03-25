@@ -385,7 +385,7 @@ export const FormKitKitchenSink = /* #__PURE__ */ defineComponent({
       },
       formSubmitHandler: async (data: any) => {
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        alert('Form submitted (fake) — check console for data object')
+        alert('Form submitted (fake) — check console for data object')
         console.log('Form data:', data)
       },
       includes: (array: any[], value: any) => {

@@ -107,7 +107,7 @@ export interface FormKitLibrary {
 }
 
 /**
- * The base interface definition for a FormKitPlugin. It's just a function that
+ * The base interface definition for a FormKitPlugin. It's just a function that
  * accepts a node argument.
  *
  * @public
@@ -159,7 +159,7 @@ export interface FormKitHooks {
 }
 
 /**
- * The definition of a FormKitTrap. These are somewhat like methods on each
+ * The definition of a FormKitTrap. These are somewhat like methods on each
  * FormKitNode. They are always symmetrical (get/set) — although it's acceptable
  * for either to throw an Exception.
  *
@@ -247,7 +247,7 @@ export type TrapGetter =
   | false
 
 /**
- * The signature for a node's trap setter — these are more rare than getter
+ * The signature for a node's trap setter — these are more rare than getter
  * traps, but can be useful for blocking access to certain context properties
  * or modifying the behavior of an assignment (ex. see setParent).
  *
@@ -271,7 +271,7 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
 
 /**
  * General "app" like configuration options, these are automatically inherited
- * by all children — they are not reactive.
+ * by all children — they are not reactive.
  *
  * @public
  */
@@ -1355,7 +1355,7 @@ export type FormKitNode<V = unknown> = {
    */
   config: FormKitConfig
   /**
-   * Defines the current input's library type definition — including node type,
+   * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
   define: (definition: FormKitTypeDefinition<V>) => void
@@ -1420,7 +1420,7 @@ export type FormKitNode<V = unknown> = {
    * Adds an event listener for a given event, and returns a "receipt" which is
    * a random string token. This token should be used to remove the listener
    * in the future. Alternatively you can assign a "receipt" property to the
-   * listener function and that receipt will be used instead — this allows
+   * listener function and that receipt will be used instead — this allows
    * multiple listeners to all be de-registered with a single off() call if they
    * share the same receipt.
    */
@@ -2039,7 +2039,7 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
  *    - Are groups and should maintain node identity.
  * 2. The value of the list will be a 1-1 representation of the children.
  * 3. If new values are *added* to the list, those nodes must be created by some
- *   other means — adding a value does not add a node automatically.
+ *   other means — adding a value does not add a node automatically.
  *
  * @param node - A {@link FormKitNode | FormKitNode}
  */
@@ -2122,7 +2122,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
 }
 
 /**
- * Disturbs the state of a node from settled to unsettled — creating appropriate
+ * Disturbs the state of a node from settled to unsettled — creating appropriate
  * promises and resolutions.
  *
  * @param node - A {@link FormKitNode | FormKitNode}

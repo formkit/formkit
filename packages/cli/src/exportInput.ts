@@ -58,7 +58,7 @@ async function upsertDir(dir: string): Promise<boolean | void> {
       initial: true,
       message: `Export directory does not exist (${local}) does not exist. Create it?`,
     })
-    if (!confirm) return info('Directory not created — no input was exported.')
+    if (!confirm) return info('Directory not created — no input was exported.')
     try {
       await mkdir(dir, { recursive: true })
     } catch {
@@ -218,10 +218,10 @@ async function requireInputCode(
       fileData = res.data
     } catch (e: any) {
       if (e && e?.response?.status) {
-        error(`${e.response.status} — unable to load ${localFile}`)
+        error(`${e.response.status} — unable to load ${localFile}`)
       } else {
         error(
-          'Unable to load input file — probably a network error. Are you online?'
+          'Unable to load input file — probably a network error. Are you online?'
         )
       }
     }
