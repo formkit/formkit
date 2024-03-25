@@ -32,6 +32,7 @@
     "@formkit/unplugin": "^1.6.2",
     "@formkit/core": "1.6.2",
     "@formkit/i18n": "1.6.2",
+    "@formkit/validation": "1.6.2",
     "@formkit/vue": "1.6.2",
     "@nuxt/kit": "^3.10.3",
     "chokidar": "^3.6.0",

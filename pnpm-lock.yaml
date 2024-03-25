@@ -378,6 +378,9 @@ importers:
       '@formkit/unplugin':
         specifier: ^1.6.2
         version: link:../unplugin
+      '@formkit/validation':
+        specifier: 1.6.2
+        version: link:../validation
       '@formkit/vue':
         specifier: 1.6.2
         version: link:../vue
