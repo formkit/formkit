@@ -3,11 +3,9 @@ import { build } from 'tsup'
 import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync } from 'fs'
-import { createUnplugin } from 'unplugin'
 // import { replace } from 'esbuild-plugin-replace'
 import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
-import { unpluginPureFactory } from 'unplugin-pure'
 
 /**
  * @type {import('tsup').Options['esbuildPlugins'][number]']}
