@@ -27,7 +27,6 @@ describe('vite', async () => {
     })
     await page.goto(url('/'))
     await page.waitForFunction(
-      // @ts-expect-error useNuxtApp is not typed - use https://github.com/nuxt/test-utils/pull/739
       () => window.useNuxtApp?.()._route.fullPath === '/'
     )
     expect(

@@ -3,9 +3,11 @@ import { build } from 'tsup'
 import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync } from 'fs'
-import { replace } from 'esbuild-plugin-replace'
+import { createUnplugin } from 'unplugin'
+// import { replace } from 'esbuild-plugin-replace'
+import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
-import { esbuildPure } from 'unplugin-pure'
+import { unpluginPureFactory } from 'unplugin-pure'
 
 /**
  * @type {import('tsup').Options['esbuildPlugins'][number]']}
@@ -80,21 +82,6 @@ export async function createBundle(pkg, plugin, showLogs = false) {
 
   const outDir = createOutdir()
 
-  const esbuildPlugins = [
-    makeAllPackagesExternalPlugin,
-    {
-      name: 'replace',
-      setup(ctx, ...args) {
-        const plugin = replace({
-          __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
-            ? 'true'
-            : 'false',
-        })
-        return plugin.setup(ctx, ...args)
-      },
-    },
-  ]
-
   const pureFunctions = ['createMessage']
 
   if (pkg === 'inputs') {
@@ -107,11 +94,25 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     )
   }
 
-  esbuildPlugins.unshift(
-    esbuildPure({
-      functions: pureFunctions,
-    })
-  )
+  const esbuildPlugins = [
+    makeAllPackagesExternalPlugin,
+    {
+      name: 'transform-pipe',
+      setup(ctx, ...args) {
+        const plugin = transformPipe.esbuild({
+          replace: {
+            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+              ? 'true'
+              : 'false',
+          },
+          pure: {
+            functions: pureFunctions,
+          },
+        })
+        plugin.setup(ctx, ...args)
+      },
+    },
+  ]
 
   /**
    * @type {import('tsup').Options}
@@ -143,7 +144,6 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       },
     },
     treeshake: true,
-    external: ['vue'],
     esbuildOptions: (options) => {
       options.charset = 'utf8'
     },
