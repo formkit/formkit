@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@formkit/core": "1.6.0",
-    "@formkit/i18n": "workspace:*",
+    "@formkit/i18n": "1.6.0",
     "@formkit/vue": "1.6.0",
     "@nuxt/kit": "^3.10.3",
     "chokidar": "^3.6.0",
