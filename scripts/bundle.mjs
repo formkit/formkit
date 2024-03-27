@@ -3,7 +3,8 @@ import { build } from 'tsup'
 import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync } from 'fs'
-import { replace } from 'esbuild-plugin-replace'
+// import { replace } from 'esbuild-plugin-replace'
+import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
 
 /**
@@ -22,11 +23,14 @@ const makeAllPackagesExternalPlugin = {
         }
       })
     } else {
-      const filter = /^[^./]|^\.[^./]|^\.\.[^/]/ // Must not start with "/" or "./" or "../"
-      build.onResolve({ filter }, (args) => ({
-        path: args.path,
-        external: true,
-      }))
+      const NON_NODE_MODULE_RE = /^[A-Z]:[\\/]|^\.{0,2}[/]|^\.{1,2}$/
+      build.onResolve({ filter: /.*/ }, (args) => {
+        if (!NON_NODE_MODULE_RE.test(args.path))
+          return {
+            path: args.path,
+            external: true,
+          }
+      })
     }
   },
 }
@@ -76,6 +80,38 @@ export async function createBundle(pkg, plugin, showLogs = false) {
 
   const outDir = createOutdir()
 
+  const pureFunctions = ['createMessage']
+
+  if (pkg === 'inputs') {
+    pureFunctions.push(
+      ...readdirSync(resolve(__dirname, '../packages/inputs/src/sections')).map(
+        (fileName) => {
+          return fileName.replace(/\.ts$/, '')
+        }
+      )
+    )
+  }
+
+  const esbuildPlugins = [
+    makeAllPackagesExternalPlugin,
+    {
+      name: 'transform-pipe',
+      setup(ctx, ...args) {
+        const plugin = transformPipe.esbuild({
+          replace: {
+            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+              ? 'true'
+              : 'false',
+          },
+          pure: {
+            functions: pureFunctions,
+          },
+        })
+        plugin.setup(ctx, ...args)
+      },
+    },
+  ]
+
   /**
    * @type {import('tsup').Options}
    */
@@ -106,25 +142,12 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       },
     },
     treeshake: true,
-    external: ['vue'],
     esbuildOptions: (options) => {
       options.charset = 'utf8'
     },
-    esbuildPlugins: [
-      makeAllPackagesExternalPlugin,
-      {
-        name: 'replace',
-        setup(ctx, ...args) {
-          const plugin = replace({
-            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
-              ? 'true'
-              : 'false',
-          })
-          return plugin.setup(ctx, ...args)
-        },
-      },
-    ],
+    esbuildPlugins,
   }
+
   const log = console.log
   const warn = console.warn
   const silenceWarningSnippets = [

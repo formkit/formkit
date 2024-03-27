@@ -1607,4 +1607,17 @@ describe('merge-strategy', () => {
     expect(a.value).toBe('bar')
     expect(a2.value).toBe('bar')
   })
+  it('can sync two values of the same name with an array as the value', () => {
+    const a = createNode({ value: 'foo', name: 'a' })
+    const a2 = createNode({ value: '', name: 'a' })
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    parent.add(a)
+    parent.add(a2)
+    const newValue: string[] = []
+    a.input(newValue, false)
+    expect(a.value).toBe(newValue)
+  })
 })

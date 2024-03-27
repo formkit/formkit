@@ -77,19 +77,17 @@ export function createFloatingLabelsPlugin(
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
-    node.addProps([
-      'floatingLabel',
-      '_labelBackgroundColor',
-      '_labelOffset',
-      '_offsetCalculated',
-    ])
+    node.addProps({
+      floatingLabel: {
+        boolean: true,
+        default: !!FloatingLabelsOptions?.useAsDefault,
+      },
+      _labelBackgroundColor: {},
+      _labelOffset: {},
+      _offsetCalculated: {},
+    })
 
-    const useFloatingLabels =
-      typeof node.props.floatingLabel === 'boolean'
-        ? node.props.floatingLabel
-        : typeof FloatingLabelsOptions?.useAsDefault === 'boolean'
-        ? FloatingLabelsOptions?.useAsDefault
-        : false
+    const useFloatingLabels = node.props.floatingLabel
 
     if (useFloatingLabels && node.context) {
       node.on('created', () => {
@@ -183,7 +181,6 @@ export function createFloatingLabelsPlugin(
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
           setBackgroundColor(node, nodeEl, 100)
-          calculateLabelOffset(node, nodeEl)
           observer.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
