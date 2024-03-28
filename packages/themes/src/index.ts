@@ -42,43 +42,45 @@ export interface FormKitIconLoaderUrl {
  * @public
  */
 export function generateClasses(
-  classes: Record<string, Record<string, string>>
+  classes: Record<string, Record<string, string | string[]>>
 ): Record<string, string | FormKitClasses | Record<string, boolean>> {
-  const classesBySectionKey: Record<string, Record<string, any>> = {}
+  const classesBySectionKey: Record<string, Record<string, string>> = {}
+
   Object.keys(classes).forEach((type) => {
     Object.keys(classes[type]).forEach((sectionKey) => {
-      if (!classesBySectionKey[sectionKey]) {
-        classesBySectionKey[sectionKey] = {
-          [type]: classes[type][sectionKey],
-        }
-      } else {
-        classesBySectionKey[sectionKey][type] = classes[type][sectionKey]
+      classesBySectionKey[sectionKey] = classesBySectionKey[sectionKey] || {}
+      let sectionClasses = classes[type][sectionKey]
+
+      if (Array.isArray(sectionClasses)) {
+        sectionClasses = sectionClasses.join(' ')
       }
+
+      classesBySectionKey[sectionKey][type] = sectionClasses
     })
   })
 
+  const classFunctions: Record<string, ClassFunction> = {}
+
   Object.keys(classesBySectionKey).forEach((sectionKey) => {
-    const classesObject = classesBySectionKey[sectionKey]
-    classesBySectionKey[sectionKey] = function (node, sectionKey) {
-      return addClassesBySection(node, sectionKey, classesObject)
-    } as ClassFunction
+    classFunctions[sectionKey] = (node, sectionKey) =>
+      addClassesBySection(node, sectionKey, classesBySectionKey[sectionKey])
   })
 
-  return classesBySectionKey
+  return classFunctions
 }
 
 /**
  * Updates a class list for a given sectionKey
  * @param node - the FormKit node being operated on
  * @param sectionKey - The section key to which the class list will be applied
- * @param classByType - Object containing mappings of class lists to section keys
+ * @param classesByType - Object containing mappings of class lists to section keys
  * @returns
  * @public
  */
 function addClassesBySection(
   node: FormKitNode,
   _sectionKey: string,
-  classesByType: Record<string, () => string>
+  classesByType: Record<string, string>
 ): string {
   const type = node.props.type
   const family = node.props.family
