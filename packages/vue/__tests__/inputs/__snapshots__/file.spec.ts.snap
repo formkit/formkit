@@ -1,41 +1,12 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`file inputs > applies data-has-multiple when there are multiple files attached 1`] = `
-"<div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"file\\" data-has-multiple=\\"true\\">
-  <div class=\\"formkit-wrapper\\">
-    <!---->
-    <div class=\\"formkit-inner\\">
-      <!---->
-      <!----><input class=\\"formkit-input\\" type=\\"file\\" name=\\"file_2\\" id=\\"afunction token() {
-  return Math.random().toString(36).substring(2, 15);
-}\\">
-      <ul class=\\"formkit-file-list\\" data-has-multiple=\\"true\\">
-        <li class=\\"formkit-file-item\\">
-          <!----><span class=\\"formkit-file-name\\">test.pdf</span>
-          <!---->
-        </li>
-        <li class=\\"formkit-file-item\\">
-          <!----><span class=\\"formkit-file-name\\">other.pdf</span>
-          <!---->
-        </li>
-      </ul><button class=\\"formkit-file-remove\\" type=\\"button\\">Remove all</button>
-      <!---->
-      <!---->
-      <!---->
-    </div>
-  </div>
-  <!---->
-  <!---->
-</div>"
-`;
-
-exports[`file inputs > applies data-has-multiple when there are multiple files attached 2`] = `
 "<div class="formkit-outer" data-family="text" data-type="file" data-has-multiple="true">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
       <!---->
-      <!----><input class="formkit-input" type="file" name="file_4" id="afunction token() {
+      <!----><input class="formkit-input" type="file" name="file_2" id="afunction token() {
   return Math.random().toString(36).substring(2, 15);
 }">
       <ul class="formkit-file-list" data-has-multiple="true">
@@ -59,47 +30,17 @@ exports[`file inputs > applies data-has-multiple when there are multiple files a
 `;
 
 exports[`file inputs > can rehydrate a file from the form 1`] = `
-"<form class=\\"formkit-form\\" id=\\"super-unique-id\\" name=\\"form_3\\"><div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"file\\"><div class=\\"formkit-wrapper\\"><!----><div class=\\"formkit-inner\\"><!----><!----><input class=\\"formkit-input\\" type=\\"file\\" name=\\"file\\" id=\\"input_0\\"><ul class=\\"formkit-file-list\\"><li class=\\"formkit-file-item\\"><!----><span class=\\"formkit-file-name\\">test.jpg</span><button class=\\"formkit-file-remove\\" type=\\"button\\"><!---->Remove test.jpg</button></li></ul><!----><!----><!----><!----></div></div><!----><!----></div><!----><div class=\\"formkit-actions\\"><div class=\\"formkit-outer\\" data-family=\\"button\\" data-type=\\"submit\\" data-empty=\\"true\\"><!----><div class=\\"formkit-wrapper\\"><button class=\\"formkit-input\\" type=\\"submit\\" name=\\"submit_4\\" id=\\"input_1\\"><!----><!---->Submit<!----><!----></button></div><!----></div></div>
-</form>"
-`;
-
-exports[`file inputs > can rehydrate a file from the form 2`] = `
-"<form class="formkit-form" id="super-unique-id" name="form_7"><div class="formkit-outer" data-family="text" data-type="file"><div class="formkit-wrapper"><!----><div class="formkit-inner"><!----><!----><input class="formkit-input" type="file" name="file" id="input_2"><ul class="formkit-file-list"><li class="formkit-file-item"><!----><span class="formkit-file-name">test.jpg</span><button class="formkit-file-remove" type="button"><!---->Remove test.jpg</button></li></ul><!----><!----><!----><!----></div></div><!----><!----></div><!----><div class="formkit-actions"><div class="formkit-outer" data-family="button" data-type="submit" data-empty="true"><!----><div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_8" id="input_3"><!----><!---->Submit<!----><!----></button></div><!----></div></div>
+"<form class="formkit-form" id="super-unique-id" name="form_3"><div class="formkit-outer" data-family="text" data-type="file"><div class="formkit-wrapper"><!----><div class="formkit-inner"><!----><!----><input class="formkit-input" type="file" name="file" id="input_0"><ul class="formkit-file-list"><li class="formkit-file-item"><!----><span class="formkit-file-name">test.jpg</span><button class="formkit-file-remove" type="button"><!---->Remove test.jpg</button></li></ul><!----><!----><!----><!----></div></div><!----><!----></div><!----><div class="formkit-actions"><div class="formkit-outer" data-family="button" data-type="submit" data-empty="true"><!----><div class="formkit-wrapper"><button class="formkit-input" type="submit" name="submit_4" id="input_1"><!----><!---->Submit<!----><!----></button></div><!----></div></div>
 </form>"
 `;
 
 exports[`file inputs > can rehydrate a file input using an array 1`] = `
-"<div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"file\\">
-  <div class=\\"formkit-wrapper\\">
-    <!---->
-    <div class=\\"formkit-inner\\">
-      <!---->
-      <!----><input class=\\"formkit-input\\" type=\\"file\\" name=\\"file_1\\" id=\\"super-unique-id-2\\">
-      <ul class=\\"formkit-file-list\\">
-        <li class=\\"formkit-file-item\\">
-          <!----><span class=\\"formkit-file-name\\">test.pdf</span><button class=\\"formkit-file-remove\\" type=\\"button\\">
-            <!---->Remove test.pdf
-          </button>
-        </li>
-      </ul>
-      <!---->
-      <!---->
-      <!---->
-      <!---->
-    </div>
-  </div>
-  <!---->
-  <!---->
-</div>"
-`;
-
-exports[`file inputs > can rehydrate a file input using an array 2`] = `
 "<div class="formkit-outer" data-family="text" data-type="file">
   <div class="formkit-wrapper">
     <!---->
     <div class="formkit-inner">
       <!---->
-      <!----><input class="formkit-input" type="file" name="file_2" id="super-unique-id-2">
+      <!----><input class="formkit-input" type="file" name="file_1" id="super-unique-id-2">
       <ul class="formkit-file-list">
         <li class="formkit-file-item">
           <!----><span class="formkit-file-name">test.pdf</span><button class="formkit-file-remove" type="button">

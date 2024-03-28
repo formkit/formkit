@@ -1,40 +1,17 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`radios > can render radio inputs 1`] = `
-"<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"radio\\" data-multiple=\\"true\\" data-empty=\\"true\\">
-  <fieldset class=\\"formkit-fieldset\\" id=\\"input_0\\">
-    <!---->
-    <!---->
-    <ul class=\\"formkit-options\\">
-      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"radio_1\\" id=\\"input_0-option-foo\\" value=\\"Foo\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-          <!----></span><span class=\\"formkit-label\\">Foo</span>
-        </label>
-        <!---->
-      </li>
-      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"radio_1\\" id=\\"input_0-option-bar\\" value=\\"Bar\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-          <!----></span><span class=\\"formkit-label\\">Bar</span>
-        </label>
-        <!---->
-      </li>
-    </ul>
-  </fieldset>
-  <!---->
-  <!---->
-</div>"
-`;
-
-exports[`radios > can render radio inputs 2`] = `
 "<div class="formkit-outer" data-family="box" data-type="radio" data-multiple="true" data-empty="true">
-  <fieldset class="formkit-fieldset" id="input_1">
+  <fieldset class="formkit-fieldset" id="input_0">
     <!---->
     <!---->
     <ul class="formkit-options">
-      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="radio_2" id="input_1-option-foo" value="Foo"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="radio_1" id="input_0-option-foo" value="Foo"><span class="formkit-decorator" aria-hidden="true"><!----></span>
           <!----></span><span class="formkit-label">Foo</span>
         </label>
         <!---->
       </li>
-      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="radio_2" id="input_1-option-bar" value="Bar"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="radio_1" id="input_0-option-bar" value="Bar"><span class="formkit-decorator" aria-hidden="true"><!----></span>
           <!----></span><span class="formkit-label">Bar</span>
         </label>
         <!---->

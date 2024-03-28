@@ -1,34 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`multiple checkboxes > can render multiple checkboxes with semantic markup 1`] = `
-"<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"checkbox\\" data-multiple=\\"true\\" data-empty=\\"true\\">
-  <fieldset class=\\"formkit-fieldset\\" id=\\"my-id\\" aria-describedby=\\"help-my-id\\">
-    <legend class=\\"formkit-legend\\">All checkboxes</legend>
-    <div class=\\"formkit-help\\" id=\\"help-my-id\\">help-text</div>
-    <ul class=\\"formkit-options\\">
-      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"checkbox\\" name=\\"mybox\\" id=\\"my-id-option-foo\\" value=\\"foo\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-          <!----></span><span class=\\"formkit-label\\">foo</span>
-        </label>
-        <!---->
-      </li>
-      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"checkbox\\" name=\\"mybox\\" id=\\"my-id-option-bar\\" value=\\"bar\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-          <!----></span><span class=\\"formkit-label\\">bar</span>
-        </label>
-        <!---->
-      </li>
-      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"checkbox\\" name=\\"mybox\\" id=\\"my-id-option-baz\\" value=\\"baz\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-          <!----></span><span class=\\"formkit-label\\">baz</span>
-        </label>
-        <!---->
-      </li>
-    </ul>
-  </fieldset>
-  <!---->
-  <!---->
-</div>"
-`;
-
-exports[`multiple checkboxes > can render multiple checkboxes with semantic markup 2`] = `
 "<div class="formkit-outer" data-family="box" data-type="checkbox" data-multiple="true" data-empty="true">
   <fieldset class="formkit-fieldset" id="my-id" aria-describedby="help-my-id">
     <legend class="formkit-legend">All checkboxes</legend>
@@ -57,17 +29,9 @@ exports[`multiple checkboxes > can render multiple checkboxes with semantic mark
 `;
 
 exports[`multiple checkboxes > can render options from an array of objects with ids and help text 1`] = `
-"<li class=\\"formkit-option\\" data-disabled=\\"true\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"checkbox\\" name=\\"countries\\" disabled=\\"\\" id=\\"input_14-option-it\\" aria-describedby=\\"help-input_14-option-it\\" value=\\"it\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
-    <!----></span><span class=\\"formkit-label\\">Italy</span>
-  </label>
-  <div class=\\"formkit-option-help\\" id=\\"help-input_14-option-it\\">Good food here</div>
-</li>"
-`;
-
-exports[`multiple checkboxes > can render options from an array of objects with ids and help text 2`] = `
-"<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="input_15-option-it" aria-describedby="help-input_15-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+"<li class="formkit-option" data-disabled="true"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="checkbox" name="countries" disabled="" id="input_14-option-it" aria-describedby="help-input_14-option-it" value="it"><span class="formkit-decorator" aria-hidden="true"><!----></span>
     <!----></span><span class="formkit-label">Italy</span>
   </label>
-  <div class="formkit-option-help" id="help-input_15-option-it">Good food here</div>
+  <div class="formkit-option-help" id="help-input_14-option-it">Good food here</div>
 </li>"
 `;
