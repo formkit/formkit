@@ -47,6 +47,9 @@
     "@formkit/inputs": "1.6.1",
     "@formkit/utils": "1.6.1"
   },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
   "devDependencies": {
     "@formkit/vue": "workspace:^"
   }
