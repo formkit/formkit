@@ -11,6 +11,10 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 export const packagesDir = resolve(__dirname, '../packages')
 
+export function rootDir() {
+  return resolve(__dirname, '../')
+}
+
 const formkitExternals = ['@formkit/auto-animate', '@formkit/theme-creator']
 
 export const msg = {

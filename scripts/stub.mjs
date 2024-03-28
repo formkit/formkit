@@ -1,9 +1,15 @@
 /* @ts-check */
+import { cpSync } from 'fs'
+import { build } from 'unbuild'
 import { getPackages } from './utils.mjs'
+import { rootDir } from './utils.mjs'
+import { resolve } from 'pathe'
 
 async function stub() {
-  const packages = await getPackages()
-  console.log(packages)
+  // const packages = await getPackages()
+  const path = resolve(rootDir(), 'packages/core')
+  await build(path, true)
+  cpSync(resolve(path, 'dist/index.mjs'), resolve(path, 'dist/index.dev.mjs'))
 }
 
 /**

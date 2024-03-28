@@ -6,6 +6,7 @@ import unpluginTransformer from './scripts/transform-pipe.mjs'
 export default defineConfig({
   resolve: {
     conditions: ['development'],
+    alias: [{ find: 'file://', replacement: '' }],
   },
   plugins: [
     vueJsx(),
