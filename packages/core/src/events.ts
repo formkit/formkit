@@ -156,7 +156,7 @@ export function createEmitter(): FormKitEventEmitter {
 
   /**
    * Pause emitting values. Any events emitted while paused will not be emitted
-   * but rather "stored" — and whichever events are emitted last will be output.
+   * but rather "stored" — and whichever events are emitted last will be output.
    * For example:
    * pause()
    * emit('foo', 1)

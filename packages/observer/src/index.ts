@@ -289,7 +289,7 @@ function watch<T extends FormKitWatchable>(
  * removed.
  * @param previous - The previous watcher dependencies.
  * @param current - The new/current watcher dependencies.
- * @returns A tuple of maps: `toAdd` and `toRemove`.
+ * @returns A tuple of maps: `toAdd` and `toRemove`.
  * @public
  */
 export function diffDeps(
