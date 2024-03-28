@@ -15,8 +15,11 @@
     "@formkit/themes": "workspace:^",
     "@formkit/vue": "workspace:^",
     "@formkit/zod": "workspace:^",
+    "@formkit/auto-animate": "0.8.1",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^4.5.2",
+    "vite": "^5.0.0",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { ConcreteComponent, h, reactive } from 'vue'
+import { ConcreteComponent, h, nextTick, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
   FormKit,
@@ -359,13 +359,15 @@ describe('multistep', () => {
         ],
       },
     })
-
+    await nextTick()
     const stepNameRegex = /Step (.*)?</gm
     await new Promise((r) => setTimeout(r, 15))
     const stepMatches = wrapper.html().match(stepNameRegex)
     expect(stepMatches).toEqual(['Step Alpha<', 'Step Bravo<', 'Step Charlie<'])
     data.showStepTwo = false
+    await nextTick()
     await new Promise((r) => setTimeout(r, 15))
+    console.log(wrapper.html())
     const stepMatchesAfter = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter).toEqual(['Step Alpha<', 'Step Charlie<'])
     data.showStepTwo = true

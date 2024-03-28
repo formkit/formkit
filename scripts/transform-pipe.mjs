@@ -72,7 +72,8 @@ const unpluginFactory = (options) => {
       code = transformReplace(code, id).code
 
       const { transform: transformPure } = unpluginPureFactory(options.pure)
-      return transformPure(code, id) ?? code
+      code = transformPure(code, id) ?? code
+      return code
     },
   }
 }

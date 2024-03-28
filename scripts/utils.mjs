@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
+/* @typecheck */
 import fs from 'fs'
 import { execSync } from 'child_process'
 import { dirname, resolve, join, basename, extname } from 'path'
@@ -65,7 +65,7 @@ export function getAllFiles(dirPath, arrayOfFiles) {
  */
 export function getPackages() {
   const availablePackages = fs.readdirSync(packagesDir)
-  return availablePackages
+  return availablePackages.filter((p) => !p.startsWith('.'))
 }
 
 /**

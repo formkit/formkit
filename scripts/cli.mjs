@@ -1,11 +1,9 @@
 import cac from 'cac'
 import prompts from 'prompts'
-
 import build from './build.mjs'
 import publish from './publish.mjs'
-import publishLocal from './publishLocal.mjs'
-import deploy from './deploy.mjs'
 import translate from './translate.mjs'
+import stub from './stub.mjs'
 
 async function runCLI(s) {
   let script = s[0]
@@ -16,14 +14,11 @@ async function runCLI(s) {
     case 'publish':
       script = publish
       break
-    case 'deploy':
-      script = deploy
-      break
-    case 'local':
-      script = publishLocal
-      break
     case 'translate':
       script = translate
+      break
+    case 'stub':
+      script = stub
       break
     default:
       script = ''

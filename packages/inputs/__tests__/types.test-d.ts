@@ -3,14 +3,15 @@ import { FormKitEvents, FormKitInputSlots, PropType } from '../src/props'
 import { createNode } from '@formkit/core'
 import type { FormKitTypeDefinition } from '@formkit/core'
 
-declare const textEvent: FormKitEvents<{ type: 'text' }>
-declare const formEvent: FormKitEvents<{ type: 'form' }>
-declare const textSlots: FormKitInputSlots<{ type: 'text' }>['text']
-declare const customInputProps: {
+const textEvent: FormKitEvents<{ type: 'text' }> = () => {}
+const formEvent: FormKitEvents<{ type: 'form' }> = () => {}
+const textSlots: FormKitInputSlots<{ type: 'text' }>['text'] = 0 as any
+const customInputProps: {
   type: FormKitTypeDefinition<number>
   modelValue: number
-}
-declare const customInputPropType: PropType<typeof customInputProps, 'value'>
+} = 0 as any
+const customInputPropType: PropType<typeof customInputProps, 'value'> = 0 as any
+
 describe('base events', () => {
   it('has an input event', () => {
     assertType(textEvent('input', 'foo', createNode()))

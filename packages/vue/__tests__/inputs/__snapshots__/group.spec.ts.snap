@@ -9,6 +9,15 @@ exports[`clearing values > can destructure the value of a group (#1133) 1`] = `
 }</pre>"
 `;
 
+exports[`clearing values > can destructure the value of a group (#1133) 2`] = `
+"<pre>{
+  "my-group": {
+    "foo": "abc",
+    "bar": "def"
+  }
+}</pre>"
+`;
+
 exports[`clearing values > renames radio inputs that are children 1`] = `
 "<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"radio\\" data-multiple=\\"true\\">
   <fieldset class=\\"formkit-fieldset\\" id=\\"input_33\\">
@@ -42,6 +51,49 @@ exports[`clearing values > renames radio inputs that are children 1`] = `
       </li>
       <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"fiz_1\\" id=\\"input_35-option-b\\" value=\\"b\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
           <!----></span><span class=\\"formkit-label\\">b</span>
+        </label>
+        <!---->
+      </li>
+    </ul>
+  </fieldset>
+  <!---->
+  <!---->
+</div>"
+`;
+
+exports[`clearing values > renames radio inputs that are children 2`] = `
+"<div class="formkit-outer" data-family="box" data-type="radio" data-multiple="true">
+  <fieldset class="formkit-fieldset" id="input_37">
+    <!---->
+    <!---->
+    <ul class="formkit-options">
+      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="fiz_2" id="input_37-option-a" value="a"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+          <!----></span><span class="formkit-label">a</span>
+        </label>
+        <!---->
+      </li>
+      <li class="formkit-option"><label class="formkit-wrapper" data-checked="true"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="fiz_2" id="input_37-option-b" value="b"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+          <!----></span><span class="formkit-label">b</span>
+        </label>
+        <!---->
+      </li>
+    </ul>
+  </fieldset>
+  <!---->
+  <!---->
+</div>
+<div class="formkit-outer" data-family="box" data-type="radio" data-multiple="true">
+  <fieldset class="formkit-fieldset" id="input_39">
+    <!---->
+    <!---->
+    <ul class="formkit-options">
+      <li class="formkit-option"><label class="formkit-wrapper" data-checked="true"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="fiz_3" id="input_39-option-a" value="a"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+          <!----></span><span class="formkit-label">a</span>
+        </label>
+        <!---->
+      </li>
+      <li class="formkit-option"><label class="formkit-wrapper"><span class="formkit-inner"><!----><input class="formkit-input" type="radio" name="fiz_3" id="input_39-option-b" value="b"><span class="formkit-decorator" aria-hidden="true"><!----></span>
+          <!----></span><span class="formkit-label">b</span>
         </label>
         <!---->
       </li>
