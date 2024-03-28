@@ -14,7 +14,6 @@
  * - Clean up remove unnecessary type declarations
  * - Minify code using terser
  */
-import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
@@ -206,7 +205,9 @@ export async function inputsBuildExtras() {
   const tsData = JSON.parse(
     tsConfigStr.replace(
       './types/globals.d.ts',
-      resolve(rootDir, './types/globals.d.ts').split(path.sep).join(path.posix.sep)
+      resolve(rootDir, './types/globals.d.ts')
+        .split(path.sep)
+        .join(path.posix.sep)
     )
   )
   tsData.compilerOptions.outDir = './'
@@ -314,8 +315,8 @@ function buildComplete() {
   }
   msg.success(
     'build complete (' +
-    ((performance.now() - startTime) / 1000).toFixed(2) +
-    's)'
+      ((performance.now() - startTime) / 1000).toFixed(2) +
+      's)'
   )
 }
 
@@ -332,15 +333,13 @@ function estimatedLogs(p) {
 }
 
 /**
- * Filly setup the command line tool and options.
+ * Adds the build command.
+ * @param {typeof import('cac').default} cli
  */
-export default function () {
-  const cli = cac()
+export default function (cli) {
   cli
-    .command('[package]', 'Builds a specific package', {
+    .command('build [package]', 'Builds a specific package', {
       allowUnknownOptions: true,
     })
     .action(buildPackage)
-  cli.help()
-  cli.parse()
 }

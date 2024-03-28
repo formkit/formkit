@@ -1,7 +1,4 @@
 /* @ts-check */
-import cac from 'cac'
-import prompts from 'prompts'
-import chalk from 'chalk'
 import { getPackages } from './utils.mjs'
 
 async function stub() {
@@ -9,13 +6,14 @@ async function stub() {
   console.log(packages)
 }
 
-export default function () {
-  const cli = cac()
+/**
+ * Adds the stub command.
+ * @param {typeof import('cac').default} cli
+ */
+export default function (cli) {
   cli
-    .command('[package]', 'Stub a packages dist directory (runtime).', {
+    .command('stub [package]', 'Stub a packages dist directory (runtime).', {
       allowUnknownOptions: true,
     })
     .action(stub)
-  cli.help()
-  cli.parse()
 }
