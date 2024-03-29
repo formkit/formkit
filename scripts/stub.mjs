@@ -1,15 +1,65 @@
 /* @ts-check */
-import { cpSync } from 'fs'
+import { cpSync, readFileSync, writeFileSync } from 'fs'
 import { build } from 'unbuild'
 import { getPackages } from './utils.mjs'
 import { rootDir } from './utils.mjs'
 import { resolve } from 'pathe'
 
-async function stub() {
-  // const packages = await getPackages()
-  const path = resolve(rootDir(), 'packages/core')
-  await build(path, true)
-  cpSync(resolve(path, 'dist/index.mjs'), resolve(path, 'dist/index.dev.mjs'))
+/**
+ * Create a build configuration.
+ * @param {string} pkg - The package name
+ * @returns {import('unbuild').BuildConfig}
+ */
+function createBuildConfig(pkg) {
+  if (pkg === 'addons') {
+    return {
+      entries: ['src/index.ts'],
+    }
+  }
+  return {}
+}
+
+async function stub(pkg) {
+  const packages = !pkg ? await getPackages() : [pkg]
+  await Promise.all(
+    packages.map(async (p) => {
+      const path = resolve(rootDir(), `packages/${p}`)
+      await build(path, true, createBuildConfig(p))
+
+      const transformOptionsCode = `"transformOptions": {
+    "babel": {
+      "plugins": [
+        [
+          require('babel-plugin-transform-replace-expressions'),
+          { replace: { __DEV__: 'true' } },
+        ],
+      ],
+    },
+  },
+  "cache": '.jiti-cache',`
+      const main = p === 'nuxt' ? 'module' : 'index'
+      const mainEntry = resolve(path, `dist/${main}.mjs`)
+      const stubbedCode = readFileSync(mainEntry, { encoding: 'utf-8' })
+      writeFileSync(
+        mainEntry,
+        stubbedCode.replace(
+          `  "esmResolve": true,
+  "interopDefault": true,`,
+          `  "esmResolve": true,
+  "interopDefault": true,
+  ${transformOptionsCode}`
+        )
+      )
+
+      if (main === 'index') {
+        cpSync(mainEntry, resolve(path, 'dist/index.dev.mjs'))
+        cpSync(
+          resolve(path, 'dist/index.d.ts'),
+          resolve(path, 'dist/index.d.mts')
+        )
+      }
+    })
+  )
 }
 
 /**

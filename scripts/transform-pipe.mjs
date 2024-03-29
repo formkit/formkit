@@ -28,6 +28,9 @@ function unpluginReplaceFactory(options) {
     : new RegExp(`\\b(${keys.join('|')})\\b`, 'g')
 
   return (code, id) => {
+    // If this is a stub, ignore it:
+    if (code && code.includes('const _module = jiti(null, {')) return null
+
     const magicString = new MagicString(code)
     let match = null
 
@@ -69,8 +72,8 @@ const unpluginFactory = (options) => {
     name: 'transform-pipe',
     transform(code, id) {
       const transformReplace = unpluginReplaceFactory(options.replace)
-      code = transformReplace(code, id).code
-
+      const postReplace = transformReplace(code, id)
+      if (postReplace) code = postReplace.code
       const { transform: transformPure } = unpluginPureFactory(options.pure)
       code = transformPure(code, id) ?? code
       return code

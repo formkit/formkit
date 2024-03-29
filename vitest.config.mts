@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 /* @ts-expect-error */
 import unpluginTransformer from './scripts/transform-pipe.mjs'
+import UnpluginFileUrl from 'unplugin-file-url/vite'
 
 export default defineConfig({
   resolve: {
@@ -18,8 +19,15 @@ export default defineConfig({
         functions: ['createMessage'],
       },
     }),
+    UnpluginFileUrl(),
   ],
   test: {
+    forceRerunTriggers: [
+      '**/package.json/**',
+      '**/vitest.config.*/**',
+      '**/vite.config.*/**',
+      '**/packages/**',
+    ],
     environment: 'jsdom',
     retry: 2,
     // singleThread: true,

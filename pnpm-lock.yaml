@@ -59,6 +59,9 @@ importers:
       axios:
         specifier: ^0.26.1
         version: 0.26.1
+      babel-plugin-transform-replace-expressions:
+        specifier: ^0.2.0
+        version: 0.2.0(@babel/core@7.24.3)
       cac:
         specifier: ^6.7.14
         version: 6.7.14
@@ -161,6 +164,9 @@ importers:
       unplugin:
         specifier: ^1.9.0
         version: 1.10.0
+      unplugin-file-url:
+        specifier: ^0.1.1
+        version: 0.1.1(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6)
       unplugin-pure:
         specifier: ^0.1.1
         version: 0.1.1(rollup@3.29.4)
@@ -5462,6 +5468,15 @@ packages:
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
+    dev: true
+
+  /babel-plugin-transform-replace-expressions@0.2.0(@babel/core@7.24.3):
+    resolution: {integrity: sha512-Eh1rRd9hWEYgkgoA3D0kGp7xJ/wgVshgsqmq60iC4HVWD+Lux+fNHSHBa2v1Hsv+dHflShC71qKhiH40OiPtDA==}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.24.3
+      '@babel/parser': 7.24.1
     dev: true
 
   /balanced-match@1.0.2:
@@ -12845,6 +12860,35 @@ packages:
       - postcss
       - rollup
       - supports-color
+    dev: true
+
+  /unplugin-file-url@0.1.1(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6):
+    resolution: {integrity: sha512-52DctE2Wp+osGMzbhDvc067/84Ae0q6jbCWg675bbH2m7qD8/C6WMwb0YFuQ+4LefRFL34ONVSnNYOq+LCtQXA==}
+    peerDependencies:
+      '@nuxt/kit': ^3
+      '@nuxt/schema': ^3
+      esbuild: '*'
+      rollup: ^3
+      vite: '>=3'
+      webpack: ^4 || ^5
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+      '@nuxt/schema':
+        optional: true
+      esbuild:
+        optional: true
+      rollup:
+        optional: true
+      vite:
+        optional: true
+      webpack:
+        optional: true
+    dependencies:
+      esbuild: 0.19.12
+      rollup: 3.29.4
+      unplugin: 1.10.0
+      vite: 5.2.6(@types/node@18.19.26)(sass@1.72.0)(terser@5.30.0)
     dev: true
 
   /unplugin-formkit@0.2.13(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6):
