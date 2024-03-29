@@ -168,7 +168,7 @@ export async function buildAllPackages(packages) {
   })
   buildAll = true
   startTime = performance.now()
-  for (const [i, p] of orderedPackages.entries()) {
+  for await (const [i, p] of orderedPackages.entries()) {
     progress.step = `Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`
     await buildPackage(p)
   }
