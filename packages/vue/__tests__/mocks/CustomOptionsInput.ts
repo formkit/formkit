@@ -1,4 +1,4 @@
-import { FormKitFrameworkContext } from '@formkit/core'
+import type { FormKitFrameworkContext } from '@formkit/core'
 import { defineComponent, PropType, h } from 'vue'
 
 export default defineComponent({

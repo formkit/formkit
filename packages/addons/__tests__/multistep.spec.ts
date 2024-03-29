@@ -7,7 +7,7 @@ import {
   defaultConfig,
   resetCount,
 } from '@formkit/vue'
-import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
+import { createMultiStepPlugin } from '../src'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const multiStepSchemaBasic = [

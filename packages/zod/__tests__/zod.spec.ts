@@ -3,7 +3,6 @@ import { createZodPlugin } from '../src'
 import { getNode } from '@formkit/core'
 import { mount } from '@vue/test-utils'
 import { defaultConfig, plugin as formKitPlugin } from '@formkit/vue'
-
 import { z } from 'zod'
 
 const global: Record<string, Record<string, any>> = {

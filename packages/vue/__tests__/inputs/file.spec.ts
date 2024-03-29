@@ -1,5 +1,4 @@
-import { defaultConfig } from '../../src/defaultConfig'
-import { plugin } from '../../src/plugin'
+import { plugin, defaultConfig } from '../../src'
 import { token } from '@formkit/utils'
 import { getNode } from '@formkit/core'
 import { mount } from '@vue/test-utils'

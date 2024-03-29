@@ -14,3 +14,5 @@ exports[`naked attributes > outputs accessibility attributes on clickable icons 
   <!---->
 </div>"
 `;
+
+exports[`naked attributes > outputs accessibility attributes on clickable icons 2`] = `""`;

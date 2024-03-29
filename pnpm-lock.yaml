@@ -59,6 +59,12 @@ importers:
       axios:
         specifier: ^0.26.1
         version: 0.26.1
+      babel-plugin-transform-import-meta:
+        specifier: ^2.2.1
+        version: 2.2.1(@babel/core@7.24.3)
+      babel-plugin-transform-import-meta-x:
+        specifier: ^0.0.2
+        version: 0.0.2(@babel/core@7.24.3)
       babel-plugin-transform-replace-expressions:
         specifier: ^0.2.0
         version: 0.2.0(@babel/core@7.24.3)
@@ -5468,6 +5474,26 @@ packages:
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
+    dev: true
+
+  /babel-plugin-transform-import-meta-x@0.0.2(@babel/core@7.24.3):
+    resolution: {integrity: sha512-HJz3YHiUPekY2dEYU8aLI3cuGFbVLbFBgCWn+R2nNU2RqQNxS+WVvvgXIW9Y2mPlk4jzcSUEwmW37R4gkjg+nw==}
+    peerDependencies:
+      '@babel/core': ^7.10.0
+    dependencies:
+      '@babel/core': 7.24.3
+      '@babel/template': 7.24.0
+      tslib: 2.6.2
+    dev: true
+
+  /babel-plugin-transform-import-meta@2.2.1(@babel/core@7.24.3):
+    resolution: {integrity: sha512-AxNh27Pcg8Kt112RGa3Vod2QS2YXKKJ6+nSvRtv7qQTJAdx0MZa4UHZ4lnxHUWA2MNbLuZQv5FVab4P1CoLOWw==}
+    peerDependencies:
+      '@babel/core': ^7.10.0
+    dependencies:
+      '@babel/core': 7.24.3
+      '@babel/template': 7.24.0
+      tslib: 2.6.2
     dev: true
 
   /babel-plugin-transform-replace-expressions@0.2.0(@babel/core@7.24.3):
