@@ -121,7 +121,6 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     format: createFormats(),
     entry: [createEntry()],
     outDir,
-    external: [/@formkit/],
     outExtension: (ctx) => {
       const prefix = devBuild ? '.dev' : ''
       if (ctx.format === 'cjs') return { js: `${prefix}.cjs` }
@@ -136,9 +135,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     clean: true,
     globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
-    dts: {
-      resolve: true
-    },
+    dts: {},
     treeshake: true,
     esbuildOptions: (options) => {
       options.charset = 'utf8'
