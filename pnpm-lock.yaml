@@ -378,6 +378,9 @@ importers:
       '@formkit/i18n':
         specifier: 1.6.1
         version: link:../i18n
+      '@formkit/unplugin':
+        specifier: ^1.6.1
+        version: link:../unplugin
       '@formkit/vue':
         specifier: 1.6.1
         version: link:../vue
@@ -393,9 +396,6 @@ importers:
       unplugin:
         specifier: ^1.9.0
         version: 1.10.0
-      unplugin-formkit:
-        specifier: ^0.2.13
-        version: 0.2.13(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6)
     devDependencies:
       '@nuxt/module-builder':
         specifier: ^0.5.5
@@ -1974,6 +1974,7 @@ packages:
     cpu: [ppc64]
     os: [aix]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/aix-ppc64@0.20.2:
@@ -1999,6 +2000,7 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-arm64@0.20.2:
@@ -2024,6 +2026,7 @@ packages:
     cpu: [arm]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-arm@0.20.2:
@@ -2049,6 +2052,7 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/android-x64@0.20.2:
@@ -2074,6 +2078,7 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-arm64@0.20.2:
@@ -2099,6 +2104,7 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/darwin-x64@0.20.2:
@@ -2124,6 +2130,7 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-arm64@0.20.2:
@@ -2149,6 +2156,7 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/freebsd-x64@0.20.2:
@@ -2174,6 +2182,7 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm64@0.20.2:
@@ -2199,6 +2208,7 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-arm@0.20.2:
@@ -2224,6 +2234,7 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ia32@0.20.2:
@@ -2258,6 +2269,7 @@ packages:
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-loong64@0.20.2:
@@ -2283,6 +2295,7 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-mips64el@0.20.2:
@@ -2308,6 +2321,7 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-ppc64@0.20.2:
@@ -2333,6 +2347,7 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-riscv64@0.20.2:
@@ -2358,6 +2373,7 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-s390x@0.20.2:
@@ -2383,6 +2399,7 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/linux-x64@0.20.2:
@@ -2408,6 +2425,7 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/netbsd-x64@0.20.2:
@@ -2433,6 +2451,7 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/openbsd-x64@0.20.2:
@@ -2458,6 +2477,7 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/sunos-x64@0.20.2:
@@ -2483,6 +2503,7 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-arm64@0.20.2:
@@ -2508,6 +2529,7 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-ia32@0.20.2:
@@ -2533,6 +2555,7 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
+    dev: true
     optional: true
 
   /@esbuild/win32-x64@0.20.2:
@@ -7815,6 +7838,7 @@ packages:
       '@esbuild/win32-arm64': 0.19.12
       '@esbuild/win32-ia32': 0.19.12
       '@esbuild/win32-x64': 0.19.12
+    dev: true
 
   /esbuild@0.20.2:
     resolution: {integrity: sha512-WdOOppmUNU+IbZ0PaDiTst80zjnrOkyJNHoKupIcVyU8Lvla3Ugx94VzkQ32Ijqd7UhHJy75gNWDMUekcrSJ6g==}
@@ -13812,30 +13836,6 @@ packages:
       unplugin: 1.10.0
       vite: 5.2.6(@types/node@18.19.26)(sass@1.72.0)(terser@5.30.0)
     dev: true
-
-  /unplugin-formkit@0.2.13(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6):
-    resolution: {integrity: sha512-qNHz7/0QDO0uVD5MoUZz49CI7q8cHM24RQDwbs5NfRJ6EiyZ1gBmWq9ta3QHR2nD7xacXV+yzmfDbnwlNpkzsg==}
-    peerDependencies:
-      esbuild: '*'
-      rollup: '*'
-      vite: '*'
-      webpack: '*'
-    peerDependenciesMeta:
-      esbuild:
-        optional: true
-      rollup:
-        optional: true
-      vite:
-        optional: true
-      webpack:
-        optional: true
-    dependencies:
-      esbuild: 0.19.12
-      pathe: 1.1.2
-      rollup: 3.29.4
-      unplugin: 1.10.0
-      vite: 5.2.6(@types/node@18.19.26)(sass@1.72.0)(terser@5.30.0)
-    dev: false
 
   /unplugin-pure@0.1.1(rollup@3.29.4):
     resolution: {integrity: sha512-YiSeCLKLQkS2LruMxzkRsp59NC6ViF+RPEqsAvLA+5hTtLbmzQ2HoFqKW67bny5Obe/EdzpbOTONjPjzK5GIHA==}

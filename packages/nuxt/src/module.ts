@@ -14,7 +14,7 @@ import {
 } from '@nuxt/kit'
 import { createUnplugin } from 'unplugin'
 import type { NuxtModule } from '@nuxt/schema'
-import { unpluginFactory as unpluginFormKit } from 'unplugin-formkit'
+import { unpluginFactory as unpluginFormKit } from '@formkit/unplugin'
 
 export interface ModuleOptions {
   defaultConfig?: boolean
