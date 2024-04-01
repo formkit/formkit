@@ -135,6 +135,8 @@ export async function buildPackage(p) {
 
   if (p === 'addons') await addonsBuildExtras()
 
+  if (p === 'unplugin') await unpluginBuildExtras()
+
   // // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
@@ -229,6 +231,13 @@ async function themesBuildExtras() {
   await bundle('themes', 'tailwindcss/genesis', !usingProgressBar)
   await bundle('themes', 'unocss', !usingProgressBar)
   await bundle('themes', 'windicss', !usingProgressBar)
+}
+
+async function unpluginBuildExtras() {
+  await bundle('unplugin', 'esbuild.ts', !usingProgressBar)
+  await bundle('unplugin', 'rollup.ts', !usingProgressBar)
+  await bundle('unplugin', 'vite.ts', !usingProgressBar)
+  await bundle('unplugin', 'webpack.ts', !usingProgressBar)
 }
 
 /**

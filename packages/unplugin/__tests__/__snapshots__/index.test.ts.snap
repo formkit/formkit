@@ -1,0 +1,157 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`virtual configuration file > generates correct configuration when custom config is available 1`] = `
+"import { defaultConfig } from \\"@formkit/vue\\";
+import _config from \\"~/playground/formkit.config.ts\\";
+const config = typeof _config === 'function' ? _config() : _config;
+export default defaultConfig(config);"
+`;
+
+exports[`virtual configuration file > generates correct configuration when custom config is available and default config is disabled 1`] = `
+"import _config from \\"~/playground/formkit.config.ts\\";
+const config = typeof _config === 'function' ? _config() : _config;
+export default config;"
+`;
+
+exports[`virtual configuration file > generates correct configuration when default config is disabled 1`] = `
+"const config = {};
+export default config;"
+`;
+
+exports[`virtual configuration file > generates correct virtual configuration with default options 1`] = `
+"import { defaultConfig } from \\"@formkit/vue\\";
+const config = {};
+export default defaultConfig(config);"
+`;
+
+exports[`vue file transformations > injects import into script setup block 1`] = `
+"<script setup lang=\\"ts\\">
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+import { FormKit } from '@formkit/vue'
+</script>
+
+<template>
+  
+<FormKitProvider :config=\\"__formkitConfig\\">
+<FormKit
+    type=\\"text\\"
+    label=\\"Your name\\"
+    help=\\"Enter your name\\"
+  />
+</FormKitProvider>
+
+</template>"
+`;
+
+exports[`vue file transformations > injects inside root node if there is one 1`] = `
+"<script setup>
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+</script>
+<template>
+    <div class=\\"fizzbuzz\\">
+      
+<FormKitProvider :config=\\"__formkitConfig\\">
+<FormKit />
+</FormKitProvider>
+
+    </div>
+  </template>"
+`;
+
+exports[`vue file transformations > injects inside root node with full sfc 1`] = `
+"<script lang=\\"ts\\" setup>
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+function handleLoginSubmit(values: any) {
+  window.alert(\\"You are logged in. Credentials: 
+\\" + JSON.stringify(values));
+}
+</script>
+
+<template>
+  <div>
+    
+<FormKitProvider :config=\\"__formkitConfig\\">
+<FormKit type=\\"form\\" submit-label=\\"login\\" @submit=\\"handleLoginSubmit\\">
+      <FormKit type=\\"email\\" label=\\"Email\\" name=\\"email\\" />
+      <FormKit type=\\"password\\" label=\\"Password\\" name=\\"password\\" />
+    </FormKit>
+</FormKitProvider>
+
+  </div>
+</template>
+"
+`;
+
+exports[`vue file transformations > injects inside root node with multiple child elements 1`] = `
+"<script lang=\\"ts\\" setup>
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+function handleLoginSubmit(values: any) {
+  window.alert(\\"You are logged in. Credentials: 
+\\" + JSON.stringify(values));
+}
+</script>
+
+<template>
+  <div>
+    
+<FormKitProvider :config=\\"__formkitConfig\\">
+<main>
+    <p>
+    <FormKit type=\\"form\\" submit-label=\\"login\\" @submit=\\"handleLoginSubmit\\">
+      <FormKit type=\\"email\\" label=\\"Email\\" name=\\"email\\" />
+      <FormKit type=\\"password\\" label=\\"Password\\" name=\\"password\\" />
+    </FormKit>
+    </p>
+    </main>
+    <div class=\\"filler\\">Here we go</div>
+</FormKitProvider>
+
+  </div>
+</template>
+"
+`;
+
+exports[`vue file transformations > injects setup block when using options api 1`] = `
+"<script setup lang=\\"ts\\">
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+</script>
+<script lang=\\"ts\\">
+import { FormKit } from '@formkit/vue'
+
+export default {
+  components: {
+    FormKit
+  }
+}
+</script>
+
+<template>
+  <div>
+    
+<FormKitProvider :config=\\"__formkitConfig\\">
+<h1>Nothing to see here</h1>
+    <FormKit type=\\"text\\" label=\\"Check me out\\" />
+</FormKitProvider>
+
+  </div>
+</template>"
+`;
+
+exports[`vue file transformations > injects the template block into an normally structured sfc 1`] = `
+"<script setup>
+import { FormKitProvider } from \\"@formkit/vue\\";
+import __formkitConfig from \\"virtual:formkit-config\\";
+</script>
+<template>
+  
+<FormKitProvider :config=\\"__formkitConfig\\">
+<FormKit />
+</FormKitProvider>
+
+</template>"
+`;
