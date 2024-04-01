@@ -60,12 +60,20 @@ export async function createBundle(pkg, plugin, showLogs = false) {
   }
 
   function createEntry() {
-    const entry = resolve(rootDir, `src/${plugin ? plugin + '/' : ''}index.ts`)
+    const path = plugin
+      ? /\.ts$/.test(plugin)
+        ? plugin
+        : plugin + '/' + 'index.ts'
+      : 'index.ts'
+    const entry = resolve(rootDir, `src/${path}`)
     return entry
   }
 
   function createOutdir() {
-    const entry = resolve(rootDir, 'dist' + (plugin ? '/' + plugin : ''))
+    const entry = resolve(
+      rootDir,
+      'dist' + (plugin && !/\.ts$/.test(plugin) ? '/' + plugin : '')
+    )
     return entry
   }
 
@@ -130,7 +138,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     },
     splitting: false,
     sourcemap: true,
-    clean: true,
+    clean: !plugin || !/\.ts$/.test(plugin),
     globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
     dts: {
@@ -164,7 +172,14 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     progress.logs.push(m)
   }
   await build(config)
-  renameSync(resolve(outDir, './index.d.ts'), resolve(outDir, './index.d.cts'))
+  const dts =
+    plugin && /\.ts$/.test(plugin)
+      ? plugin.substring(0, plugin.length - 3)
+      : 'index'
+  renameSync(
+    resolve(outDir, `./${dts}.d.ts`),
+    resolve(outDir, `./${dts}.d.cts`)
+  )
   console.log = log
   console.warn = warn
 }
