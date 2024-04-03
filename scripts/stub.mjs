@@ -73,6 +73,12 @@ async function stub(pkg) {
           resolve(path, 'dist/index.d.mts')
         )
       }
+
+      if (p === 'addons') {
+        cpSync(resolve(path, 'src/css'), resolve(path, 'dist/css'), {
+          recursive: true,
+        })
+      }
     })
   )
 }
