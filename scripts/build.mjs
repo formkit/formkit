@@ -49,7 +49,7 @@ export const progress = {
   expectedLogs: 0,
   logs: [],
   warnings: {},
-  timeElapsed: 0,
+  timeElapsed: '0',
   step: '',
 }
 
@@ -65,7 +65,7 @@ const multiStepFile = readFileSync(
 const matches = multiStepFile.match(
   /\/\* <declare> \*\/(.*?)\/\* <\/declare> \*\//gmsu
 )
-if (matches.length !== 2) {
+if (matches?.length !== 2) {
   process.exit()
 }
 
@@ -140,10 +140,7 @@ export async function buildPackage(p) {
     const icons = getIcons()
     await fs.mkdir(
       resolve(packagesDir, 'icons/dist/icons'),
-      { recursive: true },
-      (err) => {
-        if (err) throw err
-      }
+      { recursive: true }
     )
     Object.keys(icons).forEach(async (icon) => {
       await fs.writeFile(
@@ -242,9 +239,6 @@ async function addonsBuildExtras() {
   await fs.mkdir(
     resolve(packagesDir, 'addons/dist/css'),
     { recursive: true },
-    (err) => {
-      if (err) throw err
-    }
   )
   addonsCSS.forEach(async (css) => {
     await fs.copyFile(
@@ -256,8 +250,8 @@ async function addonsBuildExtras() {
 
 /**
  * Create a new bundle of a certain format for a certain package.
- * @param p package name
- * @param format the format to create (cjs, esm, umd, etc...)
+ * @param {string} p package name
+ * @param {string | undefined} subPackage the subPackage to build
  */
 async function bundle(p, subPackage, showLogs = false) {
   if (subPackage && p === 'themes') {
@@ -270,6 +264,7 @@ async function bundle(p, subPackage, showLogs = false) {
   await createBundle(p, subPackage, showLogs)
 }
 
+/** @returns {Promise<void>} */
 async function buildNuxtModule() {
   progress.step = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
@@ -334,7 +329,9 @@ function estimatedLogs(p) {
 
 /**
  * Adds the build command.
- * @param {typeof import('cac').default} cli
+ * @template {string} T
+ * @typedef {T extends new (...args: any[]) => infer R ? R : never} InstanceOf<T>
+ * @param {InstanceOf<import('cac').default>} cli
  */
 export default function (cli) {
   cli

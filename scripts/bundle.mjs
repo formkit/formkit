@@ -8,13 +8,13 @@ import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
 
 /**
- * @type {import('tsup').Options['esbuildPlugins'][number]']}
+ * @type {NonNullable<import('tsup').Options['esbuildPlugins']>[number]}
  */
 const makeAllPackagesExternalPlugin = {
   name: 'make-all-packages-external',
   setup(build) {
     // iife files should be fully bundled.
-    if (build.initialOptions.outExtension['.js'].startsWith('.iife.js')) {
+    if (build.initialOptions.outExtension?.['.js'].startsWith('.iife.js')) {
       const filter = /^vue$/
       build.onResolve({ filter }, () => {
         return {
@@ -38,7 +38,7 @@ const makeAllPackagesExternalPlugin = {
 /**
  * Create a new bundle of a certain format for a certain package.
  * @param {string} pkg the package to create a bundle for
- * @param {string} format the format to create (cjs, esm, umd, etc...)
+ * @param {string | undefined} plugin the package to build
  */
 export async function createBundle(pkg, plugin, showLogs = false) {
   const __filename = fileURLToPath(import.meta.url)
@@ -69,6 +69,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     return entry
   }
 
+  /** @returns {Array<'iife' | 'cjs' | 'esm' | 'esm'>} */
   function createFormats() {
     if (pkg === 'vue') {
       return ['iife', 'cjs', 'esm', 'esm']
@@ -92,6 +93,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     )
   }
 
+  /** @type {NonNullable<import('tsup').Options['esbuildPlugins']>} */
   const esbuildPlugins = [
     makeAllPackagesExternalPlugin,
     {
@@ -99,7 +101,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       setup(ctx, ...args) {
         const plugin = transformPipe.esbuild({
           replace: {
-            __DEV__: ctx.initialOptions.outExtension['.js'].startsWith('.dev')
+            __DEV__: ctx.initialOptions.outExtension?.['.js'].startsWith('.dev')
               ? 'true'
               : 'false',
           },
@@ -133,14 +135,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     clean: true,
     globalName: `FormKit${pkg[0].toUpperCase()}${pkg.substring(1)}`,
     target: tsconfig.compilerOptions.target,
-    dts: {
-      output: {
-        exports: 'named',
-        globals: {
-          vue: 'Vue',
-        },
-      },
-    },
+    dts: {},
     treeshake: true,
     esbuildOptions: (options) => {
       options.charset = 'utf8'

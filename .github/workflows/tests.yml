@@ -20,6 +20,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm stub
       - run: pnpm build all
       - name: Get installed Playwright version
         id: playwright-version
@@ -34,7 +35,7 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm exec playwright install --with-deps
       - name: Run Vitest
-        run: pnpm test --typecheck
+        run: pnpm -- test --typecheck
   Playwright:
     runs-on: ubuntu-latest
     steps:
@@ -45,6 +46,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm stub
       - run: pnpm build all
       - name: Get installed Playwright version
         id: playwright-version
