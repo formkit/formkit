@@ -106,7 +106,7 @@
   },
   "peerDependencies": {
     "tailwindcss": "^3.2.0",
-    "unocss": "^0.58.6",
+    "unocss": "0.x.x",
     "windicss": "^3.0.0"
   },
   "peerDependenciesMeta": {
