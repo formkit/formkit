@@ -3,6 +3,7 @@ node_modules
 
 # Logs
 *.log*
+.jiti-cache
 
 # Temp directories
 .temp
