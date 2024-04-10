@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { token } from '@formkit/utils'
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 import { happy, sad } from '@formkit/icons'
 import CustomCompositionInput from './mocks/CustomCompositionInput'
 import CustomOptionsInput from './mocks/CustomOptionsInput'

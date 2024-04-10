@@ -1,4 +1,4 @@
-import { FormKitNode, FormKitTextFragment } from './node'
+import type { FormKitNode, FormKitTextFragment } from './node'
 import { error } from './errors'
 import { has, token, slugify } from '@formkit/utils'
 

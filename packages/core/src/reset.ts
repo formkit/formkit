@@ -1,5 +1,5 @@
 import { cloneAny, init, isObject, empty } from '@formkit/utils'
-import { FormKitNode } from './node'
+import type { FormKitNode } from './node'
 import { warn } from './errors'
 import { getNode } from './registry'
 

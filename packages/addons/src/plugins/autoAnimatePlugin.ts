@@ -1,12 +1,13 @@
-import {
+import type {
   FormKitNode,
   FormKitSchemaComponent,
   FormKitPlugin,
-  isDOM,
 } from '@formkit/core'
-import autoAnimate, { AutoAnimateOptions } from '@formkit/auto-animate'
+import { isDOM } from '@formkit/core'
+import type { AutoAnimateOptions } from '@formkit/auto-animate'
+import autoAnimate from '@formkit/auto-animate'
 import { eachSection } from '@formkit/inputs'
-import { FormKitSchemaDOMNode } from 'packages/core/src'
+import type { FormKitSchemaDOMNode } from 'packages/core/src'
 
 const pendingIds: Map<string, AutoAnimateOptions | undefined> = new Map()
 const optionOverrides = new Map<string, AutoAnimateOptions | undefined>()

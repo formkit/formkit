@@ -1,9 +1,8 @@
 import { createNode, createMessage } from '@formkit/core'
+import type { FormKitWatchable, FormKitObservedNode } from '../src'
 import {
   createObserver,
-  FormKitWatchable,
   isKilled,
-  FormKitObservedNode,
   removeListeners,
   applyListeners,
 } from '../src'

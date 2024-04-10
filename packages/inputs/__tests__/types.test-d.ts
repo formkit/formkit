@@ -1,5 +1,5 @@
 import { describe, assertType, it, expectTypeOf } from 'vitest'
-import { FormKitEvents, FormKitInputSlots, PropType } from '../src/props'
+import type { FormKitEvents, FormKitInputSlots, PropType } from '../src/props'
 import { createNode } from '@formkit/core'
 import type { FormKitTypeDefinition } from '@formkit/core'
 

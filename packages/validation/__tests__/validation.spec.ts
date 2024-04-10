@@ -1,17 +1,17 @@
 import { empty } from '@formkit/utils'
+import type { FormKitValidationRule } from '../src/validation'
 import {
   parseRules,
   defaultHints,
   createValidationPlugin,
-  FormKitValidationRule,
   getValidationMessages,
 } from '../src/validation'
-import {
-  createNode,
+import type {
   FormKitNode,
   FormKitMiddleware,
   FormKitTextFragment,
 } from '@formkit/core'
+import { createNode } from '@formkit/core'
 import { describe, expect, it, vi } from 'vitest'
 
 const defaultValidation = {

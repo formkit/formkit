@@ -1,14 +1,7 @@
-import {
-  defineComponent,
-  PropType,
-  computed,
-  inject,
-  watch,
-  h,
-  Component,
-} from 'vue'
+import type { PropType, Component } from 'vue'
+import { defineComponent, computed, inject, watch, h } from 'vue'
 import { createSection } from '@formkit/inputs'
-import {
+import type {
   FormKitNode,
   FormKitSchemaNode,
   FormKitSchemaCondition,

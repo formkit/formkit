@@ -1,7 +1,7 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { FormKitPlugin, FormKitExtendableSchemaRoot } from '@formkit/core'
+import type { FormKitPlugin, FormKitExtendableSchemaRoot } from '@formkit/core'
 
 const pluginRemoveInnerWrapper: FormKitPlugin = (inputNode) => {
   inputNode.on('created', ({ payload: node }) => {

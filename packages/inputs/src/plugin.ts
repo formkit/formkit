@@ -1,5 +1,5 @@
 import { camel, extend, has } from '@formkit/utils'
-import { FormKitLibrary, FormKitPlugin, FormKitNode } from '@formkit/core'
+import type { FormKitLibrary, FormKitPlugin, FormKitNode } from '@formkit/core'
 
 /**
  * Creates a plugin based on a list of {@link @formkit/core#FormKitLibrary | FormKitLibrary}.

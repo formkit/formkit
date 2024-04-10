@@ -1,7 +1,9 @@
-import {
+import type {
   FormKitOptions,
   FormKitNode,
   FormKitRootConfig,
+} from '@formkit/core'
+import {
   getNode,
   createConfig,
   setErrors,
@@ -10,7 +12,8 @@ import {
   reset,
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
-import FormKit, { FormKitComponent } from './FormKit'
+import type { FormKitComponent } from './FormKit'
+import FormKit from './FormKit'
 import FormKitSchema from './FormKitSchema'
 
 declare module 'vue' {

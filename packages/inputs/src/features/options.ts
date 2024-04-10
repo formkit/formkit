@@ -1,13 +1,13 @@
-import { FormKitNode } from '@formkit/core'
-import {
+import type { FormKitNode } from '@formkit/core'
+import type {
   FormKitOptionsPropWithGroups,
   FormKitOptionsListWithGroups,
   FormKitOptionsItem,
   FormKitOptionsGroupItem,
   FormKitOptionsList,
   FormKitOptionsProp,
-  isGroupOption,
 } from '../props'
+import { isGroupOption } from '../props'
 import { eq, isPojo } from '@formkit/utils'
 
 /**

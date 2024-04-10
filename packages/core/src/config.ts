@@ -1,4 +1,4 @@
-import { FormKitConfig, FormKitNode } from './node'
+import type { FormKitConfig, FormKitNode } from './node'
 
 /**
  * Applies a given config change to the node.

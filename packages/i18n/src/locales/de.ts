@@ -1,7 +1,5 @@
-import {
-  FormKitValidationMessages,
-  createMessageName,
-} from '@formkit/validation'
+import type { FormKitValidationMessages } from '@formkit/validation'
+import { createMessageName } from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -9,7 +7,7 @@ import {
  * assists in creating good validation messages for your locale.
  */
 import { sentence as s, list, date } from '../formatters'
-import { FormKitLocaleMessages } from '../i18n'
+import type { FormKitLocaleMessages } from '../i18n'
 
 /**
  * Standard language for interface features.

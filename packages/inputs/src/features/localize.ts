@@ -1,4 +1,5 @@
-import { FormKitNode, createMessage } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
+import { createMessage } from '@formkit/core'
 
 /**
  * Creates a new feature that generates a localization message of type ui

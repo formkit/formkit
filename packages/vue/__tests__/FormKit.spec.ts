@@ -1,24 +1,24 @@
+import type { PropType, ConcreteComponent } from 'vue'
 import {
   nextTick,
   h,
   reactive,
   ref,
-  PropType,
   mergeProps,
   defineComponent,
   provide,
   markRaw,
-  ConcreteComponent,
 } from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
-import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
+import type { FormKitNode, FormKitEvent } from '@formkit/core'
+import { setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
-import { FormKitFrameworkContext } from '@formkit/core'
+import type { FormKitFrameworkContext } from '@formkit/core'
 import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
 import { componentSymbol } from '../src/FormKit'

@@ -1,5 +1,5 @@
 import { regexForFormat } from '@formkit/utils'
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 
 /**
  * Determine if the given input's value matches a specified date format.

@@ -1,6 +1,6 @@
 import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
-import { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
+import type { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
@@ -563,27 +563,29 @@ describe('parsing dom elements', () => {
   })
 
   it('can render variable slots', async () => {
-    const wrapper = mount(defineComponent({
-      components: {
-        FormKitSchema,
-      },
-      setup() {
-        const first = ref('yes')
-        const schema = [
-          {
-            $el: 'button',
-            children: '$slots.default',
-          },
-        ]
-        return { schema, first }
-      },
-      template: `
+    const wrapper = mount(
+      defineComponent({
+        components: {
+          FormKitSchema,
+        },
+        setup() {
+          const first = ref('yes')
+          const schema = [
+            {
+              $el: 'button',
+              children: '$slots.default',
+            },
+          ]
+          return { schema, first }
+        },
+        template: `
         <FormKitSchema :schema="schema">
           <template v-if="first === 'yes'" #default>click me</template>
           <template v-else #default>otherwise click me</template>
         </FormKitSchema>
       `,
-    }))
+      })
+    )
     expect(wrapper.html()).toBe('<button>click me</button>')
     wrapper.vm.first = 'no'
     await nextTick()
@@ -591,26 +593,28 @@ describe('parsing dom elements', () => {
   })
 
   it('can render conditional slots', async () => {
-    const wrapper = mount(defineComponent({
-      components: {
-        FormKitSchema,
-      },
-      setup() {
-        const first = ref('yes')
-        const schema = [
-          {
-            $el: 'button',
-            children: '$slots.default',
-          },
-        ]
-        return { schema, first }
-      },
-      template: `
+    const wrapper = mount(
+      defineComponent({
+        components: {
+          FormKitSchema,
+        },
+        setup() {
+          const first = ref('yes')
+          const schema = [
+            {
+              $el: 'button',
+              children: '$slots.default',
+            },
+          ]
+          return { schema, first }
+        },
+        template: `
         <FormKitSchema :schema="schema">
           <template v-if="first === 'yes'" #default>click me</template>
         </FormKitSchema>
       `,
-    }))
+      })
+    )
     expect(wrapper.html()).toBe('<button>click me</button>')
     wrapper.vm.first = 'no'
     await nextTick()

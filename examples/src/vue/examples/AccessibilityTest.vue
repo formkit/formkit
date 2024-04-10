@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ref } from 'vue'
-import { reset, submitForm, FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core';
+import { reset, submitForm } from '@formkit/core'
 import { FormKitSummary } from '@formkit/vue'
 
 const submitError = ref(false)

@@ -1,25 +1,20 @@
 import { extend, isObject, token } from '@formkit/utils'
-import {
+import type {
   FormKitExtendableSchemaRoot,
   FormKitSchemaAttributes,
   FormKitSchemaNode,
   FormKitSchemaCondition,
   FormKitSchemaDefinition,
   FormKitSchemaComponent,
-  isComponent,
-  isDOM,
-  isConditional,
-  warn,
   FormKitSchemaDOMNode,
   FormKitSectionsSchema,
 } from '@formkit/core'
-import {
-  isSchemaObject,
-  extendSchema,
+import { isComponent, isDOM, isConditional, warn } from '@formkit/core'
+import type {
   FormKitSection,
   FormKitSchemaExtendableSection,
-  createRoot,
 } from './createSection'
+import { isSchemaObject, extendSchema, createRoot } from './createSection'
 import {
   outer,
   wrapper,

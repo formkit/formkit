@@ -1,4 +1,5 @@
-import { FormKitMiddleware, getNode, reset, FormKitNode } from '@formkit/core'
+import type { FormKitMiddleware, FormKitNode } from '@formkit/core'
+import { getNode, reset } from '@formkit/core'
 import { defaultConfig } from '../../src/defaultConfig'
 import { plugin } from '../../src/plugin'
 import { mount } from '@vue/test-utils'

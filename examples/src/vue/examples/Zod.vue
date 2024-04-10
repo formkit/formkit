@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 import { createZodPlugin } from '../../../../packages/zod/src'
 import { z } from 'zod'
 

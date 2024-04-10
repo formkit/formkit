@@ -1,4 +1,5 @@
-import { createSection, FormKitSchemaExtendableSection } from '@formkit/inputs'
+import type { FormKitSchemaExtendableSection } from '@formkit/inputs'
+import { createSection } from '@formkit/inputs'
 
 /**
  * Icon section used by multi-step steps

@@ -37,13 +37,11 @@ export * from './plugin'
  */
 export {
   default as FormKit,
-  FormKitComponent,
-  FormKitSetupContext,
-  Slots,
   parentSymbol,
   componentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'
+export type { FormKitComponent, FormKitSetupContext, Slots } from './FormKit'
 
 /**
  * The FormKitRoot wrapper component used to provide context to FormKit
@@ -85,13 +83,14 @@ export {
  * The FormKitSummary component.
  * @public
  */
-export { FormKitSummary, FormKitSummaryMessage } from './FormKitSummary'
+export { FormKitSummary } from './FormKitSummary'
+export type { FormKitSummaryMessage } from './FormKitSummary'
 
 /**
  * The FormKitSchema component.
  */
-export {
-  FormKitSchema,
+export { FormKitSchema } from './FormKitSchema'
+export type {
   Renderable,
   RenderableList,
   RenderableSlot,
@@ -103,11 +102,8 @@ export {
 /**
  * The default configuration.
  */
-export {
-  defaultConfig,
-  DefaultConfigOptions,
-  PluginConfigs,
-} from './defaultConfig'
+export { defaultConfig } from './defaultConfig'
+export type { DefaultConfigOptions, PluginConfigs } from './defaultConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all
