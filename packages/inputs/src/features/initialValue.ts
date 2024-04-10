@@ -1,4 +1,4 @@
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 
 /**
  * A feature that ensures the input has an `initialValue` prop.

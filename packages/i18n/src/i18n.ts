@@ -1,4 +1,8 @@
-import { FormKitNode, FormKitPlugin, FormKitTextFragment } from '@formkit/core'
+import type {
+  FormKitNode,
+  FormKitPlugin,
+  FormKitTextFragment,
+} from '@formkit/core'
 import { has } from '@formkit/utils'
 
 /**

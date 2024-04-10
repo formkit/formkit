@@ -1,4 +1,4 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import type { FormKitNode, FormKitPlugin } from '@formkit/core'
 import { undefine } from '@formkit/utils'
 
 /**
@@ -41,7 +41,7 @@ export function createLocalStoragePlugin(
     // to 'form' and 'group' inputs — as well as any add-on inputs
     // registered of FormKit type 'group' (eg. 'multi-step').
     if (node.type !== 'group') return
-    
+
     // enable SSR support
     if (typeof window === "undefined") return
 

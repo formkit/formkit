@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import createDispatcher, { FormKitMiddleware } from '../src/dispatcher'
+import type { FormKitMiddleware } from '../src/dispatcher'
+import createDispatcher from '../src/dispatcher'
 
 describe('dispatcher', () => {
   it('can dispatch a value to a single middleware', () => {

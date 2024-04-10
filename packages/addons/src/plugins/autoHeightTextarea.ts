@@ -1,4 +1,4 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import type { FormKitNode, FormKitPlugin } from '@formkit/core'
 import { undefine, whenAvailable } from '@formkit/utils'
 
 /**

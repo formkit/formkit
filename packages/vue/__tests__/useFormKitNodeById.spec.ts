@@ -6,7 +6,8 @@ import {
   useFormKitNodeById,
 } from '../src/index'
 import { token } from '@formkit/utils'
-import { h, Component, defineComponent, nextTick, ref } from 'vue'
+import type { Component } from 'vue'
+import { h, defineComponent, nextTick, ref } from 'vue'
 import { mount } from '@vue/test-utils'
 import type { FormKitNode } from '@formkit/core'
 

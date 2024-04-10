@@ -1,4 +1,4 @@
-import { App } from 'vue'
+import type { App } from 'vue'
 
 /**
  * A flag indicating if this is (likely) a server context.

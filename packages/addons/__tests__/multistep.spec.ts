@@ -1,4 +1,5 @@
-import { ConcreteComponent, h, nextTick, reactive } from 'vue'
+import type { ConcreteComponent } from 'vue'
+import { h, nextTick, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
   FormKit,

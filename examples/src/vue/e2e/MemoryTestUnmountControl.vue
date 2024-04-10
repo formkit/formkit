@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FormKitSchemaNode } from '@formkit/core'
+import type { FormKitSchemaNode } from '@formkit/core'
 import TestGroup from './components/TestGroup'
 
 const fields: FormKitSchemaNode[] = []

@@ -2,7 +2,8 @@ import { mount } from '@vue/test-utils'
 import { defaultConfig, plugin } from '../../src'
 import { defineComponent, nextTick } from 'vue'
 import { token } from '@formkit/utils'
-import { getNode, reset, FormKitTypeDefinition } from '@formkit/core'
+import type { FormKitTypeDefinition } from '@formkit/core'
+import { getNode, reset } from '@formkit/core'
 import { describe, expect, it } from 'vitest'
 
 describe('group', () => {

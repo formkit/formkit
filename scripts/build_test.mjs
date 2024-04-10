@@ -24,7 +24,7 @@ async function cleanStart(pkgs) {
   await execa('pnpm', ['install'])
 }
 
-;(async function test() {
+(async function test() {
   const unordered = getPackages()
   const order = getBuildOrder(unordered)
   console.log('order', order)

@@ -1,9 +1,13 @@
-import {
+import type {
   Component,
   PropType,
   RendererElement,
   RendererNode,
   VNode,
+  Ref,
+  ConcreteComponent,
+} from 'vue'
+import {
   createTextVNode,
   defineComponent,
   h,
@@ -13,26 +17,26 @@ import {
   resolveComponent,
   watchEffect,
   watch,
-  Ref,
   getCurrentInstance,
-  ConcreteComponent,
   onUnmounted,
   markRaw,
   onMounted,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
-import {
+import type {
   FormKitSchemaAttributes,
   FormKitSchemaNode,
-  isDOM,
-  isConditional,
-  isComponent,
-  compile,
   FormKitSchemaCondition,
   FormKitSchemaAttributesCondition,
   FormKitAttributeValue,
   FormKitCompilerOutput,
   FormKitSchemaDefinition,
+} from '@formkit/core'
+import {
+  isDOM,
+  isConditional,
+  isComponent,
+  compile,
   getNode,
   warn,
   watchRegistry,

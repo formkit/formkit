@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
+import type { FormKitNode } from '../src'
 import {
   createNode,
   bfs,
-  FormKitNode,
   isPlaceholder,
   createPlaceholder,
   createMessage,

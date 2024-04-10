@@ -9,14 +9,14 @@ import {
   findSection,
 } from '../src/compose'
 import { describe, expect, it, vi } from 'vitest'
-import {
+import type {
   FormKitNode,
   FormKitSchemaDefinition,
   FormKitSchemaComponent,
   FormKitSchemaCondition,
   FormKitSchemaDOMNode,
-  isConditional,
 } from '@formkit/core'
+import { isConditional } from '@formkit/core'
 
 describe('section creator', () => {
   it('creates a section with slot and meta support', () => {

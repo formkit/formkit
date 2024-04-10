@@ -1,5 +1,5 @@
 import { getNode } from './registry'
-import { ErrorMessages } from './store'
+import type { ErrorMessages } from './store'
 import { warn } from './errors'
 
 /**

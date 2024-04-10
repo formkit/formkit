@@ -1,10 +1,9 @@
-import {
-  warningHandler,
-  errorHandler,
+import type {
   FormKitHandlerPayload,
   FormKitNode,
   FormKitMiddleware,
 } from '@formkit/core'
+import { warningHandler, errorHandler } from '@formkit/core'
 
 /**
  * Catalog of the error message codes in FormKit.

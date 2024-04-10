@@ -7,11 +7,11 @@ import {
   onMounted,
   KeepAlive,
 } from 'vue'
-import { FormKitSchemaDefinition } from '@formkit/core'
+import type { FormKitSchemaDefinition } from '@formkit/core'
 import { FormKitSchema } from './index'
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 import { getNode } from '@formkit/core'
-import { FormKitSchemaNode } from 'packages/core/src'
+import type { FormKitSchemaNode } from 'packages/core/src'
 
 let inputList: Record<string, string[]> = {}
 const schemas: Record<string, FormKitSchemaDefinition[]> = {}

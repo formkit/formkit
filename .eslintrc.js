@@ -10,6 +10,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    '@typescript-eslint/consistent-type-imports': 'error',
     '@typescript-eslint/no-extra-semi': 0,
     '@typescript-eslint/no-explicit-any': 0,
     '@typescript-eslint/no-empty-interface': 0,

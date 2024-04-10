@@ -1,8 +1,10 @@
-import { h, ref, watch, defineComponent, inject, PropType } from 'vue'
+import type { PropType } from 'vue'
+import { h, ref, watch, defineComponent, inject } from 'vue'
 import { optionsSymbol } from './plugin'
 import { parentSymbol } from './FormKit'
-import { FormKitPlugin } from '@formkit/core'
-import { FormKitIconLoader, createIconHandler } from '@formkit/themes'
+import type { FormKitPlugin } from '@formkit/core'
+import type { FormKitIconLoader } from '@formkit/themes'
+import { createIconHandler } from '@formkit/themes'
 
 /**
  * Renders an icon using the current IconLoader set at the root FormKit config

@@ -1,14 +1,8 @@
 import { parentSymbol, componentSymbol } from '../FormKit'
 import { rootSymbol } from '../FormKitRoot'
-import {
-  error,
-  createNode,
-  FormKitNode,
-  FormKitOptions,
-  FormKitMessage,
-  createMessage,
-} from '@formkit/core'
-import { FormKitRuntimeProps } from '@formkit/inputs'
+import type { FormKitNode, FormKitOptions, FormKitMessage } from '@formkit/core'
+import { error, createNode, createMessage } from '@formkit/core'
+import type { FormKitRuntimeProps } from '@formkit/inputs'
 import {
   nodeProps,
   except,
@@ -25,6 +19,7 @@ import {
   eq,
   shallowClone,
 } from '@formkit/utils'
+import type { WatchStopHandle, SetupContext } from 'vue'
 import {
   toRef,
   watchEffect,
@@ -34,15 +29,13 @@ import {
   getCurrentInstance,
   computed,
   ref,
-  WatchStopHandle,
   onBeforeUnmount,
   onMounted,
-  SetupContext,
 } from 'vue'
-import { FormKitInputs } from '@formkit/inputs'
+import type { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
-import { FormKitGroupValue } from 'packages/core/src'
-import { FormKitPseudoProps } from '@formkit/core'
+import type { FormKitGroupValue } from 'packages/core/src'
+import type { FormKitPseudoProps } from '@formkit/core'
 
 interface FormKitComponentListeners {
   onSubmit?: (payload?: FormKitGroupValue) => Promise<unknown> | unknown

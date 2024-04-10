@@ -5,13 +5,13 @@
  */
 
 import { has } from '@formkit/utils'
-import {
+import type {
   FormKitNode,
-  isNode,
   FormKitEventListener,
   FormKitProps,
   FormKitLedger,
 } from '@formkit/core'
+import { isNode } from '@formkit/core'
 
 /**
  * An API-compatible FormKitNode that is able to determine the full dependency

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 import { setErrors } from '@formkit/vue'
 import { createAutoAnimatePlugin } from '../../../../packages/addons/src/plugins/autoAnimatePlugin'
 import { ref } from 'vue'

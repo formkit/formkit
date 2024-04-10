@@ -1,10 +1,9 @@
-import {
+import type {
   FormKitNode,
   FormKitPlugin,
-  createMessage,
   FormKitFrameworkContext,
-  isPlaceholder,
 } from '@formkit/core'
+import { createMessage, isPlaceholder } from '@formkit/core'
 import { whenAvailable } from '@formkit/utils'
 import type { FormKitSlotData, FormKitInputs } from '@formkit/inputs'
 import { multiStep, step } from './schema'

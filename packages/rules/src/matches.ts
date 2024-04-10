@@ -1,4 +1,4 @@
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 
 /**
  * Determine if the given input's value matches one or more values or regular expressions.
