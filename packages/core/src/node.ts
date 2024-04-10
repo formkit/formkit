@@ -507,6 +507,13 @@ export interface FormKitFrameworkContext<T = any> {
    */
   attrs: Record<string, any>
   /**
+   * The describedby attribute stores the value for the aria-describedby
+   * attribute. It is used to specify the IDs of elements that provide descriptive
+   * information about the input. It is populated with the IDs of elements containing
+   * help text or messages related to the input field. Should be applied to the root <input>.
+   */
+  describedBy?: string
+  /**
    * Classes to apply on the various sections.
    */
   classes: Record<string, string>
