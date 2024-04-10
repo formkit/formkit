@@ -1,6 +1,6 @@
 {
   "name": "@formkit/rules",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "type": "module",
   "description": "Validation rules for FormKit",
   "main": "dist/index.cjs",
@@ -39,8 +39,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.1",
-    "@formkit/utils": "1.6.1",
-    "@formkit/validation": "1.6.1"
+    "@formkit/core": "1.6.2",
+    "@formkit/utils": "1.6.2",
+    "@formkit/validation": "1.6.2"
   }
 }

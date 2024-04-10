@@ -76,7 +76,7 @@ export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
  * The symbol that represents the formkit component callback injection value.
- * This is used by tooling to know which component "owns" this node — some
+ * This is used by tooling to know which component "owns" this node — some
  * effects are linked to that component, for example, hot module reloading.
  *
  * @internal

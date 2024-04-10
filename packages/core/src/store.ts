@@ -26,7 +26,7 @@ export type FormKitMessage = Readonly<FormKitMessageProps>
 
 /**
  * A registry of input messages that should be applied to children of the node
- * they are passed to — where the string key of the object is the address of
+ * they are passed to — where the string key of the object is the address of
  * the node to apply the messages on and the value is the message itself.
  *
  * @public

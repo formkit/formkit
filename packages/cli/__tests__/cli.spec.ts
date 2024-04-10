@@ -91,7 +91,7 @@ describe('extractThemeData', () => {
     )
     const themeData = extractThemeData(fileString)
     expect(themeData).toEqual([
-      'b228e4109401cad3607911d25c782981e6c29559db23045621d8ce3193155dbe',
+      '9902ad56008296f4db97332febf34b6c1e82159dcb57f81f30198bca7c3ebe92',
       'spacing=5',
       'simple',
     ])

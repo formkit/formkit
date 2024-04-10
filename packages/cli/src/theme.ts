@@ -380,7 +380,7 @@ const classes${
   } = ${JSON.stringify(classList, null, 2)};
 
 /**
- * Globals are merged prior to generating this file — these are included for
+ * Globals are merged prior to generating this file — these are included for
  * any other non-matching inputs.
  **/
 const globals${
