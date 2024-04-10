@@ -244,8 +244,8 @@ importers:
   packages/addons:
     dependencies:
       '@formkit/auto-animate':
-        specifier: latest
-        version: 0.8.1
+        specifier: '>=0.8.2'
+        version: 0.8.2
       '@formkit/core':
         specifier: 1.6.2
         version: link:../core
@@ -2602,6 +2602,10 @@ packages:
 
   /@formkit/auto-animate@0.8.1:
     resolution: {integrity: sha512-0/Z2cuNXWVVIG/l0SpcHAWFhGdvLJ8DRvEfRWvmojtmRWfEy+LWNwgDazbZqY0qQYtkHcoEK3jBLkhiZaB/4Ig==}
+    dev: false
+
+  /@formkit/auto-animate@0.8.2:
+    resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
     dev: false
 
   /@formkit/core@1.6.2:
