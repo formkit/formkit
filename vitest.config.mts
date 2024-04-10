@@ -1,8 +1,12 @@
+/* @ts-check */
 import { defineConfig } from 'vitest/config'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 /* @ts-expect-error */
 import unpluginTransformer from './scripts/transform-pipe.mjs'
 import UnpluginFileUrl from 'unplugin-file-url/vite'
+import UnpluginFormKit from './packages/unplugin/src/vite'
+import vue from '@vitejs/plugin-vue'
+import { viteSpy } from './.tests/viteSpy'
 
 export default defineConfig({
   resolve: {
@@ -11,6 +15,7 @@ export default defineConfig({
   },
   plugins: [
     vueJsx(),
+    vue(),
     unpluginTransformer.vite({
       replace: {
         __DEV__: 'true',
@@ -20,6 +25,8 @@ export default defineConfig({
       },
     }),
     UnpluginFileUrl(),
+    UnpluginFormKit(),
+    viteSpy,
   ],
   test: {
     forceRerunTriggers: [

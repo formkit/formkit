@@ -65,15 +65,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch src",
-    "build:fix": "esno scripts/postbuild.ts",
-    "lint": "eslint .",
-    "play": "npm -C playground run dev",
-    "prepublishOnly": "npm run build",
-    "release": "bumpp && npm publish",
-    "start": "esno src/index.ts",
-    "test": "vitest"
+    "dev": "npm -C playground run dev"
   },
   "peerDependenciesMeta": {
     "webpack": {
@@ -90,28 +82,25 @@
     }
   },
   "dependencies": {
+    "@babel/generator": "^7.24.4",
+    "@babel/parser": "^7.24.4",
     "@vue/compiler-dom": "^3.4.21",
     "pathe": "^1.1.1",
-    "unplugin": "^1.4.0"
+    "unplugin": "^1.10.0"
   },
   "devDependencies": {
     "@types/node": "^20.5.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "bumpp": "^9.2.0",
-    "chalk": "^5.3.0",
+    "@vitejs/plugin-vue": "^4.6.2",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
     "esno": "^0.17.0",
     "fast-glob": "^3.3.1",
     "nodemon": "^3.0.1",
-    "rimraf": "^5.0.1",
-    "rollup": "^3.28.1",
-    "tsup": "^7.2.0",
-    "typescript": "^5.1.6",
-    "vite": "^4.4.9",
-    "vitest": "^0.34.2",
+    "vite": "^5.0.4",
+    "vite-plugin-inspect": "^0.8.1",
     "webpack": "^5.88.2"
+  },
+  "peerDependencies": {
+    "@formkit/vue": "^1.6.2"
   }
 }
