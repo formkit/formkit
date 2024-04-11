@@ -8,7 +8,7 @@ import type { Node } from '@babel/types'
 import type { Options, Traverse } from './types'
 import { resolve } from 'pathe'
 import { existsSync } from 'fs'
-import { usesComponent, getResolveComponentImport } from './utils/ast-utils'
+import { usedComponents, getResolveComponentImport } from './utils/ast-utils'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -18,11 +18,6 @@ const traverse: Traverse = (cjsTraverse as any).default
  * The prefix for a virtual module that contains some configuration.
  */
 const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
-
-/**
- * A cheap test to see if the code contains any hint of FormKit.
- */
-const CONTAINS_FORMKIT_RE = /[fF]orm-?[kK]it/
 
 /**
  * Resolve the absolute path to the configuration file.
@@ -58,10 +53,10 @@ function determineComponentType(ast: Node) {
 
 function configureFormKitComponent(currentProps, addImport) {}
 
-export const unpluginFactory: UnpluginFactory<Options | undefined> = (
+export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
   options = {}
 ) => {
-  options = extend(
+  const opts = extend(
     {
       components: [
         {
@@ -73,6 +68,9 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
     },
     options ?? {}
   ) as Options
+  const HAS_COMPONENTS_RE = new RegExp(
+    `(?:${opts.components.map((c) => c.name).join('|')})`
+  )
   return {
     name: 'unplugin:formkit',
     resolveId(id) {
@@ -97,8 +95,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
     // just like rollup transform
     async transform(code) {
       // Quick checks to early return:
-      if (!Array.isArray(options.components) || !CONTAINS_FORMKIT_RE.test(code))
-        return null
+      if (!Array.isArray(opts.components)) return null
+
+      // If our component strings are not found at all in this file, we can skip it.
+      if (!HAS_COMPONENTS_RE.test(code)) return null
 
       const ast = parse(code, { sourceType: 'module' })
 
@@ -119,10 +119,10 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
       // 2. Locate createVNode, createBlock, ssrRenderComponent imports
       // 3. Check
 
-      const resolveComponent = getResolveComponentImport(traverse, ast)
-
-      for (const component of options.components) {
-        if (usesComponent(traverse, ast, component)) {
+      const resolveComponentFnName = getResolveComponentImport(traverse, ast)
+      const usedComponents = usedComponents(traverse, ast, opts.components, resolveComponentFnName)
+      for (const component of opts.components) {
+        if () {
         }
       }
     },
