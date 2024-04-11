@@ -84,6 +84,9 @@
   "dependencies": {
     "@babel/generator": "^7.24.4",
     "@babel/parser": "^7.24.4",
+    "@babel/traverse": "^7.24.1",
+    "@formkit/utils": "workspace:1.6.2",
+    "@types/babel__traverse": "^7.20.5",
     "@vue/compiler-dom": "^3.4.21",
     "pathe": "^1.1.1",
     "unplugin": "^1.10.0"

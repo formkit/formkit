@@ -1,12 +1,22 @@
-import type { UnpluginFactory } from 'unplugin'
+import cjsTraverse from '@babel/traverse'
 import { createUnplugin } from 'unplugin'
 import { parse } from '@babel/parser'
-import type { Node } from '@babel/parser'
+import { extend } from '@formkit/utils'
+import type { UnpluginFactory } from 'unplugin'
+import type { Node } from '@babel/types'
 // import generate from '@babel/generator'
-import type { Options } from './types'
+import type { Options, Traverse } from './types'
 import { resolve } from 'pathe'
 import { existsSync } from 'fs'
+import { usesComponent, getResolveComponentImport } from './utils/ast-utils'
 
+// The babel/traverse package imports an an object for some reason
+// so we need to get the default property and preserve the types.
+const traverse: Traverse = (cjsTraverse as any).default
+
+/**
+ * The prefix for a virtual module that contains some configuration.
+ */
 const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
 
 /**
@@ -33,14 +43,36 @@ function _resolveConfig(configFile: string): string | undefined {
   return paths.find((path) => existsSync(path))
 }
 
-function determineComponentType(code: string) {}
+function determineComponentType(ast: Node) {
+  let type: 'unknown' | 'setup' | 'manualSetup' | 'options' = 'unknown'
+  traverse(ast, {
+    StringLiteral(path) {
+      if (path.node.value === '__isScriptSetup') {
+        type = 'setup'
+        path.stop()
+      }
+    },
+  })
+  return type
+}
+
+function configureFormKitComponent(currentProps, addImport) {}
 
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (
-  options = {
-    configFile: './formkit.config',
-    defaultConfig: true,
-  }
+  options = {}
 ) => {
+  options = extend(
+    {
+      components: [
+        {
+          name: 'FormKit',
+          from: '@formkit/vue',
+          injectProps: configureFormKitComponent,
+        },
+      ],
+    },
+    options ?? {}
+  ) as Options
   return {
     name: 'unplugin:formkit',
     resolveId(id) {
@@ -64,7 +96,12 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
     },
     // just like rollup transform
     async transform(code) {
-      if (!CONTAINS_FORMKIT_RE.test(code)) return null
+      // Quick checks to early return:
+      if (!Array.isArray(options.components) || !CONTAINS_FORMKIT_RE.test(code))
+        return null
+
+      const ast = parse(code, { sourceType: 'module' })
+
       // Locate the formkit components. We check for a string like "FormKit"
       // but in setup or resolveComponent but it could be any other string if
       // there is an explicit import of `FormKit` as 'OtherName from `@formkit/vue`
@@ -73,13 +110,21 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
       // 2. _createVNode($setup['FormKit'])
       // 3. _createBlock($setup['FormKit'])
       // 4. _ssrRenderComponent($setup['FormKit'])
-      const componentType = determineComponentType(code)
 
-      // Test if the given code is a likely candidate for FormKit usage.
-      // if (id.endsWith('.vue') && CONTAINS_FORMKIT_RE.test(code)) {
-      //   return injectProviderComponent(injectProviderImport(code), id)
-      // }
-      return null
+      // Order of operations:
+      // 0. Locate resolveComponent import and get the import name
+      // 1. Check for option.components resolveComponent usages
+      //    - If the component is imported, get its import name
+      //    - If the component is not imported, inject an import with a unique name
+      // 2. Locate createVNode, createBlock, ssrRenderComponent imports
+      // 3. Check
+
+      const resolveComponent = getResolveComponentImport(traverse, ast)
+
+      for (const component of options.components) {
+        if (usesComponent(traverse, ast, component)) {
+        }
+      }
     },
     vite: {
       /**
