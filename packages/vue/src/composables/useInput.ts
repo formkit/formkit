@@ -124,14 +124,18 @@ function onlyListeners(
  * @public
  */
 export function useInput<
-  Props extends FormKitInputs<Props>,
+  Props extends FormKitInputs<Props> & { __config__?: FormKitOptions },
   Context extends SetupContext<any, any>
 >(props: Props, context: Context, options: FormKitOptions = {}): FormKitNode {
   /**
    * The configuration options, these are provided by either the plugin or by
    * explicit props.
    */
-  const config = Object.assign({}, inject(optionsSymbol) || {}, options)
+  const config = Object.assign(
+    {},
+    props.__config__ ?? inject(optionsSymbol, {}) ?? {},
+    options
+  )
 
   /**
    * The root element — generally this is either a Document or ShadowRoot.
