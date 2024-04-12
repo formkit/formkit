@@ -3,55 +3,87 @@ import { createUnplugin } from 'unplugin'
 import { parse } from '@babel/parser'
 import { extend } from '@formkit/utils'
 import type { UnpluginFactory } from 'unplugin'
-import type { Node } from '@babel/types'
-// import generate from '@babel/generator'
-import type { Options, Traverse } from './types'
-import { resolve } from 'pathe'
-import { existsSync } from 'fs'
-import { usedComponents, getResolveComponentImport } from './utils/ast-utils'
+import cjsGenerate from '@babel/generator'
+import type { Options, Traverse, ComponentUse, Generate } from './types'
+// import type { Node } from '@babel/types'
+// import { resolve } from 'pathe'
+// import { existsSync } from 'fs'
+import { usedComponents, rootPath } from './utils/ast-utils'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
-const traverse: Traverse = (cjsTraverse as any).default
+const traverse: Traverse =
+  typeof cjsTraverse === 'function' ? cjsTraverse : (cjsTraverse as any).default
+
+const generate: Generate =
+  typeof cjsGenerate === 'function' ? cjsGenerate : (cjsGenerate as any).default
 
 /**
  * The prefix for a virtual module that contains some configuration.
  */
-const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
+// const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
 
 /**
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-function _resolveConfig(configFile: string): string | undefined {
-  const exts = ['ts', 'mjs', 'js']
-  const dir = configFile.startsWith('.') ? process.cwd() : ''
-  let paths: string[] = []
+// function _resolveConfig(configFile: string): string | undefined {
+//   const exts = ['ts', 'mjs', 'js']
+//   const dir = configFile.startsWith('.') ? process.cwd() : ''
+//   let paths: string[] = []
 
-  if (exts.some((ext) => configFile.endsWith(ext))) {
-    // If the config file has an extension, we don't need to try them all.
-    paths = [resolve(dir, configFile)]
-  } else {
-    // If the config file doesn’t have an extension, try them all.
-    paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
+//   if (exts.some((ext) => configFile.endsWith(ext))) {
+//     // If the config file has an extension, we don't need to try them all.
+//     paths = [resolve(dir, configFile)]
+//   } else {
+//     // If the config file doesn’t have an extension, try them all.
+//     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
+//   }
+//   return paths.find((path) => existsSync(path))
+// }
+
+function configureFormKitComponent(component: ComponentUse): void {
+  if (
+    !component.path.node.arguments[1] ||
+    component.path.node.arguments[1].type !== 'ObjectExpression'
+  ) {
+    component.path.node.arguments[1] = {
+      type: 'ObjectExpression',
+      properties: [],
+    }
   }
-  return paths.find((path) => existsSync(path))
-}
-
-function determineComponentType(ast: Node) {
-  let type: 'unknown' | 'setup' | 'manualSetup' | 'options' = 'unknown'
-  traverse(ast, {
-    StringLiteral(path) {
-      if (path.node.value === '__isScriptSetup') {
-        type = 'setup'
-        path.stop()
-      }
+  const props = component.path.node.arguments[1].properties
+  props.push({
+    type: 'ObjectProperty',
+    computed: false,
+    shorthand: false,
+    key: {
+      type: 'Identifier',
+      name: '__config',
+    },
+    value: {
+      type: 'StringLiteral',
+      value: 'something here',
     },
   })
-  return type
+  const root = rootPath(component.path)
+  root.node.body.unshift({
+    type: 'ImportDeclaration',
+    specifiers: [
+      {
+        type: 'ImportDefaultSpecifier',
+        local: {
+          type: 'Identifier',
+          name: 'FormKit',
+        },
+      },
+    ],
+    source: {
+      type: 'StringLiteral',
+      value: '@formkit/vue',
+    },
+  })
 }
-
-function configureFormKitComponent(currentProps, addImport) {}
 
 export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
   options = {}
@@ -62,7 +94,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
         {
           name: 'FormKit',
           from: '@formkit/vue',
-          injectProps: configureFormKitComponent,
+          codeMod: configureFormKitComponent,
         },
       ],
     },
@@ -73,19 +105,19 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
   )
   return {
     name: 'unplugin:formkit',
-    resolveId(id) {
-      if (id.startsWith(FORMKIT_CONFIG_PREFIX)) {
-        return '\0' + id
-      }
-      return null
-    },
-    load(id) {
-      if (id === '\0' + FORMKIT_CONFIG_PREFIX) {
-        const plugin = id.substring(FORMKIT_CONFIG_PREFIX.length + 1)
-        const configFile = `export default {}`
-      }
-      return null
-    },
+    // resolveId(id) {
+    //   if (id.startsWith(FORMKIT_CONFIG_PREFIX)) {
+    //     return '\0' + id
+    //   }
+    //   return null
+    // },
+    // load(id) {
+    //   if (id === '\0' + FORMKIT_CONFIG_PREFIX) {
+    //     const plugin = id.substring(FORMKIT_CONFIG_PREFIX.length + 1)
+    //     const configFile = `export default {}`
+    //   }
+    //   return null
+    // },
 
     // webpack's id filter is outside of loader logic,
     // an additional hook is needed for better perf on webpack
@@ -119,11 +151,17 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
       // 2. Locate createVNode, createBlock, ssrRenderComponent imports
       // 3. Check
 
-      const resolveComponentFnName = getResolveComponentImport(traverse, ast)
-      const usedComponents = usedComponents(traverse, ast, opts.components, resolveComponentFnName)
-      for (const component of opts.components) {
-        if () {
-        }
+      const components = usedComponents(traverse, ast, opts.components)
+      if (components.length === 0) return null
+
+      for (const component of components) {
+        if (component.codeMod) component.codeMod(component)
+      }
+
+      const result = generate(ast, { sourceMaps: true }, code)
+      return {
+        code: result.code,
+        map: result.map,
       }
     },
     vite: {

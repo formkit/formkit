@@ -1,10 +1,7 @@
-<script lang="ts" setup>
-import { ref } from 'vue'
-const msg = ref('foobar')
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <div>
-    <FormKit />
+    <FormKit type="text" />
   </div>
 </template>

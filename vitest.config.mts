@@ -1,6 +1,8 @@
 /* @ts-check */
 import { defineConfig } from 'vitest/config'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import ViteRestart from 'vite-plugin-restart'
+
 /* @ts-expect-error */
 import unpluginTransformer from './scripts/transform-pipe.mjs'
 import UnpluginFileUrl from 'unplugin-file-url/vite'
@@ -16,6 +18,8 @@ export default defineConfig({
   plugins: [
     vueJsx(),
     vue(),
+    UnpluginFormKit(),
+    viteSpy,
     unpluginTransformer.vite({
       replace: {
         __DEV__: 'true',
@@ -25,8 +29,9 @@ export default defineConfig({
       },
     }),
     UnpluginFileUrl(),
-    UnpluginFormKit(),
-    viteSpy,
+    ViteRestart({
+      restart: ['./packages/unplugin/src/**'],
+    }),
   ],
   test: {
     forceRerunTriggers: [

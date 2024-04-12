@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import { createCommonJS, resolvePathSync } from 'mlly'
 import { resolve } from 'pathe'
-import { transform } from 'typescript'
 import type { Plugin } from 'vite'
 
 const { __dirname } = createCommonJS(import.meta.url)

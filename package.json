@@ -59,6 +59,7 @@
     "unplugin-file-url": "^0.1.1",
     "unplugin-pure": "^0.1.1",
     "vite": "^5.0.0",
+    "vite-plugin-restart": "^0.4.0",
     "vitest": "1.4.0",
     "vue": "^3.4.21"
   },

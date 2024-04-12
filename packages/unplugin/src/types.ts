@@ -1,10 +1,21 @@
 import type { NodePath } from '@babel/traverse'
+import type { CallExpression } from '@babel/types'
 import type traverse from '@babel/traverse'
+import type generate from '@babel/generator'
 
-export interface Component {
+export interface Import {
   name: string
   from: string
-  injectProps?: (currentProps: any, addImport: (code: string) => void) => void
+}
+
+export interface LocalizedImport {
+  name: string
+  from: string
+  local: string
+}
+
+export interface Component extends Import {
+  codeMod?: (component: ComponentUse) => void
 }
 
 export interface Options {
@@ -24,6 +35,7 @@ export type ComponentLocators =
       retrievedBy: 'setup'
     }
 
-export type ComponentUse = ComponentLocators & { path: NodePath }
+export type ComponentUse = Component & { path: NodePath<CallExpression> }
 
 export type Traverse = typeof traverse
+export type Generate = typeof generate
