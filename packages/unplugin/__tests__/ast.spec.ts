@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest'
 import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
+import generator from '@babel/generator'
 import type { NodePath } from '@babel/traverse'
 import type { CallExpression } from '@babel/types'
 import {
   getUsedImports,
-  usedComponents,
   rootPath,
-} from '../src/utils/ast-utils'
+  uniqueVariableName,
+  addImport,
+} from '../src/utils/ast'
+import { usedComponents } from '../src/utils/vue'
 
 describe('getUsedImports', () => {
   it('can extract used imports', () => {
@@ -74,9 +77,33 @@ describe('usedComponents', () => {
         name: 'FormKit',
         from: '@formkit/vue',
         path: expect.any(Object),
+        traverse: expect.any(Function),
         codeMod,
       },
     ])
+  })
+
+  it('will locate components that are imported and auto import them', () => {
+    const code = `import { resolveComponent as _r, h } from 'vue'
+const _myComponent = _r('FormKit')
+export default () => h('div', null, { default: () => h(_myComponent) })
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    const codeMod = () => {}
+    usedComponents(
+      traverse,
+      ast,
+      [{ name: 'FormKit', from: '@formkit/vue', codeMod }],
+      true
+    )
+    expect(generator(ast).code).toMatchInlineSnapshot(`
+      "import { FormKit } from "@formkit/vue";
+      import { resolveComponent as _r, h } from 'vue';
+      const _myComponent = FormKit;
+      export default (() => h('div', null, {
+        default: () => h(_myComponent)
+      }));"
+    `)
   })
 })
 
@@ -103,5 +130,52 @@ describe('rootPath', () => {
     })
     expect(child).toBeDefined()
     expect(rootPath(child!).type).toBe('Program')
+  })
+})
+
+describe('uniqueVariableName', () => {
+  it('can generate a unique variable name', () => {
+    const code = `
+    import { foo } from 'bar'
+    import * as foo1 from 'bar'
+    const foo2 = 'hello world'
+    function foo4() {
+      let foo3 = 'foo5'
+    }
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    expect(uniqueVariableName(traverse, ast, 'foo')).toBe('foo5')
+    expect(uniqueVariableName(traverse, ast, 'location')).toBe('location')
+  })
+})
+
+describe('addImport', () => {
+  it('can add an import to the top of the file', () => {
+    const code = `import { defineComponent, h as FormKit } from 'vue'
+export const render = () => FormKit('div', { dataFoo: 'bar' })`
+    const ast = parse(code, { sourceType: 'module' })
+    addImport(traverse, ast, { name: 'FormKit', from: '@formkit/vue' })
+    expect(generator(ast).code).toMatchInlineSnapshot(`
+      "import { FormKit as FormKit1 } from "@formkit/vue";
+      import { defineComponent, h as FormKit } from 'vue';
+      export const render = () => FormKit('div', {
+        dataFoo: 'bar'
+      });"
+    `)
+  })
+
+  it('does not add an import if it is already being used', () => {
+    const code = `import { FormKit } from '@formkit/vue';
+import { defineComponent, h } from 'vue';
+export const component = defineComponent({
+  render() {
+    return h(FormKit, {
+      type: 'text'
+    });
+  }
+});`
+    const ast = parse(code, { sourceType: 'module' })
+    addImport(traverse, ast, { name: 'FormKit', from: '@formkit/vue' })
+    expect(generator(ast).code).toBe(code)
   })
 })

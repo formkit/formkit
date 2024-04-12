@@ -1,61 +1,23 @@
-import type { Node, VariableDeclarator, Program } from '@babel/types'
+import { getUsedImports, addImport, rootPath } from './ast'
+import t from '@babel/template'
+import type { Component, ComponentUse, Traverse } from '../types'
+import type { Program, File, VariableDeclarator } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
-import type {
-  Traverse,
-  Component,
-  ComponentUse,
-  Import,
-  LocalizedImport,
-} from '../types'
 
 /**
- * Locates the local names for the imported vue functions.
- */
-export function getUsedImports(
-  traverse: Traverse,
-  ast: Node,
-  imports: Import[]
-): LocalizedImport[] {
-  const localizedImports: LocalizedImport[] = []
-  const remappedImports = imports.reduce((map, imp) => {
-    map[imp.from] ??= []
-    map[imp.from].push(imp.name)
-    return map
-  }, {} as Record<string, string[]>)
-  traverse(ast, {
-    ImportDeclaration(path) {
-      path.node.specifiers.forEach((specifier) => {
-        if (
-          path.node.source.value in remappedImports &&
-          specifier.type === 'ImportSpecifier' &&
-          specifier.imported.type === 'Identifier' &&
-          remappedImports[path.node.source.value].includes(
-            specifier.imported.name
-          )
-        ) {
-          localizedImports.push({
-            name: specifier.imported.name,
-            from: path.node.source.value,
-            local: specifier.local.name,
-          })
-        }
-      })
-    },
-  })
-  return localizedImports
-}
-
-/**
- *
+ * Checks if a given set of components are being used in a vue (post-processed)
+ * file.
  * @param traverse - The babel/traverse object
  * @param ast - The AST to traverse
  * @param components - The components to search for
  * @param resolveComponentFnName - The local name of the resolveComponent fn
+ * @param autoImport - If located, automatically import any resolveComponent calls
  */
 export function usedComponents(
   traverse: Traverse,
-  ast: Node,
-  components: Component[]
+  ast: Program | File,
+  components: Component[],
+  autoImport = false
 ): ComponentUse[] {
   const variableLocators: Record<string, Component> = {}
   const localImports = getUsedImports(traverse, ast, [
@@ -90,6 +52,14 @@ export function usedComponents(
               if (identifier.type === 'Identifier') {
                 variableLocators[identifier.name] = component
               }
+              if (autoImport) {
+                const localName = addImport(
+                  traverse,
+                  rootPath(path).node,
+                  component
+                )
+                path.replaceWith(t.expression.ast(localName))
+              }
             }
           }
         }
@@ -115,25 +85,11 @@ export function usedComponents(
           componentUses.push({
             ...component,
             path,
+            traverse,
           })
-          // In this case we have located a component being used in a render
-          // function that was previously resolved by resolveComponent to a
-          // variable.
         }
       }
     },
   })
   return componentUses
-}
-
-/**
- * Recursively walk up the path to find the root path.
- * @param path - The path to find the root of
- * @returns
- */
-export function rootPath(path: NodePath<any>): NodePath<Program> {
-  if (path.parentPath) {
-    return rootPath(path.parentPath)
-  }
-  return path
 }

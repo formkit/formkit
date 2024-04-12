@@ -94,6 +94,7 @@
   },
   "devDependencies": {
     "@types/babel__generator": "^7.6.8",
+    "@types/babel__template": "^7.4.4",
     "@types/node": "^20.5.2",
     "@vitejs/plugin-vue": "^4.6.2",
     "eslint": "^8.49.0",

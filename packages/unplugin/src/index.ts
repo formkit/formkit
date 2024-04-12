@@ -2,13 +2,15 @@ import cjsTraverse from '@babel/traverse'
 import { createUnplugin } from 'unplugin'
 import { parse } from '@babel/parser'
 import { extend } from '@formkit/utils'
+import t from '@babel/template'
 import type { UnpluginFactory } from 'unplugin'
 import cjsGenerate from '@babel/generator'
 import type { Options, Traverse, ComponentUse, Generate } from './types'
-// import type { Node } from '@babel/types'
+import type { ObjectExpression } from '@babel/types'
 // import { resolve } from 'pathe'
 // import { existsSync } from 'fs'
-import { usedComponents, rootPath } from './utils/ast-utils'
+import { createConfigObject } from './utils/formkit'
+import { usedComponents } from './utils/vue'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -47,10 +49,7 @@ function configureFormKitComponent(component: ComponentUse): void {
     !component.path.node.arguments[1] ||
     component.path.node.arguments[1].type !== 'ObjectExpression'
   ) {
-    component.path.node.arguments[1] = {
-      type: 'ObjectExpression',
-      properties: [],
-    }
+    component.path.node.arguments[1] = t.expression.ast`{}` as ObjectExpression
   }
   const props = component.path.node.arguments[1].properties
   props.push({
@@ -59,29 +58,9 @@ function configureFormKitComponent(component: ComponentUse): void {
     shorthand: false,
     key: {
       type: 'Identifier',
-      name: '__config',
+      name: '__config__',
     },
-    value: {
-      type: 'StringLiteral',
-      value: 'something here',
-    },
-  })
-  const root = rootPath(component.path)
-  root.node.body.unshift({
-    type: 'ImportDeclaration',
-    specifiers: [
-      {
-        type: 'ImportDefaultSpecifier',
-        local: {
-          type: 'Identifier',
-          name: 'FormKit',
-        },
-      },
-    ],
-    source: {
-      type: 'StringLiteral',
-      value: '@formkit/vue',
-    },
+    value: createConfigObject(component),
   })
 }
 
@@ -98,7 +77,8 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
         },
       ],
     },
-    options ?? {}
+    options ?? {},
+    true
   ) as Options
   const HAS_COMPONENTS_RE = new RegExp(
     `(?:${opts.components.map((c) => c.name).join('|')})`
@@ -151,7 +131,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
       // 2. Locate createVNode, createBlock, ssrRenderComponent imports
       // 3. Check
 
-      const components = usedComponents(traverse, ast, opts.components)
+      const components = usedComponents(traverse, ast, opts.components, true)
       if (components.length === 0) return null
 
       for (const component of components) {

@@ -35,7 +35,10 @@ export type ComponentLocators =
       retrievedBy: 'setup'
     }
 
-export type ComponentUse = Component & { path: NodePath<CallExpression> }
+export type ComponentUse = Component & {
+  path: NodePath<CallExpression>
+  traverse: Traverse
+}
 
 export type Traverse = typeof traverse
 export type Generate = typeof generate
