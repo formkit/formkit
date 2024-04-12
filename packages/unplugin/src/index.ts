@@ -102,9 +102,9 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
           return args
             .map(
               (arg) => `import { ${arg} } from "@formkit/inputs";
-            const lib = () => {}
-            lib.library = (node) => node.define(${arg})
-            export { lib as ${arg} }`
+            const library = () => {}
+            library.library = (node) => node.define(${arg})
+            export { library }`
             )
             .join('\n')
         }

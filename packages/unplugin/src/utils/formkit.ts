@@ -50,7 +50,7 @@ function importInputType(
     const value = inputType ? (inputType.value as StringLiteral).value : 'text'
     libName = addImport(component.traverse, component.root, {
       from: 'virtual:formkit/inputs:' + value,
-      name: value,
+      name: 'library',
     })
   } else {
     consola.warn('FormKit input uses bound type prop, skipping optimization.')
