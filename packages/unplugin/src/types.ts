@@ -1,5 +1,5 @@
 import type { NodePath } from '@babel/traverse'
-import type { CallExpression } from '@babel/types'
+import type { CallExpression, Program, File } from '@babel/types'
 import type traverse from '@babel/traverse'
 import type generate from '@babel/generator'
 
@@ -37,6 +37,7 @@ export type ComponentLocators =
 
 export type ComponentUse = Component & {
   path: NodePath<CallExpression>
+  root: File | Program
   traverse: Traverse
 }
 

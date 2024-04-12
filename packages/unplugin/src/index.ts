@@ -1,14 +1,16 @@
 import cjsTraverse from '@babel/traverse'
 import { createUnplugin } from 'unplugin'
-import { parse } from '@babel/parser'
+import type { File } from '@babel/types'
+import * as parser from '@babel/parser'
 import { extend } from '@formkit/utils'
 import t from '@babel/template'
 import type { UnpluginFactory } from 'unplugin'
-import cjsGenerate from '@babel/generator'
+// import cjsGenerate from '@babel/generator'
 import type { Options, Traverse, ComponentUse, Generate } from './types'
 import type { ObjectExpression } from '@babel/types'
-// import { resolve } from 'pathe'
-// import { existsSync } from 'fs'
+import { print, parse } from 'recast'
+import { resolve } from 'pathe'
+import { existsSync } from 'fs'
 import { createConfigObject } from './utils/formkit'
 import { usedComponents } from './utils/vue'
 
@@ -17,32 +19,32 @@ import { usedComponents } from './utils/vue'
 const traverse: Traverse =
   typeof cjsTraverse === 'function' ? cjsTraverse : (cjsTraverse as any).default
 
-const generate: Generate =
-  typeof cjsGenerate === 'function' ? cjsGenerate : (cjsGenerate as any).default
+// const generate: Generate =
+//   typeof cjsGenerate === 'function' ? cjsGenerate : (cjsGenerate as any).default
 
 /**
  * The prefix for a virtual module that contains some configuration.
  */
-// const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
+const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
 
 /**
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-// function _resolveConfig(configFile: string): string | undefined {
-//   const exts = ['ts', 'mjs', 'js']
-//   const dir = configFile.startsWith('.') ? process.cwd() : ''
-//   let paths: string[] = []
+function resolveConfig(configFile: string): string | undefined {
+  const exts = ['ts', 'mjs', 'js']
+  const dir = configFile.startsWith('.') ? process.cwd() : ''
+  let paths: string[] = []
 
-//   if (exts.some((ext) => configFile.endsWith(ext))) {
-//     // If the config file has an extension, we don't need to try them all.
-//     paths = [resolve(dir, configFile)]
-//   } else {
-//     // If the config file doesn’t have an extension, try them all.
-//     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
-//   }
-//   return paths.find((path) => existsSync(path))
-// }
+  if (exts.some((ext) => configFile.endsWith(ext))) {
+    // If the config file has an extension, we don't need to try them all.
+    paths = [resolve(dir, configFile)]
+  } else {
+    // If the config file doesn’t have an extension, try them all.
+    paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
+  }
+  return paths.find((path) => existsSync(path))
+}
 
 function configureFormKitComponent(component: ComponentUse): void {
   if (
@@ -85,20 +87,35 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
   )
   return {
     name: 'unplugin:formkit',
-    // resolveId(id) {
-    //   if (id.startsWith(FORMKIT_CONFIG_PREFIX)) {
-    //     return '\0' + id
-    //   }
-    //   return null
-    // },
-    // load(id) {
-    //   if (id === '\0' + FORMKIT_CONFIG_PREFIX) {
-    //     const plugin = id.substring(FORMKIT_CONFIG_PREFIX.length + 1)
-    //     const configFile = `export default {}`
-    //   }
-    //   return null
-    // },
-
+    resolveId(id) {
+      if (id.startsWith(FORMKIT_CONFIG_PREFIX)) {
+        return '\0' + id
+      }
+      return null
+    },
+    load(id) {
+      if (id.startsWith('\0' + FORMKIT_CONFIG_PREFIX)) {
+        const [plugin, ...args] = id
+          .substring(FORMKIT_CONFIG_PREFIX.length + 1)
+          .split(':')
+        if (plugin === 'inputs') {
+          return args
+            .map(
+              (arg) => `import { ${arg} } from "@formkit/inputs";
+            const lib = () => {}
+            lib.library = (node) => node.define(${arg})
+            export { lib as ${arg} }`
+            )
+            .join('\n')
+        }
+        if (plugin === 'library') {
+          return `const library = () => {};
+          library.library = () => {}
+          export { library }`
+        }
+      }
+      return null
+    },
     // webpack's id filter is outside of loader logic,
     // an additional hook is needed for better perf on webpack
     transformInclude(id) {
@@ -112,33 +129,14 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
       // If our component strings are not found at all in this file, we can skip it.
       if (!HAS_COMPONENTS_RE.test(code)) return null
 
-      const ast = parse(code, { sourceType: 'module' })
-
-      // Locate the formkit components. We check for a string like "FormKit"
-      // but in setup or resolveComponent but it could be any other string if
-      // there is an explicit import of `FormKit` as 'OtherName from `@formkit/vue`
-      // package. Detection could be:
-      // 1. _resolveComponent('FormKit')
-      // 2. _createVNode($setup['FormKit'])
-      // 3. _createBlock($setup['FormKit'])
-      // 4. _ssrRenderComponent($setup['FormKit'])
-
-      // Order of operations:
-      // 0. Locate resolveComponent import and get the import name
-      // 1. Check for option.components resolveComponent usages
-      //    - If the component is imported, get its import name
-      //    - If the component is not imported, inject an import with a unique name
-      // 2. Locate createVNode, createBlock, ssrRenderComponent imports
-      // 3. Check
-
+      const ast = parse(code, { parser })
       const components = usedComponents(traverse, ast, opts.components, true)
       if (components.length === 0) return null
-
       for (const component of components) {
         if (component.codeMod) component.codeMod(component)
       }
-
-      const result = generate(ast, { sourceMaps: true }, code)
+      // const result = generate(ast, { sourceMaps: true }, code)
+      const result = print(ast)
       return {
         code: result.code,
         map: result.map,

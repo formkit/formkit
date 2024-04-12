@@ -85,6 +85,7 @@ export function usedComponents(
           componentUses.push({
             ...component,
             path,
+            root: ast,
             traverse,
           })
         }

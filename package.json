@@ -91,5 +91,8 @@
       "limit": "10 KB"
     }
   ],
-  "packageManager": "pnpm@8.15.4"
+  "packageManager": "pnpm@8.15.4",
+  "dependencies": {
+    "@formkit/inputs": "workspace:^"
+  }
 }

@@ -41,7 +41,6 @@ export default defineConfig({
       '**/packages/**',
     ],
     environment: 'jsdom',
-    retry: 2,
     // singleThread: true,
     exclude: [
       '**/node_modules/**',
