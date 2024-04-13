@@ -1,7 +1,12 @@
 <template>
   <div>
     <FormKit id="test-form" type="form">
-      <FormKit name="username" label="User name" placeholder="Enter your user name here." validation="required" />
+      <FormKit
+        name="username"
+        label="User name"
+        placeholder="Enter your user name here."
+        validation="required"
+      />
     </FormKit>
   </div>
 </template>

@@ -44,14 +44,18 @@ describe('vite', async () => {
 describe('validation', () => {
   it('validates form', async () => {
     const cases = [{ username: 'danielroe' }, {}]
-    const results = await Promise.all(cases.map(data => $fetch('/api/validate-test-form', {
-      method: 'POST',
-      body: {
-        id: 'test-form',
-        route: '/validation',
-        data
-      }
-    }).catch(e => e.data)))
+    const results = await Promise.all(
+      cases.map((data) =>
+        $fetch('/api/validate-test-form', {
+          method: 'POST',
+          body: {
+            id: 'test-form',
+            route: '/validation',
+            data,
+          },
+        }).catch((e) => e.data)
+      )
+    )
 
     expect(results).toMatchInlineSnapshot(`
       [

@@ -55,7 +55,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     configFile: undefined,
     autoImport: false,
   },
-  async setup (options, nuxt) {
+  async setup(options, nuxt) {
     nuxt.options.build.transpile.push('@formkit/vue')
 
     if (options.autoImport) {
@@ -73,7 +73,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
  * Installs FormKit via lazy loading. This is the preferred method of
  * installation as it allows for a smaller bundle size and better tree shaking.
  */
-const useAutoImport = async function installLazy (options, nuxt) {
+const useAutoImport = async function installLazy(options, nuxt) {
   addImports([
     {
       from: '@formkit/core',
@@ -177,7 +177,7 @@ const useAutoImport = async function installLazy (options, nuxt) {
  * bundle. Eventually this mechanism will deprecated in favor of the lazy
  * behavior.
  */
-const useFormKitPlugin = async function installNuxtPlugin (options, nuxt) {
+const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
   const resolver = createResolver(import.meta.url)
 
   // Add FormKit typescript types explicitly.
@@ -208,7 +208,7 @@ const useFormKitPlugin = async function installNuxtPlugin (options, nuxt) {
   }
 
   addPluginTemplate({
-    async getContents () {
+    async getContents() {
       const configPath = await resolver.resolvePath(configBase)
       const configPathExists = existsSync(configPath)
       if (!configPathExists && options.configFile) {
@@ -228,9 +228,10 @@ const useFormKitPlugin = async function installNuxtPlugin (options, nuxt) {
       ${configPathExists ? `import importedConfig from '${configPath}'` : ''}
 
       export default defineNuxtPlugin((nuxtApp) => {
-        const config = ${configPathExists
-          ? `defaultConfig(typeof importedConfig === 'function' ? importedConfig() : importedConfig)`
-          : `defaultConfig`
+        const config = ${
+          configPathExists
+            ? `defaultConfig(typeof importedConfig === 'function' ? importedConfig() : importedConfig)`
+            : `defaultConfig`
         }
         nuxtApp.hook('app:rendered', (renderContext) => {
           resetCount()
@@ -247,7 +248,7 @@ const useFormKitPlugin = async function installNuxtPlugin (options, nuxt) {
 /**
  * Installs any hooks for integration with Nuxt modules.
  */
-const useIntegrations = function installModuleHooks (options, nuxt) {
+const useIntegrations = function installModuleHooks(options, nuxt) {
   const resolver = createResolver(import.meta.url)
 
   const themeBase = resolve(
@@ -260,15 +261,15 @@ const useIntegrations = function installModuleHooks (options, nuxt) {
     const themePath = await resolver.resolvePath(themeBase)
     if (existsSync(themePath)) {
       tailwindConfig.content = tailwindConfig.content ?? { files: [] }
-        ; (Array.isArray(tailwindConfig.content)
-          ? tailwindConfig.content
-          : tailwindConfig.content.files
-        ).push(themePath)
+      ;(Array.isArray(tailwindConfig.content)
+        ? tailwindConfig.content
+        : tailwindConfig.content.files
+      ).push(themePath)
     }
   })
 } satisfies NuxtModule<ModuleOptions>
 
-function useFormValidation () {
+function useFormValidation() {
   const resolver = createResolver(import.meta.url)
   addPlugin(resolver.resolve('./runtime/plugins/formkit-validation.server'))
 
@@ -280,7 +281,7 @@ function useFormValidation () {
     {
       from: resolver.resolve('./runtime/server/utils'),
       name: 'defineFormkitEventHandler',
-    }
+    },
   ])
 }
 

@@ -3,7 +3,7 @@ import type { FormKitNode } from '@formkit/core'
 import { stopWatch, watchRegistry } from '@formkit/core'
 import { getValidationMessages } from '@formkit/validation'
 
-export default defineNuxtPlugin(nuxtApp => {
+export default defineNuxtPlugin((nuxtApp) => {
   const context = useRequestEvent()?.context?.formkit
   if (!context || !context._id) return
 
@@ -17,7 +17,7 @@ export default defineNuxtPlugin(nuxtApp => {
     }
   })
 
-  async function setValidationState () {
+  async function setValidationState() {
     if (!context) return
 
     await node.ledger.settled('validating')
@@ -27,7 +27,9 @@ export default defineNuxtPlugin(nuxtApp => {
       for (const [child, messages] of getValidationMessages(node)) {
         const address = child.address.join('.')
         context._validationMessages[address] ||= []
-        context._validationMessages[address].push(...messages.map(m => m.value))
+        context._validationMessages[address].push(
+          ...messages.map((m) => m.value)
+        )
       }
     }
 
