@@ -29,20 +29,21 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@formkit/unplugin": "^1.6.2",
     "@formkit/core": "1.6.2",
     "@formkit/i18n": "1.6.2",
+    "@formkit/unplugin": "^1.6.2",
     "@formkit/validation": "1.6.2",
     "@formkit/vue": "1.6.2",
-    "@nuxt/kit": "^3.10.3",
+    "@nuxt/kit": "^3.11.1",
     "chokidar": "^3.6.0",
+    "h3": "^1.11.1",
     "pathe": "^1.1.2",
     "unplugin": "^1.9.0"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.5.5",
-    "@nuxt/schema": "^3.10.3",
+    "@nuxt/schema": "^3.11.1",
     "@nuxt/test-utils": "^3.11.0",
-    "nuxt": "^3.10.3"
+    "nuxt": "^3.11.1"
   }
 }
