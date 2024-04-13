@@ -1,16 +1,24 @@
 import { createError, defineEventHandler, readBody } from 'h3'
 import type { H3Event, EventHandler } from 'h3'
 
-export async function validateFormkitData (event: H3Event, id: string, data: unknown) {
+export async function validateFormkitData (event: H3Event, route: string, id: string, data: unknown) {
   event.context.formkit = { _data: data || {}, _id: id }
-  await event.$fetch('/validation').catch(() => null)
+  await event.$fetch(route).catch(() => null)
   return !!event.context.formkit._validated
 }
 
-export function defineFormkitEventHandler<H extends EventHandler<any, any>> (id: string, handler: H) {
+export function defineFormkitEventHandler<H extends EventHandler<any, any>> (handler: H, ids: string | string[] = []) {
+  ids = Array.isArray(ids) ? ids : [ids]
+
   return defineEventHandler(async event => {
-    const data = await readBody(event)
-    const validated = await validateFormkitData(event, id, data)
+    const { id, route, data } = await readBody(event)
+    if (!ids.includes(id)) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid form ID for endpoint'
+      })
+    }
+    const validated = await validateFormkitData(event, route, id, data)
     if (!validated) {
       throw createError({
         statusCode: 422,

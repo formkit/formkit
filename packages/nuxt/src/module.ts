@@ -58,25 +58,13 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   async setup (options, nuxt) {
     nuxt.options.build.transpile.push('@formkit/vue')
 
-    const resolver = createResolver(import.meta.url)
-    addPlugin(resolver.resolve('./runtime/plugins/formkit-validation.server'))
-
-    addServerImports([
-      {
-        from: resolver.resolve('./runtime/server/utils'),
-        name: 'validateFormkitData',
-      },
-      {
-        from: resolver.resolve('./runtime/server/utils'),
-        name: 'defineFormkitEventHandler',
-      }
-    ])
-
     if (options.autoImport) {
       useAutoImport(options, nuxt)
     } else {
       useFormKitPlugin(options, nuxt)
     }
+
+    useFormValidation()
     useIntegrations(options, nuxt)
   },
 })
@@ -279,5 +267,21 @@ const useIntegrations = function installModuleHooks (options, nuxt) {
     }
   })
 } satisfies NuxtModule<ModuleOptions>
+
+function useFormValidation () {
+  const resolver = createResolver(import.meta.url)
+  addPlugin(resolver.resolve('./runtime/plugins/formkit-validation.server'))
+
+  addServerImports([
+    {
+      from: resolver.resolve('./runtime/server/utils'),
+      name: 'validateFormkitData',
+    },
+    {
+      from: resolver.resolve('./runtime/server/utils'),
+      name: 'defineFormkitEventHandler',
+    }
+  ])
+}
 
 export default module
