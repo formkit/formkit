@@ -173,7 +173,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       : 'index'
   renameSync(
     resolve(outDir, `./${dts}.d.ts`),
-    resolve(outDir, `./${dts}.d.cts`)
+    resolve(outDir, `./${dts}.d.mts`)
   )
   console.log = log
   console.warn = warn

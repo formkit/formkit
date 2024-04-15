@@ -26,6 +26,10 @@ export { createInput } from './composables/createInput'
  * The defineFormKitConfig composable.
  */
 export { defineFormKitConfig } from './composables/defineFormKitConfig'
+export type {
+  PluginConfigs,
+  DefineConfigOptions,
+} from './composables/defineFormKitConfig'
 
 /**
  * The plugin and plugin types.
@@ -104,10 +108,6 @@ export type {
  */
 export { defaultConfig } from './defaultConfig'
 export type { DefaultConfigOptions } from './defaultConfig'
-export type {
-  PluginConfigs,
-  DefineConfigOptions,
-} from './composables/defineFormKitConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all

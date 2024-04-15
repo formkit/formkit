@@ -1,18 +1,17 @@
 import cjsTraverse from '@babel/traverse'
 import { createUnplugin } from 'unplugin'
-import type { File } from '@babel/types'
 import * as parser from '@babel/parser'
 import { extend } from '@formkit/utils'
 import t from '@babel/template'
 import type { UnpluginFactory } from 'unplugin'
 // import cjsGenerate from '@babel/generator'
-import type { Options, Traverse, ComponentUse, Generate } from './types'
+import type { Options, Traverse, ComponentUse } from './types'
 import type { ObjectExpression } from '@babel/types'
 import { print, parse } from 'recast'
-import { resolve } from 'pathe'
-import { existsSync } from 'fs'
 import { createConfigObject } from './utils/formkit'
 import { usedComponents } from './utils/vue'
+// import { resolve } from 'pathe'
+// import { existsSync } from 'fs'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -31,20 +30,20 @@ const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-function resolveConfig(configFile: string): string | undefined {
-  const exts = ['ts', 'mjs', 'js']
-  const dir = configFile.startsWith('.') ? process.cwd() : ''
-  let paths: string[] = []
+// function _resolveConfig(configFile: string): string | undefined {
+//   const exts = ['ts', 'mjs', 'js']
+//   const dir = configFile.startsWith('.') ? process.cwd() : ''
+//   let paths: string[] = []
 
-  if (exts.some((ext) => configFile.endsWith(ext))) {
-    // If the config file has an extension, we don't need to try them all.
-    paths = [resolve(dir, configFile)]
-  } else {
-    // If the config file doesn’t have an extension, try them all.
-    paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
-  }
-  return paths.find((path) => existsSync(path))
-}
+//   if (exts.some((ext) => configFile.endsWith(ext))) {
+//     // If the config file has an extension, we don't need to try them all.
+//     paths = [resolve(dir, configFile)]
+//   } else {
+//     // If the config file doesn’t have an extension, try them all.
+//     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
+//   }
+//   return paths.find((path) => existsSync(path))
+// }
 
 function configureFormKitComponent(component: ComponentUse): void {
   if (

@@ -1,4 +1,9 @@
-import type { FormKitOptions, FormKitLibrary } from '@formkit/core'
+import type {
+  FormKitOptions,
+  FormKitLibrary,
+  FormKitPlugin,
+  FormKitConfig,
+} from '@formkit/core'
 import type { DefaultConfigOptions } from '../index'
 import type { FormKitValidationRule } from '@formkit/validation'
 import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes'
@@ -27,7 +32,34 @@ export interface PluginConfigs {
  */
 export type DefineConfigOptions = {
   nodeOptions?: Partial<FormKitOptions>
+  plugins: FormKitPlugin[]
 } & Partial<PluginConfigs>
+
+/**
+ * @deprecated - Using DefaultConfigOptions is no longer the recommended way to
+ * configure FormKit globally. Consider using DefineConfigOptions instead. This
+ * only requires moving the `config` property inside a `nodeOptions` key.
+ *
+ * ```ts
+ * defineFormKitConfig({
+ *   rules: {
+ *     // custom rules here
+ *   },
+ *   inputs: {
+ *     // custom inputs here
+ *   },
+ *   nodeOptions: {
+ *     config: {
+ *       // node config here
+ *     }
+ *   }
+ * })
+ * ```
+ */
+export type LegacyDefaultConfigOptions = Omit<
+  DefaultConfigOptions,
+  'config'
+> & { config: Partial<FormKitConfig> }
 
 /**
  * @deprecated - Using a function inside defineFormKitConfig is no longer
@@ -68,8 +100,8 @@ export function defineFormKitConfig(
  * ```
  */
 export function defineFormKitConfig(
-  config: Omit<DefaultConfigOptions, 'config'> & { config: FormKitOptions }
-): () => Omit<DefaultConfigOptions, 'config'> & { config: FormKitOptions }
+  config: LegacyDefaultConfigOptions
+): () => LegacyDefaultConfigOptions
 /**
  * @deprecated - Using a function inside defineFormKitConfig is no longer
  * the recommended way to configure FormKit globally. Continuing to a function
@@ -82,7 +114,7 @@ export function defineFormKitConfig(
   config:
     | DefineConfigOptions
     | FunctionalConfigOptions
-    | (Omit<DefaultConfigOptions, 'config'> & { config: FormKitOptions })
+    | LegacyDefaultConfigOptions
 ) {
   return () => (typeof config === 'function' ? config() : config)
 }
