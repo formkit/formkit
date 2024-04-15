@@ -1,10 +1,11 @@
-import type { ComponentUse } from '../types'
+import type { ComponentUse, Traverse } from '../types'
 import type {
   ObjectExpression,
   ObjectProperty,
   StringLiteral,
   ArrayExpression,
-  Expression,
+  Program,
+  File,
 } from '@babel/types'
 import { addImport, createProperty } from './ast'
 import t from '@babel/template'
@@ -53,11 +54,38 @@ function importInputType(
       name: 'library',
     })
   } else {
-    consola.warn('FormKit input uses bound type prop, skipping optimization.')
+    consola.warn(
+      '[FormKit de-opt]: Input uses bound type prop, skipping optimization.'
+    )
     libName = addImport(component.traverse, component.root, {
       from: 'virtual:formkit/library',
       name: 'library',
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
+}
+
+export function getConfigProperty(
+  traverse: Traverse,
+  configAst: Program | File,
+  name: string
+) {
+  traverse(configAst, {
+    CallExpression(path) {
+      if (
+        path.node.callee.type === 'Identifier' &&
+        path.node.callee.name === 'defineFormKitConfig'
+      ) {
+        // Check that the first argument is a ObjectExpression, otherwise de-opt
+      }
+    },
+  })
+}
+
+export function createInputConfig(
+  traverse: Traverse,
+  configAst: Program | File,
+  inputName: string
+) {
+  const inputsProperty = getConfigProperty(traverse, configAst, 'inputs')
 }

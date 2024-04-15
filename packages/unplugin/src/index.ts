@@ -6,12 +6,12 @@ import t from '@babel/template'
 import type { UnpluginFactory } from 'unplugin'
 // import cjsGenerate from '@babel/generator'
 import type { Options, Traverse, ComponentUse } from './types'
-import type { ObjectExpression } from '@babel/types'
+import type { ObjectExpression, File } from '@babel/types'
 import { print, parse } from 'recast'
-import { createConfigObject } from './utils/formkit'
+import { createConfigObject, createInputConfig } from './utils/formkit'
 import { usedComponents } from './utils/vue'
-// import { resolve } from 'pathe'
-// import { existsSync } from 'fs'
+import { resolve } from 'pathe'
+import { existsSync, readFileSync } from 'fs'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -30,20 +30,20 @@ const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-// function _resolveConfig(configFile: string): string | undefined {
-//   const exts = ['ts', 'mjs', 'js']
-//   const dir = configFile.startsWith('.') ? process.cwd() : ''
-//   let paths: string[] = []
+function resolveConfig(configFile: string): string | undefined {
+  const exts = ['ts', 'mjs', 'js']
+  const dir = configFile.startsWith('.') ? process.cwd() : ''
+  let paths: string[] = []
 
-//   if (exts.some((ext) => configFile.endsWith(ext))) {
-//     // If the config file has an extension, we don't need to try them all.
-//     paths = [resolve(dir, configFile)]
-//   } else {
-//     // If the config file doesn’t have an extension, try them all.
-//     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
-//   }
-//   return paths.find((path) => existsSync(path))
-// }
+  if (exts.some((ext) => configFile.endsWith(ext))) {
+    // If the config file has an extension, we don't need to try them all.
+    paths = [resolve(dir, configFile)]
+  } else {
+    // If the config file doesn’t have an extension, try them all.
+    paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
+  }
+  return paths.find((path) => existsSync(path))
+}
 
 function configureFormKitComponent(component: ComponentUse): void {
   if (
@@ -81,6 +81,15 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
     options ?? {},
     true
   ) as Options
+
+  const configPath = resolveConfig(opts.configFile ?? 'formkit.config')
+
+  let configAst: File | undefined
+  if (configPath && existsSync(configPath)) {
+    const configSource = readFileSync(configPath, { encoding: 'utf8' })
+    configAst = parse(configSource, { parser }) as File
+  }
+
   const HAS_COMPONENTS_RE = new RegExp(
     `(?:${opts.components.map((c) => c.name).join('|')})`
   )
@@ -98,14 +107,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
           .substring(FORMKIT_CONFIG_PREFIX.length + 1)
           .split(':')
         if (plugin === 'inputs') {
-          return args
-            .map(
-              (arg) => `import { ${arg} } from "@formkit/inputs";
-            const library = () => {}
-            library.library = (node) => node.define(${arg})
-            export { library }`
-            )
-            .join('\n')
+          return createInputConfig(traverse, configAst as File, ...args)
         }
         if (plugin === 'library') {
           return `const library = () => {};
@@ -128,7 +130,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
       // If our component strings are not found at all in this file, we can skip it.
       if (!HAS_COMPONENTS_RE.test(code)) return null
 
-      const ast = parse(code, { parser })
+      const ast = parse(code, { parser }) as File
       const components = usedComponents(traverse, ast, opts.components, true)
       if (components.length === 0) return null
       for (const component of components) {
