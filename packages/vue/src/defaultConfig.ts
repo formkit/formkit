@@ -1,35 +1,39 @@
-import type { FormKitOptions, FormKitLibrary } from '@formkit/core'
+import type { FormKitOptions } from '@formkit/core'
 import { extend } from '@formkit/utils'
 import * as defaultRules from '@formkit/rules'
-import type { FormKitValidationRule } from '@formkit/validation'
 import { createValidationPlugin } from '@formkit/validation'
-import type { FormKitLocale, FormKitLocaleRegistry } from '@formkit/i18n'
+import type { FormKitLocaleRegistry } from '@formkit/i18n'
 import { createI18nPlugin, en } from '@formkit/i18n'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
-import type { FormKitIconLoader, FormKitIconLoaderUrl } from '@formkit/themes'
+
 import { createThemePlugin } from '@formkit/themes'
 import bindings from './bindings'
 import { register as decodeErrors } from '@formkit/dev'
+import type { PluginConfigs } from './index'
 
 /**
- * Configuration for plugins
+ * Legacy configuration options for defaultConfig.
  *
- * @public
- */
-export interface PluginConfigs {
-  rules: Record<string, FormKitValidationRule>
-  locales: FormKitLocaleRegistry
-  inputs: FormKitLibrary
-  messages: Record<string, Partial<FormKitLocale>>
-  locale: string
-  theme: string
-  iconLoaderUrl: FormKitIconLoaderUrl
-  iconLoader: FormKitIconLoader
-  icons: Record<string, string | undefined>
-}
-
-/**
- * The allowed options for defaultConfig.
+ * @deprecated - This type is deprecated and will be removed in the next
+ * major version of FormKit. If you nest the `config` property of your options
+ * object inside a `nodeOptions` key it will be automatically migrated to the
+ * new optimized format:
+ *
+ * ```js
+ * export default defineFormKitConfig({
+ *  rules: {
+ *    // custom rules here
+ *  },
+ *  inputs: {
+ *    // custom inputs here
+ *  },
+ *  nodeOptions: {
+ *    config: {
+ *      // node config here
+ *    }
+ *  }
+ * })
+ * ```
  *
  * @public
  */
@@ -40,6 +44,10 @@ export type DefaultConfigOptions = FormKitOptions &
 /**
  * Default configuration options. Includes all validation rules,
  * en i18n messages.
+ *
+ * @deprecated - defaultConfig is no longer the recommended way to configure
+ * FormKit globally. Read the new configuration documentation for details:
+ * {@link https://formkit.dev/docs/configuration}
  *
  * @public
  */

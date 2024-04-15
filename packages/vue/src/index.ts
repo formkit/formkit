@@ -103,7 +103,11 @@ export type {
  * The default configuration.
  */
 export { defaultConfig } from './defaultConfig'
-export type { DefaultConfigOptions, PluginConfigs } from './defaultConfig'
+export type { DefaultConfigOptions } from './defaultConfig'
+export type {
+  PluginConfigs,
+  DefineConfigOptions,
+} from './composables/defineFormKitConfig'
 
 /**
  * The vue specific FormKit core plugin. This is generally required for all
