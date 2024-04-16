@@ -76,16 +76,37 @@ export function getConfigProperty(
         path.node.callee.type === 'Identifier' &&
         path.node.callee.name === 'defineFormKitConfig'
       ) {
-        // Check that the first argument is a ObjectExpression, otherwise de-opt
+        const [config] = path.node.arguments
+        if (config.type === 'ObjectExpression') {
+          const prop = config.properties.find(
+            (prop) =>
+              prop.type === 'ObjectProperty' &&
+              prop.key.type === 'Identifier' &&
+              prop.key.name === name
+          )
+          if (prop) {
+            return prop
+          }
+        } else {
+          consola.warn(
+            '[FormKit de-opt] call defineFormKitConfig with an object literal to enable optimizations.'
+          )
+        }
       }
     },
   })
 }
 
 export function createInputConfig(
+  inputName: string,
   traverse: Traverse,
-  configAst: Program | File,
-  inputName: string
-) {
-  const inputsProperty = getConfigProperty(traverse, configAst, 'inputs')
+  configAst?: Program | File
+): string {
+  if (!configAst) {
+    return `import { ${inputName} } from '@formkit/inputs';
+    const library = () => {};
+    library.library = (node) => node.define(${inputName});
+    export { library };`
+  }
+  // const inputsProperty = getConfigProperty(traverse, configAst, 'inputs')
 }

@@ -26,6 +26,8 @@ const traverse: Traverse =
  */
 const FORMKIT_CONFIG_PREFIX = 'virtual:formkit/'
 
+const ABSOLUTE_PATH_RE = /^(?:\/|[a-zA-Z]:\\)/
+
 /**
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
@@ -37,7 +39,11 @@ function resolveConfig(configFile: string): string | undefined {
 
   if (exts.some((ext) => configFile.endsWith(ext))) {
     // If the config file has an extension, we don't need to try them all.
-    paths = [resolve(dir, configFile)]
+    paths = [
+      ABSOLUTE_PATH_RE.test(configFile)
+        ? resolve(configFile)
+        : resolve(dir, configFile),
+    ]
   } else {
     // If the config file doesn’t have an extension, try them all.
     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
@@ -103,11 +109,11 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
     },
     load(id) {
       if (id.startsWith('\0' + FORMKIT_CONFIG_PREFIX)) {
-        const [plugin, ...args] = id
+        const [plugin, identifier] = id
           .substring(FORMKIT_CONFIG_PREFIX.length + 1)
           .split(':')
         if (plugin === 'inputs') {
-          return createInputConfig(traverse, configAst as File, ...args)
+          return createInputConfig(identifier, traverse, configAst)
         }
         if (plugin === 'library') {
           return `const library = () => {};
