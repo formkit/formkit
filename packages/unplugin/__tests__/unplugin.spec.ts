@@ -1,13 +1,18 @@
+// @vitest-environment node
 import { describe, it } from 'vitest'
 // import { getTransformedSource } from '../../../.tests/viteSpy'
-// import { resolvePathSync } from 'mlly'
+import { createCommonJS } from 'mlly'
 // import { mount } from '@vue/test-utils'
 import { createOpts } from '../src/utils/config'
 import type { Options } from '../src/types'
 import { createTransform } from '../src/hooks/transform'
 import SimpleRender from './fixtures/SimpleRender.vue?raw'
 import { createContext } from './mocks/context'
-// import vuePlugin from '@vitejs/plugin-vue'
+import vuePlugin from '@vitejs/plugin-vue'
+import * as vueCompiler from 'vue/compiler-sfc'
+import { resolve } from 'path'
+
+const { __dirname } = createCommonJS(import.meta.url)
 
 async function transform(
   code: string,
@@ -17,26 +22,29 @@ async function transform(
   const opts = createOpts(options)
   const context = createContext(opts)
   const transform = createTransform(opts)
-  // const vue = vuePlugin()
-  // if (typeof vue.transform === 'function') {
-  // const transformed = await vue.transform.apply(context as any, [code, id])
-  // if (transformed) {
-  //   if (typeof transformed === 'string') {
-  //     code = transformed
-  //   } else if (typeof transformed.code === 'string') {
-  //     code = transformed.code
-  //   }
-  // }
-  // }
-  return transform.apply(context, [code, id])
+  const vue = vuePlugin({ compiler: vueCompiler })
+  if (typeof vue.transform === 'function') {
+    const transformed = await vue.transform.apply(context as any, [code, id])
+    if (transformed) {
+      if (typeof transformed === 'string') {
+        code = transformed
+      } else if (typeof transformed.code === 'string') {
+        code = transformed.code
+      }
+    }
+  }
+  const result = await transform.apply(context, [code, id])
+  if (!result) return null
+  if (typeof result === 'string') return result
+  return result.code
 }
 
 describe('vite plugin transform', () => {
   it('has transformed the code', async ({ expect }) => {
-    const transformedSource = await transform(
+    const code = await transform(
       SimpleRender,
-      './SimpleRender.vue'
+      resolve(__dirname, './fixtures/SimpleRender.vue')
     )
-    expect(transformedSource).toBe('foobar')
+    expect(code).toBe('foobar')
   })
 })
