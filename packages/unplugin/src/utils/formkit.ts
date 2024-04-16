@@ -1,15 +1,40 @@
-import type { ComponentUse, Traverse } from '../types'
+import type { ComponentUse } from '../types'
 import type {
   ObjectExpression,
   ObjectProperty,
   StringLiteral,
   ArrayExpression,
-  Program,
-  File,
 } from '@babel/types'
 import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
+/**
+ * Modify the arguments of the usage of a formkit component. For example the
+ * ComponentUse may be AST that maps to:
+ * ```js
+ * createVNode(FormKit, { type: 'text' })
+ * ```
+ * @param component - The component to configure.
+ */
+export function configureFormKitInstance(component: ComponentUse): void {
+  if (
+    !component.path.node.arguments[1] ||
+    component.path.node.arguments[1].type !== 'ObjectExpression'
+  ) {
+    component.path.node.arguments[1] = t.expression.ast`{}` as ObjectExpression
+  }
+  const props = component.path.node.arguments[1].properties
+  props.push({
+    type: 'ObjectProperty',
+    computed: false,
+    shorthand: false,
+    key: {
+      type: 'Identifier',
+      name: '__config__',
+    },
+    value: createConfigObject(component),
+  })
+}
 
 /**
  * Given a component, create a config object that can be used to configure it.
@@ -18,7 +43,7 @@ import { consola } from 'consola'
 export function createConfigObject(component: ComponentUse): ObjectExpression {
   const config = t.expression.ast`{}` as ObjectExpression
 
-  const bindingsVar = addImport(component.traverse, component.root, {
+  const bindingsVar = addImport(component.opts, component.root, {
     from: '@formkit/vue',
     name: 'bindings',
   })
@@ -33,6 +58,12 @@ export function createConfigObject(component: ComponentUse): ObjectExpression {
   return config
 }
 
+/**
+ * Import the input type directly into the component.
+ * @param component - The component to import the input type into.
+ * @param props - The props object to modify.
+ * @param plugins - The plugins array to modify.
+ */
 function importInputType(
   component: ComponentUse,
   props: ObjectExpression,
@@ -49,7 +80,7 @@ function importInputType(
   // Perform an optimized import, directly replacing the type property if possible.
   if (!inputType || inputType.value.type === 'StringLiteral') {
     const value = inputType ? (inputType.value as StringLiteral).value : 'text'
-    libName = addImport(component.traverse, component.root, {
+    libName = addImport(component.opts, component.root, {
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
@@ -57,56 +88,10 @@ function importInputType(
     consola.warn(
       '[FormKit de-opt]: Input uses bound type prop, skipping optimization.'
     )
-    libName = addImport(component.traverse, component.root, {
+    libName = addImport(component.opts, component.root, {
       from: 'virtual:formkit/library',
       name: 'library',
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
-}
-
-export function getConfigProperty(
-  traverse: Traverse,
-  configAst: Program | File,
-  name: string
-) {
-  traverse(configAst, {
-    CallExpression(path) {
-      if (
-        path.node.callee.type === 'Identifier' &&
-        path.node.callee.name === 'defineFormKitConfig'
-      ) {
-        const [config] = path.node.arguments
-        if (config.type === 'ObjectExpression') {
-          const prop = config.properties.find(
-            (prop) =>
-              prop.type === 'ObjectProperty' &&
-              prop.key.type === 'Identifier' &&
-              prop.key.name === name
-          )
-          if (prop) {
-            return prop
-          }
-        } else {
-          consola.warn(
-            '[FormKit de-opt] call defineFormKitConfig with an object literal to enable optimizations.'
-          )
-        }
-      }
-    },
-  })
-}
-
-export function createInputConfig(
-  inputName: string,
-  traverse: Traverse,
-  configAst?: Program | File
-): string {
-  if (!configAst) {
-    return `import { ${inputName} } from '@formkit/inputs';
-    const library = () => {};
-    library.library = (node) => node.define(${inputName});
-    export { library };`
-  }
-  // const inputsProperty = getConfigProperty(traverse, configAst, 'inputs')
 }

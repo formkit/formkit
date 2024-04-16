@@ -1,7 +1,8 @@
 import type { NodePath } from '@babel/traverse'
-import type { CallExpression, Program, File } from '@babel/types'
+import type { CallExpression, Program, File, Node } from '@babel/types'
 import type traverse from '@babel/traverse'
 import type generate from '@babel/generator'
+import type { PrintResultType } from 'recast/lib/printer'
 
 export interface Import {
   name: string
@@ -24,6 +25,16 @@ export interface Options {
   components: Component[]
 }
 
+export interface ResolvedOptions extends Options, ASTTools {
+  configAst: File | Program | undefined
+}
+
+export interface ASTTools {
+  traverse: Traverse
+  generate: (ast: Node) => PrintResultType
+  parse: (code: string) => File
+}
+
 export type ComponentLocators =
   | {
       component: Component
@@ -38,7 +49,7 @@ export type ComponentLocators =
 export type ComponentUse = Component & {
   path: NodePath<CallExpression>
   root: File | Program
-  traverse: Traverse
+  opts: ResolvedOptions
 }
 
 export type Traverse = typeof traverse

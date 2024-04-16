@@ -11,6 +11,9 @@ import {
   addImport,
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
+import { createOpts } from '../src/utils/config'
+
+const opts = createOpts({})
 
 describe('getUsedImports', () => {
   it('can extract used imports', () => {
@@ -21,7 +24,7 @@ describe('getUsedImports', () => {
     `
     const ast = parse(code, { sourceType: 'module' })
     expect(
-      getUsedImports(traverse, ast, [
+      getUsedImports(opts, ast, [
         { name: 'fizz', from: 'buzz' },
         { name: 'foo', from: 'bar' },
       ])
@@ -35,7 +38,7 @@ describe('getUsedImports', () => {
     `
     const ast = parse(code, { sourceType: 'module' })
     expect(
-      getUsedImports(traverse, ast, [
+      getUsedImports(opts, ast, [
         { name: 'resolveComponent', from: 'vue' },
         { name: 'createVNode', from: 'vue' },
       ])
@@ -55,7 +58,7 @@ describe('usedComponents', () => {
     `
     const ast = parse(code, { sourceType: 'module' })
     expect(
-      usedComponents(traverse, ast, [{ name: 'FormKit', from: '@formkit/vue' }])
+      usedComponents(opts, ast, [{ name: 'FormKit', from: '@formkit/vue' }])
     ).toEqual([])
   })
 
@@ -69,7 +72,7 @@ describe('usedComponents', () => {
     const ast = parse(code, { sourceType: 'module' })
     const codeMod = () => {}
     expect(
-      usedComponents(traverse, ast, [
+      usedComponents(opts, ast, [
         { name: 'FormKit', from: '@formkit/vue', codeMod },
       ])
     ).toEqual([
@@ -77,7 +80,8 @@ describe('usedComponents', () => {
         name: 'FormKit',
         from: '@formkit/vue',
         path: expect.any(Object),
-        traverse: expect.any(Function),
+        opts: expect.any(Object),
+        root: expect.any(Object),
         codeMod,
       },
     ])
@@ -91,7 +95,7 @@ export default () => h('div', null, { default: () => h(_myComponent) })
     const ast = parse(code, { sourceType: 'module' })
     const codeMod = () => {}
     usedComponents(
-      traverse,
+      opts,
       ast,
       [{ name: 'FormKit', from: '@formkit/vue', codeMod }],
       true
@@ -144,8 +148,8 @@ describe('uniqueVariableName', () => {
     }
     `
     const ast = parse(code, { sourceType: 'module' })
-    expect(uniqueVariableName(traverse, ast, 'foo')).toBe('foo5')
-    expect(uniqueVariableName(traverse, ast, 'location')).toBe('location')
+    expect(uniqueVariableName(opts, ast, 'foo')).toBe('foo5')
+    expect(uniqueVariableName(opts, ast, 'location')).toBe('location')
   })
 })
 
@@ -154,7 +158,7 @@ describe('addImport', () => {
     const code = `import { defineComponent, h as FormKit } from 'vue'
 export const render = () => FormKit('div', { dataFoo: 'bar' })`
     const ast = parse(code, { sourceType: 'module' })
-    addImport(traverse, ast, { name: 'FormKit', from: '@formkit/vue' })
+    addImport(opts, ast, { name: 'FormKit', from: '@formkit/vue' })
     expect(generator(ast).code).toMatchInlineSnapshot(`
       "import { FormKit as FormKit1 } from "@formkit/vue";
       import { defineComponent, h as FormKit } from 'vue';
@@ -175,7 +179,7 @@ export const component = defineComponent({
   }
 });`
     const ast = parse(code, { sourceType: 'module' })
-    addImport(traverse, ast, { name: 'FormKit', from: '@formkit/vue' })
+    addImport(opts, ast, { name: 'FormKit', from: '@formkit/vue' })
     expect(generator(ast).code).toBe(code)
   })
 })

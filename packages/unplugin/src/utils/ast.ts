@@ -8,7 +8,7 @@ import type {
 } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import t from '@babel/template'
-import type { Traverse, Import, LocalizedImport } from '../types'
+import type { ResolvedOptions, Import, LocalizedImport } from '../types'
 
 /**
  * Create an object property with the given key and value.
@@ -42,23 +42,23 @@ export function createProperty(
  * @returns
  */
 export function addImport(
-  traverse: Traverse,
+  opts: ResolvedOptions,
   ast: File | Program,
   imp: Import
 ): string {
   // Check if this import is already being used.
-  const imports = getUsedImports(traverse, ast, [imp])
+  const imports = getUsedImports(opts, ast, [imp])
   if (imports.length) {
     return imports[0].local
   }
-  const local = uniqueVariableName(traverse, ast, imp.name)
+  const local = uniqueVariableName(opts, ast, imp.name)
   const importStatement = t.statement
     .ast`import { ${imp.name} as ${local} } from '${imp.from}'`
   if (ast.type === 'Program') {
     ast.body.unshift(importStatement)
   } else {
     let inserted = false
-    traverse(ast, {
+    opts.traverse(ast, {
       Program(path) {
         inserted = true
         path.node.body.unshift(importStatement)
@@ -84,7 +84,7 @@ export function addImport(
  * @returns
  */
 export function uniqueVariableName(
-  traverse: Traverse,
+  opts: ResolvedOptions,
   ast: Node,
   baseName: string
 ): string {
@@ -93,7 +93,7 @@ export function uniqueVariableName(
   let found = false
   do {
     found = false
-    traverse(ast, {
+    opts.traverse(ast, {
       Identifier(path) {
         if (path.node.name === localName) {
           found = true
@@ -113,7 +113,7 @@ export function uniqueVariableName(
  * Locates the local names for the imported vue functions.
  */
 export function getUsedImports(
-  traverse: Traverse,
+  opts: ResolvedOptions,
   ast: Node,
   imports: Import[]
 ): LocalizedImport[] {
@@ -123,7 +123,7 @@ export function getUsedImports(
     map[imp.from].push(imp.name)
     return map
   }, {} as Record<string, string[]>)
-  traverse(ast, {
+  opts.traverse(ast, {
     ImportDeclaration(path) {
       path.node.specifiers.forEach((specifier) => {
         if (

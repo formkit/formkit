@@ -1,6 +1,6 @@
 import { getUsedImports, addImport, rootPath } from './ast'
 import t from '@babel/template'
-import type { Component, ComponentUse, Traverse } from '../types'
+import type { ResolvedOptions, Component, ComponentUse } from '../types'
 import type { Program, File, VariableDeclarator } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 
@@ -14,13 +14,13 @@ import type { NodePath } from '@babel/traverse'
  * @param autoImport - If located, automatically import any resolveComponent calls
  */
 export function usedComponents(
-  traverse: Traverse,
+  opts: ResolvedOptions,
   ast: Program | File,
   components: Component[],
   autoImport = false
 ): ComponentUse[] {
   const variableLocators: Record<string, Component> = {}
-  const localImports = getUsedImports(traverse, ast, [
+  const localImports = getUsedImports(opts, ast, [
     { name: 'resolveComponent', from: 'vue' },
     { name: 'createVNode', from: 'vue' },
     { name: 'createBlock', from: 'vue' },
@@ -35,7 +35,7 @@ export function usedComponents(
   // Find any calls to resolveComponent() where the component being resolved
   // is a string that matches one of the components we are looking for.
   if (resolveComponent) {
-    traverse(ast, {
+    opts.traverse(ast, {
       CallExpression(path) {
         if (
           path.node.callee.type === 'Identifier' &&
@@ -54,7 +54,7 @@ export function usedComponents(
               }
               if (autoImport) {
                 const localName = addImport(
-                  traverse,
+                  opts,
                   rootPath(path).node,
                   component
                 )
@@ -71,7 +71,7 @@ export function usedComponents(
   // component being resolved
   const renderFnNames = Object.values(renderFns)
   const componentUses: ComponentUse[] = []
-  traverse(ast, {
+  opts.traverse(ast, {
     CallExpression(path) {
       if (
         path.node.callee.type === 'Identifier' &&
@@ -86,7 +86,7 @@ export function usedComponents(
             ...component,
             path,
             root: ast,
-            traverse,
+            opts,
           })
         }
       }
