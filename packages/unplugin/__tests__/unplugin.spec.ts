@@ -1,50 +1,38 @@
 // @vitest-environment node
 import { describe, it } from 'vitest'
-// import { getTransformedSource } from '../../../.tests/viteSpy'
 import { createCommonJS } from 'mlly'
-// import { mount } from '@vue/test-utils'
-import { createOpts } from '../src/utils/config'
-import type { Options } from '../src/types'
-import { createTransform } from '../src/hooks/transform'
 import SimpleRender from './fixtures/SimpleRender.vue?raw'
-import { createContext } from './mocks/context'
-import vuePlugin from '@vitejs/plugin-vue'
-import * as vueCompiler from 'vue/compiler-sfc'
 import { resolve } from 'path'
+import { sfcTransform } from './helpers/transform'
+import { load } from './helpers/load'
 
 const { __dirname } = createCommonJS(import.meta.url)
 
-async function transform(
-  code: string,
-  id: string,
-  options: Partial<Options> = {}
-) {
-  const opts = createOpts(options)
-  const context = createContext(opts)
-  const transform = createTransform(opts)
-  const vue = vuePlugin({ compiler: vueCompiler })
-  if (typeof vue.transform === 'function') {
-    const transformed = await vue.transform.apply(context as any, [code, id])
-    if (transformed) {
-      if (typeof transformed === 'string') {
-        code = transformed
-      } else if (typeof transformed.code === 'string') {
-        code = transformed.code
-      }
-    }
-  }
-  const result = await transform.apply(context, [code, id])
-  if (!result) return null
-  if (typeof result === 'string') return result
-  return result.code
-}
-
-describe('vite plugin transform', () => {
-  it('has transformed the code', async ({ expect }) => {
-    const code = await transform(
+describe('sfc transform', () => {
+  it('injects __config__ at the point of use', async ({ expect }) => {
+    const code = await sfcTransform(
       SimpleRender,
       resolve(__dirname, './fixtures/SimpleRender.vue')
     )
-    expect(code).toBe('foobar')
+    expect(code).toMatchSnapshot()
+  })
+})
+
+describe('input config loading', () => {
+  it('directly imports the input from @formkit/inputs', async ({ expect }) => {
+    const code = await load('virtual:formkit/inputs:text')
+    expect(code).toMatchInlineSnapshot(`
+      "import { text } from '@formkit/inputs';
+      const library = () => {};
+      library.library = (node) => node.define(text);
+      export { library };"
+    `)
+  })
+
+  it.only('can extract an inline createInput', async ({ expect }) => {
+    const code = await load('virtual:formkit/inputs:custom', {
+      configFile: resolve(__dirname, './fixtures/configs/formkit.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot('')
   })
 })

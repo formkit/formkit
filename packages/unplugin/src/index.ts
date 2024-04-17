@@ -4,6 +4,7 @@ import type { Options } from './types'
 import { createOpts } from './utils/config'
 import { createTransform } from './hooks/transform'
 import { createLoad } from './hooks/load'
+import { createResolver } from './hooks/resolveId'
 
 /**
  * The prefix for a virtual module that contains some configuration.
@@ -17,12 +18,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
 
   return {
     name: 'unplugin:formkit',
-    resolveId(id) {
-      if (id.startsWith(FORMKIT_CONFIG_PREFIX)) {
-        return '\0' + id
-      }
-      return null
-    },
+    resolveId: createResolver(opts),
     load: createLoad(opts),
     // webpack's id filter is outside of loader logic,
     // an additional hook is needed for better perf on webpack

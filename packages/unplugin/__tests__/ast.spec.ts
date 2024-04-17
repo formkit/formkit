@@ -3,12 +3,13 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import generator from '@babel/generator'
 import type { NodePath } from '@babel/traverse'
-import type { CallExpression } from '@babel/types'
+import type { CallExpression, Node } from '@babel/types'
 import {
   getUsedImports,
   rootPath,
   uniqueVariableName,
   addImport,
+  extract,
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
 import { createOpts } from '../src/utils/config'
@@ -181,5 +182,29 @@ export const component = defineComponent({
     const ast = parse(code, { sourceType: 'module' })
     addImport(opts, ast, { name: 'FormKit', from: '@formkit/vue' })
     expect(generator(ast).code).toBe(code)
+  })
+})
+
+describe('extract', () => {
+  it('can extract a node from an AST', () => {
+    const code = `import { defineComponent, h } from 'vue'
+    export default {
+      foo: defineComponent({})
+    }`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: Node | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (
+          path.node.key.type === 'Identifier' &&
+          path.node.key.name === 'foo'
+        ) {
+          extracted = path.node.value
+        }
+      },
+    })
+    expect(
+      generator(extract(opts, extracted!, ast)).code
+    ).toMatchInlineSnapshot(``)
   })
 })

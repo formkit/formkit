@@ -5,10 +5,11 @@ import type {
   StringLiteral,
   ObjectProperty,
   Program,
+  ImportDeclaration,
 } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import t from '@babel/template'
-import type { ResolvedOptions, Import, LocalizedImport } from '../types'
+import type { Import, LocalizedImport, ASTTools } from '../types'
 
 /**
  * Create an object property with the given key and value.
@@ -42,7 +43,7 @@ export function createProperty(
  * @returns
  */
 export function addImport(
-  opts: ResolvedOptions,
+  opts: ASTTools,
   ast: File | Program,
   imp: Import
 ): string {
@@ -84,7 +85,7 @@ export function addImport(
  * @returns
  */
 export function uniqueVariableName(
-  opts: ResolvedOptions,
+  opts: ASTTools,
   ast: Node,
   baseName: string
 ): string {
@@ -110,10 +111,10 @@ export function uniqueVariableName(
 }
 
 /**
- * Locates the local names for the imported vue functions.
+ * Locates the local names for the imported functions.
  */
 export function getUsedImports(
-  opts: ResolvedOptions,
+  opts: ASTTools,
   ast: Node,
   imports: Import[]
 ): LocalizedImport[] {
@@ -157,3 +158,47 @@ export function rootPath(path: NodePath<any>): NodePath<File> {
   }
   return path
 }
+
+/**
+ * Given a source file (in ast format) and given a node inside that file,
+ * extract the node from the file and any of its dependencies into a new AST
+ * file.
+ * @param opts - Ast tools
+ * @param node - The node to extract
+ * @param ast - The AST to extract from
+ * @returns
+ */
+export function extract(
+  toExtract: NodePath<Node>,
+  exportName = 'extracted'
+): File {
+  const bindings = toExtract.getBindingIdentifiers(true)
+  // toExtract.traverse(
+  //   Identifier(path) {
+
+  //   }
+  // )
+  return {
+    type: 'File',
+    program: t.program.ast`${dependencies};
+    export const ${exportName} = ${toExtract}`,
+  }
+}
+// export function extract(
+//   opts: ASTTools,
+//   toExtract: Node,
+//   context: File,
+//   exportName = 'extracted'
+// ): File {
+//   opts.traverse(toExtract, {
+//     Identifier(path) {
+//       console.log(path.node.name)
+//     },
+//   })
+
+//   return {
+//     type: 'File',
+//     program: t.program.ast`${dependencies};
+//     export const ${exportName} = ${toExtract}`,
+//   }
+// }

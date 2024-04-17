@@ -1,4 +1,5 @@
 import cjsTraverse from '@babel/traverse'
+import type { NodePath } from '@babel/traverse'
 import * as parser from '@babel/parser'
 import { extend } from '@formkit/utils'
 import { configureFormKitInstance } from './formkit'
@@ -43,13 +44,12 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     true
   ) as Options
 
-  const configPath = resolveConfig(opts.configFile ?? 'formkit.config')
+  const configPath = resolveConfig(opts)
   let configAst: File | undefined
   if (configPath && existsSync(configPath)) {
     const configSource = readFileSync(configPath, { encoding: 'utf8' })
     configAst = parse(configSource)
   }
-
   return { ...opts, configAst, traverse, parse, generate }
 }
 
@@ -57,7 +57,8 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-function resolveConfig(configFile: string): string | undefined {
+function resolveConfig(opts: Options): string | undefined | void {
+  const configFile = opts.configFile ?? 'formkit.config'
   const exts = ['ts', 'mjs', 'js']
   const dir = configFile.startsWith('.') ? process.cwd() : ''
   let paths: string[] = []
@@ -73,7 +74,11 @@ function resolveConfig(configFile: string): string | undefined {
     // If the config file doesn’t have an extension, try them all.
     paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
   }
-  return paths.find((path) => existsSync(path))
+  const path = paths.find((path) => existsSync(path))
+  if (opts.configFile && !path) {
+    throw new Error(`Could not find config file: ${opts.configFile}`)
+  }
+  return path
 }
 
 /**
@@ -83,8 +88,11 @@ function resolveConfig(configFile: string): string | undefined {
  * @param name - The name of the property to get from the config source.
  * @returns
  */
-export function getConfigProperty(opts: ResolvedOptions, name: string) {
-  let prop: ObjectProperty | undefined
+export function getConfigProperty(
+  opts: ResolvedOptions,
+  name: string
+): NodePath<ObjectProperty> | undefined {
+  let prop: NodePath<ObjectProperty> | undefined
   if (!opts.configAst) return undefined
   opts.traverse(opts.configAst, {
     CallExpression(path) {
@@ -94,12 +102,18 @@ export function getConfigProperty(opts: ResolvedOptions, name: string) {
       ) {
         const [config] = path.node.arguments
         if (config.type === 'ObjectExpression') {
-          prop = config.properties.find(
-            (prop) =>
-              prop.type === 'ObjectProperty' &&
-              prop.key.type === 'Identifier' &&
-              prop.key.name === name
-          ) as ObjectProperty | undefined
+          path.traverse({
+            ObjectProperty(propertyPath) {
+              if (
+                propertyPath.parentPath.parentPath === path &&
+                propertyPath.node.key.type === 'Identifier' &&
+                propertyPath.node.key.name === name
+              ) {
+                prop = propertyPath
+                path.stop()
+              }
+            },
+          })
           path.stop()
         } else {
           consola.warn(
