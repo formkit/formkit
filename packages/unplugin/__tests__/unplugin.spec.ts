@@ -29,10 +29,14 @@ describe('input config loading', () => {
     `)
   })
 
-  it.only('can extract an inline createInput', async ({ expect }) => {
+  it('can extract an inline createInput', async ({ expect }) => {
     const code = await load('virtual:formkit/inputs:custom', {
       configFile: resolve(__dirname, './fixtures/configs/formkit.config.ts'),
     })
-    expect(code).toMatchInlineSnapshot('')
+    expect(code).toMatchInlineSnapshot(`
+      "import { createInput } from "@formkit/vue";
+      import CustomComponent from "../CustomComponent.vue";
+      export const extracted = createInput(CustomComponent);"
+    `)
   })
 })

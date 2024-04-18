@@ -19,7 +19,7 @@ const ABSOLUTE_PATH_RE = /^(?:\/|[a-zA-Z]:\\)/
 
 function createASTTools(): ASTTools {
   const parse = (code: string) => recastParser(code, { parser })
-  const generate = (ast: Node) => print(ast)
+  const generate = (ast: Node) => print(ast, { parser })
   return { parse, generate, traverse }
 }
 

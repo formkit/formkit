@@ -5,8 +5,8 @@ import type {
   StringLiteral,
   ObjectProperty,
   Program,
-  ImportDeclaration,
 } from '@babel/types'
+import { cloneDeepWithoutLoc } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import t from '@babel/template'
 import type { Import, LocalizedImport, ASTTools } from '../types'
@@ -172,33 +172,34 @@ export function extract(
   toExtract: NodePath<Node>,
   exportName = 'extracted'
 ): File {
-  const bindings = toExtract.getBindingIdentifiers(true)
-  // toExtract.traverse(
-  //   Identifier(path) {
-
-  //   }
-  // )
+  const dependencies = new Set<NodePath<Node>>()
+  for (const id in toExtract.scope.bindings) {
+    const binding = toExtract.scope.bindings[id]
+    if (
+      binding.referencePaths.some((path) =>
+        path.findParent((p) => p === toExtract)
+      )
+    ) {
+      const declaration = binding.path.findParent(
+        (path) =>
+          path.isVariableDeclaration() ||
+          path.isImportDeclaration() ||
+          path.isFunctionDeclaration()
+      )
+      if (declaration) {
+        dependencies.add(declaration)
+      } else {
+        throw binding.path.buildCodeFrameError(
+          'Could not analyze declaration of config dependency. Try using a const or import statement.'
+        )
+      }
+    }
+  }
+  const extracted: Node[] = []
+  dependencies.forEach((path) => extracted.push(cloneDeepWithoutLoc(path.node)))
   return {
     type: 'File',
-    program: t.program.ast`${dependencies};
-    export const ${exportName} = ${toExtract}`,
+    program: t.program.ast`${[...extracted]}
+    export const ${exportName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
   }
 }
-// export function extract(
-//   opts: ASTTools,
-//   toExtract: Node,
-//   context: File,
-//   exportName = 'extracted'
-// ): File {
-//   opts.traverse(toExtract, {
-//     Identifier(path) {
-//       console.log(path.node.name)
-//     },
-//   })
-
-//   return {
-//     type: 'File',
-//     program: t.program.ast`${dependencies};
-//     export const ${exportName} = ${toExtract}`,
-//   }
-// }

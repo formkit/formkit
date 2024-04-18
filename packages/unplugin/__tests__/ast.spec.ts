@@ -13,6 +13,7 @@ import {
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
 import { createOpts } from '../src/utils/config'
+import { isIdentifier } from '@babel/types'
 
 const opts = createOpts({})
 
@@ -188,23 +189,28 @@ export const component = defineComponent({
 describe('extract', () => {
   it('can extract a node from an AST', () => {
     const code = `import { defineComponent, h } from 'vue'
+    const y = 123
+    const x = 456
     export default {
-      foo: defineComponent({})
+      y,
+      foo: defineComponent({ x })
     }`
     const ast = parse(code, { sourceType: 'module' })
-    let extracted: Node | null = null
+    let extracted: NodePath<Node> | null = null
     traverse(ast, {
       ObjectProperty(path) {
-        if (
-          path.node.key.type === 'Identifier' &&
-          path.node.key.name === 'foo'
-        ) {
-          extracted = path.node.value
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
         }
       },
     })
-    expect(
-      generator(extract(opts, extracted!, ast)).code
-    ).toMatchInlineSnapshot(``)
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { defineComponent } from 'vue';
+      const x = 456;
+      export const extracted = defineComponent({
+        x
+      });"
+    `)
   })
 })
