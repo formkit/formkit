@@ -6,11 +6,10 @@ import type {
   ObjectProperty,
   Program,
   ImportDeclaration,
-  FunctionDeclaration,
-  VariableDeclaration,
+  Declaration,
 } from '@babel/types'
-import { cloneDeepWithoutLoc, isImportDeclaration } from '@babel/types'
-import type { NodePath } from '@babel/traverse'
+import { cloneDeepWithoutLoc } from '@babel/types'
+import type { Binding, NodePath } from '@babel/traverse'
 import t from '@babel/template'
 import type { Import, LocalizedImport, ASTTools } from '../types'
 
@@ -70,7 +69,6 @@ export function addImport(
       },
     })
     if (!inserted) {
-      console.log(ast)
       throw new Error(
         `Could not insert import { ${imp.name} as ${local} } from '${imp.from}' — no Program node found.`
       )
@@ -162,31 +160,87 @@ export function rootPath(path: NodePath<any>): NodePath<File> {
   return path
 }
 
-export function importOnly(id: string, node: ImportDeclaration) {
+export function importOnly(ids: string[] | undefined, node: ImportDeclaration) {
+  if (!ids) return
   node.specifiers = node.specifiers.filter((specifier) => {
     return (
-      (specifier.type === 'ImportSpecifier' && specifier.local.name === id) ||
+      (specifier.type === 'ImportSpecifier' &&
+        ids.includes(specifier.local.name)) ||
       (specifier.type === 'ImportDefaultSpecifier' &&
-        specifier.local.name === id)
+        ids.includes(specifier.local.name))
     )
   })
 }
 
 /**
- * Is an extractable ast path.
- * @param path - The path to check
+ * Adds a declaration to the dependencies set.
+ * @param dependencies - Dependencies we have already found
+ * @param usedImports - A map of imports that are actually used
+ * @param binding - The binding of the identifier
+ * @param id - The identifier name
  */
-function isDeclaration(
-  path: NodePath<Node>
-): path is
-  | NodePath<FunctionDeclaration>
-  | NodePath<ImportDeclaration>
-  | NodePath<VariableDeclaration> {
-  return (
-    path.isVariableDeclaration() ||
-    path.isImportDeclaration() ||
-    path.isFunctionDeclaration()
-  )
+function addDeclaration(
+  dependencies: Set<NodePath<Declaration>>,
+  usedImports: Map<NodePath<ImportDeclaration>, string[]>,
+  binding: Binding | undefined,
+  id: string
+) {
+  if (!binding) throw new Error('Could not find binding')
+  const declaration = binding.path.isDeclaration()
+    ? binding.path
+    : (binding.path.findParent((p) =>
+        p.isDeclaration()
+      ) as NodePath<Declaration>)
+  const parent = declaration.getFunctionParent() as NodePath<Declaration>
+  if (declaration) {
+    if (!dependencies.has(declaration) && !dependencies.has(parent)) {
+      dependencies.add(declaration)
+      extractDependencyPaths(declaration, dependencies, usedImports)
+    }
+    if (declaration.isImportDeclaration()) {
+      usedImports.set(
+        declaration,
+        (usedImports.get(declaration) ?? []).concat([id])
+      )
+    }
+  }
+}
+
+/**
+ * Recursively extract all dependencies of a given path. This is similar to
+ * tree shaking but for a single ast path.
+ * @param toExtract - The path to extract
+ * @param dependencies - A Map of identifiers with dependencies
+ * @returns
+ */
+function extractDependencyPaths(
+  toExtract: NodePath<Node>,
+  dependencies: Set<NodePath<Declaration>> = new Set(),
+  usedImports: Map<NodePath<ImportDeclaration>, string[]> = new Map()
+): [Set<NodePath<Declaration>>, Map<NodePath<ImportDeclaration>, string[]>] {
+  if (
+    toExtract.isIdentifier() &&
+    toExtract.scope.hasBinding(toExtract.node.name)
+  ) {
+    addDeclaration(
+      dependencies,
+      usedImports,
+      toExtract.scope.getBinding(toExtract.node.name),
+      toExtract.node.name
+    )
+  } else {
+    toExtract.traverse({
+      ReferencedIdentifier(path) {
+        addDeclaration(
+          dependencies,
+          usedImports,
+          path.scope.getBinding(path.node.name),
+          path.node.name
+        )
+      },
+    })
+  }
+  return [dependencies, usedImports]
 }
 
 /**
@@ -201,37 +255,18 @@ function isDeclaration(
 export function extract(
   toExtract: NodePath<Node>,
   exportName = 'extracted'
-): File {
-  const dependencies = new Map<string, NodePath<Node>>()
-  for (const id in toExtract.scope.bindings) {
-    const binding = toExtract.scope.bindings[id]
-    if (
-      binding.referencePaths.some(
-        (path) => path === toExtract || path.findParent((p) => p === toExtract)
-      )
-    ) {
-      const declaration = isDeclaration(binding.path)
-        ? binding.path
-        : binding.path.findParent(isDeclaration)
-
-      if (declaration) {
-        dependencies.set(id, declaration)
-      } else {
-        throw binding.path.buildCodeFrameError(
-          'Could not analyze declaration of config dependency. Try using a const or import statement.'
-        )
-      }
-    }
-  }
-  const extracted: Node[] = []
-  dependencies.forEach((path, id) => {
+): Program {
+  const [dependencies, usedImports] = extractDependencyPaths(toExtract)
+  const extracted: [pos: number | undefined, Node][] = []
+  dependencies.forEach((path) => {
     const node = cloneDeepWithoutLoc(path.node)
-    if (isImportDeclaration(node)) importOnly(id, node)
-    extracted.push(node)
+    if (path.isImportDeclaration()) {
+      importOnly(usedImports.get(path), node as ImportDeclaration)
+    }
+    extracted.push([path.node.loc?.start.index, node])
   })
-  return {
-    type: 'File',
-    program: t.program.ast`${[...extracted]}
-    export const ${exportName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
-  }
+  extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
+  const program = t.program.ast`${extracted.map(([, node]) => node)}
+    export const ${exportName} = ${cloneDeepWithoutLoc(toExtract.node)}`
+  return program
 }

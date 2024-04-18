@@ -289,4 +289,120 @@ describe('extract', () => {
       export const extracted = foo;"
     `)
   })
+
+  it('can extract function declarations with dependencies', () => {
+    const code = `import { defineConfig, someValue } from './myConfig'
+    const x = 123
+    const y = 456
+    function myFunction () {
+      return 123 + someValue + x
+    }
+    export default defineConfig({
+      y,
+      foo: myFunction
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { someValue } from './myConfig';
+      const x = 123;
+      function myFunction() {
+        return 123 + someValue + x;
+      }
+      export const extracted = myFunction;"
+    `)
+  })
+
+  it('can extract an inline function expression', () => {
+    const code = `import { defineConfig, someValue } from './myConfig'
+    const x = 123
+    const y = 456
+    export default defineConfig({
+      y,
+      foo: () => 123 + x
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "const x = 123;
+      export const extracted = () => 123 + x;"
+    `)
+  })
+
+  it('can extract a function that contains a function with scoped variables', () => {
+    const code = `import { defineConfig, someValue } from './myConfig'
+    const x = 123
+    const y = 456
+    function myFunc () {
+      const z = 789
+      return () => 123 + x + z
+    }
+    export default defineConfig({
+      y,
+      foo: myFunc
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "const x = 123;
+      function myFunc() {
+        const z = 789;
+        return () => 123 + x + z;
+      }
+      export const extracted = myFunc;"
+    `)
+  })
+
+  it('can import multiple specifiers from the same module', () => {
+    const code = `import { firstValue, removeMe, secondValue, } from './myConfig'
+    const z = 123
+    function myFunc () {
+      return firstValue + secondValue
+    }
+    const x = { myFunc }
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      VariableDeclarator(path) {
+        if (isIdentifier(path.node.id, { name: 'x' })) {
+          extracted = path.get('init') as NodePath<Node>
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { firstValue, secondValue } from './myConfig';
+      function myFunc() {
+        return firstValue + secondValue;
+      }
+      export const extracted = {
+        myFunc
+      };"
+    `)
+  })
 })
