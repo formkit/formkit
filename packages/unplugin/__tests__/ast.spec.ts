@@ -208,7 +208,7 @@ describe('extract', () => {
     expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
       "import { defineComponent } from 'vue';
       const x = 456;
-      export const extracted = defineComponent({
+      const __extracted__ = defineComponent({
         x
       });"
     `)
@@ -239,7 +239,7 @@ describe('extract', () => {
       "function myFunction() {
         return 123;
       }
-      export const extracted = myFunction;"
+      const __extracted__ = myFunction;"
     `)
   })
 
@@ -262,7 +262,7 @@ describe('extract', () => {
     })
     expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
       "const foo = 123;
-      export const extracted = foo;"
+      const __extracted__ = foo;"
     `)
   })
 
@@ -286,7 +286,7 @@ describe('extract', () => {
     expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
       "import { someValue } from './myConfig';
       const foo = 123 + someValue;
-      export const extracted = foo;"
+      const __extracted__ = foo;"
     `)
   })
 
@@ -317,7 +317,7 @@ describe('extract', () => {
       function myFunction() {
         return 123 + someValue + x;
       }
-      export const extracted = myFunction;"
+      const __extracted__ = myFunction;"
     `)
   })
 
@@ -341,7 +341,7 @@ describe('extract', () => {
     })
     expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
       "const x = 123;
-      export const extracted = () => 123 + x;"
+      const __extracted__ = () => 123 + x;"
     `)
   })
 
@@ -373,7 +373,7 @@ describe('extract', () => {
         const z = 789;
         return () => 123 + x + z;
       }
-      export const extracted = myFunc;"
+      const __extracted__ = myFunc;"
     `)
   })
 
@@ -400,7 +400,7 @@ describe('extract', () => {
       function myFunc() {
         return firstValue + secondValue;
       }
-      export const extracted = {
+      const __extracted__ = {
         myFunc
       };"
     `)
@@ -430,7 +430,7 @@ describe('extract', () => {
         bim,
         bam
       } = getInputs();
-      export const extracted = {
+      const __extracted__ = {
         fiz,
         buz,
         bar
@@ -468,7 +468,7 @@ describe('extract', () => {
         features: [makeRed],
         memoKey
       };
-      export const extracted = myInput;"
+      const __extracted__ = myInput;"
     `)
   })
 })

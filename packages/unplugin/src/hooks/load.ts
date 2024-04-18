@@ -7,6 +7,7 @@ import { isIdentifier } from '@babel/types'
 import { extract } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
 import type { Node } from '@babel/types'
+import t from '@babel/template'
 
 /**
  * The load hook for unplugin.
@@ -41,7 +42,7 @@ export async function createVirtualInputConfig(
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
       consola.warn(
-        '[FormKit de-opt] cannot statically analyze DefineConfigOptions.inputs. Please use an inline object literal.'
+        "[FormKit de-opt] cannot statically analyze DefineConfigOptions['inputs']. Please use an inline object literal."
       )
     } else if (inputs?.node.value.type === 'ObjectExpression') {
       let inputPropertyValue: NodePath<Node> | undefined
@@ -57,7 +58,16 @@ export async function createVirtualInputConfig(
         },
       })
       if (inputPropertyValue) {
-        return opts.generate(extract(inputPropertyValue)).code
+        const inputDefinition = extract(inputPropertyValue)
+        const library = t.statements.ast`const library = () => {}
+        library.library = (node) => node.define(__extracted__);
+        export { library };`
+        opts.traverse(inputDefinition, {
+          Program(path) {
+            path.pushContainer('body', library)
+          },
+        })
+        return opts.generate(inputDefinition).code
       }
     }
   }

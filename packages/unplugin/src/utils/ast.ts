@@ -254,8 +254,8 @@ function extractDependencyPaths(
  */
 export function extract(
   toExtract: NodePath<Node>,
-  exportName = 'extracted'
-): Program {
+  extractName = '__extracted__'
+): File {
   const [dependencies, usedImports] = extractDependencyPaths(toExtract)
   const extracted: [pos: number | undefined, Node][] = []
   dependencies.forEach((path) => {
@@ -266,7 +266,9 @@ export function extract(
     extracted.push([path.node.loc?.start.index, node])
   })
   extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
-  const program = t.program.ast`${extracted.map(([, node]) => node)}
-    export const ${exportName} = ${cloneDeepWithoutLoc(toExtract.node)}`
-  return program
+  return {
+    type: 'File',
+    program: t.program.ast`${extracted.map(([, node]) => node)}
+    const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
+  }
 }

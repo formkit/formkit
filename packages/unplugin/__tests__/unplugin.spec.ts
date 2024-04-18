@@ -31,12 +31,43 @@ describe('input config loading', () => {
 
   it('can extract an inline createInput', async ({ expect }) => {
     const code = await load('virtual:formkit/inputs:custom', {
-      configFile: resolve(__dirname, './fixtures/configs/formkit.config.ts'),
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
     })
     expect(code).toMatchInlineSnapshot(`
       "import { createInput } from "@formkit/vue";
       import CustomComponent from "../CustomComponent.vue";
-      export const extracted = createInput(CustomComponent);"
+      const __extracted__ = createInput(CustomComponent);
+      const library = () => {};
+      library.library = node => node.define(__extracted__);
+      export { library };"
+    `)
+  })
+
+  it('can import a replaced text input', async ({ expect }) => {
+    const code = await load('virtual:formkit/inputs:text', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "const headingStyle = "h1";
+
+      const __extracted__ = {
+          type: "input",
+
+          schema: [{
+              $el: headingStyle,
+              text: "Hello World"
+          }]
+      };
+
+      const library = () => {};
+      library.library = node => node.define(__extracted__);
+      export { library };"
     `)
   })
 })
