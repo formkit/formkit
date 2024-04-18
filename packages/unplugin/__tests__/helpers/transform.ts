@@ -4,12 +4,10 @@ import { createTransform } from '../../src/hooks/transform'
 import { createContext } from '../mocks/context'
 import vuePlugin from '@vitejs/plugin-vue'
 import * as vueCompiler from 'vue/compiler-sfc'
+import { readFile } from 'fs/promises'
 
-export async function sfcTransform(
-  sfcCode: string,
-  id: string,
-  options: Partial<Options> = {}
-) {
+export async function sfcTransform(id: string, options: Partial<Options> = {}) {
+  let sfcCode = await readFile(id, { encoding: 'utf-8' })
   const opts = createOpts(options)
   const context = createContext(opts)
   const transform = createTransform(opts)
