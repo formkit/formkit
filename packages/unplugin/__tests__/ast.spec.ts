@@ -405,4 +405,70 @@ describe('extract', () => {
       };"
     `)
   })
+
+  it('can extract destructured valued', () => {
+    const code = `import { getInputs } from './myConfig'
+    const { fiz, buz, bar, bim, bam } = getInputs()
+    const x = { fiz, buz, bar }
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      VariableDeclarator(path) {
+        if (isIdentifier(path.node.id, { name: 'x' })) {
+          extracted = path.get('init') as NodePath<Node>
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { getInputs } from './myConfig';
+      const {
+        fiz,
+        buz,
+        bar,
+        bim,
+        bam
+      } = getInputs();
+      export const extracted = {
+        fiz,
+        buz,
+        bar
+      };"
+    `)
+  })
+
+  it('can extract an object literal', () => {
+    const code = `import { outer, inner, input, makeRed, memoKey, unused } from '@formkit/inputs'
+    const myInput = {
+      schema: outer(
+        inner(
+          input()
+        )
+      ),
+      features: [makeRed],
+      memoKey
+    }
+    const x = myInput
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      VariableDeclarator(path) {
+        if (isIdentifier(path.node.id, { name: 'x' })) {
+          extracted = path.get('init') as NodePath<Node>
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { outer, inner, input, makeRed, memoKey } from '@formkit/inputs';
+      const myInput = {
+        schema: outer(inner(input())),
+        features: [makeRed],
+        memoKey
+      };
+      export const extracted = myInput;"
+    `)
+  })
 })
