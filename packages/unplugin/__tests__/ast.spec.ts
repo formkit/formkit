@@ -187,7 +187,7 @@ export const component = defineComponent({
 })
 
 describe('extract', () => {
-  it('can extract a node from an AST', () => {
+  it('can extract imports from a code sample', () => {
     const code = `import { defineComponent, h } from 'vue'
     const y = 123
     const x = 456
@@ -211,6 +211,82 @@ describe('extract', () => {
       export const extracted = defineComponent({
         x
       });"
+    `)
+  })
+
+  it('can extract a function declaration', () => {
+    const code = `import { defineConfig } from './myConfig'
+
+    function myFunction () {
+      return 123
+    }
+
+    export default defineConfig({
+      y,
+      foo: myFunction
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "function myFunction() {
+        return 123;
+      }
+      export const extracted = myFunction;"
+    `)
+  })
+
+  it('can extract a variable declaration', () => {
+    const code = `import { defineConfig } from './myConfig'
+    const foo = 123
+    export default defineConfig({
+      y,
+      foo
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "const foo = 123;
+      export const extracted = foo;"
+    `)
+  })
+
+  it('can extract variable declarations with dependencies', () => {
+    const code = `import { defineConfig, someValue } from './myConfig'
+    const foo = 123 + someValue
+    export default defineConfig({
+      y,
+      foo
+    })`
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<Node> | null = null
+    traverse(ast, {
+      ObjectProperty(path) {
+        if (isIdentifier(path.node.key, { name: 'foo' })) {
+          extracted = path.get('value')
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extract(extracted!)).code).toMatchInlineSnapshot(`
+      "import { someValue } from './myConfig';
+      const foo = 123 + someValue;
+      export const extracted = foo;"
     `)
   })
 })

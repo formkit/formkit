@@ -5,8 +5,11 @@ import type {
   StringLiteral,
   ObjectProperty,
   Program,
+  ImportDeclaration,
+  FunctionDeclaration,
+  VariableDeclaration,
 } from '@babel/types'
-import { cloneDeepWithoutLoc } from '@babel/types'
+import { cloneDeepWithoutLoc, isImportDeclaration } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import t from '@babel/template'
 import type { Import, LocalizedImport, ASTTools } from '../types'
@@ -159,6 +162,33 @@ export function rootPath(path: NodePath<any>): NodePath<File> {
   return path
 }
 
+export function importOnly(id: string, node: ImportDeclaration) {
+  node.specifiers = node.specifiers.filter((specifier) => {
+    return (
+      (specifier.type === 'ImportSpecifier' && specifier.local.name === id) ||
+      (specifier.type === 'ImportDefaultSpecifier' &&
+        specifier.local.name === id)
+    )
+  })
+}
+
+/**
+ * Is an extractable ast path.
+ * @param path - The path to check
+ */
+function isDeclaration(
+  path: NodePath<Node>
+): path is
+  | NodePath<FunctionDeclaration>
+  | NodePath<ImportDeclaration>
+  | NodePath<VariableDeclaration> {
+  return (
+    path.isVariableDeclaration() ||
+    path.isImportDeclaration() ||
+    path.isFunctionDeclaration()
+  )
+}
+
 /**
  * Given a source file (in ast format) and given a node inside that file,
  * extract the node from the file and any of its dependencies into a new AST
@@ -172,22 +202,20 @@ export function extract(
   toExtract: NodePath<Node>,
   exportName = 'extracted'
 ): File {
-  const dependencies = new Set<NodePath<Node>>()
+  const dependencies = new Map<string, NodePath<Node>>()
   for (const id in toExtract.scope.bindings) {
     const binding = toExtract.scope.bindings[id]
     if (
-      binding.referencePaths.some((path) =>
-        path.findParent((p) => p === toExtract)
+      binding.referencePaths.some(
+        (path) => path === toExtract || path.findParent((p) => p === toExtract)
       )
     ) {
-      const declaration = binding.path.findParent(
-        (path) =>
-          path.isVariableDeclaration() ||
-          path.isImportDeclaration() ||
-          path.isFunctionDeclaration()
-      )
+      const declaration = isDeclaration(binding.path)
+        ? binding.path
+        : binding.path.findParent(isDeclaration)
+
       if (declaration) {
-        dependencies.add(declaration)
+        dependencies.set(id, declaration)
       } else {
         throw binding.path.buildCodeFrameError(
           'Could not analyze declaration of config dependency. Try using a const or import statement.'
@@ -196,7 +224,11 @@ export function extract(
     }
   }
   const extracted: Node[] = []
-  dependencies.forEach((path) => extracted.push(cloneDeepWithoutLoc(path.node)))
+  dependencies.forEach((path, id) => {
+    const node = cloneDeepWithoutLoc(path.node)
+    if (isImportDeclaration(node)) importOnly(id, node)
+    extracted.push(node)
+  })
   return {
     type: 'File',
     program: t.program.ast`${[...extracted]}
