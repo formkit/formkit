@@ -11,6 +11,7 @@ import { undefine } from '@formkit/utils'
  * @param debounce - The debounce time in milliseconds to use when saving to localStorage
  * @param beforeSave - A function to call for modifying data before saving to localStorage
  * @param beforeLoad - A function to call for modifying data before loading from localStorage
+ * @param clearOnSubmit - On submission of the form clear the local storage key. Defaults to true.
  *
  * @public
  */
@@ -22,6 +23,7 @@ export interface LocalStorageOptions {
   debounce?: number
   beforeSave?: (payload: any) => any
   beforeLoad?: (payload: any) => any
+  clearOnSubmit?: boolean
 }
 
 /**
@@ -94,6 +96,7 @@ export function createLocalStoragePlugin(
       const maxAge = localStorageOptions?.maxAge ?? 3600000 // 1 hour
       const key = localStorageOptions?.key ? `-${localStorageOptions.key}` : '' // for scoping to a specific user
       const storageKey = `${prefix}${key}-${node.name}`
+      const clearOnSubmit = localStorageOptions?.clearOnSubmit ?? true
 
       const loadValue = async (forceValue?: string) => {
         const value = forceValue || localStorage.getItem(storageKey)
@@ -155,13 +158,15 @@ export function createLocalStoragePlugin(
         }
       })
 
-      node.hook.submit((payload, next) => {
-        // cache data in case the user wants to restore
-        cachedLocalStorageData = localStorage.getItem(storageKey)
-        // remove from the localStorage cache
-        localStorage.removeItem(storageKey)
-        return next(payload)
-      })
+      if (clearOnSubmit) {
+        node.hook.submit((payload, next) => {
+          // cache data in case the user wants to restore
+          cachedLocalStorageData = localStorage.getItem(storageKey)
+          // remove from the localStorage cache
+          localStorage.removeItem(storageKey)
+          return next(payload)
+        })
+      }
 
       await loadValue()
     })
