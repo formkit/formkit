@@ -7,11 +7,14 @@ import type {
   Program,
   ImportDeclaration,
   Declaration,
+  Statement,
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
 import type { Binding, NodePath } from '@babel/traverse'
-import t from '@babel/template'
 import type { Import, LocalizedImport, ASTTools } from '../types'
+import tcjs from '@babel/template'
+
+const t = 'default' in tcjs ? tcjs.default : tcjs
 
 /**
  * Create an object property with the given key and value.
@@ -252,10 +255,22 @@ function extractDependencyPaths(
  * @param ast - The AST to extract from
  * @returns
  */
+export function extract(toExtract: NodePath<Node>): File
 export function extract(
   toExtract: NodePath<Node>,
+  file: false,
+  extractName?: string
+): Statement | Statement[]
+export function extract(
+  toExtract: NodePath<Node>,
+  file: true,
+  extractName?: string
+): File
+export function extract(
+  toExtract: NodePath<Node>,
+  file = true,
   extractName = '__extracted__'
-): File {
+): File | Statement | Statement[] {
   const [dependencies, usedImports] = extractDependencyPaths(toExtract)
   const extracted: [pos: number | undefined, Node][] = []
   dependencies.forEach((path) => {
@@ -266,9 +281,13 @@ export function extract(
     extracted.push([path.node.loc?.start.index, node])
   })
   extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
-  return {
-    type: 'File',
-    program: t.program.ast`${extracted.map(([, node]) => node)}
-    const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
+  if (file) {
+    return {
+      type: 'File',
+      program: t.program.ast`${extracted.map(([, node]) => node)}
+      const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
+    }
   }
+  return t.ast`${extracted.map(([, node]) => node)}
+      const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`
 }

@@ -12,7 +12,9 @@ import { isIdentifier } from '@babel/types'
 import { extract } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
 import type { Node } from '@babel/types'
-import t from '@babel/template'
+import tcjs from '@babel/template'
+
+const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 const previouslyLoaded: Record<string, number> = {}
 let totalReloads = 0
@@ -34,9 +36,19 @@ export function createLoad(
         return await createVirtualInputConfig(opts, identifier)
       }
       if (plugin === 'library') {
-        return `const library = () => {};
-        library.library = () => {}
-        export { library }`
+        const definedInputs = getConfigProperty(opts, 'inputs')
+        const extracted = definedInputs
+          ? extract(definedInputs.get('value'), false)
+          : t.ast`const __extracted__ = {}`
+        return opts.generate(t.program.ast`
+          import { createLibraryPlugin, inputs } from '@formkit/inputs'
+          ${extracted}
+          const library = createLibraryPlugin({
+            ...inputs,
+            ...__extracted__,
+          })
+          export { library }
+        `)
       }
     }
     return null

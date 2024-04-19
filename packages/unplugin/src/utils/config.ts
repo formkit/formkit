@@ -10,6 +10,7 @@ import type { File, Node, ObjectProperty, Program } from '@babel/types'
 import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
+
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
 const traverse: Traverse =

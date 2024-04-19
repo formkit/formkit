@@ -20,5 +20,7 @@ export async function load(id: string, options: Partial<Options> = {}) {
     'index.ts',
     { isEntry: false },
   ])) as string
-  return await load.apply(context, [resolvedId])
+  const result = await load.apply(context, [resolvedId])
+  if (!result || typeof result === 'string') return
+  return result.code
 }

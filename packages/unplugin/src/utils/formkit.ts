@@ -86,7 +86,7 @@ function importInputType(
     })
   } else {
     consola.warn(
-      '[FormKit de-opt]: Input uses bound type prop, skipping optimization.'
+      '[FormKit]: Input uses bound "type" prop, skipping optimization.'
     )
     libName = addImport(component.opts, component.root, {
       from: 'virtual:formkit/library',

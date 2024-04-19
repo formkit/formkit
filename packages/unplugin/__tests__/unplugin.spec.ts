@@ -29,9 +29,9 @@ describe('input config loading', () => {
   it('directly imports the input from @formkit/inputs', async ({ expect }) => {
     const code = await load('virtual:formkit/inputs:text')
     expect(code).toMatchInlineSnapshot(`
-      "import { text } from '@formkit/inputs';
+      "import { text } from "@formkit/inputs";
       const library = () => {};
-      library.library = (node) => node.define(text);
+      library.library = node => node.define(text);
       export { library };"
     `)
   })
@@ -74,6 +74,41 @@ describe('input config loading', () => {
 
       const library = () => {};
       library.library = node => node.define(__extracted__);
+      export { library };"
+    `)
+  })
+
+  it('can import a de-optimized library', async ({ expect }) => {
+    const code = await load('virtual:formkit/library', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { createLibraryPlugin, inputs } from "@formkit/inputs";
+      import { createInput } from "@formkit/vue";
+      import CustomComponent from "../CustomComponent.vue";
+      const headingStyle = "h1";
+
+      const __extracted__ = {
+          text: {
+              type: "input",
+
+              schema: [{
+                  $el: headingStyle,
+                  text: "Hello World"
+              }]
+          },
+
+          custom: createInput(CustomComponent)
+      };
+
+      const library = createLibraryPlugin({
+          ...inputs,
+          ...__extracted__
+      });
+
       export { library };"
     `)
   })
