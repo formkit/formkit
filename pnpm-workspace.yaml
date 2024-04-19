@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
   - packages/nuxt/playground/
+  - packages/unplugin/playground/
   - examples
   - e2e

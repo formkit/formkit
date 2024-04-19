@@ -554,6 +554,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^4.6.2
         version: 4.6.2(vite@5.2.6)(vue@3.4.21)
+      esbuild:
+        specifier: ^0.20.2
+        version: 0.20.2
       eslint:
         specifier: ^8.49.0
         version: 8.57.0
@@ -571,7 +574,7 @@ importers:
         version: 3.1.0
       unplugin-file-url:
         specifier: ^0.1.1
-        version: 0.1.1(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6)(webpack@5.91.0)
+        version: 0.1.1(esbuild@0.20.2)(rollup@3.29.4)(vite@5.2.6)(webpack@5.91.0)
       vite:
         specifier: ^5.0.4
         version: 5.2.6(@types/node@20.12.2)(terser@5.30.0)
@@ -583,7 +586,9 @@ importers:
         version: 3.4.21(typescript@5.4.3)
       webpack:
         specifier: ^5.88.2
-        version: 5.91.0(esbuild@0.19.12)
+        version: 5.91.0(esbuild@0.20.2)
+
+  packages/unplugin/playground: {}
 
   packages/utils: {}
 
@@ -12588,7 +12593,7 @@ packages:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  /terser-webpack-plugin@5.3.10(esbuild@0.19.12)(webpack@5.91.0):
+  /terser-webpack-plugin@5.3.10(esbuild@0.20.2)(webpack@5.91.0):
     resolution: {integrity: sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -12605,12 +12610,12 @@ packages:
         optional: true
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
-      esbuild: 0.19.12
+      esbuild: 0.20.2
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.30.0
-      webpack: 5.91.0(esbuild@0.19.12)
+      webpack: 5.91.0(esbuild@0.20.2)
     dev: true
 
   /terser@5.30.0:
@@ -13205,7 +13210,7 @@ packages:
       vite: 5.2.6(@types/node@18.19.26)(sass@1.72.0)(terser@5.30.0)
     dev: true
 
-  /unplugin-file-url@0.1.1(esbuild@0.19.12)(rollup@3.29.4)(vite@5.2.6)(webpack@5.91.0):
+  /unplugin-file-url@0.1.1(esbuild@0.20.2)(rollup@3.29.4)(vite@5.2.6)(webpack@5.91.0):
     resolution: {integrity: sha512-52DctE2Wp+osGMzbhDvc067/84Ae0q6jbCWg675bbH2m7qD8/C6WMwb0YFuQ+4LefRFL34ONVSnNYOq+LCtQXA==}
     peerDependencies:
       '@nuxt/kit': ^3
@@ -13228,11 +13233,11 @@ packages:
       webpack:
         optional: true
     dependencies:
-      esbuild: 0.19.12
+      esbuild: 0.20.2
       rollup: 3.29.4
       unplugin: 1.10.0
       vite: 5.2.6(@types/node@20.12.2)(terser@5.30.0)
-      webpack: 5.91.0(esbuild@0.19.12)
+      webpack: 5.91.0(esbuild@0.20.2)
     dev: true
 
   /unplugin-pure@0.1.1(rollup@3.29.4):
@@ -13938,7 +13943,7 @@ packages:
   /webpack-virtual-modules@0.6.1:
     resolution: {integrity: sha512-poXpCylU7ExuvZK8z+On3kX+S8o/2dQ/SVYueKA0D4WEMXROXgY8Ez50/bQEUmvoSMMrWcrJqCHuhAbsiwg7Dg==}
 
-  /webpack@5.91.0(esbuild@0.19.12):
+  /webpack@5.91.0(esbuild@0.20.2):
     resolution: {integrity: sha512-rzVwlLeBWHJbmgTC/8TvAcu5vpJNII+MelQpylD4jNERPwpBJOE2lEcko1zJX3QJeLjTTAnQxn/OJ8bjDzVQaw==}
     engines: {node: '>=10.13.0'}
     hasBin: true
@@ -13969,7 +13974,7 @@ packages:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(esbuild@0.19.12)(webpack@5.91.0)
+      terser-webpack-plugin: 5.3.10(esbuild@0.20.2)(webpack@5.91.0)
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:

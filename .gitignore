@@ -5,7 +5,7 @@ node_modules
 # Logs
 *.log*
 .jiti-cache
-
+vite.config.*.mjs
 # Temp directories
 .temp
 .tmp
