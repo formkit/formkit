@@ -1,13 +1,21 @@
-import type { UnpluginOptions } from 'unplugin'
+import type {
+  TransformResult,
+  UnpluginBuildContext,
+  UnpluginContext,
+  UnpluginOptions,
+} from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
-import { getConfigProperty } from '../utils/config'
+import { createConfigAst, getConfigProperty } from '../utils/config'
 import { consola } from 'consola'
 import { isIdentifier } from '@babel/types'
 import { extract } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
 import type { Node } from '@babel/types'
 import t from '@babel/template'
+
+const previouslyLoaded: Record<string, number> = {}
+let totalReloads = 0
 
 /**
  * The load hook for unplugin.
@@ -18,6 +26,7 @@ export function createLoad(
 ): Exclude<UnpluginOptions['load'], undefined> {
   return async function load(id) {
     if (id.startsWith('\0' + FORMKIT_CONFIG_PREFIX)) {
+      trackReload.call(this, opts, id)
       const [plugin, identifier] = id
         .substring(FORMKIT_CONFIG_PREFIX.length + 1)
         .split(':')
@@ -34,10 +43,37 @@ export function createLoad(
   }
 }
 
+/**
+ * Tracks that this is a reload of the configuration.
+ * @param this - The unplugin context
+ * @param opts - The resolved options
+ * @param id - The id of the module being reloaded
+ */
+function trackReload(
+  this: UnpluginContext & UnpluginBuildContext,
+  opts: ResolvedOptions,
+  id: string
+) {
+  // Track the number of times each module has been reloaded. We’ll need to
+  // re-parse the config’s AST in case it has changed.
+  previouslyLoaded[id] = (previouslyLoaded[id] || 0) + 1
+  if (previouslyLoaded[id] > totalReloads) totalReloads = previouslyLoaded[id]
+
+  // Make the configuration a watched file.
+  if (opts.configPath) {
+    this.addWatchFile(opts.configPath)
+    if (opts.configParseCount < totalReloads) {
+      consola.info('Reloading formkit.config.ts file')
+      opts.configAst = createConfigAst(opts.parse, opts.configPath)
+      opts.configParseCount = totalReloads
+    }
+  }
+}
+
 export async function createVirtualInputConfig(
   opts: ResolvedOptions,
   inputName: string
-): Promise<string> {
+): Promise<TransformResult> {
   if (opts.configAst) {
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
@@ -67,7 +103,7 @@ export async function createVirtualInputConfig(
             path.pushContainer('body', library)
           },
         })
-        return opts.generate(inputDefinition).code
+        return opts.generate(inputDefinition)
       }
     }
   }
@@ -81,8 +117,9 @@ export async function createVirtualInputConfig(
       `Input ${inputName} is not a registered input or an available input in @formkit/inputs.`
     )
   }
-  return `import { ${inputName} } from '@formkit/inputs';
-const library = () => {};
-library.library = (node) => node.define(${inputName});
-export { library };`
+  return opts.generate(t.program
+    .ast`import { ${inputName} } from '@formkit/inputs';
+  const library = () => {};
+  library.library = (node) => node.define(${inputName});
+  export { library };`)
 }

@@ -1,5 +1,6 @@
 <script setup>
 import ScriptSetupRefValidation from './ScriptSetupRefValidation.vue'
+// import RefAsInputType from './RefAsInputType.vue'
 </script>
 
 <template>
@@ -7,5 +8,6 @@ import ScriptSetupRefValidation from './ScriptSetupRefValidation.vue'
   <details open>
     <summary>Using script setup with a ref for validation</summary>
     <ScriptSetupRefValidation />
+    <!-- <RefAsInputType /> -->
   </details>
 </template>

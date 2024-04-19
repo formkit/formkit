@@ -6,10 +6,10 @@ import { configureFormKitInstance } from './formkit'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'pathe'
 import { parse as recastParser, print } from 'recast'
-import type { File, Node, ObjectProperty } from '@babel/types'
+import type { File, Node, ObjectProperty, Program } from '@babel/types'
 import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
 import { consola } from 'consola'
-
+import esbuild from 'esbuild'
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
 const traverse: Traverse =
@@ -45,19 +45,43 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
   ) as Options
 
   const configPath = resolveConfig(opts)
-  let configAst: File | undefined
+  const configAst = createConfigAst(parse, configPath)
+  return {
+    ...opts,
+    configAst,
+    configPath,
+    configParseCount: 1,
+    traverse,
+    parse,
+    generate,
+  }
+}
+
+/**
+ * Generates configuration AST
+ * @param parse - Generates the configuration ast from the given path.
+ * @param configPath - The path to the configuration file.
+ * @returns
+ */
+export function createConfigAst(
+  parse: ASTTools['parse'],
+  configPath?: string
+): File | Program | undefined {
   if (configPath && existsSync(configPath)) {
     const configSource = readFileSync(configPath, { encoding: 'utf8' })
-    configAst = parse(configSource)
+    const tsFreeSource = esbuild.transformSync(configSource, {
+      loader: 'ts',
+    }).code
+    return parse(tsFreeSource)
   }
-  return { ...opts, configAst, traverse, parse, generate }
+  return undefined
 }
 
 /**
  * Resolve the absolute path to the configuration file.
  * @param configFile - The configuration file to attempt to resolve.
  */
-function resolveConfig(opts: Options): string | undefined | void {
+function resolveConfig(opts: Options): string | undefined {
   const configFile = opts.configFile ?? 'formkit.config'
   const exts = ['ts', 'mjs', 'js']
   const dir = configFile.startsWith('.') ? process.cwd() : ''

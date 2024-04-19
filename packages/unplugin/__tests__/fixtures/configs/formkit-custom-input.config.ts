@@ -1,7 +1,7 @@
 import { defineFormKitConfig, createInput } from '@formkit/vue'
 import CustomComponent from '../CustomComponent.vue'
 
-const headingStyle = 'h1'
+const headingStyle: string = 'h1'
 
 export default defineFormKitConfig({
   inputs: {

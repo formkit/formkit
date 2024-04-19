@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest'
 import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
