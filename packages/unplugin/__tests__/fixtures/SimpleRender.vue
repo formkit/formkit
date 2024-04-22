@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <FormKit type="text" />
+    <FormKit type="text" validation="required" />
     <FormKit type="text" />
     <FormKit />
   </div>

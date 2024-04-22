@@ -618,7 +618,7 @@ export function parseRules(
  * @param validation - The string of rules
  * @internal
  */
-function extractRules(validation: string): FormKitValidationIntent[] {
+export function extractRules(validation: string): FormKitValidationIntent[] {
   return validation.split('|').reduce((rules, rule) => {
     const parsedRule = parseRule(rule)
     if (parsedRule) {

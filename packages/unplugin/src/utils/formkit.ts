@@ -5,6 +5,11 @@ import type {
   StringLiteral,
   ArrayExpression,
 } from '@babel/types'
+import {
+  isArrayExpression,
+  isObjectProperty,
+  isStringLiteral,
+} from '@babel/types'
 import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
@@ -16,7 +21,9 @@ import { consola } from 'consola'
  * ```
  * @param component - The component to configure.
  */
-export function configureFormKitInstance(component: ComponentUse): void {
+export async function configureFormKitInstance(
+  component: ComponentUse
+): Promise<void> {
   if (
     !component.path.node.arguments[1] ||
     component.path.node.arguments[1].type !== 'ObjectExpression'
@@ -32,7 +39,7 @@ export function configureFormKitInstance(component: ComponentUse): void {
       type: 'Identifier',
       name: '__config__',
     },
-    value: createConfigObject(component),
+    value: await createConfigObject(component),
   })
 }
 
@@ -40,7 +47,9 @@ export function configureFormKitInstance(component: ComponentUse): void {
  * Given a component, create a config object that can be used to configure it.
  * @param component - The component to create a config object for.
  */
-export function createConfigObject(component: ComponentUse): ObjectExpression {
+export async function createConfigObject(
+  component: ComponentUse
+): Promise<ObjectExpression> {
   const config = t.expression.ast`{}` as ObjectExpression
 
   const bindingsVar = addImport(component.opts, component.root, {
@@ -55,6 +64,8 @@ export function createConfigObject(component: ComponentUse): ObjectExpression {
   const props = component.path.node.arguments[1] as ObjectExpression
   // Perform a direct-injection on the input type (if possible)
   importInputType(component, props, plugins)
+  // Inject the validation plugin and any rules
+  await importValidation(component, props, plugins)
   return config
 }
 
@@ -71,7 +82,7 @@ function importInputType(
 ): void {
   const inputType = props.properties.find(
     (prop) =>
-      prop.type === 'ObjectProperty' &&
+      isObjectProperty(prop) &&
       prop.key.type === 'Identifier' &&
       prop.key.name === 'type'
   ) as ObjectProperty | undefined
@@ -94,4 +105,55 @@ function importInputType(
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
+}
+
+/**
+ * Import the validation plugin and any rules into the component.
+ */
+async function importValidation(
+  component: ComponentUse,
+  props: ObjectExpression,
+  plugins: ArrayExpression
+) {
+  const validationProp = props.properties.find(
+    (prop) =>
+      isObjectProperty(prop) &&
+      prop.key.type === 'Identifier' &&
+      prop.key.name === 'validation'
+  ) as ObjectProperty | undefined
+  if (!validationProp) return
+
+  const usedRules = new Set<string>()
+  if (isStringLiteral(validationProp.value)) {
+    // Import the rules directly.
+    const { extractRules } = await import('@formkit/validation')
+    const rules = extractRules(validationProp.value.value) as string[][]
+    rules.forEach(([ruleName]) => usedRules.add(ruleName))
+  } else if (isArrayExpression(validationProp.value)) {
+    // Iterate over the array and import each rule.
+  }
+
+  if (usedRules.size) {
+    const rulesObject = t.expression.ast`{}` as ObjectExpression
+    usedRules.forEach((rule) => {
+      rulesObject.properties.push(
+        createProperty(
+          rule,
+          t.expression.ast`${addImport(component.opts, component.root, {
+            from: 'virtual:formkit/validation:' + rule,
+            name: rule,
+          })}`
+        )
+      )
+    })
+    props.properties.push(createProperty('__rules__', rulesObject))
+  }
+
+  // Import the validation plugin
+  const validationVar = addImport(component.opts, component.root, {
+    from: 'virtual:formkit/validation',
+    name: 'validation',
+  })
+
+  plugins.elements.push(t.expression.ast`${validationVar}`)
 }

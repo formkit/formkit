@@ -86,33 +86,34 @@
     "@babel/parser": "^7.24.4",
     "@babel/template": "^7.24.0",
     "@babel/traverse": "^7.24.1",
-    "@formkit/inputs": "1.6.2",
-    "@formkit/utils": "1.6.2",
+    "@formkit/inputs": "workspace:*",
+    "@formkit/utils": "workspace:*",
     "@types/babel__traverse": "^7.20.5",
-    "@vue/compiler-dom": "^3.4.21",
+    "@vue/compiler-dom": "^3.4.23",
     "consola": "^3.2.3",
-    "pathe": "^1.1.1",
+    "pathe": "^1.1.2",
     "recast": "^0.23.6",
-    "unplugin": "^1.10.0"
+    "unplugin": "^1.10.1"
   },
   "devDependencies": {
     "@types/babel__generator": "^7.6.8",
     "@types/babel__template": "^7.4.4",
-    "@types/node": "^20.5.2",
+    "@types/node": "^20.12.7",
     "@vitejs/plugin-vue": "^4.6.2",
     "esbuild": "^0.20.2",
-    "eslint": "^8.49.0",
-    "eslint-plugin-vue": "^9.17.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-vue": "^9.25.0",
     "esno": "^0.17.0",
-    "fast-glob": "^3.3.1",
-    "nodemon": "^3.0.1",
+    "fast-glob": "^3.3.2",
+    "nodemon": "^3.1.0",
     "unplugin-file-url": "^0.1.1",
-    "vite": "^5.0.4",
-    "vite-plugin-inspect": "^0.8.1",
-    "vue": "^3.4.21",
-    "webpack": "^5.88.2"
+    "vite": "^5.2.10",
+    "vite-plugin-inspect": "^0.8.4",
+    "vue": "^3.4.23",
+    "webpack": "^5.91.0"
   },
   "peerDependencies": {
-    "@formkit/vue": "^1.6.2"
+    "@formkit/vue": "^1.6.2",
+    "@formkit/validation": "^1.6.2"
   }
 }

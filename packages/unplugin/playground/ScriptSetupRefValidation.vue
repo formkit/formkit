@@ -4,5 +4,5 @@ import { ref } from 'vue'
 
 <template>
   <h1>Hello world</h1>
-  <FormKit type="checkbox" label="Initial input" />
+  <FormKit type="checkbox" label="Initial input" validation="required" />
 </template>

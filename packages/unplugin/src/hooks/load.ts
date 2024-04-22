@@ -1,12 +1,8 @@
-import type {
-  TransformResult,
-  UnpluginBuildContext,
-  UnpluginContext,
-  UnpluginOptions,
-} from 'unplugin'
+import type { TransformResult, UnpluginOptions } from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
-import { createConfigAst, getConfigProperty } from '../utils/config'
+import { getConfigProperty } from '../utils/config'
+import { trackReload } from '../utils/config'
 import { consola } from 'consola'
 import { isIdentifier } from '@babel/types'
 import { extract } from '../utils/ast'
@@ -15,9 +11,6 @@ import type { Node } from '@babel/types'
 import tcjs from '@babel/template'
 
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
-
-const previouslyLoaded: Record<string, number> = {}
-let totalReloads = 0
 
 /**
  * The load hook for unplugin.
@@ -32,23 +25,16 @@ export function createLoad(
       const [plugin, identifier] = id
         .substring(FORMKIT_CONFIG_PREFIX.length + 1)
         .split(':')
-      if (plugin === 'inputs') {
-        return await createVirtualInputConfig(opts, identifier)
-      }
-      if (plugin === 'library') {
-        const definedInputs = getConfigProperty(opts, 'inputs')
-        const extracted = definedInputs
-          ? extract(definedInputs.get('value'), false)
-          : t.ast`const __extracted__ = {}`
-        return opts.generate(t.program.ast`
-          import { createLibraryPlugin, inputs } from '@formkit/inputs'
-          ${extracted}
-          const library = createLibraryPlugin({
-            ...inputs,
-            ...__extracted__,
-          })
-          export { library }
-        `)
+
+      switch (plugin) {
+        case 'inputs':
+          return await createVirtualInputConfig(opts, identifier)
+
+        case 'library':
+          return await createDeoptimizedLibrary(opts)
+
+        case 'validation':
+          return await createValidationConfig()
       }
     }
     return null
@@ -56,32 +42,47 @@ export function createLoad(
 }
 
 /**
- * Tracks that this is a reload of the configuration.
- * @param this - The unplugin context
- * @param opts - The resolved options
- * @param id - The id of the module being reloaded
+ * Create a validation configuration for the given options.
+ * @param opts - Resolved options
  */
-function trackReload(
-  this: UnpluginContext & UnpluginBuildContext,
-  opts: ResolvedOptions,
-  id: string
-) {
-  // Track the number of times each module has been reloaded. We’ll need to
-  // re-parse the config’s AST in case it has changed.
-  previouslyLoaded[id] = (previouslyLoaded[id] || 0) + 1
-  if (previouslyLoaded[id] > totalReloads) totalReloads = previouslyLoaded[id]
-
-  // Make the configuration a watched file.
-  if (opts.configPath) {
-    this.addWatchFile(opts.configPath)
-    if (opts.configParseCount < totalReloads) {
-      consola.info('Reloading formkit.config.ts file')
-      opts.configAst = createConfigAst(opts.parse, opts.configPath)
-      opts.configParseCount = totalReloads
-    }
-  }
+function createValidationConfig(): TransformResult {
+  return `import { createValidationPlugin } from '@formkit/validation'
+const validation = createValidationPlugin({})
+export { validation }
+`
 }
 
+/**
+ * Create a library that includes all core inputs and any additional inputs.
+ * It is not ideal for this to be used, but when the source code uses dynamic
+ * references to input types we have no choice but to resolve them at runtime.
+ * @param opts - Resolved options
+ * @returns
+ */
+function createDeoptimizedLibrary(opts: ResolvedOptions): TransformResult {
+  const definedInputs = getConfigProperty(opts, 'inputs')
+  const extracted = definedInputs
+    ? extract(definedInputs.get('value'), false)
+    : t.ast`const __extracted__ = {}`
+  return opts.generate(t.program.ast`
+    import { createLibraryPlugin, inputs } from '@formkit/inputs'
+    ${extracted}
+    const library = createLibraryPlugin({
+      ...inputs,
+      ...__extracted__,
+    })
+    export { library }
+  `)
+}
+
+/**
+ * Creates a "library" for a virtual input configuration. This creates a single
+ * library that can be only imports the code necessary to boot that single
+ * input.
+ * @param opts - Resolved options
+ * @param inputName - The name of the input to create a virtual config for.
+ * @returns
+ */
 export async function createVirtualInputConfig(
   opts: ResolvedOptions,
   inputName: string
@@ -107,7 +108,9 @@ export async function createVirtualInputConfig(
       })
       if (inputPropertyValue) {
         const inputDefinition = extract(inputPropertyValue)
-        const library = t.statements.ast`const library = () => {}
+        const library = t.statements.ast`const library = () => {
+          return false
+        }
         library.library = (node) => node.define(__extracted__);
         export { library };`
         opts.traverse(inputDefinition, {

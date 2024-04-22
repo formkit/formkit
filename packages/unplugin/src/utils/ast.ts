@@ -14,7 +14,7 @@ import type { Binding, NodePath } from '@babel/traverse'
 import type { Import, LocalizedImport, ASTTools } from '../types'
 import tcjs from '@babel/template'
 
-const t = 'default' in tcjs ? tcjs.default : tcjs
+const t = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
  * Create an object property with the given key and value.

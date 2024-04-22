@@ -1,3 +1,4 @@
+import type { UnpluginContext, UnpluginBuildContext } from 'unplugin'
 import cjsTraverse from '@babel/traverse'
 import type { NodePath } from '@babel/traverse'
 import * as parser from '@babel/parser'
@@ -150,4 +151,34 @@ export function getConfigProperty(
   })
 
   return prop
+}
+
+const previouslyLoaded: Record<string, number> = {}
+let totalReloads = 0
+
+/**
+ * Tracks that this is a reload of the configuration.
+ * @param this - The unplugin context
+ * @param opts - The resolved options
+ * @param id - The id of the module being reloaded
+ */
+export function trackReload(
+  this: UnpluginContext & UnpluginBuildContext,
+  opts: ResolvedOptions,
+  id: string
+) {
+  // Track the number of times each module has been reloaded. We’ll need to
+  // re-parse the config’s AST in case it has changed.
+  previouslyLoaded[id] = (previouslyLoaded[id] || 0) + 1
+  if (previouslyLoaded[id] > totalReloads) totalReloads = previouslyLoaded[id]
+
+  // Make the configuration a watched file.
+  if (opts.configPath) {
+    this.addWatchFile(opts.configPath)
+    if (opts.configParseCount < totalReloads) {
+      consola.info('Reloading formkit.config.ts file')
+      opts.configAst = createConfigAst(opts.parse, opts.configPath)
+      opts.configParseCount = totalReloads
+    }
+  }
 }

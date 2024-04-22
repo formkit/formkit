@@ -20,7 +20,7 @@ export function createTransform(
     const components = usedComponents(opts, ast, opts.components, true)
     if (components.length === 0) return null
     for (const component of components) {
-      if (component.codeMod) component.codeMod(component)
+      if (component.codeMod) await component.codeMod(component)
     }
     return opts.generate(ast)
   }

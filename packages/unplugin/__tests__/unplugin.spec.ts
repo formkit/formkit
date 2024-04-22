@@ -47,7 +47,11 @@ describe('input config loading', () => {
       "import { createInput } from "@formkit/vue";
       import CustomComponent from "../CustomComponent.vue";
       const __extracted__ = createInput(CustomComponent);
-      const library = () => {};
+
+      const library = () => {
+          return false;
+      };
+
       library.library = node => node.define(__extracted__);
       export { library };"
     `)
@@ -72,7 +76,10 @@ describe('input config loading', () => {
           }]
       };
 
-      const library = () => {};
+      const library = () => {
+          return false;
+      };
+
       library.library = node => node.define(__extracted__);
       export { library };"
     `)

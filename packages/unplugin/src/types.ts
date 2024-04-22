@@ -16,7 +16,7 @@ export interface LocalizedImport {
 }
 
 export interface Component extends Import {
-  codeMod?: (component: ComponentUse) => void
+  codeMod?: (component: ComponentUse) => void | Promise<void>
 }
 
 export interface Options {
