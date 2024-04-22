@@ -8,6 +8,9 @@ import type {
   ImportDeclaration,
   Declaration,
   Statement,
+  FunctionDeclaration,
+  ObjectMethod,
+  Method,
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
 import type { Binding, NodePath } from '@babel/traverse'
@@ -183,17 +186,21 @@ export function importOnly(ids: string[] | undefined, node: ImportDeclaration) {
  * @param id - The identifier name
  */
 function addDeclaration(
-  dependencies: Set<NodePath<Declaration>>,
+  dependencies: Set<NodePath<Node>>,
   usedImports: Map<NodePath<ImportDeclaration>, string[]>,
   binding: Binding | undefined,
   id: string
 ) {
-  if (!binding) throw new Error('Could not find binding')
-  const declaration = binding.path.isDeclaration()
-    ? binding.path
-    : (binding.path.findParent((p) =>
-        p.isDeclaration()
-      ) as NodePath<Declaration>)
+  if (!binding) {
+    // Bindings that are not found are likely global variables like `Array`.
+    return
+  }
+  const declaration =
+    binding.path.isDeclaration() || binding.path.isMethod()
+      ? binding.path
+      : (binding.path.findParent((p) => p.isDeclaration() || p.isMethod()) as
+          | NodePath<Declaration>
+          | NodePath<Method>)
   const parent = declaration.getFunctionParent() as NodePath<Declaration>
   if (declaration) {
     if (!dependencies.has(declaration) && !dependencies.has(parent)) {
@@ -218,9 +225,9 @@ function addDeclaration(
  */
 function extractDependencyPaths(
   toExtract: NodePath<Node>,
-  dependencies: Set<NodePath<Declaration>> = new Set(),
+  dependencies: Set<NodePath<Node>> = new Set(),
   usedImports: Map<NodePath<ImportDeclaration>, string[]> = new Map()
-): [Set<NodePath<Declaration>>, Map<NodePath<ImportDeclaration>, string[]>] {
+): [Set<NodePath<Node>>, Map<NodePath<ImportDeclaration>, string[]>] {
   if (
     toExtract.isIdentifier() &&
     toExtract.scope.hasBinding(toExtract.node.name)
@@ -244,6 +251,27 @@ function extractDependencyPaths(
     })
   }
   return [dependencies, usedImports]
+}
+
+/**
+ * Determines the dependencies of a given path and extracts them into an array
+ * of cloned nodes.
+ * @param toExtract - Extract all dependencies of a given path
+ * @returns
+ */
+function extractDependencies(toExtract: NodePath<Node>): Node[] {
+  const [dependencies, usedImports] = extractDependencyPaths(toExtract)
+  const extracted: [pos: number | undefined, Node][] = []
+  dependencies.forEach((path) => {
+    if (!path.isDeclaration()) return
+    const node = cloneDeepWithoutLoc(path.node)
+    if (path.isImportDeclaration()) {
+      importOnly(usedImports.get(path), node as ImportDeclaration)
+    }
+    extracted.push([path.node.loc?.start.index, node])
+  })
+  extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
+  return extracted.map(([, node]) => node)
 }
 
 /**
@@ -271,23 +299,45 @@ export function extract(
   file = true,
   extractName = '__extracted__'
 ): File | Statement | Statement[] {
-  const [dependencies, usedImports] = extractDependencyPaths(toExtract)
-  const extracted: [pos: number | undefined, Node][] = []
-  dependencies.forEach((path) => {
-    const node = cloneDeepWithoutLoc(path.node)
-    if (path.isImportDeclaration()) {
-      importOnly(usedImports.get(path), node as ImportDeclaration)
-    }
-    extracted.push([path.node.loc?.start.index, node])
-  })
-  extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
+  const extracted = extractDependencies(toExtract)
   if (file) {
     return {
       type: 'File',
-      program: t.program.ast`${extracted.map(([, node]) => node)}
+      program: t.program.ast`${extracted}
       const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`,
     }
   }
-  return t.ast`${extracted.map(([, node]) => node)}
+  return t.ast`${extracted}
       const ${extractName} = ${cloneDeepWithoutLoc(toExtract.node)}`
+}
+
+/**
+ * Given an object method extract it as a function. Note that this will not
+ * extract `this` references.
+ * @param toExtract - A method to extract as a function
+ */
+export function extractMethodAsFunction(
+  toExtract: NodePath<ObjectMethod>,
+  functionName?: string
+): File {
+  const extracted = extractDependencies(toExtract)
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const { kind, key, type, computed, ...rest } = cloneDeepWithoutLoc(
+    toExtract.node
+  )
+  const func = {
+    type: 'FunctionDeclaration',
+    id: !functionName
+      ? key
+      : {
+          type: 'Identifier',
+          name: functionName,
+        },
+    ...rest,
+  } as FunctionDeclaration
+  return {
+    type: 'File',
+    program: t.program.ast`${extracted}
+    ${func}`,
+  }
 }

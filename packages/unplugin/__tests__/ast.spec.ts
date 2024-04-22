@@ -4,13 +4,14 @@ import { parse } from '@babel/parser'
 import traverse from '@babel/traverse'
 import generator from '@babel/generator'
 import type { NodePath } from '@babel/traverse'
-import type { CallExpression, Node } from '@babel/types'
+import type { CallExpression, Node, ObjectMethod } from '@babel/types'
 import {
   getUsedImports,
   rootPath,
   uniqueVariableName,
   addImport,
   extract,
+  extractMethodAsFunction,
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
 import { createOpts } from '../src/utils/config'
@@ -470,6 +471,39 @@ describe('extract', () => {
         memoKey
       };
       const __extracted__ = myInput;"
+    `)
+  })
+})
+
+describe('extractMethodAsFunction', () => {
+  it('can extract an object’s method as its own function', ({ expect }) => {
+    const code = `import { outer, inner, input, makeRed, memoKey, unused } from '@formkit/inputs'
+    const myInput = {
+      schema: {
+        onClick (str) {
+          return makeRed(input(str))
+        }
+      },
+      features: [makeRed],
+      memoKey
+    }
+    `
+    const ast = parse(code, { sourceType: 'module' })
+    let extracted: NodePath<ObjectMethod> | null = null
+    traverse(ast, {
+      ObjectMethod(path) {
+        if (isIdentifier(path.node.key, { name: 'onClick' })) {
+          extracted = path as NodePath<ObjectMethod>
+          path.stop()
+        }
+      },
+    })
+    expect(generator(extractMethodAsFunction(extracted!, '__extracted__')).code)
+      .toMatchInlineSnapshot(`
+      "import { input, makeRed } from '@formkit/inputs';
+      function __extracted__(str) {
+        return makeRed(input(str));
+      }"
     `)
   })
 })

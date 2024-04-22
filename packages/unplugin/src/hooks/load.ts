@@ -5,9 +5,9 @@ import { getConfigProperty } from '../utils/config'
 import { trackReload } from '../utils/config'
 import { consola } from 'consola'
 import { isIdentifier } from '@babel/types'
-import { extract } from '../utils/ast'
+import { extract, extractMethodAsFunction } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
-import type { Node } from '@babel/types'
+import type { Node, File } from '@babel/types'
 import tcjs from '@babel/template'
 
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
@@ -59,6 +59,47 @@ function createVirtualRuleConfig(
   opts: ResolvedOptions,
   ruleName: string
 ): TransformResult {
+  if (opts.configAst) {
+    const rules = getConfigProperty(opts, 'rules')?.get('value')
+    if (rules && !rules.isObjectExpression()) {
+      consola.warn(
+        "[FormKit de-opt] cannot statically analyze DefineConfigOptions['rules']. Please use an inline object literal."
+      )
+    } else if (rules?.isObjectExpression()) {
+      let ruleDefinition: File | undefined
+      rules.traverse({
+        ObjectProperty(path) {
+          if (
+            path.parentPath === rules &&
+            isIdentifier(path.node.key, { name: ruleName })
+          ) {
+            ruleDefinition = extract(path.get('value'))
+            path.stop()
+          }
+        },
+        ObjectMethod(path) {
+          if (
+            path.parentPath === rules &&
+            isIdentifier(path.node.key, { name: ruleName })
+          ) {
+            ruleDefinition = extractMethodAsFunction(path, '__extracted__')
+            path.stop()
+          }
+        },
+      })
+
+      if (ruleDefinition) {
+        const exported = t.statements.ast`
+        export const ${ruleName} = __extracted__;`
+        opts.traverse(ruleDefinition, {
+          Program(path) {
+            path.pushContainer('body', exported)
+          },
+        })
+        return opts.generate(ruleDefinition)
+      }
+    }
+  }
   return opts.generate(
     t.program.ast`export { ${ruleName} } from '@formkit/rules'`
   )

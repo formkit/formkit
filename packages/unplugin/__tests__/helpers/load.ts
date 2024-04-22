@@ -21,6 +21,6 @@ export async function load(id: string, options: Partial<Options> = {}) {
     { isEntry: false },
   ])) as string
   const result = await load.apply(context, [resolvedId])
-  if (!result || typeof result === 'string') return
+  if (!result || typeof result === 'string') return result
   return result.code
 }

@@ -120,3 +120,47 @@ describe('input config loading', () => {
     `)
   })
 })
+
+describe('validation config loading', () => {
+  it('can load the validation plugin', async ({ expect }) => {
+    const code = await load('virtual:formkit/validation')
+    expect(code).toMatchInlineSnapshot(`
+      "import { createValidationPlugin } from '@formkit/validation'
+      const validation = createValidationPlugin({})
+      export { validation }
+      "
+    `)
+  })
+
+  it('can load a validation rule from @formkit/rules', async ({ expect }) => {
+    const code = await load('virtual:formkit/rules:length')
+    expect(code).toMatchInlineSnapshot(
+      `"export { length } from "@formkit/rules";"`
+    )
+  })
+
+  it('can load a validation rule from a custom config', async ({ expect }) => {
+    const code = await load('virtual:formkit/rules:length', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { empty } from "@formkit/utils";
+
+      function __extracted__(node) {
+          if (empty(node.value))
+              return false;
+
+          if (typeof node.value === "string" || Array.isArray(node.value)) {
+              return node.value.length > 0;
+          }
+
+          return false;
+      }
+
+      export const length = __extracted__;"
+    `)
+  })
+})

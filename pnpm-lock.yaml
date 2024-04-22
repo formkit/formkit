@@ -514,6 +514,9 @@ importers:
       '@babel/traverse':
         specifier: ^7.24.1
         version: 7.24.1
+      '@formkit/core':
+        specifier: workspace:^
+        version: link:../core
       '@formkit/inputs':
         specifier: ^1.6.2
         version: link:../inputs
