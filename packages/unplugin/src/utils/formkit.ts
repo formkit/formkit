@@ -140,7 +140,7 @@ async function importValidation(
         createProperty(
           rule,
           t.expression.ast`${addImport(component.opts, component.root, {
-            from: 'virtual:formkit/validation:' + rule,
+            from: 'virtual:formkit/rules:' + rule,
             name: rule,
           })}`
         )
