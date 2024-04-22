@@ -185,7 +185,8 @@ const validatingMessage = createMessage({
 export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
   return function validationPlugin(node: FormKitNode): void {
     let propRules = cloneAny(node.props.validationRules || {})
-    let availableRules = { ...baseRules, ...propRules }
+    const injectedRuled = cloneAny(node.props.__rules__ || {})
+    let availableRules = { ...baseRules, ...injectedRuled, ...propRules }
     // create an observed node
     let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }

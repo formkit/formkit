@@ -515,10 +515,13 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1
       '@formkit/inputs':
-        specifier: workspace:*
+        specifier: ^1.6.2
         version: link:../inputs
+      '@formkit/rules':
+        specifier: ^1.6.2
+        version: link:../rules
       '@formkit/utils':
-        specifier: workspace:*
+        specifier: ^1.6.2
         version: link:../utils
       '@formkit/validation':
         specifier: ^1.6.2

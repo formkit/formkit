@@ -1,8 +1,11 @@
-<script setup>
-import { ref } from 'vue'
-</script>
+<script setup></script>
 
 <template>
   <h1>Hello world</h1>
-  <FormKit type="checkbox" label="Initial input" validation="required" />
+  <FormKit
+    type="checkbox"
+    :options="['Italy', 'France', 'Germany']"
+    label="Initial input"
+    validation="required|min:2"
+  />
 </template>

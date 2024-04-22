@@ -35,6 +35,9 @@ export function createLoad(
 
         case 'validation':
           return await createValidationConfig()
+
+        case 'rules':
+          return await createVirtualRuleConfig(opts, identifier)
       }
     }
     return null
@@ -50,6 +53,15 @@ function createValidationConfig(): TransformResult {
 const validation = createValidationPlugin({})
 export { validation }
 `
+}
+
+function createVirtualRuleConfig(
+  opts: ResolvedOptions,
+  ruleName: string
+): TransformResult {
+  return opts.generate(
+    t.program.ast`export { ${ruleName} } from '@formkit/rules'`
+  )
 }
 
 /**

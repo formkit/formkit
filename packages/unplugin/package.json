@@ -86,8 +86,11 @@
     "@babel/parser": "^7.24.4",
     "@babel/template": "^7.24.0",
     "@babel/traverse": "^7.24.1",
-    "@formkit/inputs": "workspace:*",
-    "@formkit/utils": "workspace:*",
+    "@formkit/inputs": "^1.6.2",
+    "@formkit/rules": "^1.6.2",
+    "@formkit/vue": "^1.6.2",
+    "@formkit/validation": "^1.6.2",
+    "@formkit/utils": "^1.6.2",
     "@types/babel__traverse": "^7.20.5",
     "@vue/compiler-dom": "^3.4.23",
     "consola": "^3.2.3",
@@ -111,9 +114,5 @@
     "vite-plugin-inspect": "^0.8.4",
     "vue": "^3.4.23",
     "webpack": "^5.91.0"
-  },
-  "peerDependencies": {
-    "@formkit/vue": "^1.6.2",
-    "@formkit/validation": "^1.6.2"
   }
 }
