@@ -65,7 +65,10 @@ export async function createConfigObject(
   // Perform a direct-injection on the input type (if possible)
   importInputType(component, props, plugins)
   // Inject the validation plugin and any rules
-  await importValidation(component, props, plugins)
+  const rules = await importValidation(component, props, plugins)
+  // Import the necessary i18n locales
+  await importLocales(component, props, plugins, rules)
+
   return config
 }
 
@@ -163,4 +166,34 @@ async function importValidation(
   })
 
   plugins.elements.push(t.expression.ast`${validationVar}`)
+  return usedRules
+}
+
+/**
+ * Import the locale messages required to render the component and its
+ * validation rules.
+ */
+function importLocales(
+  component: ComponentUse,
+  props: ObjectExpression,
+  plugins: ArrayExpression,
+  rules: Set<string> | undefined
+) {
+  if (rules && rules.size /*|| inputLocalizations */) {
+    const plugin = addImport(component.opts, component.root, {
+      from: 'virtual:formkit/i18n',
+      name: 'i18n',
+    })
+    plugins.elements.push(t.expression.ast`${plugin}`)
+
+    const messages = [...rules]
+    // Import the validation plugin
+    const locales = addImport(component.opts, component.root, {
+      from: `virtual:formkit/locales:${messages.join(',')}`,
+      name: 'locales',
+    })
+    props.properties.push(
+      createProperty('__locales__', t.expression.ast`${locales}`)
+    )
+  }
 }

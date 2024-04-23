@@ -7,6 +7,28 @@
   "types": "dist/index.d.cts",
   "exports": {
     "./package.json": "./package.json",
+    "./locales/*": {
+      "import": {
+        "types": "./dist/locales/*.d.ts",
+        "development": "./dist/locales/*.dev.mjs",
+        "default": "./dist/locales/*.mjs"
+      },
+      "require": {
+        "types": "./dist/locales/*.d.cts",
+        "default": "./dist/locales/*.cjs"
+      }
+    },
+    "./i18n": {
+      "import": {
+        "types": "./dist/i18n.d.ts",
+        "development": "./dist/i18n.dev.mjs",
+        "default": "./dist/i18n.mjs"
+      },
+      "require": {
+        "types": "./dist/i18n.d.cts",
+        "default": "./dist/i18n.cjs"
+      }
+    },
     ".": {
       "import": {
         "types": "./dist/index.d.mts",

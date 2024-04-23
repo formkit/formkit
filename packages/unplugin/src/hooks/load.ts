@@ -5,11 +5,17 @@ import { getConfigProperty } from '../utils/config'
 import { trackReload } from '../utils/config'
 import { consola } from 'consola'
 import { isIdentifier } from '@babel/types'
-import { extract, extractMethodAsFunction } from '../utils/ast'
+import {
+  addImport,
+  createObject,
+  createProperty,
+  extract,
+  extractMethodAsFunction,
+} from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
-import type { Node, File } from '@babel/types'
+import type { Node, File, ObjectExpression, ObjectProperty } from '@babel/types'
 import tcjs from '@babel/template'
-
+import type LocaleImport from '@formkit/i18n/locales/tet'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -38,6 +44,12 @@ export function createLoad(
 
         case 'rules':
           return await createVirtualRuleConfig(opts, identifier)
+
+        case 'i18n':
+          return await createI18nPlugin(opts)
+
+        case 'locales':
+          return await createLocalesConfig(opts, identifier.split(','))
       }
     }
     return null
@@ -190,4 +202,119 @@ export async function createVirtualInputConfig(
   const library = () => {};
   library.library = (node) => node.define(${inputName});
   export { library };`)
+}
+
+/**
+ * Create an empty i18n plugin.
+ * @param opts - Resolved options
+ * @returns
+ */
+export async function createI18nPlugin(
+  opts: ResolvedOptions
+): Promise<TransformResult> {
+  return opts.generate(t.program.ast`
+  import { createI18nPlugin } from '@formkit/i18n/i18n'
+  export const i18n = createI18nPlugin({})
+  `)
+}
+
+/**
+ * Create an i18n locale registry for the given messages.
+ * @param opts - Resolved options
+ * @param messages - The rules to import locales for.
+ */
+export async function createLocalesConfig(
+  opts: ResolvedOptions,
+  messages: string[]
+) {
+  const locales: string[] = []
+  getConfigProperty(opts, 'locales')?.traverse({
+    ObjectProperty(path) {
+      path.skip()
+      const key = path.get('key')
+      if (key.isIdentifier()) {
+        locales.push(key.node.name)
+      }
+    },
+  })
+  if (!locales.length) locales.push('en')
+  const registry = createObject()
+  const ast = t.program.ast`export const locales = ${registry}`
+  const localeMap = new Map<
+    string,
+    [validation: ObjectExpression, ui: ObjectExpression]
+  >()
+  const loadedLocales = await Promise.all(
+    locales.map(
+      (locale) =>
+        import(`@formkit/i18n/locales/${locale}`) as Promise<{
+          default: typeof LocaleImport
+        }>
+    )
+  )
+  const loadedLocaleMap = locales.reduce((map, locale, index) => {
+    map.set(locale, loadedLocales[index].default)
+    return map
+  }, new Map<string, (typeof loadedLocales)[number]['default']>())
+
+  registry.properties = locales.map((locale) => {
+    const validation = createObject()
+    const ui = createObject()
+    const loadedLocale = loadedLocaleMap.get(locale)
+    localeMap.set(locale, [validation, ui])
+
+    if (loadedLocale) {
+      const [uiMessages, validationMessages, notFound] = messages.reduce(
+        ([ui, validation, notFound], message) => {
+          if (message in loadedLocale.ui) {
+            ui.push(message)
+          } else if (message in loadedLocale.validation) {
+            validation.push(message)
+          } else {
+            notFound.push(message)
+          }
+          return [ui, validation, notFound]
+        },
+        [[], [], []] as [string[], string[], string[]]
+      )
+      const uiNames = uiMessages.map((name) => {
+        return addImport(opts, ast, {
+          from: `@formkit/i18n/locales/${locale}`,
+          name: name,
+        })
+      })
+      const validationNames = validationMessages.map((name) => {
+        return addImport(opts, ast, {
+          from: `@formkit/i18n/locales/${locale}`,
+          name: name,
+        })
+      })
+
+      ui.properties = uiMessages.map((name, index) => {
+        return createProperty(name, t.expression.ast`${uiNames[index]}`)
+      })
+      validation.properties = validationMessages.map((name, index) => {
+        return createProperty(name, t.expression.ast`${validationNames[index]}`)
+      })
+
+      if (notFound.length) {
+        consola.warn(
+          `Could not find the following messages in the ${locale} locale: ${notFound.join(
+            ', '
+          )}`
+        )
+      }
+    }
+
+    return {
+      type: 'ObjectProperty',
+      key: {
+        type: 'Identifier',
+        name: locale,
+      },
+      value: t.expression.ast`{ validation: ${validation}, ui: ${ui} }`,
+    } as ObjectProperty
+  })
+
+  return opts.generate(ast)
 }

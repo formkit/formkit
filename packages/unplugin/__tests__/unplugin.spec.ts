@@ -164,3 +164,94 @@ describe('validation config loading', () => {
     `)
   })
 })
+
+describe('i18n config loading', () => {
+  it('can load the i18n plugin', async ({ expect }) => {
+    const code = await load('virtual:formkit/i18n')
+    expect(code).toMatchInlineSnapshot(`
+      "import { createI18nPlugin } from "@formkit/i18n/i18n";
+      export const i18n = createI18nPlugin({});"
+    `)
+  })
+  it('can load a single message from a single locale', async ({ expect }) => {
+    const code = await load('virtual:formkit/locales:required')
+    expect(code).toMatchInlineSnapshot(`
+      "import { required } from "@formkit/i18n/locales/en";
+
+      export const locales = {
+          en: ({
+              validation: {
+                  required: required
+              },
+
+              ui: {}
+          })
+      };"
+    `)
+  })
+  it('can load a multiple messages from the default locale', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/locales:required,length,remove')
+    expect(code).toMatchInlineSnapshot(`
+      "import { length } from "@formkit/i18n/locales/en";
+      import { required } from "@formkit/i18n/locales/en";
+      import { remove } from "@formkit/i18n/locales/en";
+
+      export const locales = {
+          en: ({
+              validation: {
+                  required: required,
+                  length: length
+              },
+
+              ui: {
+                  remove: remove
+              }
+          })
+      };"
+    `)
+  })
+  it('can load a multiple messages from multiple locales', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/locales:required,length,remove', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { length as length1 } from "@formkit/i18n/locales/ar";
+      import { required as required1 } from "@formkit/i18n/locales/ar";
+      import { remove as remove1 } from "@formkit/i18n/locales/ar";
+      import { length } from "@formkit/i18n/locales/de";
+      import { required } from "@formkit/i18n/locales/de";
+      import { remove } from "@formkit/i18n/locales/de";
+
+      export const locales = {
+          de: ({
+              validation: {
+                  required: required,
+                  length: length
+              },
+
+              ui: {
+                  remove: remove
+              }
+          }),
+
+          ar: ({
+              validation: {
+                  required: required1,
+                  length: length1
+              },
+
+              ui: {
+                  remove: remove1
+              }
+          })
+      };"
+    `)
+  })
+})

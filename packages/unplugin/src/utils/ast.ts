@@ -10,6 +10,7 @@ import type {
   Statement,
   FunctionDeclaration,
   ObjectMethod,
+  ObjectExpression,
   Method,
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
@@ -37,6 +38,17 @@ export function createProperty(
       name: key,
     },
     value,
+  }
+}
+
+/**
+ * Create a new object expression.
+ * @returns
+ */
+export function createObject(): ObjectExpression {
+  return {
+    type: 'ObjectExpression',
+    properties: [],
   }
 }
 

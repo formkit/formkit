@@ -742,6 +742,7 @@ export interface FormKitBaseProps {
 export const runtimeProps = [
   '__config__',
   '__rules__',
+  '__locales__',
   'classes',
   'config',
   'delay',

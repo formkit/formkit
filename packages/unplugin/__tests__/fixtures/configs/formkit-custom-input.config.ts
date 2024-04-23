@@ -2,6 +2,7 @@ import { defineFormKitConfig, createInput } from '@formkit/vue'
 import CustomComponent from '../CustomComponent.vue'
 import type { FormKitNode } from '@formkit/core'
 import { empty } from '@formkit/utils'
+import { de, ar } from '@formkit/i18n'
 
 const headingStyle: string | number = 'h1'
 
@@ -13,6 +14,7 @@ export default defineFormKitConfig({
     },
     custom: createInput(CustomComponent),
   },
+  locales: { de, ar },
   rules: {
     length(node: FormKitNode) {
       if (empty(node.value)) return false
