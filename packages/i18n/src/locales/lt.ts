@@ -551,4 +551,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Pasirinkta data yra netinkama.',
 }
 
-export const lt = { ui, validation }
+export default { ui, validation }

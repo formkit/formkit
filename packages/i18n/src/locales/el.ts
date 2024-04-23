@@ -518,4 +518,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Η επιλεγμένη ημερομηνία δεν είναι έγκυρη.',
 }
 
-export const el = { ui, validation }
+export default { ui, validation }

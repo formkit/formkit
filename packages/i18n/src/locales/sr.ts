@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Izabrani datum je nevažeći.',
 }
 
-export const sr = { ui, validation }
+export default { ui, validation }

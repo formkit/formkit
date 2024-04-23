@@ -514,4 +514,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'วันที่ที่เลือกไม่ถูกต้อง',
 }
 
-export const th = { ui, validation }
+export default { ui, validation }

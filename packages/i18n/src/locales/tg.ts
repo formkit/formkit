@@ -506,4 +506,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
 
-export const tg = { ui, validation }
+export default { ui, validation }

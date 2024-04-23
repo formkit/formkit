@@ -389,4 +389,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Izvēlētais datums ir nepareizs.',
 }
 
-export const lv = { ui, validation }
+export default { ui, validation }

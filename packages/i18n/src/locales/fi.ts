@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Valittu päivämäärä on virheellinen.',
 }
 
-export const fi = { ui, validation }
+export default { ui, validation }

@@ -520,4 +520,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Вибрана дата недійсна.',
 }
 
-export const uk = { ui, validation }
+export default { ui, validation }

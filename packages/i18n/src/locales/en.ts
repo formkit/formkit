@@ -520,4 +520,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'The selected date is invalid.',
 }
 
-export const en = { ui, validation }
+export default { ui, validation }

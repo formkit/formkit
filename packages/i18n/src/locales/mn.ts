@@ -393,4 +393,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Сонгосон огноо буруу байна.',
 }
 
-export const mn = { ui, validation }
+export default { ui, validation }

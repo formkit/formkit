@@ -510,4 +510,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: '所选日期无效。',
 }
 
-export const zh = { ui, validation }
+export default { ui, validation }

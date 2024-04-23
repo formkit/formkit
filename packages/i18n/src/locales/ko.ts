@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: '선택한 날짜가 잘못되었습니다.',
 }
 
-export const ko = { ui, validation }
+export default { ui, validation }

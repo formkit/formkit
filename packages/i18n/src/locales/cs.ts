@@ -500,4 +500,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Vybrané datum je neplatné.',
 }
 
-export const cs = { ui, validation }
+export default { ui, validation }

@@ -520,4 +520,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Tanggal yang dipilih tidak valid.',
 }
 
-export const id = { ui, validation }
+export default { ui, validation }

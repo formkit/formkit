@@ -502,4 +502,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'De selektearre datum is ûnjildich.',
 }
 
-export const fy = { ui, validation }
+export default { ui, validation }

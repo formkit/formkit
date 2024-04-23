@@ -514,4 +514,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: '選択した日付は無効です。',
 }
 
-export const ja = { ui, validation }
+export default { ui, validation }

@@ -383,4 +383,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Data la loos.',
 }
 
-export const tet = { ui, validation }
+export default { ui, validation }

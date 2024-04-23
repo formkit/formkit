@@ -513,4 +513,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'تاریخ انتخاب شده نامعتبر است',
 }
 
-export const fa = { ui, validation }
+export default { ui, validation }

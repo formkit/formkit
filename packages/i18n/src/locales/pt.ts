@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'A data selecionada é inválida.',
 }
 
-export const pt = { ui, validation }
+export default { ui, validation }

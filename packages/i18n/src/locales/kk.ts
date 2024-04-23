@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Таңдалған күн жарамсыз.',
 }
 
-export const kk = { ui, validation }
+export default { ui, validation }

@@ -518,4 +518,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Tanlangan sana yaroqsiz.',
 }
 
-export const uz = { ui, validation }
+export default { ui, validation }

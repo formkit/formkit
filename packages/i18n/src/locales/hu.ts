@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'A kiválasztott dátum érvénytelen.',
 }
 
-export const hu = { ui, validation }
+export default { ui, validation }

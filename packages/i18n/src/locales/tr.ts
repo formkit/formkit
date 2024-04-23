@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Seçilen tarih geçersiz.',
 }
 
-export const tr = { ui, validation }
+export default { ui, validation }

@@ -516,4 +516,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Ngày đã chọn không hợp lệ.',
 }
 
-export const vi = { ui, validation }
+export default { ui, validation }

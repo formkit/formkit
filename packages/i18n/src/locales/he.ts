@@ -510,4 +510,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'התאריך שנבחר אינו חוקי.',
 }
 
-export const he = { ui, validation }
+export default { ui, validation }

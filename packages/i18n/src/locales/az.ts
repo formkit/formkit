@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Seçilmiş tarix etibarsızdır.',
 }
 
-export const az = { ui, validation }
+export default { ui, validation }

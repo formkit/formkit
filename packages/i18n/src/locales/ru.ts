@@ -518,4 +518,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Выбранная дата недействительна.',
 }
 
-export const ru = { ui, validation }
+export default { ui, validation }

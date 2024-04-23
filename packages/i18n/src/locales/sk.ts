@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Vybraný dátum je neplatný.',
 }
 
-export const sk = { ui, validation }
+export default { ui, validation }

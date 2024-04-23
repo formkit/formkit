@@ -512,4 +512,4 @@ const validation: FormKitValidationMessages = {
   invalidDate: 'Data selectată este nevalidă.',
 }
 
-export const ro = { ui, validation }
+export default { ui, validation }

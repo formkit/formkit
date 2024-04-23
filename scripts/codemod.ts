@@ -107,7 +107,6 @@ async function getAllLocales() {
               ) {
                 const func: FunctionExpression = {
                   type: 'FunctionExpression',
-                  id: key.node,
                   params: path.node.params,
                   body: path.node.body,
                   generator: false,
@@ -173,7 +172,7 @@ async function getAllLocales() {
     })
 
     await writeFile(
-      resolve(process.cwd(), 'packages/i18n/src/locales', `new-${locale}`),
+      resolve(process.cwd(), 'packages/i18n/src/locales', `${locale}`),
       generator(ast).code
     )
   })
