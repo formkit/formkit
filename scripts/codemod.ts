@@ -4,7 +4,7 @@ import traverse from '@babel/traverse'
 import t from '@babel/template'
 import { isIdentifier, cloneDeepWithoutLoc } from '@babel/types'
 import { resolve } from 'path'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, readdir } from 'fs/promises'
 import type {
   Node,
   Comment,
@@ -16,11 +16,11 @@ import type {
 import generator from '@babel/generator'
 
 async function getAllLocales() {
-  // const locales = await readdir(
-  //   resolve(process.cwd(), 'packages/i18n/src/locales')
-  // )
-  // return locales
-  return ['en.ts']
+  const locales = await readdir(
+    resolve(process.cwd(), 'packages/i18n/src/locales')
+  )
+  return locales
+  // return ['en.ts']
 }
 ;(async () => {
   const locales = await getAllLocales()
