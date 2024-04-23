@@ -77,7 +77,9 @@ export function createI18nPlugin(
   return function i18nPlugin(node: FormKitNode) {
     i18nNodes.add(node)
     if (activeLocale) node.config.locale = activeLocale
-
+    if (node.props.__locales__) {
+      registry = { ...registry, ...node.props.__locales__ }
+    }
     node.on('destroying', () => i18nNodes.delete(node))
     let localeKey = parseLocale(node.config.locale, registry)
     let locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)

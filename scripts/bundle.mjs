@@ -6,6 +6,7 @@ import { renameSync, readFileSync, readdirSync } from 'fs'
 // import { replace } from 'esbuild-plugin-replace'
 import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
+import { esbuildPluginFilePathExtensions } from 'esbuild-plugin-file-path-extensions'
 
 /**
  * @type {NonNullable<import('tsup').Options['esbuildPlugins']>[number]}
@@ -60,6 +61,9 @@ export async function createBundle(pkg, plugin, showLogs = false) {
   }
 
   function createEntry() {
+    if (pkg === 'i18n') {
+      return resolve(rootDir, 'src/**/*.ts')
+    }
     const path = plugin
       ? /\.ts$/.test(plugin)
         ? plugin
@@ -122,6 +126,10 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     },
   ]
 
+  if (pkg === 'i18n') {
+    esbuildPlugins.push(esbuildPluginFilePathExtensions())
+  }
+
   /**
    * @type {import('tsup').Options}
    */
@@ -138,6 +146,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
       }
       return { js: `${prefix}.iife.js` }
     },
+    bundle: true,
     splitting: false,
     sourcemap: true,
     clean: !plugin || !/\.ts$/.test(plugin),

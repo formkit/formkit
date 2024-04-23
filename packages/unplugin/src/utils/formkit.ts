@@ -130,7 +130,14 @@ async function importValidation(
     const rules = extractRules(validationProp.value.value) as string[][]
     rules.forEach(([ruleName]) => usedRules.add(ruleName))
   } else if (isArrayExpression(validationProp.value)) {
-    // Iterate over the array and import each rule.
+    validationProp.value.elements.forEach((rule) => {
+      if (isArrayExpression(rule)) {
+        const [ruleName] = rule.elements
+        if (isStringLiteral(ruleName)) {
+          usedRules.add(ruleName.value)
+        }
+      }
+    })
   }
 
   if (usedRules.size) {

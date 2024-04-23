@@ -8,4 +8,9 @@
     label="Initial input"
     validation="required|min:2"
   />
+  <FormKit
+    label="username"
+    type="text"
+    :validation="[['required'], ['length', 10]]"
+  />
 </template>
