@@ -469,7 +469,7 @@ const validation: FormKitValidationMessages = {
    * Require one field.
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
-  require_one: ({ name, node, args: inputNames }) => {
+  require_one({ name, node, args: inputNames }) {
     const labels = inputNames
       .map((name) => {
         const dependentNode = node.at(name)
