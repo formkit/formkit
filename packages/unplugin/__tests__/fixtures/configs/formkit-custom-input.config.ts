@@ -14,6 +14,7 @@ export default defineFormKitConfig({
     },
     custom: createInput(CustomComponent),
   },
+  locale: 'de',
   locales: { de, ar },
   rules: {
     length(node: FormKitNode) {

@@ -1,12 +1,22 @@
 import { defineFormKitConfig } from '@formkit/vue'
 import type { FormKitNode } from '@formkit/core'
 import { empty } from '@formkit/utils'
+import { de } from '@formkit/i18n'
 
 export default defineFormKitConfig({
   inputs: {
     custom: {
       type: 'input',
       schema: [{ $el: 'h1', children: 'Here i am!' }],
+    },
+  },
+  locale: 'de',
+  locales: { de },
+  messages: {
+    en: {
+      validation: {
+        required: 'You really need to fill out this field',
+      },
     },
   },
   rules: {

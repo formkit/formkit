@@ -13,6 +13,7 @@ import {
 import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
+import { getConfigProperty } from './config'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -68,7 +69,8 @@ export async function createConfigObject(
   const rules = await importValidation(component, props, plugins)
   // Import the necessary i18n locales
   await importLocales(component, props, plugins, rules)
-
+  // Set the locale from the config object
+  await setLocale(component, config)
   return config
 }
 
@@ -195,5 +197,17 @@ function importLocales(
     props.properties.push(
       createProperty('__locales__', t.expression.ast`${locales}`)
     )
+  }
+}
+
+/**
+ * Sets the `locale` property on the config object if it exists.
+ * @param component - The component instance
+ * @param config - The config object to modify
+ */
+function setLocale(component: ComponentUse, config: ObjectExpression) {
+  const locale = getConfigProperty(component.opts, 'locale')?.get('value')
+  if (locale && locale.isStringLiteral()) {
+    config.properties.push(createProperty('locale', locale.node))
   }
 }

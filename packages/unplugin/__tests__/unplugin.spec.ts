@@ -22,4 +22,17 @@ describe('sfc transform', () => {
       'import { library } from "virtual:formkit/inputs:custom'
     )
   })
+
+  it('imports a custom input at the point of use', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/CustomComponentRender.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/formkit-custom-input.config.ts'
+        ),
+      }
+    )
+    expect(code).toMatchSnapshot()
+  })
 })
