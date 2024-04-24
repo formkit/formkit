@@ -10,7 +10,6 @@ import {
   suffix,
   buttonInput,
   buttonLabel,
-  localize,
   ignores,
 } from '../compose'
 
@@ -49,9 +48,13 @@ export const button: FormKitTypeDefinition = {
    */
   props: [],
   /**
+   * An array of messages to create and expose to  props to accept for this input.
+   */
+  localize: ['submit'],
+  /**
    * Additional features that should be added to your input
    */
-  features: [localize('submit'), ignores],
+  features: [ignores],
   /**
    * A key to use for memoizing the schema. This is used to prevent the schema
    * from needing to be stringified when performing a memo lookup.

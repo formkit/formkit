@@ -127,3 +127,8 @@ export { submitForm } from './submitForm'
  * Programmatically reset an input.
  */
 export { reset } from './reset'
+
+/**
+ * The message localizer.
+ */
+export { localize } from './localize'

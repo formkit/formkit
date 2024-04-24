@@ -39,6 +39,7 @@ import { submitForm } from './submitForm'
 import type { ErrorMessages } from './store'
 import { createMessages } from './store'
 import { reset } from './reset'
+import { localize } from './localize'
 
 /**
  * Definition of a library item — when registering a new library item, these
@@ -83,6 +84,12 @@ export type FormKitTypeDefinition<V = unknown> = {
    * A library of components to provide to the internal input schema.
    */
   library?: Record<string, unknown>
+  /**
+   * Static list of messages to create for the input, exposing them to
+   * localization from the get go. Localized messages must be under the
+   * `ui` i18n key.
+   */
+  localize?: string[]
   /**
    * An array of additional feature functions to load when booting the input.
    */
@@ -2261,6 +2268,10 @@ function define(
    */
   if (definition.family) {
     context.props.family = definition.family
+  }
+  // Apply any localizations
+  if (definition.localize) {
+    definition.localize.forEach((key) => localize(key)(node))
   }
   // Apply any input features before resetting the props.
   if (definition.features) {

@@ -1,5 +1,5 @@
 import type { FormKitNode } from '@formkit/core'
-import localize from './localize'
+import { localize } from './localize'
 import type { FormKitFileValue } from '../index'
 
 declare global {
