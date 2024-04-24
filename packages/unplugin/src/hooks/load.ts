@@ -13,7 +13,15 @@ import {
   extractMethodAsFunction,
 } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
-import type { Node, File, ObjectExpression, ObjectProperty } from '@babel/types'
+import type {
+  Node,
+  File,
+  ObjectExpression,
+  ObjectProperty,
+  ImportDeclaration,
+  Program,
+  Statement,
+} from '@babel/types'
 import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/tet'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
@@ -227,37 +235,116 @@ export async function createLocalesConfig(
   opts: ResolvedOptions,
   messages: string[]
 ) {
-  const locales: string[] = []
+  const [optimizableLocales, deoptimizedLocales] = getLocales(opts)
+  const registry = createObject()
+  const ast = t.program.ast`export const locales = ${registry}`
+  await insertOptimizedLocales(
+    opts,
+    ast,
+    registry,
+    optimizableLocales,
+    messages
+  )
+  await insertDeoptimizedLocales(opts, ast, registry, deoptimizedLocales)
+  return opts.generate(ast)
+}
+
+/**
+ * Fetch the locales from the configuration and categorize them into optimized
+ * and deoptimized locales.
+ * @param opts - Resolved options
+ * @returns
+ */
+function getLocales(
+  opts: ResolvedOptions
+): [optimized: string[], deoptimized: Map<string, NodePath<Node>>] {
+  const optimizedLocales: string[] = []
+  const deoptimizedLocales = new Map<string, NodePath<Node>>()
   getConfigProperty(opts, 'locales')?.traverse({
     ObjectProperty(path) {
       path.skip()
       const key = path.get('key')
       if (key.isIdentifier()) {
-        locales.push(key.node.name)
+        const localeName = key.node.name
+        const localeValue = path.get('value')
+        if (
+          localeValue.isIdentifier() &&
+          isOptimizableLocale(localeName, localeValue)
+        ) {
+          optimizedLocales.push(localeName)
+        } else {
+          consola.warn(
+            `[FormKit de-opt] could not statically extract messages for locale ${localeName}.`
+          )
+          deoptimizedLocales.set(localeName, localeValue)
+        }
       }
     },
   })
-  if (!locales.length) locales.push('en')
-  const registry = createObject()
-  const ast = t.program.ast`export const locales = ${registry}`
+
+  if (!optimizedLocales.length && !deoptimizedLocales.size) {
+    optimizedLocales.push('en')
+  }
+  return [optimizedLocales, deoptimizedLocales]
+}
+
+/**
+ * Determines if this locale can be optimized or not — currently this is only
+ * possible if the locale is imported from the `@formkit/i18n` package since we
+ * know the structure of those locales allow for individual message imports.
+ * @param localeName - The locale name
+ * @param identifier - The identifier node
+ * @returns
+ */
+function isOptimizableLocale(localeName: string, identifier: NodePath<Node>) {
+  const path = identifier.scope.getBinding(localeName)?.path
+  if (path && path.isImportSpecifier()) {
+    const source = (path.parentPath as NodePath<ImportDeclaration>).get(
+      'source'
+    )
+    if (source.isStringLiteral()) {
+      return source.node.value.startsWith('@formkit/i18n')
+    }
+  }
+  return false
+}
+
+/**
+ * Modifies the ast to include the optimized locales by importing only the
+ * necessary messages from the optimizedLocales.
+ * @param ast - The program AST to insert into
+ * @param registry - The ObjectExpression that is the registry of locales
+ * @param optimizableLocales - A string array of locales that can be optimized
+ * @param messages - A string array of messages to import
+ */
+async function insertOptimizedLocales(
+  opts: ResolvedOptions,
+  ast: Program,
+  registry: ObjectExpression,
+  optimizableLocales: string[],
+  messages: string[]
+) {
   const localeMap = new Map<
     string,
     [validation: ObjectExpression, ui: ObjectExpression]
   >()
+
+  // We explicitly load the "optimizable" locales individually to check that
+  // the given messages are available in the locale.
   const loadedLocales = await Promise.all(
-    locales.map(
+    optimizableLocales.map(
       (locale) =>
         import(`@formkit/i18n/locales/${locale}`) as Promise<{
           default: typeof LocaleImport
         }>
     )
   )
-  const loadedLocaleMap = locales.reduce((map, locale, index) => {
+  const loadedLocaleMap = optimizableLocales.reduce((map, locale, index) => {
     map.set(locale, loadedLocales[index].default)
     return map
   }, new Map<string, (typeof loadedLocales)[number]['default']>())
 
-  registry.properties = locales.map((locale) => {
+  registry.properties = optimizableLocales.map((locale) => {
     const validation = createObject()
     const ui = createObject()
     const loadedLocale = loadedLocaleMap.get(locale)
@@ -315,6 +402,22 @@ export async function createLocalesConfig(
       value: t.expression.ast`{ validation: ${validation}, ui: ${ui} }`,
     } as ObjectProperty
   })
+}
 
-  return opts.generate(ast)
+async function insertDeoptimizedLocales(
+  opts: ResolvedOptions,
+  ast: Program,
+  registry: ObjectExpression,
+  deoptimizedLocales: Map<string, NodePath<Node>>
+) {
+  const extractions: Statement[] = []
+  deoptimizedLocales.forEach((node, locale) => {
+    const localName = `__${locale}__`
+    const extracted = extract(node, false, localName)
+    extractions.push(...(Array.isArray(extracted) ? extracted : [extracted]))
+    registry.properties.push(
+      createProperty(locale, t.expression.ast`${localName}`)
+    )
+  })
+  ast.body.unshift(...extractions)
 }
