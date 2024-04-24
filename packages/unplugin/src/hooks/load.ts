@@ -58,6 +58,9 @@ export function createLoad(
 
         case 'locales':
           return await createLocalesConfig(opts, identifier.split(','))
+
+        case 'messages':
+          return await createMessagesConfig(opts)
       }
     }
     return null
@@ -237,7 +240,26 @@ export async function createLocalesConfig(
 ) {
   const [optimizableLocales, deoptimizedLocales] = getLocales(opts)
   const registry = createObject()
+  const overrides = getConfigProperty(opts, 'messages')
   const ast = t.program.ast`export const locales = ${registry}`
+  if (overrides && overrides.get('value').isObjectExpression()) {
+    const extendId = addImport(opts, ast, {
+      from: '@formkit/utils',
+      name: 'extend',
+    })
+    const overridesId = addImport(opts, ast, {
+      from: 'virtual:formkit/messages',
+      name: 'messages',
+    })
+    opts.traverse(ast, {
+      VariableDeclarator(path) {
+        if (path.get('id').isIdentifier({ name: 'locales' })) {
+          path.node.init = t.expression
+            .ast`${extendId}(${path.node.init}, ${overridesId})`
+        }
+      },
+    })
+  }
   await insertOptimizedLocales(
     opts,
     ast,
@@ -279,6 +301,14 @@ function getLocales(
           deoptimizedLocales.set(localeName, localeValue)
         }
       }
+    },
+    SpreadElement() {
+      consola.warn(
+        '[FormKit de-opt] could not statically analyze DefineConfigOptions[locales].'
+      )
+      throw new Error(
+        'Cannot process spread elements in FormKit locales configuration.'
+      )
     },
   })
 
@@ -404,8 +434,15 @@ async function insertOptimizedLocales(
   })
 }
 
+/**
+ * Inserts the deoptimized locales into the registry.
+ * @param _opts - Resolved options
+ * @param ast - The virtual module ast
+ * @param registry - The registry of locales
+ * @param deoptimizedLocales - A map of deoptimized locales and their path in the config
+ */
 async function insertDeoptimizedLocales(
-  opts: ResolvedOptions,
+  _opts: ResolvedOptions,
   ast: Program,
   registry: ObjectExpression,
   deoptimizedLocales: Map<string, NodePath<Node>>
@@ -420,4 +457,20 @@ async function insertDeoptimizedLocales(
     )
   })
   ast.body.unshift(...extractions)
+}
+
+/**
+ * Create a messages configuration for the given options.
+ */
+async function createMessagesConfig(
+  opts: ResolvedOptions
+): Promise<TransformResult> {
+  const messages = getConfigProperty(opts, 'messages')
+  if (!messages) {
+    return `export const messages = {}`
+  }
+
+  const file = extract(messages.get('value'), true, 'messages')
+  file.program.body.push(t.statement.ast`export { messages }`)
+  return opts.generate(file)
 }

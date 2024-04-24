@@ -261,4 +261,54 @@ describe('i18n config loading', () => {
       };"
     `)
   })
+
+  it('can extract messages into their own virtual module', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/messages', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-i18n-messages.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "const messages = {
+          de: {
+              validation: {
+                  required: "Dieses Feld ist erforderlich"
+              }
+          }
+      };
+
+      export { messages };"
+    `)
+  })
+
+  it('can wrap locales in messages overrides', async ({ expect }) => {
+    const code = await load('virtual:formkit/locales:required', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-i18n-messages.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { fr } from "./my-custom-locale";
+      const __fr__ = fr;
+      import { required } from "@formkit/i18n/locales/de";
+      import { messages } from "virtual:formkit/messages";
+      import { extend } from "@formkit/utils";
+
+      export const locales = (extend({
+          de: ({
+              validation: {
+                  required: required
+              },
+
+              ui: {}
+          }),
+
+          fr: __fr__
+      }, messages));"
+    `)
+  })
 })
