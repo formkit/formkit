@@ -5,4 +5,5 @@ import { fr } from './my-custom-locale'
 
 export default defineFormKitConfig({
   locales: { de, fr },
+  localize: ['changeDate', 'remove'],
 })

@@ -1,10 +1,12 @@
-import type { ComponentUse } from '../types'
+import type { ComponentUse, Import, ResolvedOptions } from '../types'
 import type {
   ObjectExpression,
   ObjectProperty,
   StringLiteral,
   ArrayExpression,
+  ImportDeclaration,
 } from '@babel/types'
+import type { NodePath } from '@babel/traverse'
 import {
   isArrayExpression,
   isObjectProperty,
@@ -14,6 +16,7 @@ import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
 import { getConfigProperty } from './config'
+import { createVirtualInputConfig } from '../hooks/load'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -64,11 +67,16 @@ export async function createConfigObject(
   config.properties.push(createProperty('plugins', plugins))
   const props = component.path.node.arguments[1] as ObjectExpression
   // Perform a direct-injection on the input type (if possible)
-  importInputType(component, props, plugins)
+  const localizations = await importInputType(component, props, plugins)
   // Inject the validation plugin and any rules
   const rules = await importValidation(component, props, plugins)
   // Import the necessary i18n locales
-  await importLocales(component, props, plugins, rules)
+  await importLocales(
+    component,
+    props,
+    plugins,
+    new Set([...rules, ...localizations])
+  )
   // Set the locale from the config object
   await setLocale(component, config)
   return config
@@ -80,11 +88,12 @@ export async function createConfigObject(
  * @param props - The props object to modify.
  * @param plugins - The plugins array to modify.
  */
-function importInputType(
+async function importInputType(
   component: ComponentUse,
   props: ObjectExpression,
   plugins: ArrayExpression
-): void {
+): Promise<Set<string>> {
+  const localizations = new Set<string>()
   const inputType = props.properties.find(
     (prop) =>
       isObjectProperty(prop) &&
@@ -100,6 +109,7 @@ function importInputType(
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
+    await extractLocalizations(component.opts, value, localizations)
   } else {
     consola.warn(
       '[FormKit]: Input uses bound "type" prop, skipping optimization.'
@@ -110,6 +120,7 @@ function importInputType(
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
+  return localizations
 }
 
 /**
@@ -126,7 +137,7 @@ async function importValidation(
       prop.key.type === 'Identifier' &&
       prop.key.name === 'validation'
   ) as ObjectProperty | undefined
-  if (!validationProp) return
+  if (!validationProp) return new Set<string>()
 
   const usedRules = new Set<string>()
   if (isStringLiteral(validationProp.value)) {
@@ -210,4 +221,56 @@ function setLocale(component: ComponentUse, config: ObjectExpression) {
   if (locale && locale.isStringLiteral()) {
     config.properties.push(createProperty('locale', locale.node))
   }
+}
+
+/**
+ * Extract the localizations from a given module.
+ * @param identifier - The identifier to extract localizations from.
+ * @param localizations - The set to add localizations to.
+ */
+async function extractLocalizations(
+  opts: ResolvedOptions,
+  input: string,
+  localizations: Set<string>
+) {
+  try {
+    const ast = await createVirtualInputConfig(opts, input)
+    let inputImport: Import | undefined
+    opts.traverse(ast, {
+      ImportSpecifier(path) {
+        if (path.get('local').isIdentifier({ name: input })) {
+          const source = (path.parentPath as NodePath<ImportDeclaration>).get(
+            'source'
+          )
+          if (source && source.isStringLiteral()) {
+            source.node.value
+            inputImport = {
+              from: source.node.value,
+              name: input,
+            }
+            path.stop()
+          }
+        }
+      },
+    })
+    if (inputImport) {
+      const module = await import(inputImport.from)
+      if (inputImport.name in module) {
+        const inputDefinition = module[inputImport.name]
+        if (
+          inputDefinition &&
+          typeof inputDefinition === 'object' &&
+          'localize' in inputDefinition
+        ) {
+          const localize = inputDefinition.localize
+          if (Array.isArray(localize)) {
+            localize.forEach(localizations.add, localizations)
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Ignore errors here, they’ll be thrown by the actual loader.
+  }
+  return localizations
 }

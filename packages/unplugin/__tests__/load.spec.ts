@@ -106,10 +106,9 @@ describe('validation config loading', () => {
   it('can load the validation plugin', async ({ expect }) => {
     const code = await load('virtual:formkit/validation')
     expect(code).toMatchInlineSnapshot(`
-      "import { createValidationPlugin } from '@formkit/validation'
-      const validation = createValidationPlugin({})
-      export { validation }
-      "
+      "import { createValidationPlugin } from "@formkit/validation";
+      const validation = createValidationPlugin({});
+      export { validation };"
     `)
   })
 
@@ -247,6 +246,8 @@ describe('i18n config loading', () => {
       "import { fr } from "./my-custom-locale";
       const __fr__ = fr;
       import { required } from "@formkit/i18n/locales/de";
+      import { remove } from "@formkit/i18n/locales/de";
+      import { changeDate } from "@formkit/i18n/locales/de";
 
       export const locales = {
           de: ({
@@ -254,7 +255,10 @@ describe('i18n config loading', () => {
                   required: required
               },
 
-              ui: {}
+              ui: {
+                  changeDate: changeDate,
+                  remove: remove
+              }
           }),
 
           fr: __fr__

@@ -8,7 +8,11 @@
   {{ removeAll }}
   <details open>
     <summary>Using script setup with a ref for validation</summary>
-    <FormKit validation="required|length:10" label="Username" />
+    <FormKit
+      type="text"
+      :validation="[['required'], ['length', 10]]"
+      label="Username"
+    />
     <!-- <ScriptSetupRefValidation />
     <RefAsInputType /> -->
   </details>

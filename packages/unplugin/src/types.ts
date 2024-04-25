@@ -29,6 +29,7 @@ export interface ResolvedOptions extends Options, ASTTools {
   configAst: File | Program | undefined
   configParseCount: number
   configPath?: string
+  configLocalize?: string[]
 }
 
 export interface ASTTools {

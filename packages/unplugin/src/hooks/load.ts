@@ -1,4 +1,4 @@
-import type { TransformResult, UnpluginOptions } from 'unplugin'
+import type { UnpluginOptions } from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
 import { getConfigProperty } from '../utils/config'
@@ -36,34 +36,51 @@ export function createLoad(
   return async function load(id) {
     if (id.startsWith('\0' + FORMKIT_CONFIG_PREFIX)) {
       trackReload.call(this, opts, id)
-      const [plugin, identifier] = id
-        .substring(FORMKIT_CONFIG_PREFIX.length + 1)
-        .split(':')
-
-      switch (plugin) {
-        case 'inputs':
-          return await createVirtualInputConfig(opts, identifier)
-
-        case 'library':
-          return await createDeoptimizedLibrary(opts)
-
-        case 'validation':
-          return await createValidationConfig()
-
-        case 'rules':
-          return await createVirtualRuleConfig(opts, identifier)
-
-        case 'i18n':
-          return await createI18nPlugin(opts)
-
-        case 'locales':
-          return await createLocalesConfig(opts, identifier.split(','))
-
-        case 'messages':
-          return await createMessagesConfig(opts)
-      }
+      const moduleAST = await createModuleAST(opts, id)
+      return opts.generate(moduleAST)
     }
     return null
+  }
+}
+
+/**
+ * Create a module AST for the given module id.
+ * @param opts - Resolved options
+ * @param id - The module id
+ * @returns
+ */
+async function createModuleAST(
+  opts: ResolvedOptions,
+  id: string
+): Promise<File | Program> {
+  const [plugin, identifier] = id
+    .substring(FORMKIT_CONFIG_PREFIX.length + 1)
+    .split(':')
+
+  switch (plugin) {
+    case 'inputs':
+      return await createVirtualInputConfig(opts, identifier)
+
+    case 'library':
+      return await createDeoptimizedLibrary(opts)
+
+    case 'validation':
+      return await createValidationConfig()
+
+    case 'rules':
+      return await createVirtualRuleConfig(opts, identifier)
+
+    case 'i18n':
+      return await createI18nPlugin()
+
+    case 'locales':
+      return await createLocalesConfig(opts, identifier.split(','))
+
+    case 'messages':
+      return await createMessagesConfig(opts)
+
+    default:
+      throw new Error(`Unknown FormKit virtual module: formkit/${plugin}`)
   }
 }
 
@@ -71,8 +88,9 @@ export function createLoad(
  * Create a validation configuration for the given options.
  * @param opts - Resolved options
  */
-function createValidationConfig(): TransformResult {
-  return `import { createValidationPlugin } from '@formkit/validation'
+function createValidationConfig(): File | Program {
+  return t.program
+    .ast`import { createValidationPlugin } from '@formkit/validation'
 const validation = createValidationPlugin({})
 export { validation }
 `
@@ -81,7 +99,7 @@ export { validation }
 function createVirtualRuleConfig(
   opts: ResolvedOptions,
   ruleName: string
-): TransformResult {
+): File | Program {
   if (opts.configAst) {
     const rules = getConfigProperty(opts, 'rules')?.get('value')
     if (rules && !rules.isObjectExpression()) {
@@ -119,13 +137,11 @@ function createVirtualRuleConfig(
             path.pushContainer('body', exported)
           },
         })
-        return opts.generate(ruleDefinition)
+        return ruleDefinition
       }
     }
   }
-  return opts.generate(
-    t.program.ast`export { ${ruleName} } from '@formkit/rules'`
-  )
+  return t.program.ast`export { ${ruleName} } from '@formkit/rules'`
 }
 
 /**
@@ -135,12 +151,12 @@ function createVirtualRuleConfig(
  * @param opts - Resolved options
  * @returns
  */
-function createDeoptimizedLibrary(opts: ResolvedOptions): TransformResult {
+function createDeoptimizedLibrary(opts: ResolvedOptions): File | Program {
   const definedInputs = getConfigProperty(opts, 'inputs')
   const extracted = definedInputs
     ? extract(definedInputs.get('value'), false)
     : t.ast`const __extracted__ = {}`
-  return opts.generate(t.program.ast`
+  return t.program.ast`
     import { createLibraryPlugin, inputs } from '@formkit/inputs'
     ${extracted}
     const library = createLibraryPlugin({
@@ -148,7 +164,7 @@ function createDeoptimizedLibrary(opts: ResolvedOptions): TransformResult {
       ...__extracted__,
     })
     export { library }
-  `)
+  `
 }
 
 /**
@@ -162,7 +178,7 @@ function createDeoptimizedLibrary(opts: ResolvedOptions): TransformResult {
 export async function createVirtualInputConfig(
   opts: ResolvedOptions,
   inputName: string
-): Promise<TransformResult> {
+): Promise<File | Program> {
   if (opts.configAst) {
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
@@ -194,7 +210,7 @@ export async function createVirtualInputConfig(
             path.pushContainer('body', library)
           },
         })
-        return opts.generate(inputDefinition)
+        return inputDefinition
       }
     }
   }
@@ -208,11 +224,10 @@ export async function createVirtualInputConfig(
       `Input ${inputName} is not a registered input or an available input in @formkit/inputs.`
     )
   }
-  return opts.generate(t.program
-    .ast`import { ${inputName} } from '@formkit/inputs';
+  return t.program.ast`import { ${inputName} } from '@formkit/inputs';
   const library = () => {};
   library.library = (node) => node.define(${inputName});
-  export { library };`)
+  export { library };`
 }
 
 /**
@@ -220,13 +235,11 @@ export async function createVirtualInputConfig(
  * @param opts - Resolved options
  * @returns
  */
-export async function createI18nPlugin(
-  opts: ResolvedOptions
-): Promise<TransformResult> {
-  return opts.generate(t.program.ast`
+export async function createI18nPlugin(): Promise<File | Program> {
+  return t.program.ast`
   import { createI18nPlugin } from '@formkit/i18n/i18n'
   export const i18n = createI18nPlugin({})
-  `)
+  `
 }
 
 /**
@@ -237,10 +250,15 @@ export async function createI18nPlugin(
 export async function createLocalesConfig(
   opts: ResolvedOptions,
   messages: string[]
-) {
+): Promise<File | Program> {
   const [optimizableLocales, deoptimizedLocales] = getLocales(opts)
   const registry = createObject()
   const overrides = getConfigProperty(opts, 'messages')
+  if (opts.configLocalize) {
+    opts.configLocalize.forEach((message) => {
+      messages.push(message)
+    })
+  }
   const ast = t.program.ast`export const locales = ${registry}`
   if (overrides && overrides.get('value').isObjectExpression()) {
     const extendId = addImport(opts, ast, {
@@ -268,7 +286,7 @@ export async function createLocalesConfig(
     messages
   )
   await insertDeoptimizedLocales(opts, ast, registry, deoptimizedLocales)
-  return opts.generate(ast)
+  return ast
 }
 
 /**
@@ -464,13 +482,13 @@ async function insertDeoptimizedLocales(
  */
 async function createMessagesConfig(
   opts: ResolvedOptions
-): Promise<TransformResult> {
+): Promise<File | Program> {
   const messages = getConfigProperty(opts, 'messages')
   if (!messages) {
-    return `export const messages = {}`
+    return t.program.ast`export const messages = {}`
   }
 
   const file = extract(messages.get('value'), true, 'messages')
   file.program.body.push(t.statement.ast`export { messages }`)
-  return opts.generate(file)
+  return file
 }

@@ -15,14 +15,55 @@ import type { FormKitLocale, FormKitLocaleRegistry } from '@formkit/i18n'
  * @public
  */
 export interface PluginConfigs {
+  /**
+   * Custom validation rules. See the {@link https://formkit.com/essential/validation | validation docs} for information on how to write your own rules.
+   */
   rules: Record<string, FormKitValidationRule>
+  /**
+   * i18n locales. See the {@link https://formkit.com/essential/internationalization | i18n docs} for more details.
+   */
   locales: FormKitLocaleRegistry
+  /**
+   * Custom inputs. See the {@link https://formkit.com/essential/inputs | input docs} for more details and information on how to write your own inputs.
+   */
   inputs: FormKitLibrary
+  /**
+   * Override the i18n locales on a per-message basis. The structure should be:
+   * ```ts
+   * {
+   *   en: {
+   *     validation: {
+   *       required: 'This field is super required',
+   *     }
+   *   }
+   * }
+   * ```
+   */
   messages: Record<string, Partial<FormKitLocale>>
+  /**
+   * The default locale.
+   */
   locale: string
+  /**
+   * A theme to use for the form.
+   */
   theme: string
+  /**
+   * The URL to load icons from.
+   */
   iconLoaderUrl: FormKitIconLoaderUrl
+  /**
+   * The icon loader to use.
+   */
   iconLoader: FormKitIconLoader
+  /**
+   * A custom set of icons to use. To provide your own simply provide a key-value pair of the icon name and the SVG string.
+   * ```ts
+   * {
+   *   'check': '<svg>...</svg>',
+   * }
+   * ```
+   */
   icons: Record<string, string | undefined>
 }
 
@@ -31,8 +72,18 @@ export interface PluginConfigs {
  * is slightly different than the legacy DefaultConfigOptions. It is
  */
 export type DefineConfigOptions = {
+  /**
+   * An object of options to pass to the `createNode()` function whenever a new core node is created.
+   */
   nodeOptions?: Partial<FormKitOptions>
-  plugins: FormKitPlugin[]
+  /**
+   * An array of plugins to pass to the `createNode()` function whenever a new core node is created.
+   */
+  plugins?: FormKitPlugin[]
+  /**
+   * An array of strings, where each is the name of a ui message to localize. {@link https://github.com/formkit/formkit/blob/master/packages/i18n/src/locales/en.ts#L18 | Check any locale’s `ui` object} for the available messages.
+   */
+  localize?: string[]
 } & Partial<PluginConfigs>
 
 /**

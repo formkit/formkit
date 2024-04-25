@@ -48,7 +48,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
 
   const configPath = resolveConfig(opts)
   const configAst = createConfigAst(parse, configPath)
-  return {
+  const resolvedConfig = {
     ...opts,
     configAst,
     configPath,
@@ -57,6 +57,8 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     parse,
     generate,
   }
+  addConfigLocalize(resolvedConfig as ResolvedOptions)
+  return resolvedConfig
 }
 
 /**
@@ -131,13 +133,13 @@ export function getConfigProperty(
           path.traverse({
             ObjectProperty(propertyPath) {
               if (
-                propertyPath.parentPath.parentPath === path &&
                 propertyPath.node.key.type === 'Identifier' &&
                 propertyPath.node.key.name === name
               ) {
                 prop = propertyPath
                 path.stop()
               }
+              path.skip()
             },
           })
           path.stop()
@@ -151,6 +153,25 @@ export function getConfigProperty(
   })
 
   return prop
+}
+
+/**
+ * Extract any `localize` properties from the configuration.
+ * @param opts - Resolved options
+ */
+function addConfigLocalize(opts: ResolvedOptions): void {
+  if (opts.configAst) {
+    const configLocalize: string[] = []
+    const value = getConfigProperty(opts, 'localize')?.get('value')
+    if (value && value.isArrayExpression()) {
+      value.node.elements.forEach((el) => {
+        if (el && el.type === 'StringLiteral') {
+          configLocalize.push(el.value)
+        }
+      })
+      opts.configLocalize = configLocalize
+    }
+  }
 }
 
 const previouslyLoaded: Record<string, number> = {}

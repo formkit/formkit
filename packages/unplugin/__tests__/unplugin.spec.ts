@@ -23,7 +23,9 @@ describe('sfc transform', () => {
     )
   })
 
-  it('imports a custom input at the point of use', async ({ expect }) => {
+  it('imports a custom input from config at the point of use', async ({
+    expect,
+  }) => {
     const code = await sfcTransform(
       resolve(__dirname, './fixtures/CustomComponentRender.vue'),
       {
@@ -34,5 +36,14 @@ describe('sfc transform', () => {
       }
     )
     expect(code).toMatchSnapshot()
+  })
+
+  it('automatically localizes inputs it can import', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/ButtonRender.vue')
+    )
+    expect(code).toContain(
+      'import { locales } from "virtual:formkit/locales:submit"'
+    )
   })
 })

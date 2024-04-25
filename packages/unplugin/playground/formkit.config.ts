@@ -1,7 +1,7 @@
 import { defineFormKitConfig } from '@formkit/vue'
 import type { FormKitNode } from '@formkit/core'
 import { empty } from '@formkit/utils'
-import { de } from '@formkit/i18n'
+import { de, zh } from '@formkit/i18n'
 
 export default defineFormKitConfig({
   inputs: {
@@ -11,7 +11,8 @@ export default defineFormKitConfig({
     },
   },
   locale: 'de',
-  locales: { de },
+  locales: { de, zh },
+  localize: ['remove'],
   messages: {
     en: {
       validation: {
