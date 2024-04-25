@@ -1,5 +1,5 @@
 import type { FormKitTypeDefinition } from '@formkit/core'
-import { $if, defaultIcon, localize, disablesChildren } from '@formkit/inputs'
+import { $if, defaultIcon, disablesChildren } from '@formkit/inputs'
 import {
   wrapper,
   badge,
@@ -84,6 +84,10 @@ export const step: FormKitTypeDefinition = {
    */
   family: '',
   /**
+   * An array of messages to create and expose to  props to accept for this input.
+   */
+  localize: ['next', 'prev'],
+  /**
    * An array of extra props to accept for this input.
    */
   props: [
@@ -97,5 +101,5 @@ export const step: FormKitTypeDefinition = {
   /**
    * Additional features that should be added to your input
    */
-  features: [localize('next'), localize('prev'), disablesChildren],
+  features: [disablesChildren],
 }
