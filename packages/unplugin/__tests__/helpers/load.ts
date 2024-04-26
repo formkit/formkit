@@ -11,7 +11,7 @@ import { createResolver } from '../../src/hooks/resolveId'
  * @returns
  */
 export async function load(id: string, options: Partial<Options> = {}) {
-  const opts = createOpts(options)
+  const opts = await createOpts(options)
   const load = createLoad(opts)
   const context = createContext(opts)
   const resolver = createResolver(opts)

@@ -12,7 +12,7 @@ import {
   isObjectProperty,
   isStringLiteral,
 } from '@babel/types'
-import { addImport, createProperty } from './ast'
+import { addImport, createProperty, getKeyName } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
 import { getConfigProperty } from './config'
@@ -77,6 +77,7 @@ export async function createConfigObject(
     plugins,
     new Set([...rules, ...localizations])
   )
+  await importIcons(component)
   // Set the locale from the config object
   await setLocale(component, config)
   return config
@@ -219,7 +220,16 @@ function importLocales(
 function setLocale(component: ComponentUse, config: ObjectExpression) {
   const locale = getConfigProperty(component.opts, 'locale')?.get('value')
   if (locale && locale.isStringLiteral()) {
-    config.properties.push(createProperty('locale', locale.node))
+    config.properties.push({
+      type: 'ObjectProperty',
+      computed: false,
+      shorthand: false,
+      key: {
+        type: 'Identifier',
+        name: 'config',
+      },
+      value: t.expression.ast`{ locale: ${locale.node} }`,
+    })
   }
 }
 
@@ -273,4 +283,38 @@ async function extractLocalizations(
     // Ignore errors here, they’ll be thrown by the actual loader.
   }
   return localizations
+}
+
+async function importIcons(component: ComponentUse) {
+  const iconPaths = new Map<NodePath<ObjectProperty>, string>()
+  ;(
+    component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
+  )?.traverse({
+    ObjectProperty(path) {
+      const key = path.get('key')
+      const keyName = getKeyName(key)
+      if (keyName?.endsWith('-icon')) {
+        const value = path.get('value')
+        if (
+          value.node.type === 'StringLiteral' &&
+          !value.node.value.startsWith('<svg')
+        ) {
+          const iconValue = value.node.value
+          iconPaths.set(path, iconValue)
+        }
+      }
+      path.skip()
+    },
+  })
+  if (!iconPaths.size) return
+
+  iconPaths.forEach((icon, path) => {
+    path.get('value').replaceWith({
+      type: 'Identifier',
+      name: addImport(component.opts, component.root, {
+        from: 'virtual:formkit/icons:' + icon,
+        name: icon,
+      }),
+    })
+  })
 }

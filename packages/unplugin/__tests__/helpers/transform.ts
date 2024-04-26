@@ -8,7 +8,7 @@ import { readFile } from 'fs/promises'
 
 export async function sfcTransform(id: string, options: Partial<Options> = {}) {
   let sfcCode = await readFile(id, { encoding: 'utf-8' })
-  const opts = createOpts(options)
+  const opts = await createOpts(options)
   const context = createContext(opts)
   const transform = createTransform(opts)
   const vue = vuePlugin({ compiler: vueCompiler })

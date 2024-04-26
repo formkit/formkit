@@ -73,6 +73,48 @@ export interface PluginConfigs {
  */
 export type DefineConfigOptions = {
   /**
+   * Experimental: Perform build-time optimizations — for example — only loading
+   * the inputs, validation rules, and locales that are required per <FormKit>
+   * instance. This can significantly reduce the size of your bundle.
+   * (default: false)
+   */
+  optimize:
+    | boolean
+    | {
+        /**
+         * Disable input optimizations that only load the inputs being used at the
+         * location where they are used. Disabling this optimization will revert to
+         * using an input library of all available inputs. (default: true)
+         */
+        inputs?: boolean
+        /**
+         * Disable validation optimizations that only load the validation rules
+         * being used at the location where they are used. Disabling this
+         * optimization will revert to using all available validation rules.
+         * (default: true)
+         */
+        validation?: boolean
+        /**
+         * Disable i18n optimizations that only load the locale messages being used
+         * at the location where they are used. Disabling this optimization will
+         * revert to using all available locales. (default: true)
+         */
+        i18n?: boolean
+        /**
+         * Disable icon optimizations that loads icons from their sources at build
+         * time at the locations where they are used in your app. Disabling this
+         * optimization will revert to using a runtime icon loader. (default: true)
+         */
+        icons?: boolean
+        /**
+         * Disable theme optimizations that attempts to only inject the
+         * necessary classes at their point of use in your app. Disabling this
+         * optimization will revert to importing the entire rootClasses object.
+         * (default: true)
+         */
+        theme?: boolean
+      }
+  /**
    * An object of options to pass to the `createNode()` function whenever a new core node is created.
    */
   nodeOptions?: Partial<FormKitOptions>
@@ -155,8 +197,9 @@ export function defineFormKitConfig(
 ): () => LegacyDefaultConfigOptions
 /**
  * @deprecated - Using a function inside defineFormKitConfig is no longer
- * the recommended way to configure FormKit globally. Continuing to a function
- * will not allow your FormKit’s build tooling to optimize your configuration.
+ * the recommended way to configure FormKit globally. Continuing to use a
+ * function will not allow your FormKit’s build tooling to optimize your
+ * configuration.
  */
 export function defineFormKitConfig(
   config: FunctionalConfigOptions

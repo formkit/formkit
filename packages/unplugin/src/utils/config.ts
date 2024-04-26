@@ -48,7 +48,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
 
   const configPath = resolveConfig(opts)
   const configAst = createConfigAst(parse, configPath)
-  const resolvedConfig = {
+  const resolvedConfig: ResolvedOptions = {
     ...opts,
     configAst,
     configPath,
@@ -200,6 +200,9 @@ export function trackReload(
       consola.info('Reloading formkit.config.ts file')
       opts.configAst = createConfigAst(opts.parse, opts.configPath)
       opts.configParseCount = totalReloads
+      addConfigLocalize(opts)
+      opts.configIconLoaderUrl = undefined
+      opts.configIconLoader = undefined
     }
   }
 }

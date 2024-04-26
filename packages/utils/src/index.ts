@@ -311,11 +311,11 @@ export function isPojo(o: any): o is Record<string, any> {
 /**
  * Recursively merge data from additional into original returning a new object.
  *
- * @param original - The original array.
- * @param additional - The array to merge.
+ * @param original - The original pojo.
+ * @param additional - The pojo to merge on top of the original.
  * @param extendArrays - If it will extend/concatenate array values instead of
  * replacing them.
- * @param ignoreUndefined - If it will preserve values from the original object
+ * @param ignoreUndefined - If true it will preserve values from the original object
  * even if the additional object has those values set to undefined.
  *
  * @returns `Record<string, any> | string | null`

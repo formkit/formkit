@@ -1,9 +1,11 @@
 import { defineFormKitConfig } from '@formkit/vue'
 import type { FormKitNode } from '@formkit/core'
 import { empty } from '@formkit/utils'
-import { de, zh } from '@formkit/i18n'
+import de from '@formkit/i18n/locales/de'
+import zh from '@formkit/i18n/locales/zh'
 
 export default defineFormKitConfig({
+  optimize: true,
   inputs: {
     custom: {
       type: 'input',

@@ -3,6 +3,7 @@ import type { CallExpression, Program, File, Node } from '@babel/types'
 import type traverse from '@babel/traverse'
 import type generate from '@babel/generator'
 import type { PrintResultType } from 'recast/lib/printer'
+import type { DefineConfigOptions } from '@formkit/vue'
 
 export interface Import {
   name: string
@@ -30,6 +31,8 @@ export interface ResolvedOptions extends Options, ASTTools {
   configParseCount: number
   configPath?: string
   configLocalize?: string[]
+  configIconLoaderUrl?: DefineConfigOptions['iconLoaderUrl']
+  configIconLoader?: DefineConfigOptions['iconLoader']
 }
 
 export interface ASTTools {

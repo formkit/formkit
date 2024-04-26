@@ -17,7 +17,7 @@ import { usedComponents } from '../src/utils/vue'
 import { createOpts } from '../src/utils/config'
 import { isIdentifier } from '@babel/types'
 
-const opts = createOpts({})
+const opts = await createOpts({})
 
 describe('getUsedImports', () => {
   it('can extract used imports', () => {

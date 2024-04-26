@@ -1,3 +1,4 @@
+import jiti from 'jiti'
 import type { UnpluginOptions } from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
@@ -23,7 +24,8 @@ import type {
   Statement,
 } from '@babel/types'
 import tcjs from '@babel/template'
-import type LocaleImport from '@formkit/i18n/locales/tet'
+import type LocaleImport from '@formkit/i18n/locales/en'
+import type { DefineConfigOptions } from '@formkit/vue'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -78,6 +80,9 @@ async function createModuleAST(
 
     case 'messages':
       return await createMessagesConfig(opts)
+
+    case 'icons':
+      return await createIconConfig(opts, identifier)
 
     default:
       throw new Error(`Unknown FormKit virtual module: formkit/${plugin}`)
@@ -491,4 +496,25 @@ async function createMessagesConfig(
   const file = extract(messages.get('value'), true, 'messages')
   file.program.body.push(t.statement.ast`export { messages }`)
   return file
+}
+
+async function createIconConfig(
+  opts: ResolvedOptions,
+  icon: string
+): Promise<File | Program> {
+  // If there are icon loader considerations we should be prepared for them:
+  if (opts.configPath) {
+    try {
+      const config = (await jiti(opts.configPath)) as DefineConfigOptions
+      opts.configIconLoaderUrl = config.iconLoaderUrl
+      opts.configIconLoader = config.iconLoader
+    } catch (err) {
+      consola.warn(
+        '[FormKit deopt] Failed to load config file to optimize icons.'
+      )
+    }
+  }
+
+  // TODO: implement icon loader logic
+  return t.program.ast`export const ${icon} = null`
 }

@@ -60,7 +60,7 @@ const i18nNodes = new Set<FormKitNode>()
 /**
  * The currently active locale.
  */
-let activeLocale: string | null = null
+let globalActiveLocale: string | null = null
 
 /**
  * Create a new internationalization plugin for FormKit.
@@ -76,7 +76,7 @@ export function createI18nPlugin(
 ): FormKitPlugin {
   return function i18nPlugin(node: FormKitNode) {
     i18nNodes.add(node)
-    if (activeLocale) node.config.locale = activeLocale
+    if (globalActiveLocale) node.config.locale = globalActiveLocale
     if (node.props.__locales__) {
       registry = { ...registry, ...node.props.__locales__ }
     }
@@ -150,7 +150,7 @@ function parseLocale(
  * @param locale - The locale to change to
  */
 export function changeLocale(locale: string) {
-  activeLocale = locale
+  globalActiveLocale = locale
   for (const node of i18nNodes) {
     node.config.locale = locale
   }

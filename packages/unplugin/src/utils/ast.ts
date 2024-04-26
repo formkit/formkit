@@ -12,6 +12,7 @@ import type {
   ObjectMethod,
   ObjectExpression,
   Method,
+  PrivateName,
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
 import type { Binding, NodePath } from '@babel/traverse'
@@ -352,4 +353,16 @@ export function extractMethodAsFunction(
     program: t.program.ast`${extracted}
     ${func}`,
   }
+}
+
+export function getKeyName(
+  key: NodePath<PrivateName | Expression>
+): string | undefined {
+  if (key.isIdentifier()) {
+    return key.node.name
+  }
+  if (key.isStringLiteral()) {
+    return key.node.value
+  }
+  return undefined
 }
