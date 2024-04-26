@@ -84,6 +84,9 @@ async function createModuleAST(
     case 'icons':
       return await createIconConfig(opts, identifier)
 
+    case 'defaultConfig':
+      return await createDefaultConfig(opts)
+
     default:
       throw new Error(`Unknown FormKit virtual module: formkit/${plugin}`)
   }
@@ -505,7 +508,7 @@ async function createIconConfig(
   // If there are icon loader considerations we should be prepared for them:
   if (opts.configPath) {
     try {
-      const config = (await jiti(opts.configPath)) as DefineConfigOptions
+      const config = await jiti(opts.configPath)
       opts.configIconLoaderUrl = config.iconLoaderUrl
       opts.configIconLoader = config.iconLoader
     } catch (err) {
@@ -517,4 +520,23 @@ async function createIconConfig(
 
   // TODO: implement icon loader logic
   return t.program.ast`export const ${icon} = null`
+}
+
+/**
+ * Create a fully de-optimized default configuration using the legacy
+ * `defaultConfig()` function from `@formkit/vue`.
+ * @param opts - Resolved options
+ * @returns
+ */
+async function createDefaultConfig(
+  opts: ResolvedOptions
+): Promise<File | Program> {
+  return t.program.ast`import { defaultConfig as d } from '@formkit/vue'
+  ${
+    opts.configPath
+      ? `import config from '${opts.configPath}'`
+      : 'const config = {}'
+  }
+
+  export const defaultConfig = d(typeof config === 'function' ? config() : config)`
 }

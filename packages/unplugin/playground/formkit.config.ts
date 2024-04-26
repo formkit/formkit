@@ -5,7 +5,7 @@ import de from '@formkit/i18n/locales/de'
 import zh from '@formkit/i18n/locales/zh'
 
 export default defineFormKitConfig({
-  optimize: true,
+  optimize: false,
   inputs: {
     custom: {
       type: 'input',

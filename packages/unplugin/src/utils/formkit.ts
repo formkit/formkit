@@ -5,6 +5,7 @@ import type {
   StringLiteral,
   ArrayExpression,
   ImportDeclaration,
+  Identifier,
 } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import {
@@ -15,7 +16,7 @@ import {
 import { addImport, createProperty, getKeyName } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
-import { getConfigProperty } from './config'
+import { getConfigProperty, isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
@@ -53,7 +54,16 @@ export async function configureFormKitInstance(
  */
 export async function createConfigObject(
   component: ComponentUse
-): Promise<ObjectExpression> {
+): Promise<ObjectExpression | Identifier> {
+  if (isFullDeopt(component.opts)) {
+    return {
+      type: 'Identifier',
+      name: addImport(component.opts, component.root, {
+        from: 'virtual:formkit/defaultConfig',
+        name: 'defaultConfig',
+      }),
+    }
+  }
   const config = t.expression.ast`{}` as ObjectExpression
 
   const bindingsVar = addImport(component.opts, component.root, {

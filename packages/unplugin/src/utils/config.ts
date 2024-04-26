@@ -11,6 +11,7 @@ import type { File, Node, ObjectProperty, Program } from '@babel/types'
 import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
+import { getKeyName } from './ast'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -48,6 +49,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
 
   const configPath = resolveConfig(opts)
   const configAst = createConfigAst(parse, configPath)
+  const optimize = determineOptimization(traverse, configAst)
   const resolvedConfig: ResolvedOptions = {
     ...opts,
     configAst,
@@ -56,6 +58,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     traverse,
     parse,
     generate,
+    optimize,
   }
   addConfigLocalize(resolvedConfig as ResolvedOptions)
   return resolvedConfig
@@ -117,7 +120,7 @@ function resolveConfig(opts: Options): string | undefined {
  * @returns
  */
 export function getConfigProperty(
-  opts: ResolvedOptions,
+  opts: { traverse: ASTTools['traverse']; configAst?: File | Program },
   name: string
 ): NodePath<ObjectProperty> | undefined {
   let prop: NodePath<ObjectProperty> | undefined
@@ -205,4 +208,66 @@ export function trackReload(
       opts.configIconLoader = undefined
     }
   }
+}
+
+/**
+ * Determines which optimizations are enabled in the configuration.
+ * @param traverse - The AST traversal function
+ * @param ast - The AST to traverse
+ * @returns
+ */
+function determineOptimization(
+  traverse: ASTTools['traverse'],
+  ast: File | Program | undefined
+): ResolvedOptions['optimize'] {
+  const keys = ['inputs', 'validation', 'i18n', 'icons', 'theme'] as const
+  const optimizeProperty = getConfigProperty(
+    { traverse, configAst: ast },
+    'optimize'
+  )
+  if (!optimizeProperty)
+    return keys.reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {} as { [key in (typeof keys)[number]]: boolean }
+    )
+  const value = optimizeProperty.get('value')
+  if (value.isBooleanLiteral()) {
+    return keys.reduce(
+      (acc, key) => ({ ...acc, [key]: value.node.value }),
+      {} as { [key in (typeof keys)[number]]: boolean }
+    )
+  }
+  const optimzedOptions: Partial<Record<(typeof keys)[number], boolean>> = {}
+  if (value.isObjectExpression()) {
+    value.traverse({
+      ObjectProperty(path) {
+        const value = path.get('value')
+        if (value.isBooleanLiteral()) {
+          const keyName = getKeyName(path.get('key'))
+          if (keyName && keys.includes(keyName as (typeof keys)[number])) {
+            optimzedOptions[keyName as (typeof keys)[number]] = value.node.value
+          }
+        }
+        path.skip()
+      },
+    })
+    return keys.reduce(
+      (acc, key) => ({ ...acc, [key]: optimzedOptions[key] ?? true }),
+      {} as { [key in (typeof keys)[number]]: boolean }
+    )
+  }
+  throw new Error('Invalid optimize property in formkit.config.ts')
+}
+
+/**
+ * Determines if all the optimizations are false.
+ * @param optimize - The optimization options to check
+ * @returns
+ */
+export function isFullDeopt(
+  opts: ResolvedOptions
+): opts is Exclude<ResolvedOptions, 'optimize'> & {
+  optimize: { [key in keyof ResolvedOptions['optimize']]: false }
+} {
+  return Object.values(opts.optimize).every((v) => !v)
 }
