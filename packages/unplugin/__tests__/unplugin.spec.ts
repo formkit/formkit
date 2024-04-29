@@ -93,4 +93,22 @@ describe('manual deoptimizations', async () => {
     expect(code).toContain('import { rules } from "virtual:formkit/rules";')
     expect(code).not.toContain('virtual:formkit/rules:required')
   })
+
+  it('can automatically disable validation optimizations when bound', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/ValidationDeopt.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/validation-deopt.config.ts'
+        ),
+      }
+    )
+    expect(code).toContain(
+      'import { validation as validation1 } from "virtual:formkit/validation'
+    )
+    expect(code).toContain('import { rules } from "virtual:formkit/rules";')
+  })
 })
