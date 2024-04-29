@@ -14,8 +14,9 @@ import {
   extractMethodAsFunction,
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
-import { createOpts } from '../src/utils/config'
+import { createOpts, getConfigProperty } from '../src/utils/config'
 import { isIdentifier } from '@babel/types'
+import { resolve } from 'pathe'
 
 const opts = await createOpts({})
 
@@ -505,5 +506,66 @@ describe('extractMethodAsFunction', () => {
         return makeRed(input(str));
       }"
     `)
+  })
+})
+
+describe('getConfigProperty', () => {
+  it('extracts the correct property from the root of the config object', () => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/input-deopt-obj.config.ts'
+      ),
+    })
+    const property = getConfigProperty(opts, 'optimize')
+    expect(property?.get('value').node.type).toBe('ObjectExpression')
+  })
+})
+
+describe('determineOptimization', () => {
+  it('can determine a single optimization being disabled', () => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/input-deopt.config.ts'
+      ),
+    })
+    expect(opts.optimize).toEqual({
+      i18n: true,
+      icons: true,
+      inputs: false,
+      theme: true,
+      validation: true,
+    })
+    expect(opts.builtins).toEqual({
+      i18n: true,
+      icons: true,
+      inputs: true,
+      theme: true,
+      validation: true,
+    })
+  })
+
+  it('can determine a single optimization being disabled via object', () => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/input-deopt-obj.config.ts'
+      ),
+    })
+    expect(opts.optimize).toEqual({
+      i18n: true,
+      icons: true,
+      inputs: false,
+      theme: true,
+      validation: true,
+    })
+    expect(opts.builtins).toEqual({
+      i18n: true,
+      icons: true,
+      inputs: false,
+      theme: true,
+      validation: true,
+    })
   })
 })

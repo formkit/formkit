@@ -25,7 +25,6 @@ import type {
 } from '@babel/types'
 import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/en'
-import type { DefineConfigOptions } from '@formkit/vue'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -70,7 +69,8 @@ async function createModuleAST(
       return await createValidationConfig()
 
     case 'rules':
-      return await createVirtualRuleConfig(opts, identifier)
+      if (identifier) return await createVirtualRuleConfig(opts, identifier)
+      return await createDeoptimizedRuleConfig(opts)
 
     case 'i18n':
       return await createI18nPlugin()
@@ -104,6 +104,33 @@ export { validation }
 `
 }
 
+async function createDeoptimizedRuleConfig(
+  opts: ResolvedOptions
+): Promise<File | Program> {
+  const program = opts.builtins.validation
+    ? t.program.ast`import { rules as builtinRules } from '@formkit/rules'`
+    : t.program.ast`const builtinRules = {}`
+  if (opts.configAst) {
+    const rules = getConfigProperty(opts, 'rules')
+    if (rules && rules.get('value').isObjectExpression()) {
+      const extracted = extract(rules.get('value'))
+      opts.traverse(extracted, {
+        Program(path) {
+          path.unshiftContainer('body', program.body)
+          path.pushContainer(
+            'body',
+            t.statement
+              .ast`export const rules = { ...builtinRules, ...__extracted__ }`
+          )
+        },
+      })
+      return extracted
+    }
+  }
+  program.body.push(t.statement.ast`export const rules = builtinRules`)
+  return program
+}
+
 function createVirtualRuleConfig(
   opts: ResolvedOptions,
   ruleName: string
@@ -112,7 +139,7 @@ function createVirtualRuleConfig(
     const rules = getConfigProperty(opts, 'rules')?.get('value')
     if (rules && !rules.isObjectExpression()) {
       consola.warn(
-        "[FormKit de-opt] cannot statically analyze DefineConfigOptions['rules']. Please use an inline object literal."
+        "[FormKit deopt] cannot statically analyze DefineConfigOptions['rules']. Please use an inline object literal."
       )
     } else if (rules?.isObjectExpression()) {
       let ruleDefinition: File | undefined
@@ -191,7 +218,7 @@ export async function createVirtualInputConfig(
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
       consola.warn(
-        "[FormKit de-opt] cannot statically analyze DefineConfigOptions['inputs']. Please use an inline object literal."
+        "[FormKit deopt] cannot statically analyze DefineConfigOptions['inputs']. Please use an inline object literal."
       )
     } else if (inputs?.node.value.type === 'ObjectExpression') {
       let inputPropertyValue: NodePath<Node> | undefined
@@ -322,7 +349,7 @@ function getLocales(
           optimizedLocales.push(localeName)
         } else {
           consola.warn(
-            `[FormKit de-opt] could not statically extract messages for locale ${localeName}.`
+            `[FormKit deopt] could not statically extract messages for locale ${localeName}.`
           )
           deoptimizedLocales.set(localeName, localeValue)
         }
@@ -330,7 +357,7 @@ function getLocales(
     },
     SpreadElement() {
       consola.warn(
-        '[FormKit de-opt] could not statically analyze DefineConfigOptions[locales].'
+        '[FormKit deopt] could not statically analyze DefineConfigOptions[locales].'
       )
       throw new Error(
         'Cannot process spread elements in FormKit locales configuration.'
@@ -354,7 +381,7 @@ function getLocales(
  */
 function isOptimizableLocale(localeName: string, identifier: NodePath<Node>) {
   const path = identifier.scope.getBinding(localeName)?.path
-  if (path && path.isImportSpecifier()) {
+  if (path && (path.isImportSpecifier() || path.isImportDefaultSpecifier())) {
     const source = (path.parentPath as NodePath<ImportDeclaration>).get(
       'source'
     )
@@ -523,7 +550,7 @@ async function createIconConfig(
 }
 
 /**
- * Create a fully de-optimized default configuration using the legacy
+ * Create a fully deoptimized default configuration using the legacy
  * `defaultConfig()` function from `@formkit/vue`.
  * @param opts - Resolved options
  * @returns
@@ -537,6 +564,5 @@ async function createDefaultConfig(
       ? `import config from '${opts.configPath}'`
       : 'const config = {}'
   }
-
   export const defaultConfig = d(typeof config === 'function' ? config() : config)`
 }

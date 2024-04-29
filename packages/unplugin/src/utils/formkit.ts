@@ -56,6 +56,7 @@ export async function createConfigObject(
   component: ComponentUse
 ): Promise<ObjectExpression | Identifier> {
   if (isFullDeopt(component.opts)) {
+    consola.warn('[FormKit deopt]: Full configuration deoptimization')
     return {
       type: 'Identifier',
       name: addImport(component.opts, component.root, {
@@ -113,8 +114,11 @@ async function importInputType(
   ) as ObjectProperty | undefined
 
   let libName: string
-  // Perform an optimized import, directly replacing the type property if possible.
-  if (!inputType || inputType.value.type === 'StringLiteral') {
+  const shouldOptimize = component.opts.optimize.inputs
+  if (
+    shouldOptimize &&
+    (!inputType || inputType.value.type === 'StringLiteral')
+  ) {
     const value = inputType ? (inputType.value as StringLiteral).value : 'text'
     libName = addImport(component.opts, component.root, {
       from: 'virtual:formkit/inputs:' + value,
@@ -122,9 +126,12 @@ async function importInputType(
     })
     await extractLocalizations(component.opts, value, localizations)
   } else {
-    consola.warn(
-      '[FormKit]: Input uses bound "type" prop, skipping optimization.'
-    )
+    if (shouldOptimize) {
+      // We wanted to optimize, but couldn’t.
+      consola.warn(
+        '[FormKit]: Input uses bound "type" prop, skipping optimization.'
+      )
+    }
     libName = addImport(component.opts, component.root, {
       from: 'virtual:formkit/library',
       name: 'library',
@@ -142,6 +149,8 @@ async function importValidation(
   props: ObjectExpression,
   plugins: ArrayExpression
 ) {
+  const opts = component.opts
+  let localDeopt = false
   const validationProp = props.properties.find(
     (prop) =>
       isObjectProperty(prop) &&
@@ -165,9 +174,14 @@ async function importValidation(
         }
       }
     })
+  } else if (opts.optimize.validation) {
+    localDeopt = true
+    consola.warn(
+      '[FormKit deopt]: Cannot statically analyze validation prop, deoptimizing rules.'
+    )
   }
 
-  if (usedRules.size) {
+  if (usedRules.size && opts.optimize.validation) {
     const rulesObject = t.expression.ast`{}` as ObjectExpression
     usedRules.forEach((rule) => {
       rulesObject.properties.push(
@@ -181,6 +195,17 @@ async function importValidation(
       )
     })
     props.properties.push(createProperty('__rules__', rulesObject))
+  } else if (localDeopt || !opts.optimize.validation) {
+    // Load de-optimized rules
+    props.properties.push(
+      createProperty(
+        '__rules__',
+        t.expression.ast`${addImport(opts, component.root, {
+          from: 'virtual:formkit/rules',
+          name: 'rules',
+        })}`
+      )
+    )
   }
 
   // Import the validation plugin

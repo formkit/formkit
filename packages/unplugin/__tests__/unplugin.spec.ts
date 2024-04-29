@@ -47,3 +47,50 @@ describe('sfc transform', () => {
     )
   })
 })
+
+describe('manual deoptimizations', async () => {
+  it('can disable input optimizations', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/SimpleRender.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/input-deopt.config.ts'
+        ),
+      }
+    )
+    expect(code).toContain('import { library } from "virtual:formkit/library";')
+    expect(code).not.toContain('virtual:formkit/inputs:text')
+  })
+
+  it('can disable input optimizations w/ object', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/SimpleRender.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/input-deopt-obj.config.ts'
+        ),
+      }
+    )
+    expect(code).toContain('import { library } from "virtual:formkit/library";')
+    expect(code).not.toContain('virtual:formkit/inputs:text')
+  })
+
+  it('can disable validation optimizations', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/SimpleRender.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/validation-deopt.config.ts'
+        ),
+      }
+    )
+    expect(code).toContain(
+      'import { validation as validation1 } from "virtual:formkit/validation'
+    )
+    expect(code).toContain('import { rules } from "virtual:formkit/rules";')
+    expect(code).not.toContain('virtual:formkit/rules:required')
+  })
+})

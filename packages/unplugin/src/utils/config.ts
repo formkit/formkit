@@ -49,7 +49,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
 
   const configPath = resolveConfig(opts)
   const configAst = createConfigAst(parse, configPath)
-  const optimize = determineOptimization(traverse, configAst)
+  const [optimize, builtins] = determineOptimization(traverse, configAst)
   const resolvedConfig: ResolvedOptions = {
     ...opts,
     configAst,
@@ -59,6 +59,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     parse,
     generate,
     optimize,
+    builtins,
   }
   addConfigLocalize(resolvedConfig as ResolvedOptions)
   return resolvedConfig
@@ -135,20 +136,21 @@ export function getConfigProperty(
         if (config.type === 'ObjectExpression') {
           path.traverse({
             ObjectProperty(propertyPath) {
+              path.skip()
               if (
+                propertyPath.parentPath.parentPath === path &&
                 propertyPath.node.key.type === 'Identifier' &&
                 propertyPath.node.key.name === name
               ) {
                 prop = propertyPath
                 path.stop()
               }
-              path.skip()
             },
           })
           path.stop()
         } else {
           consola.warn(
-            '[FormKit de-opt] call defineFormKitConfig with an object literal to enable optimizations.'
+            '[FormKit deopt] call defineFormKitConfig with an object literal to enable optimizations.'
           )
         }
       }
@@ -204,6 +206,12 @@ export function trackReload(
       opts.configAst = createConfigAst(opts.parse, opts.configPath)
       opts.configParseCount = totalReloads
       addConfigLocalize(opts)
+      const [optimize, builtins] = determineOptimization(
+        opts.traverse,
+        opts.configAst
+      )
+      opts.optimize = optimize
+      opts.builtins = builtins
       opts.configIconLoaderUrl = undefined
       opts.configIconLoader = undefined
     }
@@ -219,42 +227,85 @@ export function trackReload(
 function determineOptimization(
   traverse: ASTTools['traverse'],
   ast: File | Program | undefined
-): ResolvedOptions['optimize'] {
+): [
+  optimize: ResolvedOptions['optimize'],
+  builtins: ResolvedOptions['builtins']
+] {
   const keys = ['inputs', 'validation', 'i18n', 'icons', 'theme'] as const
   const optimizeProperty = getConfigProperty(
     { traverse, configAst: ast },
     'optimize'
   )
-  if (!optimizeProperty)
-    return keys.reduce(
-      (acc, key) => ({ ...acc, [key]: false }),
-      {} as { [key in (typeof keys)[number]]: boolean }
-    )
+  const fullTrue = keys.reduce(
+    (acc, key) => ({ ...acc, [key]: true }),
+    {} as { [key in (typeof keys)[number]]: boolean }
+  )
+  if (!optimizeProperty) {
+    return [fullTrue, fullTrue]
+  }
   const value = optimizeProperty.get('value')
   if (value.isBooleanLiteral()) {
-    return keys.reduce(
-      (acc, key) => ({ ...acc, [key]: value.node.value }),
-      {} as { [key in (typeof keys)[number]]: boolean }
-    )
+    return [
+      keys.reduce(
+        (acc, key) => ({ ...acc, [key]: value.node.value ?? true }),
+        {} as { [key in (typeof keys)[number]]: boolean }
+      ),
+      fullTrue,
+    ]
   }
+
   const optimzedOptions: Partial<Record<(typeof keys)[number], boolean>> = {}
+  const builtinOptions: Partial<Record<(typeof keys)[number], boolean>> = {}
   if (value.isObjectExpression()) {
     value.traverse({
       ObjectProperty(path) {
+        path.skip()
         const value = path.get('value')
+        const optimizationName = getKeyName(path.get('key'))
         if (value.isBooleanLiteral()) {
-          const keyName = getKeyName(path.get('key'))
-          if (keyName && keys.includes(keyName as (typeof keys)[number])) {
-            optimzedOptions[keyName as (typeof keys)[number]] = value.node.value
+          if (
+            optimizationName &&
+            keys.includes(optimizationName as (typeof keys)[number])
+          ) {
+            optimzedOptions[optimizationName as (typeof keys)[number]] =
+              value.node.value
           }
+        } else if (value.isObjectExpression()) {
+          value.traverse({
+            ObjectProperty(prop) {
+              prop.skip()
+              const value = prop.get('value')
+              const optimizationKey = getKeyName(prop.get('key'))
+              if (value.isBooleanLiteral() && optimizationKey === 'optimize') {
+                optimzedOptions[optimizationName as (typeof keys)[number]] =
+                  value.node.value
+              } else if (
+                value.isBooleanLiteral() &&
+                optimizationKey === 'builtins'
+              ) {
+                builtinOptions[optimizationName as (typeof keys)[number]] =
+                  value.node.value
+              } else {
+                throw new Error(
+                  `Invalid optimize property in formkit.config.ts (for ${optimizationKey}), properties must be "builtins" or "optimize" and set to a boolean.`
+                )
+              }
+            },
+          })
         }
         path.skip()
       },
     })
-    return keys.reduce(
-      (acc, key) => ({ ...acc, [key]: optimzedOptions[key] ?? true }),
-      {} as { [key in (typeof keys)[number]]: boolean }
-    )
+    return [
+      keys.reduce(
+        (acc, key) => ({ ...acc, [key]: optimzedOptions[key] ?? true }),
+        {} as { [key in (typeof keys)[number]]: boolean }
+      ),
+      keys.reduce(
+        (acc, key) => ({ ...acc, [key]: builtinOptions[key] ?? true }),
+        {} as { [key in (typeof keys)[number]]: boolean }
+      ),
+    ]
   }
   throw new Error('Invalid optimize property in formkit.config.ts')
 }
@@ -264,9 +315,10 @@ function determineOptimization(
  * @param optimize - The optimization options to check
  * @returns
  */
-export function isFullDeopt(
-  opts: ResolvedOptions
-): opts is Exclude<ResolvedOptions, 'optimize'> & {
+export function isFullDeopt(opts: ResolvedOptions): opts is Exclude<
+  ResolvedOptions,
+  'optimize'
+> & {
   optimize: { [key in keyof ResolvedOptions['optimize']]: false }
 } {
   return Object.values(opts.optimize).every((v) => !v)

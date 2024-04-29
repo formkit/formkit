@@ -29,11 +29,16 @@ export interface Options {
 export interface ResolvedOptions extends Options, ASTTools {
   configAst: File | Program | undefined
   configParseCount: number
-  optimize: {
+  optimize: Readonly<{
     [K in keyof Required<
       Exclude<DefineConfigOptions['optimize'], boolean>
     >]: boolean
-  }
+  }>
+  builtins: Readonly<{
+    [K in keyof Required<
+      Exclude<DefineConfigOptions['optimize'], boolean>
+    >]: boolean
+  }>
   configPath?: string
   configLocalize?: string[]
   configIconLoaderUrl?: DefineConfigOptions['iconLoaderUrl']

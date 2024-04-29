@@ -119,6 +119,58 @@ describe('validation config loading', () => {
     )
   })
 
+  it('can load deoptimized validation rules', async ({ expect }) => {
+    const code = await load('virtual:formkit/rules', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/validation-deopt.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { rules as builtinRules } from "@formkit/rules";
+
+      function myrule(node) {
+          return node.value === "justin";
+      }
+
+      const __extracted__ = {
+          myrule
+      };
+
+      export const rules = {
+          ...builtinRules,
+          ...__extracted__
+      };"
+    `)
+  })
+
+  it('can load deoptimized validation rules with no builtins', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/rules', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/validation-deopt-no-builtins.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "const builtinRules = {};
+
+      function myrule(node) {
+          return node.value === "justin";
+      }
+
+      const __extracted__ = {
+          myrule
+      };
+
+      export const rules = {
+          ...builtinRules,
+          ...__extracted__
+      };"
+    `)
+  })
+
   it('can load a validation rule from a custom config', async ({ expect }) => {
     const code = await load('virtual:formkit/rules:length', {
       configFile: resolve(

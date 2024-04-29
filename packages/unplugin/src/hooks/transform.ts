@@ -15,7 +15,6 @@ export function createTransform(
 
     // If our component strings are not found at all in this file, we can skip it.
     if (!HAS_COMPONENTS_RE.test(code)) return null
-
     const ast = opts.parse(code)
     const components = usedComponents(opts, ast, opts.components, true)
     if (components.length === 0) return null
