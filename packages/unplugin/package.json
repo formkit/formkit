@@ -88,6 +88,7 @@
     "@babel/traverse": "^7.24.1",
     "@formkit/core": "^1.6.2",
     "@formkit/i18n": "^1.6.2",
+    "@formkit/icons": "workspace:^1.6.2",
     "@formkit/inputs": "^1.6.2",
     "@formkit/rules": "^1.6.2",
     "@formkit/themes": "workspace:^1.6.0",

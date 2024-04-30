@@ -139,7 +139,7 @@ export {
 /**
  * Export the changeLocale function explicitly.
  */
-export { changeLocale } from '@formkit/i18n'
+export { changeLocale } from '@formkit/i18n/i18n'
 
 /**
  * SSR support for cleanup operations relating to SSR.

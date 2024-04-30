@@ -126,3 +126,12 @@ describe('manual deoptimizations', async () => {
     expect(code).toContain('import { locales } from "virtual:formkit/locales";')
   })
 })
+
+describe('icons', () => {
+  it('can import icons directly with no config', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/IconInputs.vue')
+    )
+    expect(code).toMatchSnapshot()
+  })
+})

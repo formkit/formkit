@@ -88,7 +88,7 @@ export async function createConfigObject(
     plugins,
     new Set([...rules, ...localizations])
   )
-  await importIcons(component)
+  await importIcons(component, plugins)
   // Set the locale from the config object
   await setLocale(component, config)
   return config
@@ -336,7 +336,14 @@ async function extractLocalizations(
   return localizations
 }
 
-async function importIcons(component: ComponentUse) {
+/**
+ * When importing icons we need to add the icon plugin, and import the icon from
+ * a virtual module then replace the prop with the imported value.
+ * @param component - The component to import icons for.
+ * @param plugins - The plugins array to modify.
+ * @returns
+ */
+async function importIcons(component: ComponentUse, plugins: ArrayExpression) {
   const iconPaths = new Map<NodePath<ObjectProperty>, string>()
   ;(
     component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
@@ -358,7 +365,14 @@ async function importIcons(component: ComponentUse) {
     },
   })
   if (!iconPaths.size) return
-
+  plugins.elements.push(
+    t.expression.ast(
+      `${addImport(component.opts, component.root, {
+        from: 'virtual:formkit/icons',
+        name: 'icons',
+      })}`
+    )
+  )
   iconPaths.forEach((icon, path) => {
     path.get('value').replaceWith({
       type: 'Identifier',

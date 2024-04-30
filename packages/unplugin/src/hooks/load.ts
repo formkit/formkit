@@ -12,6 +12,7 @@ import {
   createProperty,
   extract,
   extractMethodAsFunction,
+  getKeyName,
 } from '../utils/ast'
 import type { NodePath } from '@babel/traverse'
 import type {
@@ -536,17 +537,70 @@ async function createMessagesConfig(
 
 async function createIconConfig(
   opts: ResolvedOptions,
-  icon: string
+  icon?: string
 ): Promise<File | Program> {
+  if (!icon) {
+    // If no icon is provided we are loading the icon plugin.
+    return t.program.ast`export function icons(node) {
+      for (let key in node.props) {
+        if (key.endsWith('Icon')) {
+          const rawKey = \`_raw\${key
+            .charAt(0)
+            .toUpperCase()}\${key.slice(1)}\`
+          node.addProps([rawKey])
+          node.props[rawKey] = node.props[key]
+          console.log(node.props[key])
+        }
+      }
+      return false
+    }`
+  }
   // If there are icon loader considerations we should be prepared for them:
+  let iconLoaderPath: NodePath<Node> | undefined = undefined
+  let iconLoaderUrlPath: NodePath<Node> | undefined = undefined
   if (opts.configPath) {
-    try {
-      const config = await jiti(opts.configPath)
-      opts.configIconLoaderUrl = config.iconLoaderUrl
-      opts.configIconLoader = config.iconLoader
-    } catch (err) {
+    const icons = getConfigProperty(opts, 'icons')
+    const value = icons?.get('value')
+
+    // If the icon we are looking for is defined in the config — extract it.
+    let iconPath: NodePath<Node> | undefined = undefined
+    if (value && value.isObjectExpression()) {
+      value.traverse({
+        ObjectProperty(path) {
+          const keyName = getKeyName(path.get('key'))
+          if (keyName === icon) {
+            iconPath = path.get('value')
+            path.stop()
+          }
+        },
+      })
+      if (iconPath) {
+        return extract(iconPath, true, icon)
+      }
+    } else if (icons) {
       consola.warn(
-        '[FormKit deopt] Failed to load config file to optimize icons.'
+        "[FormKit deopt] cannot statically analyze DefineConfigOptions['icons']. Please use an inline object literal."
+      )
+    }
+
+    iconLoaderPath = getConfigProperty(opts, 'iconLoader')
+    iconLoaderUrlPath = getConfigProperty(opts, 'iconLoaderUrl')
+    if (iconLoaderPath || iconLoaderUrlPath) {
+      // Attempt to perform a local icon load.
+      const config = jiti(opts.configPath)
+      console.log(config)
+    }
+  }
+
+  if (!iconLoaderPath && !iconLoaderUrlPath && opts.builtins.icons) {
+    const icons = await import('@formkit/icons')
+    if (icon in icons) {
+      // We are not using a specialized icon loader, and the icon in in
+      // fomrkit’s icon set — load it directly.
+      return t.program.ast`export { ${icon} } from '@formkit/icons'`
+    } else {
+      consola.warn(
+        `[FormKit] Unknown icon: "${icon}". It is not a registered or available in @formkit/icons.`
       )
     }
   }

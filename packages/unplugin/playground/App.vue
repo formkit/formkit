@@ -9,7 +9,7 @@
     <summary>Using script setup with a ref for validation</summary>
     <FormKit
       type="text"
-      :validation="[['required'], ['length', 10]]"
+      validation="required|length:10"
       label="Username"
       prefix-icon="bitcoin"
     />

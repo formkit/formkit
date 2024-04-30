@@ -550,6 +550,9 @@ importers:
       '@formkit/i18n':
         specifier: ^1.6.2
         version: link:../i18n
+      '@formkit/icons':
+        specifier: workspace:^1.6.2
+        version: link:../icons
       '@formkit/inputs':
         specifier: ^1.6.2
         version: link:../inputs

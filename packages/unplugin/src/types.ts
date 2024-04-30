@@ -28,6 +28,7 @@ export interface Options {
 
 export interface ResolvedOptions extends Options, ASTTools {
   configAst: File | Program | undefined
+  configCode: string
   configParseCount: number
   optimize: Readonly<{
     [K in keyof Required<

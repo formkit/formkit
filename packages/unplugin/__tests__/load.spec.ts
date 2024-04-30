@@ -382,3 +382,10 @@ describe('i18n config loading', () => {
     `)
   })
 })
+
+describe('icon config loading', () => {
+  it('can preload a specified icon directly', async ({ expect }) => {
+    const code = await load('virtual:formkit/icons:check')
+    expect(code).toMatchInlineSnapshot(`"export { check } from "@formkit/icons";"`)
+  })
+})

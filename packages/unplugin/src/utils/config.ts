@@ -33,24 +33,27 @@ function createASTTools(): ASTTools {
  */
 export function createOpts(options: Partial<Options>): ResolvedOptions {
   const { parse, generate, traverse } = createASTTools()
-  const opts = extend(
-    {
-      components: [
-        {
-          name: 'FormKit',
-          from: '@formkit/vue',
-          codeMod: configureFormKitInstance,
-        },
-      ],
-    },
-    options ?? {},
-    true
-  ) as Options
+  const opts: Options & Exclude<Partial<ResolvedOptions>, keyof Options> =
+    extend(
+      {
+        components: [
+          {
+            name: 'FormKit',
+            from: '@formkit/vue',
+            codeMod: configureFormKitInstance,
+          },
+        ],
+      },
+      options ?? {},
+      true
+    ) as Options
 
   const configPath = resolveConfig(opts)
-  const configAst = createConfigAst(parse, configPath)
+  opts.configPath = configPath
+  opts.parse = parse
+  const configAst = createConfigAst(opts)
   const [optimize, builtins] = determineOptimization(traverse, configAst)
-  const resolvedConfig: ResolvedOptions = {
+  const resolvedConfig = {
     ...opts,
     configAst,
     configPath,
@@ -60,7 +63,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     generate,
     optimize,
     builtins,
-  }
+  } as ResolvedOptions
   addConfigLocalize(resolvedConfig as ResolvedOptions)
   return resolvedConfig
 }
@@ -72,15 +75,15 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
  * @returns
  */
 export function createConfigAst(
-  parse: ASTTools['parse'],
-  configPath?: string
+  opts: Options & Exclude<Partial<ResolvedOptions>, keyof Options>
 ): File | Program | undefined {
-  if (configPath && existsSync(configPath)) {
-    const configSource = readFileSync(configPath, { encoding: 'utf8' })
+  if (opts.parse && opts.configPath && existsSync(opts.configPath)) {
+    const configSource = readFileSync(opts.configPath, { encoding: 'utf8' })
     const tsFreeSource = esbuild.transformSync(configSource, {
       loader: 'ts',
     }).code
-    return parse(tsFreeSource)
+    opts.configCode = tsFreeSource
+    return opts.parse(tsFreeSource)
   }
   return undefined
 }
@@ -203,7 +206,7 @@ export function trackReload(
     this.addWatchFile(opts.configPath)
     if (opts.configParseCount < totalReloads) {
       consola.info('Reloading formkit.config.ts file')
-      opts.configAst = createConfigAst(opts.parse, opts.configPath)
+      opts.configAst = createConfigAst(opts)
       opts.configParseCount = totalReloads
       addConfigLocalize(opts)
       const [optimize, builtins] = determineOptimization(
