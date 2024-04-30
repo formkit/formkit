@@ -1,15 +1,16 @@
 {
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "eslint.packageManager": "yarn",
-    "cSpell.words": [
-        "dedupe",
-        "dispatchable",
-        "execa",
-        "Logicals",
-        "preprocessors",
-        "proxied",
-        "Renderable",
-        "setify",
-        "unmerge"
-    ]
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.packageManager": "yarn",
+  "cSpell.words": [
+    "dedupe",
+    "deopt",
+    "dispatchable",
+    "execa",
+    "Logicals",
+    "preprocessors",
+    "proxied",
+    "Renderable",
+    "setify",
+    "unmerge"
+  ]
 }

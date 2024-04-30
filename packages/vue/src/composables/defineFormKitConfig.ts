@@ -68,6 +68,30 @@ export interface PluginConfigs {
 }
 
 /**
+ * Determines how a given optimization should be handled. If `false` the
+ * optimization will be disabled and a fallback will be used. If `true`
+ * (default) the optimization will be enabled and only the necessary code will
+ * be loaded on a per-instance basis. If an object is provided, you can disable
+ * also specify whether or not to use the FormKit builtin features. For example
+ * given the following configuration:
+ *
+ * ```js
+ * export default defineFormKitConfig({
+ *   optimize: {
+ *     inputs: {
+ *       optimize: true,
+ *       builtins: false
+ *     }
+ *   }
+ * })
+ * ```
+ * And the following usage: `<FormKit type="text" />` — the text input will not
+ * automatically be loaded from `@formkit/inputs` — instead only explicitly
+ * defined inputs (`DefineConfigOptions['inputs']`) will be used.
+ */
+export type OptimizeOptions = boolean | { optimize: boolean; builtins: boolean }
+
+/**
  * Define the configuration options for FormKit. This configuration format
  * is slightly different than the legacy DefaultConfigOptions. It is
  */
@@ -86,33 +110,33 @@ export type DefineConfigOptions = {
          * location where they are used. Disabling this optimization will revert to
          * using an input library of all available inputs. (default: true)
          */
-        inputs?: boolean
+        inputs?: OptimizeOptions
         /**
          * Disable validation optimizations that only load the validation rules
          * being used at the location where they are used. Disabling this
          * optimization will revert to using all available validation rules.
          * (default: true)
          */
-        validation?: boolean
+        validation?: OptimizeOptions
         /**
          * Disable i18n optimizations that only load the locale messages being used
          * at the location where they are used. Disabling this optimization will
          * revert to using all available locales. (default: true)
          */
-        i18n?: boolean
+        i18n?: OptimizeOptions
         /**
          * Disable icon optimizations that loads icons from their sources at build
          * time at the locations where they are used in your app. Disabling this
          * optimization will revert to using a runtime icon loader. (default: true)
          */
-        icons?: boolean
+        icons?: OptimizeOptions
         /**
          * Disable theme optimizations that attempts to only inject the
          * necessary classes at their point of use in your app. Disabling this
          * optimization will revert to importing the entire rootClasses object.
          * (default: true)
          */
-        theme?: boolean
+        theme?: OptimizeOptions
       }
   /**
    * An object of options to pass to the `createNode()` function whenever a new core node is created.

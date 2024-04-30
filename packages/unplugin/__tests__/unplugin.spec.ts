@@ -46,6 +46,24 @@ describe('sfc transform', () => {
       'import { locales } from "virtual:formkit/locales:submit"'
     )
   })
+
+  it('can automatically disable validation optimizations when bound', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/ValidationDeopt.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/validation-deopt.config.ts'
+        ),
+      }
+    )
+    expect(code).toContain(
+      'import { validation as validation1 } from "virtual:formkit/validation'
+    )
+    expect(code).toContain('import { rules } from "virtual:formkit/rules";')
+  })
 })
 
 describe('manual deoptimizations', async () => {
@@ -94,21 +112,17 @@ describe('manual deoptimizations', async () => {
     expect(code).not.toContain('virtual:formkit/rules:required')
   })
 
-  it('can automatically disable validation optimizations when bound', async ({
-    expect,
-  }) => {
+  it('can deoptimize i18n locales manually', async ({ expect }) => {
     const code = await sfcTransform(
-      resolve(__dirname, './fixtures/ValidationDeopt.vue'),
+      resolve(__dirname, './fixtures/SimpleRender.vue'),
       {
         configFile: resolve(
           __dirname,
-          './fixtures/configs/validation-deopt.config.ts'
+          './fixtures/configs/i18n-deopt.config.ts'
         ),
       }
     )
-    expect(code).toContain(
-      'import { validation as validation1 } from "virtual:formkit/validation'
-    )
-    expect(code).toContain('import { rules } from "virtual:formkit/rules";')
+
+    expect(code).toContain('import { locales } from "virtual:formkit/locales";')
   })
 })

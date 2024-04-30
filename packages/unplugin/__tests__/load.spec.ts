@@ -367,4 +367,18 @@ describe('i18n config loading', () => {
       }, messages));"
     `)
   })
+
+  it('can load fully deoptimized i18n locales', async ({ expect }) => {
+    const code = await load('virtual:formkit/locales', {
+      configFile: resolve(__dirname, './fixtures/configs/i18n-deopt.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { de } from "@formkit/i18n";
+      const __de__ = de;
+
+      export const locales = {
+          de: __de__
+      };"
+    `)
+  })
 })

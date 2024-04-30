@@ -226,16 +226,32 @@ function importLocales(
   component: ComponentUse,
   props: ObjectExpression,
   plugins: ArrayExpression,
-  rules: Set<string> | undefined
+  messageKeys: Set<string> | undefined
 ) {
-  if (rules && rules.size /*|| inputLocalizations */) {
+  if (component.opts.optimize.i18n === false) {
+    // We are de-optimizing the i18n configuration.
+    const plugin = addImport(component.opts, component.root, {
+      from: 'virtual:formkit/i18n',
+      name: 'i18n',
+    })
+    plugins.elements.push(t.expression.ast`${plugin}`)
+    const locales = addImport(component.opts, component.root, {
+      from: `virtual:formkit/locales`,
+      name: 'locales',
+    })
+    props.properties.push(
+      createProperty('__locales__', t.expression.ast`${locales}`)
+    )
+  } else if (messageKeys && messageKeys.size) {
+    // This is the ideal case, we can statically analyze the messages
+    // and ensure only those are imported.
     const plugin = addImport(component.opts, component.root, {
       from: 'virtual:formkit/i18n',
       name: 'i18n',
     })
     plugins.elements.push(t.expression.ast`${plugin}`)
 
-    const messages = [...rules]
+    const messages = [...messageKeys]
     // Import the validation plugin
     const locales = addImport(component.opts, component.root, {
       from: `virtual:formkit/locales:${messages.join(',')}`,

@@ -76,7 +76,10 @@ async function createModuleAST(
       return await createI18nPlugin()
 
     case 'locales':
-      return await createLocalesConfig(opts, identifier.split(','))
+      return await createLocalesConfig(
+        opts,
+        identifier ? identifier.split(',') : []
+      )
 
     case 'messages':
       return await createMessagesConfig(opts)
@@ -343,14 +346,17 @@ function getLocales(
         const localeName = key.node.name
         const localeValue = path.get('value')
         if (
+          opts.optimize.i18n &&
           localeValue.isIdentifier() &&
           isOptimizableLocale(localeName, localeValue)
         ) {
           optimizedLocales.push(localeName)
         } else {
-          consola.warn(
-            `[FormKit deopt] could not statically extract messages for locale ${localeName}.`
-          )
+          if (opts.optimize.i18n) {
+            consola.warn(
+              `[FormKit deopt] could not statically extract messages for locale ${localeName}.`
+            )
+          }
           deoptimizedLocales.set(localeName, localeValue)
         }
       }
