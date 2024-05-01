@@ -31,4 +31,16 @@ export default defineFormKitConfig({
       return false
     },
   },
+  iconLoader: async (iconName: string): Promise<string | undefined> => {
+    const res = await fetch(
+      `https://cdn.jsdelivr.net/npm/heroicons/24/outline/${iconName}.svg`
+    )
+    if (res.ok) {
+      const icon = await res.text()
+      if (icon.startsWith('<svg')) {
+        return icon
+      }
+    }
+    return undefined
+  },
 })

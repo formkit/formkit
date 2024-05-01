@@ -18,6 +18,7 @@ import t from '@babel/template'
 import { consola } from 'consola'
 import { getConfigProperty, isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
+import { camel } from '@formkit/utils'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -378,7 +379,7 @@ async function importIcons(component: ComponentUse, plugins: ArrayExpression) {
       type: 'Identifier',
       name: addImport(component.opts, component.root, {
         from: 'virtual:formkit/icons:' + icon,
-        name: icon,
+        name: camel(icon),
       }),
     })
   })

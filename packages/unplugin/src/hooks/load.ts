@@ -23,9 +23,12 @@ import type {
   ImportDeclaration,
   Program,
   Statement,
+  StringLiteral,
 } from '@babel/types'
+import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/en'
+import { camel } from '@formkit/utils'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -585,11 +588,6 @@ async function createIconConfig(
 
     iconLoaderPath = getConfigProperty(opts, 'iconLoader')
     iconLoaderUrlPath = getConfigProperty(opts, 'iconLoaderUrl')
-    if (iconLoaderPath || iconLoaderUrlPath) {
-      // Attempt to perform a local icon load.
-      const config = jiti(opts.configPath)
-      console.log(config)
-    }
   }
 
   if (!iconLoaderPath && !iconLoaderUrlPath && opts.builtins.icons) {
@@ -605,7 +603,49 @@ async function createIconConfig(
     }
   }
 
-  // TODO: implement icon loader logic
+  if ((iconLoaderPath || iconLoaderUrlPath) && opts.configPath) {
+    let config: DefineConfigOptions | undefined = undefined
+    if (opts.configPath) {
+      const configModule = jiti('')(opts.configPath)
+      if ('default' in configModule) {
+        config =
+          typeof configModule.default === 'function'
+            ? configModule.default()
+            : configModule.default
+      }
+    }
+
+    if (config && config.iconLoader) {
+      const svg = await config.iconLoader(icon)
+      if (svg) {
+        const svgString: StringLiteral = {
+          type: 'StringLiteral',
+          value: svg,
+        }
+        return t.program.ast`export const ${camel(icon)} = ${svgString};`
+      }
+      consola.warn(
+        `[FormKit] Unable to load icon "${icon}" with custom iconLoader.`
+      )
+    } else if (config && typeof config.iconLoaderUrl === 'function') {
+      const url = config.iconLoaderUrl(icon)
+
+      if (typeof url === 'string') {
+        const res = await fetch(url)
+        if (res.ok) {
+          const svg = await res.text()
+          if (svg.startsWith('<svg')) {
+            const svgString: StringLiteral = {
+              type: 'StringLiteral',
+              value: svg,
+            }
+            return t.program.ast`export const ${camel(icon)} = ${svgString};`
+          }
+        }
+      }
+      consola.warn('[FormKit] Unable to load icon from URL:', url)
+    }
+  }
   return t.program.ast`export const ${icon} = null`
 }
 

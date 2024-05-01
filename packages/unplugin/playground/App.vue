@@ -11,7 +11,7 @@
       type="text"
       validation="required|length:10"
       label="Username"
-      prefix-icon="bitcoin"
+      prefix-icon="chat-bubble-bottom-center-text"
     />
     <!-- <ScriptSetupRefValidation />
     <RefAsInputType /> -->
