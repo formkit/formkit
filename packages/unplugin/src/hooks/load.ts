@@ -544,17 +544,37 @@ async function createIconConfig(
 ): Promise<File | Program> {
   if (!icon) {
     // If no icon is provided we are loading the icon plugin.
-    return t.program.ast`export function icons(node) {
-      for (let key in node.props) {
-        if (key.endsWith('Icon')) {
-          const rawKey = \`_raw\${key
-            .charAt(0)
-            .toUpperCase()}\${key.slice(1)}\`
-          node.addProps([rawKey])
-          node.props[rawKey] = node.props[key]
-          console.log(node.props[key])
+    return t.program.ast`
+    function key(section) {
+      return \`\${section.charAt(0).toUpperCase()}\${section.slice(1)}\`
+    }
+    export function icons(node) {
+      for (let prop in node.props) {
+        if (prop.endsWith('Icon')) {
+          const rawKey = \`_raw\${key(prop)}\`
+          node.addProps([rawKey, \`on\${key(prop)}Click\`])
+          node.props[rawKey] = node.props[prop]
         }
       }
+      node.on('created', () => {
+        if (node?.context) {
+          node.context.handlers.iconClick = (section) => {
+            const clickHandlerProp = \`on\${key(section)}IconClick\`
+            const handlerFunction = node.props[clickHandlerProp]
+            console.log(Object.keys(node.props))
+            if (handlerFunction && typeof handlerFunction === 'function') {
+              return e => handlerFunction(node, e)
+            }
+            return undefined
+          }
+          node.context.fns.iconRole = (section) => {
+            const clickHandlerProp = \`on\${key(section)}IconClick\`
+            return typeof node.props[clickHandlerProp] === 'function'
+              ? 'button'
+              : null
+          }
+        }
+      })
       return false
     }`
   }
