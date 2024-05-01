@@ -561,7 +561,6 @@ async function createIconConfig(
           node.context.handlers.iconClick = (section) => {
             const clickHandlerProp = \`on\${key(section)}IconClick\`
             const handlerFunction = node.props[clickHandlerProp]
-            console.log(Object.keys(node.props))
             if (handlerFunction && typeof handlerFunction === 'function') {
               return e => handlerFunction(node, e)
             }
