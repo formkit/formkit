@@ -47,11 +47,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 ### 🥈 Silver sponsors
 
-<p style="margin-bottom: 1em;">
-  <a href="https://github.com/sponsors/formkit" style="color:#fff;text-decoration:none;background:#555;padding:0.5em 1em;border-radius:5px;">
-    <span>Your logo here</span>
-  </a>
-</p>
+<p><a href="https://github.com/sponsors/formkit"><img width="180" src="https://cdn.formk.it/web-assets/your-logo-here.svg" /></a></p>
 
 ### 🥉 Bronze sponsors
 
