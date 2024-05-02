@@ -643,3 +643,12 @@ export {
 }
 
 export { createIconPlugin } from './plugin'
+/**
+ * Export icon loaders
+ */
+export { evaIconLoader } from './loaders/evaIconLoader'
+export { formkitIconLoader } from './loaders/formkitIconLoader'
+export { heroIconLoader } from './loaders/heroIconLoader'
+export { ionIconLoader } from './loaders/ionIconLoader'
+export { lucideIconLoader } from './loaders/lucideIconLoader'
+export { materialIconLoader } from './loaders/materialIconLoader'

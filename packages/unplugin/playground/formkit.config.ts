@@ -3,6 +3,7 @@ import type { FormKitNode } from '@formkit/core'
 import { empty } from '@formkit/utils'
 import de from '@formkit/i18n/locales/de'
 import zh from '@formkit/i18n/locales/zh'
+import { heroIconLoader } from '@formkit/icons'
 
 export default defineFormKitConfig({
   optimize: true,
@@ -31,16 +32,5 @@ export default defineFormKitConfig({
       return false
     },
   },
-  iconLoader: async (iconName: string): Promise<string | undefined> => {
-    const res = await fetch(
-      `https://cdn.jsdelivr.net/npm/heroicons/24/outline/${iconName}.svg`
-    )
-    if (res.ok) {
-      const icon = await res.text()
-      if (icon.startsWith('<svg')) {
-        return icon
-      }
-    }
-    return undefined
-  },
+  iconLoader: heroIconLoader(),
 })

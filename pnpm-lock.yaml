@@ -400,6 +400,9 @@ importers:
       '@formkit/core':
         specifier: 1.6.2
         version: link:../core
+      '@formkit/utils':
+        specifier: workspace:^1.6.2
+        version: link:../utils
 
   packages/inputs:
     dependencies:
