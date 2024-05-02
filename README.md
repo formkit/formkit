@@ -48,14 +48,8 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 ### 🥈 Silver sponsors
 
 <p style="margin-bottom: 1em;">
-  <a href="https://www.peakcrypto.com?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto logo" style="width: 18%;">
-  </a>
-</p>
-
-<p style="margin-bottom: 1em;">
-  <a href="https://surveyjs.io/?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/surveyjs.svg" alt="SurveyJS logo" style="width: 17%;">
+  <a href="https://github.com/sponsors/formkit" style="color:#fff;text-decoration:none;background:#555;padding:0.5em 1em;border-radius:5px;">
+    <span>Your logo here</span>
   </a>
 </p>
 
