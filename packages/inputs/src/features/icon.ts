@@ -7,8 +7,8 @@ import type { FormKitNode } from '@formkit/core'
  * @param defaultIcon - the icon that should be loaded if a match is found in the user's CSS.
  *
  * @returns A {@link @formkit/core#FormKitPlugin | FormKitPlugin}.
- *
  * @public
+ * @deprecated - Default icons will be removed in future versions of FormKit in favor of input definition icons.
  */
 export default function defaultIcon(sectionKey: string, defaultIcon: string) {
   return (node: FormKitNode): void => {

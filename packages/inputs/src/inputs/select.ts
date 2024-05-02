@@ -64,6 +64,12 @@ export const select: FormKitTypeDefinition = {
    */
   props: ['options', 'placeholder', 'optionsLoader'],
   /**
+   * The default icons to load in their respective icon section.
+   */
+  icons: {
+    select: 'down',
+  },
+  /**
    * Additional features that should be added to your input
    */
   features: [options, selects, defaultIcon('select', 'select')],

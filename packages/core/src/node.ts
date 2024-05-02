@@ -91,6 +91,21 @@ export type FormKitTypeDefinition<V = unknown> = {
    */
   localize?: string[]
   /**
+   * A static list of icon section names and what icon should be loaded there
+   * by default. This is used to provide a default icon for the input. For
+   * example in the case the select input, the default icon for the "selectIcon"
+   * section is the "down" icon. (Note: remove "Icon" part off the section key)
+   *
+   * ```js
+   * {
+   *   icons: {
+   *     select: 'down'
+   *   }
+   * }
+   * ```
+   */
+  icons?: Record<string, string>
+  /**
    * An array of additional feature functions to load when booting the input.
    */
   features?: Array<(node: FormKitNode<V>) => void>

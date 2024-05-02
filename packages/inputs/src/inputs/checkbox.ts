@@ -93,6 +93,12 @@ export const checkbox: FormKitTypeDefinition = {
    */
   props: ['options', 'onValue', 'offValue', 'optionsLoader'],
   /**
+   * The default icons to load in their respective icon section.
+   */
+  icons: {
+    decorator: 'check',
+  },
+  /**
    * Additional features that should be added to your input
    */
   features: [

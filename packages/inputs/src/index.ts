@@ -27,6 +27,11 @@ export type {
 } from './createSection'
 
 /**
+ * Export icon loaders
+ */
+export { formkitIconLoader } from './loaders/formkitIconLoader'
+
+/**
  * Composable logic.
  */
 export * from './compose'

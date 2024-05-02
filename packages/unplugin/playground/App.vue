@@ -11,7 +11,7 @@ function clicked() {
   <details open>
     <summary>Using script setup with a ref for validation</summary>
     <FormKit
-      type="text"
+      type="select"
       validation="required|length:10"
       label="Username"
       prefix-icon="chat-bubble-bottom-center-text"

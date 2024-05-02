@@ -553,7 +553,9 @@ async function createIconConfig(
         if (prop.endsWith('Icon')) {
           const rawKey = \`_raw\${key(prop)}\`
           node.addProps([rawKey, \`on\${key(prop)}Click\`])
-          node.props[rawKey] = node.props[prop]
+          if (node.props[prop].startsWith('<svg')) {
+            node.props[rawKey] = node.props[prop]
+          }
         }
       }
       node.on('created', () => {
@@ -665,7 +667,7 @@ async function createIconConfig(
       consola.warn('[FormKit] Unable to load icon from URL:', url)
     }
   }
-  return t.program.ast`export const ${icon} = null`
+  return t.program.ast`export const ${camel(icon)} = undefined;`
 }
 
 /**

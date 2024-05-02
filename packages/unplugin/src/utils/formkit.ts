@@ -6,11 +6,15 @@ import type {
   ArrayExpression,
   ImportDeclaration,
   Identifier,
+  ImportSpecifier,
+  ImportDefaultSpecifier,
 } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import {
   isArrayExpression,
+  isIdentifier,
   isObjectProperty,
+  isSpreadElement,
   isStringLiteral,
 } from '@babel/types'
 import { addImport, createProperty, getKeyName } from './ast'
@@ -19,6 +23,7 @@ import { consola } from 'consola'
 import { getConfigProperty, isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 import { camel } from '@formkit/utils'
+import type { FormKitTypeDefinition } from '@formkit/core'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -79,7 +84,11 @@ export async function createConfigObject(
   config.properties.push(createProperty('plugins', plugins))
   const props = component.path.node.arguments[1] as ObjectExpression
   // Perform a direct-injection on the input type (if possible)
-  const localizations = await importInputType(component, props, plugins)
+  const [localizations, icons] = await importInputType(
+    component,
+    props,
+    plugins
+  )
   // Inject the validation plugin and any rules
   const rules = await importValidation(component, props, plugins)
   // Import the necessary i18n locales
@@ -89,7 +98,7 @@ export async function createConfigObject(
     plugins,
     new Set([...rules, ...localizations])
   )
-  await importIcons(component, plugins)
+  await importIcons(component, plugins, props, icons)
   // Set the locale from the config object
   await setLocale(component, config)
   return config
@@ -105,8 +114,9 @@ async function importInputType(
   component: ComponentUse,
   props: ObjectExpression,
   plugins: ArrayExpression
-): Promise<Set<string>> {
+): Promise<[Set<string>, Record<string, string>]> {
   const localizations = new Set<string>()
+  const icons: Record<string, string> = {}
   const inputType = props.properties.find(
     (prop) =>
       isObjectProperty(prop) &&
@@ -125,7 +135,12 @@ async function importInputType(
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
-    await extractLocalizations(component.opts, value, localizations)
+    await extractLocalizationsAndIcons(
+      component.opts,
+      value,
+      localizations,
+      icons
+    )
   } else {
     if (shouldOptimize) {
       // We wanted to optimize, but couldn’t.
@@ -139,7 +154,7 @@ async function importInputType(
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
-  return localizations
+  return [localizations, icons]
 }
 
 /**
@@ -290,51 +305,70 @@ function setLocale(component: ComponentUse, config: ObjectExpression) {
  * @param identifier - The identifier to extract localizations from.
  * @param localizations - The set to add localizations to.
  */
-async function extractLocalizations(
+async function extractLocalizationsAndIcons(
   opts: ResolvedOptions,
   input: string,
-  localizations: Set<string>
-) {
+  localizations: Set<string>,
+  icons: Record<string, string>
+): Promise<void> {
+  const inputDefinition = await loadInputDefinitionAst(opts, input)
+  if (inputDefinition && typeof inputDefinition === 'object') {
+    if ('localize' in inputDefinition) {
+      const localize = inputDefinition.localize
+      if (Array.isArray(localize)) {
+        localize.forEach(localizations.add, localizations)
+      }
+    }
+    if ('icons' in inputDefinition) {
+      Object.assign(icons, inputDefinition.icons)
+    }
+  }
+}
+
+async function loadInputDefinitionAst(
+  opts: ResolvedOptions,
+  input: string
+): Promise<FormKitTypeDefinition | undefined> {
   try {
-    const ast = await createVirtualInputConfig(opts, input)
-    let inputImport: Import | undefined
-    opts.traverse(ast, {
-      ImportSpecifier(path) {
-        if (path.get('local').isIdentifier({ name: input })) {
-          const source = (path.parentPath as NodePath<ImportDeclaration>).get(
-            'source'
-          )
-          if (source && source.isStringLiteral()) {
-            source.node.value
-            inputImport = {
-              from: source.node.value,
-              name: input,
-            }
+    // This silly iife is purely for TS to be happy due to incomplete control flow analysis: https://github.com/microsoft/TypeScript/issues/9998
+    const importPath = await (async (): Promise<
+      NodePath<ImportSpecifier | ImportDefaultSpecifier> | undefined
+    > => {
+      const ast = await createVirtualInputConfig(opts, input)
+      let importPath:
+        | NodePath<ImportSpecifier | ImportDefaultSpecifier>
+        | undefined = undefined
+      opts.traverse(ast, {
+        ImportSpecifier(path) {
+          if (path.get('local').isIdentifier({ name: input })) {
+            importPath = path
             path.stop()
           }
-        }
-      },
-    })
-    if (inputImport) {
-      const module = await import(inputImport.from)
-      if (inputImport.name in module) {
-        const inputDefinition = module[inputImport.name]
-        if (
-          inputDefinition &&
-          typeof inputDefinition === 'object' &&
-          'localize' in inputDefinition
-        ) {
-          const localize = inputDefinition.localize
-          if (Array.isArray(localize)) {
-            localize.forEach(localizations.add, localizations)
+        },
+        ImportDefaultSpecifier(path) {
+          if (path.get('local').isIdentifier({ name: input })) {
+            importPath = path
+            path.stop()
           }
+        },
+      })
+      return importPath
+    })()
+
+    if (importPath) {
+      const importNode = importPath.parentPath.node as ImportDeclaration
+      const importName = importPath.isImportDefaultSpecifier()
+        ? 'default'
+        : input
+      if (importNode.source.type === 'StringLiteral') {
+        const module = await import(importNode.source.value)
+        if (importName in module) {
+          return module[importName] as FormKitTypeDefinition
         }
       }
     }
-  } catch (e) {
-    // Ignore errors here, they’ll be thrown by the actual loader.
-  }
-  return localizations
+  } catch (e) {}
+  return undefined
 }
 
 /**
@@ -342,9 +376,40 @@ async function extractLocalizations(
  * a virtual module then replace the prop with the imported value.
  * @param component - The component to import icons for.
  * @param plugins - The plugins array to modify.
+ * @param icons - Default we need to apply to given sections.
  * @returns
  */
-async function importIcons(component: ComponentUse, plugins: ArrayExpression) {
+async function importIcons(
+  component: ComponentUse,
+  plugins: ArrayExpression,
+  props: ObjectExpression,
+  icons: Record<string, string>
+) {
+  console.log('ICONS', icons)
+  props.properties.forEach((prop) => {
+    if (isSpreadElement(prop)) return
+    const key = isStringLiteral(prop.key)
+      ? prop.key.value
+      : isIdentifier(prop.key)
+      ? prop.key.name
+      : undefined
+    if (key && key in icons) delete icons[key]
+  })
+  for (const section in icons) {
+    props.properties.push({
+      type: 'ObjectProperty',
+      computed: false,
+      shorthand: false,
+      key: {
+        type: 'StringLiteral',
+        value: `${section}-icon`,
+      },
+      value: {
+        type: 'StringLiteral',
+        value: icons[section],
+      },
+    })
+  }
   const iconPaths = new Map<NodePath<ObjectProperty>, string>()
   ;(
     component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
@@ -352,7 +417,7 @@ async function importIcons(component: ComponentUse, plugins: ArrayExpression) {
     ObjectProperty(path) {
       const key = path.get('key')
       const keyName = getKeyName(key)
-      if (keyName?.endsWith('-icon')) {
+      if (keyName?.endsWith('-icon') || keyName?.endsWith('Icon')) {
         const value = path.get('value')
         if (
           value.node.type === 'StringLiteral' &&
