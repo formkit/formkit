@@ -1,5 +1,5 @@
 import type { genesisIcons } from '../index'
-import { circle, dragHandle } from '../index'
+import { circle } from '../index'
 import { kebab, camel } from '@formkit/utils'
 
 /**

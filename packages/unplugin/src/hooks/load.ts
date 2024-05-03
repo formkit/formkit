@@ -24,6 +24,8 @@ import type {
   Program,
   Statement,
   StringLiteral,
+  ExpressionStatement,
+  CallExpression,
 } from '@babel/types'
 import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
@@ -89,7 +91,8 @@ async function createModuleAST(
       return await createMessagesConfig(opts)
 
     case 'icons':
-      return await createIconConfig(opts, identifier)
+      if (opts.optimize.icons) return await createIconConfig(opts, identifier)
+      return await createDeoptimizedIconConfig(opts)
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
@@ -538,46 +541,76 @@ async function createMessagesConfig(
   return file
 }
 
+/**
+ * Load the legacy icon configuration from the config, this boots up the
+ * @formkit/themes plugin.
+ * @param opts - Resolved options
+ */
+async function createDeoptimizedIconConfig(opts: ResolvedOptions) {
+  const program = t.program
+    .ast`import { createThemePlugin } from '@formkit/themes'`
+  const createPlugin = t.expression.ast`createThemePlugin()` as CallExpression
+  const args = createPlugin.arguments
+
+  // The signature for createThemePlugin is:
+  // createThemePlugin(theme?: string, icons?: Record<string, string>, iconLoaderUrl?: IconLoaderUrl, iconLoader?: IconLoader)
+  // so we try to extract these values from the theme one by one.
+
+  const theme = getConfigProperty(opts, 'theme')?.get('value')
+  if (theme && theme.isStringLiteral()) {
+    args.push(theme.node)
+  } else {
+    args.push({ type: 'Identifier', name: 'undefined' })
+  }
+
+  const icons = getConfigProperty(opts, 'icons')?.get('value')
+  if (icons && icons.isObjectExpression()) {
+    const iconExtraction = extract(icons, false, '__icons')
+    program.body.push(
+      ...(Array.isArray(iconExtraction) ? iconExtraction : [iconExtraction])
+    )
+    args.push(t.expression.ast`__icons`)
+  } else {
+    args.push({ type: 'Identifier', name: 'undefined' })
+  }
+
+  const iconLoaderUrl = getConfigProperty(opts, 'iconLoaderUrl')?.get('value')
+  if (iconLoaderUrl) {
+    const urlExtraction = extract(iconLoaderUrl, false, '__iconLoaderUrl')
+    program.body.push(
+      ...(Array.isArray(urlExtraction) ? urlExtraction : [urlExtraction])
+    )
+    args.push(t.expression.ast`__iconLoaderUrl`)
+  } else {
+    args.push({ type: 'Identifier', name: 'undefined' })
+  }
+
+  const iconLoader = getConfigProperty(opts, 'iconLoader')?.get('value')
+  if (iconLoader) {
+    const loaderExtraction = extract(iconLoader, false, '__iconLoader')
+    program.body.push(
+      ...(Array.isArray(loaderExtraction)
+        ? loaderExtraction
+        : [loaderExtraction])
+    )
+    args.push(t.expression.ast`__iconLoader`)
+  } else {
+    args.push({ type: 'Identifier', name: 'undefined' })
+  }
+
+  const exportStatement = t.statement.ast`export const themes = ${createPlugin}`
+  program.body.push(exportStatement)
+  return program
+}
+
 async function createIconConfig(
   opts: ResolvedOptions,
   icon?: string
 ): Promise<File | Program> {
   if (!icon) {
     // If no icon is provided we are loading the icon plugin.
-    return t.program.ast`
-    function key(section) {
-      return \`\${section.charAt(0).toUpperCase()}\${section.slice(1)}\`
-    }
-    export function icons(node) {
-      for (let prop in node.props) {
-        if (prop.endsWith('Icon')) {
-          const rawKey = \`_raw\${key(prop)}\`
-          node.addProps([rawKey, \`on\${key(prop)}Click\`])
-          if (node.props[prop].startsWith('<svg')) {
-            node.props[rawKey] = node.props[prop]
-          }
-        }
-      }
-      node.on('created', () => {
-        if (node?.context) {
-          node.context.handlers.iconClick = (section) => {
-            const clickHandlerProp = \`on\${key(section)}IconClick\`
-            const handlerFunction = node.props[clickHandlerProp]
-            if (handlerFunction && typeof handlerFunction === 'function') {
-              return e => handlerFunction(node, e)
-            }
-            return undefined
-          }
-          node.context.fns.iconRole = (section) => {
-            const clickHandlerProp = \`on\${key(section)}IconClick\`
-            return typeof node.props[clickHandlerProp] === 'function'
-              ? 'button'
-              : null
-          }
-        }
-      })
-      return false
-    }`
+    return t.program.ast`import { createIconPlugin } from '@formkit/icons'
+    export const icons = createIconPlugin()`
   }
   // If there are icon loader considerations we should be prepared for them:
   let iconLoaderPath: NodePath<Node> | undefined = undefined
