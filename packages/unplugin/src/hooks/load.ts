@@ -24,7 +24,6 @@ import type {
   Program,
   Statement,
   StringLiteral,
-  ExpressionStatement,
   CallExpression,
 } from '@babel/types'
 import type { DefineConfigOptions } from '@formkit/vue'
@@ -67,6 +66,9 @@ async function createModuleAST(
   switch (plugin) {
     case 'inputs':
       return await createVirtualInputConfig(opts, identifier)
+
+    case 'nodeOptions':
+      return await createBaseConfig(opts)
 
     case 'library':
       return await createDeoptimizedLibrary(opts)
@@ -721,4 +723,82 @@ async function createDefaultConfig(
       : 'const config = {}'
   }
   export const defaultConfig = d(typeof config === 'function' ? config() : config)`
+}
+
+async function createBaseConfig(
+  opts: ResolvedOptions
+): Promise<File | Program> {
+  const baseOptions = t.expression.ast`{}` as ObjectExpression
+  const nodeConfig = t.expression.ast`{}` as ObjectExpression
+  const statements: Statement[] = []
+  setLocale(opts, nodeConfig)
+  setRootClasses(opts, statements, nodeConfig)
+  setPlugins(opts, statements, baseOptions)
+  baseOptions.properties.push(createProperty('config', nodeConfig))
+  return t.program.ast`
+  import { extend } from '@formkit/utils'
+  ${statements}
+  const baseOptions = ${baseOptions}
+  export const nodeOptions = (o = {}) => extend(baseOptions, o, true)`
+}
+
+/**
+ * Sets the `locale` property on the config object if it exists.
+ * @param component - The component instance
+ * @param config - The config object to modify
+ */
+function setLocale(opts: ResolvedOptions, config: ObjectExpression) {
+  const locale = getConfigProperty(opts, 'locale')?.get('value')
+  if (locale && locale.isStringLiteral()) {
+    config.properties.push(createProperty('locale', locale.node))
+  }
+}
+
+/**
+ * Adds the root classes from the configuration to the nodeOptions import.
+ * @param opts - Resolved options
+ * @param statements - The statements to add to the program
+ * @param config - The config object to modify
+ */
+function setRootClasses(
+  opts: ResolvedOptions,
+  statements: Statement[],
+  config: ObjectExpression
+) {
+  const locale = getConfigProperty(opts, 'rootClasses')?.get('value')
+  if (locale) {
+    const extraction = extract(locale, false, '__rootClasses')
+    Array.isArray(extraction)
+      ? statements.push(...extraction)
+      : statements.push(extraction)
+    config.properties.push(
+      createProperty('rootClasses', {
+        type: 'Identifier',
+        name: '__rootClasses',
+      })
+    )
+  }
+}
+
+/**
+ * Sets the plugins from the configuration to the nodeOptions import.
+ * @param opts - Resolved options
+ * @param statements - Statements
+ * @param baseOptions - Base options
+ */
+function setPlugins(
+  opts: ResolvedOptions,
+  statements: Statement[],
+  baseOptions: ObjectExpression
+) {
+  const plugins = getConfigProperty(opts, 'plugins')?.get('value')
+  if (plugins) {
+    const extraction = extract(plugins, false, '__plugins')
+    Array.isArray(extraction)
+      ? statements.push(...extraction)
+      : statements.push(extraction)
+    baseOptions.properties.push(
+      createProperty('plugins', { type: 'Identifier', name: '__plugins' })
+    )
+  }
 }

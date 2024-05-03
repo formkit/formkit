@@ -1,4 +1,4 @@
-import type { ComponentUse, Import, ResolvedOptions } from '../types'
+import type { ComponentUse, ResolvedOptions } from '../types'
 import type {
   ObjectExpression,
   ObjectProperty,
@@ -20,7 +20,7 @@ import {
 import { addImport, createProperty, getKeyName } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
-import { getConfigProperty, isFullDeopt } from './config'
+import { isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 import { camel } from '@formkit/utils'
 import type { FormKitTypeDefinition } from '@formkit/core'
@@ -42,6 +42,8 @@ export async function configureFormKitInstance(
     component.path.node.arguments[1] = t.expression.ast`{}` as ObjectExpression
   }
   const props = component.path.node.arguments[1].properties
+  const configObject = await createConfigObject(component)
+
   props.push({
     type: 'ObjectProperty',
     computed: false,
@@ -50,8 +52,24 @@ export async function configureFormKitInstance(
       type: 'Identifier',
       name: '__config__',
     },
-    value: await createConfigObject(component),
+    value: await baseConfig(component, configObject),
   })
+}
+
+export async function baseConfig(
+  component: ComponentUse,
+  config: ObjectExpression | Identifier
+) {
+  if (config.type === 'Identifier') {
+    // If this is an identifier, then we are using the full deopt. In this case
+    // we just return the identifier since it is already the defaultConfig.
+    return config
+  }
+  const nodeOptions = addImport(component.opts, component.root, {
+    from: 'virtual:formkit/nodeOptions',
+    name: 'nodeOptions',
+  })
+  return t.expression.ast`${nodeOptions}(${config})`
 }
 
 /**
@@ -99,8 +117,7 @@ export async function createConfigObject(
     new Set([...rules, ...localizations])
   )
   await importIcons(component, plugins, props, icons)
-  // Set the locale from the config object
-  await setLocale(component, config)
+
   return config
 }
 
@@ -280,27 +297,6 @@ function importLocales(
 }
 
 /**
- * Sets the `locale` property on the config object if it exists.
- * @param component - The component instance
- * @param config - The config object to modify
- */
-function setLocale(component: ComponentUse, config: ObjectExpression) {
-  const locale = getConfigProperty(component.opts, 'locale')?.get('value')
-  if (locale && locale.isStringLiteral()) {
-    config.properties.push({
-      type: 'ObjectProperty',
-      computed: false,
-      shorthand: false,
-      key: {
-        type: 'Identifier',
-        name: 'config',
-      },
-      value: t.expression.ast`{ locale: ${locale.node} }`,
-    })
-  }
-}
-
-/**
  * Extract the localizations from a given module.
  * @param identifier - The identifier to extract localizations from.
  * @param localizations - The set to add localizations to.
@@ -311,7 +307,7 @@ async function extractLocalizationsAndIcons(
   localizations: Set<string>,
   icons: Record<string, string>
 ): Promise<void> {
-  const inputDefinition = await loadInputDefinitionAst(opts, input)
+  const inputDefinition = await loadInputDefinition(opts, input)
   if (inputDefinition && typeof inputDefinition === 'object') {
     if ('localize' in inputDefinition) {
       const localize = inputDefinition.localize
@@ -325,7 +321,7 @@ async function extractLocalizationsAndIcons(
   }
 }
 
-async function loadInputDefinitionAst(
+async function loadInputDefinition(
   opts: ResolvedOptions,
   input: string
 ): Promise<FormKitTypeDefinition | undefined> {
@@ -366,6 +362,10 @@ async function loadInputDefinitionAst(
           return module[importName] as FormKitTypeDefinition
         }
       }
+    } else {
+      consola.warn(
+        `[FormKit de-opt]: Optimizer could not find an import for "${input}". This reduces the optimization of themes, icons, and i18n. To avoid this deoptimization, ensure the input definition is imported (from another module) into formkit.config.ts.`
+      )
     }
   } catch (e) {}
   return undefined

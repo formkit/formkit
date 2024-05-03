@@ -4,6 +4,14 @@ import { empty } from '@formkit/utils'
 import de from '@formkit/i18n/locales/de'
 import zh from '@formkit/i18n/locales/zh'
 import { heroIconLoader } from '@formkit/icons'
+import { rootClasses } from './formkit.theme'
+
+function sillyPlugin(node: FormKitNode) {
+  node.on('created', () => {
+    console.log('I am a silly plugin')
+  })
+  return false
+}
 
 export default defineFormKitConfig({
   optimize: true,
@@ -16,6 +24,8 @@ export default defineFormKitConfig({
   locale: 'de',
   locales: { de, zh },
   localize: ['remove'],
+  plugins: [sillyPlugin],
+  rootClasses,
   messages: {
     en: {
       validation: {
@@ -33,4 +43,9 @@ export default defineFormKitConfig({
     },
   },
   iconLoader: heroIconLoader(),
+  nodeOptions: {
+    props: {
+      label: 'This is foobar',
+    },
+  },
 })

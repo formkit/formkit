@@ -10,13 +10,7 @@ function clicked() {
   <h2>Script Setup</h2>
   <details open>
     <summary>Using script setup with a ref for validation</summary>
-    <FormKit
-      type="select"
-      validation="required|length:10"
-      label="Username"
-      prefix-icon="chat-bubble-bottom-center-text"
-      @prefix-icon-click="clicked"
-    />
+    <FormKit type="select" validation="required|length:10" />
     <!-- <ScriptSetupRefValidation />
     <RefAsInputType /> -->
   </details>

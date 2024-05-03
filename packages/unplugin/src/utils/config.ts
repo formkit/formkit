@@ -94,27 +94,31 @@ export function createConfigAst(
  */
 function resolveConfig(opts: Options): string | undefined {
   const configFile = opts.configFile ?? 'formkit.config'
-
-  const exts = ['ts', 'mjs', 'js']
-  const dir = configFile.startsWith('.') ? process.cwd() : ''
-  let paths: string[] = []
-
-  if (exts.some((ext) => configFile.endsWith(ext))) {
-    // If the config file has an extension, we don't need to try them all.
-    paths = [
-      ABSOLUTE_PATH_RE.test(configFile)
-        ? resolve(configFile)
-        : resolve(dir, configFile),
-    ]
-  } else {
-    // If the config file doesn’t have an extension, try them all.
-    paths = exts.map((ext) => resolve(dir, `${configFile}.${ext}`))
-  }
-  const path = paths.find((path) => existsSync(path))
+  const path = resolveFile(configFile)
   if (opts.configFile && !path) {
     throw new Error(`Could not find config file: ${opts.configFile}`)
   }
   return path
+}
+
+/**
+ * Attempts to resolve a file path
+ * @param file - The file to resolve
+ * @returns
+ */
+export function resolveFile(file: string) {
+  const exts = ['ts', 'mjs', 'js']
+  const dir = file.startsWith('.') ? process.cwd() : ''
+  let paths: string[] = []
+
+  if (exts.some((ext) => file.endsWith('.' + ext))) {
+    // If the config file has an extension, we don't need to try them all.
+    paths = [ABSOLUTE_PATH_RE.test(file) ? resolve(file) : resolve(dir, file)]
+  } else {
+    // If the config file doesn’t have an extension, try them all.
+    paths = exts.map((ext) => resolve(dir, `${file}.${ext}`))
+  }
+  return paths.find((path) => existsSync(path))
 }
 
 /**
