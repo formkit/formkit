@@ -91,8 +91,10 @@ async function createModuleAST(
       return await createMessagesConfig(opts)
 
     case 'icons':
-      if (opts.optimize.icons) return await createIconConfig(opts, identifier)
-      return await createDeoptimizedIconConfig(opts)
+      return await createIconConfig(opts, identifier)
+
+    case 'themes':
+      return await createThemePluginConfig(opts)
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
@@ -546,7 +548,7 @@ async function createMessagesConfig(
  * @formkit/themes plugin.
  * @param opts - Resolved options
  */
-async function createDeoptimizedIconConfig(opts: ResolvedOptions) {
+async function createThemePluginConfig(opts: ResolvedOptions) {
   const program = t.program
     .ast`import { createThemePlugin } from '@formkit/themes'`
   const createPlugin = t.expression.ast`createThemePlugin()` as CallExpression

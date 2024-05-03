@@ -94,6 +94,7 @@ export function createConfigAst(
  */
 function resolveConfig(opts: Options): string | undefined {
   const configFile = opts.configFile ?? 'formkit.config'
+
   const exts = ['ts', 'mjs', 'js']
   const dir = configFile.startsWith('.') ? process.cwd() : ''
   let paths: string[] = []

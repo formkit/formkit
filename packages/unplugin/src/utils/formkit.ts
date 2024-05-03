@@ -385,7 +385,17 @@ async function importIcons(
   props: ObjectExpression,
   icons: Record<string, string>
 ) {
-  console.log('ICONS', icons)
+  if (!component.opts.optimize.icons) {
+    // In this case we are de-optimizing the icon configuration so we load the
+    // the legacy @formkit/themes plugin instead:
+    const plugin = addImport(component.opts, component.root, {
+      from: 'virtual:formkit/themes',
+      name: 'themes',
+    })
+    plugins.elements.push(t.expression.ast`${plugin}`)
+    return
+  }
+  // Perform an optimized icon load:
   props.properties.forEach((prop) => {
     if (isSpreadElement(prop)) return
     const key = isStringLiteral(prop.key)

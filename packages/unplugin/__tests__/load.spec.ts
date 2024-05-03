@@ -443,7 +443,7 @@ describe('icon config loading', () => {
   })
 
   it('can load a deoptimized icon config', async ({ expect }) => {
-    const code = await load('virtual:formkit/icons', {
+    const code = await load('virtual:formkit/themes', {
       configFile: resolve(__dirname, './fixtures/configs/icon-deopt.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
@@ -452,8 +452,10 @@ describe('icon config loading', () => {
     `)
   })
 
-  it('can load a deoptimized icon config', async ({ expect }) => {
-    const code = await load('virtual:formkit/icons', {
+  it('can load a deoptimized icon config with arguments', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/themes', {
       configFile: resolve(
         __dirname,
         './fixtures/configs/icon-deopt-theme-vars.config.ts'
