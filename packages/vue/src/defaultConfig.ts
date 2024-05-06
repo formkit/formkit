@@ -53,7 +53,7 @@ export type DefaultConfigOptions = FormKitOptions &
  * @public
  */
 export const defaultConfig = (
-  options: DefaultConfigOptions = {}
+  options: DefaultConfigOptions & { nodeOptions?: FormKitOptions } = {}
 ): FormKitOptions => {
   decodeErrors()
   const {
@@ -66,8 +66,17 @@ export const defaultConfig = (
     iconLoaderUrl = undefined,
     iconLoader = undefined,
     icons = {},
-    ...nodeOptions
+    nodeOptions = {},
+    rootClasses,
+    ...rootOptions
   } = options
+
+  if (rootClasses) {
+    if (!nodeOptions.config) {
+      nodeOptions.config = {}
+    }
+    nodeOptions.config.rootClasses = rootClasses
+  }
   /**
    * The default configuration includes the validation plugin,
    * with all core-available validation rules.
@@ -101,7 +110,7 @@ export const defaultConfig = (
       plugins: [library, themePlugin, bindings, i18n, validation],
       ...(!locale ? {} : { config: { locale } }),
     },
-    nodeOptions || {},
+    extend(rootOptions, nodeOptions || {}, true),
     true
   ) as FormKitOptions
 }

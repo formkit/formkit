@@ -49,7 +49,7 @@ let tag = false
 /**
  * Main entry point to the build process
  */
-async function publishPackages({ force, skipClean }) {
+async function publishPackages({ force = false, skipClean = false }) {
   if (!/pnpm\.cjs$/.test(process.env.npm_execpath)) {
     msg.error(`⚠️ You must run this command with pnpm instead of npm or yarn.`)
     msg.info('Please try again with:\n\n» pnpm run publish\n\n')
