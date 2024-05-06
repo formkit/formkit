@@ -60,11 +60,11 @@ export async function baseConfig(
   component: ComponentUse,
   config: ObjectExpression | Identifier
 ) {
-  if (config.type === 'Identifier') {
-    // If this is an identifier, then we are using the full deopt. In this case
-    // we just return the identifier since it is already the defaultConfig.
-    return config
-  }
+  // If there is no config file, no need to wrap the config in a function.
+  if (!component.opts.configAst) return config
+  // If this is an identifier, then we are using the full deopt. In this case
+  // we just return the identifier since it is already the defaultConfig.
+  if (config.type === 'Identifier') return config
   const nodeOptions = addImport(component.opts, component.root, {
     from: 'virtual:formkit/nodeOptions',
     name: 'nodeOptions',
