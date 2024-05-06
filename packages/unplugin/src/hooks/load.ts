@@ -274,7 +274,7 @@ export async function createVirtualInputConfig(
     )
   }
   return t.program.ast`import { ${inputName} } from '@formkit/inputs';
-  const library = () => {};
+  const library = () => false;
   library.library = (node) => node.define(${inputName});
   export { library };`
 }
