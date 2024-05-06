@@ -1,7 +1,7 @@
 import { createUnplugin } from 'unplugin'
 import type { UnpluginFactory } from 'unplugin'
 import type { Options } from './types'
-import { createOpts } from './utils/config'
+import { createOpts, getPathWithoutQuery } from './utils/config'
 import { createTransform } from './hooks/transform'
 import { createLoad } from './hooks/load'
 import { createResolver } from './hooks/resolveId'
@@ -23,7 +23,9 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
     // webpack's id filter is outside of loader logic,
     // an additional hook is needed for better perf on webpack
     transformInclude(id) {
-      return id.endsWith('.vue')
+      if (typeof id !== 'string') return false
+      const file = getPathWithoutQuery(id)
+      return file.endsWith('.vue')
     },
     // just like rollup transform
     transform: createTransform(opts),

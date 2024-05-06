@@ -12,6 +12,7 @@ import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
 import { getKeyName } from './ast'
+import { URL } from 'url'
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -330,4 +331,14 @@ export function isFullDeopt(opts: ResolvedOptions): opts is Exclude<
   optimize: { [key in keyof ResolvedOptions['optimize']]: false }
 } {
   return Object.values(opts.optimize).every((v) => !v)
+}
+
+export function getPathWithoutQuery(filePath: string) {
+  if (!filePath.startsWith('/')) return filePath
+  // Assuming filePath is an absolute URL, 'file://' prefix is used for compatibility
+  const prefix = 'file://'
+  const url = new URL(prefix + filePath)
+
+  // Remove the 'file:///' prefix to get the original file path format
+  return url.pathname.substring(prefix.length)
 }
