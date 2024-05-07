@@ -5,10 +5,6 @@ import { createConfig } from '@formkit/core'
 import { optionsSymbol, configSymbol } from './plugin'
 import { provide } from 'vue'
 import { h } from 'vue'
-// import { Suspense } from 'vue'
-// import { getCurrentInstance } from 'vue'
-// import type { ComponentInternalInstance } from 'vue'
-// import type { VNode } from 'vue'
 
 /**
  * A composable to provide a given configuration to all children.
