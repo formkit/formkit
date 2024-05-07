@@ -70,7 +70,7 @@ export { FormKitMessages } from './FormKitMessages'
  */
 export {
   FormKitProvider,
-  FormKitLazyProvider,
+  // FormKitLazyProvider,
   useConfig,
 } from './FormKitProvider'
 
@@ -104,16 +104,16 @@ export type {
 } from './FormKitSchema'
 
 /**
+ * The vue specific FormKit core plugin. This is generally required for all
+ * vue based FormKit configurations.
+ */
+export { bindings } from './bindings'
+
+/**
  * The default configuration.
  */
 export { defaultConfig } from './defaultConfig'
 export type { DefaultConfigOptions } from './defaultConfig'
-
-/**
- * The vue specific FormKit core plugin. This is generally required for all
- * vue based FormKit configurations.
- */
-export { default as bindings } from './bindings'
 
 /**
  * A vue component for rendering icons from the FormKit icon registry

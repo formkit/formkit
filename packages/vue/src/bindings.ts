@@ -10,10 +10,10 @@ import {
   isReactive,
 } from 'vue'
 import type {
-  FormKitPlugin,
   FormKitFrameworkContext,
   FormKitMessage,
   FormKitTypeDefinition,
+  FormKitNode,
 } from '@formkit/core'
 import { createClasses, createMessage, generateClassList } from '@formkit/core'
 import {
@@ -35,7 +35,7 @@ import type { FormKitPseudoProps } from '@formkit/core'
  *
  * @public
  */
-const vueBindings: FormKitPlugin = function vueBindings(node) {
+export function bindings(node: FormKitNode) {
   /**
    * Start a validity counter on all blocking messages.
    */
@@ -519,5 +519,3 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     node = null
   })
 }
-
-export default vueBindings

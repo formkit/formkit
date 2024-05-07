@@ -8,7 +8,7 @@ import en from '@formkit/i18n/locales/en'
 import { createLibraryPlugin, inputs as defaultInputs } from '@formkit/inputs'
 
 import { createThemePlugin } from '@formkit/themes'
-import bindings from './bindings'
+import { bindings } from './bindings'
 import { register as decodeErrors } from '@formkit/dev'
 import type { PluginConfigs } from './index'
 
