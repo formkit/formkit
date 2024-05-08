@@ -31,14 +31,14 @@ describe('input config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "const library = () => false;
-      import { createInput } from "@formkit/vue";
+      "import { createInput } from "@formkit/vue";
       import CustomComponent from "../CustomComponent.vue";
-      const __extracted__ = createInput(CustomComponent);
+      const __custom__ = createInput(CustomComponent);
+      const library = () => false;
 
       library.library = node => {
           if (node.props.type === "custom") {
-              return node.define(__extracted__);
+              return node.define(__custom__);
           }
       };
 
@@ -54,10 +54,9 @@ describe('input config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "const library = () => false;
-      const headingStyle = "h1";
+      "const headingStyle = "h1";
 
-      const __extracted__ = {
+      const __text__ = {
           type: "input",
 
           schema: [{
@@ -66,9 +65,11 @@ describe('input config loading', () => {
           }]
       };
 
+      const library = () => false;
+
       library.library = node => {
           if (node.props.type === "text") {
-              return node.define(__extracted__);
+              return node.define(__text__);
           }
       };
 
@@ -114,8 +115,8 @@ describe('input config loading', () => {
   it('produces a library for multiple inputs when the input being loaded contains formkit components in the schema', async () => {
     const code = await load('virtual:formkit/inputs:form')
     expect(code).toMatchInlineSnapshot(`
-      "import { submit } from "virtual:formkit/inputs:submit";
-      import { form } from "@formkit/inputs";
+      "import { form } from "@formkit/inputs";
+      import { submit } from "@formkit/inputs";
       const library = () => true;
 
       library.library = node => {

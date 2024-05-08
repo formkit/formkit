@@ -30,6 +30,7 @@ import type {
   StringLiteral,
   CallExpression,
   IfStatement,
+  Identifier,
 } from '@babel/types'
 import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
@@ -234,13 +235,51 @@ export async function createVirtualInputConfig(
   inputName: string,
   includeChildren = true
 ): Promise<File | Program> {
-  const shouldInherit = {
-    type: 'BooleanLiteral',
-    value: false,
-  }
-  const library = t.program.ast`const library = () => ${shouldInherit}`
-  const file: File = { type: 'File', program: library }
+  const inputs = new Set<string>([inputName])
 
+  if (includeChildren) {
+    try {
+      const [statements] = await createInputIdentifier(opts, inputName)
+      const file: File = { type: 'File', program: t.program.ast`${statements}` }
+      const input = await loadInputDefinition(opts, inputName, file)
+      if (input && input.schema) {
+        const schema =
+          typeof input.schema === 'function' ? input.schema({}) : input.schema
+        extractInputTypesFromSchema(schema, inputs)
+      }
+    } catch (e) {}
+  }
+
+  const defStatements: Statement[] = []
+  const defineStatements: Statement[] = []
+  for await (const input of inputs) {
+    const [statements, identifier] = await createInputIdentifier(opts, input)
+    defStatements.push(...statements)
+    defineStatements.push(
+      t.statement.ast`if (node.props.type === '${input}') {
+        return node.define(${identifier});
+      }`
+    )
+  }
+
+  return t.program.ast`${defStatements}
+  const library = () => ${{ type: 'BooleanLiteral', value: inputs.size > 1 }};
+  library.library = (node) => {
+    ${defineStatements}
+  }
+  export { library }`
+}
+
+/**
+ * Creates the code necessary to use an input. This may be an extraction or an
+ * an import statement.
+ * @param opts - Resolved option list
+ * @param name - The name of the input
+ */
+async function createInputIdentifier(
+  opts: ResolvedOptions,
+  inputName: string
+): Promise<[Statement[], Identifier]> {
   if (opts.configAst) {
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
@@ -261,80 +300,35 @@ export async function createVirtualInputConfig(
         },
       })
       if (inputPropertyValue) {
-        const inputDefinition = extract(inputPropertyValue, false)
-        library.body.push(
-          ...t.statements.ast`
-          ${inputDefinition}
-          library.library = (node) => {
-            if (node.props.type === '${inputName}') {
-             return node.define(__extracted__)
-            }
-          };
-          export { library };`
+        const inputDefinition = extract(
+          inputPropertyValue,
+          false,
+          `__${inputName}__`
         )
+        return [
+          Array.isArray(inputDefinition) ? inputDefinition : [inputDefinition],
+          { type: 'Identifier', name: `__${inputName}__` } as Identifier,
+        ]
       }
     }
   }
 
   // The configuration does not define the given input, so we can attempt to
   // directly import it from the @formkit/inputs package.
-  if (library.body.length === 1) {
-    const { inputs } = await import('@formkit/inputs')
-    if (!(inputName in inputs)) {
-      console.error(`Unknown input: "${inputName}"`)
-      throw new Error(
-        `Input ${inputName} is not a registered input or an available input in @formkit/inputs.`
-      )
-    }
-    library.body.unshift(
-      t.statement.ast`import { ${inputName} } from '@formkit/inputs'`
-    )
-    library.body.push(
-      ...t.statements.ast`library.library = (node) => {
-        if (node.props.type === '${inputName}') {
-          return node.define(${inputName});
-        }
-      }
-    export { library };`
+  const { inputs } = await import('@formkit/inputs')
+  if (!(inputName in inputs)) {
+    console.error(`Unknown input: "${inputName}"`)
+    throw new Error(
+      `Input ${inputName} is not a registered input or an available input in @formkit/inputs.`
     )
   }
-
-  if (includeChildren) {
-    try {
-      const input = await loadInputDefinition(opts, inputName, library)
-      if (input && input.schema) {
-        const schema =
-          typeof input.schema === 'function' ? input.schema({}) : input.schema
-        const inputs = extractInputTypesFromSchema(schema)
-        if (inputs.size) {
-          const statements: IfStatement[] = []
-          inputs.forEach((subInput) => {
-            const importName = addImport(opts, file, {
-              from: 'virtual:formkit/inputs:' + subInput,
-              name: subInput,
-            })
-            statements.push(
-              t.statement.ast`if (node.props.type === '${subInput}') {
-              return node.define(${importName});
-            }` as IfStatement
-            )
-          })
-          shouldInherit.value = true
-          opts.traverse(file, {
-            IfStatement(path) {
-              path.stop()
-              path.insertAfter(statements)
-            },
-          })
-        }
-      }
-    } catch (e) {
-      throw e
-      // silence me thinks?
-    }
-  }
-
-  return library
+  return [
+    t.statements.ast`import { ${inputName} } from '@formkit/inputs'`,
+    {
+      type: 'Identifier',
+      name: inputName,
+    } as Identifier,
+  ]
 }
 
 /**
