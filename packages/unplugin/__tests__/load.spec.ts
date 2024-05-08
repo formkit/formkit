@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { load } from './helpers/load'
 import { createCommonJS } from 'mlly'
 import { resolve } from 'pathe'
@@ -11,8 +11,14 @@ describe('input config loading', () => {
     const code = await load('virtual:formkit/inputs:text')
     expect(code).toMatchInlineSnapshot(`
       "import { text } from "@formkit/inputs";
-      const library = () => {};
-      library.library = node => node.define(text);
+      const library = () => false;
+
+      library.library = node => {
+          if (node.props.type === "text") {
+              return node.define(text);
+          }
+      };
+
       export { library };"
     `)
   })
@@ -25,15 +31,17 @@ describe('input config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { createInput } from "@formkit/vue";
+      "const library = () => false;
+      import { createInput } from "@formkit/vue";
       import CustomComponent from "../CustomComponent.vue";
       const __extracted__ = createInput(CustomComponent);
 
-      const library = () => {
-          return false;
+      library.library = node => {
+          if (node.props.type === "custom") {
+              return node.define(__extracted__);
+          }
       };
 
-      library.library = node => node.define(__extracted__);
       export { library };"
     `)
   })
@@ -46,7 +54,8 @@ describe('input config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "const headingStyle = "h1";
+      "const library = () => false;
+      const headingStyle = "h1";
 
       const __extracted__ = {
           type: "input",
@@ -57,11 +66,12 @@ describe('input config loading', () => {
           }]
       };
 
-      const library = () => {
-          return false;
+      library.library = node => {
+          if (node.props.type === "text") {
+              return node.define(__extracted__);
+          }
       };
 
-      library.library = node => node.define(__extracted__);
       export { library };"
     `)
   })
@@ -96,6 +106,27 @@ describe('input config loading', () => {
           ...inputs,
           ...__extracted__
       });
+
+      export { library };"
+    `)
+  })
+
+  it('produces a library for multiple inputs when the input being loaded contains formkit components in the schema', async () => {
+    const code = await load('virtual:formkit/inputs:form')
+    expect(code).toMatchInlineSnapshot(`
+      "import { submit } from "virtual:formkit/inputs:submit";
+      import { form } from "@formkit/inputs";
+      const library = () => true;
+
+      library.library = node => {
+          if (node.props.type === "form") {
+              return node.define(form);
+          }
+
+          if (node.props.type === "submit") {
+              return node.define(submit);
+          }
+      };
 
       export { library };"
     `)

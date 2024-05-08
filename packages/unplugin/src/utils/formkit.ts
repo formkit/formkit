@@ -8,6 +8,8 @@ import type {
   Identifier,
   ImportSpecifier,
   ImportDefaultSpecifier,
+  Program,
+  File,
 } from '@babel/types'
 import type { NodePath } from '@babel/traverse'
 import {
@@ -23,7 +25,10 @@ import { consola } from 'consola'
 import { isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 import { camel } from '@formkit/utils'
-import type { FormKitTypeDefinition } from '@formkit/core'
+import type {
+  FormKitSchemaDefinition,
+  FormKitTypeDefinition,
+} from '@formkit/core'
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -321,16 +326,17 @@ async function extractLocalizationsAndIcons(
   }
 }
 
-async function loadInputDefinition(
+export async function loadInputDefinition(
   opts: ResolvedOptions,
-  input: string
+  input: string,
+  ast?: File | Program
 ): Promise<FormKitTypeDefinition | undefined> {
   try {
     // This silly iife is purely for TS to be happy due to incomplete control flow analysis: https://github.com/microsoft/TypeScript/issues/9998
     const importPath = await (async (): Promise<
       NodePath<ImportSpecifier | ImportDefaultSpecifier> | undefined
     > => {
-      const ast = await createVirtualInputConfig(opts, input)
+      ast = ast ?? (await createVirtualInputConfig(opts, input, false))
       let importPath:
         | NodePath<ImportSpecifier | ImportDefaultSpecifier>
         | undefined = undefined
@@ -458,4 +464,37 @@ async function importIcons(
       }),
     })
   })
+}
+
+/**
+ * Extract the input types from a schema object.
+ * @param schema - The schema object
+ * @returns
+ */
+export function extractInputTypesFromSchema(
+  schema: FormKitSchemaDefinition,
+  types = new Set<string>()
+): Set<string> {
+  if (Array.isArray(schema)) {
+    schema.forEach((item) => {
+      extractInputTypesFromSchema(item, types)
+    })
+  }
+  if (schema && typeof schema === 'object') {
+    if ('$cmp' in schema && schema.$cmp === 'FormKit' && schema.props?.type) {
+      types.add(schema.props.type)
+    } else if ('$formkit' in schema) {
+      types.add(schema.$formkit)
+    }
+    if ('children' in schema && typeof schema.children === 'object') {
+      extractInputTypesFromSchema(schema.children, types)
+    }
+    if ('then' in schema && typeof schema.then === 'object') {
+      extractInputTypesFromSchema(schema.then, types)
+    }
+    if ('else' in schema && typeof schema.else === 'object') {
+      extractInputTypesFromSchema(schema.else, types)
+    }
+  }
+  return types
 }
