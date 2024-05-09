@@ -16,7 +16,7 @@ import { setErrors } from '@formkit/core'
 import { token } from '@formkit/utils'
 import { getNode, createNode } from '@formkit/core'
 import type { FormKitValidationRule } from '@formkit/validation'
-import vuePlugin from '../src/bindings'
+import { bindings } from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import type { FormKitFrameworkContext } from '@formkit/core'
 import { changeLocale, de } from '@formkit/i18n'
@@ -1533,7 +1533,7 @@ describe('plugins', () => {
         bar: 'foobar',
       },
       global: {
-        plugins: [[plugin, { plugins: [vuePlugin, customInput] }]],
+        plugins: [[plugin, { plugins: [bindings, customInput] }]],
       },
     })
     expect(wrapper.html()).toBe('<input class="gbr" data-source="hello world">')

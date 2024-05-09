@@ -140,10 +140,9 @@ export async function buildPackage(p) {
   // // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
-    await fs.mkdir(
-      resolve(packagesDir, 'icons/dist/icons'),
-      { recursive: true }
-    )
+    await fs.mkdir(resolve(packagesDir, 'icons/dist/icons'), {
+      recursive: true,
+    })
     Object.keys(icons).forEach(async (icon) => {
       await fs.writeFile(
         resolve(packagesDir, 'icons/dist/icons', `${icon}.svg`),
@@ -245,10 +244,7 @@ async function unpluginBuildExtras() {
  */
 async function addonsBuildExtras() {
   const addonsCSS = await fs.readdir(resolve(packagesDir, 'addons/src/css'))
-  await fs.mkdir(
-    resolve(packagesDir, 'addons/dist/css'),
-    { recursive: true },
-  )
+  await fs.mkdir(resolve(packagesDir, 'addons/dist/css'), { recursive: true })
   addonsCSS.forEach(async (css) => {
     await fs.copyFile(
       resolve(packagesDir, 'addons/src/css/', css),
@@ -331,6 +327,8 @@ function estimatedLogs(p) {
     }
     case 'themes':
       return 21 * 6 // 6 packages to bundle under themes
+    case 'i18n':
+      return 390
     default:
       return 21
   }

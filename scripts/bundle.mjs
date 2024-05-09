@@ -2,7 +2,7 @@
 import { build } from 'tsup'
 import { resolve, dirname } from 'pathe'
 import { fileURLToPath } from 'url'
-import { renameSync, readFileSync, readdirSync } from 'fs'
+import { renameSync, readFileSync, readdirSync, writeFileSync } from 'fs'
 // import { replace } from 'esbuild-plugin-replace'
 import transformPipe from './transform-pipe.mjs'
 import { progress } from './build.mjs'
@@ -160,6 +160,27 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     esbuildPlugins,
   }
 
+  function replaceImports(code) {
+    const transformedCode = code.replace(
+      /((?:import|export).*?from '\.\/.+?)\.mjs/g,
+      '$1.dev.mjs'
+    )
+    return transformedCode
+  }
+
+  async function postProcess() {
+    const files = readdirSync(resolve(rootDir, 'dist'))
+    for (const file of files) {
+      if (file.endsWith('.dev.mjs')) {
+        const path = resolve(rootDir, 'dist', file)
+        let code = readFileSync(path, { encoding: 'utf-8' })
+        // Transforms:
+        code = replaceImports(code)
+        writeFileSync(path, code)
+      }
+    }
+  }
+
   const log = console.log
   const warn = console.warn
   const silenceWarningSnippets = [
@@ -176,6 +197,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     progress.logs.push(m)
   }
   await build(config)
+  await postProcess()
   const dts =
     plugin && /\.ts$/.test(plugin)
       ? plugin.substring(0, plugin.length - 3)
