@@ -3,7 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import type { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
 import { createNode, resetRegistry } from '@formkit/core'
-import corePlugin from '../src/bindings'
+import { bindings } from '../src/bindings'
 import { plugin } from '../src/plugin'
 import { defaultConfig } from '../src'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -1329,7 +1329,7 @@ describe('schema $get function', () => {
   it('can fetch a global formkit node', async () => {
     const node = createNode({
       type: 'input',
-      plugins: [corePlugin],
+      plugins: [bindings],
       props: { id: 'boo' },
       value: 'you found me!',
     })
@@ -1353,7 +1353,7 @@ describe('schema $get function', () => {
     expect(wrapper.html()).toBe('null')
     createNode({
       type: 'input',
-      plugins: [corePlugin],
+      plugins: [bindings],
       props: { id: 'bar' },
       value: 'you found me!',
     })
@@ -1369,12 +1369,12 @@ describe('schema $get function', () => {
     })
     expect(wrapper.html()).toBe('0')
     createNode({
-      plugins: [corePlugin],
+      plugins: [bindings],
       props: { id: 'ten' },
       value: 10,
     })
     createNode({
-      plugins: [corePlugin],
+      plugins: [bindings],
       props: { id: 'five' },
       value: 5,
     })

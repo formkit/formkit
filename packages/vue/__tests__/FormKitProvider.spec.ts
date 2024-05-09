@@ -1,7 +1,6 @@
 import {
   FormKit,
   FormKitProvider,
-  FormKitLazyProvider,
   FormKitSchema,
   defaultConfig,
   plugin,
@@ -119,26 +118,6 @@ describe('FormKitProvider', () => {
       }
     )
     expect(wrapper.find('input.formkit-input').exists()).toBe(true)
-  })
-
-  it('can use a custom FormKitLazyProvider to automatically inject a defaultConfig', async () => {
-    const wrapper = mount({
-      components: {
-        FormKit,
-        FormKitLazyProvider,
-      },
-      methods: {
-        defaultConfig,
-      },
-      template: `
-          <FormKitLazyProvider>
-            <FormKit type="text" name="foo" />
-          </FormKitLazyProvider>
-        `,
-    })
-    // Need to provide enough time for the Suspense component to render.
-    await new Promise((r) => setTimeout(r, 100))
-    expect(wrapper.find('input').exists()).toBe(true)
   })
 
   it('can sub-render a FormKit component that is not registered globally', () => {

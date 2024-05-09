@@ -2652,6 +2652,7 @@ describe('naked attributes', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'text',
+        id: 'test_table_stakes',
         name: 'table_stakes',
         suffixIcon: 'star',
         onSuffixIconClick: handler,
