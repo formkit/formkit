@@ -82,6 +82,15 @@ export const optionsSymbol: InjectionKey<FormKitOptions> =
   Symbol.for('FormKitOptions')
 
 /**
+ * The symbol key for accessing a parent FormKit node options.
+ *
+ * @public
+ */
+export const parentConfig: InjectionKey<FormKitOptions> = Symbol.for(
+  'FormKitParentOptions'
+)
+
+/**
  * The symbol key for accessing FormKit root configuration.
  *
  * @public

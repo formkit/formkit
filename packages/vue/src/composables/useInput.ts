@@ -33,7 +33,7 @@ import {
   onMounted,
 } from 'vue'
 import type { FormKitInputs } from '@formkit/inputs'
-import { optionsSymbol } from '../plugin'
+import { optionsSymbol, parentConfig } from '../plugin'
 import type { FormKitGroupValue } from 'packages/core/src'
 import type { FormKitPseudoProps } from '@formkit/core'
 
@@ -133,9 +133,21 @@ export function useInput<
    */
   const config = Object.assign(
     {},
-    props.__config__ ?? inject(optionsSymbol, {}) ?? {},
+    props.__config__ ??
+      inject(optionsSymbol, null) ??
+      inject(parentConfig, null) ??
+      {},
     options
   )
+
+  /**
+   * Inject the localized config to children. Because props.__config__ and
+   * optionsSymbol take precedent, these configuration options will only apply
+   * if the child component is not detected by optimization.
+   */
+  if (props.__config__) {
+    provide(parentConfig, props.__config__)
+  }
 
   /**
    * The root element — generally this is either a Document or ShadowRoot.
