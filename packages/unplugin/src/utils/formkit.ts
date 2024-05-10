@@ -95,6 +95,7 @@ export async function createConfigObject(
     }
   }
   const config = t.expression.ast`{}` as ObjectExpression
+  const nodeProps = t.expression.ast`{}` as ObjectExpression
 
   const bindingsVar = addImport(component.opts, component.root, {
     from: '@formkit/vue',
@@ -113,16 +114,19 @@ export async function createConfigObject(
     plugins
   )
   // Inject the validation plugin and any rules
-  const rules = await importValidation(component, props, plugins)
+  const rules = await importValidation(component, props, nodeProps, plugins)
   // Import the necessary i18n locales
   await importLocales(
     component,
-    props,
+    nodeProps,
     plugins,
     new Set([...rules, ...localizations])
   )
   await importIcons(component, plugins, props, icons)
 
+  if (nodeProps.properties.length) {
+    config.properties.push(createProperty('props', nodeProps))
+  }
   return config
 }
 
@@ -185,6 +189,7 @@ async function importInputType(
 async function importValidation(
   component: ComponentUse,
   props: ObjectExpression,
+  nodeProps: ObjectExpression,
   plugins: ArrayExpression
 ) {
   const opts = component.opts
@@ -232,10 +237,10 @@ async function importValidation(
         )
       )
     })
-    props.properties.push(createProperty('__rules__', rulesObject))
+    nodeProps.properties.push(createProperty('__rules__', rulesObject))
   } else if (localDeopt || !opts.optimize.validation) {
     // Load de-optimized rules
-    props.properties.push(
+    nodeProps.properties.push(
       createProperty(
         '__rules__',
         t.expression.ast`${addImport(opts, component.root, {
@@ -262,7 +267,7 @@ async function importValidation(
  */
 function importLocales(
   component: ComponentUse,
-  props: ObjectExpression,
+  nodeProps: ObjectExpression,
   plugins: ArrayExpression,
   messageKeys: Set<string> | undefined
 ) {
@@ -277,7 +282,7 @@ function importLocales(
       from: `virtual:formkit/locales`,
       name: 'locales',
     })
-    props.properties.push(
+    nodeProps.properties.push(
       createProperty('__locales__', t.expression.ast`${locales}`)
     )
   } else if (messageKeys && messageKeys.size) {
@@ -295,7 +300,7 @@ function importLocales(
       from: `virtual:formkit/locales:${messages.join(',')}`,
       name: 'locales',
     })
-    props.properties.push(
+    nodeProps.properties.push(
       createProperty('__locales__', t.expression.ast`${locales}`)
     )
   }
