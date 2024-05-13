@@ -7,6 +7,9 @@ import { createSection } from '../createSection'
  */
 export const outer = createSection('outer', () => ({
   $el: 'div',
+  meta: {
+    autoAnimate: true,
+  },
   attrs: {
     key: '$id',
     'data-family': '$family || undefined',
