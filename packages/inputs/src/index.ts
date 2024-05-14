@@ -20,12 +20,10 @@ export { normalizeOptions } from './features/options'
 /**
  * createSection() and related utilities.
  */
-export {
+export { createSection, isSchemaObject, extendSchema } from './createSection'
+export type {
   FormKitSchemaExtendableSection,
   FormKitSection,
-  createSection,
-  isSchemaObject,
-  extendSchema,
 } from './createSection'
 
 /**

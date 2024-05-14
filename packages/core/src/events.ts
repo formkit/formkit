@@ -1,5 +1,6 @@
 import { token } from '@formkit/utils'
-import { FormKitContext, FormKitNode, isNode } from './node'
+import type { FormKitContext, FormKitNode } from './node'
+import { isNode } from './node'
 
 /**
  * Event listener functions definition.

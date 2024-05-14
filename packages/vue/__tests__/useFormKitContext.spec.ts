@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { plugin, FormKit, defaultConfig, useFormKitContext } from '../src/index'
-import { h, Component, nextTick, defineComponent } from 'vue'
+import type { Component } from 'vue'
+import { h, nextTick, defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
 
 const ChildComponent = defineComponent({

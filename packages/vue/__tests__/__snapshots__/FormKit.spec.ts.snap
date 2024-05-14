@@ -1,16 +1,18 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`naked attributes > outputs accessibility attributes on clickable icons 1`] = `
-"<div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"text\\" data-empty=\\"true\\" data-suffix-icon=\\"true\\" data-suffix-icon-click=\\"true\\">
-  <div class=\\"formkit-wrapper\\">
+"<div class="formkit-outer" data-family="text" data-type="text" data-empty="true" data-suffix-icon="true" data-suffix-icon-click="true">
+  <div class="formkit-wrapper">
     <!---->
-    <div class=\\"formkit-inner\\">
+    <div class="formkit-inner">
       <!---->
-      <!----><input class=\\"formkit-input\\" type=\\"text\\" name=\\"table_stakes\\" id=\\"input_120\\">
-      <!----><span class=\\"formkit-suffix-icon formkit-icon\\" role=\\"button\\" tabindex=\\"0\\"><svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 15 15\\"><path fill=\\"currentColor\\" d=\\"M11.41,8.41h0l1.14-.93,1.14-.93c.48-.39,.37-.74-.25-.77l-1.58-.09-2.5-.14-.41-1.05s0,0,0,0l-.53-1.38-.53-1.38c-.22-.58-.59-.58-.81,0l-1.07,2.75s0,0,0,0l-.41,1.05-2.5,.14-1.58,.09c-.62,.03-.73,.38-.25,.77l1.14,.93,1.14,.93h0l.87,.71-.57,2.15-.47,1.79c-.16,.6,.14,.81,.66,.48l2.48-1.6h0s.94-.61,.94-.61l.94,.61h0s1.24,.8,1.24,.8l1.24,.8c.52,.33,.82,.12,.66-.48l-.47-1.79-.57-2.15,.87-.71Z\\"></path></svg></span>
+      <!----><input class="formkit-input" type="text" name="table_stakes" id="input_120">
+      <!----><span class="formkit-suffix-icon formkit-icon" role="button" tabindex="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15"><path fill="currentColor" d="M11.41,8.41h0l1.14-.93,1.14-.93c.48-.39,.37-.74-.25-.77l-1.58-.09-2.5-.14-.41-1.05s0,0,0,0l-.53-1.38-.53-1.38c-.22-.58-.59-.58-.81,0l-1.07,2.75s0,0,0,0l-.41,1.05-2.5,.14-1.58,.09c-.62,.03-.73,.38-.25,.77l1.14,.93,1.14,.93h0l.87,.71-.57,2.15-.47,1.79c-.16,.6,.14,.81,.66,.48l2.48-1.6h0s.94-.61,.94-.61l.94,.61h0s1.24,.8,1.24,.8l1.24,.8c.52,.33,.82,.12,.66-.48l-.47-1.79-.57-2.15,.87-.71Z"></path></svg></span>
     </div>
   </div>
   <!---->
   <!---->
 </div>"
 `;
+
+exports[`naked attributes > outputs accessibility attributes on clickable icons 2`] = `""`;

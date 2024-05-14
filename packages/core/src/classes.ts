@@ -1,4 +1,4 @@
-import { FormKitNode } from './node'
+import type { FormKitNode } from './node'
 
 /**
  * Definition for a function that produces CSS classes.

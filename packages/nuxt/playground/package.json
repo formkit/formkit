@@ -7,7 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "cd .. && pnpm nuxt-module-build build --stub && pnpm nuxt-module-build prepare && cd playground && pnpm nuxt prepare"
+    "postinstall": "cd ../../../ && pnpm stub unplugin && cd packages/nuxt && pnpm nuxt-module-build build --stub && pnpm nuxt-module-build prepare && cd playground && pnpm nuxt prepare"
   },
   "devDependencies": {
     "@formkit/addons": "workspace:latest",
@@ -16,7 +16,7 @@
     "@formkit/themes": "workspace:latest",
     "@formkit/vue": "workspace:latest",
     "@nuxtjs/tailwindcss": "latest",
-    "nuxt": "^3.10.3",
+    "nuxt": "^3.11.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   }

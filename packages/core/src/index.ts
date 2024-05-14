@@ -23,8 +23,8 @@ export * from './node'
 /**
  * Include createMessage to create new messages.
  */
-export {
-  createMessage,
+export { createMessage } from './store'
+export type {
   ChildMessageBuffer,
   FormKitInputMessages,
   FormKitMessage,
@@ -40,7 +40,7 @@ export {
 /**
  * The FormKit ledger.
  */
-export {
+export type {
   FormKitLedger,
   FormKitCounterCondition,
   FormKitCounter,
@@ -49,12 +49,12 @@ export {
 /**
  * Export dispatcher typings.
  */
-export { FormKitDispatcher, FormKitMiddleware } from './dispatcher'
+export type { FormKitDispatcher, FormKitMiddleware } from './dispatcher'
 
 /**
  * Export event typings.
  */
-export {
+export type {
   FormKitEventListener,
   FormKitEvent,
   FormKitEventEmitter,
@@ -63,18 +63,13 @@ export {
 /**
  * Export errors emitters.
  */
-export {
-  FormKitHandlerPayload,
-  errorHandler,
-  warningHandler,
-  warn,
-  error,
-} from './errors'
+export { errorHandler, warningHandler, warn, error } from './errors'
+export type { FormKitHandlerPayload } from './errors'
 
 /**
  * Export all schema features.
  */
-export {
+export type {
   FormKitAttributeValue,
   FormKitExtendableSchemaRoot,
   FormKitListStatement,
@@ -93,21 +88,14 @@ export {
   FormKitSchemaTextNode,
   FormKitSchemaDefinition,
   FormKitSectionsSchema,
-  isComponent,
-  isConditional,
-  isDOM,
-  isSugar,
-  sugar,
 } from './schema'
+export { isComponent, isConditional, isDOM, isSugar, sugar } from './schema'
 
 /**
  * Export the FormKit logic compiler.
  */
-export {
-  compile,
-  FormKitCompilerOutput,
-  FormKitCompilerProvider,
-} from './compiler'
+export { compile } from './compiler'
+export type { FormKitCompilerOutput, FormKitCompilerProvider } from './compiler'
 
 /**
  * Export classes.
@@ -122,7 +110,8 @@ export * from './registry'
 /**
  * The root configuration creator.
  */
-export { createConfig, FormKitRootConfig } from './config'
+export { createConfig } from './config'
+export type { FormKitRootConfig } from './config'
 
 /**
  * Sets error store messages on inputs.

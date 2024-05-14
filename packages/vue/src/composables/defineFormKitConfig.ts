@@ -1,4 +1,4 @@
-import { DefaultConfigOptions } from '../index'
+import type { DefaultConfigOptions } from '../index'
 
 export function defineFormKitConfig(
   config: DefaultConfigOptions | (() => DefaultConfigOptions)

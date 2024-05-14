@@ -14,7 +14,6 @@
  * - Clean up remove unnecessary type declarations
  * - Minify code using terser
  */
-import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
@@ -50,7 +49,7 @@ export const progress = {
   expectedLogs: 0,
   logs: [],
   warnings: {},
-  timeElapsed: 0,
+  timeElapsed: '0',
   step: '',
 }
 
@@ -66,7 +65,7 @@ const multiStepFile = readFileSync(
 const matches = multiStepFile.match(
   /\/\* <declare> \*\/(.*?)\/\* <\/declare> \*\//gmsu
 )
-if (matches.length !== 2) {
+if (matches?.length !== 2) {
   process.exit()
 }
 
@@ -136,15 +135,14 @@ export async function buildPackage(p) {
 
   if (p === 'addons') await addonsBuildExtras()
 
+  if (p === 'unplugin') await unpluginBuildExtras()
+
   // // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
     await fs.mkdir(
       resolve(packagesDir, 'icons/dist/icons'),
-      { recursive: true },
-      (err) => {
-        if (err) throw err
-      }
+      { recursive: true }
     )
     Object.keys(icons).forEach(async (icon) => {
       await fs.writeFile(
@@ -169,7 +167,7 @@ export async function buildAllPackages(packages) {
   })
   buildAll = true
   startTime = performance.now()
-  for (const [i, p] of orderedPackages.entries()) {
+  for await (const [i, p] of orderedPackages.entries()) {
     progress.step = `Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`
     await buildPackage(p)
   }
@@ -206,7 +204,9 @@ export async function inputsBuildExtras() {
   const tsData = JSON.parse(
     tsConfigStr.replace(
       './types/globals.d.ts',
-      resolve(rootDir, './types/globals.d.ts').split(path.sep).join(path.posix.sep)
+      resolve(rootDir, './types/globals.d.ts')
+        .split(path.sep)
+        .join(path.posix.sep)
     )
   )
   tsData.compilerOptions.outDir = './'
@@ -233,6 +233,13 @@ async function themesBuildExtras() {
   await bundle('themes', 'windicss', !usingProgressBar)
 }
 
+async function unpluginBuildExtras() {
+  await bundle('unplugin', 'esbuild.ts', !usingProgressBar)
+  await bundle('unplugin', 'rollup.ts', !usingProgressBar)
+  await bundle('unplugin', 'vite.ts', !usingProgressBar)
+  await bundle('unplugin', 'webpack.ts', !usingProgressBar)
+}
+
 /**
  * Special considerations for building the addons package.
  */
@@ -241,9 +248,6 @@ async function addonsBuildExtras() {
   await fs.mkdir(
     resolve(packagesDir, 'addons/dist/css'),
     { recursive: true },
-    (err) => {
-      if (err) throw err
-    }
   )
   addonsCSS.forEach(async (css) => {
     await fs.copyFile(
@@ -255,8 +259,8 @@ async function addonsBuildExtras() {
 
 /**
  * Create a new bundle of a certain format for a certain package.
- * @param p package name
- * @param format the format to create (cjs, esm, umd, etc...)
+ * @param {string} p package name
+ * @param {string | undefined} subPackage the subPackage to build
  */
 async function bundle(p, subPackage, showLogs = false) {
   if (subPackage && p === 'themes') {
@@ -269,6 +273,7 @@ async function bundle(p, subPackage, showLogs = false) {
   await createBundle(p, subPackage, showLogs)
 }
 
+/** @returns {Promise<void>} */
 async function buildNuxtModule() {
   progress.step = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
@@ -314,8 +319,8 @@ function buildComplete() {
   }
   msg.success(
     'build complete (' +
-    ((performance.now() - startTime) / 1000).toFixed(2) +
-    's)'
+      ((performance.now() - startTime) / 1000).toFixed(2) +
+      's)'
   )
 }
 
@@ -332,15 +337,15 @@ function estimatedLogs(p) {
 }
 
 /**
- * Filly setup the command line tool and options.
+ * Adds the build command.
+ * @template {string} T
+ * @typedef {T extends new (...args: any[]) => infer R ? R : never} InstanceOf<T>
+ * @param {InstanceOf<import('cac').default>} cli
  */
-export default function () {
-  const cli = cac()
+export default function (cli) {
   cli
-    .command('[package]', 'Builds a specific package', {
+    .command('build [package]', 'Builds a specific package', {
       allowUnknownOptions: true,
     })
     .action(buildPackage)
-  cli.help()
-  cli.parse()
 }

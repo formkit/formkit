@@ -1,10 +1,5 @@
-import {
-  createNode,
-  FormKitGroupValue,
-  FormKitPlugin,
-  FormKitNode,
-  resetCount,
-} from '../src/node'
+import type { FormKitGroupValue, FormKitPlugin, FormKitNode } from '../src/node'
+import { createNode, resetCount } from '../src/node'
 import { createConfig } from '../src/config'
 import {
   createNameTree,
@@ -15,7 +10,7 @@ import {
 } from '../../../.tests/helpers'
 import { generateClassList } from '../src/classes'
 import { describe, expect, it, vi } from 'vitest'
-import { FormKitMiddleware } from '../src/dispatcher'
+import type { FormKitMiddleware } from '../src/dispatcher'
 import { has, clone } from '@formkit/utils'
 
 describe('node', () => {

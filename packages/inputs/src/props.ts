@@ -1,4 +1,4 @@
-import {
+import type {
   FormKitPlugin,
   FormKitGroupValue,
   FormKitTypeDefinition,
@@ -8,7 +8,7 @@ import {
   FormKitFrameworkContext,
   FormKitMessage,
 } from '@formkit/core'
-import { FormKitFile } from './index'
+import type { FormKitFile } from './index'
 
 /**
  * These are props that are used as conditionals in one or more inputs, and as

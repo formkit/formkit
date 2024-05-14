@@ -1,4 +1,5 @@
-import { defineComponent, h, SetupContext } from 'vue'
+import type { SetupContext } from 'vue'
+import { defineComponent, h } from 'vue'
 
 function createChild(context: SetupContext) {
   if (context.slots.default) {

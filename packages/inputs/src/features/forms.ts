@@ -1,4 +1,5 @@
-import { createMessage, FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
+import { createMessage } from '@formkit/core'
 import { has, clone } from '@formkit/utils'
 
 const loading = createMessage({

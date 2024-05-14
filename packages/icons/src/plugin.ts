@@ -1,4 +1,4 @@
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 
 /**
  * The icon plugin function, everything must be bootstrapped here.

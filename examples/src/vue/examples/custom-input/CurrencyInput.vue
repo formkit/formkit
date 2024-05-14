@@ -27,8 +27,9 @@
 </template>
 
 <script lang="ts" setup>
-import { PropType, toRef, ref } from 'vue'
-import { FormKitFrameworkContext } from '@formkit/core';
+import type { PropType} from 'vue';
+import { toRef, ref } from 'vue'
+import type { FormKitFrameworkContext } from '@formkit/core';
 
 const props = defineProps({
   context: {

@@ -40,3 +40,44 @@ describe('vite', async () => {
     await page.close()
   })
 })
+
+describe('validation', () => {
+  it('validates form', async () => {
+    const cases = [{ username: 'danielroe' }, {}]
+    const results = await Promise.all(
+      cases.map((data) =>
+        $fetch('/api/validate-test-form', {
+          method: 'POST',
+          body: {
+            id: 'test-form',
+            route: '/validation',
+            data,
+          },
+        }).catch((e) => e.data)
+      )
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "username": "danielroe",
+          "validated": true,
+        },
+        {
+          "data": {
+            "childErrors": {
+              "form_1.username": [
+                "User name is required.",
+              ],
+            },
+          },
+          "message": "Form validation failed",
+          "stack": "",
+          "statusCode": 422,
+          "statusMessage": "",
+          "url": "/api/validate-test-form",
+        },
+      ]
+    `)
+  })
+})

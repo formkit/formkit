@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
+import type { FormKitNode } from '../src'
 import {
   createNode,
   bfs,
-  FormKitNode,
   isPlaceholder,
   createPlaceholder,
   createMessage,
 } from '../src'
 import { clone } from '@formkit/utils'
-import { createNameTree } from '.tests/helpers'
+import { createNameTree } from '../../../.tests/helpers'
 
 describe('lists', () => {
   it('can get a node’s index', () => {

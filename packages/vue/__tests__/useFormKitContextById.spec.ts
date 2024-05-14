@@ -6,7 +6,8 @@ import {
   useFormKitContextById,
 } from '../src/index'
 import { token } from '@formkit/utils'
-import { h, Component, defineComponent, nextTick } from 'vue'
+import type { Component } from 'vue'
+import { h, defineComponent, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
 
 const ChildComponent = defineComponent({

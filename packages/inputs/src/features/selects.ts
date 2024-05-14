@@ -1,12 +1,13 @@
-import {
+import type {
   FormKitOptionsItem,
   FormKitOptionsGroupItem,
   FormKitOptionsListWithGroups,
 } from './../props'
-import { FormKitNode } from '@formkit/core'
+import type { FormKitNode } from '@formkit/core'
 import { undefine, eq } from '@formkit/utils'
 import { shouldSelect, optionValue } from './options'
-import { FormKitOptionsList, isGroupOption } from '../props'
+import type { FormKitOptionsList } from '../props'
+import { isGroupOption } from '../props'
 
 /**
  * Checks if a the given option should have the selected attribute.

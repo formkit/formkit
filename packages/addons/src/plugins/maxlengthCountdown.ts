@@ -1,5 +1,5 @@
-import { FormKitSectionsSchema } from '@formkit/core'
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import type { FormKitSectionsSchema } from '@formkit/core'
+import type { FormKitNode, FormKitPlugin } from '@formkit/core'
 import { clone, undefine } from '@formkit/utils'
 
 /**

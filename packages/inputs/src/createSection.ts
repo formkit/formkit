@@ -1,15 +1,14 @@
 import { extend } from '@formkit/utils'
-import {
+import type {
   FormKitSchemaNode,
   FormKitExtendableSchemaRoot,
-  isDOM,
-  isComponent,
   FormKitSchemaDOMNode,
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
   FormKitSectionsSchema,
   FormKitSchemaCondition,
 } from '@formkit/core'
+import { isDOM, isComponent } from '@formkit/core'
 
 /**
  * A function that is called with an extensions argument and returns a valid

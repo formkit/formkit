@@ -1,7 +1,7 @@
 import { createNode } from '../src/node'
 import { createShippingTree } from '../../../.tests/helpers'
 import { describe, expect, it, vi } from 'vitest'
-import { FormKitEvent } from '../src/events'
+import type { FormKitEvent } from '../src/events'
 
 describe('emitting and listening to events', () => {
   it('can emit an arbitrary event', () => {

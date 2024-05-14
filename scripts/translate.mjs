@@ -2,7 +2,6 @@ import {
   TranslateClient,
   TranslateTextCommand,
 } from '@aws-sdk/client-translate'
-import cac from 'cac'
 import prompts from 'prompts'
 import { msg, getLocales } from './utils.mjs'
 import clipboardy from 'clipboardy'
@@ -101,19 +100,17 @@ async function selectResults(results, key, comment) {
 // const command = new CreateParallelDataCommand(params);
 
 /**
- * Set up the command line tool and options.
+ * Adds the stub command.
+ * @param {typeof import('cac').default} cli
  */
-export default function () {
-  const cli = cac()
+export default function (cli) {
   cli
     .command(
-      '[translate]',
+      'translate',
       'Translate a given string into all existing locales',
       {
         allowUnknownOptions: true,
       }
     )
     .action(() => translate())
-  cli.help()
-  cli.parse()
 }

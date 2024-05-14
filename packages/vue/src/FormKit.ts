@@ -1,8 +1,6 @@
-import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
-import {
-  h,
-  ref,
-  defineComponent,
+import type { FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
+import { error } from '@formkit/core'
+import type {
   InjectionKey,
   ConcreteComponent,
   VNode,
@@ -13,17 +11,17 @@ import {
   VNodeProps,
   AllowedComponentProps,
   ComponentCustomProps,
-  markRaw,
 } from 'vue'
+import { h, ref, defineComponent, markRaw } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
-import {
+import type {
   FormKitInputs,
   FormKitInputSlots,
   FormKitEvents,
   InputType,
-  runtimeProps,
 } from '@formkit/inputs'
+import { runtimeProps } from '@formkit/inputs'
 import { getCurrentInstance } from 'vue'
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
+/* @typecheck */
 import fs from 'fs'
 import { execSync } from 'child_process'
 import { dirname, resolve, join, basename, extname } from 'path'
@@ -10,6 +10,10 @@ import chalk from 'chalk'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 export const packagesDir = resolve(__dirname, '../packages')
+
+export function rootDir() {
+  return resolve(__dirname, '../')
+}
 
 const formkitExternals = ['@formkit/auto-animate', '@formkit/theme-creator']
 
@@ -65,7 +69,7 @@ export function getAllFiles(dirPath, arrayOfFiles) {
  */
 export function getPackages() {
   const availablePackages = fs.readdirSync(packagesDir)
-  return availablePackages
+  return availablePackages.filter((p) => !p.startsWith('.'))
 }
 
 /**

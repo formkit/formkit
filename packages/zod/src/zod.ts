@@ -1,5 +1,6 @@
-import { FormKitNode, FormKitPlugin, createMessage } from '@formkit/core'
-import { z } from 'zod'
+import type { FormKitNode, FormKitPlugin } from '@formkit/core'
+import { createMessage } from '@formkit/core'
+import type { z } from 'zod'
 
 /**
  * Extend FormKitNode with setZodErrors.

@@ -1,4 +1,5 @@
-import createDispatcher, { FormKitDispatcher } from './dispatcher'
+import type { FormKitDispatcher } from './dispatcher'
+import createDispatcher from './dispatcher'
 import {
   dedupe,
   eq,
@@ -14,34 +15,29 @@ import {
   extend as merge,
   isRecord,
 } from '@formkit/utils'
-import {
-  createEmitter,
+import type {
   FormKitEvent,
   FormKitEventEmitter,
-  emit,
-  bubble,
-  on,
-  off,
   FormKitEventListener,
 } from './events'
+import { createEmitter, emit, bubble, on, off } from './events'
 import { error } from './errors'
-import {
-  createStore,
-  FormKitMessageProps,
-  FormKitMessage,
-  FormKitStore,
-} from './store'
-import { createLedger, FormKitLedger } from './ledger'
+import type { FormKitMessageProps, FormKitMessage, FormKitStore } from './store'
+import { createStore } from './store'
+import type { FormKitLedger } from './ledger'
+import { createLedger } from './ledger'
 import { deregister, register } from './registry'
-import {
+import type {
   FormKitExtendableSchemaRoot,
   FormKitSchemaNode,
   FormKitSchemaCondition,
 } from './schema'
-import { FormKitClasses } from './classes'
-import { FormKitRootConfig, configChange } from './config'
+import type { FormKitClasses } from './classes'
+import type { FormKitRootConfig } from './config'
+import { configChange } from './config'
 import { submitForm } from './submitForm'
-import { createMessages, ErrorMessages } from './store'
+import type { ErrorMessages } from './store'
+import { createMessages } from './store'
 import { reset } from './reset'
 
 /**
@@ -506,6 +502,13 @@ export interface FormKitFrameworkContext<T = any> {
    * <input> element.
    */
   attrs: Record<string, any>
+  /**
+   * The describedby attribute stores the value for the aria-describedby
+   * attribute. It is used to specify the IDs of elements that provide descriptive
+   * information about the input. It is populated with the IDs of elements containing
+   * help text or messages related to the input field. Should be applied to the root <input>.
+   */
+  describedBy?: string
   /**
    * Classes to apply on the various sections.
    */

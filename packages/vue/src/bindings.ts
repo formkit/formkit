@@ -9,15 +9,13 @@ import {
   isRef,
   isReactive,
 } from 'vue'
-import {
+import type {
   FormKitPlugin,
   FormKitFrameworkContext,
   FormKitMessage,
-  createClasses,
-  createMessage,
-  generateClassList,
   FormKitTypeDefinition,
 } from '@formkit/core'
+import { createClasses, createMessage, generateClassList } from '@formkit/core'
 import {
   eq,
   has,
@@ -28,7 +26,7 @@ import {
   shallowClone,
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
-import { FormKitPseudoProps } from '@formkit/core'
+import type { FormKitPseudoProps } from '@formkit/core'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.

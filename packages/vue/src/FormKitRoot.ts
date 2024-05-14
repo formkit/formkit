@@ -1,4 +1,5 @@
-import { h, ref, watch, provide, InjectionKey, Ref } from 'vue'
+import type { InjectionKey, Ref } from 'vue'
+import { h, ref, watch, provide } from 'vue'
 import { defineComponent } from 'vue'
 
 /**

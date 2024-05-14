@@ -42,10 +42,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/auto-animate": "latest",
+    "@formkit/auto-animate": ">=0.8.2",
     "@formkit/core": "1.6.2",
     "@formkit/inputs": "1.6.2",
     "@formkit/utils": "1.6.2"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
   },
   "devDependencies": {
     "@formkit/vue": "workspace:^"

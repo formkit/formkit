@@ -1,5 +1,5 @@
 import { createNode } from '../src/node'
-import { FormKitEvent } from '../src/events'
+import type { FormKitEvent } from '../src/events'
 import { createMessage } from '../src/store'
 import { describe, expect, it, vi } from 'vitest'
 

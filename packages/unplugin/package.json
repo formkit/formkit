@@ -1,0 +1,117 @@
+{
+  "name": "@formkit/unplugin",
+  "type": "module",
+  "version": "1.6.2",
+  "packageManager": "pnpm@8.6.12",
+  "description": "Automatic FormKit configuration 🪄",
+  "license": "MIT",
+  "homepage": "https://github.com/formkit/unplugin-formkit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/formkit/unplugin-formkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/formkit/unplugin-formkit/issues"
+  },
+  "keywords": [
+    "formkit",
+    "unplugin",
+    "vite",
+    "webpack",
+    "rollup",
+    "esbuild",
+    "transform"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.mts",
+      "import": "./dist/vite.mjs",
+      "require": "./dist/vite.cjs"
+    },
+    "./webpack": {
+      "types": "./dist/webpack.d.mts",
+      "import": "./dist/webpack.mjs",
+      "require": "./dist/webpack.cjs"
+    },
+    "./rollup": {
+      "types": "./dist/rollup.d.mts",
+      "import": "./dist/rollup.mjs",
+      "require": "./dist/rollup.cjs"
+    },
+    "./esbuild": {
+      "types": "./dist/esbuild.d.mts",
+      "import": "./dist/esbuild.mjs",
+      "require": "./dist/esbuild.cjs"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch src",
+    "build:fix": "esno scripts/postbuild.ts",
+    "lint": "eslint .",
+    "play": "npm -C playground run dev",
+    "prepublishOnly": "npm run build",
+    "release": "bumpp && npm publish",
+    "start": "esno src/index.ts",
+    "test": "vitest"
+  },
+  "peerDependenciesMeta": {
+    "webpack": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "esbuild": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@vue/compiler-dom": "^3.4.21",
+    "pathe": "^1.1.1",
+    "unplugin": "^1.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "bumpp": "^9.2.0",
+    "chalk": "^5.3.0",
+    "eslint": "^8.49.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "esno": "^0.17.0",
+    "fast-glob": "^3.3.1",
+    "nodemon": "^3.0.1",
+    "rimraf": "^5.0.1",
+    "rollup": "^3.28.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.2",
+    "webpack": "^5.88.2"
+  }
+}

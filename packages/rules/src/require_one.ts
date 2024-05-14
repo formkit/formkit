@@ -1,5 +1,5 @@
 import { empty } from '@formkit/utils'
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 
 /**
  * Determine if any of the given inputs have a value.

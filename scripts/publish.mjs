@@ -19,7 +19,6 @@
  */
 
 import { execSync } from 'child_process'
-import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
 import {
@@ -592,7 +591,7 @@ function drawPublishPreviewGraph(packages) {
 
     if (pkg.newDependencies) {
       console.log(chalk.dim(`  ∟ dependencies:`))
-      for (const [depTitle, dep] of Object.entries(pkg.newDependencies)) {
+      for (const [depTitle] of Object.entries(pkg.newDependencies)) {
         console.log(
           chalk.dim(`    ∟ ${depTitle}: `) +
             chalk.red.dim(pkg.oldDependencies[depTitle]) +
@@ -603,7 +602,7 @@ function drawPublishPreviewGraph(packages) {
     }
     if (pkg.newDevDependencies) {
       console.log(chalk.dim(`  ∟ devDependencies:`))
-      for (const [depTitle, dep] of Object.entries(pkg.newDevDependencies)) {
+      for (const [depTitle] of Object.entries(pkg.newDevDependencies)) {
         console.log(
           chalk.dim(`    ∟ ${depTitle}: `) +
             chalk.red.dim(pkg.oldDevDependencies[depTitle]) +
@@ -616,25 +615,23 @@ function drawPublishPreviewGraph(packages) {
 }
 
 /**
- * Set up the command line tool and options.
+ * Adds the publish command.
+ * @param {typeof import('cac').default} cli
  */
-export default function () {
-  const cli = cac()
-  cli.option('--force', 'Bypass failure on error', {
-    default: false,
-  })
-  cli.option('--skipClean', 'Skip checking if git is clean.', {
-    default: false,
-  })
+export default function (cli) {
   cli
     .command(
-      '[publish]',
+      'publish',
       'Walks through publishing changed packages with proper versioning',
       { allowUnknownOptions: true }
     )
+    .option('--force', 'Bypass failure on error', {
+      default: false,
+    })
+    .option('--skipClean', 'Skip checking if git is clean.', {
+      default: false,
+    })
     .action((dir, options) => {
       publishPackages(options)
     })
-  cli.help()
-  cli.parse()
 }

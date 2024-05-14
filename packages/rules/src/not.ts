@@ -1,4 +1,4 @@
-import { FormKitValidationRule } from '@formkit/validation'
+import type { FormKitValidationRule } from '@formkit/validation'
 import { eq } from '@formkit/utils'
 
 /**

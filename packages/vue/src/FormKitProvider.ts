@@ -1,12 +1,14 @@
-import { defineComponent, SetupContext } from 'vue'
-import { FormKitOptions, createConfig } from '@formkit/core'
+import type { SetupContext } from 'vue'
+import { defineComponent } from 'vue'
+import type { FormKitOptions } from '@formkit/core'
+import { createConfig } from '@formkit/core'
 import { optionsSymbol, configSymbol } from './plugin'
 import { provide, inject } from 'vue'
 import { h } from 'vue'
 import { Suspense } from 'vue'
 import { getCurrentInstance } from 'vue'
-import { ComponentInternalInstance } from 'vue'
-import { VNode } from 'vue'
+import type { ComponentInternalInstance } from 'vue'
+import type { VNode } from 'vue'
 
 /**
  * A composable to provide a given configuration to all children.

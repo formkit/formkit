@@ -1,4 +1,5 @@
-import { ConcreteComponent, h, reactive } from 'vue'
+import type { ConcreteComponent } from 'vue'
+import { h, nextTick, reactive } from 'vue'
 import { mount } from '@vue/test-utils'
 import {
   FormKit,
@@ -7,7 +8,7 @@ import {
   defaultConfig,
   resetCount,
 } from '@formkit/vue'
-import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
+import { createMultiStepPlugin } from '../src'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const multiStepSchemaBasic = [
@@ -359,12 +360,13 @@ describe('multistep', () => {
         ],
       },
     })
-
+    await nextTick()
     const stepNameRegex = /Step (.*)?</gm
     await new Promise((r) => setTimeout(r, 15))
     const stepMatches = wrapper.html().match(stepNameRegex)
     expect(stepMatches).toEqual(['Step Alpha<', 'Step Bravo<', 'Step Charlie<'])
     data.showStepTwo = false
+    await nextTick()
     await new Promise((r) => setTimeout(r, 15))
     const stepMatchesAfter = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter).toEqual(['Step Alpha<', 'Step Charlie<'])
