@@ -73,6 +73,9 @@
         <router-link to="/synced-lists"> Synced Lists </router-link>
       </li>
       <li>
+        <router-link to="/typebox"> Typebox validation </router-link>
+      </li>
+      <li>
         <router-link to="/zod"> Zod </router-link>
       </li>
       <li>

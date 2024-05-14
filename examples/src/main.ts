@@ -26,6 +26,7 @@ import SyncedLists from './vue/examples/SyncedLists.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
 import AccessibilityTest from './vue/examples/AccessibilityTest.vue'
 import Zod from './vue/examples/Zod.vue'
+import Typebox from './vue/examples/Typebox.vue'
 import CustomRoot from './vue/examples/custom-elements/CustomRoot'
 import CustomElements from './vue/examples/CustomElements.vue'
 import '@formkit/themes/genesis'
@@ -178,6 +179,10 @@ const router = createRouter({
           ],
         },
       ],
+    },
+    {
+      path: '/typebox',
+      component: Typebox,
     },
     {
       path: '/zod',
