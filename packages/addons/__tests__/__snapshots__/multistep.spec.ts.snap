@@ -17,7 +17,7 @@ exports[`multistep > Allows step advancement when current step is invalid but al
     <div class=\\"formkit-steps\\">
       <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_1\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_0\\" hidden=\\"\\">
         <div class=\\"formkit-step-inner\\">
-          <div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"text\\" data-empty=\\"true\\" data-invalid=\\"true\\" data-submitted=\\"true\\">
+          <div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"text\\" data-empty=\\"true\\" data-submitted=\\"true\\">
             <div class=\\"formkit-wrapper\\">
               <!---->
               <div class=\\"formkit-inner\\">
@@ -120,7 +120,7 @@ exports[`multistep > Does not allow step advancement when current step is invali
     <div class=\\"formkit-steps\\">
       <div class=\\"formkit-step\\" data-type=\\"step\\" id=\\"input_1\\" role=\\"tabpanel\\" aria-labelledby=\\"input_0_tab_0\\">
         <div class=\\"formkit-step-inner\\">
-          <div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"text\\" data-empty=\\"true\\" data-invalid=\\"true\\" data-submitted=\\"true\\">
+          <div class=\\"formkit-outer\\" data-family=\\"text\\" data-type=\\"text\\" data-empty=\\"true\\" data-submitted=\\"true\\">
             <div class=\\"formkit-wrapper\\">
               <!---->
               <div class=\\"formkit-inner\\">

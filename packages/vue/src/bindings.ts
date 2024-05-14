@@ -125,6 +125,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * Determines if the input should be considered "invalid" — note that this is different than a valid input! A
+   * valid input is one where the input is not loading, not pending validation, not unsettled, and passes all
+   * validation rules. An invalid input is one whose validation rules are not explicitly not passing, and those rules
+   * are visible to the user.
+   */
+  const isInvalid = computed<boolean>(() => {
+    return !context.state.passing && validationVisible.value
+  })
+
+  /**
    * Determines if the input should be considered "complete".
    */
   const isComplete = computed<boolean>(() => {
@@ -290,10 +300,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       submitted: false,
       settled: node.isSettled,
       valid: isValid,
+      invalid: isInvalid,
       errors: hasErrors,
       rules: hasValidation,
       validationVisible,
       required: isRequired,
+      passing: true,
     },
     type: node.props.type,
     family: node.props.family,

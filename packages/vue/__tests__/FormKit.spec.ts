@@ -2663,7 +2663,7 @@ describe('naked attributes', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
-  it.only('does not mark the input as invalid while it is validating', async () => {
+  it('does not mark the input as invalid while it is validating', async () => {
     async function long(node: FormKitNode) {
       await new Promise((r) => setTimeout(r, 20))
       return node.value === 'foo'
@@ -2673,6 +2673,8 @@ describe('naked attributes', () => {
       props: {
         type: 'text',
         name: 'long_validation',
+        id: 'inspect-long-validation-node',
+        delay: 0,
         validationRules: {
           long,
         },
@@ -2683,23 +2685,32 @@ describe('naked attributes', () => {
         plugins: [[plugin, defaultConfig({ icons: { star } })]],
       },
     })
+    const node = getNode('inspect-long-validation-node')!
+    // Before our validation rule has run, everything is fine...
     expect(
       wrapper.find('[data-family="text"]').attributes('data-invalid')
     ).toBe(undefined)
-    wrapper.find('input').setValue('fo')
+    expect(node.context!.state.invalid).toBe(false)
+    await new Promise((r) => setTimeout(r, 30))
+    // After our rule has run, the input should be invalid
+    expect(node.context!.state.invalid).toBe(true)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+
+    wrapper.find('input').setValue('foo')
     await new Promise((r) => setTimeout(r, 5))
-    expect(
-      wrapper.find('[data-family="text"]').attributes('data-invalid')
-    ).toBe(undefined)
-    expect(
-      wrapper.find('[data-family="text"]').attributes('data-validating')
-    ).toBe('true')
-    await new Promise((r) => setTimeout(r, 20))
+    // While it is validating, the input should remain invalid
+    expect(node.context!.state.invalid).toBe(true)
     expect(
       wrapper.find('[data-family="text"]').attributes('data-invalid')
     ).toBe('true')
+    await new Promise((r) => setTimeout(r, 30))
+
+    // When the input has been validated, it should be valid
+    expect(node.context!.state.invalid).toBe(false)
     expect(
-      wrapper.find('[data-family="text"]').attributes('data-validating')
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
     ).toBe(undefined)
   })
 })

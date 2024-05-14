@@ -17,8 +17,7 @@ export const outer = createSection('outer', () => ({
     'data-disabled': '$: ($disabled !== "false" && $disabled) || undefined',
     'data-empty': '$state.empty || undefined',
     'data-complete': '$state.complete || undefined',
-    'data-invalid':
-      '$state.valid === false && $state.validating !== true && $state.validationVisible || undefined',
+    'data-invalid': '$state.invalid || undefined',
     'data-errors': '$state.errors || undefined',
     'data-submitted': '$state.submitted || undefined',
     'data-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',
