@@ -244,6 +244,13 @@ function validate(
 ) {
   if (isKilled(node)) return
   state.input = token()
+  node.store.set(
+    createMessage({
+      key: 'passing',
+      value: state.isPassing,
+      visible: false,
+    })
+  )
   state.isPassing = true
   node.store.filter((message) => !message.meta.removeImmediately, 'validation')
   validations.forEach(
@@ -253,6 +260,13 @@ function validate(
     node.store.set(validatingMessage)
     run(0, validations, node, state, false, () => {
       node.store.remove(validatingMessage.key)
+      node.store.set(
+        createMessage({
+          key: 'passing',
+          value: state.isPassing,
+          visible: false,
+        })
+      )
     })
   }
 }

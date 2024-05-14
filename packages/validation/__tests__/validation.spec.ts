@@ -774,3 +774,38 @@ describe('dynamic rules', () => {
     expect(node.store).not.toHaveProperty('rule_match')
   })
 })
+
+describe('failing message', () => {
+  it('can set a failing message and remove it', async () => {
+    const validationPlugin = createValidationPlugin({
+      async match(node, value) {
+        await new Promise((r) => setTimeout(r, 10))
+        return node.value === value
+      },
+    })
+    const node = createNode({
+      value: 'foo',
+      props: {
+        validation: 'match:initial',
+      },
+      plugins: [validationPlugin],
+    })
+    expect(node.store).not.toHaveProperty('rule_match')
+    expect(node.store).toHaveProperty('validating')
+    expect(node.store.passing.value).toBe(true)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(node.store).not.toHaveProperty('validating')
+    expect(node.store).toHaveProperty('rule_match')
+    expect(node.store.passing.value).toBe(false)
+    node.input('bar', false)
+    await new Promise((r) => setTimeout(r, 5))
+    expect(node.store).toHaveProperty('validating')
+    expect(node.store).not.toHaveProperty('rule_match')
+    expect(node.store.passing.value).toBe(false)
+    node.input('initial', false)
+    await new Promise((r) => setTimeout(r, 30))
+    expect(node.store).not.toHaveProperty('validating')
+    expect(node.store).not.toHaveProperty('rule_match')
+    expect(node.store.passing.value).toBe(true)
+  })
+})

@@ -2662,4 +2662,44 @@ describe('naked attributes', () => {
     })
     expect(wrapper.html()).toMatchSnapshot()
   })
+
+  it.only('does not mark the input as invalid while it is validating', async () => {
+    async function long(node: FormKitNode) {
+      await new Promise((r) => setTimeout(r, 20))
+      return node.value === 'foo'
+    }
+    long.skipEmpty = false
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'long_validation',
+        validationRules: {
+          long,
+        },
+        validationVisibility: 'live',
+        validation: 'long',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
+    wrapper.find('input').setValue('fo')
+    await new Promise((r) => setTimeout(r, 5))
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-validating')
+    ).toBe('true')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-validating')
+    ).toBe(undefined)
+  })
 })
