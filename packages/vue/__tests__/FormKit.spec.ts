@@ -568,7 +568,7 @@ describe('validation', () => {
     const [email, name] = wrapper.get('div').findAll('input')
     email.setValue('info@formkit.com')
     name.setValue('Rockefeller')
-    await new Promise((r) => setTimeout(r, 40))
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
 
