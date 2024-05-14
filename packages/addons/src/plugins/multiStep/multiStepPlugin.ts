@@ -184,10 +184,10 @@ const isBrowser = typeof window !== 'undefined'
  * @public
  */
 export interface BeforeStepChange {
-  (data: BeforeStepChangeData): any
+  (data: StepChangeData): any
 }
 
-export interface BeforeStepChangeData<T = unknown> {
+export interface StepChangeData<T = unknown> {
   currentStep: FormKitFrameworkContext<T>
   targetStep: FormKitFrameworkContext<T>
   delta: number
@@ -287,6 +287,31 @@ async function isTargetStepAllowed(
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
   const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
 
+  // show the current step errors because this step has
+  // been visited.
+  const currentStepIsValid = triggerStepValidations(currentStep)
+  currentStep.showStepErrors = true
+
+  // if we are navigating forward, check our current step is complete
+  if (targetStepIndex >= currentStepIndex) {
+    // if the current step is invalid and we do not allow incomplete
+    // then prevent navigation
+    if (!currentStepIsValid && !allowIncomplete) {
+      return false
+    }
+  }
+
+  // check how many steps we need to step forward
+  // and then check that each intermediate step is valid
+  const delta = targetStepIndex - currentStepIndex
+  for (let i = 0; i < delta; i++) {
+    const intermediateStep = parentNode?.props.steps[currentStepIndex + i]
+    const stepIsAllowed = allowIncomplete || intermediateStep.state?.valid
+    if (!stepIsAllowed) {
+      return false
+    }
+  }
+
   // check if there is a function for the stepChange guard
   const beforeStepChange =
     currentStep.node.props.beforeStepChange ||
@@ -315,27 +340,6 @@ async function isTargetStepAllowed(
       currentStep.disabled = false
     }
     if (typeof result === 'boolean' && !result) return false
-  }
-
-  // show the current step errors because this step has
-  // been visited.
-  triggerStepValidations(currentStep)
-  currentStep.showStepErrors = true
-
-  if (targetStepIndex < currentStepIndex) {
-    // we can always step backwards
-    return true
-  }
-
-  // check how many steps we need to step forward
-  // and then check that each intermediate step is valid
-  const delta = targetStepIndex - currentStepIndex
-  for (let i = 0; i < delta; i++) {
-    const intermediateStep = parentNode?.props.steps[currentStepIndex + i]
-    const stepIsAllowed = allowIncomplete || intermediateStep.state?.valid
-    if (!stepIsAllowed) {
-      return false
-    }
   }
 
   return true
