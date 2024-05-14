@@ -8,6 +8,9 @@ import { createSection } from '../createSection'
 export const formInput = createSection('form', () => ({
   $el: 'form',
   bind: '$attrs',
+  meta: {
+    autoAnimate: true,
+  },
   attrs: {
     id: '$id',
     name: '$node.name',

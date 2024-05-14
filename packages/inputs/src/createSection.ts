@@ -98,6 +98,8 @@ export function createSection(
       if (isDOM(node) || isComponent(node)) {
         if (!node.meta) {
           node.meta = { section }
+        } else {
+          node.meta.section = section
         }
         if (children.length && !node.children) {
           node.children = [

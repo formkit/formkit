@@ -192,11 +192,21 @@ export function eachSection<T>(
     let callbackReturn: T | void = undefined
 
     if (schema.then && typeof schema.then !== 'string') {
-      callbackReturn = eachSection(schema.then, callback, stopOnCallbackReturn, schema)
+      callbackReturn = eachSection(
+        schema.then,
+        callback,
+        stopOnCallbackReturn,
+        schema
+      )
     }
 
     if (!callbackReturn && schema.else && typeof schema.else !== 'string') {
-      callbackReturn = eachSection(schema.else, callback, stopOnCallbackReturn, schema)
+      callbackReturn = eachSection(
+        schema.else,
+        callback,
+        stopOnCallbackReturn,
+        schema
+      )
     }
 
     if (callbackReturn && stopOnCallbackReturn) {
