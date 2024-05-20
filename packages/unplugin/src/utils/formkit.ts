@@ -15,6 +15,7 @@ import type { NodePath } from '@babel/traverse'
 import {
   isArrayExpression,
   isIdentifier,
+  isObjectMethod,
   isObjectProperty,
   isSpreadElement,
   isStringLiteral,
@@ -24,7 +25,7 @@ import t from '@babel/template'
 import { consola } from 'consola'
 import { isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
-import { camel } from '@formkit/utils'
+import { camel, empty } from '@formkit/utils'
 import type {
   FormKitSchemaDefinition,
   FormKitTypeDefinition,
@@ -125,7 +126,7 @@ export async function createConfigObject(
     new Set([...rules, ...localizations])
   )
 
-  await importIcons(component, plugins, props, icons)
+  await importIcons(component, nodeProps, plugins, props, icons)
 
   if (nodeProps.properties.length) {
     config.properties.push(createProperty('props', nodeProps))
@@ -424,6 +425,7 @@ export async function loadInputDefinition(
  */
 async function importIcons(
   component: ComponentUse,
+  nodeProps: ObjectExpression,
   plugins: ArrayExpression,
   props: ObjectExpression,
   icons: Record<string, string>
@@ -440,67 +442,97 @@ async function importIcons(
   }
   // Perform an optimized icon load:
   props.properties.forEach((prop) => {
-    if (isSpreadElement(prop)) return
+    if (isSpreadElement(prop) || isObjectMethod(prop)) return
     const key = isStringLiteral(prop.key)
       ? prop.key.value
       : isIdentifier(prop.key)
       ? prop.key.name
       : undefined
-    if (key && key in icons) delete icons[key]
-  })
-  for (const section in icons) {
-    props.properties.push({
-      type: 'ObjectProperty',
-      computed: false,
-      shorthand: false,
-      key: {
-        type: 'StringLiteral',
-        value: `${section}-icon`,
-      },
-      value: {
-        type: 'StringLiteral',
-        value: icons[section],
-      },
-    })
-  }
-  const iconPaths = new Map<NodePath<ObjectProperty>, string>()
-  ;(
-    component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
-  )?.traverse({
-    ObjectProperty(path) {
-      const key = path.get('key')
-      const keyName = getKeyName(key)
-      if (keyName?.endsWith('-icon') || keyName?.endsWith('Icon')) {
-        const value = path.get('value')
-        if (
-          value.node.type === 'StringLiteral' &&
-          !value.node.value.startsWith('<svg')
-        ) {
-          const iconValue = value.node.value
-          iconPaths.set(path, iconValue)
-        }
+    if (key?.endsWith('-icon') || key?.endsWith('Icon')) {
+      const value = isStringLiteral(prop.value) ? prop.value.value : undefined
+      if (value && !value.startsWith('<svg')) {
+        icons[value] = value
       }
-      path.skip()
-    },
+    }
   })
-  if (!iconPaths.size) return
-  plugins.elements.push(
-    t.expression.ast(
-      `${addImport(component.opts, component.root, {
-        from: 'virtual:formkit/icons',
-        name: 'icons',
-      })}`
+  if (!empty(icons)) {
+    // Inject the icon loader:
+    plugins.elements.push(
+      t.expression.ast(
+        `${addImport(component.opts, component.root, {
+          from: 'virtual:formkit/icons',
+          name: 'icons',
+        })}`
+      )
     )
-  )
-  iconPaths.forEach((icon, path) => {
-    path.get('value').replaceWith({
-      type: 'Identifier',
-      name: addImport(component.opts, component.root, {
-        from: 'virtual:formkit/icons:' + icon,
-        name: camel(icon),
-      }),
-    })
-  })
+    // Now create the icon configuration:
+    const iconConfig = t.expression.ast`{}` as ObjectExpression
+    for (const icon in icons) {
+      const value = icons[icon]
+      if (!value && value.startsWith('<svg')) {
+        iconConfig.properties.push(
+          createProperty(icon, { type: 'StringLiteral', value })
+        )
+      } else {
+        iconConfig.properties.push(
+          createProperty(
+            icon,
+            t.expression.ast`${addImport(component.opts, component.root, {
+              from: 'virtual:formkit/icons:' + value,
+              name: camel(value),
+            })}`
+          )
+        )
+      }
+    }
+    nodeProps.properties.push(createProperty('__icons__', iconConfig))
+  }
+  // for (const section in icons) {
+  //   props.properties.push({
+  //     type: 'ObjectProperty',
+  //     computed: false,
+  //     shorthand: false,
+  //     key: {
+  //       type: 'StringLiteral',
+  //       value: `${section}-icon`,
+  //     },
+  //     value: {
+  //       type: 'StringLiteral',
+  //       value: icons[section],
+  //     },
+  //   })
+  // }
+  // const iconPaths = new Map<NodePath<ObjectProperty>, string>()
+  // ;(
+  //   component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
+  // )?.traverse({
+  //   ObjectProperty(path) {
+  //     const key = path.get('key')
+  //     const keyName = getKeyName(key)
+  //     if (keyName?.endsWith('-icon') || keyName?.endsWith('Icon')) {
+  //       const value = path.get('value')
+  //       if (
+  //         value.node.type === 'StringLiteral' &&
+  //         !value.node.value.startsWith('<svg')
+  //       ) {
+  //         const iconValue = value.node.value
+  //         iconPaths.set(path, iconValue)
+  //       }
+  //     }
+  //     path.skip()
+  //   },
+  // })
+  // if (!iconPaths.size) return
+
+  // iconPaths.forEach((icon, path) => {
+  //   path.get('value').replaceWith({
+  //     type: 'Identifier',
+  //     name: addImport(component.opts, component.root, {
+  //       from: 'virtual:formkit/icons:' + icon,
+  //       name: camel(icon),
+  //     }),
+  //   })
+  // })
 }
 
 /**
