@@ -655,7 +655,7 @@ function parseRule(rule: string): FormKitValidationIntent | false {
  * @param ruleName - string representing a rule name
  * @returns
  */
-function parseHints(
+export function parseHints(
   ruleName: string
 ): [string, Partial<FormKitValidationHints>] {
   const matches = ruleName.match(hintExtractor)

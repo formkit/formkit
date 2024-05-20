@@ -14,6 +14,7 @@ export {
   getValidationMessages,
   createMessageName,
   parseRules,
+  parseHints,
   extractRules,
 } from './validation'
 
