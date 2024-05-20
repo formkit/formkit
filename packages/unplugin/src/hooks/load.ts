@@ -29,7 +29,6 @@ import type {
   Statement,
   StringLiteral,
   CallExpression,
-  IfStatement,
   Identifier,
 } from '@babel/types'
 import type { DefineConfigOptions } from '@formkit/vue'
@@ -245,7 +244,7 @@ export async function createVirtualInputConfig(
       if (input && input.schema) {
         const schema =
           typeof input.schema === 'function' ? input.schema({}) : input.schema
-        extractInputTypesFromSchema(schema, inputs)
+        await extractInputTypesFromSchema(schema, inputs)
       }
     } catch (e) {}
   }

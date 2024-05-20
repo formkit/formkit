@@ -94,6 +94,7 @@ export async function createConfigObject(
       }),
     }
   }
+
   const config = t.expression.ast`{}` as ObjectExpression
   const nodeProps = t.expression.ast`{}` as ObjectExpression
 
@@ -102,19 +103,20 @@ export async function createConfigObject(
     name: 'bindings',
   })
   const plugins = t.expression.ast`[${bindingsVar}]` as ArrayExpression
-  if (component.from === '@formkit/vue' && component.name === 'FormKit') {
-    // This is an actual FormKit component, so we should inject the type.
-  }
+
   config.properties.push(createProperty('plugins', plugins))
   const props = component.path.node.arguments[1] as ObjectExpression
+
   // Perform a direct-injection on the input type (if possible)
-  const [localizations, icons] = await importInputType(
+  const { localizations, icons, rules } = await importInputType(
     component,
     props,
     plugins
   )
+
   // Inject the validation plugin and any rules
-  const rules = await importValidation(component, props, nodeProps, plugins)
+  await importValidation(component, props, nodeProps, plugins, rules)
+
   // Import the necessary i18n locales
   await importLocales(
     component,
@@ -122,6 +124,7 @@ export async function createConfigObject(
     plugins,
     new Set([...rules, ...localizations])
   )
+
   await importIcons(component, plugins, props, icons)
 
   if (nodeProps.properties.length) {
@@ -140,8 +143,13 @@ async function importInputType(
   component: ComponentUse,
   props: ObjectExpression,
   plugins: ArrayExpression
-): Promise<[Set<string>, Record<string, string>]> {
+): Promise<{
+  localizations: Set<string>
+  icons: Record<string, string>
+  rules: Set<string>
+}> {
   const localizations = new Set<string>()
+  const rules = new Set<string>()
   const icons: Record<string, string> = {}
   const inputType = props.properties.find(
     (prop) =>
@@ -161,11 +169,12 @@ async function importInputType(
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
-    await extractLocalizationsAndIcons(
+    await extractUsedFeatures(
       component.opts,
       value,
       localizations,
-      icons
+      icons,
+      rules
     )
   } else {
     if (shouldOptimize) {
@@ -180,7 +189,7 @@ async function importInputType(
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
-  return [localizations, icons]
+  return { localizations, icons, rules }
 }
 
 /**
@@ -190,7 +199,8 @@ async function importValidation(
   component: ComponentUse,
   props: ObjectExpression,
   nodeProps: ObjectExpression,
-  plugins: ArrayExpression
+  plugins: ArrayExpression,
+  usedRules = new Set<string>()
 ) {
   const opts = component.opts
   let localDeopt = false
@@ -201,19 +211,22 @@ async function importValidation(
       prop.key.name === 'validation'
   ) as ObjectProperty | undefined
   if (!validationProp) return new Set<string>()
+  const { extractRules, parseHints } = await import('@formkit/validation')
 
-  const usedRules = new Set<string>()
   if (isStringLiteral(validationProp.value)) {
     // Import the rules directly.
-    const { extractRules } = await import('@formkit/validation')
     const rules = extractRules(validationProp.value.value) as string[][]
-    rules.forEach(([ruleName]) => usedRules.add(ruleName))
+    rules.forEach(([name]) => {
+      const [ruleName] = parseHints(name)
+      usedRules.add(ruleName)
+    })
   } else if (isArrayExpression(validationProp.value)) {
     validationProp.value.elements.forEach((rule) => {
       if (isArrayExpression(rule)) {
-        const [ruleName] = rule.elements
-        if (isStringLiteral(ruleName)) {
-          usedRules.add(ruleName.value)
+        const [name] = rule.elements
+        if (isStringLiteral(name)) {
+          const [ruleName] = parseHints(name.value)
+          usedRules.add(ruleName)
         }
       }
     })
@@ -311,11 +324,13 @@ function importLocales(
  * @param identifier - The identifier to extract localizations from.
  * @param localizations - The set to add localizations to.
  */
-async function extractLocalizationsAndIcons(
+async function extractUsedFeatures(
   opts: ResolvedOptions,
   input: string,
   localizations: Set<string>,
-  icons: Record<string, string>
+  icons: Record<string, string>,
+  rules: Set<string>,
+  inputs: Set<string> = new Set()
 ): Promise<void> {
   const inputDefinition = await loadInputDefinition(opts, input)
   if (inputDefinition && typeof inputDefinition === 'object') {
@@ -327,6 +342,23 @@ async function extractLocalizationsAndIcons(
     }
     if ('icons' in inputDefinition) {
       Object.assign(icons, inputDefinition.icons)
+    }
+    if ('schema' in inputDefinition) {
+      let schema: FormKitSchemaDefinition | undefined = undefined
+      if (Array.isArray(inputDefinition.schema)) {
+        schema = inputDefinition.schema
+      } else if (typeof inputDefinition.schema === 'function') {
+        schema = inputDefinition.schema({})
+      } else if (typeof inputDefinition.schema === 'object') {
+        schema = inputDefinition.schema
+      }
+      await extractUsedFeaturesInSchema(
+        schema,
+        localizations,
+        icons,
+        rules,
+        inputs
+      )
     }
   }
 }
@@ -476,30 +508,117 @@ async function importIcons(
  * @param schema - The schema object
  * @returns
  */
-export function extractInputTypesFromSchema(
+export async function extractInputTypesFromSchema(
   schema: FormKitSchemaDefinition,
-  types = new Set<string>()
-): Set<string> {
+  inputs: Set<string> = new Set()
+): Promise<Set<string>> {
+  await extractUsedFeaturesInSchema(schema, new Set(), {}, new Set(), inputs)
+  return inputs
+}
+
+/**
+ *
+ * @param schema - Schema object to recurse through
+ * @param localizations - Localizations
+ * @param icons - Icons
+ * @param rules
+ * @returns
+ */
+export async function extractUsedFeaturesInSchema(
+  schema: FormKitSchemaDefinition | undefined,
+  localizations: Set<string>,
+  icons: Record<string, string>,
+  rules: Set<string>,
+  inputs: Set<string>
+): Promise<void> {
   if (Array.isArray(schema)) {
-    schema.forEach((item) => {
-      extractInputTypesFromSchema(item, types)
-    })
+    await Promise.all(
+      schema.map((item) =>
+        extractUsedFeaturesInSchema(item, localizations, icons, rules, inputs)
+      )
+    )
   }
   if (schema && typeof schema === 'object') {
-    if ('$cmp' in schema && schema.$cmp === 'FormKit' && schema.props?.type) {
-      types.add(schema.props.type)
-    } else if ('$formkit' in schema) {
-      types.add(schema.$formkit)
+    if (
+      ('$cmp' in schema && schema.$cmp === 'FormKit') ||
+      '$formkit' in schema
+    ) {
+      const inputType: string =
+        ('$formkit' in schema ? schema.$formkit : schema.props?.type) ?? 'text'
+      const props: Record<string, any> =
+        ('$formkit' in schema ? schema : schema.props) ?? {}
+
+      if ('validation' in props) {
+        if (
+          typeof props.validation === 'string' &&
+          props.validation.startsWith('$')
+        ) {
+          consola.warn(
+            '[FormKit] Dynamic validation rules are not supported in optimizer.'
+          )
+        }
+        extractValidationRules(props.validation, rules)
+      }
+      inputs.add(inputType)
     }
+
     if ('children' in schema && typeof schema.children === 'object') {
-      extractInputTypesFromSchema(schema.children, types)
+      extractUsedFeaturesInSchema(
+        schema.children,
+        localizations,
+        icons,
+        rules,
+        inputs
+      )
     }
     if ('then' in schema && typeof schema.then === 'object') {
-      extractInputTypesFromSchema(schema.then, types)
+      extractUsedFeaturesInSchema(
+        schema.then,
+        localizations,
+        icons,
+        rules,
+        inputs
+      )
     }
     if ('else' in schema && typeof schema.else === 'object') {
-      extractInputTypesFromSchema(schema.else, types)
+      extractUsedFeaturesInSchema(
+        schema.else,
+        localizations,
+        icons,
+        rules,
+        inputs
+      )
     }
   }
-  return types
+}
+
+/**
+ * Extract the validation rules from a validation string or array.
+ * @param validation - The validation string or array to extract rules from.
+ * @param rules - The set to add rules to.
+ */
+async function extractValidationRules(
+  validation: string | [[string]],
+  rules: Set<string>
+) {
+  const { extractRules, parseHints } = await import('@formkit/validation')
+  if (typeof validation === 'string') {
+    const rulesArray = extractRules(validation)
+    rulesArray.forEach(([name]) => {
+      if (typeof name === 'string') {
+        const [ruleName] = parseHints(name)
+        rules.add(ruleName)
+      }
+    })
+  } else if (Array.isArray(validation)) {
+    validation.forEach((rule) => {
+      if (Array.isArray(rule)) {
+        const [name] = rule
+        if (typeof name === 'string') {
+          const [ruleName] = parseHints(name)
+          rules.add(ruleName)
+        }
+      }
+    })
+  }
 }
