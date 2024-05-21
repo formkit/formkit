@@ -16,7 +16,10 @@ export function createIconPlugin() {
       if (prop.endsWith('Icon')) {
         const rawKey = `_raw${key(prop)}`
         node.addProps([rawKey, `on${key(prop)}Click`])
-        const value = node.props[prop]
+        let value = node.props[prop]
+        if (value.startsWith('default:')) {
+          value = value.slice(8)
+        }
         if (value.startsWith('<svg')) {
           node.props[rawKey] = value
         } else if (node.props.__icons__ && value in node.props.__icons__) {

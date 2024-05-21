@@ -89,6 +89,10 @@ export const file: FormKitTypeDefinition = {
     fileRemove: 'fileRemove',
   },
   /**
+   * An array of messages to create and expose to  props to accept for this input.
+   */
+  localize: ['remove', 'removeAll', 'noFiles'],
+  /**
    * Additional features that should be added to your input
    */
   features: [

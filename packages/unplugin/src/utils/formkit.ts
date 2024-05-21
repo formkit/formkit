@@ -20,7 +20,7 @@ import {
   isSpreadElement,
   isStringLiteral,
 } from '@babel/types'
-import { addImport, createProperty, getKeyName } from './ast'
+import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
 import { isFullDeopt } from './config'
