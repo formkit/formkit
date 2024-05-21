@@ -227,13 +227,14 @@ function createDeoptimizedLibrary(opts: ResolvedOptions): File | Program {
  * input.
  * @param opts - Resolved options
  * @param inputName - The name of the input to create a virtual config for.
+ * @param includeChildren - Whether to include the children of the input.
  * @returns
  */
 export async function createVirtualInputConfig(
   opts: ResolvedOptions,
   inputName: string,
   includeChildren = true
-): Promise<File | Program> {
+): Promise<File> {
   const inputs = new Set<string>([inputName])
 
   if (includeChildren) {
@@ -261,12 +262,15 @@ export async function createVirtualInputConfig(
     )
   }
 
-  return t.program.ast`${defStatements}
+  return {
+    type: 'File',
+    program: t.program.ast`${defStatements}
   const library = () => ${{ type: 'BooleanLiteral', value: inputs.size > 1 }};
   library.library = (node) => {
     ${defineStatements}
   }
-  export { library }`
+  export { library }`,
+  }
 }
 
 /**

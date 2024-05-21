@@ -30,6 +30,10 @@ import type {
   FormKitSchemaDefinition,
   FormKitTypeDefinition,
 } from '@formkit/core'
+import { dirname, resolve } from 'pathe'
+import { unlink, writeFile } from 'fs/promises'
+import { randomUUID } from 'crypto'
+
 /**
  * Modify the arguments of the usage of a formkit component. For example the
  * ComponentUse may be AST that maps to:
@@ -114,7 +118,6 @@ export async function createConfigObject(
     props,
     plugins
   )
-
   // Inject the validation plugin and any rules
   await importValidation(component, props, nodeProps, plugins, rules)
 
@@ -358,12 +361,20 @@ async function extractUsedFeatures(
         localizations,
         icons,
         rules,
-        inputs
+        inputs,
+        opts
       )
     }
   }
 }
 
+/**
+ * Attempts to load an input definition for a given input "type" as defined in the formkit config.
+ * @param opts - Resolved options
+ * @param input - The "name" of the input to load as defined in the configuration.
+ * @param ast - Optionally, attempt to load the input definition from an AST.
+ * @returns
+ */
 export async function loadInputDefinition(
   opts: ResolvedOptions,
   input: string,
@@ -406,13 +417,49 @@ export async function loadInputDefinition(
           return module[importName] as FormKitTypeDefinition
         }
       }
+    } else if (ast) {
+      // If we have an AST, we can try to write this to a file and resolve it.
+      const { library: libraryPlugin } = await loadFromAST(opts, ast)
+      if (libraryPlugin && typeof libraryPlugin.library === 'function') {
+        let definition: FormKitTypeDefinition | undefined = undefined
+        // we use a mock node to extract the definition for the defined input.
+        const mockNode = {
+          props: { type: input },
+          define: (def: FormKitTypeDefinition) => {
+            definition = def
+          },
+        }
+        libraryPlugin.library(mockNode)
+        return definition
+      }
     } else {
       consola.warn(
         `[FormKit de-opt]: Optimizer could not find an import for "${input}". This reduces the optimization of themes, icons, and i18n. To avoid this deoptimization, ensure the input definition is imported (from another module) into formkit.config.ts.`
       )
     }
-  } catch (e) {}
+  } catch (e) {
+    consola.info(
+      `[FormKit de-opt]: Optimizer encountered an error when loading input definition for "${input}".`,
+      e
+    )
+  }
   return undefined
+}
+
+/**
+ * Generates a temporary file, imports it, then deletes it.
+ * @param opts - The resolved options.
+ * @param ast - AST to load.
+ * @returns
+ */
+async function loadFromAST(opts: ResolvedOptions, ast: File | Program) {
+  const source = opts.generate(ast)
+  const dir = dirname(opts.configPath ?? process.cwd())
+  const path = resolve(dir, `./${randomUUID()}.mjs`)
+  await writeFile(path, source.code, 'utf-8')
+  const value = await import(path)
+  await unlink(path)
+  return value
 }
 
 /**
@@ -467,19 +514,19 @@ async function importIcons(
     )
     // Now create the icon configuration:
     const iconConfig = t.expression.ast`{}` as ObjectExpression
-    for (const icon in icons) {
-      const value = icons[icon]
-      if (!value && value.startsWith('<svg')) {
+    for (const section in icons) {
+      const icon = icons[section]
+      if (icon && icon.startsWith('<svg')) {
         iconConfig.properties.push(
-          createProperty(icon, { type: 'StringLiteral', value })
+          createProperty(icon, { type: 'StringLiteral', value: icon })
         )
       } else {
         iconConfig.properties.push(
           createProperty(
             icon,
             t.expression.ast`${addImport(component.opts, component.root, {
-              from: 'virtual:formkit/icons:' + value,
-              name: camel(value),
+              from: 'virtual:formkit/icons:' + icon,
+              name: camel(icon),
             })}`
           )
         )
@@ -487,52 +534,6 @@ async function importIcons(
     }
     nodeProps.properties.push(createProperty('__icons__', iconConfig))
   }
-  // for (const section in icons) {
-  //   props.properties.push({
-  //     type: 'ObjectProperty',
-  //     computed: false,
-  //     shorthand: false,
-  //     key: {
-  //       type: 'StringLiteral',
-  //       value: `${section}-icon`,
-  //     },
-  //     value: {
-  //       type: 'StringLiteral',
-  //       value: icons[section],
-  //     },
-  //   })
-  // }
-  // const iconPaths = new Map<NodePath<ObjectProperty>, string>()
-  // ;(
-  //   component.path.get('arguments.1') as NodePath<ObjectExpression> | undefined
-  // )?.traverse({
-  //   ObjectProperty(path) {
-  //     const key = path.get('key')
-  //     const keyName = getKeyName(key)
-  //     if (keyName?.endsWith('-icon') || keyName?.endsWith('Icon')) {
-  //       const value = path.get('value')
-  //       if (
-  //         value.node.type === 'StringLiteral' &&
-  //         !value.node.value.startsWith('<svg')
-  //       ) {
-  //         const iconValue = value.node.value
-  //         iconPaths.set(path, iconValue)
-  //       }
-  //     }
-  //     path.skip()
-  //   },
-  // })
-  // if (!iconPaths.size) return
-
-  // iconPaths.forEach((icon, path) => {
-  //   path.get('value').replaceWith({
-  //     type: 'Identifier',
-  //     name: addImport(component.opts, component.root, {
-  //       from: 'virtual:formkit/icons:' + icon,
-  //       name: camel(icon),
-  //     }),
-  //   })
-  // })
 }
 
 /**
@@ -561,12 +562,20 @@ export async function extractUsedFeaturesInSchema(
   localizations: Set<string>,
   icons: Record<string, string>,
   rules: Set<string>,
-  inputs: Set<string>
+  inputs: Set<string>,
+  opts?: ResolvedOptions
 ): Promise<void> {
   if (Array.isArray(schema)) {
     await Promise.all(
       schema.map((item) =>
-        extractUsedFeaturesInSchema(item, localizations, icons, rules, inputs)
+        extractUsedFeaturesInSchema(
+          item,
+          localizations,
+          icons,
+          rules,
+          inputs,
+          opts
+        )
       )
     )
   }
@@ -591,34 +600,51 @@ export async function extractUsedFeaturesInSchema(
         }
         extractValidationRules(props.validation, rules)
       }
-      inputs.add(inputType)
+
+      if (!inputs.has(inputType)) {
+        inputs.add(inputType)
+        if (opts) {
+          // Recursively fetch any features from this identified input.
+          await extractUsedFeatures(
+            opts,
+            inputType,
+            localizations,
+            icons,
+            rules,
+            inputs
+          )
+        }
+      }
     }
 
     if ('children' in schema && typeof schema.children === 'object') {
-      extractUsedFeaturesInSchema(
+      await extractUsedFeaturesInSchema(
         schema.children,
         localizations,
         icons,
         rules,
-        inputs
+        inputs,
+        opts
       )
     }
     if ('then' in schema && typeof schema.then === 'object') {
-      extractUsedFeaturesInSchema(
+      await extractUsedFeaturesInSchema(
         schema.then,
         localizations,
         icons,
         rules,
-        inputs
+        inputs,
+        opts
       )
     }
     if ('else' in schema && typeof schema.else === 'object') {
-      extractUsedFeaturesInSchema(
+      await extractUsedFeaturesInSchema(
         schema.else,
         localizations,
         icons,
         rules,
-        inputs
+        inputs,
+        opts
       )
     }
   }
