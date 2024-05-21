@@ -214,17 +214,17 @@ async function importValidation(
       prop.key.type === 'Identifier' &&
       prop.key.name === 'validation'
   ) as ObjectProperty | undefined
-  if (!validationProp) return new Set<string>()
+
   const { extractRules, parseHints } = await import('@formkit/validation')
 
-  if (isStringLiteral(validationProp.value)) {
+  if (validationProp && isStringLiteral(validationProp.value)) {
     // Import the rules directly.
     const rules = extractRules(validationProp.value.value) as string[][]
     rules.forEach(([name]) => {
       const [ruleName] = parseHints(name)
       usedRules.add(ruleName)
     })
-  } else if (isArrayExpression(validationProp.value)) {
+  } else if (validationProp && isArrayExpression(validationProp.value)) {
     validationProp.value.elements.forEach((rule) => {
       if (isArrayExpression(rule)) {
         const [name] = rule.elements
@@ -234,14 +234,17 @@ async function importValidation(
         }
       }
     })
-  } else if (opts.optimize.validation) {
+  } else if (validationProp && opts.optimize.validation) {
     localDeopt = true
     consola.warn(
       '[FormKit deopt]: Cannot statically analyze validation prop, deoptimizing rules.'
     )
   }
 
-  if (usedRules.size && opts.optimize.validation) {
+  // If there are no validations by the time we get here, we can skip this.
+  if (!usedRules.size && !validationProp) return
+
+  if (opts.optimize.validation) {
     const rulesObject = t.expression.ast`{}` as ObjectExpression
     usedRules.forEach((rule) => {
       rulesObject.properties.push(
@@ -312,7 +315,7 @@ function importLocales(
     plugins.elements.push(t.expression.ast`${plugin}`)
 
     const messages = [...messageKeys]
-    // Import the validation plugin
+    // Import the locales required for this component.
     const locales = addImport(component.opts, component.root, {
       from: `virtual:formkit/locales:${messages.join(',')}`,
       name: 'locales',
