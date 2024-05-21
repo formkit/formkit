@@ -72,6 +72,23 @@ export const file: FormKitTypeDefinition = {
    */
   props: [],
   /**
+   * Default icons for the input.
+   */
+  icons: {
+    /**
+     * The icon to show when there are no files selected.
+     */
+    noFiles: 'noFiles',
+    /**
+     * The icon to show when a file is selected.
+     */
+    fileItem: 'fileItem',
+    /**
+     * The icon to show when a file is removed.
+     */
+    fileRemove: 'fileRemove',
+  },
+  /**
    * Additional features that should be added to your input
    */
   features: [

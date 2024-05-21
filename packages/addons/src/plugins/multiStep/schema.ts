@@ -1,5 +1,5 @@
 import type { FormKitTypeDefinition } from '@formkit/core'
-import { $if, defaultIcon, disablesChildren } from '@formkit/inputs'
+import { $if, disablesChildren } from '@formkit/inputs'
 import {
   wrapper,
   badge,
@@ -60,10 +60,13 @@ export const multiStep: FormKitTypeDefinition = {
     'beforeStepChange',
     'validStepIcon',
   ],
+  icons: {
+    validStep: 'check',
+  },
   /**
    * Additional features that should be added to your input
    */
-  features: [defaultIcon('validStep', 'check'), disablesChildren],
+  features: [disablesChildren],
 }
 
 export const step: FormKitTypeDefinition = {

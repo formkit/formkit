@@ -589,6 +589,7 @@ export async function extractUsedFeaturesInSchema(
       const props: Record<string, any> =
         ('$formkit' in schema ? schema : schema.props) ?? {}
 
+      // Extract the validation rules from the schema.
       if ('validation' in props) {
         if (
           typeof props.validation === 'string' &&
@@ -599,6 +600,16 @@ export async function extractUsedFeaturesInSchema(
           )
         }
         extractValidationRules(props.validation, rules)
+      }
+
+      // Extract props that are icons.
+      for (const key in props) {
+        if (key.endsWith('-icon') || key.endsWith('Icon')) {
+          const value = props[key]
+          if (typeof value === 'string' && !value.startsWith('<svg')) {
+            icons[value] = value
+          }
+        }
       }
 
       if (!inputs.has(inputType)) {
