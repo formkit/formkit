@@ -6,6 +6,7 @@ import {
   extractInputTypesFromSchema,
   extractUsedFeaturesInSchema,
 } from '../src/utils/formkit'
+import type { FormKitSchemaDefinition } from '@formkit/core'
 
 describe('extractInputTypesFromSchema', () => {
   it('can extract input types from existing schemas', async ({ expect }) => {
@@ -19,12 +20,16 @@ describe('extractInputTypesFromSchema', () => {
 
 describe('extractUsedFeaturesInSchema', () => {
   it('can extract all the sections in a given input', async ({ expect }) => {
-    const schema = select.schema({})
+    const schema =
+      typeof select.schema === 'function'
+        ? select.schema({})
+        : ({} as FormKitSchemaDefinition)
     const feats = createFeats()
     await extractUsedFeaturesInSchema(schema, feats)
-    expect(feats.sections).toEqual(
+    expect(feats.classes).toEqual(
       new Set([
         'outer',
+        'icon',
         'wrapper',
         'label',
         'inner',

@@ -449,7 +449,7 @@ async function loadFromAST(opts: ResolvedOptions, ast: File | Program) {
  * a virtual module then replace the prop with the imported value.
  * @param component - The component to import icons for.
  * @param plugins - The plugins array to modify.
- * @param icons - Default we need to apply to given sections.
+ * @param icons - Default we need to apply to given classes.
  * @returns
  */
 async function importIcons(
@@ -589,9 +589,14 @@ export async function extractUsedFeaturesInSchema(
         }
       }
     }
-    if ('meta' in schema && typeof schema.meta?.section === 'string') {
-      feats.sections.add(schema.meta.section)
+
+    // Extract instances of $classes.{name}
+    if ('attrs' in schema && typeof schema.attrs.class === 'string') {
+      extractClassName(schema.attrs.class, feats.classes)
+    } else if ('props' in schema && typeof schema.props.class === 'string') {
+      extractClassName(schema.props.class, feats.classes)
     }
+
     if ('children' in schema && typeof schema.children === 'object') {
       await extractUsedFeaturesInSchema(schema.children, feats, opts)
     }
@@ -600,6 +605,20 @@ export async function extractUsedFeaturesInSchema(
     }
     if ('else' in schema && typeof schema.else === 'object') {
       await extractUsedFeaturesInSchema(schema.else, feats, opts)
+    }
+  }
+}
+
+/**
+ * Extract the class names from a class string.
+ * @param className - The class name to extract from.
+ * @param classes - The set to add classes to.
+ */
+function extractClassName(className: string, classes: Set<string>) {
+  const matches = className.matchAll(/\$classes\.([a-zA-Z_\-0-9]+)/g)
+  if (matches) {
+    for (const match of matches) {
+      classes.add(match[1])
     }
   }
 }
@@ -645,7 +664,7 @@ export function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
     icons: new Set(),
     rules: new Set(),
     inputs: new Set(),
-    sections: new Set(),
+    classes: new Set(),
     ...initial,
   }
 }

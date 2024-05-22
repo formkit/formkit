@@ -74,7 +74,7 @@ export type UsedFeatures = {
   icons: Set<string>
   rules: Set<string>
   inputs: Set<string>
-  sections: Set<string>
+  classes: Set<string>
 }
 
 export type Traverse = typeof traverse
