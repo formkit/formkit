@@ -25,7 +25,7 @@ import t from '@babel/template'
 import { consola } from 'consola'
 import { isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
-import { camel, empty } from '@formkit/utils'
+import { camel } from '@formkit/utils'
 import type {
   FormKitSchemaDefinition,
   FormKitTypeDefinition,
@@ -589,7 +589,9 @@ export async function extractUsedFeaturesInSchema(
         }
       }
     }
-
+    if ('meta' in schema && typeof schema.meta?.section === 'string') {
+      feats.sections.add(schema.meta.section)
+    }
     if ('children' in schema && typeof schema.children === 'object') {
       await extractUsedFeaturesInSchema(schema.children, feats, opts)
     }
@@ -637,7 +639,7 @@ async function extractValidationRules(
  * Creates a new used features object.
  * @returns
  */
-function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
+export function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
   return {
     localizations: new Set(),
     icons: new Set(),
