@@ -69,5 +69,13 @@ export type ComponentUse = Component & {
   opts: ResolvedOptions
 }
 
+export type UsedFeatures = {
+  localizations: Set<string>
+  icons: Set<string>
+  rules: Set<string>
+  inputs: Set<string>
+  sections: Set<string>
+}
+
 export type Traverse = typeof traverse
 export type Generate = typeof generate

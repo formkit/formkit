@@ -1,4 +1,4 @@
-import type { ComponentUse, ResolvedOptions } from '../types'
+import type { ComponentUse, ResolvedOptions, UsedFeatures } from '../types'
 import type {
   ObjectExpression,
   ObjectProperty,
@@ -113,23 +113,19 @@ export async function createConfigObject(
   const props = component.path.node.arguments[1] as ObjectExpression
 
   // Perform a direct-injection on the input type (if possible)
-  const { localizations, icons, rules } = await importInputType(
-    component,
-    props,
-    plugins
-  )
+  const feats = await importInputType(component, props, plugins)
   // Inject the validation plugin and any rules
-  await importValidation(component, props, nodeProps, plugins, rules)
+  await importValidation(component, props, nodeProps, plugins, feats.rules)
 
   // Import the necessary i18n locales
   await importLocales(
     component,
     nodeProps,
     plugins,
-    new Set([...rules, ...localizations])
+    new Set([...feats.rules, ...feats.localizations])
   )
 
-  await importIcons(component, nodeProps, plugins, props, icons)
+  await importIcons(component, nodeProps, plugins, props, feats.icons)
 
   if (nodeProps.properties.length) {
     config.properties.push(createProperty('props', nodeProps))
@@ -147,14 +143,8 @@ async function importInputType(
   component: ComponentUse,
   props: ObjectExpression,
   plugins: ArrayExpression
-): Promise<{
-  localizations: Set<string>
-  icons: Record<string, string>
-  rules: Set<string>
-}> {
-  const localizations = new Set<string>()
-  const rules = new Set<string>()
-  const icons: Record<string, string> = {}
+): Promise<UsedFeatures> {
+  const feats = createFeats()
   const inputType = props.properties.find(
     (prop) =>
       isObjectProperty(prop) &&
@@ -173,13 +163,7 @@ async function importInputType(
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
-    await extractUsedFeatures(
-      component.opts,
-      value,
-      localizations,
-      icons,
-      rules
-    )
+    await extractUsedFeatures(component.opts, value, feats)
   } else {
     if (shouldOptimize) {
       // We wanted to optimize, but couldn’t.
@@ -193,7 +177,7 @@ async function importInputType(
     })
   }
   plugins.elements.push(t.expression.ast`${libName}`)
-  return { localizations, icons, rules }
+  return feats
 }
 
 /**
@@ -334,21 +318,23 @@ function importLocales(
 async function extractUsedFeatures(
   opts: ResolvedOptions,
   input: string,
-  localizations: Set<string>,
-  icons: Record<string, string>,
-  rules: Set<string>,
-  inputs: Set<string> = new Set()
+  feats: UsedFeatures
 ): Promise<void> {
   const inputDefinition = await loadInputDefinition(opts, input)
   if (inputDefinition && typeof inputDefinition === 'object') {
     if ('localize' in inputDefinition) {
       const localize = inputDefinition.localize
       if (Array.isArray(localize)) {
-        localize.forEach(localizations.add, localizations)
+        localize.forEach(feats.localizations.add, feats.localizations)
       }
     }
-    if ('icons' in inputDefinition) {
-      Object.assign(icons, inputDefinition.icons)
+    if (
+      'icons' in inputDefinition &&
+      typeof inputDefinition.icons === 'object'
+    ) {
+      Object.values(inputDefinition.icons).forEach((icon) =>
+        feats.icons.add(icon)
+      )
     }
     if ('schema' in inputDefinition) {
       let schema: FormKitSchemaDefinition | undefined = undefined
@@ -359,14 +345,7 @@ async function extractUsedFeatures(
       } else if (typeof inputDefinition.schema === 'object') {
         schema = inputDefinition.schema
       }
-      await extractUsedFeaturesInSchema(
-        schema,
-        localizations,
-        icons,
-        rules,
-        inputs,
-        opts
-      )
+      await extractUsedFeaturesInSchema(schema, feats, opts)
     }
   }
 }
@@ -478,7 +457,7 @@ async function importIcons(
   nodeProps: ObjectExpression,
   plugins: ArrayExpression,
   props: ObjectExpression,
-  icons: Record<string, string>
+  icons: Set<string>
 ) {
   if (!component.opts.optimize.icons) {
     // In this case we are de-optimizing the icon configuration so we load the
@@ -501,11 +480,11 @@ async function importIcons(
     if (key?.endsWith('-icon') || key?.endsWith('Icon')) {
       const value = isStringLiteral(prop.value) ? prop.value.value : undefined
       if (value && !value.startsWith('<svg')) {
-        icons[value] = value
+        icons.add(value)
       }
     }
   })
-  if (!empty(icons)) {
+  if (icons.size) {
     // Inject the icon loader:
     plugins.elements.push(
       t.expression.ast(
@@ -517,8 +496,7 @@ async function importIcons(
     )
     // Now create the icon configuration:
     const iconConfig = t.expression.ast`{}` as ObjectExpression
-    for (const section in icons) {
-      const icon = icons[section]
+    icons.forEach((icon) => {
       if (icon && icon.startsWith('<svg')) {
         iconConfig.properties.push(
           createProperty(icon, { type: 'StringLiteral', value: icon })
@@ -534,7 +512,7 @@ async function importIcons(
           )
         )
       }
-    }
+    })
     nodeProps.properties.push(createProperty('__icons__', iconConfig))
   }
 }
@@ -548,7 +526,7 @@ export async function extractInputTypesFromSchema(
   schema: FormKitSchemaDefinition,
   inputs: Set<string> = new Set()
 ): Promise<Set<string>> {
-  await extractUsedFeaturesInSchema(schema, new Set(), {}, new Set(), inputs)
+  await extractUsedFeaturesInSchema(schema, createFeats({ inputs }))
   return inputs
 }
 
@@ -562,24 +540,12 @@ export async function extractInputTypesFromSchema(
  */
 export async function extractUsedFeaturesInSchema(
   schema: FormKitSchemaDefinition | undefined,
-  localizations: Set<string>,
-  icons: Record<string, string>,
-  rules: Set<string>,
-  inputs: Set<string>,
+  feats: UsedFeatures,
   opts?: ResolvedOptions
 ): Promise<void> {
   if (Array.isArray(schema)) {
     await Promise.all(
-      schema.map((item) =>
-        extractUsedFeaturesInSchema(
-          item,
-          localizations,
-          icons,
-          rules,
-          inputs,
-          opts
-        )
-      )
+      schema.map((item) => extractUsedFeaturesInSchema(item, feats, opts))
     )
   }
   if (schema && typeof schema === 'object') {
@@ -602,7 +568,7 @@ export async function extractUsedFeaturesInSchema(
             '[FormKit] Dynamic validation rules are not supported in optimizer.'
           )
         }
-        extractValidationRules(props.validation, rules)
+        extractValidationRules(props.validation, feats.rules)
       }
 
       // Extract props that are icons.
@@ -610,56 +576,28 @@ export async function extractUsedFeaturesInSchema(
         if (key.endsWith('-icon') || key.endsWith('Icon')) {
           const value = props[key]
           if (typeof value === 'string' && !value.startsWith('<svg')) {
-            icons[value] = value
+            feats.icons.add(value)
           }
         }
       }
 
-      if (!inputs.has(inputType)) {
-        inputs.add(inputType)
+      if (!feats.inputs.has(inputType)) {
+        feats.inputs.add(inputType)
         if (opts) {
           // Recursively fetch any features from this identified input.
-          await extractUsedFeatures(
-            opts,
-            inputType,
-            localizations,
-            icons,
-            rules,
-            inputs
-          )
+          await extractUsedFeatures(opts, inputType, feats)
         }
       }
     }
 
     if ('children' in schema && typeof schema.children === 'object') {
-      await extractUsedFeaturesInSchema(
-        schema.children,
-        localizations,
-        icons,
-        rules,
-        inputs,
-        opts
-      )
+      await extractUsedFeaturesInSchema(schema.children, feats, opts)
     }
     if ('then' in schema && typeof schema.then === 'object') {
-      await extractUsedFeaturesInSchema(
-        schema.then,
-        localizations,
-        icons,
-        rules,
-        inputs,
-        opts
-      )
+      await extractUsedFeaturesInSchema(schema.then, feats, opts)
     }
     if ('else' in schema && typeof schema.else === 'object') {
-      await extractUsedFeaturesInSchema(
-        schema.else,
-        localizations,
-        icons,
-        rules,
-        inputs,
-        opts
-      )
+      await extractUsedFeaturesInSchema(schema.else, feats, opts)
     }
   }
 }
@@ -692,5 +630,20 @@ async function extractValidationRules(
         }
       }
     })
+  }
+}
+
+/**
+ * Creates a new used features object.
+ * @returns
+ */
+function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
+  return {
+    localizations: new Set(),
+    icons: new Set(),
+    rules: new Set(),
+    inputs: new Set(),
+    sections: new Set(),
+    ...initial,
   }
 }
