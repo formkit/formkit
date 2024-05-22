@@ -342,3 +342,30 @@ export function getPathWithoutQuery(filePath: string) {
   // Remove the 'file:///' prefix to get the original file path format
   return url.pathname.substring(prefix.length)
 }
+
+/**
+ * Get all the input names
+ * @param opts - Resolved options
+ * @returns
+ */
+export async function getAllInputs(
+  opts: ResolvedOptions
+): Promise<Set<string>> {
+  const allInputs = new Set<string>()
+  if (opts.builtins.inputs) {
+    const { inputs } = await import('@formkit/inputs')
+    Object.keys(inputs).forEach((input) => allInputs.add(input))
+  }
+  if (opts.configAst) {
+    getConfigProperty(opts, 'inputs')?.traverse({
+      ObjectProperty(path) {
+        const inputName = getKeyName(path.get('key'))
+        if (inputName) {
+          allInputs.add(inputName)
+        }
+        path.skip()
+      },
+    })
+  }
+  return allInputs
+}

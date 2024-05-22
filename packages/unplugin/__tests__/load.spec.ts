@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { load } from './helpers/load'
 import { createCommonJS } from 'mlly'
 import { resolve } from 'pathe'
+import { globals } from './fixtures/configs/formkit.theme'
 
 const { __dirname } = createCommonJS(import.meta.url)
 
@@ -524,5 +525,22 @@ describe('icon config loading', () => {
       const __iconLoader = materialIconLoader();
       export const themes = (createThemePlugin("genesis", __icons, __iconLoaderUrl, __iconLoader));"
     `)
+  })
+})
+
+describe('theme related config loading', () => {
+  it('can create an empty global export with no rootClasses', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/classes')
+    expect(code).toMatchInlineSnapshot(`"export const classes = {};"`)
+  })
+  it.only('can create a full global classes when using a theme', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/classes', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot('')
   })
 })

@@ -7,6 +7,11 @@ import {
   extractUsedFeaturesInSchema,
 } from '../src/utils/formkit'
 import type { FormKitSchemaDefinition } from '@formkit/core'
+import { createOpts, getAllInputs } from '../src/utils/config'
+import { resolve } from 'pathe'
+import { createCommonJS } from 'mlly'
+
+const { __dirname } = createCommonJS(import.meta.url)
 
 describe('extractInputTypesFromSchema', () => {
   it('can extract input types from existing schemas', async ({ expect }) => {
@@ -47,5 +52,98 @@ describe('extractUsedFeaturesInSchema', () => {
         'message',
       ])
     )
+  })
+})
+
+describe('getAllInputs', () => {
+  it('can extract all base builtin inputs', async ({ expect }) => {
+    const opts = createOpts({})
+    expect(await getAllInputs(opts)).toMatchInlineSnapshot(`
+      Set {
+        "button",
+        "submit",
+        "checkbox",
+        "file",
+        "form",
+        "group",
+        "hidden",
+        "list",
+        "meta",
+        "radio",
+        "select",
+        "textarea",
+        "text",
+        "color",
+        "date",
+        "datetimeLocal",
+        "email",
+        "month",
+        "number",
+        "password",
+        "search",
+        "tel",
+        "time",
+        "url",
+        "week",
+        "range",
+      }
+    `)
+  })
+
+  it('can extract all base builtin inputs and custom ones', async ({
+    expect,
+  }) => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    expect(await getAllInputs(opts)).toMatchInlineSnapshot(`
+      Set {
+        "button",
+        "submit",
+        "checkbox",
+        "file",
+        "form",
+        "group",
+        "hidden",
+        "list",
+        "meta",
+        "radio",
+        "select",
+        "textarea",
+        "text",
+        "color",
+        "date",
+        "datetimeLocal",
+        "email",
+        "month",
+        "number",
+        "password",
+        "search",
+        "tel",
+        "time",
+        "url",
+        "week",
+        "range",
+        "custom",
+      }
+    `)
+  })
+
+  it('can extract inputs without builtins', async ({ expect }) => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/no-input-builtins.config.ts'
+      ),
+    })
+    expect(await getAllInputs(opts)).toMatchInlineSnapshot(`
+      Set {
+        "text",
+        "custom",
+      }
+    `)
   })
 })

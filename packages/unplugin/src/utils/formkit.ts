@@ -20,10 +20,10 @@ import {
   isSpreadElement,
   isStringLiteral,
 } from '@babel/types'
-import { addImport, createProperty } from './ast'
+import { addImport, createProperty, getKeyName } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
-import { isFullDeopt } from './config'
+import { getConfigProperty, isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 import { camel } from '@formkit/utils'
 import type {
@@ -315,7 +315,7 @@ function importLocales(
  * @param identifier - The identifier to extract localizations from.
  * @param localizations - The set to add localizations to.
  */
-async function extractUsedFeatures(
+export async function extractUsedFeatures(
   opts: ResolvedOptions,
   input: string,
   feats: UsedFeatures
@@ -434,7 +434,10 @@ export async function loadInputDefinition(
  * @param ast - AST to load.
  * @returns
  */
-async function loadFromAST(opts: ResolvedOptions, ast: File | Program) {
+export async function loadFromAST(
+  opts: ResolvedOptions,
+  ast: File | Program
+): Promise<Record<string, any>> {
   const source = opts.generate(ast)
   const dir = dirname(opts.configPath ?? process.cwd())
   const path = resolve(dir, `./${randomUUID()}.mjs`)

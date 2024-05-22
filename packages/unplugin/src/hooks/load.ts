@@ -2,10 +2,13 @@ import jiti from 'jiti'
 import type { UnpluginOptions } from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
-import { getConfigProperty } from '../utils/config'
+import { getAllInputs, getConfigProperty } from '../utils/config'
 import { trackReload } from '../utils/config'
 import {
+  createFeats,
   extractInputTypesFromSchema,
+  extractUsedFeatures,
+  loadFromAST,
   loadInputDefinition,
 } from '../utils/formkit'
 import { consola } from 'consola'
@@ -34,7 +37,8 @@ import type {
 import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/en'
-import { camel } from '@formkit/utils'
+import { camel, empty } from '@formkit/utils'
+import { createNode, type FormKitConfig } from '@formkit/core'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -102,6 +106,11 @@ async function createModuleAST(
 
     case 'themes':
       return await createThemePluginConfig(opts)
+
+    case 'classes':
+      return await (identifier
+        ? createInputClassesConfig(opts, identifier)
+        : createGlobalClassesConfig(opts))
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
@@ -856,4 +865,52 @@ function setPlugins(
       createProperty('plugins', { type: 'Identifier', name: '__plugins' })
     )
   }
+}
+
+async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
+  // something here
+}
+
+/**
+ * Extract the "global" section classes from the configuration and return them as their own module with
+ * micro-exports.
+ * @param opts - Resolved options
+ */
+async function createGlobalClassesConfig(
+  opts: ResolvedOptions
+): Promise<File | Program> {
+  const inputs = await getAllInputs(opts)
+  const feats = createFeats()
+  await Promise.all(
+    [...inputs].map((input) => extractUsedFeatures(opts, input, feats))
+  )
+  const node = createNode()
+  const astPath = getConfigProperty(opts, 'rootClasses')
+  const classesBySection: Record<string, Record<string, boolean>> = {}
+  if (astPath) {
+    const file = extract(astPath?.get('value'), true, '__rootClasses')
+    file.program.body.push(t.statement.ast`export { __rootClasses }`)
+    const extracted = await loadFromAST(opts, file)
+    if (typeof extracted.__rootClasses === 'function') {
+      const rootClasses = extracted.__rootClasses as Exclude<
+        FormKitConfig['rootClasses'],
+        false
+      >
+      feats.classes.forEach((sectionName) => {
+        const classes = rootClasses(sectionName, node)
+        delete classes[`formkit-${sectionName}`]
+        if (!empty(classes)) {
+          Object.assign(classesBySection, {
+            [sectionName]: classes,
+          })
+        }
+      })
+    }
+  }
+
+  return t.program.ast`export const classes = ${JSON.stringify(
+    classesBySection,
+    null,
+    2
+  )}`
 }
