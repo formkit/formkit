@@ -533,14 +533,89 @@ describe('theme related config loading', () => {
     expect,
   }) => {
     const code = await load('virtual:formkit/classes')
-    expect(code).toMatchInlineSnapshot(`"export const classes = {};"`)
+    expect(code).toMatchInlineSnapshot(`""`)
   })
-  it.only('can create a full global classes when using a theme', async ({
+
+  it('can create a full global classes when using a theme', async ({
     expect,
   }) => {
     const code = await load('virtual:formkit/classes', {
       configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
     })
-    expect(code).toMatchInlineSnapshot('')
+    expect(code).toMatchInlineSnapshot(`
+      "export const global_outer = {
+        "group": true,
+        "max-w-[20em]": true,
+        "min-w-0": true,
+        "grow": true,
+        "mb-4": true,
+        "data-[disabled]:select-none": true,
+        "data-[disabled]:opacity-50": true,
+        "text-base": true
+      };
+
+      export const global_message = {
+        "text-red-600": true,
+        "mb-1.5": true,
+        "text-xs": true,
+        "dark:text-red-400": true
+      };
+
+      export const global_input = {
+        "appearance-none": true,
+        "[color-scheme:light]": true,
+        "dark:[color-scheme:dark]": true,
+        "selection:bg-blue-100": true,
+        "selection:text-neutral-700": true,
+        "group-data-[has-overlay]:selection:!text-transparent": true
+      };
+
+      export const global_prefixIcon = {
+        "flex": true,
+        "items-center": true,
+        "-ml-1": true,
+        "mr-2": true,
+        "text-base": true,
+        "h-[1em]": true,
+        "w-[1em]": true,
+        "shrink-0": true,
+        "[&>svg]:w-full": true
+      };
+
+      export const global_suffixIcon = {
+        "flex": true,
+        "items-center": true,
+        "-mr-1": true,
+        "ml-2": true,
+        "text-base": true,
+        "h-[1em]": true,
+        "w-[1em]": true,
+        "shrink-0": true,
+        "[&>svg]:w-full": true
+      };
+
+      export const global_help = {
+        "text-neutral-500": true,
+        "text-xs": true,
+        "dark:text-neutral-400": true
+      };
+
+      export const global_label = {
+        "block": true,
+        "text-neutral-700": true,
+        "text-sm": true,
+        "font-bold": true,
+        "mb-1": true,
+        "dark:text-neutral-300": true
+      };
+
+      export const global_legend = {
+        "block": true,
+        "text-neutral-700": true,
+        "text-sm": true,
+        "font-bold": true,
+        "dark:text-neutral-300": true
+      };"
+    `)
   })
 })

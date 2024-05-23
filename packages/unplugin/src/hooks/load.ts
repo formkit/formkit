@@ -907,10 +907,17 @@ async function createGlobalClassesConfig(
       })
     }
   }
+  const statements: Statement[] = []
+  for (const section in classesBySection) {
+    const exportName = `global_${camel(section)}`
+    statements.push(
+      t.statement.ast`export const ${exportName} = ${JSON.stringify(
+        classesBySection[section],
+        null,
+        2
+      )}`
+    )
+  }
 
-  return t.program.ast`export const classes = ${JSON.stringify(
-    classesBySection,
-    null,
-    2
-  )}`
+  return t.program.ast`${statements}`
 }
