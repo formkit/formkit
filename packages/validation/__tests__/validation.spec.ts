@@ -748,6 +748,48 @@ describe('getValidationMessages', () => {
     expect(node.store).not.toHaveProperty('rule_required')
     expect(textMiddleware).toHaveBeenCalledTimes(4)
   })
+
+  it.only('can depend on other nodes without stopping', async () => {
+    const required_if: FormKitValidationRule = vi.fn(
+      (node: FormKitNode, addr: string) => {
+        const other = node.at(addr)
+        if (other!.value === 'foo' && node.value) {
+          return true
+        }
+        return false
+      }
+    )
+    required_if.skipEmpty = false
+    const length: FormKitValidationRule = vi.fn(
+      ({ value }, length) => ('' + value).length >= parseInt(length)
+    )
+    const validation = createValidationPlugin({ required_if, length })
+    const form = createNode({
+      type: 'group',
+      children: [
+        createNode({ name: 'foo' }),
+        createNode({
+          name: 'bar',
+          value: '',
+          props: { validation: 'required_if:foo|length:10' },
+        }),
+      ],
+    })
+    const bar = form.at('$self.bar')!
+    bar.use(validation)
+    const foo = form.at('$self.foo')!
+    expect(bar.store).toHaveProperty('rule_required_if')
+    expect(required_if).toHaveBeenCalledTimes(1)
+    foo.input('foo', false)
+    bar.input('123', false)
+    await new Promise((r) => setTimeout(r, 5))
+    expect(bar.store).not.toHaveProperty('rule_required_if')
+    expect(required_if).toHaveBeenCalledTimes(2)
+    foo.input('bar', false)
+    await new Promise((r) => setTimeout(r, 5))
+    expect(required_if).toHaveBeenCalledTimes(3)
+    expect(bar.store).toHaveProperty('rule_required_if')
+  })
 })
 
 describe('dynamic rules', () => {
