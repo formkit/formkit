@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { load } from './helpers/load'
 import { createCommonJS } from 'mlly'
 import { resolve } from 'pathe'
-import { globals } from './fixtures/configs/formkit.theme'
 
 const { __dirname } = createCommonJS(import.meta.url)
 
@@ -787,6 +786,47 @@ describe('theme related config loading', () => {
 
       const inputClasses = {};
       export const textClasses = createRootClasses(globals, familyClasses, inputClasses);"
+    `)
+  })
+
+  it('does not load rootClasses in nodeOptions when optimized', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/nodeOptions', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { extend } from "@formkit/utils";
+
+      const baseOptions = ({
+          config: ({})
+      });
+
+      export const nodeOptions = (o = {}) => extend(baseOptions, o, true);"
+    `)
+  })
+
+  it('loads deoptimized rootClasses in nodeOptions when deoptimized', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/nodeOptions', {
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/theme-deopt.config.ts'
+      ),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { extend } from "@formkit/utils";
+      import { rootClasses } from "./formkit.theme";
+      const __rootClasses = rootClasses;
+
+      const baseOptions = ({
+          config: ({
+              rootClasses: __rootClasses
+          })
+      });
+
+      export const nodeOptions = (o = {}) => extend(baseOptions, o, true);"
     `)
   })
 })
