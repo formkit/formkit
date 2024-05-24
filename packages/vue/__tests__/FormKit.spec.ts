@@ -1818,6 +1818,28 @@ describe('state', () => {
     expect(outer.attributes('data-invalid')).toBe(undefined)
   })
 
+  it('does not have data-invalid when the input is reset (#1376)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        value: 'foobar',
+        validationVisibility: 'live',
+        id,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.reset()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
+  })
+
   it('adds data-errors when the input has errors directly applied via prop', async () => {
     const wrapper = mount(FormKit, {
       props: {

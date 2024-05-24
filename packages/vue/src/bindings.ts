@@ -131,7 +131,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * are visible to the user.
    */
   const isInvalid = computed<boolean>(() => {
-    return !context.state.passing && validationVisible.value
+    return context.state.failing && validationVisible.value
   })
 
   /**
@@ -178,6 +178,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       return messages
     }, {} as Record<string, FormKitMessage>)
   )
+
+  const passing = computed<boolean>(() => !context.state.failing)
 
   /**
    * This is the reactive data object that is provided to all schemas and
@@ -305,7 +307,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       rules: hasValidation,
       validationVisible,
       required: isRequired,
-      passing: true,
+      failing: false,
+      passing,
     },
     type: node.props.type,
     family: node.props.family,

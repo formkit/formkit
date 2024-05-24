@@ -246,8 +246,8 @@ function validate(
   state.input = token()
   node.store.set(
     createMessage({
-      key: 'passing',
-      value: state.isPassing,
+      key: 'failing',
+      value: !state.isPassing,
       visible: false,
     })
   )
@@ -262,8 +262,8 @@ function validate(
       node.store.remove(validatingMessage.key)
       node.store.set(
         createMessage({
-          key: 'passing',
-          value: state.isPassing,
+          key: 'failing',
+          value: !state.isPassing,
           visible: false,
         })
       )
