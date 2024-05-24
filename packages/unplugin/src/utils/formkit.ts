@@ -472,8 +472,12 @@ export async function loadFromAST(
   const path = resolve(dir, `./.${randomUUID()}.mjs`)
   const source = opts.generate(ast)
   writeFileSync(path, source.code, 'utf-8')
-  const value = await createJITI('')(path)
-  unlinkSync(path)
+  let value: any = undefined
+  try {
+    value = await createJITI('')(path)
+  } finally {
+    unlinkSync(path)
+  }
   return value
 }
 
