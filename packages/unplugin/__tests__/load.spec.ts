@@ -532,18 +532,18 @@ describe('theme related config loading', () => {
   it('can create an empty global export with no rootClasses', async ({
     expect,
   }) => {
-    const code = await load('virtual:formkit/classes')
+    const code = await load('virtual:formkit/global-classes')
     expect(code).toMatchInlineSnapshot(`""`)
   })
 
   it('can create a full global classes when using a theme', async ({
     expect,
   }) => {
-    const code = await load('virtual:formkit/classes', {
+    const code = await load('virtual:formkit/global-classes', {
       configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
-      "export const global_outer = {
+      "export const outer = {
         "group": true,
         "max-w-[20em]": true,
         "min-w-0": true,
@@ -554,14 +554,14 @@ describe('theme related config loading', () => {
         "text-base": true
       };
 
-      export const global_message = {
+      export const message = {
         "text-red-600": true,
         "mb-1.5": true,
         "text-xs": true,
         "dark:text-red-400": true
       };
 
-      export const global_input = {
+      export const input = {
         "appearance-none": true,
         "[color-scheme:light]": true,
         "dark:[color-scheme:dark]": true,
@@ -570,7 +570,7 @@ describe('theme related config loading', () => {
         "group-data-[has-overlay]:selection:!text-transparent": true
       };
 
-      export const global_prefixIcon = {
+      export const prefixIcon = {
         "flex": true,
         "items-center": true,
         "-ml-1": true,
@@ -582,7 +582,7 @@ describe('theme related config loading', () => {
         "[&>svg]:w-full": true
       };
 
-      export const global_suffixIcon = {
+      export const suffixIcon = {
         "flex": true,
         "items-center": true,
         "-mr-1": true,
@@ -594,13 +594,13 @@ describe('theme related config loading', () => {
         "[&>svg]:w-full": true
       };
 
-      export const global_help = {
+      export const help = {
         "text-neutral-500": true,
         "text-xs": true,
         "dark:text-neutral-400": true
       };
 
-      export const global_label = {
+      export const label = {
         "block": true,
         "text-neutral-700": true,
         "text-sm": true,
@@ -609,13 +609,184 @@ describe('theme related config loading', () => {
         "dark:text-neutral-300": true
       };
 
-      export const global_legend = {
+      export const legend = {
         "block": true,
         "text-neutral-700": true,
         "text-sm": true,
         "font-bold": true,
         "dark:text-neutral-300": true
       };"
+    `)
+  })
+
+  it('can load an empty input classes', async ({ expect }) => {
+    const code = await load('virtual:formkit/classes:text')
+    expect(code).toMatchInlineSnapshot(`
+      "import { createRootClasses } from "virtual:formkit/optimized-root-classes";
+      const globals = {};
+      const familyClasses = {};
+      const inputClasses = {};
+      export const textClasses = createRootClasses(globals, familyClasses, inputClasses);"
+    `)
+  })
+
+  it('can load classes for a given family', async ({ expect }) => {
+    const code = await load('virtual:formkit/family-classes:text', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "export const fam_text_outer = {
+        "group": true,
+        "max-w-[20em]": true,
+        "min-w-0": true,
+        "grow": true,
+        "mb-4": true,
+        "data-[disabled]:select-none": true,
+        "data-[disabled]:opacity-50": true,
+        "text-base": true
+      };
+
+      export const fam_text_message = {
+        "text-red-600": true,
+        "mb-1.5": true,
+        "text-xs": true,
+        "dark:text-red-400": true
+      };
+
+      export const fam_text_wrapper = {
+        "flex": true,
+        "flex-col": true,
+        "items-start": true,
+        "justify-start": true,
+        "mb-1.5": true,
+        "last:mb-0": true
+      };
+
+      export const fam_text_input = {
+        "appearance-none": true,
+        "[color-scheme:light]": true,
+        "dark:[color-scheme:dark]": true,
+        "selection:text-neutral-700": true,
+        "group-data-[has-overlay]:selection:!text-transparent": true,
+        "text-base": true,
+        "text-neutral-700": true,
+        "min-w-0": true,
+        "min-h-[1.5em]": true,
+        "grow": true,
+        "outline-none": true,
+        "bg-transparent": true,
+        "selection:bg-blue-100": true,
+        "placeholder:text-neutral-400": true,
+        "group-data-[disabled]:!cursor-not-allowed": true,
+        "dark:placeholder-neutral-400/50": true,
+        "dark:text-neutral-300": true,
+        "border-none": true,
+        "p-0": true,
+        "focus:ring-0": true
+      };
+
+      export const fam_text_prefixIcon = {
+        "flex": true,
+        "items-center": true,
+        "-ml-1": true,
+        "mr-2": true,
+        "text-base": true,
+        "h-[1em]": true,
+        "w-[1em]": true,
+        "shrink-0": true,
+        "[&>svg]:w-full": true,
+        "text-neutral-600": true,
+        "dark:text-neutral-300": true
+      };
+
+      export const fam_text_suffixIcon = {
+        "flex": true,
+        "items-center": true,
+        "-mr-1": true,
+        "ml-2": true,
+        "text-base": true,
+        "h-[1em]": true,
+        "w-[1em]": true,
+        "shrink-0": true,
+        "[&>svg]:w-full": true,
+        "text-neutral-600": true,
+        "dark:text-neutral-300": true
+      };
+
+      export const fam_text_help = {
+        "text-neutral-500": true,
+        "text-xs": true,
+        "dark:text-neutral-400": true
+      };
+
+      export const fam_text_inner = {
+        "text-base": true,
+        "flex": true,
+        "items-center": true,
+        "w-full": true,
+        "py-2": true,
+        "px-3": true,
+        "rounded": true,
+        "border": true,
+        "border-neutral-400": true,
+        "bg-white": true,
+        "focus-within:ring-1": true,
+        "focus-within:!ring-blue-500": true,
+        "focus-within:!border-blue-500": true,
+        "group-data-[invalid]:border-red-500": true,
+        "group-data-[invalid]:ring-1": true,
+        "group-data-[invalid]:ring-red-500": true,
+        "group-data-[disabled]:bg-neutral-100": true,
+        "group-data-[disabled]:!cursor-not-allowed": true,
+        "shadow": true,
+        "group-[]/repeater:shadow-none": true,
+        "group-[]/multistep:shadow-none": true,
+        "dark:bg-transparent": true,
+        "dark:border-neutral-500": true,
+        "dark:group-data-[disabled]:bg-neutral-800/5": true,
+        "dark:group-data-[invalid]:border-red-500": true,
+        "dark:group-data-[invalid]:ring-red-500": true
+      };
+
+      export const fam_text_label = {
+        "block": true,
+        "text-neutral-700": true,
+        "text-sm": true,
+        "font-bold": true,
+        "dark:text-neutral-300": true,
+        "!inline-flex": true,
+        "mb-1": true
+      };
+
+      export const fam_text_legend = {
+        "block": true,
+        "text-neutral-700": true,
+        "text-sm": true,
+        "font-bold": true,
+        "dark:text-neutral-300": true
+      };"
+    `)
+  })
+
+  it('can load an full theme input classes', async ({ expect }) => {
+    const code = await load('virtual:formkit/classes:text', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { createRootClasses } from "virtual:formkit/optimized-root-classes";
+      import { outer, label, prefixIcon, input, suffixIcon, help, message } from "virtual:formkit/global-classes";
+      import {     fam_text_outer, fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon, fam_text_help, fam_text_message, } from "virtual:formkit/family-classes:text";
+
+      const globals = {
+          outer, label, prefixIcon, input, suffixIcon, help, message
+      };
+
+      const familyClasses = {
+          fam_text_outer, fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon, fam_text_help, fam_text_message
+      };
+
+      const inputClasses = {};
+      export const textClasses = createRootClasses(globals, familyClasses, inputClasses);"
     `)
   })
 })

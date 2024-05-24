@@ -2,8 +2,13 @@ import type { UnpluginContext, UnpluginBuildContext } from 'unplugin'
 import cjsTraverse from '@babel/traverse'
 import type { NodePath } from '@babel/traverse'
 import * as parser from '@babel/parser'
-import { extend } from '@formkit/utils'
-import { configureFormKitInstance } from './formkit'
+import { empty, extend } from '@formkit/utils'
+import {
+  configureFormKitInstance,
+  createFeats,
+  extractUsedFeatures,
+  loadFromAST,
+} from './formkit'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'pathe'
 import { parse as recastParser, print } from 'recast'
@@ -11,8 +16,11 @@ import type { File, Node, ObjectProperty, Program } from '@babel/types'
 import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
-import { getKeyName } from './ast'
+import { extract, getKeyName } from './ast'
 import { URL } from 'url'
+import { createNode, type FormKitConfig } from '@formkit/core'
+import tcjs from '@babel/template'
+const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 // The babel/traverse package imports an an object for some reason
 // so we need to get the default property and preserve the types.
@@ -20,6 +28,23 @@ const traverse: Traverse =
   typeof cjsTraverse === 'function' ? cjsTraverse : (cjsTraverse as any).default
 
 const ABSOLUTE_PATH_RE = /^(?:\/|[a-zA-Z]:\\)/
+
+const classesCache = new WeakMap<ResolvedOptions['configMemo'], Set<string>>()
+
+const globalClassesCache = new WeakMap<
+  ResolvedOptions['configMemo'],
+  Record<string, Record<string, boolean>>
+>()
+
+const familyClassesCache = new WeakMap<
+  ResolvedOptions['configMemo'],
+  Map<string, Record<string, Record<string, boolean>>>
+>()
+
+const rootClassesCache = new WeakMap<
+  ResolvedOptions['configMemo'],
+  undefined | Exclude<FormKitConfig['rootClasses'], false>
+>()
 
 function createASTTools(): ASTTools {
   const parse = (code: string) => recastParser(code, { parser })
@@ -59,6 +84,7 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
     configAst,
     configPath,
     configParseCount: 1,
+    configMemo: {},
     traverse,
     parse,
     generate,
@@ -221,6 +247,7 @@ export function trackReload(
       )
       opts.optimize = optimize
       opts.builtins = builtins
+      opts.configMemo = {}
       opts.configIconLoaderUrl = undefined
       opts.configIconLoader = undefined
     }
@@ -368,4 +395,119 @@ export async function getAllInputs(
     })
   }
   return allInputs
+}
+
+/**
+ * Gets the rootClasses function from the current configuration or undefined.
+ * @param opts - Reoslved options
+ * @returns
+ */
+export async function getRootClasses(
+  opts: ResolvedOptions
+): Promise<Exclude<FormKitConfig['rootClasses'], false> | undefined> {
+  if (rootClassesCache.has(opts.configMemo)) {
+    return rootClassesCache.get(opts.configMemo)
+  }
+  const astPath = getConfigProperty(opts, 'rootClasses')
+  let rootClasses = undefined
+  if (astPath) {
+    const file = extract(astPath?.get('value'), true, '__rootClasses')
+    file.program.body.push(t.statement.ast`export { __rootClasses }`)
+    const extracted = await loadFromAST(opts, file)
+    if (typeof extracted.__rootClasses === 'function') {
+      rootClasses = extracted.__rootClasses as Exclude<
+        FormKitConfig['rootClasses'],
+        false
+      >
+    }
+  }
+  rootClassesCache.set(opts.configMemo, rootClasses)
+  return rootClasses
+}
+
+export async function getAllClasses(opts: ResolvedOptions) {
+  if (classesCache.get(opts.configMemo)) {
+    return classesCache.get(opts.configMemo)!
+  }
+  const inputs = await getAllInputs(opts)
+  const feats = createFeats()
+  await Promise.all(
+    [...inputs].map((input) => extractUsedFeatures(opts, input, feats))
+  )
+  const classes = feats.classes
+  classesCache.set(opts.configMemo, classes)
+  return classes
+}
+
+/**
+ * Get all the global classes for the given configuration (assuming we know all the possible inputs)
+ * there is a known issue here that we cannot resolve what inputs may be used in a plugin library. This
+ * is a relatively rare feature but should be considered.
+ * @param opts - Resolved options
+ * @returns
+ */
+export async function getGlobalClasses(
+  opts: ResolvedOptions
+): Promise<Record<string, Record<string, boolean>>> {
+  if (globalClassesCache.has(opts.configMemo)) {
+    return globalClassesCache.get(opts.configMemo)!
+  }
+  const rootClasses = await getRootClasses(opts)
+  const classesBySection: Record<string, Record<string, boolean>> = {}
+
+  if (rootClasses) {
+    const node = createNode()
+    const classes = await getAllClasses(opts)
+    classes.forEach((sectionName) => {
+      const classes = rootClasses(sectionName, node)
+      delete classes[`formkit-${sectionName}`]
+      if (!empty(classes)) {
+        Object.assign(classesBySection, {
+          [sectionName]: classes,
+        })
+      }
+    })
+  }
+  globalClassesCache.set(opts.configMemo, classesBySection)
+  return classesBySection
+}
+
+/**
+ * Get all the classes for a given family.
+ * @param opts - Resolved options
+ * @param family - The family to get the classes for
+ */
+export async function getFamilyClasses(opts: ResolvedOptions, family: string) {
+  if (!familyClassesCache.has(opts.configMemo)) {
+    familyClassesCache.set(opts.configMemo, new Map())
+  }
+  const cache = familyClassesCache.get(opts.configMemo)!
+  if (cache.has(family)) {
+    return cache.get(family)!
+  }
+  const rootClasses = await getRootClasses(opts)
+  const classesBySection: Record<string, Record<string, boolean>> = {}
+  if (rootClasses) {
+    const globalClasses = await getGlobalClasses(opts)
+    const classes = await getAllClasses(opts)
+    const node = createNode({ props: { family } })
+    classes.forEach((sectionName) => {
+      const result = rootClasses(sectionName, node)
+      const classes: Record<string, boolean> = {}
+      for (const className in result) {
+        if (
+          !(className in globalClasses) &&
+          className !== `formkit-${sectionName}`
+        ) {
+          classes[className] = true
+        }
+      }
+      if (!empty(classes)) {
+        Object.assign(classesBySection, {
+          [sectionName]: classes,
+        })
+      }
+    })
+  }
+  return classesBySection
 }

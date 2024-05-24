@@ -2,13 +2,16 @@ import jiti from 'jiti'
 import type { UnpluginOptions } from 'unplugin'
 import type { ResolvedOptions } from '../types'
 import { FORMKIT_CONFIG_PREFIX } from '../index'
-import { getAllInputs, getConfigProperty } from '../utils/config'
+import {
+  getConfigProperty,
+  getFamilyClasses,
+  getGlobalClasses,
+} from '../utils/config'
 import { trackReload } from '../utils/config'
 import {
   createFeats,
   extractInputTypesFromSchema,
   extractUsedFeatures,
-  loadFromAST,
   loadInputDefinition,
 } from '../utils/formkit'
 import { consola } from 'consola'
@@ -37,8 +40,7 @@ import type {
 import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/en'
-import { camel, empty } from '@formkit/utils'
-import { createNode, type FormKitConfig } from '@formkit/core'
+import { camel } from '@formkit/utils'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -108,9 +110,16 @@ async function createModuleAST(
       return await createThemePluginConfig(opts)
 
     case 'classes':
-      return await (identifier
-        ? createInputClassesConfig(opts, identifier)
-        : createGlobalClassesConfig(opts))
+      return await createInputClassesConfig(opts, identifier)
+
+    case 'global-classes':
+      return await createGlobalClassesConfig(opts)
+
+    case 'family-classes':
+      return await createFamilyClassesConfig(opts, identifier)
+
+    case 'optimized-root-classes':
+      return await createRootClassesConfig()
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
@@ -796,7 +805,9 @@ async function createBaseConfig(
   const nodeConfig = t.expression.ast`{}` as ObjectExpression
   const statements: Statement[] = []
   setLocale(opts, nodeConfig)
-  setRootClasses(opts, statements, nodeConfig)
+  if (!opts.optimize.theme) {
+    setRootClasses(opts, statements, nodeConfig)
+  }
   setPlugins(opts, statements, baseOptions)
   baseOptions.properties.push(createProperty('config', nodeConfig))
   return t.program.ast`
@@ -867,8 +878,74 @@ function setPlugins(
   }
 }
 
+/**
+ * Extracts the classes from the given input and creates a configuration for them.
+ * @param opts - Resolved options
+ * @param input - The input to create the classes for
+ */
 async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
-  // something here
+  const globalClasses = await getGlobalClasses(opts)
+  const feats = createFeats()
+  await extractUsedFeatures(opts, input, feats)
+  const classes = feats.classes
+
+  const matchingGlobalClasses = [...classes]
+    .filter((c) => c in globalClasses)
+    .map((c) => camel(c))
+    .join(', ')
+
+  const statements: Statement[] = [
+    t.statement
+      .ast`import { createRootClasses } from 'virtual:formkit/optimized-root-classes'`,
+  ]
+  let globals = t.statement.ast`const globals = {}`
+
+  if (matchingGlobalClasses.length) {
+    statements.push(
+      t.statement
+        .ast`import { ${matchingGlobalClasses} } from 'virtual:formkit/global-classes'`
+    )
+    globals = t.statement.ast`const globals = { ${matchingGlobalClasses} }`
+  }
+
+  const allUsedFamilyClasses = new Set<string>()
+
+  let familyClasses = t.statement.ast`const familyClasses = {}`
+  if (feats.families.size) {
+    await Promise.all(
+      [...feats.families].map(async (family) => {
+        const familyClasses = await getFamilyClasses(opts, family)
+        const usedFamilyClasses = new Set<string>()
+        for (const cls of classes) {
+          if (cls in familyClasses) {
+            usedFamilyClasses.add(`fam_${family}_${cls}`)
+          }
+        }
+        if (usedFamilyClasses.size) {
+          const importName = [...usedFamilyClasses].join(', ')
+          const virtualImport = `virtual:formkit/family-classes:${family}`
+          statements.push(
+            t.statement.ast`import { ${importName} } from '${virtualImport}'`
+          )
+          usedFamilyClasses.forEach((cls) => allUsedFamilyClasses.add(cls))
+        }
+      })
+    )
+  }
+  if (allUsedFamilyClasses.size) {
+    const allFamilyImports = [...allUsedFamilyClasses].join(', ')
+    familyClasses = t.statement
+      .ast`const familyClasses = { ${allFamilyImports} }`
+  }
+
+  const inputClasses = t.statement.ast`const inputClasses = {}`
+
+  const exportName = `${camel(input)}Classes`
+  return t.program.ast`${statements}
+  ${globals}
+  ${familyClasses}
+  ${inputClasses}
+  export const ${exportName} = createRootClasses(globals, familyClasses, inputClasses)`
 }
 
 /**
@@ -879,37 +956,10 @@ async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
 async function createGlobalClassesConfig(
   opts: ResolvedOptions
 ): Promise<File | Program> {
-  const inputs = await getAllInputs(opts)
-  const feats = createFeats()
-  await Promise.all(
-    [...inputs].map((input) => extractUsedFeatures(opts, input, feats))
-  )
-  const node = createNode()
-  const astPath = getConfigProperty(opts, 'rootClasses')
-  const classesBySection: Record<string, Record<string, boolean>> = {}
-  if (astPath) {
-    const file = extract(astPath?.get('value'), true, '__rootClasses')
-    file.program.body.push(t.statement.ast`export { __rootClasses }`)
-    const extracted = await loadFromAST(opts, file)
-    if (typeof extracted.__rootClasses === 'function') {
-      const rootClasses = extracted.__rootClasses as Exclude<
-        FormKitConfig['rootClasses'],
-        false
-      >
-      feats.classes.forEach((sectionName) => {
-        const classes = rootClasses(sectionName, node)
-        delete classes[`formkit-${sectionName}`]
-        if (!empty(classes)) {
-          Object.assign(classesBySection, {
-            [sectionName]: classes,
-          })
-        }
-      })
-    }
-  }
+  const classesBySection = await getGlobalClasses(opts)
   const statements: Statement[] = []
   for (const section in classesBySection) {
-    const exportName = `global_${camel(section)}`
+    const exportName = camel(section)
     statements.push(
       t.statement.ast`export const ${exportName} = ${JSON.stringify(
         classesBySection[section],
@@ -920,4 +970,49 @@ async function createGlobalClassesConfig(
   }
 
   return t.program.ast`${statements}`
+}
+
+/**
+ * Fetch the classes that only apply to a given family.
+ * @returns
+ */
+async function createFamilyClassesConfig(
+  opts: ResolvedOptions,
+  family: string
+): Promise<File | Program> {
+  const classesBySection = await getFamilyClasses(opts, family)
+  const statements: Statement[] = []
+  for (const section in classesBySection) {
+    const exportName = `fam_${family}_${camel(section)}`
+    statements.push(
+      t.statement.ast`export const ${exportName} = ${JSON.stringify(
+        classesBySection[section],
+        null,
+        2
+      )}`
+    )
+  }
+
+  return t.program.ast`${statements}`
+}
+
+/**
+ * A factory function for create rootClasses with optimized imports.
+ * @returns
+ */
+async function createRootClassesConfig(): Promise<Program> {
+  return t.program.ast`
+  export function createRootClasses(globals, familyClasses, inputClasses) {
+    return (section, node) => {
+      const global = { ...globals[section] } ?? {}
+      if (node.props.family) {
+        Object.assign(global, familyClasses[\`fam_\${node.props.family}_\${section}\`] ?? {})
+      }
+      if (node.props.type) {
+        Object.assign(global, inputClasses[\`\${node.props.type}__\${section}\`] ?? {})
+      }
+      return global
+    }
+  }
+  `
 }

@@ -44,6 +44,7 @@ export interface ResolvedOptions extends Options, ASTTools {
   configLocalize?: string[]
   configIconLoaderUrl?: DefineConfigOptions['iconLoaderUrl']
   configIconLoader?: DefineConfigOptions['iconLoader']
+  configMemo: object
 }
 
 export interface ASTTools {
@@ -74,6 +75,7 @@ export type UsedFeatures = {
   icons: Set<string>
   rules: Set<string>
   inputs: Set<string>
+  families: Set<string>
   classes: Set<string>
 }
 

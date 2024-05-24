@@ -20,10 +20,10 @@ import {
   isSpreadElement,
   isStringLiteral,
 } from '@babel/types'
-import { addImport, createProperty, getKeyName } from './ast'
+import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
-import { getConfigProperty, isFullDeopt } from './config'
+import { isFullDeopt } from './config'
 import { createVirtualInputConfig } from '../hooks/load'
 import { camel } from '@formkit/utils'
 import type {
@@ -31,8 +31,9 @@ import type {
   FormKitTypeDefinition,
 } from '@formkit/core'
 import { dirname, resolve } from 'pathe'
-import { unlink, writeFile } from 'fs/promises'
 import { randomUUID } from 'crypto'
+import createJITI from 'jiti'
+import { unlinkSync, writeFileSync } from 'fs'
 
 /**
  * Modify the arguments of the usage of a formkit component. For example the
@@ -114,6 +115,7 @@ export async function createConfigObject(
 
   // Perform a direct-injection on the input type (if possible)
   const feats = await importInputType(component, props, plugins)
+  const inputType = feats.inputs.values().next().value
   // Inject the validation plugin and any rules
   await importValidation(component, props, nodeProps, plugins, feats.rules)
 
@@ -126,6 +128,8 @@ export async function createConfigObject(
   )
 
   await importIcons(component, nodeProps, plugins, props, feats.icons)
+
+  await importClasses(component, config, inputType)
 
   if (nodeProps.properties.length) {
     config.properties.push(createProperty('props', nodeProps))
@@ -163,6 +167,7 @@ async function importInputType(
       from: 'virtual:formkit/inputs:' + value,
       name: 'library',
     })
+    feats.inputs.add(value)
     await extractUsedFeatures(component.opts, value, feats)
   } else {
     if (shouldOptimize) {
@@ -311,6 +316,26 @@ function importLocales(
 }
 
 /**
+ * Import the rootClasses for the given input type.
+ */
+async function importClasses(
+  component: ComponentUse,
+  config: ObjectExpression,
+  inputType?: string
+) {
+  if (!inputType || !component.opts.optimize.theme) return
+  const classes = addImport(component.opts, component.root, {
+    from: 'virtual:formkit/classes:' + inputType,
+    name: `${camel(inputType)}Classes`,
+  })
+  const configConfig = t.expression.ast`{}` as ObjectExpression
+  configConfig.properties.push(
+    createProperty('rootClasses', t.expression.ast`${classes}`)
+  )
+  config.properties.push(createProperty('config', configConfig))
+}
+
+/**
  * Extract the localizations from a given module.
  * @param identifier - The identifier to extract localizations from.
  * @param localizations - The set to add localizations to.
@@ -320,8 +345,12 @@ export async function extractUsedFeatures(
   input: string,
   feats: UsedFeatures
 ): Promise<void> {
+  feats.inputs.add(input)
   const inputDefinition = await loadInputDefinition(opts, input)
   if (inputDefinition && typeof inputDefinition === 'object') {
+    if (typeof inputDefinition.family === 'string') {
+      feats.families.add(inputDefinition.family)
+    }
     if ('localize' in inputDefinition) {
       const localize = inputDefinition.localize
       if (Array.isArray(localize)) {
@@ -436,14 +465,15 @@ export async function loadInputDefinition(
  */
 export async function loadFromAST(
   opts: ResolvedOptions,
-  ast: File | Program
+  ast: File | Program,
+  rootDir?: string
 ): Promise<Record<string, any>> {
+  const dir = dirname(rootDir ?? opts.configPath ?? process.cwd())
+  const path = resolve(dir, `./.${randomUUID()}.mjs`)
   const source = opts.generate(ast)
-  const dir = dirname(opts.configPath ?? process.cwd())
-  const path = resolve(dir, `./${randomUUID()}.mjs`)
-  await writeFile(path, source.code, 'utf-8')
-  const value = await import(path)
-  await unlink(path)
+  writeFileSync(path, source.code, 'utf-8')
+  const value = await createJITI('')(path)
+  unlinkSync(path)
   return value
 }
 
@@ -667,6 +697,7 @@ export function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
     icons: new Set(),
     rules: new Set(),
     inputs: new Set(),
+    families: new Set(),
     classes: new Set(),
     ...initial,
   }
