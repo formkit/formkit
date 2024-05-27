@@ -23,16 +23,19 @@ const defaultValidation = {
 }
 
 const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
+const node = createNode()
+const observer = expect.objectContaining({})
 
 describe('validation rule parsing', () => {
   it('can parse a single string rule', () => {
     const required = () => true
-    expect(parseRules('required', { required })).toEqual([
+    expect(parseRules('required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         args: [],
         rule: required,
         name: 'required',
+        observer,
       },
     ])
   })
@@ -40,18 +43,20 @@ describe('validation rule parsing', () => {
   it('can parse a multiple string rules', () => {
     const required = () => true
     const flavor = () => true
-    expect(parseRules('required|flavor', { required, flavor })).toEqual([
+    expect(parseRules('required|flavor', { required, flavor }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
         name: 'required',
         args: [],
+        observer,
       },
       {
         ...defaultValidation,
         rule: flavor,
         name: 'flavor',
         args: [],
+        observer,
       },
     ])
   })
@@ -64,18 +69,24 @@ describe('validation rule parsing', () => {
       rule: flavor,
       name: 'flavor',
       args: ['apple', 'banana'],
+      observer,
     }
-    expect(parseRules('flavor:apple,banana', { flavor })).toEqual([
+    expect(parseRules('flavor:apple,banana', { flavor }, node)).toEqual([
       flavorResult,
     ])
     expect(
-      parseRules('before:10/15/2020|flavor:apple,banana', { flavor, before })
+      parseRules(
+        'before:10/15/2020|flavor:apple,banana',
+        { flavor, before },
+        node
+      )
     ).toEqual([
       {
         ...defaultValidation,
         rule: before,
         name: 'before',
         args: ['10/15/2020'],
+        observer,
       },
       flavorResult,
     ])
@@ -83,26 +94,28 @@ describe('validation rule parsing', () => {
 
   it('can use the “force” validator hint', () => {
     const flavor = () => true
-    expect(parseRules('*flavor:apple|flavor', { flavor })).toEqual([
+    expect(parseRules('*flavor:apple|flavor', { flavor }, node)).toEqual([
       {
         ...defaultValidation,
         rule: flavor,
         name: 'flavor',
         args: ['apple'],
         force: true,
+        observer,
       },
       {
         ...defaultValidation,
         rule: flavor,
         name: 'flavor',
         args: [],
+        observer,
       },
     ])
   })
 
   it('can use the “empty” validator hint', () => {
     const pizza = () => true
-    expect(parseRules('+pizza:cheese|pizza', { pizza })).toEqual([
+    expect(parseRules('+pizza:cheese|pizza', { pizza }, node)).toEqual([
       {
         ...defaultValidation,
         rule: pizza,
@@ -110,6 +123,7 @@ describe('validation rule parsing', () => {
         args: ['cheese'],
         force: false,
         skipEmpty: false,
+        observer,
       },
       {
         ...defaultValidation,
@@ -117,18 +131,20 @@ describe('validation rule parsing', () => {
         name: 'pizza',
         args: [],
         skipEmpty: true,
+        observer,
       },
     ])
   })
 
   it('leaves out validations that do not have matching rules', () => {
     const all9s = () => true
-    expect(parseRules('required|all9s', { all9s })).toEqual([
+    expect(parseRules('required|all9s', { all9s }, node)).toEqual([
       {
         ...defaultValidation,
         rule: all9s,
         name: 'all9s',
         args: [],
+        observer,
       },
     ])
   })
@@ -136,13 +152,14 @@ describe('validation rule parsing', () => {
   it('preserves hints provided by the validation rule', () => {
     const required = () => true
     required.skipEmpty = false
-    expect(parseRules('required', { required })).toEqual([
+    expect(parseRules('required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
         args: [],
         name: 'required',
         skipEmpty: false,
+        observer,
       },
     ])
   })
@@ -150,13 +167,14 @@ describe('validation rule parsing', () => {
   it('it uses inline hints to override function hints', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('*required', { required })).toEqual([
+    expect(parseRules('*required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
         name: 'required',
         args: [],
         force: true,
+        observer,
       },
     ])
   })
@@ -172,16 +190,17 @@ describe('validation rule parsing', () => {
         args: [],
         force: true,
         blocking: false,
+        observer,
       },
     ]
-    expect(parseRules('*?required', { required })).toEqual(result)
-    expect(parseRules('?*required', { required })).toEqual(result)
+    expect(parseRules('*?required', { required }, node)).toEqual(result)
+    expect(parseRules('?*required', { required }, node)).toEqual(result)
   })
 
   it('can parse debounce hints in the middle', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('*(200)?required', { required })).toEqual([
+    expect(parseRules('*(200)?required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -190,6 +209,7 @@ describe('validation rule parsing', () => {
         debounce: 200,
         blocking: false,
         force: true,
+        observer,
       },
     ])
   })
@@ -197,7 +217,7 @@ describe('validation rule parsing', () => {
   it('can parse debounce hints at the start', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('(5)*?required', { required })).toEqual([
+    expect(parseRules('(5)*?required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -206,6 +226,7 @@ describe('validation rule parsing', () => {
         debounce: 5,
         blocking: false,
         force: true,
+        observer,
       },
     ])
   })
@@ -213,7 +234,7 @@ describe('validation rule parsing', () => {
   it('can parse debounce hints at the end', () => {
     const required = () => true
     required.force = false
-    expect(parseRules('*?(999)required', { required })).toEqual([
+    expect(parseRules('*?(999)required', { required }, node)).toEqual([
       {
         ...defaultValidation,
         rule: required,
@@ -222,6 +243,7 @@ describe('validation rule parsing', () => {
         debounce: 999,
         blocking: false,
         force: true,
+        observer,
       },
     ])
   })
@@ -230,37 +252,46 @@ describe('validation rule parsing', () => {
     const required = () => true
     const free = () => true
     required.force = false
-    expect(parseRules('free|(2000)required', { required, free })).toEqual([
-      {
-        ...defaultValidation,
-        args: [],
-        rule: free,
-        name: 'free',
-      },
-      {
-        ...defaultValidation,
-        args: [],
-        rule: required,
-        name: 'required',
-        debounce: 2000,
-      },
-    ])
+    expect(parseRules('free|(2000)required', { required, free }, node)).toEqual(
+      [
+        {
+          ...defaultValidation,
+          args: [],
+          rule: free,
+          name: 'free',
+          observer,
+        },
+        {
+          ...defaultValidation,
+          args: [],
+          rule: required,
+          name: 'required',
+          debounce: 2000,
+          observer,
+        },
+      ]
+    )
   })
 
   it('can parse rules in array format', () => {
     const required = () => true
     const party = () => true
     expect(
-      parseRules([['required'], ['*party', 'arg1', 'arg2']], {
-        required,
-        party,
-      })
+      parseRules(
+        [['required'], ['*party', 'arg1', 'arg2']],
+        {
+          required,
+          party,
+        },
+        node
+      )
     ).toEqual([
       {
         ...defaultValidation,
         rule: required,
         name: 'required',
         args: [],
+        observer,
       },
       {
         ...defaultValidation,
@@ -268,19 +299,20 @@ describe('validation rule parsing', () => {
         name: 'party',
         args: ['arg1', 'arg2'],
         force: true,
+        observer,
       },
     ])
   })
 
   it('preserves types when using array syntax', () => {
     const matches = () => true
-    const parsed = parseRules([['matches', /^S.*$/]], { matches })
+    const parsed = parseRules([['matches', /^S.*$/]], { matches }, node)
     expect(parsed[0].args[0]).toBeInstanceOf(RegExp)
   })
 
   it('parses hints in array syntax', () => {
     const matches = () => true
-    const parsed = parseRules([['*matches', /^S.*$/]], { matches })
+    const parsed = parseRules([['*matches', /^S.*$/]], { matches }, node)
     expect(parsed[0].force).toBeTruthy()
   })
 })
@@ -355,7 +387,7 @@ describe('validation rule sequencing', () => {
     const node = createNode({
       plugins: [validationPlugin],
       props: {
-        validation: 'required|(200)length:5|*contains:bar',
+        validation: 'required|(100)length:5|*contains:bar',
       },
       value: '',
     })
@@ -366,7 +398,7 @@ describe('validation rule sequencing', () => {
     await nextTick()
     expect(node.store).not.toHaveProperty('rule_required')
     expect(node.store).not.toHaveProperty('rule_length')
-    await new Promise((r) => setTimeout(r, 205))
+    await new Promise((r) => setTimeout(r, 120))
     expect(node.store).toHaveProperty('rule_length')
     expect(node.store).toHaveProperty('rule_contains')
   })
@@ -714,7 +746,7 @@ describe('getValidationMessages', () => {
     expect(username_exists).toHaveBeenCalledTimes(1)
   })
 
-  it('changes the label when the prop changes', async () => {
+  it.only('changes the label when the prop changes', async () => {
     const length: FormKitValidationRule = vi.fn(
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
@@ -740,6 +772,8 @@ describe('getValidationMessages', () => {
     node.props.label = 'Bar'
     expect(textMiddleware).toHaveBeenCalledTimes(2)
     node.props.validation = 'length:7'
+    await nextTick()
+    console.log('CHECKING NODE', node.store)
     expect(node.store).not.toHaveProperty('rule_required')
     node.input('123')
     await new Promise((r) => setTimeout(r, 10))
@@ -749,7 +783,7 @@ describe('getValidationMessages', () => {
     expect(textMiddleware).toHaveBeenCalledTimes(4)
   })
 
-  it.only('can depend on other nodes without stopping', async () => {
+  it('can depend on other nodes without stopping', async () => {
     const required_if: FormKitValidationRule = vi.fn(
       (node: FormKitNode, addr: string) => {
         const other = node.at(addr)
@@ -764,6 +798,7 @@ describe('getValidationMessages', () => {
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
     const validation = createValidationPlugin({ required_if, length })
+    console.log('pre run:')
     const form = createNode({
       type: 'group',
       children: [
@@ -780,11 +815,14 @@ describe('getValidationMessages', () => {
     const foo = form.at('$self.foo')!
     expect(bar.store).toHaveProperty('rule_required_if')
     expect(required_if).toHaveBeenCalledTimes(1)
+    console.log('first mutation:')
     foo.input('foo', false)
+    console.log('second mutation:')
     bar.input('123', false)
     await new Promise((r) => setTimeout(r, 5))
     expect(bar.store).not.toHaveProperty('rule_required_if')
     expect(required_if).toHaveBeenCalledTimes(2)
+    console.log('third mutation:')
     foo.input('bar', false)
     await new Promise((r) => setTimeout(r, 5))
     expect(required_if).toHaveBeenCalledTimes(3)

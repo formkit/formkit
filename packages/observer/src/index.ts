@@ -331,6 +331,6 @@ export function diffDeps(
  * @returns A `boolean` indicating if the node is revoked.
  * @public
  */
-export function isKilled(node: FormKitObservedNode): boolean {
+export function isKilled(node: FormKitNode | FormKitObservedNode): boolean {
   return revokedObservers.has(node)
 }
