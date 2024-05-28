@@ -126,9 +126,19 @@ export interface FormKitStoreTraps {
 /**
  * Creates a new FormKitMessage object.
  *
+ * ```ts
+ * // default:
+ * {
+ *   blocking: false,
+ *   key: token(),
+ *   meta: {},
+ *   type: 'state',
+ *   visible: true,
+ * }
+ * ```
+ *
  * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}.
  * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}.
- *
  * @returns A {@link FormKitMessageProps | FormKitMessageProps}.
  *
  * @public

@@ -6,7 +6,6 @@ import ViteRestart from 'vite-plugin-restart'
 /* @ts-expect-error */
 import unpluginTransformer from './scripts/transform-pipe.mjs'
 import UnpluginFileUrl from 'unplugin-file-url/vite'
-import UnpluginFormKit from './packages/unplugin/src/vite'
 import vue from '@vitejs/plugin-vue'
 import { viteSpy } from './.tests/viteSpy'
 
@@ -18,7 +17,6 @@ export default defineConfig({
   plugins: [
     vueJsx(),
     vue(),
-    UnpluginFormKit(),
     viteSpy,
     unpluginTransformer.vite({
       replace: {

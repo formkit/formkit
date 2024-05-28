@@ -47,17 +47,7 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 
 ### 🥈 Silver sponsors
 
-<p style="margin-bottom: 1em;">
-  <a href="https://www.peakcrypto.com?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/peak-crypto.svg" alt="Peak Crypto logo" style="width: 18%;">
-  </a>
-</p>
-
-<p style="margin-bottom: 1em;">
-  <a href="https://surveyjs.io/?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/surveyjs.svg" alt="SurveyJS logo" style="width: 17%;">
-  </a>
-</p>
+<p><a href="https://github.com/sponsors/formkit"><img width="180" src="https://cdn.formk.it/web-assets/your-logo-here.svg" /></a></p>
 
 ### 🥉 Bronze sponsors
 
@@ -70,6 +60,12 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 <p style="margin-bottom: 1em;">
   <a href="https://zammad.com?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/zammad_logo-transparent.png" alt="Zammad logo" style="width: 14%;">
+  </a>
+</p>
+
+<p style="margin-bottom: 1em;">
+  <a href="https://wedgworth.com?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_wedgworth.png" alt="Wedgworth's Inc logo" style="width: 9%;">
   </a>
 </p>
 

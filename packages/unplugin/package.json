@@ -1,7 +1,7 @@
 {
   "name": "@formkit/unplugin",
   "type": "module",
-  "version": "1.6.2",
+  "version": "1.6.5",
   "packageManager": "pnpm@8.6.12",
   "description": "Automatic FormKit configuration 🪄",
   "license": "MIT",

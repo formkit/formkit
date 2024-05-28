@@ -371,7 +371,7 @@ describe('multistep', () => {
     const stepMatchesAfter = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter).toEqual(['Step Alpha<', 'Step Charlie<'])
     data.showStepTwo = true
-    await new Promise((r) => setTimeout(r, 15))
+    await new Promise((r) => setTimeout(r, 20))
     const stepMatchesAfter2 = wrapper.html().match(stepNameRegex)
     expect(stepMatchesAfter2).toEqual([
       'Step Alpha<',

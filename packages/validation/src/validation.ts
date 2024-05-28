@@ -80,6 +80,10 @@ export type FormKitValidation = {
    */
   deps: FormKitDependencies
   /**
+   * The observed node that is being validated.
+   */
+  observer: FormKitObservedNode
+  /**
    * An observer that updates validation messages when it’s dependencies change,
    * for example, the label of the input.
    */
@@ -188,7 +192,6 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
     const injectedRuled = cloneAny(node.props.__rules__ || {})
     let availableRules = { ...baseRules, ...injectedRuled, ...propRules }
     // create an observed node
-    let observedNode = createObserver(node)
     const state = { input: token(), rerun: null, isPassing: true }
     let validation = cloneAny(node.props.validation)
     // If the node's validation props change, reboot:
@@ -215,22 +218,22 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       validation = cloneAny(newValidation)
       availableRules = { ...baseRules, ...propRules }
       // Destroy all observers that may re-trigger validation on an old stack
-      removeListeners(observedNode.receipts)
       // Clear existing message observers
       node.props.parsedRules?.forEach((validation: FormKitValidation) => {
-        validation.messageObserver = validation.messageObserver?.kill()
+        removeMessage(validation)
+        removeListeners(validation.observer.receipts)
+        validation.observer.kill()
       })
       // Remove all existing messages before re-validating
       node.store.filter(() => false, 'validation')
-      node.props.parsedRules = parseRules(newValidation, availableRules)
-      observedNode.kill()
-      observedNode = createObserver(node)
-      validate(observedNode, node.props.parsedRules, state)
+      node.props.parsedRules = parseRules(newValidation, availableRules, node)
+      state.isPassing = true
+      validate(node, node.props.parsedRules, state)
     }
 
     // Validate the field when this plugin is initialized
-    node.props.parsedRules = parseRules(validation, availableRules)
-    validate(observedNode, node.props.parsedRules, state)
+    node.props.parsedRules = parseRules(validation, availableRules, node)
+    validate(node, node.props.parsedRules, state)
   }
 }
 
@@ -242,12 +245,19 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
  * @param rules - The rules
  */
 function validate(
-  node: FormKitObservedNode,
+  node: FormKitNode | FormKitObservedNode,
   validations: FormKitValidation[],
   state: FormKitValidationState
 ) {
   if (isKilled(node)) return
   state.input = token()
+  node.store.set(
+    createMessage({
+      key: 'failing',
+      value: !state.isPassing,
+      visible: false,
+    })
+  )
   state.isPassing = true
   node.store.filter((message) => !message.meta.removeImmediately, 'validation')
   validations.forEach(
@@ -255,8 +265,15 @@ function validate(
   )
   if (validations.length) {
     node.store.set(validatingMessage)
-    run(0, validations, node, state, false, () => {
+    run(0, validations, state, false, () => {
       node.store.remove(validatingMessage.key)
+      node.store.set(
+        createMessage({
+          key: 'failing',
+          value: !state.isPassing,
+          visible: false,
+        })
+      )
     })
   }
 }
@@ -275,23 +292,26 @@ function validate(
 function run(
   current: number,
   validations: FormKitValidation[],
-  node: FormKitObservedNode,
   state: FormKitValidationState,
   removeImmediately: boolean,
   complete: () => void
 ): void {
   const validation = validations[current]
   if (!validation) return complete()
+  const node = validation.observer
+  if (isKilled(node)) return
   const currentRun = state.input
   validation.state = null
 
   function next(async: boolean, result: boolean | null): void {
+    if (state.input !== currentRun) return
     state.isPassing = state.isPassing && !!result
     validation.queued = false
     const newDeps = node.stopObserve()
+    const diff = diffDeps(validation.deps, newDeps)
     applyListeners(
       node,
-      diffDeps(validation.deps, newDeps),
+      diff,
       function revalidate() {
         // Event callback for when the deps change:
         try {
@@ -311,29 +331,28 @@ function run(
     )
     validation.deps = newDeps
 
-    if (state.input === currentRun) {
-      validation.state = result
-      if (result === false) {
-        createFailedMessage(node, validation, removeImmediately || async)
-      } else {
-        removeMessage(node, validation)
+    validation.state = result
+    if (result === false) {
+      createFailedMessage(validation, removeImmediately || async)
+    } else {
+      removeMessage(validation)
+    }
+    if (validations.length > current + 1) {
+      const nextValidation = validations[current + 1]
+      if (
+        (result || nextValidation.force || !nextValidation.skipEmpty) &&
+        nextValidation.state === null
+      ) {
+        // If the next rule was never run then it has not been observed so it could never
+        // run again on its own.
+        nextValidation.queued = true
       }
-      if (validations.length > current + 1) {
-        run(
-          current + 1,
-          validations,
-          node,
-          state,
-          removeImmediately || async,
-          complete
-        )
-      } else {
-        // The validation has completed
-        complete()
-      }
+      run(current + 1, validations, state, removeImmediately || async, complete)
+    } else {
+      // The validation has completed
+      complete()
     }
   }
-
   if (
     (!empty(node.value) || !validation.skipEmpty) &&
     (state.isPassing || validation.force)
@@ -348,27 +367,19 @@ function run(
       // In this case our rule is not queued, so literally nothing happened that
       // would affect it, we just need to move past this rule and make no
       // modifications to state
-      run(current + 1, validations, node, state, removeImmediately, complete)
+      run(current + 1, validations, state, removeImmediately, complete)
     }
+  } else if (empty(node.value) && validation.skipEmpty && state.isPassing) {
+    // This rule is not run because it is empty — the previous rule passed so normally we would run this rule
+    // but in this case we cannot because it is empty. The node being empty is the only condition by which
+    // this rule is not run, so the only dep at this point to the the value of the node.
+    node.observe()
+    node.value
+    next(false, state.isPassing)
   } else {
-    // This rule is not being run because either:
-    //  1. The field is empty and this rule should not run when empty
-    //  2. A previous validation rule is failing and this one is not forced
-    // In this case we should call next validation.
-    if (empty(node.value) && validation.skipEmpty && state.isPassing) {
-      // This node has an empty value so its validation was skipped. So we
-      // need to queue it up, we do that by starting an observation and just
-      // touching the value attribute.
-      node.observe()
-      node.value
-      // Because this validation rule is skipped when the node's value is empty
-      // so we keep the current value `state.isPassing` to the next rule execution
-      // if we pass null it will be typecasted to false and all following rules
-      // will be ignored including `required` rule which cause odds behavior
-      next(false, state.isPassing)
-    } else {
-      next(false, null)
-    }
+    // This rule is not being run because a previous validation rule is failing and this one is not forced
+    // In this case we should call next validation — a `null` result here explicitly means the rule was not run.
+    next(false, null)
   }
 }
 
@@ -399,13 +410,13 @@ function runRule(
  * @param node - The node to operate on.
  * @param messages - A new stack of messages
  */
-function removeMessage(node: FormKitNode, validation: FormKitValidation) {
+function removeMessage(validation: FormKitValidation) {
   const key = `rule_${validation.name}`
   if (validation.messageObserver) {
     validation.messageObserver = validation.messageObserver.kill()
   }
-  if (has(node.store, key)) {
-    node.store.remove(key)
+  if (has(validation.observer.store, key)) {
+    validation.observer.store.remove(key)
   }
 }
 
@@ -415,10 +426,10 @@ function removeMessage(node: FormKitNode, validation: FormKitValidation) {
  * @param validation - The validation object
  */
 function createFailedMessage(
-  node: FormKitObservedNode,
   validation: FormKitValidation,
   removeImmediately: boolean
 ): void {
+  const node = validation.observer
   if (isKilled(node)) return
 
   if (!validation.messageObserver) {
@@ -581,7 +592,8 @@ export const defaultHints: FormKitValidationHints = {
  */
 export function parseRules(
   validation: undefined | string | FormKitValidationIntent[],
-  rules: FormKitValidationRules
+  rules: FormKitValidationRules,
+  node: FormKitNode
 ): FormKitValidation[] {
   if (!validation) return []
   const intents =
@@ -600,6 +612,7 @@ export function parseRules(
     }
     if (typeof rule === 'function') {
       validations.push({
+        observer: createObserver(node),
         rule,
         args,
         timer: 0,
