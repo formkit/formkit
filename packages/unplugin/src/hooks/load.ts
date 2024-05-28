@@ -1067,7 +1067,7 @@ async function createRootClassesConfig(): Promise<Program> {
         Object.assign(global, familyClasses[\`fam_\${node.props.family}_\${section}\`] ?? {})
       }
       if (node.props.type) {
-        Object.assign(global, inputClasses[\`input_\${node.props.type}__\${section}\`] ?? {})
+        Object.assign(global, inputClasses[\`input_\${node.props.type}_\${section}\`] ?? {})
       }
       return global
     }
