@@ -1,6 +1,6 @@
 {
   "name": "@formkit/i18n",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "type": "module",
   "description": "Internationalization layer for FormKit.",
   "main": "dist/index.cjs",
@@ -40,8 +40,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.3",
-    "@formkit/utils": "1.6.3",
-    "@formkit/validation": "1.6.3"
+    "@formkit/core": "1.6.4",
+    "@formkit/utils": "1.6.4",
+    "@formkit/validation": "1.6.4"
   }
 }
