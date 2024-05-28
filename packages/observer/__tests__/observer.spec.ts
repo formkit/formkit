@@ -6,6 +6,7 @@ import {
   FormKitObservedNode,
   removeListeners,
   applyListeners,
+  diffDeps,
 } from '../src'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -274,5 +275,27 @@ describe('observer', () => {
     expect(listenerB).toHaveBeenCalledTimes(0)
     expect(listenerA).toHaveBeenCalledTimes(0)
     expect(observed.receipts.size).toBe(0)
+  })
+
+  it('can observe the same node with different observers', () => {
+    const node = createNode()
+    const observedA = createObserver(node)
+    const observedB = createObserver(node)
+    const listenerA = vi.fn(() => {})
+    const listenerB = vi.fn()
+
+    observedA.observe()
+    observedA.value
+    const depsA = observedA.stopObserve()
+
+    const diff = diffDeps(new Map(), depsA)
+    applyListeners(observedA, diff, listenerA)
+    observedB.observe()
+    const depsB = observedB.stopObserve()
+    const diffB = diffDeps(new Map(), depsB)
+    applyListeners(observedB, diffB, listenerB)
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    node.input('foo', false)
+    expect(listenerA).toHaveBeenCalledTimes(1)
   })
 })

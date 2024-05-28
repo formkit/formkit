@@ -622,6 +622,7 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
+    await nextTick()
     const node = getNode(id)
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('input').element.value = 'foobar'
