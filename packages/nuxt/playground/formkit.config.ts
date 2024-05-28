@@ -2,6 +2,7 @@ import { createInput, defineFormKitConfig } from '@formkit/vue'
 import { createMultiStepPlugin } from '@formkit/addons'
 import { genesisIcons } from '@formkit/icons'
 import '@formkit/addons/css/multistep.css'
+import { generateClasses } from '@formkit/themes'
 import { rootClasses } from './formkit.theme'
 
 export default defineFormKitConfig(() => {
@@ -13,6 +14,12 @@ export default defineFormKitConfig(() => {
     },
     config: {
       rootClasses,
+      classes: generateClasses({
+        global: {
+          outer: ['fizz', 'bizz', 'fuzz', 'buzz'],
+          wrapper: 'foo boo faz baz',
+        },
+      }),
     },
   }
 })
