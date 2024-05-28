@@ -6,6 +6,7 @@ import {
   getConfigProperty,
   getFamilyClasses,
   getGlobalClasses,
+  getInputClasses,
 } from '../utils/config'
 import { trackReload } from '../utils/config'
 import {
@@ -117,6 +118,9 @@ async function createModuleAST(
 
     case 'family-classes':
       return await createFamilyClassesConfig(opts, identifier)
+
+    case 'input-classes':
+      return await createInputOnlyClassesConfig(opts, identifier)
 
     case 'optimized-root-classes':
       return await createRootClassesConfig()
@@ -938,7 +942,32 @@ async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
       .ast`const familyClasses = { ${allFamilyImports} }`
   }
 
-  const inputClasses = t.statement.ast`const inputClasses = {}`
+  let inputClasses = t.statement.ast`const inputClasses = {}`
+  const usedInputClasses = new Set<string>()
+  if (feats.inputs.size) {
+    await Promise.all(
+      [...feats.inputs].map(async (input) => {
+        const inputClasses = await getInputClasses(opts, input, feats)
+        const usedSectionNames = Object.keys(inputClasses)
+        if (usedSectionNames.length) {
+          const usedClasses = [...usedSectionNames].map(
+            (section) => `input_${input}_${section}`
+          )
+          const importName = usedClasses.join(', ')
+          usedClasses.forEach((cls) => usedInputClasses.add(cls))
+          const virtualImport = `virtual:formkit/input-classes:${input}`
+          statements.push(
+            t.statement.ast`import { ${importName} } from '${virtualImport}'`
+          )
+        }
+      })
+    )
+  }
+
+  if (usedInputClasses.size) {
+    const allInputImports = [...usedInputClasses].join(', ')
+    inputClasses = t.statement.ast`const inputClasses = { ${allInputImports} }`
+  }
 
   const exportName = `${camel(input)}Classes`
   return t.program.ast`${statements}
@@ -997,6 +1026,35 @@ async function createFamilyClassesConfig(
 }
 
 /**
+ * Load only the classes we need for this specific input (intentionally does NOT include sub inputs to prevent duplication).
+ * @param opts - Resolved optiopns
+ * @param input - The input to create the classes for
+ * @returns
+ */
+async function createInputOnlyClassesConfig(
+  opts: ResolvedOptions,
+  input: string
+): Promise<File | Program> {
+  const feats = createFeats()
+  await extractUsedFeatures(opts, input, feats)
+
+  const classesBySection = await getInputClasses(opts, input, feats)
+  const statements: Statement[] = []
+  for (const section in classesBySection) {
+    const exportName = `input_${input}_${camel(section)}`
+    statements.push(
+      t.statement.ast`export const ${exportName} = ${JSON.stringify(
+        classesBySection[section],
+        null,
+        2
+      )}`
+    )
+  }
+
+  return t.program.ast`${statements}`
+}
+
+/**
  * A factory function for create rootClasses with optimized imports.
  * @returns
  */
@@ -1009,7 +1067,7 @@ async function createRootClassesConfig(): Promise<Program> {
         Object.assign(global, familyClasses[\`fam_\${node.props.family}_\${section}\`] ?? {})
       }
       if (node.props.type) {
-        Object.assign(global, inputClasses[\`\${node.props.type}__\${section}\`] ?? {})
+        Object.assign(global, inputClasses[\`input_\${node.props.type}__\${section}\`] ?? {})
       }
       return global
     }

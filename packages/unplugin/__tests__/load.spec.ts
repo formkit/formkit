@@ -634,25 +634,7 @@ describe('theme related config loading', () => {
       configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
-      "export const fam_text_outer = {
-        "group": true,
-        "max-w-[20em]": true,
-        "min-w-0": true,
-        "grow": true,
-        "mb-4": true,
-        "data-[disabled]:select-none": true,
-        "data-[disabled]:opacity-50": true,
-        "text-base": true
-      };
-
-      export const fam_text_message = {
-        "text-red-600": true,
-        "mb-1.5": true,
-        "text-xs": true,
-        "dark:text-red-400": true
-      };
-
-      export const fam_text_wrapper = {
+      "export const fam_text_wrapper = {
         "flex": true,
         "flex-col": true,
         "items-start": true,
@@ -662,11 +644,6 @@ describe('theme related config loading', () => {
       };
 
       export const fam_text_input = {
-        "appearance-none": true,
-        "[color-scheme:light]": true,
-        "dark:[color-scheme:dark]": true,
-        "selection:text-neutral-700": true,
-        "group-data-[has-overlay]:selection:!text-transparent": true,
         "text-base": true,
         "text-neutral-700": true,
         "min-w-0": true,
@@ -674,7 +651,6 @@ describe('theme related config loading', () => {
         "grow": true,
         "outline-none": true,
         "bg-transparent": true,
-        "selection:bg-blue-100": true,
         "placeholder:text-neutral-400": true,
         "group-data-[disabled]:!cursor-not-allowed": true,
         "dark:placeholder-neutral-400/50": true,
@@ -685,37 +661,13 @@ describe('theme related config loading', () => {
       };
 
       export const fam_text_prefixIcon = {
-        "flex": true,
-        "items-center": true,
-        "-ml-1": true,
-        "mr-2": true,
-        "text-base": true,
-        "h-[1em]": true,
-        "w-[1em]": true,
-        "shrink-0": true,
-        "[&>svg]:w-full": true,
         "text-neutral-600": true,
         "dark:text-neutral-300": true
       };
 
       export const fam_text_suffixIcon = {
-        "flex": true,
-        "items-center": true,
-        "-mr-1": true,
-        "ml-2": true,
-        "text-base": true,
-        "h-[1em]": true,
-        "w-[1em]": true,
-        "shrink-0": true,
-        "[&>svg]:w-full": true,
         "text-neutral-600": true,
         "dark:text-neutral-300": true
-      };
-
-      export const fam_text_help = {
-        "text-neutral-500": true,
-        "text-xs": true,
-        "dark:text-neutral-400": true
       };
 
       export const fam_text_inner = {
@@ -748,44 +700,57 @@ describe('theme related config loading', () => {
       };
 
       export const fam_text_label = {
-        "block": true,
-        "text-neutral-700": true,
-        "text-sm": true,
-        "font-bold": true,
-        "dark:text-neutral-300": true,
-        "!inline-flex": true,
-        "mb-1": true
-      };
-
-      export const fam_text_legend = {
-        "block": true,
-        "text-neutral-700": true,
-        "text-sm": true,
-        "font-bold": true,
-        "dark:text-neutral-300": true
+        "!inline-flex": true
       };"
     `)
   })
 
-  it('can load an full theme input classes', async ({ expect }) => {
+  it('can load an full theme input classes (text)', async ({ expect }) => {
     const code = await load('virtual:formkit/classes:text', {
       configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
       "import { createRootClasses } from "virtual:formkit/optimized-root-classes";
       import { outer, label, prefixIcon, input, suffixIcon, help, message } from "virtual:formkit/global-classes";
-      import {     fam_text_outer, fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon, fam_text_help, fam_text_message, } from "virtual:formkit/family-classes:text";
+      import {     fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon, } from "virtual:formkit/family-classes:text";
 
       const globals = {
           outer, label, prefixIcon, input, suffixIcon, help, message
       };
 
       const familyClasses = {
-          fam_text_outer, fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon, fam_text_help, fam_text_message
+          fam_text_wrapper, fam_text_label, fam_text_inner, fam_text_prefixIcon, fam_text_input, fam_text_suffixIcon
       };
 
       const inputClasses = {};
       export const textClasses = createRootClasses(globals, familyClasses, inputClasses);"
+    `)
+  })
+
+  it('can load an full theme input classes (form)', async ({ expect }) => {
+    const code = await load('virtual:formkit/classes:form', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "import { createRootClasses } from "virtual:formkit/optimized-root-classes";
+      import { message, outer, input, prefixIcon, suffixIcon, help } from "virtual:formkit/global-classes";
+      import { fam_button_wrapper, fam_button_input } from "virtual:formkit/family-classes:button";
+      import {     input_form_form, input_form_messages, input_form_message, input_form_actions, } from "virtual:formkit/input-classes:form";
+      import {     input_submit_outer, input_submit_input, input_submit_prefixIcon, input_submit_suffixIcon, } from "virtual:formkit/input-classes:submit";
+
+      const globals = {
+          message, outer, input, prefixIcon, suffixIcon, help
+      };
+
+      const familyClasses = {
+          fam_button_wrapper, fam_button_input
+      };
+
+      const inputClasses = {
+          input_form_form, input_form_messages, input_form_message, input_form_actions, input_submit_outer, input_submit_input, input_submit_prefixIcon, input_submit_suffixIcon
+      };
+
+      export const formClasses = createRootClasses(globals, familyClasses, inputClasses);"
     `)
   })
 
@@ -827,6 +792,56 @@ describe('theme related config loading', () => {
       });
 
       export const nodeOptions = (o = {}) => extend(baseOptions, o, true);"
+    `)
+  })
+
+  it('can load classes for a specific input without any sub imports', async ({
+    expect,
+  }) => {
+    const code = await load('virtual:formkit/input-classes:submit', {
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(code).toMatchInlineSnapshot(`
+      "export const input_submit_outer = {
+        "data-[disabled]:opacity-100": true
+      };
+
+      export const input_submit_input = {
+        "bg-blue-600": true,
+        "!text-white": true,
+        "active:text-blue-100": true,
+        "active:bg-blue-700": true,
+        "hover:bg-blue-700": true,
+        "disabled:border-neutral-400": true,
+        "disabled:bg-neutral-400": true,
+        "disabled:text-neutral-100": true,
+        "dark:disabled:border-neutral-100": true,
+        "dark:disabled:bg-neutral-500": true,
+        "dark:disabled:text-neutral-200": true,
+        "dark:text-white": true,
+        "dark:ring-offset-blue-500": true,
+        "before:transition-all": true,
+        "group-data-[loading=true]/form:before:content['']": true,
+        "group-data-[loading=true]/form:before:block": true,
+        "group-data-[loading=true]/form:before:animate-spin": true,
+        "group-data-[loading=true]/form:before:w-5": true,
+        "group-data-[loading=true]/form:before:h-5": true,
+        "group-data-[loading=true]/form:before:rounded-full": true,
+        "group-data-[loading=true]/form:before:mr-3": true,
+        "group-data-[loading=true]/form:before:-ml-1.5": true,
+        "group-data-[loading=true]/form:before:border-2": true,
+        "group-data-[loading=true]/form:before:border-solid": true,
+        "group-data-[loading=true]/form:before:border-white": true,
+        "group-data-[loading=true]/form:before:border-r-transparent": true
+      };
+
+      export const input_submit_prefixIcon = {
+        "text-neutral-100": true
+      };
+
+      export const input_submit_suffixIcon = {
+        "text-neutral-100": true
+      };"
     `)
   })
 })

@@ -8,12 +8,19 @@ import {
   createFeats,
   extractUsedFeatures,
   loadFromAST,
+  loadInputDefinition,
 } from './formkit'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'pathe'
 import { parse as recastParser, print } from 'recast'
 import type { File, Node, ObjectProperty, Program } from '@babel/types'
-import type { Options, ResolvedOptions, Traverse, ASTTools } from '../types'
+import type {
+  Options,
+  ResolvedOptions,
+  Traverse,
+  ASTTools,
+  UsedFeatures,
+} from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
 import { extract, getKeyName } from './ast'
@@ -34,6 +41,11 @@ const classesCache = new WeakMap<ResolvedOptions['configMemo'], Set<string>>()
 const globalClassesCache = new WeakMap<
   ResolvedOptions['configMemo'],
   Record<string, Record<string, boolean>>
+>()
+
+const inputClassesCache = new WeakMap<
+  ResolvedOptions['configMemo'],
+  Map<string, Record<string, Record<string, boolean>>>
 >()
 
 const familyClassesCache = new WeakMap<
@@ -425,6 +437,12 @@ export async function getRootClasses(
   return rootClasses
 }
 
+/**
+ * Gets all the possible classes for all the possible inputs in this project. This requires that we know every
+ * possible input type that could be used in the project. This is a limitation of the current implementation.
+ * @param opts - Resolved options
+ * @returns
+ */
 export async function getAllClasses(opts: ResolvedOptions) {
   if (classesCache.get(opts.configMemo)) {
     return classesCache.get(opts.configMemo)!
@@ -496,7 +514,7 @@ export async function getFamilyClasses(opts: ResolvedOptions, family: string) {
       const classes: Record<string, boolean> = {}
       for (const className in result) {
         if (
-          !(className in globalClasses) &&
+          !(className in (globalClasses[sectionName] ?? {})) &&
           className !== `formkit-${sectionName}`
         ) {
           classes[className] = true
@@ -509,5 +527,67 @@ export async function getFamilyClasses(opts: ResolvedOptions, family: string) {
       }
     })
   }
+  cache.set(family, classesBySection)
+  return classesBySection
+}
+
+/**
+ * This function is used to get all the classes for a given input. However, importantly this function does not
+ * recursively resolve section names since it is used to chunk each input into its own module — as such it does not
+ * recurse when calling extractUsedFeatures to prevent loading sub-input classes in this input’s class module.
+ * @param opts - Resolved options.
+ * @param input - The string name of the input we are loading.
+ * @returns
+ */
+export async function getInputClasses(
+  opts: ResolvedOptions,
+  input: string,
+  recursiveInputFeats: UsedFeatures
+) {
+  if (!inputClassesCache.has(opts.configMemo)) {
+    inputClassesCache.set(opts.configMemo, new Map())
+  }
+  const cache = inputClassesCache.get(opts.configMemo)!
+  if (cache.has(input)) {
+    return cache.get(input)!
+  }
+  const rootClasses = await getRootClasses(opts)
+  const definition = await loadInputDefinition(opts, input)
+  const classesBySection: Record<string, Record<string, boolean>> = {}
+
+  if (rootClasses) {
+    const feats = createFeats()
+    const excludeInputs = new Set([...recursiveInputFeats.inputs])
+    excludeInputs.delete(input)
+    // We want the feats to already include any sub-inputs as this will prevent recursion.
+    feats.inputs = excludeInputs
+    await extractUsedFeatures(opts, input, feats)
+    const node = createNode({ props: { type: input } })
+
+    const globalClasses = await getGlobalClasses(opts)
+
+    let familyClasses: Record<string, Record<string, boolean>> = {}
+    if (definition && definition.family) {
+      familyClasses = await getFamilyClasses(opts, definition.family)
+    }
+
+    feats.classes.forEach((sectionName) => {
+      const result = rootClasses(sectionName, node)
+      const classes: Record<string, boolean> = {}
+      for (const className in result) {
+        if (
+          !(className in (globalClasses[sectionName] ?? {})) &&
+          !(className in (familyClasses[sectionName] ?? {})) &&
+          className !== `formkit-${sectionName}`
+        ) {
+          classes[className] = true
+        }
+      }
+      if (!empty(classes)) {
+        classesBySection[sectionName] = classes
+      }
+    })
+  }
+
   return classesBySection
 }
