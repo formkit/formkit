@@ -2,7 +2,7 @@
   "name": "@formkit/nuxt",
   "repository": "https://github.com/formkit/formkit",
   "description": "The official Nuxt module for FormKit.",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -29,9 +29,9 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.4",
-    "@formkit/i18n": "1.6.4",
-    "@formkit/vue": "1.6.4",
+    "@formkit/core": "1.6.5",
+    "@formkit/i18n": "1.6.5",
+    "@formkit/vue": "1.6.5",
     "@nuxt/kit": "^3.10.3",
     "chokidar": "^3.6.0",
     "pathe": "^1.1.2",
