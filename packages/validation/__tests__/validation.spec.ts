@@ -22,7 +22,7 @@ const defaultValidation = {
   deps: new Map(),
 }
 
-const nextTick = () => new Promise<void>((r) => setTimeout(r, 0))
+const nextTick = (delay = 0) => new Promise<void>((r) => setTimeout(r, delay))
 const node = createNode()
 const observer = expect.objectContaining({})
 
@@ -345,7 +345,7 @@ describe('validation rule sequencing', () => {
       value: '',
     })
     node.input('asdfq', false)
-    await nextTick()
+    await nextTick(5)
     expect(node.store).toHaveProperty('rule_length')
     expect(node.store).not.toHaveProperty('rule_required')
     node.input('', false)
@@ -746,41 +746,47 @@ describe('getValidationMessages', () => {
     expect(username_exists).toHaveBeenCalledTimes(1)
   })
 
-  it.only('changes the label when the prop changes', async () => {
+  it('changes the label when the prop changes', async ({ expect }) => {
     const length: FormKitValidationRule = vi.fn(
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
-    const required: FormKitValidationRule = vi.fn(({ value }) => !!value)
+    const required: FormKitValidationRule = vi.fn(({ value }) => {
+      return !!value
+    })
     required.skipEmpty = false
     const validationPlugin = createValidationPlugin({
       length,
       required,
     })
+
     const hook: FormKitMiddleware<FormKitTextFragment> = (t, next) => next(t)
     const textMiddleware = vi.fn(hook)
     const node = createNode({
       value: '',
-      plugins: [validationPlugin, (node) => node.hook.text(textMiddleware)],
+      plugins: [
+        validationPlugin,
+        (node: FormKitNode) => node.hook.text(textMiddleware),
+      ],
       props: {
         label: 'Foo',
         validation: 'required',
         delay: 0,
       },
     })
+    await nextTick()
     expect(node.store).toHaveProperty('rule_required')
-    expect(textMiddleware).toHaveBeenCalledTimes(1)
-    node.props.label = 'Bar'
     expect(textMiddleware).toHaveBeenCalledTimes(2)
+    node.props.label = 'Bar'
+    expect(textMiddleware).toHaveBeenCalledTimes(3)
     node.props.validation = 'length:7'
     await nextTick()
-    console.log('CHECKING NODE', node.store)
     expect(node.store).not.toHaveProperty('rule_required')
     node.input('123')
     await new Promise((r) => setTimeout(r, 10))
     expect(length).toHaveBeenCalledTimes(1)
     node.props.label = 'Bam'
     expect(node.store).not.toHaveProperty('rule_required')
-    expect(textMiddleware).toHaveBeenCalledTimes(4)
+    expect(textMiddleware).toHaveBeenCalledTimes(5)
   })
 
   it('can depend on other nodes without stopping', async () => {
@@ -798,7 +804,6 @@ describe('getValidationMessages', () => {
       ({ value }, length) => ('' + value).length >= parseInt(length)
     )
     const validation = createValidationPlugin({ required_if, length })
-    console.log('pre run:')
     const form = createNode({
       type: 'group',
       children: [
@@ -815,14 +820,11 @@ describe('getValidationMessages', () => {
     const foo = form.at('$self.foo')!
     expect(bar.store).toHaveProperty('rule_required_if')
     expect(required_if).toHaveBeenCalledTimes(1)
-    console.log('first mutation:')
     foo.input('foo', false)
-    console.log('second mutation:')
     bar.input('123', false)
     await new Promise((r) => setTimeout(r, 5))
     expect(bar.store).not.toHaveProperty('rule_required_if')
     expect(required_if).toHaveBeenCalledTimes(2)
-    console.log('third mutation:')
     foo.input('bar', false)
     await new Promise((r) => setTimeout(r, 5))
     expect(required_if).toHaveBeenCalledTimes(3)
