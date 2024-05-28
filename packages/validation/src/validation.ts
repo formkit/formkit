@@ -223,6 +223,7 @@ export function createValidationPlugin(baseRules: FormKitValidationRules = {}) {
       // Remove all existing messages before re-validating
       node.store.filter(() => false, 'validation')
       node.props.parsedRules = parseRules(newValidation, availableRules, node)
+      state.isPassing = true
       validate(node, node.props.parsedRules, state)
     }
 

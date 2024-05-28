@@ -631,6 +631,32 @@ describe('validation', () => {
     expect(node?.context?.state.validationVisible).toBe(true)
   })
 
+  it('removes data-invalid from the wrapper when validation rules are removed (#1384)', async () => {
+    const rules = ref('required')
+    const wrapper = mount(
+      {
+        setup() {
+          return { rules }
+        },
+        template:
+          '<FormKit type="text" validation-visibility="live" :validation="rules" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      'true'
+    )
+    rules.value = ''
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
+  })
+
   it('knows the state of validation visibility when set to submit', async () => {
     const id = token()
     const formId = token()
