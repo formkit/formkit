@@ -29,7 +29,7 @@ export const form: FormKitTypeDefinition = {
   /**
    * An array of messages to create and expose to  props to accept for this input.
    */
-  localize: ['submit'],
+  localize: ['submit', 'incomplete'],
   /**
    * An array of extra props to accept for this input.
    */
