@@ -13,6 +13,16 @@ function clicked() {
     <FormKit type="form">
       <FormKit type="text" validation="required" />
       <FormKit type="checkbox" name="terms" label="I agree to the terms" />
+      <FormKit
+        type="radio"
+        name="flavors"
+        :options="['Apple', 'Strawberry']"
+        label="Pick one flavor"
+      />
+      <FormKit
+        type="select"
+        :options="['Turtle', 'French', 'House', 'Absolute']"
+      />
       <FormKit type="file" />
     </FormKit>
 

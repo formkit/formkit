@@ -92,7 +92,7 @@ export const radio: FormKitTypeDefinition = {
    * The default icons to load in their respective icon section.
    */
   icons: {
-    decorator: 'circle',
+    radioDecorator: 'circle',
   },
   /**
    * An array of extra props to accept for this input.
