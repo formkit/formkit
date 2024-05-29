@@ -72,9 +72,9 @@ export type ComponentUse = Component & {
 
 export type UsedFeatures = {
   localizations: Set<string>
-  icons: Set<string>
-  rules: Set<string>
   inputs: Set<string>
+  rules: Set<string>
+  icons: Map<string, Set<string>>
   families: Set<string>
   classes: Set<string>
 }

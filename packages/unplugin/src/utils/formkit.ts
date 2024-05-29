@@ -361,9 +361,12 @@ export async function extractUsedFeatures(
       'icons' in inputDefinition &&
       typeof inputDefinition.icons === 'object'
     ) {
-      Object.values(inputDefinition.icons).forEach((icon) =>
-        feats.icons.add(icon)
-      )
+      for (const iconUseName in inputDefinition.icons) {
+        const icon = inputDefinition.icons[iconUseName]
+        const useNames = feats.icons.get(icon) ?? new Set()
+        useNames.add(iconUseName)
+        feats.icons.set(icon, useNames)
+      }
     }
     if ('schema' in inputDefinition) {
       let schema: FormKitSchemaDefinition | undefined = undefined
@@ -494,7 +497,7 @@ async function importIcons(
   nodeProps: ObjectExpression,
   plugins: ArrayExpression,
   props: ObjectExpression,
-  icons: Set<string>
+  icons: Map<string, Set<string>>
 ) {
   if (!component.opts.optimize.icons) {
     // In this case we are de-optimizing the icon configuration so we load the
@@ -517,7 +520,9 @@ async function importIcons(
     if (key?.endsWith('-icon') || key?.endsWith('Icon')) {
       const value = isStringLiteral(prop.value) ? prop.value.value : undefined
       if (value && !value.startsWith('<svg')) {
-        icons.add(value)
+        const uses = icons.get(value) ?? new Set()
+        uses.add(value)
+        icons.set(value, uses)
       }
     }
   })
@@ -533,21 +538,21 @@ async function importIcons(
     )
     // Now create the icon configuration:
     const iconConfig = t.expression.ast`{}` as ObjectExpression
-    icons.forEach((icon) => {
+    icons.forEach((uses, icon) => {
       if (icon && icon.startsWith('<svg')) {
         iconConfig.properties.push(
           createProperty(icon, { type: 'StringLiteral', value: icon })
         )
       } else {
-        iconConfig.properties.push(
-          createProperty(
-            icon,
-            t.expression.ast`${addImport(component.opts, component.root, {
-              from: 'virtual:formkit/icons:' + icon,
-              name: camel(icon),
-            })}`
+        const iconImportName = addImport(component.opts, component.root, {
+          from: 'virtual:formkit/icons:' + icon,
+          name: camel(icon),
+        })
+        uses.forEach((useName) => {
+          iconConfig.properties.push(
+            createProperty(useName, t.expression.ast`${iconImportName}`)
           )
-        )
+        })
       }
     })
     nodeProps.properties.push(createProperty('__icons__', iconConfig))
@@ -613,7 +618,9 @@ export async function extractUsedFeaturesInSchema(
         if (key.endsWith('-icon') || key.endsWith('Icon')) {
           const value = props[key]
           if (typeof value === 'string' && !value.startsWith('<svg')) {
-            feats.icons.add(value)
+            const uses = feats.icons.get(value) ?? new Set()
+            uses.add(value)
+            feats.icons.set(value, uses)
           }
         }
       }
@@ -698,7 +705,7 @@ async function extractValidationRules(
 export function createFeats(initial: Partial<UsedFeatures> = {}): UsedFeatures {
   return {
     localizations: new Set(),
-    icons: new Set(),
+    icons: new Map(),
     rules: new Set(),
     inputs: new Set(),
     families: new Set(),

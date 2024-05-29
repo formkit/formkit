@@ -548,31 +548,31 @@ importers:
         specifier: ^7.24.1
         version: 7.24.1
       '@formkit/core':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../core
       '@formkit/i18n':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../i18n
       '@formkit/icons':
-        specifier: workspace:^1.6.2
+        specifier: ^1.6.4
         version: link:../icons
       '@formkit/inputs':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../inputs
       '@formkit/rules':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../rules
       '@formkit/themes':
-        specifier: workspace:^1.6.0
+        specifier: ^1.6.4
         version: link:../themes
       '@formkit/utils':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../utils
       '@formkit/validation':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../validation
       '@formkit/vue':
-        specifier: ^1.6.2
+        specifier: ^1.6.4
         version: link:../vue
       '@types/babel__traverse':
         specifier: ^7.20.5
@@ -608,6 +608,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: ^4.6.2
         version: 4.6.2(vite@5.2.10)(vue@3.4.23)
+      autoprefixer:
+        specifier: ^10.4.19
+        version: 10.4.19(postcss@8.4.38)
       esbuild:
         specifier: ^0.20.2
         version: 0.20.2
@@ -626,6 +629,12 @@ importers:
       nodemon:
         specifier: ^3.1.0
         version: 3.1.0
+      postcss:
+        specifier: ^8.4.38
+        version: 8.4.38
+      tailwindcss:
+        specifier: ^3.4.3
+        version: 3.4.3(ts-node@10.9.2)
       unplugin-file-url:
         specifier: ^0.1.1
         version: 0.1.1(esbuild@0.20.2)(rollup@3.29.4)(vite@5.2.10)(webpack@5.91.0)
@@ -6855,7 +6864,7 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.23.0
-      caniuse-lite: 1.0.30001600
+      caniuse-lite: 1.0.30001612
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -7159,10 +7168,6 @@ packages:
       caniuse-lite: 1.0.30001612
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
-    dev: true
-
-  /caniuse-lite@1.0.30001600:
-    resolution: {integrity: sha512-+2S9/2JFhYmYaDpZvo0lKkfvuKIglrx68MwOBqMGHhQsNkLjB5xtc/TGoEPs+MxjSyN/72qer2g97nzR641mOQ==}
     dev: true
 
   /caniuse-lite@1.0.30001612:
@@ -9175,6 +9180,7 @@ packages:
   /glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
