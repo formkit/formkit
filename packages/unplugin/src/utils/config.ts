@@ -7,13 +7,20 @@ import {
   configureFormKitInstance,
   createFeats,
   extractUsedFeatures,
-  loadFromAST,
-  loadInputDefinition,
 } from './formkit'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'pathe'
 import { parse as recastParser, print } from 'recast'
-import type { File, Node, ObjectProperty, Program } from '@babel/types'
+import type {
+  File,
+  Node,
+  ObjectProperty,
+  Program,
+  ImportDeclaration,
+  ImportSpecifier,
+  ImportDefaultSpecifier,
+} from '@babel/types'
+import { createVirtualInputConfig } from '../hooks/load'
 import type {
   Options,
   ResolvedOptions,
@@ -23,9 +30,13 @@ import type {
 } from '../types'
 import { consola } from 'consola'
 import esbuild from 'esbuild'
-import { extract, getKeyName } from './ast'
+import { extract, getKeyName, loadFromAST } from './ast'
 import { URL } from 'url'
-import { createNode, type FormKitConfig } from '@formkit/core'
+import {
+  createNode,
+  type FormKitConfig,
+  type FormKitTypeDefinition,
+} from '@formkit/core'
 import tcjs from '@babel/template'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
@@ -552,7 +563,7 @@ export async function getInputClasses(
     return cache.get(input)!
   }
   const rootClasses = await getRootClasses(opts)
-  const definition = await loadInputDefinition(opts, input)
+  const definition = await getInputDefinition(opts, input)
   const classesBySection: Record<string, Record<string, boolean>> = {}
 
   if (rootClasses) {
@@ -590,4 +601,143 @@ export async function getInputClasses(
   }
 
   return classesBySection
+}
+
+/**
+ * Determines whether or not the package is installed on the user’s project.
+ * @param packageName - The name of the package.
+ */
+export async function isInstalled(
+  opts: ResolvedOptions,
+  packageName: string
+): Promise<boolean> {
+  const loader = await loadFromAST(
+    opts,
+    t.program.ast`
+  export async function canImport() {
+    try {
+      await import('${packageName}')
+      return true
+    } catch (err) {
+      return false
+    }
+  }
+`
+  )
+  if (
+    loader &&
+    'canImport' in loader &&
+    typeof loader.canImport === 'function'
+  ) {
+    return (await loader.canImport()) as boolean
+  }
+  return false
+}
+
+/**
+ * Determines whether or not the package is installed on the user’s project.
+ * @param packageName - The name of the package.
+ */
+export async function isProInput(
+  opts: ResolvedOptions,
+  inputName: string
+): Promise<boolean> {
+  const loader = await loadFromAST(
+    opts,
+    t.program.ast`
+  export async function canImport() {
+    try {
+      const { inputs } = await import('@formkit/pro')
+      if (typeof inputs === "object" && "${inputName}" in inputs) {
+        return true
+      }
+      return false
+    } catch (err) {
+      return false
+    }
+  }
+`
+  )
+  if (
+    loader &&
+    'canImport' in loader &&
+    typeof loader.canImport === 'function'
+  ) {
+    return (await loader.canImport()) as boolean
+  }
+  return false
+}
+
+/**
+ * Attempts to load an input definition for a given input "type" as defined in the formkit config.
+ * @param opts - Resolved options
+ * @param input - The "name" of the input to load as defined in the configuration.
+ * @param ast - Optionally, attempt to load the input definition from an AST.
+ * @returns
+ */
+export async function getInputDefinition(
+  opts: ResolvedOptions,
+  input: string,
+  ast?: File | Program
+): Promise<FormKitTypeDefinition | undefined> {
+  try {
+    // This silly iife is purely for TS to be happy due to incomplete control flow analysis: https://github.com/microsoft/TypeScript/issues/9998
+    const importPath = await (async (): Promise<
+      NodePath<ImportSpecifier | ImportDefaultSpecifier> | undefined
+    > => {
+      ast = ast ?? (await createVirtualInputConfig(opts, input, false))
+      let importPath:
+        | NodePath<ImportSpecifier | ImportDefaultSpecifier>
+        | undefined = undefined
+      opts.traverse(ast, {
+        ImportSpecifier(path) {
+          if (path.get('local').isIdentifier({ name: input })) {
+            importPath = path
+            path.stop()
+          }
+        },
+        ImportDefaultSpecifier(path) {
+          if (path.get('local').isIdentifier({ name: input })) {
+            importPath = path
+            path.stop()
+          }
+        },
+      })
+      return importPath
+    })()
+
+    if (importPath) {
+      const importNode = importPath.parentPath.node as ImportDeclaration
+      const importName = importPath.isImportDefaultSpecifier()
+        ? 'default'
+        : input
+      if (importNode.source.type === 'StringLiteral') {
+        const module = await import(importNode.source.value)
+        if (importName in module) {
+          return module[importName] as FormKitTypeDefinition
+        }
+      }
+    } else if (ast) {
+      // If we have an AST, we can try to write this to a file and resolve it.
+      const { library: libraryPlugin } = await loadFromAST(opts, ast)
+      if (libraryPlugin && typeof libraryPlugin.library === 'function') {
+        let definition: FormKitTypeDefinition | undefined = undefined
+        // we use a mock node to extract the definition for the defined input.
+        const mockNode = {
+          props: { type: input },
+          define: (def: FormKitTypeDefinition) => {
+            definition = def
+          },
+        }
+        libraryPlugin.library(mockNode)
+        return definition
+      }
+    }
+  } catch (e) {
+    consola.info(
+      `[FormKit de-opt]: Optimizer encountered an error when loading input definition for "${input}".`,
+      e
+    )
+  }
+  return undefined
 }

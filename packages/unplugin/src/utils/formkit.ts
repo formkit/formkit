@@ -4,14 +4,9 @@ import type {
   ObjectProperty,
   StringLiteral,
   ArrayExpression,
-  ImportDeclaration,
   Identifier,
-  ImportSpecifier,
-  ImportDefaultSpecifier,
-  Program,
-  File,
 } from '@babel/types'
-import type { NodePath } from '@babel/traverse'
+
 import {
   isArrayExpression,
   isIdentifier,
@@ -23,17 +18,9 @@ import {
 import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
-import { isFullDeopt } from './config'
-import { createVirtualInputConfig } from '../hooks/load'
+import { isFullDeopt, getInputDefinition } from './config'
 import { camel } from '@formkit/utils'
-import type {
-  FormKitSchemaDefinition,
-  FormKitTypeDefinition,
-} from '@formkit/core'
-import { dirname, resolve } from 'pathe'
-import { randomUUID } from 'crypto'
-import createJITI from 'jiti'
-import { unlinkSync, writeFileSync } from 'fs'
+import type { FormKitSchemaDefinition } from '@formkit/core'
 
 /**
  * Modify the arguments of the usage of a formkit component. For example the
@@ -346,7 +333,7 @@ export async function extractUsedFeatures(
   feats: UsedFeatures
 ): Promise<void> {
   feats.inputs.add(input)
-  const inputDefinition = await loadInputDefinition(opts, input)
+  const inputDefinition = await getInputDefinition(opts, input)
   if (inputDefinition && typeof inputDefinition === 'object') {
     if (typeof inputDefinition.family === 'string') {
       feats.families.add(inputDefinition.family)
@@ -380,108 +367,6 @@ export async function extractUsedFeatures(
       await extractUsedFeaturesInSchema(schema, feats, opts)
     }
   }
-}
-
-/**
- * Attempts to load an input definition for a given input "type" as defined in the formkit config.
- * @param opts - Resolved options
- * @param input - The "name" of the input to load as defined in the configuration.
- * @param ast - Optionally, attempt to load the input definition from an AST.
- * @returns
- */
-export async function loadInputDefinition(
-  opts: ResolvedOptions,
-  input: string,
-  ast?: File | Program
-): Promise<FormKitTypeDefinition | undefined> {
-  try {
-    // This silly iife is purely for TS to be happy due to incomplete control flow analysis: https://github.com/microsoft/TypeScript/issues/9998
-    const importPath = await (async (): Promise<
-      NodePath<ImportSpecifier | ImportDefaultSpecifier> | undefined
-    > => {
-      ast = ast ?? (await createVirtualInputConfig(opts, input, false))
-      let importPath:
-        | NodePath<ImportSpecifier | ImportDefaultSpecifier>
-        | undefined = undefined
-      opts.traverse(ast, {
-        ImportSpecifier(path) {
-          if (path.get('local').isIdentifier({ name: input })) {
-            importPath = path
-            path.stop()
-          }
-        },
-        ImportDefaultSpecifier(path) {
-          if (path.get('local').isIdentifier({ name: input })) {
-            importPath = path
-            path.stop()
-          }
-        },
-      })
-      return importPath
-    })()
-
-    if (importPath) {
-      const importNode = importPath.parentPath.node as ImportDeclaration
-      const importName = importPath.isImportDefaultSpecifier()
-        ? 'default'
-        : input
-      if (importNode.source.type === 'StringLiteral') {
-        const module = await import(importNode.source.value)
-        if (importName in module) {
-          return module[importName] as FormKitTypeDefinition
-        }
-      }
-    } else if (ast) {
-      // If we have an AST, we can try to write this to a file and resolve it.
-      const { library: libraryPlugin } = await loadFromAST(opts, ast)
-      if (libraryPlugin && typeof libraryPlugin.library === 'function') {
-        let definition: FormKitTypeDefinition | undefined = undefined
-        // we use a mock node to extract the definition for the defined input.
-        const mockNode = {
-          props: { type: input },
-          define: (def: FormKitTypeDefinition) => {
-            definition = def
-          },
-        }
-        libraryPlugin.library(mockNode)
-        return definition
-      }
-    } else {
-      consola.warn(
-        `[FormKit de-opt]: Optimizer could not find an import for "${input}". This reduces the optimization of themes, icons, and i18n. To avoid this deoptimization, ensure the input definition is imported (from another module) into formkit.config.ts.`
-      )
-    }
-  } catch (e) {
-    consola.info(
-      `[FormKit de-opt]: Optimizer encountered an error when loading input definition for "${input}".`,
-      e
-    )
-  }
-  return undefined
-}
-
-/**
- * Generates a temporary file, imports it, then deletes it.
- * @param opts - The resolved options.
- * @param ast - AST to load.
- * @returns
- */
-export async function loadFromAST(
-  opts: ResolvedOptions,
-  ast: File | Program,
-  rootDir?: string
-): Promise<Record<string, any>> {
-  const dir = dirname(rootDir ?? opts.configPath ?? process.cwd())
-  const path = resolve(dir, `./.${randomUUID()}.mjs`)
-  const source = opts.generate(ast)
-  writeFileSync(path, source.code, 'utf-8')
-  let value: any = undefined
-  try {
-    value = await createJITI('')(path)
-  } finally {
-    unlinkSync(path)
-  }
-  return value
 }
 
 /**

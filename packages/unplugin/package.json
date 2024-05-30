@@ -90,6 +90,7 @@
     "@formkit/i18n": "^1.6.4",
     "@formkit/icons": "^1.6.4",
     "@formkit/inputs": "^1.6.4",
+    "@formkit/pro": "^0.126.4",
     "@formkit/rules": "^1.6.4",
     "@formkit/themes": "^1.6.4",
     "@formkit/utils": "^1.6.4",

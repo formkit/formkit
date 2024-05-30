@@ -7,13 +7,15 @@ import {
   getFamilyClasses,
   getGlobalClasses,
   getInputClasses,
+  getInputDefinition,
+  isInstalled,
+  isProInput,
 } from '../utils/config'
 import { trackReload } from '../utils/config'
 import {
   createFeats,
   extractInputTypesFromSchema,
   extractUsedFeatures,
-  loadInputDefinition,
 } from '../utils/formkit'
 import { consola } from 'consola'
 import { isIdentifier } from '@babel/types'
@@ -43,6 +45,26 @@ import tcjs from '@babel/template'
 import type LocaleImport from '@formkit/i18n/locales/en'
 import { camel } from '@formkit/utils'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
+
+/**
+ * FormKit Pro inputs (hard coded list to prevent the @formkit/pro package being a dependency).
+ */
+const proInputs = [
+  'dropdown',
+  'toggle',
+  'repeater',
+  'rating',
+  'autocomplete',
+  'datepicker',
+  'taglist',
+  'mask',
+  'transferlist',
+  'slider',
+  'colorpicker',
+  'togglebuttons',
+  'currency',
+  'unit',
+]
 
 /**
  * The load hook for unplugin.
@@ -263,7 +285,7 @@ export async function createVirtualInputConfig(
     try {
       const [statements] = await createInputIdentifier(opts, inputName)
       const file: File = { type: 'File', program: t.program.ast`${statements}` }
-      const input = await loadInputDefinition(opts, inputName, file)
+      const input = await getInputDefinition(opts, inputName, file)
       if (input && input.schema) {
         const schema =
           typeof input.schema === 'function' ? input.schema({}) : input.schema
@@ -274,14 +296,28 @@ export async function createVirtualInputConfig(
 
   const defStatements: Statement[] = []
   const defineStatements: Statement[] = []
+  let hasInsertedPro = false
   for await (const input of inputs) {
     const [statements, identifier] = await createInputIdentifier(opts, input)
     defStatements.push(...statements)
-    defineStatements.push(
-      t.statement.ast`if (node.props.type === '${input}') {
+    if (identifier) {
+      defineStatements.push(
+        t.statement.ast`if (node.props.type === '${input}') {
         return node.define(${identifier});
       }`
-    )
+      )
+    } else if (!hasInsertedPro) {
+      hasInsertedPro = true
+      // We are loading a FormKit Pro input. We’ll use the plugin’s library to load it.
+      defStatements.push(
+        t.statement.ast`import { proPlugin } from 'virtual:formkit/pro'`
+      )
+      defineStatements.push(
+        t.statement.ast`if (node.props.type === '${input}') {
+          return proPlugin.library(node)
+        }`
+      )
+    }
   }
 
   return {
@@ -304,7 +340,7 @@ export async function createVirtualInputConfig(
 async function createInputIdentifier(
   opts: ResolvedOptions,
   inputName: string
-): Promise<[Statement[], Identifier]> {
+): Promise<[Statement[], Identifier | null]> {
   if (opts.configAst) {
     const inputs = getConfigProperty(opts, 'inputs')
     if (inputs && inputs.node.value.type !== 'ObjectExpression') {
@@ -338,22 +374,43 @@ async function createInputIdentifier(
     }
   }
 
+  if (!opts.builtins.inputs) {
+    throw new Error(
+      `Unable to locate the "${inputName}" input in the configuration (FormKit built-in inputs are disabled).`
+    )
+  }
+
   // The configuration does not define the given input, so we can attempt to
   // directly import it from the @formkit/inputs package.
   const { inputs } = await import('@formkit/inputs')
-  if (!(inputName in inputs)) {
-    console.error(`Unknown input: "${inputName}"`)
-    throw new Error(
-      `Input ${inputName} is not a registered input or an available input in @formkit/inputs.`
-    )
+
+  if (inputName in inputs) {
+    return [
+      t.statements.ast`import { ${inputName} } from '@formkit/inputs'`,
+      {
+        type: 'Identifier',
+        name: inputName,
+      } as Identifier,
+    ]
   }
-  return [
-    t.statements.ast`import { ${inputName} } from '@formkit/inputs'`,
-    {
-      type: 'Identifier',
-      name: inputName,
-    } as Identifier,
-  ]
+  const hasPro = await isInstalled(opts, '@formkit/pro')
+
+  if (!hasPro && proInputs.includes(inputName)) {
+    throw new Error(
+      `The "${inputName}" input requires @formkit/pro. Run: npx ni @formkit/pro`
+    )
+  } else if (hasPro) {
+    // Lets try to load the input from @formkit/pro
+    const isPro = await isProInput(opts, inputName)
+    if (isPro) {
+      const importName = 'virtual:formkit/pro-input:${inputName}'
+      return [t.statements.ast`import '${importName}'`, null]
+    }
+  }
+
+  throw new Error(
+    `Input "${inputName}" is not a registered input or available as a built-in input.`
+  )
 }
 
 /**

@@ -11,6 +11,7 @@ function clicked() {
   <details open>
     <summary>Using script setup with a ref for validation</summary>
     <FormKit type="form">
+      <FormKit type="datepicker" />
       <FormKit type="text" validation="required" />
       <FormKit type="checkbox" name="terms" label="I agree to the terms" />
       <FormKit

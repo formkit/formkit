@@ -16,8 +16,17 @@ import type {
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
 import type { Binding, NodePath } from '@babel/traverse'
-import type { Import, LocalizedImport, ASTTools } from '../types'
+import type {
+  Import,
+  LocalizedImport,
+  ASTTools,
+  ResolvedOptions,
+} from '../types'
 import tcjs from '@babel/template'
+import { dirname, resolve } from 'pathe'
+import { randomUUID } from 'crypto'
+import createJITI from 'jiti'
+import { unlinkSync, writeFileSync } from 'fs'
 
 const t = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
@@ -365,4 +374,28 @@ export function getKeyName(
     return key.node.value
   }
   return undefined
+}
+
+/**
+ * Generates a temporary file, imports it, then deletes it.
+ * @param opts - The resolved options.
+ * @param ast - AST to load.
+ * @returns
+ */
+export async function loadFromAST(
+  opts: ResolvedOptions,
+  ast: File | Program,
+  rootDir?: string
+): Promise<Record<string, any>> {
+  const dir = dirname(rootDir ?? opts.configPath ?? process.cwd())
+  const path = resolve(dir, `./.${randomUUID()}.mjs`)
+  const source = opts.generate(ast)
+  writeFileSync(path, source.code, 'utf-8')
+  let value: any = undefined
+  try {
+    value = await createJITI('')(path)
+  } finally {
+    unlinkSync(path)
+  }
+  return value
 }
