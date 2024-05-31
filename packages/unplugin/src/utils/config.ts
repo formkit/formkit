@@ -195,10 +195,10 @@ export function getConfigProperty(
           path.traverse({
             ObjectProperty(propertyPath) {
               path.skip()
+              const propertyName = getKeyName(propertyPath.get('key'))
               if (
                 propertyPath.parentPath.parentPath === path &&
-                propertyPath.node.key.type === 'Identifier' &&
-                propertyPath.node.key.name === name
+                propertyName === name
               ) {
                 prop = propertyPath
                 path.stop()
@@ -712,9 +712,14 @@ export async function getInputDefinition(
         ? 'default'
         : input
       if (importNode.source.type === 'StringLiteral') {
-        const module = await import(importNode.source.value)
-        if (importName in module) {
-          return module[importName] as FormKitTypeDefinition
+        const importFrom = importNode.source.value
+        if (importFrom.startsWith('virtual:formkit/pro-input:')) {
+          return await getProInputDefinition(opts, input)
+        } else {
+          const module = await import(importFrom)
+          if (importName in module) {
+            return module[importName] as FormKitTypeDefinition
+          }
         }
       }
     } else if (ast) {
@@ -740,4 +745,54 @@ export async function getInputDefinition(
     )
   }
   return undefined
+}
+
+/**
+ * Get the input definition for a FormKit Pro input.
+ * @param opts - Resolved options
+ * @param input - The input to get the definition for.
+ */
+async function getProInputDefinition(
+  opts: ResolvedOptions,
+  input: string
+): Promise<FormKitTypeDefinition | undefined> {
+  let definition: FormKitTypeDefinition | undefined = undefined
+  const proKey = await getProKey(opts)
+  const loader = await loadFromAST(
+    opts,
+    t.program.ast`
+  import { createProPlugin } from '@formkit/pro'
+  import { ${input} } from '@formkit/pro'
+  export const plugin = createProPlugin('${proKey}', { ${input} })
+  `
+  )
+  if (loader && loader.plugin && typeof loader.plugin.library === 'function') {
+    const mockNode = {
+      props: { type: input },
+      define: (def: FormKitTypeDefinition) => {
+        definition = def
+      },
+    }
+    loader.plugin.library(mockNode)
+  }
+  return definition
+}
+
+/**
+ * Get the resolved options.
+ * @param opts - Resolved options
+ */
+export async function getProKey(opts: ResolvedOptions) {
+  const value = getConfigProperty(opts, 'pro')?.get('value')
+  if (value?.isStringLiteral()) {
+    return value.node.value
+  }
+  if (value) {
+    throw new Error(
+      '[FormKit]: Cannot read pro key from your FormKit configuration, please use a string literal (pro: "fk-000000").'
+    )
+  }
+  throw new Error(
+    '[FormKit]: Cannot read pro key from your FormKit configuration, please add a pro key (pro: "fk-000000").'
+  )
 }

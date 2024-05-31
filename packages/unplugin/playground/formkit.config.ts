@@ -14,6 +14,7 @@ function sillyPlugin(node: FormKitNode) {
 }
 
 export default defineFormKitConfig({
+  pro: 'fk-86977026238',
   optimize: true,
   inputs: {
     custom: {

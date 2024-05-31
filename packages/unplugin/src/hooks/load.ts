@@ -8,6 +8,7 @@ import {
   getGlobalClasses,
   getInputClasses,
   getInputDefinition,
+  getProKey,
   isInstalled,
   isProInput,
 } from '../utils/config'
@@ -149,6 +150,12 @@ async function createModuleAST(
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
+
+    case 'pro':
+      return await createProPluginConfig(opts)
+
+    case 'pro-input':
+      return await createProInputConfig(identifier)
 
     default:
       throw new Error(`Unknown FormKit virtual module: formkit/${plugin}`)
@@ -403,8 +410,13 @@ async function createInputIdentifier(
     // Lets try to load the input from @formkit/pro
     const isPro = await isProInput(opts, inputName)
     if (isPro) {
-      const importName = 'virtual:formkit/pro-input:${inputName}'
-      return [t.statements.ast`import '${importName}'`, null]
+      const importName = `virtual:formkit/pro-input:${inputName}`
+      // Note! Here we import the input name, even though we dont actually use it.
+      // this is to help the getInputDefinition function to resolve the input properly.
+      return [
+        t.statements.ast`import { ${inputName} } from '${importName}'`,
+        null,
+      ]
     }
   }
 
@@ -1129,5 +1141,22 @@ async function createRootClassesConfig(): Promise<Program> {
       return global
     }
   }
+  `
+}
+
+async function createProPluginConfig(
+  opts: ResolvedOptions
+): Promise<File | Program> {
+  const proKey = await getProKey(opts)
+  return t.program.ast`import { createProPlugin } from '@formkit/pro'
+  export const inputs = {}
+  export const proPlugin = createProPlugin('${proKey}', inputs)`
+}
+
+async function createProInputConfig(input: string) {
+  return t.program.ast`import { inputs } from 'virtual:formkit/pro'
+  import { ${input} } from '@formkit/pro'
+  inputs['${input}'] = ${input}
+  export { ${input} }
   `
 }

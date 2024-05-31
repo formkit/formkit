@@ -46,6 +46,10 @@ export interface PluginConfigs {
    */
   locale: string
   /**
+   * Your FormKit Pro license key — visit {@link https://pro.formkit.com | pro.formkit.com} to get one.
+   */
+  pro: string
+  /**
    * A theme to use for the form.
    * @deprecated - This is deprecated in favor of using {@link https://themes.formkit.com | FormKit Themes}.
    */
