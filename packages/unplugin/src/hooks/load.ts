@@ -148,6 +148,9 @@ async function createModuleAST(
     case 'optimized-root-classes':
       return await createRootClassesConfig()
 
+    case 'merge-rootClasses':
+      return await createRootClassMerge(opts)
+
     case 'defaultConfig':
       return await createDefaultConfig(opts)
 
@@ -1158,5 +1161,18 @@ async function createProInputConfig(input: string) {
   import { ${input} } from '@formkit/pro'
   inputs['${input}'] = ${input}
   export { ${input} }
+  `
+}
+
+async function createRootClassMerge(opts: ResolvedOptions) {
+  return t.program.ast`export function mergeRootClasses(rootClassesFns) {
+    return (section, node) => {
+      const classes = {}
+      for (const fn of rootClassesFns) {
+        Object.assign(classes, fn(section, node) ?? {})
+      }
+      return classes
+    }
+  }
   `
 }

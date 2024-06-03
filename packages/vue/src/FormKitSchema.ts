@@ -21,6 +21,7 @@ import {
   onUnmounted,
   markRaw,
   onMounted,
+  provide,
 } from 'vue'
 import { has, isPojo } from '@formkit/utils'
 import type {
@@ -45,6 +46,7 @@ import {
 } from '@formkit/core'
 import { onSSRComplete } from './composables/onSSRComplete'
 import FormKit from './FormKit'
+import { parentConfig } from './plugin'
 
 /**
  * A simple flag to tell if we are running on the server or not.
@@ -887,9 +889,21 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
       type: String,
       required: false,
     },
+    __config__: {
+      type: Object,
+      required: false,
+    },
   },
   emits: ['mounted'],
   setup(props, context) {
+    /**
+     * Inject the localized config to children. Because props.__config__ and
+     * optionsSymbol take precedent, these configuration options will only apply
+     * if the child component is not detected by optimization.
+     */
+    if (props.__config__) {
+      provide(parentConfig, props.__config__)
+    }
     const instance = getCurrentInstance()
     let instanceKey = {}
     instanceScopes.set(instanceKey, [])

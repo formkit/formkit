@@ -559,9 +559,6 @@ importers:
       '@formkit/inputs':
         specifier: ^1.6.4
         version: link:../inputs
-      '@formkit/pro':
-        specifier: ^0.126.4
-        version: 0.126.4(@formkit/core@packages+core)(@formkit/inputs@packages+inputs)
       '@formkit/rules':
         specifier: ^1.6.4
         version: link:../rules
@@ -599,6 +596,9 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
     devDependencies:
+      '@formkit/pro':
+        specifier: 0.125.0-3d39759
+        version: 0.125.0-3d39759(@formkit/core@packages+core)(@formkit/inputs@packages+inputs)
       '@types/babel__generator':
         specifier: ^7.6.8
         version: 7.6.8
@@ -2818,25 +2818,25 @@ packages:
       '@formkit/utils': 1.6.5
     dev: false
 
-  /@formkit/drag-and-drop@0.0.38:
-    resolution: {integrity: sha512-3uJFcqz1xL7x/5pClDnyqEDfyFRDFH+75MFpJYXnVF17oekxLrwbUaOBN7ttKGn1jW2MdojRw4WMnSN1iLryvw==}
-    dev: false
+  /@formkit/drag-and-drop@0.0.30:
+    resolution: {integrity: sha512-2DjdagW6ibG/SfTwOxH1y/NBK50nSV2tfZ0iXMbdI/NCAsXr4UrKI/ytjm38qunpzb1w68r4b5iODV7YE/lbgA==}
+    dev: true
 
-  /@formkit/pro@0.126.4(@formkit/core@packages+core)(@formkit/inputs@packages+inputs):
-    resolution: {integrity: sha512-kO7GDyyys1wsEs1oK0je1rlcqG0GbnZk0TqWi1qcDiZBMLoY/LuSqa53ZMd/gTBBAkAlA+wErtemo2FYD4uz7A==}
+  /@formkit/pro@0.125.0-3d39759(@formkit/core@packages+core)(@formkit/inputs@packages+inputs):
+    resolution: {integrity: sha512-8C7C5Mf0i32/vm930ORBDSnZ9y3gNtDUWdrnEWkKUp7+mHPU/gUXiolYJZibu1+AiiSnh8W31i5qcjXE6tM7sg==}
     peerDependencies:
-      '@formkit/core': ^1.6.3
-      '@formkit/inputs': ^1.6.3
+      '@formkit/core': ^1.5.9
+      '@formkit/inputs': ^1.5.9
     dependencies:
       '@formkit/core': link:packages/core
-      '@formkit/drag-and-drop': 0.0.38
+      '@formkit/drag-and-drop': 0.0.30
       '@formkit/inputs': link:packages/inputs
       '@formkit/tempo': 0.0.8
-    dev: false
+    dev: true
 
   /@formkit/tempo@0.0.8:
     resolution: {integrity: sha512-q9Ch3Epjb5yFVNV2vAruHyPwcvZujiPcBQ7r6if+HmOciMhwkQccL9NOm9LNmN23hNk2y3+El/ygUH2/x539sg==}
-    dev: false
+    dev: true
 
   /@formkit/theme-creator@0.9.1(ts-node@10.9.2):
     resolution: {integrity: sha512-0fdOj5XCr/19paUEWxxwYGkMpz7Ob6HZWyOopo2DVfzFRdsbnlr0030ah9KegcnOBdT1zDA7FrqoT9CaJ49NnA==}

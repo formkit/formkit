@@ -175,7 +175,7 @@ async function importInputType(
 /**
  * Import the validation plugin and any rules into the component.
  */
-async function importValidation(
+export async function importValidation(
   component: ComponentUse,
   props: ObjectExpression,
   nodeProps: ObjectExpression,
@@ -261,7 +261,7 @@ async function importValidation(
  * Import the locale messages required to render the component and its
  * validation rules.
  */
-function importLocales(
+export function importLocales(
   component: ComponentUse,
   nodeProps: ObjectExpression,
   plugins: ArrayExpression,
@@ -305,7 +305,7 @@ function importLocales(
 /**
  * Import the rootClasses for the given input type.
  */
-async function importClasses(
+export function importClasses(
   component: ComponentUse,
   config: ObjectExpression,
   inputType?: string
@@ -377,7 +377,7 @@ export async function extractUsedFeatures(
  * @param icons - Default we need to apply to given classes.
  * @returns
  */
-async function importIcons(
+export async function importIcons(
   component: ComponentUse,
   nodeProps: ObjectExpression,
   plugins: ArrayExpression,

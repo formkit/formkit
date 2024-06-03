@@ -8,6 +8,7 @@ import {
   createFeats,
   extractUsedFeatures,
 } from './formkit'
+import { configureFormKitSchemaInstance } from './formkitSchema'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'pathe'
 import { parse as recastParser, print } from 'recast'
@@ -90,6 +91,11 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
             name: 'FormKit',
             from: '@formkit/vue',
             codeMod: configureFormKitInstance,
+          },
+          {
+            name: 'FormKitSchema',
+            from: '@formkit/vue',
+            codeMod: configureFormKitSchemaInstance,
           },
         ],
       },
