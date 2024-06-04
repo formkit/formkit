@@ -13,6 +13,7 @@ import type {
   ObjectExpression,
   Method,
   PrivateName,
+  Identifier,
 } from '@babel/types'
 import { cloneDeepWithoutLoc } from '@babel/types'
 import type { Binding, NodePath } from '@babel/traverse'
@@ -201,6 +202,38 @@ export function importOnly(ids: string[] | undefined, node: ImportDeclaration) {
 }
 
 /**
+ * Some data in SFC files are accessed via $script or $data properties but when extracted they are
+ * extracted as their own variables. This function will scope the extracted variables to a pojo. For example
+ * if we are extracting "const schema" from a setup method, the final extracted output should look like:
+ * ```js
+ * const schema = [...]
+ * const $setup = { schema }
+ * const __extracted__ = $setup.schema
+ * ```
+ * @param scopedBindings - Scoped bindings
+ * @param binding - The binding to scope on output
+ */
+function addScoping(
+  scopedBindings: Map<string, Set<NodePath<Identifier>>>,
+  binding: Binding | undefined,
+  scope: string
+) {
+  if (!binding) return
+  if (!scopedBindings.has(scope)) {
+    scopedBindings.set(scope, new Set())
+  }
+
+  if (binding.path.isVariableDeclarator()) {
+    const identifier = binding.path.get('id')
+    if (identifier.isIdentifier()) {
+      scopedBindings.get(scope)?.add(identifier)
+    }
+  } else if (binding.path.isIdentifier()) {
+    scopedBindings.get(scope)?.add(binding.path)
+  }
+}
+
+/**
  * Adds a declaration to the dependencies set.
  * @param dependencies - Dependencies we have already found
  * @param usedImports - A map of imports that are actually used
@@ -210,6 +243,7 @@ export function importOnly(ids: string[] | undefined, node: ImportDeclaration) {
 function addDeclaration(
   dependencies: Set<NodePath<Node>>,
   usedImports: Map<NodePath<ImportDeclaration>, string[]>,
+  scopedBindings: Map<string, Set<NodePath<Identifier>>>,
   binding: Binding | undefined,
   id: string
 ) {
@@ -227,7 +261,12 @@ function addDeclaration(
   if (declaration) {
     if (!dependencies.has(declaration) && !dependencies.has(parent)) {
       dependencies.add(declaration)
-      extractDependencyPaths(declaration, dependencies, usedImports)
+      extractDependencyPaths(
+        declaration,
+        dependencies,
+        usedImports,
+        scopedBindings
+      )
     }
     if (declaration.isImportDeclaration()) {
       usedImports.set(
@@ -248,8 +287,13 @@ function addDeclaration(
 function extractDependencyPaths(
   toExtract: NodePath<Node>,
   dependencies: Set<NodePath<Node>> = new Set(),
-  usedImports: Map<NodePath<ImportDeclaration>, string[]> = new Map()
-): [Set<NodePath<Node>>, Map<NodePath<ImportDeclaration>, string[]>] {
+  usedImports: Map<NodePath<ImportDeclaration>, string[]> = new Map(),
+  scopedBindings: Map<string, Set<NodePath<Identifier>>> = new Map()
+): [
+  dependencies: Set<NodePath<Node>>,
+  usedImports: Map<NodePath<ImportDeclaration>, string[]>,
+  scopedBindings: Map<string, Set<NodePath<Identifier>>>
+] {
   if (
     toExtract.isIdentifier() &&
     toExtract.scope.hasBinding(toExtract.node.name)
@@ -257,22 +301,51 @@ function extractDependencyPaths(
     addDeclaration(
       dependencies,
       usedImports,
+      scopedBindings,
       toExtract.scope.getBinding(toExtract.node.name),
       toExtract.node.name
     )
+  } else if (
+    toExtract.isMemberExpression() &&
+    toExtract.get('object').isIdentifier({ name: '$setup' }) &&
+    toExtract.get('property').isIdentifier() &&
+    getSFCSetup(toExtract)
+  ) {
+    const target = toExtract.get('property') as NodePath<Identifier>
+    // We have almost for sure found an SFC file so
+    const setupMethod = getSFCSetup(toExtract) as NodePath<ObjectMethod>
+    const returnedObject = getSetupData(setupMethod)
+    if (returnedObject) {
+      returnedObject.traverse({
+        ObjectProperty(path) {
+          if (path.get('key').isIdentifier({ name: target.node.name })) {
+            const binding = path.scope.getBinding(target.node.name)
+            addScoping(scopedBindings, binding, '$setup')
+            addDeclaration(
+              dependencies,
+              usedImports,
+              scopedBindings,
+              binding,
+              target.node.name
+            )
+          }
+        },
+      })
+    }
   } else {
     toExtract.traverse({
       ReferencedIdentifier(path) {
         addDeclaration(
           dependencies,
           usedImports,
+          scopedBindings,
           path.scope.getBinding(path.node.name),
           path.node.name
         )
       },
     })
   }
-  return [dependencies, usedImports]
+  return [dependencies, usedImports, scopedBindings]
 }
 
 /**
@@ -282,7 +355,8 @@ function extractDependencyPaths(
  * @returns
  */
 function extractDependencies(toExtract: NodePath<Node>): Node[] {
-  const [dependencies, usedImports] = extractDependencyPaths(toExtract)
+  const [dependencies, usedImports, scopedBindings] =
+    extractDependencyPaths(toExtract)
   const extracted: [pos: number | undefined, Node][] = []
   dependencies.forEach((path) => {
     if (!path.isDeclaration()) return
@@ -293,7 +367,15 @@ function extractDependencies(toExtract: NodePath<Node>): Node[] {
     extracted.push([path.node.loc?.start.index, node])
   })
   extracted.sort(([a], [b]) => (a ?? 0) - (b ?? 0))
-  return extracted.map(([, node]) => node)
+  const nodes = extracted.map(([, node]) => node)
+  scopedBindings.forEach((paths, scopeName) => {
+    const scope = t.expression.ast`{}` as ObjectExpression
+    nodes.push(t.statement.ast`const ${scopeName} = ${scope}`)
+    paths.forEach((path) => {
+      scope.properties.push(createProperty(path.node.name, path.node))
+    })
+  })
+  return nodes
 }
 
 /**
@@ -398,4 +480,80 @@ export async function loadFromAST(
     unlinkSync(path)
   }
   return value
+}
+
+/**
+ * Given any ast path, determine if this is a Vue SFC file.
+ * @param path - A path to check
+ */
+const isSFCCache = new WeakMap<NodePath<any>, false | NodePath<ObjectMethod>>()
+export function getSFCSetup(path: NodePath<any>) {
+  if (isSFCCache.has(path)) {
+    return isSFCCache.get(path)
+  }
+  const root = rootPath(path) as NodePath<File | Program>
+  const program = root.isProgram()
+    ? root
+    : (root.get('program') as NodePath<Program>)
+  program.traverse({
+    enter(path) {
+      if (path.isVariableDeclaration()) {
+        const declarator = path.get('declarations.0')
+        if (
+          !Array.isArray(declarator) &&
+          declarator.isVariableDeclarator() &&
+          (declarator.get('id').isIdentifier({ name: '_sfc_main' }) ||
+            declarator.get('id').isIdentifier({ name: '__sfc__' })) &&
+          declarator.get('init').isObjectExpression()
+        ) {
+          declarator.get('init').traverse({
+            ObjectMethod(path) {
+              if (path.get('key').isIdentifier({ name: 'setup' })) {
+                isSFCCache.set(program, path)
+                path.stop()
+              }
+            },
+          })
+          path.stop()
+        }
+      } else {
+        path.skip()
+      }
+    },
+  })
+
+  return isSFCCache.get(program)
+}
+
+/**
+ * Returns the object expression for the setup data.
+ * @param path - The path to the setup method
+ * @returns
+ */
+export function getSetupData(
+  setup: NodePath<ObjectMethod>
+): NodePath<ObjectExpression> | undefined {
+  let setupData: NodePath<ObjectExpression> | undefined = undefined
+  setup.traverse({
+    ReturnStatement(path) {
+      const argument = path.get('argument')
+      if (argument.isObjectExpression()) {
+        setupData = argument
+        path.stop()
+      } else if (argument.isIdentifier()) {
+        const binding = argument.scope.getBinding(argument.node.name)
+        if (binding) {
+          const declaration = binding.path
+          if (declaration.isVariableDeclarator()) {
+            const init = declaration.get('init')
+            if (init.isObjectExpression()) {
+              setupData = init
+              path.stop()
+            }
+          }
+        }
+      }
+    },
+  })
+  return setupData
 }

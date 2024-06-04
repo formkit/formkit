@@ -1,10 +1,14 @@
 import type { NodePath } from '@babel/traverse'
-import type { ArrayExpression, ObjectExpression } from '@babel/types'
-import type { ComponentUse, ResolvedOptions, UsedFeatures } from '../types'
+import type {
+  ArrayExpression,
+  Identifier,
+  MemberExpression,
+  ObjectExpression,
+} from '@babel/types'
+import type { ComponentUse, UsedFeatures } from '../types'
 import {
   createFeats,
   extractUsedFeaturesInSchema,
-  importClasses,
   importIcons,
   importLocales,
   importValidation,
@@ -12,6 +16,7 @@ import {
 import { addImport, createProperty, extract, loadFromAST } from './ast'
 import tcjs from '@babel/template'
 import { camel } from '@formkit/utils'
+import type { FormKitSchemaDefinition } from '@formkit/core'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -35,99 +40,103 @@ export async function configureFormKitSchemaInstance(component: ComponentUse) {
   })
   const schemaValue = schema?.get('value')
 
-  if (!schemaValue || Array.isArray(schemaValue)) {
-    console.log('[FormKit] No schema found')
-    return
-  }
+  if (
+    schemaValue &&
+    !Array.isArray(schemaValue) &&
+    (schemaValue.isObjectExpression() ||
+      schemaValue.isArrayExpression() ||
+      schemaValue.isIdentifier() ||
+      schemaValue.isMemberExpression())
+  ) {
+    const file = extract(schemaValue, true)
+    file.program.body.push(t.statement.ast`export { __extracted__ }`)
+    const loaded = await loadFromAST(component.opts, file)
 
-  if (schemaValue.isArrayExpression() || schemaValue.isObjectExpression()) {
-    // We found an inline schema, let’s handle it here...
-    return await createSchemaConfig(component, props, schemaValue)
+    if (loaded && loaded.__extracted__) {
+      // We found an inline schema, let’s handle it here...
+      return await createSchemaConfig(component, props, loaded.__extracted__)
+    }
   }
-
-  if (schemaValue.isIdentifier()) {
-    // We found a reference to a schema, let’s handle it here...
-  }
+  // Handle fallbacks here...
 }
 
+/**
+ * Creates a custom configuration for a FormKitSchema component assuming the schema is
+ * statically anayzable.
+ * @param component - The use of the FormKitSchema component.
+ * @param props - The props of the FormKitSchema component.
+ * @param schema - The schema (path) of the FormKitSchema component.
+ */
 async function createSchemaConfig(
   component: ComponentUse,
   props: NodePath<ObjectExpression>,
-  schema: NodePath<ObjectExpression | ArrayExpression>
+  schema: FormKitSchemaDefinition
 ) {
-  const file = extract(schema, true)
-  file.program.body.push(t.statement.ast`export { __extracted__ }`)
-  const loaded = await loadFromAST(component.opts, file)
-  if (loaded && loaded.__extracted__) {
-    const feats = createFeats()
-    // faux "component props" that don’t really apply to FormKit Schema but are needed
-    // for <FormKit> component introspection.
-    const fauxProps = t.expression.ast`{}` as ObjectExpression
-    const config = t.expression.ast`{}` as ObjectExpression
-    const plugins = t.expression.ast`[]` as ArrayExpression
-    const nodeProps = t.expression.ast`{}` as ObjectExpression
+  const feats = createFeats()
+  // faux "component props" that don’t really apply to FormKit Schema but are needed
+  // for <FormKit> component introspection.
+  const fauxProps = t.expression.ast`{}` as ObjectExpression
+  const config = t.expression.ast`{}` as ObjectExpression
+  const plugins = t.expression.ast`[]` as ArrayExpression
+  const nodeProps = t.expression.ast`{}` as ObjectExpression
 
-    await extractUsedFeaturesInSchema(
-      loaded.__extracted__,
-      feats,
-      component.opts
-    )
+  await extractUsedFeaturesInSchema(schema, feats, component.opts)
 
-    /**
-     * Inject the bindings plugin:
-     */
+  /**
+   * Inject the bindings plugin:
+   */
+  plugins.elements.push(
+    t.expression.ast`${addImport(component.opts, component.root, {
+      name: 'bindings',
+      from: `@formkit/vue`,
+    })}`
+  )
+
+  /**
+   * Inject libraries for all the required inputs:
+   */
+  for (const inputType of feats.inputs) {
     plugins.elements.push(
       t.expression.ast`${addImport(component.opts, component.root, {
-        name: 'bindings',
-        from: `@formkit/vue`,
+        name: 'library',
+        from: `virtual:formkit/inputs:${inputType}`,
       })}`
     )
-
-    /**
-     * Inject libraries for all the required inputs:
-     */
-    for (const inputType of feats.inputs) {
-      plugins.elements.push(
-        t.expression.ast`${addImport(component.opts, component.root, {
-          name: 'library',
-          from: `virtual:formkit/inputs:${inputType}`,
-        })}`
-      )
-    }
-
-    // Inject the validation plugin and any rules
-    await importValidation(
-      component,
-      fauxProps,
-      nodeProps,
-      plugins,
-      feats.rules
-    )
-
-    // Import the necessary i18n locales
-    await importLocales(
-      component,
-      nodeProps,
-      plugins,
-      new Set([...feats.rules, ...feats.localizations])
-    )
-
-    await importIcons(component, nodeProps, plugins, fauxProps, feats.icons)
-
-    importSchemaClasses(component, config, feats)
-
-    config.properties.push(createProperty('props', nodeProps))
-    config.properties.push(createProperty('plugins', plugins))
-    const nodeOptions = addImport(component.opts, component.root, {
-      from: 'virtual:formkit/nodeOptions',
-      name: 'nodeOptions',
-    })
-    props.node.properties.push(
-      createProperty('__config__', t.expression.ast`${nodeOptions}(${config})`)
-    )
   }
+
+  // Inject the validation plugin and any rules
+  await importValidation(component, fauxProps, nodeProps, plugins, feats.rules)
+
+  // Import the necessary i18n locales
+  await importLocales(
+    component,
+    nodeProps,
+    plugins,
+    new Set([...feats.rules, ...feats.localizations])
+  )
+
+  await importIcons(component, nodeProps, plugins, fauxProps, feats.icons)
+
+  importSchemaClasses(component, config, feats)
+
+  config.properties.push(createProperty('props', nodeProps))
+  config.properties.push(createProperty('plugins', plugins))
+  const nodeOptions = addImport(component.opts, component.root, {
+    from: 'virtual:formkit/nodeOptions',
+    name: 'nodeOptions',
+  })
+  props.node.properties.push(
+    createProperty('__config__', t.expression.ast`${nodeOptions}(${config})`)
+  )
 }
 
+/**
+ * The FormKitSchema component.
+ * @param component - The component use
+ * @param config - The configuration object
+ * @param feats - The features being used
+ * @returns
+ */
 function importSchemaClasses(
   component: ComponentUse,
   config: ObjectExpression,
