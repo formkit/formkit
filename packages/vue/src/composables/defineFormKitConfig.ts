@@ -155,6 +155,10 @@ export type DefineConfigOptions = {
          * (default: true)
          */
         theme?: OptimizeOptions
+        /**
+         * Display additional diagnostics about the optimization compiler.
+         */
+        debug?: boolean
       }
   /**
    * An object of options to pass to the `createNode()` function whenever a new core node is created.

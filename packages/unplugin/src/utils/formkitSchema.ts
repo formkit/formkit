@@ -1,10 +1,5 @@
 import type { NodePath } from '@babel/traverse'
-import type {
-  ArrayExpression,
-  Identifier,
-  MemberExpression,
-  ObjectExpression,
-} from '@babel/types'
+import type { ArrayExpression, ObjectExpression } from '@babel/types'
 import type { ComponentUse, UsedFeatures } from '../types'
 import {
   createFeats,

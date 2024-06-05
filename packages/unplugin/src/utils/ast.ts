@@ -28,6 +28,7 @@ import { dirname, resolve } from 'pathe'
 import { randomUUID } from 'crypto'
 import createJITI from 'jiti'
 import { unlinkSync, writeFileSync } from 'fs'
+import consola from 'consola'
 
 const t = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
@@ -311,8 +312,8 @@ function extractDependencyPaths(
     toExtract.get('property').isIdentifier() &&
     getSFCSetup(toExtract)
   ) {
+    // We likely are trying to access data from the setup method of a Vue SFC.
     const target = toExtract.get('property') as NodePath<Identifier>
-    // We have almost for sure found an SFC file so
     const setupMethod = getSFCSetup(toExtract) as NodePath<ObjectMethod>
     const returnedObject = getSetupData(setupMethod)
     if (returnedObject) {
@@ -476,6 +477,16 @@ export async function loadFromAST(
   let value: any = undefined
   try {
     value = await createJITI('')(path)
+  } catch (e) {
+    if (e instanceof Error) {
+      consola.error(
+        `[FormKit de-opt] ${e.message}.${
+          opts.optimize.debug
+            ? ` Error is in the following compiler-extracted code: \n\n${source.code}`
+            : ' In your formkit config set optimize.debug to true for more information.'
+        }`
+      )
+    }
   } finally {
     unlinkSync(path)
   }

@@ -5,26 +5,13 @@ function clicked() {
   alert('did click')
 }
 
-const schema = [
-  {
-    $formkit: 'text',
-    label: 'Username',
-    help: 'Help me learn things',
-    validation: 'required|length:5',
+const fooBar = {
+  $cmp: 'FormKit',
+  props: {
+    type: 'button',
+    suffixIcon: 'arrowRight',
   },
-  {
-    $cmp: 'FormKit',
-    props: {
-      type: 'button',
-      suffixIcon: 'arrowRight',
-    },
-  },
-  {
-    $formkit: 'select',
-    options: ['A', 'B'],
-    label: 'Foosball',
-  },
-]
+}
 </script>
 
 <template>
@@ -48,7 +35,22 @@ const schema = [
       <FormKit type="file" />
     </FormKit> -->
 
-    <FormKitSchema :schema="schema" />
+    <FormKitSchema
+      :schema="[
+        {
+          $formkit: 'text',
+          label: 'Username',
+          help: 'Help me learn things',
+          validation: 'required|length:5',
+        },
+        fooBar,
+        {
+          $formkit: 'select',
+          options: ['A', 'B'],
+          label: 'Foosball',
+        },
+      ]"
+    />
 
     <!-- <ScriptSetupRefValidation />
     <RefAsInputType /> -->

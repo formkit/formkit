@@ -296,7 +296,14 @@ function determineOptimization(
   optimize: ResolvedOptions['optimize'],
   builtins: ResolvedOptions['builtins']
 ] {
-  const keys = ['inputs', 'validation', 'i18n', 'icons', 'theme'] as const
+  const keys = [
+    'inputs',
+    'validation',
+    'i18n',
+    'icons',
+    'theme',
+    'debug',
+  ] as const
   const optimizeProperty = getConfigProperty(
     { traverse, configAst: ast },
     'optimize'
@@ -312,7 +319,10 @@ function determineOptimization(
   if (value.isBooleanLiteral()) {
     return [
       keys.reduce(
-        (acc, key) => ({ ...acc, [key]: value.node.value ?? true }),
+        (acc, key) => ({
+          ...acc,
+          [key]: value.node.value ?? key === 'debug' ? false : true,
+        }),
         {} as { [key in (typeof keys)[number]]: boolean }
       ),
       fullTrue,
