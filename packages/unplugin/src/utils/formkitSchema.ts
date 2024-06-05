@@ -12,6 +12,9 @@ import { addImport, createProperty, extract, loadFromAST } from './ast'
 import tcjs from '@babel/template'
 import { camel } from '@formkit/utils'
 import type { FormKitSchemaDefinition } from '@formkit/core'
+import consola from 'consola'
+import { isRef } from 'vue'
+import { isReactive } from 'vue'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -46,13 +49,24 @@ export async function configureFormKitSchemaInstance(component: ComponentUse) {
     const file = extract(schemaValue, true)
     file.program.body.push(t.statement.ast`export { __extracted__ }`)
     const loaded = await loadFromAST(component.opts, file)
-
-    if (loaded && loaded.__extracted__) {
-      // We found an inline schema, let’s handle it here...
-      return await createSchemaConfig(component, props, loaded.__extracted__)
+    if (
+      loaded &&
+      loaded.__extracted__ &&
+      typeof loaded.__extracted__ === 'object'
+    ) {
+      if (isRef(loaded.__extracted__) || isReactive(loaded.__extracted__)) {
+        consola.warn(
+          '[FormKit] Found a schema defined with ref() or reactive(). These cannot be optimized.'
+        )
+      } else {
+        // We found an inline schema, let’s handle it here...
+        return await createSchemaConfig(component, props, loaded.__extracted__)
+      }
     }
   }
-  // Handle fallbacks here...
+  consola.warn(
+    '[FormKit de-opt] Could not statically analyze schema, de-optimizing.'
+  )
 }
 
 /**

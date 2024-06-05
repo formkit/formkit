@@ -1,17 +1,31 @@
 <script setup>
+import { ref } from 'vue'
 // import ScriptSetupRefValidation from './ScriptSetupRefValidation.vue'
 // import RefAsInputType from './RefAsInputType.vue'
 function clicked() {
   alert('did click')
 }
 
-const fooBar = {
-  $cmp: 'FormKit',
-  props: {
-    type: 'button',
-    suffixIcon: 'arrowRight',
+const schema = ref([
+  {
+    $formkit: 'text',
+    label: 'Username',
+    help: 'Help me learn things',
+    validation: 'required|length:5',
   },
-}
+  {
+    $cmp: 'FormKit',
+    props: {
+      type: 'button',
+      suffixIcon: 'arrowRight',
+    },
+  },
+  {
+    $formkit: 'select',
+    options: ['A', 'B'],
+    label: 'Foosball',
+  },
+])
 </script>
 
 <template>
@@ -35,22 +49,7 @@ const fooBar = {
       <FormKit type="file" />
     </FormKit> -->
 
-    <FormKitSchema
-      :schema="[
-        {
-          $formkit: 'text',
-          label: 'Username',
-          help: 'Help me learn things',
-          validation: 'required|length:5',
-        },
-        fooBar,
-        {
-          $formkit: 'select',
-          options: ['A', 'B'],
-          label: 'Foosball',
-        },
-      ]"
-    />
+    <FormKitSchema :schema="schema" />
 
     <!-- <ScriptSetupRefValidation />
     <RefAsInputType /> -->
