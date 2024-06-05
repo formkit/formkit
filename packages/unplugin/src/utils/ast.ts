@@ -306,12 +306,7 @@ function extractDependencyPaths(
       toExtract.scope.getBinding(toExtract.node.name),
       toExtract.node.name
     )
-  } else if (
-    toExtract.isMemberExpression() &&
-    toExtract.get('object').isIdentifier({ name: '$setup' }) &&
-    toExtract.get('property').isIdentifier() &&
-    getSFCSetup(toExtract)
-  ) {
+  } else if (isSetupReference(toExtract)) {
     // We likely are trying to access data from the setup method of a Vue SFC.
     const target = toExtract.get('property') as NodePath<Identifier>
     const setupMethod = getSFCSetup(toExtract) as NodePath<ObjectMethod>
@@ -336,17 +331,42 @@ function extractDependencyPaths(
   } else {
     toExtract.traverse({
       ReferencedIdentifier(path) {
-        addDeclaration(
-          dependencies,
-          usedImports,
-          scopedBindings,
-          path.scope.getBinding(path.node.name),
-          path.node.name
-        )
+        if (isSetupReference(path.parentPath)) {
+          // If identifier is inside a "member expression" that looks like $setup.foo then
+          // send this back around to extract the foo property from the setup data.
+          extractDependencyPaths(
+            path.parentPath,
+            dependencies,
+            usedImports,
+            scopedBindings
+          )
+        } else {
+          addDeclaration(
+            dependencies,
+            usedImports,
+            scopedBindings,
+            path.scope.getBinding(path.node.name),
+            path.node.name
+          )
+        }
       },
     })
   }
   return [dependencies, usedImports, scopedBindings]
+}
+
+/**
+ * Determine if a given path is a reference to the setup data of a Vue SFC.
+ * @param toExtract - Extract all dependencies of a given path
+ * @returns
+ */
+function isSetupReference(toExtract: NodePath<Node>) {
+  return (
+    toExtract.isMemberExpression() &&
+    toExtract.get('object').isIdentifier({ name: '$setup' }) &&
+    toExtract.get('property').isIdentifier() &&
+    getSFCSetup(toExtract)
+  )
 }
 
 /**
