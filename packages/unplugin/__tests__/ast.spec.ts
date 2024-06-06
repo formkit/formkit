@@ -531,16 +531,20 @@ describe('determineOptimization', () => {
       ),
     })
     expect(opts.optimize).toEqual({
+      debug: false,
       i18n: true,
       icons: true,
       inputs: false,
+      schema: true,
       theme: true,
       validation: true,
     })
     expect(opts.builtins).toEqual({
+      debug: true,
       i18n: true,
       icons: true,
       inputs: true,
+      schema: true,
       theme: true,
       validation: true,
     })
@@ -554,16 +558,44 @@ describe('determineOptimization', () => {
       ),
     })
     expect(opts.optimize).toEqual({
+      debug: false,
       i18n: true,
       icons: true,
       inputs: false,
+      schema: true,
       theme: true,
       validation: true,
     })
     expect(opts.builtins).toEqual({
+      debug: true,
       i18n: true,
       icons: true,
       inputs: false,
+      schema: true,
+      theme: true,
+      validation: true,
+    })
+  })
+
+  it('can enable all optimizations', () => {
+    const opts = createOpts({
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    expect(opts.optimize).toEqual({
+      debug: false,
+      i18n: true,
+      icons: true,
+      inputs: true,
+      schema: true,
+      theme: true,
+      validation: true,
+    })
+    expect(opts.builtins).toEqual({
+      debug: true,
+      i18n: true,
+      icons: true,
+      inputs: true,
+      schema: true,
       theme: true,
       validation: true,
     })

@@ -23,10 +23,25 @@ const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
  * @returns
  */
 export async function configureFormKitSchemaInstance(component: ComponentUse) {
-  const props = component.path.get('arguments.1')
+  let props = component.path.get('arguments.1') as
+    | NodePath<ObjectExpression>
+    | undefined
   if (!props || Array.isArray(props) || !props.isObjectExpression()) {
-    console.log('[FormKit] Invalid schema')
-    return
+    component.path.node.arguments[1] = t.expression.ast`{}`
+    props = component.path.get('arguments.1') as NodePath<ObjectExpression>
+  }
+
+  if (!component.opts.optimize.schema) {
+    // schemas are de-optimized. Inject the default config only.
+    return props.node.properties.push(
+      createProperty('__config__', {
+        type: 'Identifier',
+        name: addImport(component.opts, component.root, {
+          from: 'virtual:formkit/defaultConfig',
+          name: 'defaultConfig',
+        }),
+      })
+    )
   }
 
   const schema = props.get('properties').find((prop) => {
@@ -63,9 +78,23 @@ export async function configureFormKitSchemaInstance(component: ComponentUse) {
         return await createSchemaConfig(component, props, loaded.__extracted__)
       }
     }
+  } else if (!schemaValue) {
+    consola.warn(
+      '[FormKit] <FormKitSchema> component found with no schema prop.'
+    )
+    return
   }
   consola.warn(
     '[FormKit de-opt] Could not statically analyze schema, de-optimizing.'
+  )
+  props.node.properties.push(
+    createProperty('__config__', {
+      type: 'Identifier',
+      name: addImport(component.opts, component.root, {
+        from: 'virtual:formkit/defaultConfig',
+        name: 'defaultConfig',
+      }),
+    })
   )
 }
 

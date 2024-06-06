@@ -65,7 +65,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "npm -C playground run dev"
+    "dev": "npm -C playground run dev",
+    "build": "npm -C playground run build"
   },
   "peerDependenciesMeta": {
     "webpack": {

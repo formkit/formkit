@@ -124,6 +124,10 @@ export type DefineConfigOptions = {
     | boolean
     | {
         /**
+         * Display additional diagnostics about the optimization compiler.
+         */
+        debug?: boolean
+        /**
          * Disable input optimizations that only load the inputs being used at the
          * location where they are used. Disabling this optimization will revert to
          * using an input library of all available inputs. (default: true)
@@ -156,9 +160,12 @@ export type DefineConfigOptions = {
          */
         theme?: OptimizeOptions
         /**
-         * Display additional diagnostics about the optimization compiler.
+         * Enable or disable automatic optimizations for the FormKitSchema components.
+         * This attempts to read the schema (if it is defined statically) and create
+         * the minimal set of configuration for that instance of the component.
+         * (default: true)
          */
-        debug?: boolean
+        schema?: boolean
       }
   /**
    * An object of options to pass to the `createNode()` function whenever a new core node is created.

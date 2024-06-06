@@ -297,12 +297,13 @@ function determineOptimization(
   builtins: ResolvedOptions['builtins']
 ] {
   const keys = [
+    'debug',
     'inputs',
     'validation',
     'i18n',
     'icons',
     'theme',
-    'debug',
+    'schema',
   ] as const
   const optimizeProperty = getConfigProperty(
     { traverse, configAst: ast },
@@ -321,7 +322,7 @@ function determineOptimization(
       keys.reduce(
         (acc, key) => ({
           ...acc,
-          [key]: value.node.value ?? key === 'debug' ? false : true,
+          [key]: key === 'debug' ? false : value.node.value,
         }),
         {} as { [key in (typeof keys)[number]]: boolean }
       ),
@@ -373,7 +374,10 @@ function determineOptimization(
     })
     return [
       keys.reduce(
-        (acc, key) => ({ ...acc, [key]: optimzedOptions[key] ?? true }),
+        (acc, key) => ({
+          ...acc,
+          [key]: optimzedOptions[key] ?? (key === 'debug' ? false : true),
+        }),
         {} as { [key in (typeof keys)[number]]: boolean }
       ),
       keys.reduce(
