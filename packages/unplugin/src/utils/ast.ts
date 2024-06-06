@@ -535,7 +535,8 @@ export function getSFCSetup(path: NodePath<any>) {
           declarator.isVariableDeclarator() &&
           (declarator.get('id').isIdentifier({ name: '_sfc_main' }) ||
             declarator.get('id').isIdentifier({ name: '__sfc__' })) &&
-          declarator.get('init').isObjectExpression()
+          (declarator.get('init').isObjectExpression() ||
+            isDefineComponent(declarator.get('init')))
         ) {
           declarator.get('init').traverse({
             ObjectMethod(path) {
@@ -554,6 +555,29 @@ export function getSFCSetup(path: NodePath<any>) {
   })
 
   return isSFCCache.get(program)
+}
+
+/**
+ * Checks if the given path is a defineComponent call
+ * @param path - The path to check
+ */
+export function isDefineComponent(
+  path: NodePath<Expression | null | undefined>
+) {
+  if (!path) return false
+  if (path.isCallExpression()) {
+    const callee = path.get('callee')
+    if (callee.isIdentifier()) {
+      const initPath = callee.scope.getBinding(callee.node.name)?.path
+      if (
+        initPath?.isImportSpecifier() &&
+        initPath.get('imported').isIdentifier({ name: 'defineComponent' })
+      ) {
+        return true
+      }
+    }
+  }
+  return false
 }
 
 /**
