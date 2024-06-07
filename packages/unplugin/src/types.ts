@@ -65,6 +65,7 @@ export type ComponentLocators =
     }
 
 export type ComponentUse = Component & {
+  id: string
   path: NodePath<CallExpression>
   root: File | Program
   opts: ResolvedOptions

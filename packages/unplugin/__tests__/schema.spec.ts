@@ -88,4 +88,57 @@ describe('sfc schema transform', () => {
       "
     `)
   })
+
+  it('can configure schema imported from a json file', async ({ expect }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/ImportedSchema.vue'),
+      {
+        configFile: resolve(__dirname, './fixtures/configs/formkit-debug.ts'),
+      }
+    )
+
+    expect(code).toMatchInlineSnapshot(`
+      "import { nodeOptions } from "virtual:formkit/nodeOptions";
+      import { mergeRootClasses } from "virtual:formkit/merge-rootClasses";
+      import { passwordClasses } from "virtual:formkit/classes:password";
+      import { textClasses } from "virtual:formkit/classes:text";
+      import { lock } from "virtual:formkit/icons:lock";
+      import { user } from "virtual:formkit/icons:user";
+      import { icons } from "virtual:formkit/icons";
+      import { library as library1 } from "virtual:formkit/inputs:password";
+      import { library } from "virtual:formkit/inputs:text";
+      import { bindings } from "@formkit/vue";
+      import { FormKitSchema } from "@formkit/vue";
+      import { defineComponent as _defineComponent } from "vue";
+      import { unref as _unref, resolveComponent as _resolveComponent, openBlock as _openBlock, createBlock as _createBlock } from "vue";
+      import fromAnotherFile from "./schemas/login";
+      export default /* @__PURE__ */ _defineComponent({
+        __name: "ImportedSchema",
+        setup(__props) {
+          return (_ctx, _cache) => {
+            const _component_FormKitSchema = FormKitSchema;
+            return _openBlock(), _createBlock(_component_FormKitSchema, {
+              schema: _unref(fromAnotherFile),
+
+              __config__: (nodeOptions(({
+                config: ({
+                  rootClasses: (mergeRootClasses(([textClasses, passwordClasses])))
+                }),
+
+                props: ({
+                  __icons__: ({
+                    user: user,
+                    lock: lock
+                  })
+                }),
+
+                plugins: ([bindings, library, library1, icons])
+              })))
+            }, null, 8, ["schema"]);
+          };
+        }
+      });
+      "
+    `)
+  })
 })

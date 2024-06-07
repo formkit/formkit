@@ -63,7 +63,9 @@ describe('usedComponents', () => {
     `
     const ast = parse(code, { sourceType: 'module' })
     expect(
-      usedComponents(opts, ast, [{ name: 'FormKit', from: '@formkit/vue' }])
+      usedComponents(opts, '/foo-file', ast, [
+        { name: 'FormKit', from: '@formkit/vue' },
+      ])
     ).toEqual([])
   })
 
@@ -77,12 +79,13 @@ describe('usedComponents', () => {
     const ast = parse(code, { sourceType: 'module' })
     const codeMod = () => {}
     expect(
-      usedComponents(opts, ast, [
+      usedComponents(opts, '/foo-file', ast, [
         { name: 'FormKit', from: '@formkit/vue', codeMod },
       ])
     ).toEqual([
       {
         name: 'FormKit',
+        id: '/foo-file',
         from: '@formkit/vue',
         path: expect.any(Object),
         opts: expect.any(Object),
@@ -101,6 +104,7 @@ export default () => h('div', null, { default: () => h(_myComponent) })
     const codeMod = () => {}
     usedComponents(
       opts,
+      '/foo-file',
       ast,
       [{ name: 'FormKit', from: '@formkit/vue', codeMod }],
       true

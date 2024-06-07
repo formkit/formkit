@@ -15,6 +15,7 @@ import type { NodePath } from '@babel/traverse'
  */
 export function usedComponents(
   opts: ResolvedOptions,
+  id: string,
   ast: Program | File,
   components: Component[],
   autoImport = false
@@ -84,6 +85,7 @@ export function usedComponents(
           const component = variableLocators[path.node.arguments[0].name]
           componentUses.push({
             ...component,
+            id: extractPath(id),
             path,
             root: ast,
             opts,
@@ -93,4 +95,17 @@ export function usedComponents(
     },
   })
   return componentUses
+}
+
+/**
+ * Extracts the path from a given ID.
+ * @param id - The ID of the file to extract the path from.
+ * @returns
+ */
+function extractPath(id: string) {
+  // Add a base URL to ensure the URL module can parse it correctly
+  const baseUrl = 'file://'
+  const u = new URL(baseUrl + id)
+  // Extract and return the pathname
+  return u.pathname
 }

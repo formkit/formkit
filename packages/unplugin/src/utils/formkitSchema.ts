@@ -59,11 +59,12 @@ export async function configureFormKitSchemaInstance(component: ComponentUse) {
     (schemaValue.isObjectExpression() ||
       schemaValue.isArrayExpression() ||
       schemaValue.isIdentifier() ||
-      schemaValue.isMemberExpression())
+      schemaValue.isMemberExpression() ||
+      schemaValue.isCallExpression())
   ) {
     const file = extract(schemaValue, true)
     file.program.body.push(t.statement.ast`export { __extracted__ }`)
-    const loaded = await loadFromAST(component.opts, file)
+    const loaded = await loadFromAST(component.opts, file, component.id)
     if (
       loaded &&
       loaded.__extracted__ &&

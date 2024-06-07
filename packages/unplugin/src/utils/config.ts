@@ -36,7 +36,6 @@ import { URL } from 'url'
 import {
   createNode,
   type FormKitConfig,
-  type FormKitPlugin,
   type FormKitTypeDefinition,
 } from '@formkit/core'
 import tcjs from '@babel/template'
@@ -427,17 +426,22 @@ export async function getAllInputs(
     const { inputs } = await import('@formkit/inputs')
     Object.keys(inputs).forEach((input) => allInputs.add(input))
     const hasPro = await isInstalled(opts, '@formkit/pro')
-    const hasProKey = await getProKey(opts)
-    if (hasPro && hasProKey) {
-      const loaded = await loadFromAST(
-        opts,
-        t.program.ast`import { inputs } from '@formkit/pro'
+    if (hasPro) {
+      try {
+        await getProKey(opts)
+        const loaded = await loadFromAST(
+          opts,
+          t.program.ast`import { inputs } from '@formkit/pro'
       const inputNames = Object.keys(inputs)
       export { inputNames }`
-      )
-      if (loaded && typeof loaded === 'object' && 'inputNames' in loaded) {
-        const inputNames = loaded.inputNames as string[]
-        inputNames.forEach((input) => allInputs.add(input))
+        )
+        if (loaded && typeof loaded === 'object' && 'inputNames' in loaded) {
+          const inputNames = loaded.inputNames as string[]
+          inputNames.forEach((input) => allInputs.add(input))
+        }
+      } catch (e) {
+        // Do nothing — we just dont need to import the pro input details — the most likely
+        // error here is that the user has not set a pro key.
       }
     }
   }
