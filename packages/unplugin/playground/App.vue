@@ -15,6 +15,6 @@ const schema = [
 <template>
   <div>
     <FormKit type="dropdown" :options="['A', 'B']" />
-    <FormKitSchema :schema="schema" />
+    <!-- <FormKitSchema :schema="schema" /> -->
   </div>
 </template>

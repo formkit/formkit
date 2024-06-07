@@ -36,6 +36,7 @@ import { URL } from 'url'
 import {
   createNode,
   type FormKitConfig,
+  type FormKitPlugin,
   type FormKitTypeDefinition,
 } from '@formkit/core'
 import tcjs from '@babel/template'
@@ -425,6 +426,20 @@ export async function getAllInputs(
   if (opts.builtins.inputs) {
     const { inputs } = await import('@formkit/inputs')
     Object.keys(inputs).forEach((input) => allInputs.add(input))
+    const hasPro = await isInstalled(opts, '@formkit/pro')
+    const hasProKey = await getProKey(opts)
+    if (hasPro && hasProKey) {
+      const loaded = await loadFromAST(
+        opts,
+        t.program.ast`import { inputs } from '@formkit/pro'
+      const inputNames = Object.keys(inputs)
+      export { inputNames }`
+      )
+      if (loaded && typeof loaded === 'object' && 'inputNames' in loaded) {
+        const inputNames = loaded.inputNames as string[]
+        inputNames.forEach((input) => allInputs.add(input))
+      }
+    }
   }
   if (opts.configAst) {
     getConfigProperty(opts, 'inputs')?.traverse({

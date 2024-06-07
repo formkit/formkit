@@ -364,6 +364,7 @@ export async function extractUsedFeatures(
       } else if (typeof inputDefinition.schema === 'object') {
         schema = inputDefinition.schema
       }
+
       await extractUsedFeaturesInSchema(schema, feats, opts)
     }
   }
