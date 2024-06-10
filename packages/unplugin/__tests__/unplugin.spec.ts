@@ -14,6 +14,51 @@ describe('sfc transform', () => {
     expect(code).toMatchSnapshot()
   })
 
+  it('locates the component when it is explicitly imported', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/ExplicitImport.vue')
+    )
+    expect(code).toMatchInlineSnapshot(`
+      "import { selectClasses } from "virtual:formkit/classes:select";
+      import { down } from "virtual:formkit/icons:down";
+      import { icons } from "virtual:formkit/icons";
+      import { library } from "virtual:formkit/inputs:select";
+      import { bindings } from "@formkit/vue";
+      import { defineComponent as _defineComponent } from "vue";
+      import { unref as _unref, createVNode as _createVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from "vue";
+      import { FormKit } from "@formkit/vue";
+      export default /* @__PURE__ */ _defineComponent({
+        __name: "ExplicitImport",
+        setup(__props) {
+          return (_ctx, _cache) => {
+            return _openBlock(), _createElementBlock("div", null, [
+              _createVNode(_unref(FormKit), {
+                type: "select",
+
+                __config__: ({
+                  plugins: ([bindings, library, icons]),
+
+                  config: ({
+                    rootClasses: selectClasses
+                  }),
+
+                  props: ({
+                    __icons__: ({
+                      select: down
+                    })
+                  })
+                })
+              })
+            ]);
+          };
+        }
+      });
+      "
+    `)
+  })
+
   it('imports a custom input at the point of use', async ({ expect }) => {
     const code = await sfcTransform(
       resolve(__dirname, './fixtures/CustomComponentRender.vue')

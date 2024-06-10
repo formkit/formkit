@@ -27,46 +27,62 @@ export function usedComponents(
     { name: 'createBlock', from: 'vue' },
     { name: 'ssrRenderComponent', from: 'vue' },
     { name: 'h', from: 'vue' },
+    { name: 'unref', from: 'vue' },
   ])
-  const { resolveComponent, ...renderFns } = localImports.reduce((map, imp) => {
-    map[imp.name] = imp.local
-    return map
-  }, {} as Record<string, string>)
+  const { resolveComponent, unref, ...renderFns } = localImports.reduce(
+    (map, imp) => {
+      map[imp.name] = imp.local
+      return map
+    },
+    {} as Record<string, string>
+  )
 
   // Find any calls to resolveComponent() where the component being resolved
   // is a string that matches one of the components we are looking for.
-  if (resolveComponent) {
-    opts.traverse(ast, {
-      CallExpression(path) {
-        if (
-          path.node.callee.type === 'Identifier' &&
-          path.node.callee.name === resolveComponent &&
-          path.parentPath.type === 'VariableDeclarator'
-        ) {
-          const arg = path.node.arguments[0]
-          if (arg?.type === 'StringLiteral') {
-            const component = components.find((c) => c.name === arg.value)
-            if (component) {
-              const identifier = (
-                path.parentPath as NodePath<VariableDeclarator>
-              ).node.id
-              if (identifier.type === 'Identifier') {
-                variableLocators[identifier.name] = component
-              }
-              if (autoImport) {
-                const localName = addImport(
-                  opts,
-                  rootPath(path).node,
-                  component
-                )
-                path.replaceWith(t.expression.ast(localName))
-              }
+
+  opts.traverse(ast, {
+    CallExpression(path) {
+      if (
+        path.node.callee.type === 'Identifier' &&
+        path.node.callee.name === resolveComponent &&
+        path.parentPath.type === 'VariableDeclarator'
+      ) {
+        const arg = path.node.arguments[0]
+        if (arg?.type === 'StringLiteral') {
+          const component = components.find((c) => c.name === arg.value)
+          if (component) {
+            const identifier = (path.parentPath as NodePath<VariableDeclarator>)
+              .node.id
+            if (identifier.type === 'Identifier') {
+              variableLocators[identifier.name] = component
+            }
+            if (autoImport) {
+              const localName = addImport(opts, rootPath(path).node, component)
+              path.replaceWith(t.expression.ast(localName))
             }
           }
         }
-      },
-    })
-  }
+      }
+    },
+    ImportDeclaration(path) {
+      components.forEach((component) => {
+        if (path.node.source.value === component.from && path.node.specifiers) {
+          path.traverse({
+            ImportSpecifier(path) {
+              const imported = path.get('imported')
+              const local = path.get('local')
+              if (
+                imported.isStringLiteral({ value: component.name }) ||
+                imported.isIdentifier({ name: component.name })
+              ) {
+                variableLocators[local.node.name] = component
+              }
+            },
+          })
+        }
+      })
+    },
+  })
 
   // Find any calls to createVNode, createBlock, createSSRComponent where the
   // component being resolved
@@ -78,11 +94,28 @@ export function usedComponents(
         path.node.callee.type === 'Identifier' &&
         renderFnNames.includes(path.node.callee.name)
       ) {
+        let componentName: string | undefined = undefined
+
         if (
           path.node.arguments[0]?.type === 'Identifier' &&
           path.node.arguments[0]?.name in variableLocators
         ) {
-          const component = variableLocators[path.node.arguments[0].name]
+          // If it is a resolveComponent call, we only to check the first argument.
+          componentName = path.node.arguments[0].name
+        } else if (
+          // When a component is directly imported, it is referred to with `unref` for some reason.
+          // so we need to locate that call and checks its first argument.
+          path.node.arguments[0]?.type === 'CallExpression' &&
+          path.node.arguments[0]?.callee.type === 'Identifier' &&
+          path.node.arguments[0]?.callee.name === unref &&
+          path.node.arguments[0]?.arguments[0]?.type === 'Identifier' &&
+          path.node.arguments[0]?.arguments[0]?.name in variableLocators
+        ) {
+          componentName = path.node.arguments[0].arguments[0].name
+        }
+
+        if (componentName) {
+          const component = variableLocators[componentName]
           componentUses.push({
             ...component,
             id: extractPath(id),
