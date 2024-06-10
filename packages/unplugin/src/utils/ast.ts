@@ -498,7 +498,6 @@ export async function loadFromAST(
   try {
     value = await createJITI('')(path)
   } catch (e) {
-    throw e
     if (e instanceof Error) {
       consola.error(
         `[FormKit de-opt] ${e.message}.${

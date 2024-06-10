@@ -896,6 +896,11 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
   },
   emits: ['mounted'],
   setup(props, context) {
+    if (__DEV__ && typeof props.schema !== 'object') {
+      console.warn(
+        'FormKitSchema was passed a schema prop that was not an array or object.'
+      )
+    }
     /**
      * Inject the localized config to children. Because props.__config__ and
      * optionsSymbol take precedent, these configuration options will only apply
