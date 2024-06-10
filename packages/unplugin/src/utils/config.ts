@@ -39,6 +39,7 @@ import {
   type FormKitTypeDefinition,
 } from '@formkit/core'
 import tcjs from '@babel/template'
+import { configureFormKitIconInstance } from './formkitIcon'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 // The babel/traverse package imports an an object for some reason
@@ -96,6 +97,11 @@ export function createOpts(options: Partial<Options>): ResolvedOptions {
             name: 'FormKitSchema',
             from: '@formkit/vue',
             codeMod: configureFormKitSchemaInstance,
+          },
+          {
+            name: 'FormKitIcon',
+            from: '@formkit/vue',
+            codeMod: configureFormKitIconInstance,
           },
         ],
       },
