@@ -26,6 +26,7 @@ export interface ModuleOptions {
    *
    * - `<FormKit>`
    * - `<FormKitProvider>`
+   * - `<FormKitSchema>`
    * - `<FormKitMessages>`
    * - `<FormKitSummary>`
    * - `getNode()`
@@ -39,6 +40,11 @@ export interface ModuleOptions {
    * @experimental
    */
   autoImport?: boolean
+  /**
+   * When true FormKit will use the experimental optimization compiler for the unplugin.
+   * @experimental
+   */
+  experimentalOptimizer?: boolean
 }
 
 const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
@@ -117,6 +123,13 @@ const useAutoImport = async function installLazy(options, nuxt) {
   addComponent({
     name: 'FormKit',
     export: 'FormKit',
+    filePath: '@formkit/vue',
+    chunkName: '@formkit/vue',
+  })
+
+  addComponent({
+    name: 'FormKitSchema',
+    export: 'FormKitSchema',
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
