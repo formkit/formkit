@@ -17,9 +17,10 @@
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
-import path, { dirname, resolve } from 'path'
+import path, { dirname, resolve, extname } from 'pathe'
 import { fileURLToPath } from 'url'
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync, renameSync } from 'fs'
+import { stat } from 'fs/promises'
 import {
   getPackages,
   getIcons,
@@ -129,6 +130,9 @@ export async function buildPackage(p) {
   } else {
     await bundle(p, undefined, !usingProgressBar)
   }
+
+  if (p === 'vue') await bundle(p, 'passthru')
+
   if (p === 'themes') await themesBuildExtras()
 
   if (p === 'inputs') await inputsBuildExtras()
@@ -151,8 +155,35 @@ export async function buildPackage(p) {
     })
   }
 
+  await renameDTS(resolve(packagesDir, p, 'dist'))
+
   if (!buildAll) {
     buildComplete()
+  }
+}
+
+async function getDTSFiles(dir, results = []) {
+  const list = readdirSync(dir)
+  for (const file of list) {
+    const filePath = resolve(dir, file)
+    const fileStat = await stat(filePath)
+
+    if (fileStat && fileStat.isDirectory()) {
+      // Recurse into a subdirectory
+      await getDTSFiles(filePath, results)
+    } else if (file.endsWith('.d.ts')) {
+      // Add .d.ts file to results
+      results.push(filePath)
+    }
+  }
+  return results
+}
+
+async function renameDTS(outDir) {
+  console.log(outDir)
+  const dtsFiles = await getDTSFiles(outDir)
+  for (const file of dtsFiles) {
+    renameSync(resolve(file), resolve(file.replace(/d\.ts$/, 'd.mts')))
   }
 }
 

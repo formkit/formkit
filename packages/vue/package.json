@@ -7,6 +7,105 @@
   "types": "dist/index.d.cts",
   "exports": {
     "./package.json": "./package.json",
+    "./core": {
+      "import": {
+        "types": "./dist/passthru/core/index.d.mts",
+        "development": "./dist/passthru/core/index.dev.mjs",
+        "default": "./dist/passthru/core/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/core/index.d.cts",
+        "default": "./dist/passthru/core/index.cjs"
+      }
+    },
+    "./i18n/locales/*": {
+      "import": {
+        "types": "./dist/passthru/i18n/locales/*.d.mts",
+        "development": "./dist/passthru/i18n/locales/*.dev.mjs",
+        "default": "./dist/passthru/i18n/locales/*.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/i18n/locales/*.d.cts",
+        "default": "./dist/passthru/i18n/locales/*.cjs"
+      }
+    },
+    "./i18n": {
+      "import": {
+        "types": "./dist/passthru/i18n/index.d.mts",
+        "development": "./dist/passthru/i18n/index.dev.mjs",
+        "default": "./dist/passthru/i18n/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/i18n/index.d.cts",
+        "default": "./dist/passthru/i18n/index.cjs"
+      }
+    },
+    "./i18n/i18n": {
+      "import": {
+        "types": "./dist/passthru/i18n/i18n.d.mts",
+        "development": "./dist/passthru/i18n/i18n.dev.mjs",
+        "default": "./dist/passthru/i18n/i18n.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/i18n/i18n.d.cts",
+        "default": "./dist/passthru/i18n/i18n.cjs"
+      }
+    },
+    "./inputs": {
+      "import": {
+        "types": "./dist/passthru/inputs/index.d.mts",
+        "development": "./dist/passthru/inputs/index.dev.mjs",
+        "default": "./dist/passthru/inputs/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/inputs/index.d.cts",
+        "default": "./dist/passthru/inputs/index.cjs"
+      }
+    },
+    "./rules": {
+      "import": {
+        "types": "./dist/passthru/rules/index.d.mts",
+        "development": "./dist/passthru/rules/index.dev.mjs",
+        "default": "./dist/passthru/rules/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/rules/index.d.cts",
+        "default": "./dist/passthru/rules/index.cjs"
+      }
+    },
+    "./themes": {
+      "import": {
+        "types": "./dist/passthru/themes/index.d.mts",
+        "development": "./dist/passthru/themes/index.dev.mjs",
+        "default": "./dist/passthru/themes/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/themes/index.d.cts",
+        "default": "./dist/passthru/themes/index.cjs"
+      }
+    },
+    "./utils": {
+      "import": {
+        "types": "./dist/passthru/utils/index.d.mts",
+        "development": "./dist/passthru/utils/index.dev.mjs",
+        "default": "./dist/passthru/utils/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/utils/index.d.cts",
+        "default": "./dist/passthru/utils/index.cjs"
+      }
+    },
+    "./validation": {
+      "import": {
+        "types": "./dist/passthru/validation/index.d.mts",
+        "development": "./dist/passthru/validation/index.dev.mjs",
+        "default": "./dist/passthru/validation/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/validation/index.d.cts",
+        "default": "./dist/passthru/validation/index.cjs"
+      }
+    },
     ".": {
       "import": {
         "types": "./dist/index.d.mts",

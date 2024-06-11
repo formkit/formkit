@@ -1,6 +1,6 @@
 /* @ts-check */
 import { build } from 'tsup'
-import { resolve, dirname } from 'pathe'
+import { resolve, dirname, extname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync, writeFileSync } from 'fs'
 // import { replace } from 'esbuild-plugin-replace'
@@ -64,6 +64,10 @@ export async function createBundle(pkg, plugin, showLogs = false) {
     if (pkg === 'i18n') {
       return resolve(rootDir, 'src/**/*.ts')
     }
+    if (plugin === 'passthru') {
+      // In this case we need to generate a "pass through" for various sub-projects of formkit
+      return resolve(rootDir, 'src/passthru/**/*.ts')
+    }
     const path = plugin
       ? /\.ts$/.test(plugin)
         ? plugin
@@ -83,7 +87,7 @@ export async function createBundle(pkg, plugin, showLogs = false) {
 
   /** @returns {Array<'iife' | 'cjs' | 'esm' | 'esm'>} */
   function createFormats() {
-    if (pkg === 'vue') {
+    if (pkg === 'vue' && !plugin) {
       return ['iife', 'cjs', 'esm', 'esm']
     }
     return ['cjs', 'esm', 'esm']
@@ -198,14 +202,6 @@ export async function createBundle(pkg, plugin, showLogs = false) {
   }
   await build(config)
   await postProcess()
-  const dts =
-    plugin && /\.ts$/.test(plugin)
-      ? plugin.substring(0, plugin.length - 3)
-      : 'index'
-  renameSync(
-    resolve(outDir, `./${dts}.d.ts`),
-    resolve(outDir, `./${dts}.d.mts`)
-  )
   console.log = log
   console.warn = warn
 }

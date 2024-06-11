@@ -9,7 +9,7 @@
     "./package.json": "./package.json",
     "./locales/*": {
       "import": {
-        "types": "./dist/locales/*.d.ts",
+        "types": "./dist/locales/*.d.mts",
         "development": "./dist/locales/*.dev.mjs",
         "default": "./dist/locales/*.mjs"
       },
@@ -20,7 +20,7 @@
     },
     "./i18n": {
       "import": {
-        "types": "./dist/i18n.d.ts",
+        "types": "./dist/i18n.d.mts",
         "development": "./dist/i18n.dev.mjs",
         "default": "./dist/i18n.mjs"
       },
