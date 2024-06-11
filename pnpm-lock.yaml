@@ -646,39 +646,38 @@ importers:
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../core
       '@formkit/dev':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../dev
       '@formkit/i18n':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../i18n
+      '@formkit/icons':
+        specifier: ^1.6.5
+        version: link:../icons
       '@formkit/inputs':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../inputs
       '@formkit/observer':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../observer
       '@formkit/rules':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../rules
       '@formkit/themes':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../themes
       '@formkit/utils':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../utils
       '@formkit/validation':
-        specifier: 1.6.5
+        specifier: ^1.6.5
         version: link:../validation
       vue:
         specifier: ^3.4.0
         version: 3.4.21(typescript@5.4.3)
-    devDependencies:
-      '@formkit/icons':
-        specifier: workspace:^
-        version: link:../icons
 
   packages/zod:
     dependencies:
