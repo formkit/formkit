@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import { renameSync, readFileSync, readdirSync, writeFileSync } from 'fs'
 // import { replace } from 'esbuild-plugin-replace'
 import transformPipe from './transform-pipe.mjs'
-import { progress } from './build.mjs'
+import { progress, renameDTS } from './build.mjs'
 import { esbuildPluginFilePathExtensions } from 'esbuild-plugin-file-path-extensions'
 
 /**
@@ -182,6 +182,12 @@ export async function createBundle(pkg, plugin, showLogs = false) {
         code = replaceImports(code)
         writeFileSync(path, code)
       }
+    }
+
+    if (pkg === 'inputs') {
+      // Inputs do type checking during the build step so they need to be able to locate the
+      // dts file during the build.
+      await renameDTS(resolve(rootDir, 'dist'))
     }
   }
 

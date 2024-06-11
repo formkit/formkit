@@ -17,7 +17,8 @@
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
-import path, { dirname, resolve, extname } from 'pathe'
+import path from 'path'
+import { dirname, resolve, extname } from 'pathe'
 import { fileURLToPath } from 'url'
 import { readFileSync, readdirSync, renameSync } from 'fs'
 import { stat } from 'fs/promises'
@@ -179,8 +180,7 @@ async function getDTSFiles(dir, results = []) {
   return results
 }
 
-async function renameDTS(outDir) {
-  console.log(outDir)
+export async function renameDTS(outDir) {
   const dtsFiles = await getDTSFiles(outDir)
   for (const file of dtsFiles) {
     renameSync(resolve(file), resolve(file.replace(/d\.ts$/, 'd.mts')))
@@ -241,6 +241,7 @@ export async function inputsBuildExtras() {
   )
   tsData.compilerOptions.outDir = './'
   await fs.writeFile(tsconfig, JSON.stringify(tsData, null, 2))
+  // make sure all the typings are good to go.
   await execa('npx', ['tsc', '--project', tsconfig])
   await execa('npx', [
     'prettier',
