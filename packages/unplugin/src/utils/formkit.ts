@@ -19,7 +19,7 @@ import { addImport, createProperty } from './ast'
 import t from '@babel/template'
 import { consola } from 'consola'
 import { isFullDeopt, getInputDefinition } from './config'
-import { camel } from '@formkit/utils'
+import { camel } from '@formkit/vue/utils'
 import type { FormKitSchemaDefinition } from '@formkit/core'
 
 /**
@@ -191,7 +191,7 @@ export async function importValidation(
       prop.key.name === 'validation'
   ) as ObjectProperty | undefined
 
-  const { extractRules, parseHints } = await import('@formkit/validation')
+  const { extractRules, parseHints } = await import('@formkit/vue/validation')
 
   if (validationProp && isStringLiteral(validationProp.value)) {
     // Import the rules directly.
@@ -562,7 +562,7 @@ async function extractValidationRules(
   validation: string | [[string]],
   rules: Set<string>
 ) {
-  const { extractRules, parseHints } = await import('@formkit/validation')
+  const { extractRules, parseHints } = await import('@formkit/vue/validation')
   if (typeof validation === 'string') {
     const rulesArray = extractRules(validation)
     rulesArray.forEach(([name]) => {

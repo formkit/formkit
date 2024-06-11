@@ -43,8 +43,8 @@ import type {
 } from '@babel/types'
 import type { DefineConfigOptions } from '@formkit/vue'
 import tcjs from '@babel/template'
-import type LocaleImport from '@formkit/i18n/locales/en'
-import { camel } from '@formkit/utils'
+import type LocaleImport from '@formkit/vue/i18n/locales/en'
+import { camel } from '@formkit/vue/utils'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -149,7 +149,7 @@ async function createModuleAST(
       return await createRootClassesConfig()
 
     case 'merge-rootClasses':
-      return await createRootClassMerge(opts)
+      return await createRootClassMerge()
 
     case 'defaultConfig':
       return await createDefaultConfig(opts)
@@ -171,7 +171,7 @@ async function createModuleAST(
  */
 function createValidationConfig(): File | Program {
   return t.program
-    .ast`import { createValidationPlugin } from '@formkit/validation'
+    .ast`import { createValidationPlugin } from '@formkit/vue/validation'
 const validation = createValidationPlugin({})
 export { validation }
 `
@@ -181,7 +181,7 @@ async function createDeoptimizedRuleConfig(
   opts: ResolvedOptions
 ): Promise<File | Program> {
   const program = opts.builtins.validation
-    ? t.program.ast`import { rules as builtinRules } from '@formkit/rules'`
+    ? t.program.ast`import { rules as builtinRules } from '@formkit/vue/rules'`
     : t.program.ast`const builtinRules = {}`
   if (opts.configAst) {
     const rules = getConfigProperty(opts, 'rules')
@@ -249,7 +249,7 @@ function createVirtualRuleConfig(
       }
     }
   }
-  return t.program.ast`export { ${ruleName} } from '@formkit/rules'`
+  return t.program.ast`export { ${ruleName} } from '@formkit/vue/rules'`
 }
 
 /**
@@ -265,7 +265,7 @@ function createDeoptimizedLibrary(opts: ResolvedOptions): File | Program {
     ? extract(definedInputs.get('value'), false)
     : t.ast`const __extracted__ = {}`
   return t.program.ast`
-    import { createLibraryPlugin, inputs } from '@formkit/inputs'
+    import { createLibraryPlugin, inputs } from '@formkit/vue/inputs'
     ${extracted}
     const library = createLibraryPlugin({
       ...inputs,
@@ -392,11 +392,11 @@ async function createInputIdentifier(
 
   // The configuration does not define the given input, so we can attempt to
   // directly import it from the @formkit/inputs package.
-  const { inputs } = await import('@formkit/inputs')
+  const { inputs } = await import('@formkit/vue/inputs')
 
   if (inputName in inputs) {
     return [
-      t.statements.ast`import { ${inputName} } from '@formkit/inputs'`,
+      t.statements.ast`import { ${inputName} } from '@formkit/vue/inputs'`,
       {
         type: 'Identifier',
         name: inputName,
@@ -435,7 +435,7 @@ async function createInputIdentifier(
  */
 export async function createI18nPlugin(): Promise<File | Program> {
   return t.program.ast`
-  import { createI18nPlugin } from '@formkit/i18n/i18n'
+  import { createI18nPlugin } from '@formkit/vue/i18n/i18n'
   export const i18n = createI18nPlugin({})
   `
 }
@@ -460,7 +460,7 @@ export async function createLocalesConfig(
   const ast = t.program.ast`export const locales = ${registry}`
   if (overrides && overrides.get('value').isObjectExpression()) {
     const extendId = addImport(opts, ast, {
-      from: '@formkit/utils',
+      from: '@formkit/vue/utils',
       name: 'extend',
     })
     const overridesId = addImport(opts, ast, {
@@ -552,7 +552,10 @@ function isOptimizableLocale(localeName: string, identifier: NodePath<Node>) {
       'source'
     )
     if (source.isStringLiteral()) {
-      return source.node.value.startsWith('@formkit/i18n')
+      return (
+        source.node.value.startsWith('@formkit/i18n') ||
+        source.node.value.startsWith('@formkit/vue/i18n')
+      )
     }
   }
   return false
@@ -583,7 +586,7 @@ async function insertOptimizedLocales(
   const loadedLocales = await Promise.all(
     optimizableLocales.map(
       (locale) =>
-        import(`@formkit/i18n/locales/${locale}`) as Promise<{
+        import(`@formkit/vue/i18n/locales/${locale}`) as Promise<{
           default: typeof LocaleImport
         }>
     )
@@ -615,13 +618,13 @@ async function insertOptimizedLocales(
       )
       const uiNames = uiMessages.map((name) => {
         return addImport(opts, ast, {
-          from: `@formkit/i18n/locales/${locale}`,
+          from: `@formkit/vue/i18n/locales/${locale}`,
           name: name,
         })
       })
       const validationNames = validationMessages.map((name) => {
         return addImport(opts, ast, {
-          from: `@formkit/i18n/locales/${locale}`,
+          from: `@formkit/vue/i18n/locales/${locale}`,
           name: name,
         })
       })
@@ -701,7 +704,7 @@ async function createMessagesConfig(
  */
 async function createThemePluginConfig(opts: ResolvedOptions) {
   const program = t.program
-    .ast`import { createThemePlugin } from '@formkit/themes'`
+    .ast`import { createThemePlugin } from '@formkit/vue/themes'`
   const createPlugin = t.expression.ast`createThemePlugin()` as CallExpression
   const args = createPlugin.arguments
 
@@ -762,7 +765,7 @@ async function createIconConfig(
 ): Promise<File | Program> {
   if (!icon) {
     // If no icon is provided we are loading the icon plugin.
-    return t.program.ast`import { createIconPlugin } from '@formkit/icons'
+    return t.program.ast`import { createIconPlugin } from '@formkit/vue/icons'
     export const icons = createIconPlugin()`
   }
   // If there are icon loader considerations we should be prepared for them:
@@ -798,11 +801,11 @@ async function createIconConfig(
   }
 
   if (!iconLoaderPath && !iconLoaderUrlPath && opts.builtins.icons) {
-    const icons = await import('@formkit/icons')
+    const icons = await import('@formkit/vue/icons')
     if (icon in icons) {
       // We are not using a specialized icon loader, and the icon in in
       // fomrkit’s icon set — load it directly.
-      return t.program.ast`export { ${icon} } from '@formkit/icons'`
+      return t.program.ast`export { ${icon} } from '@formkit/vue/icons'`
     } else {
       consola.warn(
         `[FormKit] Unknown icon: "${icon}". It is not a registered or available in @formkit/icons.`
@@ -887,7 +890,7 @@ async function createBaseConfig(
   setPlugins(opts, statements, baseOptions)
   baseOptions.properties.push(createProperty('config', nodeConfig))
   return t.program.ast`
-  import { extend } from '@formkit/utils'
+  import { extend } from '@formkit/vue/utils'
   ${statements}
   const baseOptions = ${baseOptions}
   export const nodeOptions = (o = {}) => extend(baseOptions, o, true)`
@@ -1164,7 +1167,7 @@ async function createProInputConfig(input: string) {
   `
 }
 
-async function createRootClassMerge(opts: ResolvedOptions) {
+async function createRootClassMerge() {
   return t.program.ast`export function mergeRootClasses(rootClassesFns) {
     return (section, node) => {
       const classes = {}

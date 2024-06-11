@@ -51,6 +51,17 @@
         "default": "./dist/passthru/i18n/i18n.cjs"
       }
     },
+    "./icons": {
+      "import": {
+        "types": "./dist/passthru/icons/index.d.mts",
+        "development": "./dist/passthru/icons/index.dev.mjs",
+        "default": "./dist/passthru/icons/index.mjs"
+      },
+      "require": {
+        "types": "./dist/passthru/icons/index.d.cts",
+        "default": "./dist/passthru/icons/index.cjs"
+      }
+    },
     "./inputs": {
       "import": {
         "types": "./dist/passthru/inputs/index.d.mts",

@@ -2,7 +2,7 @@ import type { ObjectExpression } from '@babel/types'
 import type { ComponentUse } from '../types'
 import tcjs from '@babel/template'
 import type { NodePath } from '@babel/traverse'
-import { camel } from '@formkit/utils'
+import { camel } from '@formkit/vue/utils'
 import { addImport } from './ast'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 

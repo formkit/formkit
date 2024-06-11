@@ -1,9 +1,9 @@
 import { defineFormKitConfig } from '@formkit/vue'
-import type { FormKitNode } from '@formkit/core'
-import { empty } from '@formkit/utils'
-import de from '@formkit/i18n/locales/de'
-import zh from '@formkit/i18n/locales/zh'
-import { heroIconLoader } from '@formkit/icons'
+import type { FormKitNode } from '@formkit/vue/core'
+import { empty } from '@formkit/vue/utils'
+import de from '@formkit/vue/i18n/locales/de'
+import zh from '@formkit/vue/i18n/locales/zh'
+import { heroIconLoader } from '@formkit/vue/icons'
 import { rootClasses } from './formkit.theme'
 
 function sillyPlugin(node: FormKitNode) {

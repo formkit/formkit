@@ -2,7 +2,7 @@ import type { UnpluginContext, UnpluginBuildContext } from 'unplugin'
 import cjsTraverse from '@babel/traverse'
 import type { NodePath } from '@babel/traverse'
 import * as parser from '@babel/parser'
-import { empty, extend } from '@formkit/utils'
+import { empty, extend } from '@formkit/vue/utils'
 import {
   configureFormKitInstance,
   createFeats,
@@ -37,7 +37,7 @@ import {
   createNode,
   type FormKitConfig,
   type FormKitTypeDefinition,
-} from '@formkit/core'
+} from '@formkit/vue/core'
 import tcjs from '@babel/template'
 import { configureFormKitIconInstance } from './formkitIcon'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
@@ -429,7 +429,7 @@ export async function getAllInputs(
 ): Promise<Set<string>> {
   const allInputs = new Set<string>()
   if (opts.builtins.inputs) {
-    const { inputs } = await import('@formkit/inputs')
+    const { inputs } = await import('@formkit/vue/inputs')
     Object.keys(inputs).forEach((input) => allInputs.add(input))
     const hasPro = await isInstalled(opts, '@formkit/pro')
     if (hasPro) {

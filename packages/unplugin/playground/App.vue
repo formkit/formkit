@@ -5,7 +5,7 @@ const schema = [
     validation: 'required|min:5',
   },
   {
-    $formkit: 'dropdown',
+    $formkit: 'select',
     label: 'My dropdown',
     options: ['🇺🇸 America', '🇮🇹 Italy'],
   },
@@ -14,7 +14,7 @@ const schema = [
 
 <template>
   <div>
-    <FormKit type="dropdown" :options="['A', 'B']" />
+    <FormKit type="select" :options="['A', 'B']" />
     <!-- <FormKitSchema :schema="schema" /> -->
   </div>
 </template>
