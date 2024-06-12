@@ -384,42 +384,38 @@ async function createInputIdentifier(
     }
   }
 
-  if (!opts.builtins.inputs) {
-    throw new Error(
-      `Unable to locate the "${inputName}" input in the configuration (FormKit built-in inputs are disabled).`
-    )
-  }
+  if (opts.builtins.inputs) {
+    // The configuration does not define the given input, so we can attempt to
+    // directly import it from the @formkit/inputs package.
+    const { inputs } = await import('@formkit/vue/inputs')
 
-  // The configuration does not define the given input, so we can attempt to
-  // directly import it from the @formkit/inputs package.
-  const { inputs } = await import('@formkit/vue/inputs')
-
-  if (inputName in inputs) {
-    return [
-      t.statements.ast`import { ${inputName} } from '@formkit/vue/inputs'`,
-      {
-        type: 'Identifier',
-        name: inputName,
-      } as Identifier,
-    ]
-  }
-  const hasPro = await isInstalled(opts, '@formkit/pro')
-
-  if (!hasPro && proInputs.includes(inputName)) {
-    throw new Error(
-      `The "${inputName}" input requires @formkit/pro. Run: npx ni @formkit/pro`
-    )
-  } else if (hasPro) {
-    // Lets try to load the input from @formkit/pro
-    const isPro = await isProInput(opts, inputName)
-    if (isPro) {
-      const importName = `virtual:formkit/pro-input:${inputName}`
-      // Note! Here we import the input name, even though we dont actually use it.
-      // this is to help the getInputDefinition function to resolve the input properly.
+    if (inputName in inputs) {
       return [
-        t.statements.ast`import { ${inputName} } from '${importName}'`,
-        null,
+        t.statements.ast`import { ${inputName} } from '@formkit/vue/inputs'`,
+        {
+          type: 'Identifier',
+          name: inputName,
+        } as Identifier,
       ]
+    }
+    const hasPro = await isInstalled(opts, '@formkit/pro')
+
+    if (!hasPro && proInputs.includes(inputName)) {
+      throw new Error(
+        `The "${inputName}" input requires @formkit/pro. Run: npx ni @formkit/pro`
+      )
+    } else if (hasPro) {
+      // Lets try to load the input from @formkit/pro
+      const isPro = await isProInput(opts, inputName)
+      if (isPro) {
+        const importName = `virtual:formkit/pro-input:${inputName}`
+        // Note! Here we import the input name, even though we dont actually use it.
+        // this is to help the getInputDefinition function to resolve the input properly.
+        return [
+          t.statements.ast`import { ${inputName} } from '${importName}'`,
+          null,
+        ]
+      }
     }
   }
 
@@ -877,9 +873,9 @@ async function createDefaultConfig(
   export const defaultConfig = d(typeof config === 'function' ? config() : config)`
 }
 
-async function createBaseConfig(
+export async function createBaseConfig(
   opts: ResolvedOptions
-): Promise<File | Program> {
+): Promise<Program> {
   const baseOptions = t.expression.ast`{}` as ObjectExpression
   const nodeConfig = t.expression.ast`{}` as ObjectExpression
   const statements: Statement[] = []

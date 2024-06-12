@@ -14,7 +14,11 @@ import {
   extractMethodAsFunction,
 } from '../src/utils/ast'
 import { usedComponents } from '../src/utils/vue'
-import { createOpts, getConfigProperty } from '../src/utils/config'
+import {
+  createOpts,
+  getConfigProperty,
+  getInputDefinition,
+} from '../src/utils/config'
 import { isIdentifier } from '@babel/types'
 import { resolve } from 'pathe'
 
@@ -602,6 +606,57 @@ describe('determineOptimization', () => {
       schema: true,
       theme: true,
       validation: true,
+    })
+  })
+})
+
+describe('getInputDefinition', () => {
+  it('can load the input definition of a built in', async ({ expect }) => {
+    const opts = createOpts({
+      configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
+    })
+    const def = await getInputDefinition(opts, 'text')
+    expect(def).toEqual({
+      type: 'input',
+      family: 'text',
+      features: expect.arrayContaining([]),
+      props: [],
+      schema: expect.any(Function),
+      schemaMemoKey: 'c3cc4kflsg',
+    })
+  })
+
+  it('can load the input definition of custom input', async ({ expect }) => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-input.config.ts'
+      ),
+    })
+    const def = await getInputDefinition(opts, 'text')
+    expect(def).toEqual({
+      type: 'input',
+      schema: [{ $el: 'h1', text: 'Hello World' }],
+    })
+  })
+
+  it('can load the input definition of library input', async ({ expect }) => {
+    const opts = createOpts({
+      configFile: resolve(
+        __dirname,
+        './fixtures/configs/formkit-custom-library.config.ts'
+      ),
+    })
+    const def = await getInputDefinition(opts, 'remove')
+    expect(def).toEqual({
+      __isFromLibrary: true,
+      icons: {
+        close: 'close',
+      },
+      localize: ['removeAllValues'],
+      schema: expect.any(Function),
+      schemaMemoKey: expect.any(String),
+      type: 'input',
     })
   })
 })

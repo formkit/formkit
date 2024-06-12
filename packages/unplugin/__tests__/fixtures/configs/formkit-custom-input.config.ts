@@ -1,12 +1,13 @@
 import { defineFormKitConfig, createInput } from '@formkit/vue'
 import CustomComponent from '../CustomComponent.vue'
-import type { FormKitNode } from '@formkit/core'
-import { empty } from '@formkit/utils'
-import { de, ar } from '@formkit/i18n'
+import type { FormKitNode } from '@formkit/vue/core'
+import { empty } from '@formkit/vue/utils'
+import { de, ar } from '@formkit/vue/i18n'
 
 const headingStyle: string | number = 'h1'
 
 export default defineFormKitConfig({
+  optimize: true,
   inputs: {
     text: {
       type: 'input',

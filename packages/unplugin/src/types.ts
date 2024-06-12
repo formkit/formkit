@@ -22,7 +22,6 @@ export interface Component extends Import {
 
 export interface Options {
   configFile?: string
-  defaultConfig?: boolean
   components: Component[]
 }
 

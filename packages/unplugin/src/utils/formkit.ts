@@ -20,7 +20,7 @@ import t from '@babel/template'
 import { consola } from 'consola'
 import { isFullDeopt, getInputDefinition } from './config'
 import { camel } from '@formkit/vue/utils'
-import type { FormKitSchemaDefinition } from '@formkit/core'
+import type { FormKitSchemaDefinition } from '@formkit/vue/core'
 
 /**
  * Modify the arguments of the usage of a formkit component. For example the
@@ -143,17 +143,20 @@ async function importInputType(
       prop.key.name === 'type'
   ) as ObjectProperty | undefined
 
-  let libName: string
+  let libName: string | undefined = undefined
   const shouldOptimize = component.opts.optimize.inputs
   if (
     shouldOptimize &&
     (!inputType || inputType.value.type === 'StringLiteral')
   ) {
     const value = inputType ? (inputType.value as StringLiteral).value : 'text'
-    libName = addImport(component.opts, component.root, {
-      from: 'virtual:formkit/inputs:' + value,
-      name: 'library',
-    })
+    const def = await getInputDefinition(component.opts, value)
+    if (!def || !('__isFromLibrary' in def)) {
+      libName = addImport(component.opts, component.root, {
+        from: 'virtual:formkit/inputs:' + value,
+        name: 'library',
+      })
+    }
     feats.inputs.add(value)
     await extractUsedFeatures(component.opts, value, feats)
   } else {
@@ -168,7 +171,9 @@ async function importInputType(
       name: 'library',
     })
   }
-  plugins.elements.push(t.expression.ast`${libName}`)
+  if (libName) {
+    plugins.elements.push(t.expression.ast`${libName}`)
+  }
   return feats
 }
 

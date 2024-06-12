@@ -5,12 +5,8 @@ import '@formkit/addons/css/multistep.css'
 import { rootClasses } from './formkit.theme'
 
 export default defineFormKitConfig({
+  optimize: false,
   plugins: [createMultiStepPlugin()],
   icons: { ...genesisIcons },
-  inputs: {
-    foo: createInput({ $el: 'h1', children: 'FOOBAR!' }),
-  },
-  config: {
-    rootClasses,
-  },
+  rootClasses,
 })

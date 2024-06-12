@@ -14,11 +14,13 @@ import {
 } from '@nuxt/kit'
 import { createUnplugin } from 'unplugin'
 import type { NuxtModule } from '@nuxt/schema'
-import { unpluginFactory as unpluginFormKit } from '@formkit/unplugin'
+import { unpluginFactory as unpluginFormKit } from 'unplugin-formkit'
+import { unpluginFactory as formkitUnplugin } from '@formkit/unplugin'
+import { config } from 'process'
 
-export interface ModuleOptions {
-  defaultConfig?: boolean
+export type LegacyModuleOptions = {
   configFile?: string
+  defaultConfig?: boolean
   /**
    * When true FormKit will not install itself globally and will instead inject
    * a `<FormKitLazyProvider>` around components that use FormKit. Additionally
@@ -40,12 +42,13 @@ export interface ModuleOptions {
    * @experimental
    */
   autoImport?: boolean
-  /**
-   * When true FormKit will use the experimental optimization compiler for the unplugin.
-   * @experimental
-   */
-  experimentalOptimizer?: boolean
 }
+export type OptimizerOptions = {
+  configFile?: string
+  autoImport: 'optimize'
+}
+
+export type ModuleOptions = LegacyModuleOptions | OptimizerOptions
 
 const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
@@ -62,20 +65,37 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   },
   async setup(options, nuxt) {
     nuxt.options.build.transpile.push('@formkit/vue')
-    if (options.autoImport) {
-      useAutoImport(options, nuxt)
+    if (options.autoImport == 'optimize') {
+      useOptimizationCompiler(options, nuxt)
+    } else if (options.autoImport) {
+      useLegacyAutoImport(options, nuxt)
     } else {
-      useFormKitPlugin(options, nuxt)
+      useFormKitRuntimePlugin(options, nuxt)
     }
     useIntegrations(options, nuxt)
   },
 })
 
 /**
+ * Installs @formkit/unplugin and uses the optimization compiler. This is targeted
+ * to eventually be the default installation method for FormKit.
+ */
+const useOptimizationCompiler = async function useFormKitUnplugin(
+  options,
+  nuxt
+) {
+  addBuildPlugin(
+    createUnplugin(
+      formkitUnplugin.bind({}, options) as unknown as typeof formkitUnplugin
+    )
+  )
+} satisfies NuxtModule<OptimizerOptions>
+
+/**
  * Installs FormKit via lazy loading. This is the preferred method of
  * installation as it allows for a smaller bundle size and better tree shaking.
  */
-const useAutoImport = async function installLazy(options, nuxt) {
+const useLegacyAutoImport = async function installLazy(options, nuxt) {
   addImports([
     {
       from: '@formkit/core',
@@ -166,11 +186,6 @@ const useAutoImport = async function installLazy(options, nuxt) {
     options.configFile || 'formkit.config'
   )
 
-  addPlugin({
-    mode: 'server',
-    src: resolve('./runtime/formkitSSRPlugin.mjs'),
-  })
-
   addBuildPlugin(
     createUnplugin(
       unpluginFormKit.bind(
@@ -182,14 +197,22 @@ const useAutoImport = async function installLazy(options, nuxt) {
       ) as unknown as typeof unpluginFormKit
     )
   )
-} satisfies NuxtModule<ModuleOptions>
+
+  addPlugin({
+    mode: 'server',
+    src: resolve('./runtime/formkitSSRPlugin.mjs'),
+  })
+} satisfies NuxtModule<LegacyModuleOptions>
 /**
  * Installs FormKit via Nuxt plugin. This registers the FormKit plugin globally
  * which is convenient but has the downside of increasing size of the entry
  * bundle. Eventually this mechanism will deprecated in favor of the lazy
  * behavior.
  */
-const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
+const useFormKitRuntimePlugin = async function installNuxtPlugin(
+  options,
+  nuxt
+) {
   const resolver = createResolver(import.meta.url)
 
   // Add FormKit typescript types explicitly.
@@ -238,13 +261,13 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
       import { resetCount } from '@formkit/core'
 
       ${configPathExists ? `import importedConfig from '${configPath}'` : ''}
-
       export default defineNuxtPlugin((nuxtApp) => {
         const config = ${
           configPathExists
             ? `defaultConfig(typeof importedConfig === 'function' ? importedConfig() : importedConfig)`
             : `defaultConfig`
         }
+
         nuxtApp.hook('app:rendered', (renderContext) => {
           resetCount()
           ssrComplete(nuxtApp.vueApp)
@@ -256,7 +279,7 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
     },
     filename: 'formkitPlugin.mjs',
   })
-} satisfies NuxtModule<ModuleOptions>
+} satisfies NuxtModule<LegacyModuleOptions>
 /**
  * Installs any hooks for integration with Nuxt modules.
  */

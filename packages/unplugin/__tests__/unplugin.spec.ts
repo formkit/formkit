@@ -354,3 +354,58 @@ describe('nodeOptions', () => {
     expect(code).not.toContain('nodeOptions')
   })
 })
+
+describe('custom library', () => {
+  it('can load inputs that were defined in a custom library', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/CustomLibrary.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/formkit-custom-library.config.ts'
+        ),
+      }
+    )
+    expect(code).toMatchInlineSnapshot(`
+      "import { nodeOptions } from "virtual:formkit/nodeOptions";
+      import { removeClasses } from "virtual:formkit/classes:remove";
+      import { close } from "virtual:formkit/icons:close";
+      import { icons } from "virtual:formkit/icons";
+      import { locales } from "virtual:formkit/locales:removeAllValues";
+      import { i18n } from "virtual:formkit/i18n";
+      import { bindings } from "@formkit/vue";
+      import { FormKit } from "@formkit/vue";
+      const _sfc_main = {};
+      import { resolveComponent as _resolveComponent, createVNode as _createVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from "vue";
+      function _sfc_render(_ctx, _cache) {
+        const _component_FormKit = FormKit;
+        return _openBlock(), _createElementBlock("div", null, [
+          _createVNode(_component_FormKit, {
+            type: "remove",
+
+            __config__: (nodeOptions(({
+              plugins: ([bindings, i18n, icons]),
+
+              config: ({
+                rootClasses: removeClasses
+              }),
+
+              props: ({
+                __locales__: locales,
+
+                __icons__: ({
+                  close: close
+                })
+              })
+            })))
+          })
+        ]);
+      }
+      import _export_sfc from "\\0plugin-vue:export-helper";
+      export default /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "/Users/justinschroeder/Projects/formkit/packages/unplugin/__tests__/fixtures/CustomLibrary.vue"]]);
+      "
+    `)
+  })
+})

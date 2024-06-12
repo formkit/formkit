@@ -21,7 +21,7 @@ import type {
   ImportSpecifier,
   ImportDefaultSpecifier,
 } from '@babel/types'
-import { createVirtualInputConfig } from '../hooks/load'
+import { createBaseConfig, createVirtualInputConfig } from '../hooks/load'
 import type {
   Options,
   ResolvedOptions,
@@ -720,11 +720,25 @@ export async function isProInput(
  * @param ast - Optionally, attempt to load the input definition from an AST.
  * @returns
  */
+const inputDefinitionMemo = new WeakMap<
+  ResolvedOptions['configMemo'],
+  Map<string, FormKitTypeDefinition | undefined>
+>()
 export async function getInputDefinition(
   opts: ResolvedOptions,
   input: string,
   ast?: File | Program
-): Promise<FormKitTypeDefinition | undefined> {
+): Promise<
+  | FormKitTypeDefinition
+  | (FormKitTypeDefinition & { __isFromLibrary: true })
+  | undefined
+> {
+  if (!inputDefinitionMemo.has(opts.configMemo)) {
+    inputDefinitionMemo.set(opts.configMemo, new Map())
+  }
+  if (inputDefinitionMemo.get(opts.configMemo)!.has(input)) {
+    return inputDefinitionMemo.get(opts.configMemo)!.get(input)
+  }
   try {
     // This silly iife is purely for TS to be happy due to incomplete control flow analysis: https://github.com/microsoft/TypeScript/issues/9998
     const importPath = await (async (): Promise<
@@ -750,7 +764,6 @@ export async function getInputDefinition(
       })
       return importPath
     })()
-
     if (importPath) {
       const importNode = importPath.parentPath.node as ImportDeclaration
       const importName = importPath.isImportDefaultSpecifier()
@@ -759,11 +772,15 @@ export async function getInputDefinition(
       if (importNode.source.type === 'StringLiteral') {
         const importFrom = importNode.source.value
         if (importFrom.startsWith('virtual:formkit/pro-input:')) {
-          return await getProInputDefinition(opts, input)
+          const result = await getProInputDefinition(opts, input)
+          inputDefinitionMemo.get(opts.configMemo)!.set(input, result)
+          return result
         } else {
           const module = await import(importFrom)
           if (importName in module) {
-            return module[importName] as FormKitTypeDefinition
+            const result = module[importName] as FormKitTypeDefinition
+            inputDefinitionMemo.get(opts.configMemo)!.set(input, result)
+            return result
           }
         }
       }
@@ -780,16 +797,21 @@ export async function getInputDefinition(
           },
         }
         libraryPlugin.library(mockNode)
+        inputDefinitionMemo.get(opts.configMemo)!.set(input, definition)
         return definition
       }
     }
   } catch (e) {
-    consola.info(
-      `[FormKit de-opt]: Optimizer encountered an error when loading input definition for "${input}".`,
-      e
+    // Do nothing
+  }
+  const result = await getLibraryInputDefinition(opts, input)
+  if (!result) {
+    consola.warn(
+      `[FormKit de-opt] Could not load input definition for: ${input}`
     )
   }
-  return undefined
+  inputDefinitionMemo.get(opts.configMemo)!.set(input, result)
+  return result
 }
 
 /**
@@ -840,4 +862,43 @@ export async function getProKey(opts: ResolvedOptions) {
   throw new Error(
     '[FormKit]: Cannot read pro key from your FormKit configuration, please add a pro key (pro: "fk-000000").'
   )
+}
+
+/**
+ * Load the input definition for a library input.
+ * @param opts - Resolved options
+ * @param input - The input to get the definition for.
+ */
+export async function getLibraryInputDefinition(
+  opts: ResolvedOptions,
+  input: string
+): Promise<FormKitTypeDefinition | undefined> {
+  // We dont have AST or an import path — it could be the input we are looking for is loaded
+  // via the library of a plugin.
+  const ast = await createBaseConfig(opts)
+  ast.body.push(
+    ...t.statements.ast`
+  let definition = undefined
+  const fauxNode = {
+    props: { type: '${input}' },
+    define(def) {
+      definition = def
+    }
+  }
+  const options = nodeOptions()
+  if (options.plugins) {
+    options.plugins.forEach(plugin => {
+      if (plugin.library) {
+        plugin.library(fauxNode)
+      }
+    })
+  }
+  export { definition }`
+  )
+  const loader = await loadFromAST(opts, ast)
+  if (loader && typeof loader.definition === 'object') {
+    loader.definition.__isFromLibrary = true
+    return loader.definition as FormKitTypeDefinition
+  }
+  return undefined
 }
