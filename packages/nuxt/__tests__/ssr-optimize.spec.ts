@@ -5,14 +5,13 @@ import { $fetch, createPage, setup, url } from '@nuxt/test-utils/e2e'
 import { resolve } from 'pathe'
 
 const rootDir = fileURLToPath(new URL('../playground', import.meta.url))
-
+const configFile = resolve(rootDir, './nuxt-optimize.config.ts')
 await setup({
   rootDir,
-  configFile: resolve(rootDir, 'nuxt-optimize.config.ts'),
+  configFile,
   browser: true,
   server: true,
 })
-
 describe('vite with optimizer enabled', async () => {
   it('builds and renders', async ({ expect }) => {
     const html = await $fetch('/')

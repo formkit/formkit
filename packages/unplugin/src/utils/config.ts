@@ -804,6 +804,7 @@ export async function getInputDefinition(
   } catch (e) {
     // Do nothing
   }
+
   const result = await getLibraryInputDefinition(opts, input)
   if (!result) {
     consola.warn(

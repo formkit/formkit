@@ -3,9 +3,7 @@ import { rootClasses } from './formkit.theme'
 import customLibrary from './plugins/customLibrary'
 
 export default defineFormKitConfig({
-  optimize: {
-    debug: true,
-  },
+  optimize: false,
   plugins: [customLibrary],
   rootClasses,
 })

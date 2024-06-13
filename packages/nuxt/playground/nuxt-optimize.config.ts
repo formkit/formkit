@@ -1,9 +1,11 @@
 import fsp from 'node:fs/promises'
 import { join } from 'node:path'
-
 import { defineNuxtConfig } from 'nuxt/config'
 import { createResolver } from 'nuxt/kit'
+import { createCommonJS } from 'mlly'
+import { resolve } from 'pathe'
 
+const { __dirname } = createCommonJS(import.meta.url)
 const resolver = createResolver(import.meta.url)
 
 export default defineNuxtConfig({
@@ -28,5 +30,6 @@ export default defineNuxtConfig({
   ],
   formkit: {
     autoImport: 'optimize',
+    configFile: resolve(__dirname, 'formkit-optimize.config.ts'),
   },
 })

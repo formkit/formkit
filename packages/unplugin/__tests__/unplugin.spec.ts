@@ -408,4 +408,106 @@ describe('custom library', () => {
       "
     `)
   })
+
+  it('does not explicitly load inputs when optimization is disabled', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/CustomLibrary.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/formkit-custom-library-deopt.config.ts'
+        ),
+      }
+    )
+    expect(code).toMatchInlineSnapshot(`
+      "import { defaultConfig } from "virtual:formkit/defaultConfig";
+      import { FormKit } from "@formkit/vue";
+      const _sfc_main = {};
+      import { resolveComponent as _resolveComponent, createVNode as _createVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from "vue";
+      function _sfc_render(_ctx, _cache) {
+        const _component_FormKit = FormKit;
+        return _openBlock(), _createElementBlock("div", null, [
+          _createVNode(_component_FormKit, {
+            type: "remove",
+            __config__: defaultConfig
+          })
+        ]);
+      }
+      import _export_sfc from "\\0plugin-vue:export-helper";
+      export default /* @__PURE__ */ _export_sfc(_sfc_main, [["render", _sfc_render], ["__file", "/Users/justinschroeder/Projects/formkit/packages/unplugin/__tests__/fixtures/CustomLibrary.vue"]]);
+      "
+    `)
+  })
+
+  it('does not explicitly load inputs that are part of libraries when optimizing a schema', async ({
+    expect,
+  }) => {
+    const code = await sfcTransform(
+      resolve(__dirname, './fixtures/CustomLibrarySchema.vue'),
+      {
+        configFile: resolve(
+          __dirname,
+          './fixtures/configs/formkit-custom-library.config.ts'
+        ),
+      }
+    )
+    expect(code).not.toContain('virtual:formkit/inputs:remove')
+    expect(code).toMatchInlineSnapshot(`
+      "import { nodeOptions } from "virtual:formkit/nodeOptions";
+      import { mergeRootClasses } from "virtual:formkit/merge-rootClasses";
+      import { removeClasses } from "virtual:formkit/classes:remove";
+      import { textClasses } from "virtual:formkit/classes:text";
+      import { close } from "virtual:formkit/icons:close";
+      import { icons } from "virtual:formkit/icons";
+      import { locales } from "virtual:formkit/locales:removeAllValues";
+      import { i18n } from "virtual:formkit/i18n";
+      import { library } from "virtual:formkit/inputs:text";
+      import { bindings } from "@formkit/vue";
+      import { FormKitSchema } from "@formkit/vue";
+      import { defineComponent as _defineComponent } from "vue";
+      import { resolveComponent as _resolveComponent, createVNode as _createVNode, openBlock as _openBlock, createElementBlock as _createElementBlock } from "vue";
+      export default /* @__PURE__ */ _defineComponent({
+        __name: "CustomLibrarySchema",
+        setup(__props) {
+          const schema = [
+            {
+              $formkit: "text",
+              name: "foo"
+            },
+            {
+              $formkit: "remove",
+              name: "bar"
+            }
+          ];
+          return (_ctx, _cache) => {
+            const _component_FormKitSchema = FormKitSchema;
+            return _openBlock(), _createElementBlock("div", null, [
+              _createVNode(_component_FormKitSchema, {
+                schema,
+
+                __config__: (nodeOptions(({
+                  config: ({
+                    rootClasses: (mergeRootClasses(([textClasses, removeClasses])))
+                  }),
+
+                  props: ({
+                    __locales__: locales,
+
+                    __icons__: ({
+                      close: close
+                    })
+                  }),
+
+                  plugins: ([bindings, library, i18n, icons])
+                })))
+              })
+            ]);
+          };
+        }
+      });
+      "
+    `)
+  })
 })

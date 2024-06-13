@@ -15,6 +15,7 @@ import type { FormKitSchemaDefinition } from '@formkit/vue/core'
 import consola from 'consola'
 import { isRef } from 'vue'
 import { isReactive } from 'vue'
+import { getInputDefinition } from './config'
 const t: typeof tcjs = ('default' in tcjs ? tcjs.default : tcjs) as typeof tcjs
 
 /**
@@ -135,12 +136,15 @@ async function createSchemaConfig(
    * Inject libraries for all the required inputs:
    */
   for (const inputType of feats.inputs) {
-    plugins.elements.push(
-      t.expression.ast`${addImport(component.opts, component.root, {
-        name: 'library',
-        from: `virtual:formkit/inputs:${inputType}`,
-      })}`
-    )
+    const def = await getInputDefinition(component.opts, inputType)
+    if (!def || !('__isFromLibrary' in def)) {
+      plugins.elements.push(
+        t.expression.ast`${addImport(component.opts, component.root, {
+          name: 'library',
+          from: `virtual:formkit/inputs:${inputType}`,
+        })}`
+      )
+    }
   }
 
   // Inject the validation plugin and any rules
