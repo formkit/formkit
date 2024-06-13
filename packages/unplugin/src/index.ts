@@ -34,6 +34,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
        * Ensure the order of the plugin is after the vue plugin.
        */
       configResolved(config) {
+        opts.projectRoot = config.root
         if (
           config.plugins.findIndex((plugin) => plugin.name === 'vite:vue') >
           config.plugins.findIndex(

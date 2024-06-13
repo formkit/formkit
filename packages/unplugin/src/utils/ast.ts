@@ -483,20 +483,25 @@ export function getKeyName(
  * Generates a temporary file, imports it, then deletes it.
  * @param opts - The resolved options.
  * @param ast - AST to load.
+ * @param asPath - The path to load the ast "from".
  * @returns
  */
 export async function loadFromAST(
   opts: ResolvedOptions,
   ast: File | Program,
-  rootDir?: string
+  asPath?: string
 ): Promise<Record<string, any>> {
-  const dir = dirname(rootDir ?? opts.configPath ?? process.cwd())
+  const dir =
+    (asPath && (/\.[a-zA-Z]+$/.test(asPath) ? dirname(asPath) : asPath)) ??
+    (opts.configPath ? dirname(opts.configPath) : null) ??
+    opts.projectRoot ??
+    process.cwd()
   const path = resolve(dir, `./.${randomUUID()}.mjs`)
   const source = opts.generate(ast)
   writeFileSync(path, source.code, 'utf-8')
   let value: any = undefined
   try {
-    value = await createJITI('')(path)
+    value = await createJITI(asPath ?? '').import(path, {})
   } catch (e) {
     if (e instanceof Error) {
       consola.error(

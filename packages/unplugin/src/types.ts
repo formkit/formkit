@@ -39,6 +39,7 @@ export interface ResolvedOptions extends Options, ASTTools {
       Exclude<DefineConfigOptions['optimize'], boolean>
     >]: boolean
   }>
+  projectRoot?: string
   configPath?: string
   configLocalize?: string[]
   configIconLoaderUrl?: DefineConfigOptions['iconLoaderUrl']

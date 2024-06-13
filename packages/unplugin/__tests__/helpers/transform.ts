@@ -6,11 +6,15 @@ import vuePlugin from '@vitejs/plugin-vue'
 import * as vueCompiler from 'vue/compiler-sfc'
 import { readFile } from 'fs/promises'
 import esbuild from 'esbuild'
+import { resolve } from 'pathe'
+import { createCommonJS } from 'mlly'
+const { __dirname } = createCommonJS(import.meta.url)
 
 const NOT_INLINED_SFC = /import _sfc_main from ".*?\?(vue&.*?)"/
 
 export async function sfcTransform(id: string, options: Partial<Options> = {}) {
   const opts = await createOpts(options)
+  opts.projectRoot = resolve(__dirname, '../')
   const context = createContext(opts)
   const transform = createTransform(opts)
   const vue = vuePlugin({ compiler: vueCompiler })

@@ -10,7 +10,7 @@ describe('input config loading', () => {
   it('directly imports the input from @formkit/inputs', async ({ expect }) => {
     const code = await load('virtual:formkit/inputs:text')
     expect(code).toMatchInlineSnapshot(`
-      "import { text } from "@formkit/inputs";
+      "import { text } from "@formkit/vue/inputs";
       const library = () => false;
 
       library.library = node => {
@@ -85,7 +85,7 @@ describe('input config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { createLibraryPlugin, inputs } from "@formkit/inputs";
+      "import { createLibraryPlugin, inputs } from "@formkit/vue/inputs";
       import { createInput } from "@formkit/vue";
       import CustomComponent from "../CustomComponent.vue";
       const headingStyle = "h1";
@@ -115,8 +115,8 @@ describe('input config loading', () => {
   it('produces a library for multiple inputs when the input being loaded contains formkit components in the schema', async () => {
     const code = await load('virtual:formkit/inputs:form')
     expect(code).toMatchInlineSnapshot(`
-      "import { form } from "@formkit/inputs";
-      import { submit } from "@formkit/inputs";
+      "import { form } from "@formkit/vue/inputs";
+      import { submit } from "@formkit/vue/inputs";
       const library = () => true;
 
       library.library = node => {
@@ -138,7 +138,7 @@ describe('validation config loading', () => {
   it('can load the validation plugin', async ({ expect }) => {
     const code = await load('virtual:formkit/validation')
     expect(code).toMatchInlineSnapshot(`
-      "import { createValidationPlugin } from "@formkit/validation";
+      "import { createValidationPlugin } from "@formkit/vue/validation";
       const validation = createValidationPlugin({});
       export { validation };"
     `)
@@ -147,7 +147,7 @@ describe('validation config loading', () => {
   it('can load a validation rule from @formkit/rules', async ({ expect }) => {
     const code = await load('virtual:formkit/rules:length')
     expect(code).toMatchInlineSnapshot(
-      `"export { length } from "@formkit/rules";"`
+      `"export { length } from "@formkit/vue/rules";"`
     )
   })
 
@@ -159,7 +159,7 @@ describe('validation config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { rules as builtinRules } from "@formkit/rules";
+      "import { rules as builtinRules } from "@formkit/vue/rules";
 
       function myrule(node) {
           return node.value === "justin";
@@ -211,7 +211,7 @@ describe('validation config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { empty } from "@formkit/utils";
+      "import { empty } from "@formkit/vue/utils";
 
       function __extracted__(node) {
           if (empty(node.value))
@@ -233,14 +233,14 @@ describe('i18n config loading', () => {
   it('can load the i18n plugin', async ({ expect }) => {
     const code = await load('virtual:formkit/i18n')
     expect(code).toMatchInlineSnapshot(`
-      "import { createI18nPlugin } from "@formkit/i18n/i18n";
+      "import { createI18nPlugin } from "@formkit/vue/i18n/i18n";
       export const i18n = createI18nPlugin({});"
     `)
   })
   it('can load a single message from a single locale', async ({ expect }) => {
     const code = await load('virtual:formkit/locales:required')
     expect(code).toMatchInlineSnapshot(`
-      "import { required } from "@formkit/i18n/locales/en";
+      "import { required } from "@formkit/vue/i18n/locales/en";
 
       export const locales = {
           en: ({
@@ -258,9 +258,9 @@ describe('i18n config loading', () => {
   }) => {
     const code = await load('virtual:formkit/locales:required,length,remove')
     expect(code).toMatchInlineSnapshot(`
-      "import { length } from "@formkit/i18n/locales/en";
-      import { required } from "@formkit/i18n/locales/en";
-      import { remove } from "@formkit/i18n/locales/en";
+      "import { length } from "@formkit/vue/i18n/locales/en";
+      import { required } from "@formkit/vue/i18n/locales/en";
+      import { remove } from "@formkit/vue/i18n/locales/en";
 
       export const locales = {
           en: ({
@@ -286,12 +286,12 @@ describe('i18n config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { length as length1 } from "@formkit/i18n/locales/ar";
-      import { required as required1 } from "@formkit/i18n/locales/ar";
-      import { remove as remove1 } from "@formkit/i18n/locales/ar";
-      import { length } from "@formkit/i18n/locales/de";
-      import { required } from "@formkit/i18n/locales/de";
-      import { remove } from "@formkit/i18n/locales/de";
+      "import { length as length1 } from "@formkit/vue/i18n/locales/ar";
+      import { required as required1 } from "@formkit/vue/i18n/locales/ar";
+      import { remove as remove1 } from "@formkit/vue/i18n/locales/ar";
+      import { length } from "@formkit/vue/i18n/locales/de";
+      import { required } from "@formkit/vue/i18n/locales/de";
+      import { remove } from "@formkit/vue/i18n/locales/de";
 
       export const locales = {
           de: ({
@@ -329,9 +329,9 @@ describe('i18n config loading', () => {
     expect(code).toMatchInlineSnapshot(`
       "import { fr } from "./my-custom-locale";
       const __fr__ = fr;
-      import { required } from "@formkit/i18n/locales/de";
-      import { remove } from "@formkit/i18n/locales/de";
-      import { changeDate } from "@formkit/i18n/locales/de";
+      import { required } from "@formkit/vue/i18n/locales/de";
+      import { remove } from "@formkit/vue/i18n/locales/de";
+      import { changeDate } from "@formkit/vue/i18n/locales/de";
 
       export const locales = {
           de: ({
@@ -382,9 +382,9 @@ describe('i18n config loading', () => {
     expect(code).toMatchInlineSnapshot(`
       "import { fr } from "./my-custom-locale";
       const __fr__ = fr;
-      import { required } from "@formkit/i18n/locales/de";
+      import { required } from "@formkit/vue/i18n/locales/de";
       import { messages } from "virtual:formkit/messages";
-      import { extend } from "@formkit/utils";
+      import { extend } from "@formkit/vue/utils";
 
       export const locales = (extend({
           de: ({
@@ -419,7 +419,7 @@ describe('icon config loading', () => {
   it('can preload a specified icon directly', async ({ expect }) => {
     const code = await load('virtual:formkit/icons:check')
     expect(code).toMatchInlineSnapshot(
-      `"export { check } from "@formkit/icons";"`
+      `"export { check } from "@formkit/vue/icons";"`
     )
   })
 
@@ -479,7 +479,7 @@ describe('icon config loading', () => {
       configFile: resolve(__dirname, './fixtures/configs/icon-deopt.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { createThemePlugin } from "@formkit/themes";
+      "import { createThemePlugin } from "@formkit/vue/themes";
       export const themes = (createThemePlugin(undefined, undefined, undefined, undefined));"
     `)
   })
@@ -494,7 +494,7 @@ describe('icon config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { createThemePlugin } from "@formkit/themes";
+      "import { createThemePlugin } from "@formkit/vue/themes";
       import { close } from "@formkit/icons";
 
       const __icons = {
@@ -761,7 +761,7 @@ describe('theme related config loading', () => {
       configFile: resolve(__dirname, './fixtures/configs/full-theme.config.ts'),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { extend } from "@formkit/utils";
+      "import { extend } from "@formkit/vue/utils";
 
       const baseOptions = ({
           config: ({})
@@ -781,7 +781,7 @@ describe('theme related config loading', () => {
       ),
     })
     expect(code).toMatchInlineSnapshot(`
-      "import { extend } from "@formkit/utils";
+      "import { extend } from "@formkit/vue/utils";
       import { rootClasses } from "./formkit.theme";
       const __rootClasses = rootClasses;
 
