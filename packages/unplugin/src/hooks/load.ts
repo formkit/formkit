@@ -993,11 +993,13 @@ async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
         const usedFamilyClasses = new Set<string>()
         for (const cls of classes) {
           if (cls in familyClasses) {
-            usedFamilyClasses.add(`fam_${family}_${cls}`)
+            usedFamilyClasses.add(`fam_${family}_${camel(cls)}`)
           }
         }
         if (usedFamilyClasses.size) {
-          const importName = [...usedFamilyClasses].join(', ')
+          const importName = [...usedFamilyClasses]
+            .map((c) => camel(c))
+            .join(', ')
           const virtualImport = `virtual:formkit/family-classes:${family}`
           statements.push(
             t.statement.ast`import { ${importName} } from '${virtualImport}'`
@@ -1022,7 +1024,7 @@ async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
         const usedSectionNames = Object.keys(inputClasses)
         if (usedSectionNames.length) {
           const usedClasses = [...usedSectionNames].map(
-            (section) => `input_${input}_${section}`
+            (section) => `input_${camel(input)}_${camel(section)}`
           )
           const importName = usedClasses.join(', ')
           usedClasses.forEach((cls) => usedInputClasses.add(cls))
@@ -1036,7 +1038,9 @@ async function createInputClassesConfig(opts: ResolvedOptions, input: string) {
   }
 
   if (usedInputClasses.size) {
-    const allInputImports = [...usedInputClasses].join(', ')
+    const allInputImports = [...usedInputClasses]
+      .map((cls) => camel(cls))
+      .join(', ')
     inputClasses = t.statement.ast`const inputClasses = { ${allInputImports} }`
   }
 
@@ -1112,7 +1116,7 @@ async function createInputOnlyClassesConfig(
   const classesBySection = await getInputClasses(opts, input, feats)
   const statements: Statement[] = []
   for (const section in classesBySection) {
-    const exportName = `input_${input}_${camel(section)}`
+    const exportName = `input_${camel(input)}_${camel(section)}`
     statements.push(
       t.statement.ast`export const ${exportName} = ${JSON.stringify(
         classesBySection[section],

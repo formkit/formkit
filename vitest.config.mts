@@ -7,7 +7,7 @@ import ViteRestart from 'vite-plugin-restart'
 import unpluginTransformer from './scripts/transform-pipe.mjs'
 import UnpluginFileUrl from 'unplugin-file-url/vite'
 import vue from '@vitejs/plugin-vue'
-import { viteSpy } from './.tests/viteSpy'
+// import { viteSpy } from './.tests/viteSpy'
 
 export default defineConfig({
   resolve: {
@@ -17,15 +17,15 @@ export default defineConfig({
   plugins: [
     vueJsx(),
     vue(),
-    viteSpy,
-    unpluginTransformer.vite({
-      replace: {
-        __DEV__: 'true',
-      },
-      pure: {
-        functions: ['createMessage'],
-      },
-    }),
+    // viteSpy,
+    // unpluginTransformer.vite({
+    //   replace: {
+    //     __DEV__: 'true',
+    //   },
+    //   pure: {
+    //     functions: ['createMessage'],
+    //   },
+    // }),
     UnpluginFileUrl(),
     ViteRestart({
       restart: ['./packages/unplugin/src/**'],

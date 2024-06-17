@@ -25,7 +25,7 @@ export function usedComponents(
     { name: 'resolveComponent', from: 'vue' },
     { name: 'createVNode', from: 'vue' },
     { name: 'createBlock', from: 'vue' },
-    { name: 'ssrRenderComponent', from: 'vue' },
+    { name: 'ssrRenderComponent', from: 'vue/server-renderer' },
     { name: 'h', from: 'vue' },
     { name: 'unref', from: 'vue' },
   ])
