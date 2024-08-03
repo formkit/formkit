@@ -150,6 +150,9 @@ export function createLocalStoragePlugin(
           let saveData = {}
           if (localStorageData)
             saveData = { ...JSON.parse(localStorageData).data, ...savePayload }
+          else {
+            saveData = savePayload
+          }
           localStorage.setItem(
             storageKey,
             JSON.stringify({
