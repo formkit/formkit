@@ -12,6 +12,7 @@ import { undefine } from '@formkit/utils'
  * @param beforeSave - A function to call for modifying data before saving to localStorage
  * @param beforeLoad - A function to call for modifying data before loading from localStorage
  * @param clearOnSubmit - On submission of the form clear the local storage key. Defaults to true.
+ * @param overwriteStorage - On commit of the form overwrite the current local storage key. Defaults to true
  *
  * @public
  */
@@ -24,6 +25,7 @@ export interface LocalStorageOptions {
   beforeSave?: (payload: any) => any
   beforeLoad?: (payload: any) => any
   clearOnSubmit?: boolean
+  overwriteOnCommit?: boolean
 }
 
 /**
@@ -43,7 +45,7 @@ export function createLocalStoragePlugin(
     // to 'form' and 'group' inputs — as well as any add-on inputs
     // registered of FormKit type 'group' (eg. 'multi-step').
     if (node.type !== 'group') return
-    
+
     // enable SSR support
     if (typeof window === "undefined") return
 
@@ -97,6 +99,7 @@ export function createLocalStoragePlugin(
       const key = localStorageOptions?.key ? `-${localStorageOptions.key}` : '' // for scoping to a specific user
       const storageKey = `${prefix}${key}-${node.name}`
       const clearOnSubmit = localStorageOptions?.clearOnSubmit ?? true
+      const overwriteOnCommit = localStorageOptions?.overwriteOnCommit ?? true
 
       const loadValue = async (forceValue?: string) => {
         const value = forceValue || localStorage.getItem(storageKey)
@@ -133,13 +136,28 @@ export function createLocalStoragePlugin(
 
         if (!savePayload) return
 
-        localStorage.setItem(
-          storageKey,
-          JSON.stringify({
-            maxAge: Date.now() + maxAge,
-            data: savePayload,
-          })
-        )
+        if (overwriteOnCommit) {
+          localStorage.setItem(
+            storageKey,
+            JSON.stringify({
+              maxAge: Date.now() + maxAge,
+              data: savePayload,
+            })
+          )
+        }
+        else {
+          const localStorageData = localStorage.getItem(storageKey)
+          let saveData = {}
+          if (localStorageData)
+            saveData = { ...JSON.parse(localStorageData).data, ...savePayload }
+          localStorage.setItem(
+            storageKey,
+            JSON.stringify({
+              maxAge: Date.now() + maxAge,
+              data: saveData,
+            })
+          )
+        }
       }
 
       node.on('commit', ({ payload }) => {
