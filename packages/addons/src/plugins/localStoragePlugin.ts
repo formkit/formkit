@@ -12,7 +12,7 @@ import { undefine } from '@formkit/utils'
  * @param beforeSave - A function to call for modifying data before saving to localStorage
  * @param beforeLoad - A function to call for modifying data before loading from localStorage
  * @param clearOnSubmit - On submission of the form clear the local storage key. Defaults to true.
- * @param overwriteOnCommit - On commit of the form overwrite the current local storage key. Defaults to true
+ * @param overwriteOnCommit - On commit of the form overwrite the matching local storage key value. Defaults to true
  *
  * @public
  */
