@@ -28,7 +28,7 @@ handling, and validation rules. To learn more check out the documentation websit
   <img width="800" src="https://cdn.formk.it/og/kickstart-og.png" alt="KickStart">
 </a>
 <a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
-  <img width="800" src="https://cdn.formk.it/web-assets/kickstart-tiny.gif" alt="KickStart Demo">
+  <img width="800" src="https://cdn.formk.it/web-assets/kickstart-loop.gif" alt="KickStart Demo">
 </a>
 
 ## Sponsors
