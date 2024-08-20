@@ -17,7 +17,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
   const opts = createOpts(options)
 
   return {
-    name: 'unplugin:formkit',
+    name: '@formkit/unplugin',
     resolveId: createResolver(opts),
     load: createLoad(opts),
     // webpack's id filter is outside of loader logic,
@@ -38,7 +38,7 @@ export const unpluginFactory: UnpluginFactory<Partial<Options> | undefined> = (
         if (
           config.plugins.findIndex((plugin) => plugin.name === 'vite:vue') >
           config.plugins.findIndex(
-            (plugin) => plugin.name === 'unplugin:formkit'
+            (plugin) => plugin.name === '@formkit/unplugin'
           )
         ) {
           throw new Error(

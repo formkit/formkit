@@ -1135,6 +1135,7 @@ async function createInputOnlyClassesConfig(
  */
 async function createRootClassesConfig(): Promise<Program> {
   return t.program.ast`
+  import { camel } from '@formkit/vue/utils'
   export function createRootClasses(globals, familyClasses, inputClasses) {
     return (section, node) => {
       const global = { ...globals[section] } ?? {}
@@ -1144,6 +1145,7 @@ async function createRootClassesConfig(): Promise<Program> {
       if (node.props.type) {
         Object.assign(global, inputClasses[\`input_\${node.props.type}_\${section}\`] ?? {})
       }
+      global[\`formkit-\${camel(section)}\`] = true
       return global
     }
   }
