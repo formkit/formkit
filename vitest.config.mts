@@ -18,14 +18,14 @@ export default defineConfig({
     vueJsx(),
     vue(),
     // viteSpy,
-    // unpluginTransformer.vite({
-    //   replace: {
-    //     __DEV__: 'true',
-    //   },
-    //   pure: {
-    //     functions: ['createMessage'],
-    //   },
-    // }),
+    unpluginTransformer.vite({
+      replace: {
+        __DEV__: 'true',
+      },
+      pure: {
+        functions: ['createMessage'],
+      },
+    }),
     UnpluginFileUrl(),
     ViteRestart({
       restart: ['./packages/unplugin/src/**'],
