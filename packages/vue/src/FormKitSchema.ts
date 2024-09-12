@@ -934,9 +934,11 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
       // Perform cleanup operations
       clean(props.schema, props.memoKey, instanceKey)
       /* eslint-disable @typescript-eslint/no-non-null-assertion */
-      if (data.node) data.node.destroy()
-      data.slots = null!
-      data = null!
+      if (data) {
+        if (data.node) data.node.destroy()
+        data.slots = null!
+        data = null!
+      }
       render = null!
       /* eslint-enable @typescript-eslint/no-non-null-assertion */
     }
