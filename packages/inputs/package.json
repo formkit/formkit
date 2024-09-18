@@ -1,7 +1,7 @@
 {
   "name": "@formkit/inputs",
   "type": "module",
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
@@ -39,7 +39,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.6",
-    "@formkit/utils": "1.6.6"
+    "@formkit/core": "1.6.7",
+    "@formkit/utils": "1.6.7"
   }
 }
