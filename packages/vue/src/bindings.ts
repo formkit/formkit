@@ -188,6 +188,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const cachedClasses = reactive<Record<string, string>>({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
+      if (!node) return ''
       const [target, property] = args
       let className: string | null = Reflect.get(...args)
       if (!className && typeof property === 'string') {
@@ -235,6 +236,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   const describedBy = computed<string | undefined>(() => {
+    if (!node) return undefined
     const describers = []
     if (context.help) {
       describers.push(`help-${node.props.id}`)
