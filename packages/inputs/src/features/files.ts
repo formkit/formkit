@@ -58,16 +58,32 @@ export default function files(node: FormKitNode): void {
   localize('remove')(node)
   node.addProps(['_hasMultipleFiles'])
 
+  const setupFileDropListeners = () => {
+    if (window._FormKit_File_Drop) return;
+
+    const dragoverHandler = preventStrayDrop.bind(null, 'dragover');
+    const dropHandler = preventStrayDrop.bind(null, 'drop');
+
+    window.addEventListener('dragover', dragoverHandler);
+    window.addEventListener('drop', dropHandler);
+    window.addEventListener('dragleave', removeHover);
+
+    window._FormKit_File_Drop = true;
+
+    // Return an object implementing Symbol.dispose for cleanup
+    return {
+      [Symbol.dispose]() {
+        // Remove all the listeners when disposed
+        window.removeEventListener('dragover', dragoverHandler);
+        window.removeEventListener('drop', dropHandler);
+        window.removeEventListener('dragleave', removeHover);
+        window._FormKit_File_Drop = false; // Reset the flag
+      }
+    };
+  }
+
   if (isBrowser) {
-    if (!window._FormKit_File_Drop) {
-      window.addEventListener(
-        'dragover',
-        preventStrayDrop.bind(null, 'dragover')
-      )
-      window.addEventListener('drop', preventStrayDrop.bind(null, 'drop'))
-      window.addEventListener('dragleave', removeHover)
-      window._FormKit_File_Drop = true
-    }
+    setupFileDropListeners()
   }
   node.hook.input((value, next) => next(Array.isArray(value) ? value : []))
   node.on('input', ({ payload: value }) => {

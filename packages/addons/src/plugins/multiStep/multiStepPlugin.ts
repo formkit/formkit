@@ -411,24 +411,34 @@ function triggerStepValidations(step: FormKitFrameworkContext) {
 }
 
 function initEvents(node: FormKitNode, el: Element) {
-  if (!(el instanceof HTMLElement)) return
-  el.addEventListener('keydown', (event: KeyboardEvent) => {
+  if (!(el instanceof HTMLElement)) return;
+  const keydownHandler = (event: KeyboardEvent) => {
     if (event.target instanceof HTMLButtonElement) {
       if (
         event.key === 'Tab' &&
         'data-next' in event.target?.attributes &&
         !event.shiftKey
       ) {
-        event.preventDefault()
+        event.preventDefault();
         const activeStepContext = node.children.find(
           (step) => !isPlaceholder(step) && step.name === node.props.activeStep
-        ) as FormKitNode | undefined
+        ) as FormKitNode | undefined;
+
         if (activeStepContext && activeStepContext.context) {
-          incrementStep(1, activeStepContext.context)
+          incrementStep(1, activeStepContext.context);
         }
       }
     }
-  })
+  };
+  el.addEventListener('keydown', keydownHandler);
+
+  // Return an object implementing Symbol.dispose for cleanup
+  return {
+    [Symbol.dispose]() {
+      // Ensure the event listener is removed to avoid memory leaks
+      el.removeEventListener('keydown', keydownHandler);
+    }
+  };
 }
 
 function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
