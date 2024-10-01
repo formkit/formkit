@@ -16,6 +16,23 @@ let autoAnimateOptionsId = 0
 let observer: MutationObserver | null = null
 let observerTimeout: ReturnType<typeof setTimeout> | number = 0
 
+function createObserverResource() {
+  observer = new MutationObserver(() => {
+    observeIds()
+    if (!pendingIds.size && observer) {
+      observer.disconnect()
+      observer = null
+    }
+  })
+
+  return {
+    observer,
+    [Symbol.dispose]() {
+      observer?.disconnect(); // Ensure the observer is disconnected when disposed
+    }
+  };
+}
+
 /**
  * Create a new mutation observer that checks for the document for ids. We do
  * this instead of iterating over the mutations because getElementById is by far
@@ -24,14 +41,8 @@ let observerTimeout: ReturnType<typeof setTimeout> | number = 0
  */
 function createObserver() {
   observeIds()
-  observer = new MutationObserver(() => {
-    observeIds()
-    if (!pendingIds.size && observer) {
-      observer.disconnect()
-      observer = null
-    }
-  })
-  observer.observe(document, { childList: true, subtree: true })
+  using observerResource = createObserverResource()
+  observerResource.observer.observe(document, { childList: true, subtree: true })
 }
 
 function observeIds() {

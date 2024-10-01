@@ -854,24 +854,39 @@ function applyExplicit<T extends object | any[]>(
  *
  * @public
  */
-export function whenAvailable(
-  childId: string,
-  callback: (el: Element) => void,
-  root?: Document | ShadowRoot
-): void {
-  if (!isBrowser) return
-  if (!root) root = document
-  const el = root.getElementById(childId)
-  if (el) return callback(el)
-  const observer = new MutationObserver(() => {
-    const el = root?.getElementById(childId)
-    if (el) {
-      observer?.disconnect()
-      callback(el)
-    }
-  })
-  observer.observe(root, { childList: true, subtree: true })
-}
+ export function whenAvailable(
+   childId: string,
+   callback: (el: Element) => void,
+   root?: Document | ShadowRoot
+ ): void {
+   if (typeof window === "undefined") return; // Check if it's a browser environment
+   if (!root) root = document;
+
+   const el = root.getElementById(childId);
+   if (el) return callback(el);
+
+   // Create a resource that automatically disconnects the observer
+   const createObserverResource = () => {
+     const observer = new MutationObserver(() => {
+       const el = root?.getElementById(childId);
+       if (el) {
+         observer?.disconnect(); // Disconnect manually after finding the element
+         callback(el);
+       }
+     });
+
+     // Return an object that implements Symbol.dispose to handle observer cleanup
+     return {
+       observer,
+       [Symbol.dispose]() {
+         observer.disconnect(); // Ensure the observer is disconnected when disposed
+       }
+     };
+   };
+   using observerResource = createObserverResource();
+   observerResource.observer.observe(root, { childList: true, subtree: true });
+ }
+
 
 /**
  * Given a function only 1 call will be made per call stack. All others will

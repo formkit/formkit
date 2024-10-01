@@ -90,6 +90,26 @@ export function createFloatingLabelsPlugin(
     const useFloatingLabels = node.props.floatingLabel
 
     if (useFloatingLabels && node.context) {
+      const createObserverResource = () => {
+        const observer = new MutationObserver(() => {
+          if (!nodeEl) return
+          calculateLabelOffset(node, nodeEl)
+
+          // delay the enabling of animations until after
+          // initial label positions are set
+          setTimeout(() => {
+            node.props._offsetCalculated = true
+          }, 100)
+        });
+
+        return {
+          observer,
+          [Symbol.dispose]() {
+            observer.disconnect(); // Ensure the observer is disconnected when disposed
+          }
+        };
+      };
+
       node.on('created', () => {
         if (!node.props || !node.props.definition || !node.context) return
 
@@ -165,23 +185,14 @@ export function createFloatingLabelsPlugin(
 
         // set a mutation observer on the nodeEl parent to refire calculateLabelOffset
         // whenever the children are changed
-        const observer = new MutationObserver(() => {
-          if (!nodeEl) return
-          calculateLabelOffset(node, nodeEl)
-
-          // delay the enabling of animations until after
-          // initial label positions are set
-          setTimeout(() => {
-            node.props._offsetCalculated = true
-          }, 100)
-        })
+        using observerResource = createObserverResource()
 
         whenAvailable(node.context.id, () => {
           if (!node.context) return
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
           setBackgroundColor(node, nodeEl, 100)
-          observer.observe(nodeEl.parentNode as Node, {
+          observerResource.observer.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
             attributes: true,
