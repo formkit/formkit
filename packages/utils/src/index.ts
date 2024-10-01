@@ -6,7 +6,7 @@
  * @packageDocumentation
  */
 
-const isBrowser = typeof window !== 'undefined'
+// const isBrowser = typeof window !== 'undefined'
 
 /**
  * Explicit keys that should always be cloned.
