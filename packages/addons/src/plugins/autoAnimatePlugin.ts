@@ -28,7 +28,7 @@ function createObserverResource() {
   return {
     observer,
     [Symbol.dispose]() {
-      observer?.disconnect(); // Ensure the observer is disconnected when disposed
+      observer?.disconnect()
     }
   };
 }

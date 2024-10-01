@@ -100,15 +100,15 @@ export function createFloatingLabelsPlugin(
           setTimeout(() => {
             node.props._offsetCalculated = true
           }, 100)
-        });
+        })
 
         return {
           observer,
           [Symbol.dispose]() {
-            observer.disconnect(); // Ensure the observer is disconnected when disposed
+            observer.disconnect()
           }
-        };
-      };
+        }
+      }
 
       node.on('created', () => {
         if (!node.props || !node.props.definition || !node.context) return

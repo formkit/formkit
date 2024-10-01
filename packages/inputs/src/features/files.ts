@@ -59,27 +59,25 @@ export default function files(node: FormKitNode): void {
   node.addProps(['_hasMultipleFiles'])
 
   const setupFileDropListeners = () => {
-    if (window._FormKit_File_Drop) return;
+    if (window._FormKit_File_Drop) return
 
-    const dragoverHandler = preventStrayDrop.bind(null, 'dragover');
-    const dropHandler = preventStrayDrop.bind(null, 'drop');
+    const dragoverHandler = preventStrayDrop.bind(null, 'dragover')
+    const dropHandler = preventStrayDrop.bind(null, 'drop')
 
-    window.addEventListener('dragover', dragoverHandler);
-    window.addEventListener('drop', dropHandler);
-    window.addEventListener('dragleave', removeHover);
+    window.addEventListener('dragover', dragoverHandler)
+    window.addEventListener('drop', dropHandler)
+    window.addEventListener('dragleave', removeHover)
 
-    window._FormKit_File_Drop = true;
+    window._FormKit_File_Drop = true
 
-    // Return an object implementing Symbol.dispose for cleanup
     return {
       [Symbol.dispose]() {
-        // Remove all the listeners when disposed
-        window.removeEventListener('dragover', dragoverHandler);
-        window.removeEventListener('drop', dropHandler);
-        window.removeEventListener('dragleave', removeHover);
-        window._FormKit_File_Drop = false; // Reset the flag
+        window.removeEventListener('dragover', dragoverHandler)
+        window.removeEventListener('drop', dropHandler)
+        window.removeEventListener('dragleave', removeHover)
+        window._FormKit_File_Drop = false
       }
-    };
+    }
   }
 
   if (isBrowser) {

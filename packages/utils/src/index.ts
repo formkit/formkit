@@ -861,11 +861,8 @@ function applyExplicit<T extends object | any[]>(
  ): void {
    if (typeof window === "undefined") return; // Check if it's a browser environment
    if (!root) root = document;
-
    const el = root.getElementById(childId);
    if (el) return callback(el);
-
-   // Create a resource that automatically disconnects the observer
    const createObserverResource = () => {
      const observer = new MutationObserver(() => {
        const el = root?.getElementById(childId);
@@ -879,12 +876,12 @@ function applyExplicit<T extends object | any[]>(
      return {
        observer,
        [Symbol.dispose]() {
-         observer.disconnect(); // Ensure the observer is disconnected when disposed
+         observer.disconnect()
        }
      };
    };
-   using observerResource = createObserverResource();
-   observerResource.observer.observe(root, { childList: true, subtree: true });
+   using observerResource = createObserverResource()
+   observerResource.observer.observe(root, { childList: true, subtree: true })
  }
 
 

@@ -419,24 +419,20 @@ function initEvents(node: FormKitNode, el: Element) {
         'data-next' in event.target?.attributes &&
         !event.shiftKey
       ) {
-        event.preventDefault();
+        event.preventDefault()
         const activeStepContext = node.children.find(
           (step) => !isPlaceholder(step) && step.name === node.props.activeStep
         ) as FormKitNode | undefined;
-
         if (activeStepContext && activeStepContext.context) {
-          incrementStep(1, activeStepContext.context);
+          incrementStep(1, activeStepContext.context)
         }
       }
     }
   };
   el.addEventListener('keydown', keydownHandler);
-
-  // Return an object implementing Symbol.dispose for cleanup
   return {
     [Symbol.dispose]() {
-      // Ensure the event listener is removed to avoid memory leaks
-      el.removeEventListener('keydown', keydownHandler);
+      el.removeEventListener('keydown', keydownHandler)
     }
   };
 }
