@@ -77,6 +77,12 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
   </a>
 </p>
 
+<p style="margin-bottom: 1em;">
+  <a href="https://www.usemast.com/?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_mast.png" alt="Mast's logo" style="width: 9%;">
+  </a>
+</p>
+
 ### Backers
 
 [uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic), [João Bondim](https://github.com/JesterIruka)
