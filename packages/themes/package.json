@@ -3,7 +3,7 @@
   "version": "1.6.7",
   "type": "module",
   "description": "FormKit base themes",
-  "types": "dist/index.d.ts",
+  "types": "dist/index.d.cts",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "exports": {
