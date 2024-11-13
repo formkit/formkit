@@ -28,6 +28,7 @@ export interface ModuleOptions {
    * - `<FormKitProvider>`
    * - `<FormKitMessages>`
    * - `<FormKitSummary>`
+   * - `<FormKitSchema>`
    * - `getNode()`
    * - `createInput()`
    * - `setErrors`,
@@ -143,6 +144,12 @@ const useAutoImport = async function installLazy(options, nuxt) {
   addComponent({
     name: 'FormKitIcon',
     export: 'FormKitIcon',
+    filePath: '@formkit/vue',
+    chunkName: '@formkit/vue',
+  })
+  addComponent({
+    name: 'FormKitSchema',
+    export: 'FormKitSchema',
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
