@@ -66,7 +66,6 @@ export function reset(
     node.walk((child) => {
       // Skip resetting synced lists to default.
       if (child.type === 'list' && child.sync) return
-      console.log('child', child.name, initial(child))
       child.input(initial(child), false)
     })
     // Finally we need to lay any values back on top (if it is a group/list) since group values
