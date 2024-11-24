@@ -3,7 +3,7 @@
     <select
       ref="currency"
       :class="context.classes.selector"
-      :value="context._value.currency"
+      :value="context._value?.currency"
       @change="input"
     >
       <option value="€">
@@ -19,7 +19,7 @@
   </div>
   <input
     ref="amount"
-    :value="context._value.amount"
+    :value="context._value?.amount"
     v-bind="context.attrs"
     :class="context.classes.input"
     @input="input"
