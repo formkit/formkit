@@ -1,4 +1,5 @@
 import { has } from '@formkit/utils'
+import type { Component } from 'vue'
 
 /**
  * The value being listed out. Can be an array, an object, or a number.
@@ -110,7 +111,7 @@ export type FormKitSchemaAttributes =
  * @public
  */
 export type FormKitSchemaComponent = {
-  $cmp: string
+  $cmp: string | Component;
   props?: Record<string, any>
 } & FormKitSchemaProps
 

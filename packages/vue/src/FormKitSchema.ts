@@ -451,7 +451,7 @@ function parseSchema(
         }
       } else {
         // in this case it must be an actual component
-        element = node.$cmp
+        element = markRaw(node.$cmp)
       }
       attrs = parseAttrs(node.props, node.bind)
     } else if (isConditional(node)) {
