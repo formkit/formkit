@@ -216,6 +216,35 @@ describe('form submission', () => {
     expect(submitHandler).toHaveBeenCalledTimes(1)
   })
 
+  it('handles rejected promises in submit handler', async () => {
+    const errorMessage = 'Test submission error'
+    const wrapper = mount(
+      {
+        methods: {
+          async submitHandler() {
+            throw new Error(errorMessage)
+          },
+        },
+        components: {
+          FormKitMessages,
+        },
+        template: `<FormKit type="form" @submit="submitHandler">
+          <FormKitMessages />
+          <FormKit type="text" name="test" />
+        </FormKit>`,
+      },
+      global
+    )
+
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 50))
+    await nextTick()
+    
+    expect(wrapper.html()).toContain(errorMessage)
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(false)
+    expect(wrapper.find('input').element.disabled).toBe(false)
+  })
+
   it('sets submitted state when form is submitted', async () => {
     const submitHandler = vi.fn()
     const wrapper = mount(

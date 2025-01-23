@@ -23,6 +23,7 @@ import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import SyncedLists from './vue/examples/SyncedLists.vue'
+import SubmitPromise from './vue/examples/SubmitPromise.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
 import AccessibilityTest from './vue/examples/AccessibilityTest.vue'
 import Zod from './vue/examples/Zod.vue'
@@ -147,6 +148,10 @@ const router = createRouter({
     {
       path: '/synced-lists',
       component: SyncedLists,
+    },
+    {
+      path: '/submit-promise',
+      component: SubmitPromise,
     },
     {
       path: '/e2e',
