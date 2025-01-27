@@ -59,11 +59,11 @@ const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons that navigate state forward
    */
-  next: 'Vervolgens',
+  next: 'Volgende',
   /**
    * Shown on buttons that navigate state backward
    */
-  prev: 'Voorgaand',
+  prev: 'Vorige',
   /**
    * Shown when adding all values.
    */
