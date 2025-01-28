@@ -31,7 +31,7 @@ const ui: FormKitLocaleMessages = {
   /**
    * Shown when all fields are not filled out correctly.
    */
-  incomplete: 'Discúlpe, los campos no fueron completados correctamente.',
+  incomplete: 'Disculpe, los campos no fueron completados correctamente.',
   /**
    * Shown in a button inside a form to submit the form.
    */
