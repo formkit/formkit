@@ -39,4 +39,17 @@ describe('vite', async () => {
     ).toEqual([])
     await page.close()
   })
+
+  it('renders form with disabled submit handler on ssr form can be submitted after hydration', async () => {
+    // check ssr page has onsubmit
+    const html = await $fetch('/')
+    expect(html.match(/<form [a-z0-9=_\-/" ]*onsubmit="return false">/).length).toBeGreaterThan(0)
+    
+    const page = await createPage()
+    await page.goto(url('/'))
+    await page.getByLabel('I will test submitting').fill('hello')
+    await page.getByRole('button', { name: 'Submit' }).click()
+    expect(new URL(page.url()).search).toBe('?text_2=&text_3=This+is+hydrated&hydration_test=Testing+hydration&tailwind=lots&submitTest=hello')
+    await page.close()
+  })
 })

@@ -44,7 +44,7 @@ describe('form structure', () => {
       ...global,
     })
     expect(wrapper.html())
-      .toEqual(`<form class="formkit-form" id="foo" name="test_form">
+      .toEqual(`<form class="formkit-form" id="foo" name="test_form" onsubmit="return false">
   <h1>in the form</h1>
   <!---->
   <div class="formkit-actions">

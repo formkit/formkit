@@ -46,6 +46,11 @@ if (typeof window === 'undefined' && !import.meta.test && !import.meta.dev) {
         }"
         help="I only get the `radio` styles because the config has conditional logic"
       />
+      <FormKit
+        label="I will test submitting"
+        name="submitTest"
+        type="text"
+      />
     </FormKit>
   </div>
 </template>

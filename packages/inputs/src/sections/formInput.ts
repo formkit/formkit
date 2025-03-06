@@ -14,6 +14,7 @@ export const formInput = createSection('form', () => ({
   attrs: {
     id: '$id',
     name: '$node.name',
+    onsubmit: 'return false',
     onSubmit: '$handlers.submit',
     'data-loading': '$state.loading || undefined',
   },
