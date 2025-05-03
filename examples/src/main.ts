@@ -21,6 +21,7 @@ import Playground from './vue/examples/PlaygroundWorld.vue'
 import Performance from './vue/examples/PerformanceTest.vue'
 import FloatingLabels from './vue/examples/FloatingLabels.vue'
 import LocalStoragePlugin from './vue/examples/LocalStoragePlugin.vue'
+import PasswordMeterExample from './vue/examples/PasswordMeterExample.vue'
 import AutoHeightTextarea from './vue/examples/AutoHeightTextarea.vue'
 import SyncedLists from './vue/examples/SyncedLists.vue'
 import TestAsyncFormSubmit from './vue/examples/TestAsyncFormSubmit.vue'
@@ -30,6 +31,7 @@ import CustomRoot from './vue/examples/custom-elements/CustomRoot'
 import CustomElements from './vue/examples/CustomElements.vue'
 import '@formkit/themes/genesis'
 import '@formkit/addons/css/multistep'
+import { createPasswordMeterPlugin } from '@formkit/addons'
 
 // Setup custom element
 customElements.define('custom-root', CustomRoot)
@@ -58,6 +60,7 @@ const config = defaultConfig({
     // proPlugin,
     // createAutoAnimatePlugin(),
     createMultiStepPlugin(),
+    createPasswordMeterPlugin(),
   ],
 })
 
@@ -131,6 +134,10 @@ const router = createRouter({
     {
       path: '/local-storage',
       component: LocalStoragePlugin,
+    },
+    {
+      path: '/password-meter',
+      component: PasswordMeterExample,
     },
     {
       path: '/auto-height-textarea',
