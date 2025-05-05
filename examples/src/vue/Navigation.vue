@@ -60,6 +60,11 @@
           Auto Height Textarea
         </router-link>
       </li>
+       <li>
+        <router-link to="/password-meter">
+          Password Meter Plugin
+        </router-link>
+      </li>
       <li>
         <router-link to="/playground"> Playground </router-link>
       </li>
