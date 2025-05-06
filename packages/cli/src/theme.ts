@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import http from 'http'
 import { writeFile, readFile } from 'fs/promises'
 import { resolve } from 'pathe'
-import { error, green, __dirname, info } from './index'
+import { error, red, green, __dirname, info } from './index'
 import { Theme, ThemeOptions } from '@formkit/theme-creator'
 import { stylesheetFromTailwind } from '@formkit/theme-creator/stylesheet'
 import { slugify } from '@formkit/utils'
@@ -32,22 +32,54 @@ const DEFAULT_THEME_API = 'https://themes.formkit.com/api'
 const DEFAULT_THEME_EDITOR = 'https://themes.formkit.com'
 const HAS_EXTENSION_RE = /\.(?:ts|js|mjs|cjs)$/
 
+let themeListResponse: Response | null = null
+let themes: Array<Record<string, any>> = []
+
+async function fetchThemes() {
+  themeListResponse = await fetch(`${DEFAULT_THEME_API}/themes`)
+  themes = await themeListResponse.json()
+}
+
 export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
-  let themeName = options.theme
+  if (!themes.length) await fetchThemes()
+
+  let themeName = options.theme || ''
+
   if (!options.theme) {
     const generatedTheme = await localGeneratedTheme()
+
     if (generatedTheme) {
       const [code, path] = generatedTheme
       try {
         const [checksum, variables, theme] = extractThemeData(code)
-        const { editMode } = await prompts({
-          type: 'confirm',
-          message: `Found local theme file for ${theme}, edit this theme?`,
-          name: 'editMode',
-          initial: true,
-        })
-        if (editMode) {
-          return await editTheme(path, code, checksum, variables, theme)
+
+        // determine if the theme is from themes.formkit.com
+        const themeFromList = themes.find((t: any) => t.slug === theme)
+
+        if (themeFromList) {
+          const { editMode } = await prompts({
+            type: 'confirm',
+            message: `Found local theme file for ${theme}, edit this theme?`,
+            name: 'editMode',
+            initial: true,
+          })
+          if (editMode) {
+            return await editTheme(path, code, checksum, variables, theme)
+          }
+        } else if (generatedTheme) {
+          red(
+            'It appears you have a local theme installed that is not part of the themes.formkit.com registry. By continuing your local theme file will be overwritten.'
+          )
+          const { confirm } = await prompts({
+            type: 'confirm',
+            message: 'Are you sure you want to continue?',
+            name: 'confirm',
+            initial: false,
+          })
+
+          if (!confirm) {
+            return error('Aborting.')
+          }
         }
       } catch (err) {
         console.error(err)
@@ -56,8 +88,6 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
         )
       }
     }
-    const res = await fetch(`${DEFAULT_THEME_API}/themes`)
-    const themes = await res.json()
     const { theme } = await prompts({
       type: 'select',
       message: 'Select a theme',
@@ -76,28 +106,64 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
   }
   if (!themeName) error('Please provide a theme name or path to a theme file.')
   green(`Locating ${themeName}...`)
-  const endpoint = options.api || DEFAULT_THEME_API
 
   const format = options.format || guessFormat()
-  const theme = themeName?.startsWith('./')
-    ? await generate(
-        await localTheme(themeName),
+
+  let theme = null
+  // if the theme is in the themesList then grab it from the api
+  const themeFromList = themes.find((t: any) => t.slug === themeName)
+
+  // check if there is a local file matching the provided theme name
+  const themeFilePath = determineFilePath(themeName) || themeName
+  const localThemeFile = existsSync(resolve(process.cwd(), themeFilePath))
+    ? await readFile(themeName, 'utf-8')
+    : null
+
+  if (themeFromList) {
+    info('Fetching theme from themes.formkit.com')
+    theme = await apiTheme(
+      themeName,
+      DEFAULT_THEME_API,
+      options.variables ?? '',
+      format === 'ts',
+      options.semantic ?? false
+    )
+  } else if (localThemeFile) {
+    info('Found local theme file')
+    theme = await generate(
+      await localTheme(themeName),
+      options.variables,
+      format === 'ts',
+      options.semantic,
+      themeName
+    )
+  } else {
+    // try to load theme from locally installed package
+    // using dynamic import
+    info('Fetching theme from local npm packages')
+    try {
+      const { default: themeFunction } = await import(themeName)
+      theme = await generate(
+        themeFunction,
         options.variables,
         format === 'ts',
-        options.semantic
+        options.semantic,
+        themeName
       )
-    : await apiTheme(
-        themeName,
-        endpoint,
-        options.variables ?? '',
-        format === 'ts',
-        options.semantic ?? false
-      )
+      green(`Found locally installed theme package: ${themeName}`)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
-  const outFile =
-    options.outFile || 'formkit.theme.' + (options.semantic ? 'css' : format)
-  await writeFile(resolve(process.cwd(), outFile), theme)
-  green(`Theme file written to ${outFile}`)
+  if (theme) {
+    const outFile =
+      options.outFile || 'formkit.theme.' + (options.semantic ? 'css' : format)
+    await writeFile(resolve(process.cwd(), outFile), theme)
+    green(`Theme file written to ${outFile}`)
+  } else {
+    red(`Could not find theme: ${theme}`)
+  }
 }
 
 async function editTheme(
@@ -223,14 +289,20 @@ function guessFormat() {
 }
 
 export async function generate(
-  theme: Theme<ThemeOptions>,
+  theme: Theme<ThemeOptions> | ReturnType<Theme<ThemeOptions>>,
   variables?: string,
   isTS?: boolean,
-  semantic?: boolean
+  semantic?: boolean,
+  themeName?: string
 ): Promise<string> {
-  info(`Loaded theme: ${theme.meta.name}`)
-  const vars = parseVariables(variables)
-  const classes = theme(vars).tailwind()
+  if (typeof theme === 'function') {
+    const vars = parseVariables(variables)
+    themeName = theme.meta.name
+    theme = theme(vars)
+  }
+  if (!themeName) error('Could not determine theme name.')
+  info(`Loaded theme: ${themeName}`)
+  const classes = theme.tailwind()
   if (semantic) return await stylesheetFromTailwind(classes)
   const classList: Record<string, Record<string, true>> = {}
   const globals: Record<string, Record<string, true>> = {}
@@ -261,7 +333,7 @@ export async function generate(
   *
   * @checksum -
   * @variables - ${variables}
-  * @theme - ${slugify(theme.meta.name)}
+  * @theme - ${slugify(themeName)}
   **/
 
  /**
@@ -283,17 +355,19 @@ export async function generate(
     isTS ? ': FormKitNode' : ''
   })${isTS ? ': Record<string, boolean>' : ''} {
    const key = \`\${node.props.type}__\${sectionName}\`
+   const semanticKey = \`formkit-\${sectionName}\`
    const familyKey = node.props.family ? \`family:\${node.props.family}__\${sectionName}\` : ''
    const memoKey = \`\${key}__\${familyKey}\`
    if (!(memoKey in classes)) {
      const sectionClasses = classes[key] ?? globals[sectionName] ?? {}
+     sectionClasses[semanticKey] = true
      if (familyKey in classes) {
        classes[memoKey] = { ...classes[familyKey],  ...sectionClasses }
      } else {
        classes[memoKey] = sectionClasses
      }
    }
-   return classes[memoKey]
+   return classes[memoKey] ?? { [semanticKey]: true }
  }
 
 /**
@@ -305,7 +379,7 @@ const classes${
   } = ${JSON.stringify(classList, null, 2)};
 
 /**
- * Globals are merged prior to generating this file — these are included for
+ * Globals are merged prior to generating this file — these are included for
  * any other non-matching inputs.
  **/
 const globals${
@@ -326,6 +400,12 @@ function parseVariables(variables?: string): Record<string, string> {
   }, {} as Record<string, string>)
 }
 
+function determineFilePath(fileName: string): string | undefined {
+  const extensions = ['.ts', '.js', '.mjs', '.cjs']
+  const paths = extensions.map((ext) => resolve(process.cwd(), fileName + ext))
+  return getPath(paths)
+}
+
 function getPath(paths: string[]): string | undefined {
   const path = paths.shift()
   if (existsSync(path!)) return path
@@ -333,11 +413,7 @@ function getPath(paths: string[]): string | undefined {
 }
 
 async function localGeneratedTheme(): Promise<[string, string] | undefined> {
-  const extensions = ['.ts', '.js', '.mjs', '.cjs']
-  const paths = extensions.map((ext) =>
-    resolve(process.cwd(), 'formkit.theme' + ext)
-  )
-  const path = getPath(paths)
+  const path = determineFilePath('formkit.theme')
   if (path) {
     const code = await readFile(path, 'utf-8')
     return [code, path]

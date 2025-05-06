@@ -4,6 +4,7 @@ import chalk from 'chalk'
 import { exportInput } from './exportInput'
 import { createApp } from './createApp'
 import { buildTheme } from './theme'
+import { createTheme } from './createTheme'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { execa } from 'execa'
@@ -101,10 +102,21 @@ program
   )
   .action(buildTheme)
 
+program
+  .command('create-theme')
+  .argument('[name]', 'The public name of the theme, for example "Monokai".')
+  .option(
+    '--package-name <packageName>',
+    'The name of the package on npm, for example formkit-theme-monokai.'
+  )
+  .option('--dir <directory>', 'The relative directory to create the theme in.')
+  .description('Scaffold a new theme from @formkit/theme-starter.')
+  .action(createTheme)
+
 /**
  * @internal
  */
-export default async function main(): Promise<void> {
+export async function cli(): Promise<void> {
   const res = await execa('npx', ['--version'])
   const [major] = res.stdout.trim().split('.')
   if (Number(major) < 7) {

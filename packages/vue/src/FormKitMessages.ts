@@ -1,4 +1,12 @@
-import { defineComponent, PropType, computed, inject, watch, h } from 'vue'
+import {
+  defineComponent,
+  PropType,
+  computed,
+  inject,
+  watch,
+  h,
+  Component,
+} from 'vue'
 import { createSection } from '@formkit/inputs'
 import {
   FormKitNode,
@@ -57,6 +65,10 @@ export const FormKitMessages = /* #__PURE__ */ defineComponent({
       >,
       default: false,
     },
+    library: {
+      type: Object as PropType<Record<string, Component>>,
+      default: () => ({}),
+    },
   },
   setup(props, context) {
     const node = computed<FormKitNode | undefined>(() => {
@@ -82,7 +94,11 @@ export const FormKitMessages = /* #__PURE__ */ defineComponent({
     })
     return () =>
       node.value?.context
-        ? h(FormKitSchema, { schema, data: data.value }, { ...context.slots })
+        ? h(
+            FormKitSchema,
+            { schema, data: data.value, library: props.library },
+            { ...context.slots }
+          )
         : null
   },
 })

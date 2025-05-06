@@ -15,7 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons for adding new items.
    */
@@ -89,20 +89,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: '날짜 변경',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: '선택한 날짜가 잘못되었습니다.',
-  /**
    * Shown when there is something to close
    */
   close: '닫기',
+  /**
+   * Shown when there is something to open.
+   */
+  open: '열기',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -508,4 +508,10 @@ export const validation: FormKitValidationMessages = {
     return `유효한 URL을 입력하십시오.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: '선택한 날짜가 잘못되었습니다.',
 }
+
+export const ko = { ui, validation }

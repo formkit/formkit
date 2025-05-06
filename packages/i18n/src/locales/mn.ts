@@ -12,7 +12,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
@@ -86,20 +86,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Огноо өөрчлөх',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Сонгосон огноо буруу байна.',
-  /**
    * Shown when there is something to close
    */
   close: 'Хаах',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Нээлттэй',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -387,4 +387,10 @@ export const validation: FormKitValidationMessages = {
     return `Хүчннтай URL оруулна уу.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Сонгосон огноо буруу байна.',
 }
+
+export const mn = { ui, validation }

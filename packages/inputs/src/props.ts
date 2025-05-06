@@ -1,9 +1,8 @@
 import {
   FormKitPlugin,
   FormKitGroupValue,
-  FormKitSchemaCondition,
   FormKitTypeDefinition,
-  FormKitSchemaNode,
+  FormKitSectionsSchema,
   FormKitNode,
   FormKitClasses,
   FormKitFrameworkContext,
@@ -40,7 +39,6 @@ export type AllReals =
   | Array<any>
   | null
   | Record<any, any>
-
 /**
  * This is the base interface for providing prop definitions to the FormKit
  * component. It is used to define the props that are available to the each
@@ -77,7 +75,7 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   color: { type: 'color'; value?: string }
   date: { type: 'date'; value?: string }
-  datetimeLocal: { type: 'datetimeLocal'; value?: string }
+  'datetime-local': { type: 'datetime-local'; value?: string }
   email: {
     type: 'email'
     value?: string
@@ -149,10 +147,18 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   // This fallthrough is for inputs that do not have their type set. These
   // are effectively "text" inputs.
   _: {
-    type?: Props['type'] extends keyof FormKitInputProps<Props>
+    type?:
+      | (Props['type'] extends FormKitTypeDefinition<any>
+          ? Props['type']
+          : never & {})
+      | (Props['type'] extends keyof FormKitInputProps<Props>
+          ? Props['type']
+          : never)
+    value?: Props['type'] extends FormKitTypeDefinition<infer T>
+      ? T
+      : Props['type'] extends AllReals
       ? never
-      : Props['type']
-    value?: string
+      : string
   }
 }
 
@@ -200,7 +206,11 @@ export type MergedEvents<Props extends FormKitInputs<Props>> =
  * @public
  */
 export type InputType<Props extends FormKitInputs<Props>> =
-  Props['type'] extends string ? Props['type'] : 'text'
+  Props['type'] extends FormKitTypeDefinition<any>
+    ? Props['type']
+    : Props['type'] extends string
+    ? Props['type']
+    : 'text'
 
 /**
  * All FormKit events should be included for a given set of props.
@@ -244,10 +254,18 @@ export interface FormKitInputEvents<Props extends FormKitInputs<Props>> {
 export type PropType<
   Props extends FormKitInputs<Props>,
   T extends keyof FormKitInputs<Props>
-> = Extract<
-  FormKitInputs<Props>,
-  { type: Props['type'] extends string ? Props['type'] : 'text' }
->[T]
+> = Props['type'] extends FormKitTypeDefinition<infer T>
+  ? T extends 'value'
+    ? Props['type']
+    : T
+  : Extract<
+      FormKitInputs<Props>,
+      {
+        type: Props['type'] extends keyof FormKitInputProps<Props>
+          ? Props['type']
+          : 'text'
+      }
+    >[T]
 
 /**
  * The proper shape of data to be passed to options prop.
@@ -381,7 +399,7 @@ export interface FormKitSelectSlots<Props extends FormKitInputs<Props>>
  * The slots available to the checkbox inputs even when options are not provided, these extend the base slots.
  * @public
  */
-export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>> 
+export interface FormKitCheckboxSlots<Props extends FormKitInputs<Props>>
   extends FormKitBaseSlots<Props> {
   decorator: FormKitSlotData<Props, OptionSlotData<Props>>
   decoratorIcon: FormKitSlotData<Props, OptionSlotData<Props>>
@@ -512,6 +530,8 @@ export interface FormKitOptionsItem<V = unknown> {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItemProp {
   group: string
@@ -521,6 +541,8 @@ export interface FormKitOptionsGroupItemProp {
 
 /**
  * Option groups should always be formatted as an array of objects with group and nested options
+ *
+ * @public
  */
 export interface FormKitOptionsGroupItem {
   group: string
@@ -547,6 +569,8 @@ export type FormKitOptionsListWithGroups = Array<
 /**
  * An array of option items with a group support — where the `option` of the
  * groups can be any valid FormKitOptionsProp type.
+ *
+ * @public
  */
 export type FormKitOptionsListWithGroupsProp = Array<
   FormKitOptionsItem | FormKitOptionsGroupItemProp
@@ -593,7 +617,10 @@ export type FormKitOptionsPropWithGroups =
  *
  * @public
  */
-export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
+export interface FormKitRuntimeProps<
+  Props extends FormKitInputs<Props>,
+  V = unknown
+> {
   /**
    * An object of configuration data for the input and its children.
    */
@@ -642,10 +669,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * An object of sections to merge with the input’s internal schema.
    */
-  sectionsSchema: Record<
-    string,
-    Partial<FormKitSchemaNode> | FormKitSchemaCondition
-  >
+  sectionsSchema: FormKitSectionsSchema
   /**
    * A boolean indicating whether the input should be synced with the model.
    */
@@ -653,7 +677,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
   /**
    * The type of the input.
    */
-  type: string | FormKitTypeDefinition
+  type: string | FormKitTypeDefinition<V>
   /**
    * A validation string or array of validation rules.
    */
@@ -670,7 +694,7 @@ export interface FormKitRuntimeProps<Props extends FormKitInputs<Props>> {
    */
   validationRules: Record<
     string,
-    (node: FormKitNode) => boolean | Promise<boolean>
+    (node: FormKitNode, ...args: any[]) => boolean | Promise<boolean>
   >
   /**
    * Use this to override the default validation label in validation messages.
@@ -698,6 +722,7 @@ export interface FormKitBaseProps {
   help: string
   ignore: 'true' | 'false' | boolean
   label: string
+  library: Record<string, any>
   max: string | number
   method: string
   min: string | number
@@ -706,6 +731,7 @@ export interface FormKitBaseProps {
   preserveErrors: 'true' | 'false' | boolean
   placeholder: string
   step: string | number
+  validationVisibility: 'live' | 'blur' | 'dirty' | 'submit'
 }
 
 /**
@@ -721,6 +747,7 @@ export const runtimeProps = [
   'id',
   'index',
   'inputErrors',
+  'library',
   'modelValue',
   'onUpdate:modelValue',
   'name',
@@ -746,6 +773,8 @@ export const runtimeProps = [
 /**
  * A helper to determine if an option is a group or an option.
  * @param option - An option
+ *
+ * @public
  */
 export function isGroupOption(
   option:

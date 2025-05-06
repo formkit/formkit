@@ -184,12 +184,12 @@ const isBrowser = typeof window !== 'undefined'
  * @public
  */
 export interface BeforeStepChange {
-  (data: BeforeStepChangeData): any
+  (data: StepChangeData): any
 }
 
-export interface BeforeStepChangeData<T = unknown> {
+export interface StepChangeData<T = unknown> {
   currentStep: FormKitFrameworkContext<T>
-  nextStep: FormKitFrameworkContext<T>
+  targetStep: FormKitFrameworkContext<T>
   delta: number
 }
 
@@ -287,6 +287,31 @@ async function isTargetStepAllowed(
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
   const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
 
+  // show the current step errors because this step has
+  // been visited.
+  const currentStepIsValid = triggerStepValidations(currentStep)
+  currentStep.showStepErrors = true
+
+  // if we are navigating forward, check our current step is complete
+  if (targetStepIndex >= currentStepIndex) {
+    // if the current step is invalid and we do not allow incomplete
+    // then prevent navigation
+    if (!currentStepIsValid && !allowIncomplete) {
+      return false
+    }
+  }
+
+  // check how many steps we need to step forward
+  // and then check that each intermediate step is valid
+  const delta = targetStepIndex - currentStepIndex
+  for (let i = 0; i < delta; i++) {
+    const intermediateStep = parentNode?.props.steps[currentStepIndex + i]
+    const stepIsAllowed = allowIncomplete || intermediateStep.state?.valid
+    if (!stepIsAllowed) {
+      return false
+    }
+  }
+
   // check if there is a function for the stepChange guard
   const beforeStepChange =
     currentStep.node.props.beforeStepChange ||
@@ -315,27 +340,6 @@ async function isTargetStepAllowed(
       currentStep.disabled = false
     }
     if (typeof result === 'boolean' && !result) return false
-  }
-
-  // show the current step errors because this step has
-  // been visited.
-  triggerStepValidations(currentStep)
-  currentStep.showStepErrors = true
-
-  if (targetStepIndex < currentStepIndex) {
-    // we can always step backwards
-    return true
-  }
-
-  // check how many steps we need to step forward
-  // and then check that each intermediate step is valid
-  const delta = targetStepIndex - currentStepIndex
-  for (let i = 0; i < delta; i++) {
-    const intermediateStep = parentNode?.props.steps[currentStepIndex + i]
-    const stepIsAllowed = allowIncomplete || intermediateStep.state?.valid
-    if (!stepIsAllowed) {
-      return false
-    }
   }
 
   return true
@@ -429,19 +433,45 @@ function initEvents(node: FormKitNode, el: Element) {
 
 function createSSRStepsFromTabs(tabs: Record<string, any>[]) {
   if (!tabs || !tabs.length) return []
-  const placeholderTabs = tabs.map((tab: Record<string, any>, index) => {
-    return {
-      __isPlaceholder: true,
-      stepName: tab.props?.label || camel2title(tab.props?.name),
-      isFirstStep: index === 0,
-      isLastStep: index === tabs.length - 1,
-      isActiveStep: index === 0,
-      node: {
-        name: tab.props?.name,
-      },
+  // if our tabs object is a fragment, then loop over the children
+  // otherwise loop directly
+  const tabsToRender =
+    tabs[0].type == Symbol.for('v-fgt') && tabs[0].children
+      ? tabs[0].children
+      : tabs
+
+  const placeholderTabs = tabsToRender.map(
+    (tab: Record<string, any>, index: number) => {
+      return {
+        __isPlaceholder: true,
+        stepName: tab.props?.label || camel2title(tab.props?.name),
+        isFirstStep: index === 0,
+        isLastStep: index === tabs.length - 1,
+        isActiveStep: index === 0,
+        node: {
+          name: tab.props?.name,
+        },
+      }
     }
-  })
+  )
   return placeholderTabs
+}
+
+function createPreRenderStepsFunction(node: FormKitNode) {
+  return () => {
+    if (!node.context || node.props.steps) return
+    // call the default slot to pre-render child steps
+    // for SSR support
+    let tabs = []
+    if (
+      node.context.slots &&
+      (node.context.slots as Record<string, () => any>).default
+    ) {
+      tabs = (node.context.slots as Record<string, () => any>).default()
+    }
+    node.props.steps = node.props.steps || createSSRStepsFromTabs(tabs)
+    node.context.stepCount = node.props.steps.length
+  }
 }
 
 /**
@@ -465,19 +495,16 @@ export function createMultiStepPlugin(
       isFirstStep = true // reset variable, next step will be first step in multistep
       node.addProps(['steps', 'tabs', 'activeStep'])
 
-      // call the default slot to pre-render child steps
-      // for SSR support
-      if (
-        node.context.slots &&
-        (node.context.slots as Record<string, () => any>).default
-      ) {
-        node.props.tabs = (
-          node.context.slots as Record<string, () => any>
-        ).default()
+      node.context.fns.preRenderSteps = createPreRenderStepsFunction(node)
+      node.context.fns.getStepCount = () => {
+        if (!node.context) return
+        return node.context.stepCount
+      }
+      node.context.fns.getSteps = () => {
+        if (!node.context) return
+        return node.context.steps
       }
 
-      node.props.steps =
-        node.props.steps || createSSRStepsFromTabs(node.props.tabs)
       node.props.allowIncomplete =
         typeof node.props.allowIncomplete === 'boolean'
           ? node.props.allowIncomplete

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* @ts-check */
 
 /**
  * build.mjs
@@ -18,60 +18,40 @@ import cac from 'cac'
 import prompts from 'prompts'
 import fs from 'fs/promises'
 import { execa } from 'execa'
-import { dirname, resolve } from 'path'
+import path, { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { Extractor, ExtractorConfig } from '@microsoft/api-extractor'
-import { remove, move } from 'fs-extra'
 import { readFileSync } from 'fs'
 import {
   getPackages,
-  getThemes,
   getIcons,
   getBuildOrder,
-  getPlugins,
   msg,
   getInputs,
 } from './utils.mjs'
 import { exec } from 'child_process'
+import { createBundle } from './bundle.mjs'
+import { ProgressBar } from '@opentf/cli-pbar'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const rootDir = resolve(__dirname, '../')
 const packagesDir = resolve(__dirname, '../packages')
-const rollup = `${rootDir}/node_modules/.bin/rollup`
 
-let augmentations = {
-  vue: `
+let isBuilding = false
+let buildAll = false
+let startTime = 0
 /**
- * Augment Vue’s globalProperties.
- * @public
+ * {typeof import('cli-progress').SingleBar}
  */
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    $formkit: FormKitVuePlugin
-  }
-  interface GlobalComponents {
-    FormKit: FormKitComponent
-    FormKitSchema: typeof FormKitSchema
-  }
-}
+let progressBar
+let usingProgressBar = false
 
-declare global {
-  var __FORMKIT_CONFIGS__: FormKitRootConfig[]
-}
-`,
-  zod: `
-/**
- * Extend FormKitNode with setZodErrors.
- * @public
- */
-declare module '@formkit/core' {
-  interface FormKitNodeExtensions {
-    setZodErrors(zodError: z.ZodError | undefined): FormKitNode
-  }
-}
-`,
-  addons: ``,
+export const progress = {
+  expectedLogs: 0,
+  logs: [],
+  warnings: {},
+  timeElapsed: 0,
+  step: '',
 }
 
 // For Multi-step plugin
@@ -88,8 +68,6 @@ const matches = multiStepFile.match(
 )
 if (matches.length !== 2) {
   process.exit()
-} else {
-  augmentations.addons = matches.join('\n').replaceAll('/* @ts-ignore */', '')
 }
 
 /**
@@ -117,6 +95,17 @@ async function selectPackage() {
  * @returns
  */
 export async function buildPackage(p) {
+  if (p && p !== 'all' && !isBuilding) {
+    try {
+      progressBar = new ProgressBar({ autoClear: true })
+      progressBar.start({ total: progress.expectedLogs })
+      usingProgressBar = true
+    } catch {
+      usingProgressBar = false
+    }
+    startTimer()
+    isBuilding = true
+  }
   const packages = getPackages()
   if (!p) {
     return selectPackage()
@@ -126,41 +115,28 @@ export async function buildPackage(p) {
     return
   }
   if (p.includes('build all') || p === 'all') {
-    msg.info('» Building all packages...')
     buildAllPackages(packages)
     return
+  } else if (!startTime) {
+    progress.expectedLogs = estimatedLogs(p)
+    startTime = performance.now()
   }
   if (!packages.includes(p)) {
     msg.error(`${p} is not an valid package name.`)
   }
-  const startTime = performance.now()
-  await cleanDist(p)
-  msg.info('» bundling distributions')
-  msg.loader.start()
+
   if (p === 'nuxt') {
     await buildNuxtModule()
   } else {
-    await bundle(p, 'esm')
-    await bundle(p, 'cjs')
-    if (p === 'vue') {
-      await bundle(p, 'iife')
-    }
+    await bundle(p, undefined, !usingProgressBar)
   }
-
-  msg.loader.stop()
-  msg.info('» extracting type definitions')
-  msg.loader.start()
-  if (p !== 'nuxt') await declarations(p)
-
-  // special case for CSS themes, processing needs to happen AFTER
-  // type declarations are extracted from the non-CSS theme exports
   if (p === 'themes') await themesBuildExtras()
 
   if (p === 'inputs') await inputsBuildExtras()
 
   if (p === 'addons') await addonsBuildExtras()
 
-  // special case for Icons package
+  // // special case for Icons package
   if (p === 'icons') {
     const icons = getIcons()
     await fs.mkdir(
@@ -178,8 +154,9 @@ export async function buildPackage(p) {
     })
   }
 
-  msg.loader.stop()
-  msg.success(`📦 build complete (${Math.round(performance.now() - startTime) / 1000}s)`)
+  if (!buildAll) {
+    buildComplete()
+  }
 }
 
 /**
@@ -187,19 +164,24 @@ export async function buildPackage(p) {
  */
 export async function buildAllPackages(packages) {
   const orderedPackages = getBuildOrder(packages)
-  msg.info('» Building packages in dependency order:')
-  console.log(orderedPackages)
+  orderedPackages.forEach((p) => {
+    progress.expectedLogs += estimatedLogs(p)
+  })
+  buildAll = true
+  startTime = performance.now()
   for (const [i, p] of orderedPackages.entries()) {
-    msg.label(`» Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`)
+    progress.step = `Building ${i + 1}/${orderedPackages.length}: @formkit/${p}`
     await buildPackage(p)
   }
+  msg.loader.stop()
+  buildComplete()
 }
 
 /**
  * Output a typescript input file for each `type` key.
  */
 export async function inputsBuildExtras() {
-  msg.info('» Exporting inputs by type')
+  progress.step = 'Exporting inputs by type'
   const inputs = getInputs()
   const distDir = resolve(packagesDir, 'inputs/dist/exports')
   await fs.mkdir(distDir, { recursive: true })
@@ -207,13 +189,25 @@ export async function inputsBuildExtras() {
     inputs.map(async (input) => {
       // await execa('cp', [input.filePath, resolve(distDir, `${input.name}.ts`)])
       let fileData = await fs.readFile(input.filePath, { encoding: 'utf8' })
-      fileData = fileData.replace("} from '../compose'", "} from '../index'")
+      fileData = fileData.replace(
+        "} from '../compose'",
+        "} from '../index.mjs'"
+      )
       await fs.writeFile(resolve(distDir, `${input.name}.ts`), fileData)
     })
   )
   const tsconfig = resolve(distDir, 'tsconfig.json')
+
+  const tsConfigStr = await fs.readFile(
+    resolve(rootDir, 'tsconfig.json'),
+    'utf-8'
+  )
+
   const tsData = JSON.parse(
-    await fs.readFile(resolve(rootDir, 'tsconfig.json'))
+    tsConfigStr.replace(
+      './types/globals.d.ts',
+      resolve(rootDir, './types/globals.d.ts').split(path.sep).join(path.posix.sep)
+    )
   )
   tsData.compilerOptions.outDir = './'
   await fs.writeFile(tsconfig, JSON.stringify(tsData, null, 2))
@@ -232,30 +226,11 @@ export async function inputsBuildExtras() {
  * Special considerations for building the themes package.
  */
 async function themesBuildExtras() {
-  const themes = getThemes()
-  await Promise.all(
-    themes.map((theme) => bundle('themes', 'esm', ['theme', theme]))
-  )
-  const plugins = getPlugins()
-  await Promise.all(
-    plugins.map((plugin) =>
-      Promise.all([
-        bundle('themes', 'esm', ['plugin', plugin]),
-        bundle('themes', 'cjs', ['plugin', plugin]),
-        declarations('themes', plugin),
-      ])
-    )
-  )
-  const nestedTailwindPlugins = getPlugins('/themes/src/tailwindcss')
-  await Promise.all(
-    nestedTailwindPlugins.map((plugin) =>
-      Promise.all([
-        bundle('themes', 'esm', ['plugin', `tailwindcss/${plugin}`]),
-        bundle('themes', 'cjs', ['plugin', `tailwindcss/${plugin}`]),
-        declarations('themes', `tailwindcss/${plugin}`),
-      ])
-    )
-  )
+  await bundle('themes', 'css/genesis', !usingProgressBar)
+  await bundle('themes', 'tailwindcss', !usingProgressBar)
+  await bundle('themes', 'tailwindcss/genesis', !usingProgressBar)
+  await bundle('themes', 'unocss', !usingProgressBar)
+  await bundle('themes', 'windicss', !usingProgressBar)
 }
 
 /**
@@ -279,51 +254,23 @@ async function addonsBuildExtras() {
 }
 
 /**
- * Remove the dist directory before building anything.
- */
-async function cleanDist(p) {
-  msg.loader.text = `Removing: ${p}/dist`
-  const distDir = `${packagesDir}/${p}/dist`
-  try {
-    await fs.access(distDir)
-    const files = await fs.readdir(distDir)
-    await Promise.all(
-      files.map((file) => fs.rm(resolve(distDir, file), { recursive: true }))
-    )
-  } catch {
-    // directory is already missing, no need to clean it
-  }
-  msg.info(`» cleaned dist artifacts`)
-}
-
-/**
  * Create a new bundle of a certain format for a certain package.
  * @param p package name
  * @param format the format to create (cjs, esm, umd, etc...)
  */
-async function bundle(p, format, subPackage) {
-  const args = [
-    { name: 'PKG', value: p },
-    { name: 'FORMAT', value: format },
-  ]
-  if (subPackage && subPackage[0] === 'theme') {
-    args.push({ name: 'THEME', value: subPackage[1] })
-    msg.loader.text = `Bundling theme ${subPackage[1]} (${format})`
-  } else if (subPackage && subPackage[0] === 'plugin') {
-    args.push({ name: 'PLUGIN', value: subPackage[1] })
-    msg.loader.text = `Bundling ${subPackage[1]} plugin (${format})`
+async function bundle(p, subPackage, showLogs = false) {
+  if (subPackage && p === 'themes') {
+    progress.step = `Bundling theme ${subPackage}`
+  } else if (subPackage) {
+    progress.step = `Bundling plugin ${subPackage}`
   } else {
-    msg.loader.text = `Bundling ${p} as ${format}`
+    progress.step = `Bundling ${p}${subPackage ? ' (' + subPackage + ')' : ''}`
   }
-  await execa(rollup, [
-    '-c',
-    '--environment',
-    args.map(({ name, value }) => `${name}:${value}`).join(','),
-  ])
+  await createBundle(p, subPackage, showLogs)
 }
 
 async function buildNuxtModule() {
-  msg.loader.text = `Bundling Nuxt module`
+  progress.step = `Bundling Nuxt module`
   return new Promise((resolve, reject) => {
     exec(
       'cd ./packages/nuxt && pnpm prepack && cd ../../',
@@ -331,7 +278,6 @@ async function buildNuxtModule() {
         if (err) {
           reject(stderr)
         } else {
-          console.log(stdout)
           resolve()
         }
       }
@@ -339,99 +285,49 @@ async function buildNuxtModule() {
   })
 }
 
-/**
- * Emit type declarations for the package to the dist directory.
- * @param p - package name
- */
-async function declarations(p, plugin = '') {
-  msg.loader.text = `Emitting type declarations`
-  const args = [
-    { name: 'PKG', value: p },
-    { name: 'FORMAT', value: 'esm' },
-    { name: 'DECLARATIONS', value: 1 },
-  ]
-  if (plugin) args.push({ name: 'PLUGIN', value: plugin })
-  const output = await execa(rollup, [
-  '-c',
-    '--environment',
-    args.map(({ name, value }) => `${name}:${value}`).join(','),
-  ])
-  if (output.exitCode) {
-    console.log(output)
-    process.exit()
-  }
-  // Annoyingly even though we tell @rollup/plugin-typescript
-  // emitDeclarationOnly it still outputs an index.js — is this a bug?
-  const artifactToDelete = resolve(
-    packagesDir,
-    `${p}/dist/${plugin ? plugin + '/' : ''}index.js`
-  )
-  let shouldDelete
-  try {
-    shouldDelete = await fs.stat(artifactToDelete)
-  } catch {
-    shouldDelete = false
-  }
-  if (shouldDelete) {
-    await fs.rm(artifactToDelete)
-  }
-  if (plugin) {
-    msg.loader.text = `Emitting type declarations for ${plugin}`
-    await move(
-      resolve(
-        packagesDir,
-        `themes/dist/${plugin}/packages/themes/src/${plugin}/index.d.ts`
-      ),
-      resolve(packagesDir, `themes/dist/${plugin}/index.d.ts`)
-    )
-    await remove(resolve(packagesDir, `themes/dist/${plugin}/packages`))
-  } else {
-    msg.loader.text = `Rolling up type declarations`
-    await apiExtractor(p)
-    console.log('done rolling up')
-  }
+let timeout
+function startTimer() {
+  timeout = setTimeout(() => {
+    progress.timeElapsed = ((performance.now() - startTime) / 1000).toFixed(2)
+    if (usingProgressBar) {
+      progressBar.update({
+        value: Math.min(progress.logs.length, progress.expectedLogs),
+        total: progress.expectedLogs,
+        suffix: `${progress.step} | ${progress.timeElapsed}s`,
+      })
+      startTimer()
+    }
+  }, 10)
 }
 
-/**
- * Use API Extractor to rollup the type declarations.
- */
-async function apiExtractor(p) {
-  const configPath = resolve(packagesDir, `${p}/api-extractor.json`)
-  const config = ExtractorConfig.loadFileAndPrepare(configPath)
-  const result = Extractor.invoke(config, {
-    localBuild: true,
-    showVerboseMessages: false,
-  })
-  if (result.succeeded) {
-    const distRoot = resolve(packagesDir, `${p}/dist`)
-    const distFiles = await fs.readdir(distRoot, { withFileTypes: true })
-    await Promise.all(
-      distFiles.map((file) => {
-        return file.name !== 'index.all.d.ts' &&
-          (file.isDirectory() || file.name.endsWith('d.ts'))
-          ? fs.rm(resolve(distRoot, file.name), { recursive: true })
-          : Promise.resolve()
-      })
-    )
-    await fs.rm(resolve(distRoot, 'tsdoc-metadata.json'))
-    await fs.rename(
-      resolve(distRoot, 'index.all.d.ts'),
-      resolve(distRoot, 'index.d.ts')
-    )
-    if (p in augmentations) {
-      msg.loader.text = `Augmenting modules in ${p} type declaration.`
-      const declarations = await fs.readFile(
-        resolve(distRoot, 'index.d.ts'),
-        'utf8'
-      )
-      await fs.writeFile(
-        resolve(distRoot, 'index.d.ts'),
-        declarations.replace('export { }', augmentations[p])
-      )
+function buildComplete() {
+  if (usingProgressBar) {
+    progressBar.stop()
+  }
+  clearTimeout(timeout)
+  if (Object.keys(progress.warnings).length) {
+    msg.warn('Build completed with warnings:\n')
+    for (const pkg in progress.warnings) {
+      msg.warn(`----------\n@formkit/${pkg}`)
+      progress.warnings[pkg].forEach((warning) => msg.warn(`\n${warning}\n`))
     }
-  } else {
-    msg.error('Api extractor failed.')
-    process.exitCode = 1
+  }
+  msg.success(
+    'build complete (' +
+    ((performance.now() - startTime) / 1000).toFixed(2) +
+    's)'
+  )
+}
+
+function estimatedLogs(p) {
+  switch (p) {
+    case 'vue': {
+      return 28 // 3 packages to bundle under vue
+    }
+    case 'themes':
+      return 21 * 6 // 6 packages to bundle under themes
+    default:
+      return 21
   }
 }
 

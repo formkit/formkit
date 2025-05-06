@@ -4,6 +4,9 @@ import {
   FormKitWatchable,
   isKilled,
   FormKitObservedNode,
+  removeListeners,
+  applyListeners,
+  diffDeps,
 } from '../src'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -222,5 +225,77 @@ describe('observer', () => {
     observed.kill()
     node.input('fizbuz')
     expect(watcher).toHaveBeenCalledTimes(1)
+  })
+
+  it('can watch children of a group', () => {
+    const parent = createNode({ type: 'group' })
+    const observed = createObserver(parent)
+    const watcher = vi.fn((node: FormKitObservedNode) => node.children.length)
+    observed.watch(watcher)
+    expect(watcher).toHaveNthReturnedWith(1, 0)
+    const child = createNode()
+    parent.add(child)
+    expect(watcher).toHaveNthReturnedWith(2, 1)
+    parent.remove(child)
+    expect(watcher).toHaveNthReturnedWith(3, 0)
+  })
+
+  it('can add itself to the front of the event stack', () => {
+    const node = createNode()
+    const observed = createObserver(node)
+    const stack: string[] = []
+    node.on('commit', () => stack.push('a'))
+    observed.watch(
+      (n) => {
+        if (typeof n.value === 'string') {
+          stack.push('b')
+        }
+      },
+      undefined,
+      'unshift'
+    )
+
+    node.input('foo', false)
+    expect(stack).toEqual(['b', 'a'])
+  })
+
+  it('can observe multiple of the same event on the same node and then remove them all (#1155)', () => {
+    const node = createNode()
+    const observed = createObserver(node)
+    const listenerA = vi.fn(() => {})
+    const listenerB = vi.fn()
+    const toAddA = new Map()
+    const toAddB = new Map()
+    toAddA.set(node, new Set(['commit']))
+    toAddB.set(node, new Set(['commit']))
+    applyListeners(observed, [toAddA, new Map()], listenerA)
+    applyListeners(observed, [toAddB, new Map()], listenerB)
+    removeListeners(observed.receipts)
+    node.input('foo', false)
+    expect(listenerB).toHaveBeenCalledTimes(0)
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    expect(observed.receipts.size).toBe(0)
+  })
+
+  it('can observe the same node with different observers', () => {
+    const node = createNode()
+    const observedA = createObserver(node)
+    const observedB = createObserver(node)
+    const listenerA = vi.fn(() => {})
+    const listenerB = vi.fn()
+
+    observedA.observe()
+    observedA.value
+    const depsA = observedA.stopObserve()
+
+    const diff = diffDeps(new Map(), depsA)
+    applyListeners(observedA, diff, listenerA)
+    observedB.observe()
+    const depsB = observedB.stopObserve()
+    const diffB = diffDeps(new Map(), depsB)
+    applyListeners(observedB, diffB, listenerB)
+    expect(listenerA).toHaveBeenCalledTimes(0)
+    node.input('foo', false)
+    expect(listenerA).toHaveBeenCalledTimes(1)
   })
 })

@@ -7,7 +7,7 @@ import { de, en } from '@formkit/i18n'
 import { token } from '@formkit/utils'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { ref, reactive, h, nextTick } from 'vue'
+import { ref, reactive, h, nextTick, defineComponent } from 'vue'
 
 const global: Record<string, Record<string, any>> = {
   global: {
@@ -78,7 +78,7 @@ describe('form structure', () => {
 describe('value propagation', () => {
   it('can set the state of checkboxes from a v-model on the form', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             options: ['a', 'b', 'c'],
@@ -90,7 +90,7 @@ describe('value propagation', () => {
         template: `<FormKit type="form" v-model="values">
         <FormKit type="checkbox" name="boxes" :options="options" />
       </FormKit>`,
-      },
+      }),
       {
         ...global,
       }
@@ -261,7 +261,7 @@ describe('form submission', () => {
 
   it('clears blocking messages if an input is removed', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             showEmail: true,
@@ -272,7 +272,7 @@ describe('form submission', () => {
         <FormKit type="checkbox" />
         <pre>{{ state.valid }}</pre>
       </FormKit>`,
-      },
+      }),
       global
     )
     await nextTick()
@@ -358,6 +358,7 @@ describe('form submission', () => {
     )
     expect(wrapper.find('[data-disabled] input[disabled]').exists()).toBe(true)
     expect(wrapper.find('[data-disabled] select[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled] button[disabled]').exists()).toBe(true)
   })
 
   it('can disable nested inputs in a form', async () => {
@@ -453,7 +454,7 @@ describe('form submission', () => {
 
   it('can swap languages', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         template: `<FormKit type="form">
         <FormKit type="email" validation-visibility="live" label="Email" validation="required" />
       </FormKit>`,
@@ -462,7 +463,7 @@ describe('form submission', () => {
             ;(this as any).$formkit.setLocale('de')
           },
         },
-      },
+      }),
       {
         global: {
           plugins: [
@@ -508,6 +509,22 @@ describe('form submission', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toContain(error)
+  })
+
+  it('can display form level errors the errors prop (#1153)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(
+      {
+        template: `<FormKit type="form" id="${id}" :errors="['I am an error']" :actions="false"></FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig()]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.html()).toContain('I am an error')
   })
 
   it('can display input level errors with setErrors', async () => {
@@ -585,7 +602,7 @@ describe('form submission', () => {
 
   it('removes values of inputs that are removed', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -596,7 +613,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -615,7 +632,7 @@ describe('form submission', () => {
   it('resets the local value of an input whose key changes', async () => {
     const id = `a_${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             key: 'abc',
@@ -625,7 +642,7 @@ describe('form submission', () => {
         <pre>{{ value }}</pre>
         <FormKit type="text" name="name" id="${id}" :key="key" :delay="0" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -646,7 +663,7 @@ describe('form submission', () => {
   it('can resets the child’s initial value during a reset', async () => {
     const id = `a_${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             key: 'abc',
@@ -660,7 +677,7 @@ describe('form submission', () => {
         template: `<FormKit type="form" @submit="reset">
         <FormKit type="text" name="name" id="${id}" value="123" :delay="0" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -732,7 +749,7 @@ describe('form submission', () => {
 
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -743,7 +760,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" preserve v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -760,7 +777,7 @@ describe('form submission', () => {
 
   it('keeps checks ancestors for preserve prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {},
@@ -771,7 +788,7 @@ describe('form submission', () => {
         <FormKit type="email" name="email" value="jon@doe.com" v-if="useEmail" />
         <FormKit type="text" name="name" value="Jon" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig()]],
@@ -870,6 +887,31 @@ describe('form submission', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 22))
     expect(wrapper.html()).toContain('Do better on your form please.')
+  })
+
+  it('allows a custom dynamic incomplete message (#1047)', async () => {
+    const message = ref('Do better on your form please.')
+    const wrapper = mount(
+      {
+        setup() {
+          return { message }
+        },
+        template: `<FormKit type="form" :incomplete-message="message">
+          <FormKit type="text" name="foo" validation="required" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain('Do better on your form please.')
+    message.value = 'Mach es bitte besser in deiner Form!'
+    await new Promise((r) => setTimeout(r, 22))
+    expect(wrapper.html()).toContain('Mach es bitte besser in deiner Form!')
   })
 
   it('disables the form while in the loading state', async () => {
@@ -1026,7 +1068,7 @@ describe('programmatic submission', () => {
     })
     const mock = vi.spyOn(console, 'warn').mockImplementation(warning)
     const wrapper = mount(
-      {
+      defineComponent({
         template: `
         <FormKit
           type="form"
@@ -1049,7 +1091,7 @@ describe('programmatic submission', () => {
             submitRaw()
           },
         },
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1079,7 +1121,7 @@ describe('programmatic submission', () => {
     const submit = vi.fn()
     const submitRaw = vi.fn()
     const wrapper = mount(
-      {
+      defineComponent({
         template: `
         <FormKit
           type="form"
@@ -1104,7 +1146,7 @@ describe('programmatic submission', () => {
             submitRaw()
           },
         },
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1130,7 +1172,7 @@ describe('resetting', () => {
     const submitHandler = vi.fn()
     const formId = token()
     const form = mount(
-      {
+      defineComponent({
         data() {
           return {
             values: {
@@ -1152,7 +1194,7 @@ describe('resetting', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1539,7 +1581,7 @@ describe('FormKitMessages', () => {
     const submitHandler = vi.fn()
     const id = `a${token()}`
     const wrapper = mount(
-      {
+      defineComponent({
         methods: {
           submitHandler,
         },
@@ -1555,7 +1597,7 @@ describe('FormKitMessages', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         attachTo: document.body,
         global: {
@@ -1575,5 +1617,58 @@ describe('FormKitMessages', () => {
     wrapper.find('form').trigger('submit')
     await new Promise((r) => setTimeout(r, 20))
     expect(submitHandler).toHaveBeenCalledTimes(1)
+  })
+
+  it('can explicitly disable the submit button with submitAttrs', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="form" :submit-attrs="{ disabled: true }"></FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('button').element.disabled).toBe(true)
+  })
+
+  it('does not mutate the node.value when resulting in the same exact value (#1068)', async () => {
+    let node = null as FormKitNode | null
+    const getNode = (n: FormKitNode) => {
+      node = n
+    }
+    const show = ref(true)
+    mount(
+      {
+        setup() {
+          return { getNode, show }
+        },
+        template: `
+        <FormKit type="form" @node="getNode">
+          <FormKit type="text" name="name" value="todd" preserve="true" v-if="show" />
+        </FormKit>
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    const initial = node!.context!.value
+    expect(initial).toEqual({ name: 'todd' })
+    node!.children[0].input('fred', false)
+    // At this point it should be a clone of the original, not the same value
+    expect(node!.context!.value).not.toBe(initial)
+    const firstClone = node!.context!.value
+    // removing the value with preserve should not create a new cloned object
+    // since it results in the exact same serialized value (according to eq())
+    show.value = false
+    await nextTick()
+    expect(node!.context!.value).toBe(firstClone)
   })
 })

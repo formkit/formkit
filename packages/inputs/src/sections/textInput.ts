@@ -4,7 +4,6 @@ import { createSection } from '../createSection'
  * Input section
  *
  * @public
- * @__NO_SIDE_EFFECTS__
  */
 export const textInput = createSection('input', () => ({
   $el: 'input',
@@ -18,5 +17,6 @@ export const textInput = createSection('input', () => ({
     value: '$_value',
     id: '$id',
     'aria-describedby': '$describedBy',
+    'aria-required': '$state.required || undefined',
   },
 }))

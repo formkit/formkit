@@ -5,15 +5,21 @@
 [data-floating-label='true'] .formkit-label {
   position: absolute;
   left: 0.5em;
-  color: grey;
+  opacity: 0.45;
   font-weight: normal;
   font-size: 1rem;
   transition: all 0.2s ease-out;
   transition-delay: 0.1s;
-  bottom: calc(100% - 0.5em);
-  transform: translateY(100%);
-  padding: 0.25em;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.15em 0.25em;
+  line-height: 1;
   box-sizing: border-box;
+}
+[data-floating-label='true'][data-type='textarea'] .formkit-label {
+  top: 0.5rem;
+  left: 0.5rem;
+  transform: translateY(0%);
 }
 
 [data-floating-label='true'] input:focus ~ .formkit-label,
@@ -21,9 +27,10 @@
 [data-floating-label='true']:not([data-empty='true']) .formkit-label,
 [data-floating-label='true'][data-expanded='true'] .formkit-label {
   font-size: 0.7rem;
-  transform: translateY(50%);
-  background-color: white;
-  bottom: 100%;
+  transform: translateY(-66.666%);
+  opacity: 1;
+  top: 0;
+  left: 0.5em !important;
   z-index: 2;
   transition-delay: 0s;
   transition-duration: 0.25s;

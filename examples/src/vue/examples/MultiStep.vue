@@ -9,6 +9,15 @@ const multiStepFormSchema = [
     $formkit: 'multi-step',
     beforeStepChange: '$log',
     allowIncomplete: false,
+    sectionsSchema: {
+      // schema overrides!
+      tabs: {
+        $el: 'ul',
+      },
+      tab: {
+        $el: 'li',
+      },
+    },
     children: [
       {
         $formkit: 'step',
@@ -128,10 +137,10 @@ const multiStepNode = ref(null)
 <template>
   <FormKitSchema :schema="multiStepFormSchema" :data="schemaData" />
 
-  <FormKitSchema :schema="schemaWithConditional" />
+  <!-- <FormKitSchema :schema="schemaWithConditional" /> -->
 
   <!-- v-for on `step` -->
-  <FormKit type="multi-step">
+  <!-- <FormKit type="multi-step">
     <FormKit
       v-for="section in sections"
       :key="section"
@@ -140,11 +149,11 @@ const multiStepNode = ref(null)
     >
       Step content
     </FormKit>
-  </FormKit>
+  </FormKit> -->
 
   <FormKit v-slot="{ value }" type="form">
     <!-- should not render as it is not inside a multi-step -->
-    <FormKit type="step" />
+    <!-- <FormKit type="step" /> -->
 
     <FormKit
       type="multi-step"
@@ -234,30 +243,32 @@ const multiStepNode = ref(null)
         />
 
         <template #stepNext>
-          <FormKit type="submit" />
+          <div class="ml-auto">
+            <FormKit type="submit" />
+          </div>
         </template>
       </FormKit>
     </FormKit>
 
-    <button type="button" @click="multiStepNode.next()">
-      External Next Step Control</button
+    <FormKit type="button" @click="multiStepNode.next()">
+      External Next Step Control</FormKit
     ><br />
-    <button type="button" @click="multiStepNode.previous()">
-      External Previous Step Control</button
+    <FormKit type="button" @click="multiStepNode.previous()">
+      External Previous Step Control</FormKit
     ><br />
-    <button type="button" @click="multiStepNode.goTo(2)">
-      Go to step 3 by index</button
+    <FormKit type="button" @click="multiStepNode.goTo(2)">
+      Go to step 3 by index</FormKit
     ><br />
-    <button type="button" @click="multiStepNode.goTo('Supplemental')">
-      Go to step 3 by name</button
+    <FormKit type="button" @click="multiStepNode.goTo('Supplemental')">
+      Go to step 3 by name</FormKit
     ><br />
 
-    <button
+    <FormKit
       type="button"
       @click="schemaData.showStepTwo = !schemaData.showStepTwo"
     >
       {{ schemaData.showStepTwo ? 'Hide' : 'Show' }} Step Two
-    </button>
+    </FormKit>
 
     <pre>{{ value }}</pre>
   </FormKit>

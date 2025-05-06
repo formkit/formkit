@@ -43,9 +43,13 @@ export function reset(
 ): FormKitNode | undefined {
   const node = typeof id === 'string' ? getNode(id) : id
   if (node) {
-    const initial = (n: FormKitNode) =>
-      cloneAny(n.props.initial) ||
-      (n.type === 'group' ? {} : n.type === 'list' ? [] : undefined)
+    const initial = (n: FormKitNode) => {
+      const initial = cloneAny(n.props.initial)
+
+      if (initial !== undefined) return initial
+
+      return n.type === 'group' ? {} : n.type === 'list' ? [] : undefined
+    }
 
     // pause all events in this tree.
     node._e.pause(node)
@@ -55,6 +59,7 @@ export function reset(
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
       node.props._init = node.props.initial
     }
+
     node.input(initial(node), false)
 
     // Set children back to basics in case they were additive (had their own value for example)

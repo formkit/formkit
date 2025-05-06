@@ -11,13 +11,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 export const packagesDir = resolve(__dirname, '../packages')
 
-const formkitExternals = [
-  '@formkit/auto-animate',
-  '@formkit/theme-creator'
-]
+const formkitExternals = ['@formkit/auto-animate', '@formkit/theme-creator']
 
 export const msg = {
   error: (m) => console.log(chalk.bold.red(m)),
+  warn: (m) => console.log(chalk.bold.yellow(m)),
   info: (m) => console.log(chalk.cyan(m)),
   success: (m) => console.log(chalk.green(m)),
   label: (m) => console.log(chalk.bold.magenta(m)),
@@ -209,16 +207,18 @@ export function drawDependencyTree(
   for (const [i, branch] of tree.entries()) {
     const title = branch[0]
     const deps = branch[1]
-    const directoryIndent = `${'  '.repeat(depth)}${depth > 0 ? directoryPrefix : ''}${'— '.repeat(Math.min(1, depth))}`
+    const directoryIndent = `${'  '.repeat(depth)}${
+      depth > 0 ? directoryPrefix : ''
+    }${'— '.repeat(Math.min(1, depth))}`
     if (depth === 0) {
       console.log(
         `${i + 1}) ${directoryIndent}${title} ` +
-        chalk.dim(`(${getPackageVersion(title)})`)
+          chalk.dim(`(${getPackageVersion(title)})`)
       )
     } else {
       msg.info(
         `  ${directoryIndent}${title} ` +
-        chalk.dim(`(${getDependencyVersion(parent, title)})`)
+          chalk.dim(`(${getDependencyVersion(parent, title)})`)
       )
     }
 
@@ -301,7 +301,7 @@ export function getPackageVersion(pkg) {
 export function getDependencyVersion(pkg, parent) {
   const packageJSON = getPackageJSON(parent)
   const dependencies = packageJSON.dependencies ? packageJSON.dependencies : []
-  formkitExternals.forEach(dep => {
+  formkitExternals.forEach((dep) => {
     delete dependencies[dep]
   })
   const devDependencies = packageJSON.devDependencies
@@ -376,7 +376,7 @@ export function getCurrentHash(suffix = 7) {
  * version that is about to be published
  */
 export function updateFKCoreVersionExport(newVersion) {
-  const fileNames = ['index.cjs', 'index.d.ts', 'index.mjs']
+  const fileNames = ['index.cjs', 'index.d.cts', 'index.mjs']
   const coreBuiltFiles = {}
   fileNames.forEach((fileName) => {
     coreBuiltFiles[fileName] = fs.readFileSync(
@@ -401,30 +401,36 @@ export function updateFKCoreVersionExport(newVersion) {
  * Get all the inputs declared in the inputs/index.ts file.
  */
 export function getInputs() {
-  const inputsDir = resolve(packagesDir, 'inputs/src/inputs')
+  const inputsDir = resolve(packagesDir, 'inputs/src')
   const exportFile = resolve(inputsDir, 'index.ts')
   const file = fs.readFileSync(exportFile, { encoding: 'utf-8' })
-  return file
+  const results = file
     .split(/\r?\n/)
     .filter((line) => !!line.trim())
     .map((line) => {
       const matches = line.match(
-        /^export { ([a-zA-Z ]+) } from '\.\/([a-zA-Z]+)'$/
+        /^import {\s([a-zA-Z ]+)\s} from '\.\/inputs\/([a-zA-Z]+)'$/
       )
       if (matches) {
         const [, rawName, fileName] = matches
-        const names = rawName.split(' ')
-        const name = names[names.length - 1]
-        const filePath = resolve(inputsDir, `${fileName}.ts`)
-        return {
-          name,
-          filePath,
-          fileName,
-        }
-      } else {
-        msg.error(`Failed to parse export from inputs/index.ts: ${line}`)
-        process.exit(1)
+        return { rawName, fileName }
       }
-      return matches
+      return false
     })
+    .filter((value) => !!value)
+    .map(({ rawName, fileName }) => {
+      const names = rawName.split(' ')
+      const name = names[names.length - 1]
+      const filePath = resolve(inputsDir, `./inputs/${fileName}.ts`)
+      return {
+        name,
+        filePath,
+        fileName,
+      }
+    })
+  if (!results.length) {
+    msg.error(`Failed to parse exports from index.ts`)
+    process.exit(1)
+  }
+  return results
 }

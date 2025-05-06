@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { defaultConfig, plugin } from '../../src'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { token } from '@formkit/utils'
 import { getNode, reset, FormKitTypeDefinition } from '@formkit/core'
 import { describe, expect, it } from 'vitest'
@@ -95,7 +95,7 @@ describe('group', () => {
 
   it('can use v-model to change input values', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             formData: {
@@ -119,7 +119,7 @@ describe('group', () => {
       </FormKit>
       </div>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -183,7 +183,7 @@ describe('clearing values', () => {
   it('can remove values from a group by setting it to an empty object', async () => {
     const emailToken = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             data: {} as Record<string, any>,
@@ -199,7 +199,7 @@ describe('clearing values', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -233,7 +233,7 @@ describe('clearing values', () => {
   it('can reset values to their original state', async () => {
     const formToken = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             data: {
@@ -255,7 +255,7 @@ describe('clearing values', () => {
           </FormKit>
         </div>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -380,5 +380,51 @@ describe('clearing values', () => {
       }
     )
     expect(wrapper.html()).toBe('<div>hello world</div>')
+  })
+
+  it('renames radio inputs that are children', () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="group">
+          <FormKit type="radio" name="fiz" :options="['a', 'b']" value="b" />
+        </FormKit>
+        <FormKit type="group">
+          <FormKit type="radio" name="fiz" :options="['a', 'b']" value="a" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('can destructure the value of a group (#1133)', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="form" #default="{ value }">
+          <FormKit type="group" name="my-group">
+            <FormKit type="text" name="foo" :delay="0" />
+            <FormKit type="text" name="bar" :delay="0" />
+          </FormKit>
+          <pre>{{ value }}</pre>
+        </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    wrapper.find('input[name="foo"]').setValue('abc')
+    wrapper.find('input[name="bar"]').setValue('def')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(wrapper.find('pre').html()).toMatchSnapshot()
   })
 })

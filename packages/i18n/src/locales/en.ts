@@ -15,7 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
@@ -89,10 +89,6 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Change date',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'The selected date is invalid.',
-  /**
    * Shown above error summaries when someone attempts to submit a form with
    * errors and the developer has implemented `<FormKitSummary />`.
    */
@@ -101,13 +97,17 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is something to close
    */
   close: 'Close',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Open',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -232,7 +232,6 @@ export const validation: FormKitValidationMessages = {
     return `${s(name)} must contain numbers.`
     /* </i18n> */
   },
-
   /**
    * The value is not symbol
    * @see {@link https://formkit.com/essentials/validation#symbol}
@@ -257,9 +256,15 @@ export const validation: FormKitValidationMessages = {
    * The value is not lowercase
    * @see {@link https://formkit.com/essentials/validation#lowercase}
    */
-  lowercase({ name }) {
+  lowercase({ name, args }) {
+    let postfix = ''
+    if (Array.isArray(args) && args.length) {
+      if (args[0] === 'allow_non_alpha') postfix = ', numbers and symbols'
+      if (args[0] === 'allow_numeric') postfix = ' and numbers'
+      if (args[0] === 'allow_numeric_dashes') postfix = ', numbers and dashes'
+    }
     /* <i18n case="Shown when the user-provided value contains non-alphabetical-lowercase characters."> */
-    return `${s(name)} can only contain lowercase letters.`
+    return `${s(name)} can only contain lowercase letters${postfix}.`
     /* </i18n> */
   },
 
@@ -408,7 +413,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} must be less than or equal to ${args[0]}.`
+    return `${s(name)} must be no more than ${args[0]}.`
     /* </i18n> */
   },
 
@@ -438,7 +443,7 @@ export const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is less than the minimum number supplied to the rule."> */
-    return `Must be at least ${args[0]} ${name} .`
+    return `${s(name)} must be at least ${args[0]}.`
     /* </i18n> */
   },
 
@@ -511,4 +516,10 @@ export const validation: FormKitValidationMessages = {
     return `Please enter a valid URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'The selected date is invalid.',
 }
+
+export const en = { ui, validation }

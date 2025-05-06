@@ -137,7 +137,9 @@ function setNode(n: FormKitNode) {
     <FormKit
       type="checkbox"
       label="Do you agree to our terms?"
-      help="You need to do this"
+      help="You need
+    to do this"
+      validation="accepted"
     />
     <FormKit
       v-model="fruit"

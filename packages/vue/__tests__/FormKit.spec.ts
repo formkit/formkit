@@ -1,4 +1,15 @@
-import { nextTick, h, reactive, ref, PropType, mergeProps } from 'vue'
+import {
+  nextTick,
+  h,
+  reactive,
+  ref,
+  PropType,
+  mergeProps,
+  defineComponent,
+  provide,
+  markRaw,
+  ConcreteComponent,
+} from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
 import { FormKitNode, FormKitEvent, setErrors } from '@formkit/core'
@@ -8,12 +19,39 @@ import { FormKitValidationRule } from '@formkit/validation'
 import vuePlugin from '../src/bindings'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
+import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
-import { ConcreteComponent } from 'vue'
+import { componentSymbol } from '../src/FormKit'
+import { FormKitMessages } from '../src/FormKitMessages'
+import { star } from '@formkit/icons'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
 
 describe('props', () => {
+  it('loads input definition props before the plugins are executed', () => {
+    const input = createInput('foo', { props: ['exists'] })
+    let propValue = false
+    function myPlugin(node: FormKitNode) {
+      propValue = node.props.exists
+    }
+    mount(
+      {
+        template: `<FormKit type="foo" exists="true" />`,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({ inputs: { foo: input }, plugins: [myPlugin] }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(propValue).toBe('true')
+  })
+
   it('uses the input definition’s forceTypeProp instead of the type', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -277,14 +315,14 @@ describe('id', () => {
 describe('v-model', () => {
   it('updates local data when v-model changes', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             name: 'foobar',
           }
         },
         template: `<FormKit v-model="name" :delay="0" />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -302,7 +340,7 @@ describe('v-model', () => {
 
   it('does not perform input events on v-modeled form', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             formData: {} as { username: string; password: string },
@@ -312,7 +350,7 @@ describe('v-model', () => {
           <FormKit type="text" name="username" />
           <FormKit type="text" help="abc" :sections-schema="{ help: { children: '$state.dirty' } }" name="password" />
         </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -355,14 +393,14 @@ describe('v-model', () => {
 describe('events', () => {
   it('emits the node as soon as it is created', () => {
     const wrapper = mount(
-      {
+      defineComponent({
         template: '<FormKit @node="e => { node = e }" />',
         data() {
           return {
             node: null as null | FormKitNode,
           }
         },
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -530,7 +568,7 @@ describe('validation', () => {
     const [email, name] = wrapper.get('div').findAll('input')
     email.setValue('info@formkit.com')
     name.setValue('Rockefeller')
-    await new Promise((r) => setTimeout(r, 40))
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
 
@@ -584,12 +622,39 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
+    await nextTick()
     const node = getNode(id)
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('input').element.value = 'foobar'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('removes data-invalid from the wrapper when validation rules are removed (#1384)', async () => {
+    const rules = ref('required')
+    const wrapper = mount(
+      {
+        setup() {
+          return { rules }
+        },
+        template:
+          '<FormKit type="text" validation-visibility="live" :validation="rules" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      'true'
+    )
+    rules.value = ''
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
   })
 
   it('knows the state of validation visibility when set to submit', async () => {
@@ -760,7 +825,7 @@ describe('validation', () => {
     expect(node?.context?.state.complete).toBe(false)
     wrapper.find('input').element.value = 'yes'
     wrapper.find('input').trigger('input')
-    await new Promise((r) => setTimeout(r, 10))
+    await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.complete).toBe(true)
   })
 
@@ -787,7 +852,7 @@ describe('validation', () => {
 
   it('can dynamically change the validation-visibility', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             visibility: 'blur',
@@ -797,7 +862,7 @@ describe('validation', () => {
         validation="required"
         :validation-visibility="visibility"
       />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -905,7 +970,7 @@ describe('validation', () => {
 
   it('can respond to dynamic validationRules prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         setup() {
           const list = ref(['a', 'b', 'c'])
           const foo = (node: FormKitNode) => node.value !== 'foo'
@@ -928,7 +993,7 @@ describe('validation', () => {
           value="bar"
         />
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -940,12 +1005,104 @@ describe('validation', () => {
     await new Promise((r) => setTimeout(r, 200))
     expect(wrapper.find('.formkit-messages').exists()).toBe(true)
   })
+
+  it('runs validation rules provided by config in sequence (#1151 - cnd)', async () => {
+    const monday: FormKitValidationRule = (node) => {
+      return node.value === 'monday' || node.value === 'mon'
+    }
+
+    const wrapper = mount(
+      {
+        setup() {
+          const monday = ref('')
+          setTimeout(() => {
+            monday.value = 'monday|'
+          }, 1)
+          return { monday }
+        },
+        template: ` <FormKit type="form":actions="false"  :value="{textInput: 'm'}">
+        <FormKit
+            type="text"
+            name="textInput"
+            label="FormKit Input"
+            :validation="\`required|\${monday}length:2\`"
+            validation-visibility="live"
+          />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ rules: { monday } })]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 1000))
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+  })
+
+  it('allows dynamic validation rules to be set (#1155)', async () => {
+    // const id = `a${token()}`
+    const id = 'ultra-special-id'
+    const wrapper = mount(
+      {
+        setup() {
+          const targetNode = ref()
+
+          function setTargetNode(node: FormKitNode) {
+            targetNode.value = node
+          }
+          const after: FormKitValidationRule = function (
+            { value },
+            compare = false
+          ) {
+            const timestamp = Date.parse(compare || new Date())
+            const fieldValue = Date.parse(String(value))
+            return isNaN(fieldValue) ? false : fieldValue > timestamp
+          }
+          return { setTargetNode, targetNode, after }
+        },
+        template: `
+        <FormKit
+          type="datetime-local"
+          value="2024-02-10T18:00"
+          label="End of the world"
+          help="When will the end of the world take place?"
+          @node="setTargetNode"
+        />
+
+        <FormKit
+          type="datetime-local"
+          value="2024-02-09T18:00"
+          id="${id}"
+          name="${id}"
+          label="This value should be after the end of the world"
+          :validation-rules="{ after }"
+          :validation="\`required|after:\${targetNode?.context.value || new Date()}\`"
+          validation-visibility="live"
+        />
+      `,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await nextTick()
+    expect(wrapper.findAll('.formkit-message').length).toBe(1)
+    await new Promise((r) => setTimeout(r, 20))
+    const node = getNode(id)
+    node?.input('2024-02-11T18:00', false)
+    getNode(id)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.findAll('.formkit-message').length).toBe(0)
+  })
 })
 
 describe('configuration', () => {
   it('can change configuration options via prop', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             node1: null as null | FormKitNode,
@@ -983,7 +1140,7 @@ describe('configuration', () => {
           </FormKit>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -1066,7 +1223,7 @@ describe('classes', () => {
   <div class="formkit-wrapper"><label class="formkit-label" for="foobar">input label</label>
     <div class="formkit-inner">
       <!---->
-      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required">
+      <!----><input class="formkit-input" type="text" name="classTest" id="foobar" aria-describedby="help-foobar foobar-rule_required" aria-required="true">
       <!---->
       <!---->
     </div>
@@ -1688,6 +1845,28 @@ describe('state', () => {
     expect(outer.attributes('data-invalid')).toBe(undefined)
   })
 
+  it('does not have data-invalid when the input is reset (#1376)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        value: 'foobar',
+        validationVisibility: 'live',
+        id,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.reset()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
+  })
+
   it('adds data-errors when the input has errors directly applied via prop', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -1925,7 +2104,7 @@ describe('exposures', () => {
   it('can set values on a group with values that dont have correlating nodes', async () => {
     const groupId = token()
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             groupValue: { a: 'bar' } as any,
@@ -1934,7 +2113,7 @@ describe('exposures', () => {
         template: `<FormKit type="group" v-model="groupValue" id="${groupId}">
         <FormKit name="a" value="foo" />
       </FormKit>`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -1953,7 +2132,7 @@ describe('schema changed', () => {
   it('can change an inputs entire schema and force a re-render', async () => {
     const id = token()
     const wrapper = mount(
-      {
+      defineComponent({
         methods: {
           swapSchema() {
             const node = getNode(id)
@@ -1974,7 +2153,7 @@ describe('schema changed', () => {
           },
         },
         template: `<FormKit id="${id}" />`,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -1989,7 +2168,7 @@ describe('schema changed', () => {
 
   it('can use a dynamic default slot. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2003,7 +2182,7 @@ describe('schema changed', () => {
           <template v-else #label><h2>otherwise click me</h2></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2018,7 +2197,7 @@ describe('schema changed', () => {
 
   it('can use a conditional default slot. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2031,7 +2210,7 @@ describe('schema changed', () => {
           <template v-if="first === 'yes'" #label><h1>click me</h1></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2049,7 +2228,7 @@ describe('schema changed', () => {
 
   it('can use a conditional default slot that starts as false. #489', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2062,7 +2241,7 @@ describe('schema changed', () => {
           <template v-if="first === 'yes'" #label><h1>click me</h1></template>
         </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2123,7 +2302,7 @@ describe('schema changed', () => {
   it('can use v-show to hide a field, tests root node (#528)', async () => {
     const show = ref(true)
     const wrapper = mount(
-      {
+      defineComponent({
         components: {
           FormKit,
         },
@@ -2133,7 +2312,7 @@ describe('schema changed', () => {
         template: `
         <FormKit type="text" label="hi there" v-show="show" />
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -2281,5 +2460,306 @@ describe('nested inputs', () => {
     )
     await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('pre').text()).toBe('false')
+  })
+})
+
+describe('naked attributes', () => {
+  it('disables the input when naked disabled attr is used (#989)', () => {
+    const wrapper = mount(
+      {
+        template: '<FormKit type="text" disabled />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('input[disabled]').exists()).toBe(true)
+    expect(wrapper.find('[data-disabled="true"]').exists()).toBe(true)
+  })
+
+  it('respects the ignore prop when it is naked', () => {
+    const id = `a_${token()}`
+    mount(
+      {
+        template: `<FormKit type="form" id="${id}">
+          <FormKit type="text" name="fizz" value="123" />
+          <FormKit type="text" name="buzz" value="456" ignore />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(getNode(id)!.value).toStrictEqual({ fizz: '123' })
+  })
+
+  it('allows boolean props in input definitions', () => {
+    const idA = `a_${token()}`
+    const idB = `a_${token()}`
+    const input = createInput('foo', { props: { exists: { boolean: true } } })
+    mount(
+      {
+        template: `<FormKit type="foo" id="${idA}" /><FormKit type="foo" id="${idB}" exists />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { foo: input } })]],
+        },
+      }
+    )
+
+    expect(getNode(idA)!.props.exists).toBe(false)
+    expect(getNode(idB)!.props.exists).toBe(true)
+  })
+
+  it('allows boolean props to be overridden by parent config', () => {
+    const idA = `a_${token()}`
+    const idB = `a_${token()}`
+    const input = createInput('foo', { props: { exists: { boolean: true } } })
+    mount(
+      {
+        template: `<FormKit type="group" :config="{ exists: true }">
+          <FormKit type="foo" id="${idA}" />
+          <FormKit type="foo" id="${idB}" exists="false" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig({ inputs: { foo: input } })]],
+        },
+      }
+    )
+
+    expect(getNode(idA)!.props.exists).toBe(true)
+    expect(getNode(idB)!.props.exists).toBe(false)
+  })
+
+  it('allows you to provide a component callback', () => {
+    const componentCallback = vi.fn(() => {})
+    mount(
+      {
+        setup() {
+          provide(componentSymbol, componentCallback)
+        },
+        template: `<FormKit type="group">
+          <FormKit type="text" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(componentCallback).toHaveBeenCalledTimes(2)
+  })
+
+  it('sets state to validating before binding commit hook fires (#1116)', () => {
+    let validatingOnCommit: boolean | undefined = false
+    function checkCommitSequence(node: FormKitNode) {
+      node.on('commit', () => {
+        validatingOnCommit = node.store.validating?.value as boolean
+      })
+    }
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'text',
+        plugins: [checkCommitSequence],
+        validation: 'required',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig()]],
+      },
+    })
+    const node = getNode(id)
+    node?.input('foo', false)
+    expect(validatingOnCommit).toBe(true)
+  })
+
+  it('changes locale for new inputs using changeLocale', async () => {
+    const show = ref(false)
+    const wrapper = mount(
+      {
+        setup() {
+          return { show }
+        },
+        template: `<FormKit type="text" validation="required" validation-visibility="live" />
+        <FormKit type="text" validation="required" validation-visibility="live" v-if="show" />`,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                locales: { de },
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain(' is required.')
+    changeLocale('de')
+    await nextTick()
+    expect(wrapper.html()).toContain(' ist erforderlich.')
+    show.value = true
+    await nextTick()
+    expect(wrapper.html()).not.toContain(' is required.')
+  })
+
+  it('can use a custom component on a FormKit component with library (#1145)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit
+          type="text"
+          :library="library"
+          help="This is working!"
+          :sections-schema="{
+            help: {
+              $el: undefined,
+              $cmp: 'MyComponent',
+              props: {
+                message: '$help'
+              }
+            }
+          }"
+        />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.html()).toContain('<h2>This is working!</h2>')
+  })
+
+  it('can use a library on FormKitMessages component (#1137)', async () => {
+    const myComponent = defineComponent({
+      props: ['message'],
+      setup(props) {
+        return () => h('h2', props.message)
+      },
+    })
+    const wrapper = mount(
+      {
+        components: {
+          FormKitMessages,
+        },
+        setup() {
+          const library = { MyComponent: markRaw(myComponent) }
+          return { library }
+        },
+        template: `<FormKit type="form" :errors="['I have 99 issues but components arent one']">
+          <FormKitMessages
+            :library="library"
+            :sections-schema="{
+              message: {
+                $el: undefined,
+                $cmp: 'MyComponent',
+                props: {
+                  message: '$message.value'
+                }
+              }
+            }"
+          />
+          <div>Other context down here</div>
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.html()).toContain(
+      '<h2>I have 99 issues but components arent one</h2>'
+    )
+  })
+
+  it('outputs accessibility attributes on clickable icons', () => {
+    const handler = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'table_stakes',
+        suffixIcon: 'star',
+        onSuffixIconClick: handler,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('does not mark the input as invalid while it is validating', async () => {
+    async function long(node: FormKitNode) {
+      await new Promise((r) => setTimeout(r, 20))
+      return node.value === 'foo'
+    }
+    long.skipEmpty = false
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'long_validation',
+        id: 'inspect-long-validation-node',
+        delay: 0,
+        validationRules: {
+          long,
+        },
+        validationVisibility: 'live',
+        validation: 'long',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    const node = getNode('inspect-long-validation-node')!
+    // Before our validation rule has run, everything is fine...
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
+    expect(node.context!.state.invalid).toBe(false)
+    await new Promise((r) => setTimeout(r, 30))
+    // After our rule has run, the input should be invalid
+    expect(node.context!.state.invalid).toBe(true)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+
+    wrapper.find('input').setValue('foo')
+    await new Promise((r) => setTimeout(r, 5))
+    // While it is validating, the input should remain invalid
+    expect(node.context!.state.invalid).toBe(true)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+    await new Promise((r) => setTimeout(r, 30))
+
+    // When the input has been validated, it should be valid
+    expect(node.context!.state.invalid).toBe(false)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
   })
 })

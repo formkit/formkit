@@ -10,9 +10,11 @@ import {
   addComponent,
   addImports,
   addPlugin,
+  addBuildPlugin,
 } from '@nuxt/kit'
-import { NuxtModule } from '@nuxt/schema'
-import unpluginFormKit from 'unplugin-formkit/vite'
+import { createUnplugin } from 'unplugin'
+import type { NuxtModule } from '@nuxt/schema'
+import { unpluginFactory as unpluginFormKit } from 'unplugin-formkit'
 
 export interface ModuleOptions {
   defaultConfig?: boolean
@@ -26,6 +28,7 @@ export interface ModuleOptions {
    * - `<FormKitProvider>`
    * - `<FormKitMessages>`
    * - `<FormKitSummary>`
+   * - `<FormKitSchema>`
    * - `getNode()`
    * - `createInput()`
    * - `setErrors`,
@@ -44,7 +47,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     name: 'FormKit',
     configKey: 'formkit',
     compatibility: {
-      nuxt: '^3.0.0',
+      nuxt: '>=3.0.0',
     },
   },
   defaults: {
@@ -59,6 +62,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     } else {
       useFormKitPlugin(options, nuxt)
     }
+    useIntegrations(options, nuxt)
   },
 })
 
@@ -97,6 +101,18 @@ const useAutoImport = async function installLazy(options, nuxt) {
       from: '@formkit/core',
       name: 'reset',
     },
+    {
+      from: '@formkit/vue',
+      name: 'useFormKitContext',
+    },
+    {
+      from: '@formkit/vue',
+      name: 'useFormKitContextById',
+    },
+    {
+      from: '@formkit/vue',
+      name: 'useFormKitNodeById',
+    },
   ])
 
   addComponent({
@@ -125,6 +141,18 @@ const useAutoImport = async function installLazy(options, nuxt) {
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
+  addComponent({
+    name: 'FormKitIcon',
+    export: 'FormKitIcon',
+    filePath: '@formkit/vue',
+    chunkName: '@formkit/vue',
+  })
+  addComponent({
+    name: 'FormKitSchema',
+    export: 'FormKitSchema',
+    filePath: '@formkit/vue',
+    chunkName: '@formkit/vue',
+  })
   const { resolve } = createResolver(import.meta.url)
 
   const configBase = resolve(
@@ -137,20 +165,17 @@ const useAutoImport = async function installLazy(options, nuxt) {
     src: resolve('./runtime/formkitSSRPlugin.mjs'),
   })
 
-  nuxt.hook('vite:extendConfig', (config) => {
-    const plugin = unpluginFormKit({
-      defaultConfig: options.defaultConfig,
-      configFile: configBase,
-    }) as any
-    // ☝️ Unfortunately we have this declaration as any right here, this seems
-    // to do with unplugin having a different vite dependency than nuxt, however
-    // this shouldn’t affect runtime.
-    if (Array.isArray(config.plugins)) {
-      config.plugins?.unshift(plugin)
-    } else {
-      config.plugins = [plugin]
-    }
-  })
+  addBuildPlugin(
+    createUnplugin(
+      unpluginFormKit.bind(
+        {},
+        {
+          defaultConfig: options.defaultConfig,
+          configFile: configBase,
+        }
+      ) as unknown as typeof unpluginFormKit
+    )
+  )
 } satisfies NuxtModule<ModuleOptions>
 /**
  * Installs FormKit via Nuxt plugin. This registers the FormKit plugin globally
@@ -224,6 +249,29 @@ const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
       `
     },
     filename: 'formkitPlugin.mjs',
+  })
+} satisfies NuxtModule<ModuleOptions>
+/**
+ * Installs any hooks for integration with Nuxt modules.
+ */
+const useIntegrations = function installModuleHooks(options, nuxt) {
+  const resolver = createResolver(import.meta.url)
+
+  const themeBase = resolve(
+    nuxt.options.rootDir,
+    options.configFile || 'formkit.theme'
+  )
+
+  // @ts-ignore:next-line module may not be installed
+  nuxt.hook('tailwindcss:config', async (tailwindConfig) => {
+    const themePath = await resolver.resolvePath(themeBase)
+    if (existsSync(themePath)) {
+      tailwindConfig.content = tailwindConfig.content ?? { files: [] }
+      ;(Array.isArray(tailwindConfig.content)
+        ? tailwindConfig.content
+        : tailwindConfig.content.files
+      ).push(themePath)
+    }
   })
 } satisfies NuxtModule<ModuleOptions>
 

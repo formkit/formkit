@@ -4,10 +4,12 @@ import { createSection } from '../createSection'
  * Outer section where most data attributes are assigned.
  *
  * @public
- * @__NO_SIDE_EFFECTS__
  */
 export const outer = createSection('outer', () => ({
   $el: 'div',
+  meta: {
+    autoAnimate: true,
+  },
   attrs: {
     key: '$id',
     'data-family': '$family || undefined',
@@ -18,8 +20,7 @@ export const outer = createSection('outer', () => ({
     'data-disabled': '$: ($disabled !== "false" && $disabled) || undefined',
     'data-empty': '$state.empty || undefined',
     'data-complete': '$state.complete || undefined',
-    'data-invalid':
-      '$state.valid === false && $state.validationVisible || undefined',
+    'data-invalid': '$state.invalid || undefined',
     'data-errors': '$state.errors || undefined',
     'data-submitted': '$state.submitted || undefined',
     'data-prefix-icon': '$_rawPrefixIcon !== undefined || undefined',

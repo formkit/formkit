@@ -58,16 +58,18 @@ function setNode(n: FormKitNode) {
   >
     <FormKit type="number" label="Age" validation="between:21,18" />
     <FormKit
-    type="text"
-    name="email"
-    label="Email address"
-    help="What is your email address?"
-    placeholder="jon@foo.com"
-    validation="required|email|length:16,9"
-    validation-visibility="live"
-    outer-class="my-class !formkit-outer"
-    @input="(value) => value"
-    @input-raw="(value, node) => value"
+      type="text"
+      name="email"
+      label="Email address"
+      help="What is your email address?"
+      placeholder="jon@foo.com"
+      validation="required|email|length:16,9"
+      validation-visibility="live"
+      outer-class="my-class !formkit-outer"
+      suffix-icon="star"
+      @suffix-icon-click="() => {}"
+      @input="(value) => value"
+      @input-raw="(value, node) => value"
     />
     <FormKit type="file" />
     <FormKit

@@ -15,7 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons for adding new items.
    */
@@ -89,20 +89,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'تغییر تاریخ',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'تاریخ انتخاب شده نامعتبر است',
-  /**
    * Shown when there is something to close
    */
   close: 'بستن',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'باز کردن',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -509,4 +509,10 @@ export const validation: FormKitValidationMessages = {
     return `لطفا یک URL معتبر وارد کنید.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'تاریخ انتخاب شده نامعتبر است',
 }
+
+export const fa = { ui, validation }

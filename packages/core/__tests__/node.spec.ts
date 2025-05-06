@@ -614,6 +614,216 @@ describe('props system', () => {
       },
     })
   })
+
+  it('can define a default value for a prop', () => {
+    const node = createNode()
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('ted')
+  })
+
+  it('can define a default value for a prop and have it be overridden by local values', () => {
+    const node = createNode({
+      props: {
+        name: 'fred',
+      },
+    })
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('fred')
+  })
+
+  it('can define a default value for a prop and have it be overridden by attr values', () => {
+    const node = createNode({
+      props: {
+        attrs: {
+          name: 'fred',
+        },
+      },
+    })
+    node.addProps({
+      name: {
+        default: 'ted',
+      },
+    })
+    expect(node.props.name).toBe('fred')
+  })
+
+  it('can define props with defaults when nested', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('bar')
+  })
+
+  it('can define props with defaults and still inherit from parents', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+  })
+
+  it('can define props with getters', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+              getter: (value) => {
+                return value !== 'foo' ? value + '!' : value
+              },
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+    child.props.foo = 'bar'
+    expect(child.props.foo).toBe('bar!')
+  })
+
+  it('can define props with setters', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              default: 'bar',
+              setter: (value) => {
+                return value !== 'foo' ? value + '!' : value
+              },
+            },
+          })
+        },
+      ],
+    })
+    createNode({
+      type: 'group',
+      config: { foo: 'foo' },
+      children: [child],
+    })
+
+    expect(child.props.foo).toBe('foo')
+    child.props.foo = 'bar'
+    expect(child.props.foo).toBe('bar!')
+  })
+
+  it('can define a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: '',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(true)
+  })
+
+  it('makes "false" string false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: 'false',
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('makes undefined false on a boolean prop', () => {
+    const child = createNode({
+      props: {
+        attrs: {
+          foo: undefined,
+        },
+      },
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+  })
+
+  it('can define a boolean prop and swap to it', () => {
+    const child = createNode({
+      plugins: [
+        (node) => {
+          node.addProps({
+            foo: {
+              boolean: true,
+            },
+          })
+        },
+      ],
+    })
+    expect(child.props.foo).toBe(false)
+    child.props.foo = ''
+    expect(child.props.foo).toBe(true)
+  })
 })
 
 describe('plugin system', () => {
@@ -1327,6 +1537,27 @@ describe('resetting', () => {
     expect(node.at('foo')?.value).toBe('abc')
     expect(node.at('bim')?.value).toBe('xyz')
   })
+
+  it('can reset to initial value false', async () => {
+    const node = createNode({ value: false })
+    node.reset()
+
+    expect(node.value).toBe(false)
+
+    await node.input(true)
+    node.reset()
+    expect(node.value).toBe(false)
+  })
+
+  it('can reset to initial value null', async () => {
+    const node = createNode({ value: null })
+    node.reset()
+    expect(node.value).toBe(null)
+
+    await node.input('biz bar')
+    node.reset()
+    expect(node.value).toBe(null)
+  })
 })
 
 describe('errors', () => {
@@ -1367,5 +1598,47 @@ describe('extend', () => {
     expect(user.foo).toBe('username is foobar')
     user.name = 'new name'
     expect(user.foo).toBe('new name is foobar')
+  })
+})
+
+describe('merge-strategy', () => {
+  it('can inherit its own merge strategy', () => {
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    const child = createNode({ name: 'a' })
+    expect(child.props.mergeStrategy).toEqual(undefined)
+    parent.add(child)
+    expect(child.props.mergeStrategy).toEqual('synced')
+    expect(child.config.mergeStrategy).toEqual({ a: 'synced' })
+  })
+
+  it('can sync two values of the same name to each other', () => {
+    const a = createNode({ value: '', name: 'a' })
+    const a2 = createNode({ value: '', name: 'a' })
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    parent.add(a)
+    parent.add(a2)
+    a.input('bar', false)
+    expect(parent.value).toEqual({ a: 'bar' })
+    expect(a.value).toBe('bar')
+    expect(a2.value).toBe('bar')
+  })
+  it('can sync two values of the same name with an array as the value', () => {
+    const a = createNode({ value: 'foo', name: 'a' })
+    const a2 = createNode({ value: '', name: 'a' })
+    const parent = createNode({
+      type: 'group',
+      config: { mergeStrategy: { a: 'synced' } },
+    })
+    parent.add(a)
+    parent.add(a2)
+    const newValue: string[] = []
+    a.input(newValue, false)
+    expect(a.value).toBe(newValue)
   })
 })

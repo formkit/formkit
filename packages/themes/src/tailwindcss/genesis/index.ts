@@ -36,7 +36,7 @@ export default {
     input:
       '$reset inline-flex items-center bg-blue-600 text-white text-sm font-normal py-3 px-6 rounded focus-visible:outline-2 focus-visible:outline-blue-600 focus-visible:outline-offset-2 formkit-disabled:bg-gray-400 formkit-loading:before:w-4 formkit-loading:before:h-4 formkit-loading:before:mr-2 formkit-loading:before:border formkit-loading:before:border-2 formkit-loading:before:border-r-transparent formkit-loading:before:rounded-3xl formkit-loading:before:border-white formkit-loading:before:animate-spin',
     wrapper: 'mb-1',
-    prefixIcon: '$reset block w-4 -ml-2 mr-2 stretch',
+    prefixIcon: '$reset block w-4 mr-2 stretch',
     suffixIcon: '$reset block w-4 ml-2 stretch',
   },
   'family:dropdown': {
@@ -615,6 +615,40 @@ export default {
       'p-0.5 min-w-[3em] relative rounded-full transition-all bg-gray-400 peer-checked:bg-blue-500 peer-checked:[&>div:last-child]:left-full peer-checked:[&>div:last-child]:-translate-x-full peer-checked:[&>div:first-child:not(:last-child)]:left-0 peer-checked:[&>div:first-child:not(:last-child)]:translate-x-0',
     valueLabel: 'font-bold text-sm',
     wrapper: 'flex flex-wrap items-center mb-1',
+  },
+  togglebuttons: {
+    input: `
+      !text-black !bg-white
+      relative flex ring-1 ring-gray-400 text-center align-center justify-center transition-colors
+      group-data-[vertical="true"]/options:w-full
+      group-data-[vertical="true"]/options:rounded-none
+      group-data-[vertical="false"]/options:rounded-none
+      focus-visible:z-10
+      disabled:filter-grayscale
+      disabled:!bg-gray-200
+      disabled:!text-gray-700
+      disabled:opacity-50
+      disabled:cursor-not-allowed
+      formkit-disabled:opacity-100
+      aria-pressed:!bg-blue-600
+      aria-pressed:!text-white
+    `,
+    options: `
+      group/options
+      inline-flex
+      data-[vertical="true"]:flex-col
+    `,
+    option: `
+      group/option
+      group-data-[vertical="true"]/options:[&>*]:first:rounded-tl
+      group-data-[vertical="true"]/options:[&>*]:first:rounded-tr
+      group-data-[vertical="true"]/options:[&>*]:last:rounded-bl
+      group-data-[vertical="true"]/options:[&>*]:last:rounded-br
+      group-data-[vertical="false"]/options:[&>*]:first:rounded-tl
+      group-data-[vertical="false"]/options:[&>*]:first:rounded-bl
+      group-data-[vertical="false"]/options:[&>*]:last:rounded-tr
+      group-data-[vertical="false"]/options:[&>*]:last:rounded-br
+    `,
   },
   transferlist: {
     outer: `

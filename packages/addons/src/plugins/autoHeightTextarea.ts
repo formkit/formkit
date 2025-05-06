@@ -13,7 +13,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
     if (node.props.type !== 'textarea') return
     node.addProps(['autoHeight', 'maxAutoHeight'])
 
-    node.on('created', () => {
+    node.on('mounted', () => {
       const autoHeight = undefine(node.props.autoHeight)
       const maxAutoHeight = Number.isFinite(node.props.maxAutoHeight)
         ? parseInt(node.props.maxAutoHeight)
@@ -51,9 +51,14 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
             'style',
             'height: 0; min-height: 0; pointer-events: none; opacity: 0;  left: -9999px; padding-top: 0; padding-bottom: 0; position: absolute; display: block; top: 0; z-index: -1; scrollbar-width: none;'
           )
+
+          hiddenTextarea.setAttribute('aria-hidden', 'true')
+          hiddenTextarea.setAttribute('tabindex', '-1')
+
           hiddenTextarea.removeAttribute('name')
           hiddenTextarea.removeAttribute('id')
           hiddenTextarea.removeAttribute('aria-describedby')
+
           const isBorderBox =
             getComputedStyle(inputElement).boxSizing === 'border-box'
           const paddingY =

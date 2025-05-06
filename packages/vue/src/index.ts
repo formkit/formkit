@@ -41,6 +41,7 @@ export {
   FormKitSetupContext,
   Slots,
   parentSymbol,
+  componentSymbol,
   getCurrentSchemaNode,
 } from './FormKit'
 
@@ -70,6 +71,15 @@ export {
   FormKitLazyProvider,
   useConfig,
 } from './FormKitProvider'
+
+/**
+ * Exports the useFormKitContext composable.
+ */
+export {
+  useFormKitContext,
+  useFormKitContextById,
+  useFormKitNodeById,
+} from './composables/useContext'
 
 /**
  * The FormKitSummary component.
@@ -111,16 +121,25 @@ export { default as bindings } from './bindings'
 export { FormKitIcon } from './FormKitIcon'
 
 /**
+ * The counter reset for sequential identifiers.
+ */
+export { resetCount } from './utilities/resetCount'
+
+/**
  * Export the reset count explicitly
  */
 export {
-  resetCount,
   errorHandler,
   setErrors,
   clearErrors,
   submitForm,
   reset,
 } from '@formkit/core'
+
+/**
+ * Export the changeLocale function explicitly.
+ */
+export { changeLocale } from '@formkit/i18n'
 
 /**
  * SSR support for cleanup operations relating to SSR.

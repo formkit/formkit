@@ -1,3 +1,4 @@
+export { wrapper } from './wrapper'
 export { badge } from './badge'
 export { stepActions } from './stepActions'
 export { stepInner } from './stepInner'

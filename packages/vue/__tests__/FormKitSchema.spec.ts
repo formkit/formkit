@@ -563,7 +563,7 @@ describe('parsing dom elements', () => {
   })
 
   it('can render variable slots', async () => {
-    const wrapper = mount({
+    const wrapper = mount(defineComponent({
       components: {
         FormKitSchema,
       },
@@ -583,7 +583,7 @@ describe('parsing dom elements', () => {
           <template v-else #default>otherwise click me</template>
         </FormKitSchema>
       `,
-    })
+    }))
     expect(wrapper.html()).toBe('<button>click me</button>')
     wrapper.vm.first = 'no'
     await nextTick()
@@ -591,7 +591,7 @@ describe('parsing dom elements', () => {
   })
 
   it('can render conditional slots', async () => {
-    const wrapper = mount({
+    const wrapper = mount(defineComponent({
       components: {
         FormKitSchema,
       },
@@ -610,7 +610,7 @@ describe('parsing dom elements', () => {
           <template v-if="first === 'yes'" #default>click me</template>
         </FormKitSchema>
       `,
-    })
+    }))
     expect(wrapper.html()).toBe('<button>click me</button>')
     wrapper.vm.first = 'no'
     await nextTick()

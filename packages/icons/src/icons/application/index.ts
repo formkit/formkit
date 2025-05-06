@@ -5,6 +5,7 @@ import bookmark from './Bookmark'
 import check from './Check'
 import circle from './Circle'
 import close from './Close'
+import dragHandle from './DragHandle'
 import exportAction from './Export'
 import eye from './Eye'
 import eyeClosed from './EyeClosed'
@@ -57,6 +58,7 @@ export {
   circle,
   close,
   compress,
+  dragHandle,
   expand,
   exportAction,
   eye,

@@ -15,7 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons for adding new items.
    */
@@ -89,20 +89,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Data da alteração',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'A data selecionada é inválida.',
-  /**
    * Shown when there is something to close
    */
   close: 'Fechar',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Aberto',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -508,4 +508,10 @@ export const validation: FormKitValidationMessages = {
     return `Por favor, insira uma url válida.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'A data selecionada é inválida.',
 }
+
+export const pt = { ui, validation }

@@ -7,8 +7,9 @@ import {
   FormKitSchemaDOMNode,
   FormKitSchemaComponent,
   FormKitSchemaFormKit,
+  FormKitSectionsSchema,
+  FormKitSchemaCondition,
 } from '@formkit/core'
-import { FormKitSchemaCondition } from 'packages/core/src'
 
 /**
  * A function that is called with an extensions argument and returns a valid
@@ -17,7 +18,7 @@ import { FormKitSchemaCondition } from 'packages/core/src'
  * @public
  */
 export interface FormKitSchemaExtendableSection {
-  (extensions: Record<string, Partial<FormKitSchemaNode>>): FormKitSchemaNode
+  (extensions: FormKitSectionsSchema): FormKitSchemaNode
   _s?: string
 }
 
@@ -92,13 +93,13 @@ export function createSection(
       FormKitSchemaExtendableSection | string | FormKitSchemaCondition
     >
   ) => {
-    const extendable = (
-      extensions: Record<string, Partial<FormKitSchemaNode>>
-    ) => {
+    const extendable = (extensions: FormKitSectionsSchema) => {
       const node = !el || typeof el === 'string' ? { $el: el } : el()
       if (isDOM(node) || isComponent(node)) {
         if (!node.meta) {
           node.meta = { section }
+        } else {
+          node.meta.section = section
         }
         if (children.length && !node.children) {
           node.children = [
@@ -141,7 +142,7 @@ export function createSection(
 export function createRoot(
   rootSection: FormKitSchemaExtendableSection
 ): FormKitExtendableSchemaRoot {
-  return (extensions: Record<string, Partial<FormKitSchemaNode>>) => {
+  return (extensions: FormKitSectionsSchema) => {
     return [rootSection(extensions)]
   }
 }
@@ -157,12 +158,13 @@ export function createRoot(
  * @public
  */
 export function isSchemaObject(
-  schema: Partial<FormKitSchemaNode>
+  schema: Partial<FormKitSchemaNode> | null
 ): schema is
   | FormKitSchemaDOMNode
   | FormKitSchemaComponent
   | FormKitSchemaFormKit {
-  return (
+  return !!(
+    schema &&
     typeof schema === 'object' &&
     ('$el' in schema || '$cmp' in schema || '$formkit' in schema)
   )
@@ -182,7 +184,7 @@ export function isSchemaObject(
 /*@__NO_SIDE_EFFECTS__*/
 export function extendSchema(
   schema: FormKitSchemaNode,
-  extension: Partial<FormKitSchemaNode> = {}
+  extension: Partial<FormKitSchemaNode> | null = {}
 ): FormKitSchemaNode {
   if (typeof schema === 'string') {
     return isSchemaObject(extension) || typeof extension === 'string'

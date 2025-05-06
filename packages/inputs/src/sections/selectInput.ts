@@ -4,7 +4,6 @@ import { createSection } from '../createSection'
  * Input section used by selects
  *
  * @public
- * @__NO_SIDE_EFFECTS__
  */
 export const selectInput = createSection('input', () => ({
   $el: 'select',
@@ -19,5 +18,6 @@ export const selectInput = createSection('input', () => ({
     onInput: '$handlers.selectInput',
     onBlur: '$handlers.blur',
     'aria-describedby': '$describedBy',
+    'aria-required': '$state.required || undefined',
   },
 }))

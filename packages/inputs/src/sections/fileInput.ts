@@ -4,7 +4,6 @@ import { createSection } from '../createSection'
  * Input section for a file input
  *
  * @public
- * @__NO_SIDE_EFFECTS__
  */
 export const fileInput = createSection('input', () => ({
   $el: 'input',
@@ -17,5 +16,6 @@ export const fileInput = createSection('input', () => ({
     onBlur: '$handlers.blur',
     id: '$id',
     'aria-describedby': '$describedBy',
+    'aria-required': '$state.required || undefined',
   },
 }))

@@ -2,7 +2,7 @@ import { FormKitMiddleware, getNode, reset, FormKitNode } from '@formkit/core'
 import { defaultConfig } from '../../src/defaultConfig'
 import { plugin } from '../../src/plugin'
 import { mount } from '@vue/test-utils'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('standard lists', () => {
@@ -123,7 +123,7 @@ describe('standard lists', () => {
 
   it('can insert an input between other inputs', async () => {
     const wrapper = mount(
-      {
+      defineComponent({
         data() {
           return {
             showB: false,
@@ -136,7 +136,7 @@ describe('standard lists', () => {
         <FormKit value="C" />
       </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [[plugin, defaultConfig]],
@@ -157,7 +157,7 @@ describe('standard lists', () => {
     const warn = vi.spyOn(console, 'warn')
     const hookCallback = vi.fn(middleware)
     mount(
-      {
+      defineComponent({
         data() {
           return {
             values: ['foo'],
@@ -167,7 +167,7 @@ describe('standard lists', () => {
           <FormKit />
       </FormKit>
       `,
-      },
+      }),
       {
         global: {
           plugins: [
@@ -196,7 +196,7 @@ describe('standard lists', () => {
   describe('synced lists', () => {
     it('can sync a list of strings to their underlying formkit nodes', async () => {
       const wrapper = mount(
-        {
+        defineComponent({
           data() {
             return {
               books: [
@@ -212,7 +212,7 @@ describe('standard lists', () => {
             <FormKit type="text" v-for="(item, index) in items" :key="item" :index="index" />
           </FormKit>
         `,
-        },
+        }),
         {
           global: {
             plugins: [[plugin, defaultConfig]],
@@ -227,7 +227,7 @@ describe('standard lists', () => {
 
     it('can do the hokey pokey and turn itself around', async () => {
       const wrapper = mount(
-        {
+        defineComponent({
           data() {
             return {
               books: [
@@ -245,7 +245,7 @@ describe('standard lists', () => {
             </FormKit>
           </FormKit>
         `,
-        },
+        }),
         {
           global: {
             plugins: [[plugin, defaultConfig]],

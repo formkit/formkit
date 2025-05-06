@@ -24,6 +24,7 @@ import {
   InputType,
   runtimeProps,
 } from '@formkit/inputs'
+import { getCurrentInstance } from 'vue'
 
 /**
  * The type definition for the FormKit’s slots, this is not intended to be used
@@ -76,6 +77,16 @@ const isServer = typeof window === 'undefined'
 export const parentSymbol: InjectionKey<FormKitNode> = Symbol('FormKitParent')
 
 /**
+ * The symbol that represents the formkit component callback injection value.
+ * This is used by tooling to know which component "owns" this node — some
+ * effects are linked to that component, for example, hot module reloading.
+ *
+ * @internal
+ */
+export const componentSymbol: InjectionKey<(node: FormKitNode) => void> =
+  Symbol('FormKitComponentCallback')
+
+/**
  * This variable is set to the node that is currently having its schema created.
  *
  * @internal
@@ -88,7 +99,6 @@ let currentSchemaNode: FormKitNode | null = null
  * @public
  */
 export const getCurrentSchemaNode = () => currentSchemaNode
-
 /**
  * The actual runtime setup function for the FormKit component.
  *
@@ -111,6 +121,18 @@ function FormKit<Props extends FormKitInputs<Props>>(
         { ...context.slots }
       )
   }
+  if (__DEV__ && import.meta.hot) {
+    const instance = getCurrentInstance()
+    let initPreserve: boolean | undefined
+    import.meta.hot?.on('vite:beforeUpdate', () => {
+      initPreserve = node.props.preserve
+      node.props.preserve = true
+    })
+    import.meta.hot?.on('vite:afterUpdate', () => {
+      instance?.proxy?.$forceUpdate()
+      node.props.preserve = initPreserve
+    })
+  }
   const schema = ref<FormKitSchemaDefinition>([])
   let memoKey: string | undefined = node.props.definition.schemaMemoKey
   const generateSchema = () => {
@@ -118,7 +140,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
     if (!schemaDefinition) error(601, node)
     if (typeof schemaDefinition === 'function') {
       currentSchemaNode = node
-      schema.value = schemaDefinition({ ...props.sectionsSchema })
+      schema.value = schemaDefinition({ ...(props.sectionsSchema || {}) })
       currentSchemaNode = null
       if (
         (memoKey && props.sectionsSchema) ||
@@ -135,7 +157,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
   }
   generateSchema()
 
-  // // If someone emits the schema event, we re-generate the schema
+  // If someone emits the schema event, we re-generate the schema
   if (!isServer) {
     node.on('schema', () => {
       memoKey += '♻️'
@@ -151,6 +173,14 @@ function FormKit<Props extends FormKitInputs<Props>>(
   const library = {
     FormKit: markRaw(formkitComponent),
     ...definitionLibrary,
+    ...(props.library ?? {}),
+  }
+
+  /**
+   * Emit the mounted event.
+   */
+  function didMount() {
+    node.emit('mounted')
   }
 
   // // Expose the FormKitNode to template refs.
@@ -158,7 +188,13 @@ function FormKit<Props extends FormKitInputs<Props>>(
   return () =>
     h(
       FormKitSchema,
-      { schema: schema.value, data: node.context, library, memoKey },
+      {
+        schema: schema.value,
+        data: node.context,
+        onMounted: didMount,
+        library,
+        memoKey,
+      },
       { ...context.slots }
     )
 }
@@ -184,7 +220,7 @@ export const formkitComponent = /* #__PURE__ */ defineComponent(
     props: runtimeProps as any,
     inheritAttrs: false,
   }
-) as FormKitComponent
+) as unknown as FormKitComponent
 
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow

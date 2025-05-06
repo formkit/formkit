@@ -235,3 +235,26 @@ describe('schemaMemoKey', () => {
     expect(wrapper.text()).toBe('Hello worldHello mars')
   })
 })
+
+describe('createInput sectionSchema', () => {
+  it('can create an input without a label', () => {
+    const foo = createInput(
+      'hello',
+      {},
+      {
+        label: null,
+      }
+    )
+    const wrapper = mount(FormKit, {
+      props: {
+        type: foo,
+        name: 'custom',
+        label: 'Fizzbuzz',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    expect(wrapper.html()).toMatchSnapshot()
+  })
+})

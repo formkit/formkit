@@ -10,6 +10,9 @@ import {
   cloneAny,
   clone,
   isObject,
+  boolGetter,
+  extend as merge,
+  isRecord,
 } from '@formkit/utils'
 import {
   createEmitter,
@@ -47,7 +50,7 @@ import { reset } from './reset'
  *
  * @public
  */
-export type FormKitTypeDefinition = {
+export type FormKitTypeDefinition<V = unknown> = {
   /**
    * The FormKit core node type. Can only be input | list | group.
    */
@@ -66,7 +69,7 @@ export type FormKitTypeDefinition = {
   /**
    * Custom props that should be added to the input.
    */
-  props?: string[]
+  props?: FormKitPseudoProps
   /**
    * The schema used to create the input. Either this or the component is
    * required.
@@ -87,7 +90,7 @@ export type FormKitTypeDefinition = {
   /**
    * An array of additional feature functions to load when booting the input.
    */
-  features?: Array<(node: FormKitNode) => void>
+  features?: Array<(node: FormKitNode<V>) => void>
   /**
    * An optional string to use as a comparison key for memoizing the schema.
    */
@@ -104,7 +107,7 @@ export interface FormKitLibrary {
 }
 
 /**
- * The base interface definition for a FormKitPlugin. It's just a function that
+ * The base interface definition for a FormKitPlugin. It's just a function that
  * accepts a node argument.
  *
  * @public
@@ -156,7 +159,7 @@ export interface FormKitHooks {
 }
 
 /**
- * The definition of a FormKitTrap. These are somewhat like methods on each
+ * The definition of a FormKitTrap. These are somewhat like methods on each
  * FormKitNode. They are always symmetrical (get/set) — although it's acceptable
  * for either to throw an Exception.
  *
@@ -244,7 +247,7 @@ export type TrapGetter =
   | false
 
 /**
- * The signature for a node's trap setter — these are more rare than getter
+ * The signature for a node's trap setter — these are more rare than getter
  * traps, but can be useful for blocking access to certain context properties
  * or modifying the behavior of an assignment (ex. see setParent).
  *
@@ -268,17 +271,42 @@ export type FormKitTraps = Map<string | symbol, FormKitTrap>
 
 /**
  * General "app" like configuration options, these are automatically inherited
- * by all children — they are not reactive.
+ * by all children — they are not reactive.
  *
  * @public
  */
 export interface FormKitConfig {
+  /**
+   * The delimiter character to use for a node’s tree address. By default this
+   * is a dot `.`, but if you use dots in your input names you may want to
+   * change this to something else.
+   */
   delimiter: string
+  /**
+   * Classes to apply on the various sections. These classes are applied after
+   * rootClasses has already run.
+   */
   classes?: Record<string, FormKitClasses | string | Record<string, boolean>>
+  /**
+   * The rootClasses function is called to allocate the base layer of classes
+   * for each section. These classes can be further extended or modified by the
+   * classes config, classes prop, and section-class props.
+   */
   rootClasses:
     | ((sectionKey: string, node: FormKitNode) => Record<string, boolean>)
     | false
+  /**
+   * A root config object. This object is usually the globally defined options.
+   */
   rootConfig?: FormKitRootConfig
+
+  /**
+   * The merge strategy is a map of names to merge strategies. The merge
+   * strategy is used to determine how a node’s value should be merged if there
+   * are 2 nodes with the same name.
+   */
+  mergeStrategy?: Record<string | symbol, 'synced'>
+
   [index: string]: any
 }
 
@@ -288,21 +316,67 @@ export interface FormKitConfig {
  *
  * @public
  */
-export type FormKitProps = {
+export type FormKitProps<V = unknown> = {
+  /**
+   * An instance of the current document’s root. When inside the context of a
+   * custom element, this will be the ShadowRoot. In most other instances this
+   * will be the Document. During SSR and other server-side contexts this will
+   * be undefined.
+   */
   __root?: Document | ShadowRoot
+  /**
+   * An object or array of "props" that should be applied to the input. When
+   * using Vue, these are pulled from the attrs and placed into the node.props
+   * according to the definition provided here.
+   */
+  readonly __propDefs: FormKitPseudoProps
+  /**
+   * The total amount of time in milliseconds to debounce the input before the
+   * committing the value to the form tree.
+   */
   delay: number
+  /**
+   * The unique id of the input. These should *always* be globally unique.
+   */
   id: string
+  /**
+   * A function that defines how the validationLabel should be provided. By
+   * default this is the validation-label, label, then name in decreasing
+   * specificity.
+   */
   validationLabelStrategy?: (node?: FormKitNode) => string
+  /**
+   * An object of validation rules.
+   */
   validationRules?: Record<
     string,
-    (node: FormKitNode) => boolean | Promise<boolean>
+    (node: FormKitNode, ...args: any[]) => boolean | Promise<boolean>
   >
+  /**
+   * An object of validation messages.
+   */
   validationMessages?: Record<
     string,
     ((ctx: { name: string; args: any[]; node: FormKitNode }) => string) | string
   >
-  definition?: FormKitTypeDefinition
+  /**
+   * The definition of the node’s input type (if it has one).
+   */
+  definition?: FormKitTypeDefinition<V>
+  /**
+   * The framework’s context object. This is how FormKit’s core interacts with
+   * the front end framework (Vue/React/etc). This object is created by the
+   * component and is responsible for providing all the data to the framework
+   * for rendering and interaction.
+   */
   context?: FormKitFrameworkContext
+
+  /**
+   * The merge strategy that is applied to this specific node. It can only be
+   * inherited by a parent by using the mergeStrategy config option.
+   */
+  readonly mergeStrategy?: 'synced'
+
   [index: string]: any
 } & FormKitConfig
 
@@ -550,6 +624,20 @@ export interface FormKitFrameworkContextState {
    * list, or form, this is true if any children have errors on them.
    */
   errors: boolean
+  /**
+   * Determines if the input should be considered "invalid" — note that this
+   * is not the opposite of the valid state. A valid input is one where the
+   * input is not loading, not pending validation, not unsettled, and
+   * passes all validation rules. An invalid input is one whose validation
+   * rules are not explicitly not passing, and those rules are visible to the user.
+   */
+  invalid: boolean
+  /**
+   * Whether or not the input includes the "required" validation rule. This rule
+   * is uniquely called out for accessibility reasons and should be used to
+   * power the `aria-required` attribute.
+   */
+  required: boolean
   /**
    * True when the input has validation rules. Has nothing to do with the
    * state of those validation rules.
@@ -1001,7 +1089,7 @@ export interface FormKitNodeExtensions {}
  * #### Signature
  *
  * ```typescript
- * on: (eventName: string, listener: FormKitEventListener) => string
+ * on: (eventName: string, listener: FormKitEventListener, pos: 'push' | 'unshift') => string
  * ```
  *
  * #### Parameters
@@ -1240,7 +1328,7 @@ export type FormKitNode<V = unknown> = {
    * Adds props to the given node by removing them from node.props.attrs and
    * moving them to the top-level node.props object.
    */
-  addProps: (props: string[]) => FormKitNode
+  addProps: (props: FormKitPseudoProps) => FormKitNode
   /**
    * Gets a node at another address. Addresses are dot-syntax paths (or arrays)
    * of node names. For example: form.users.0.first_name. There are a few
@@ -1249,7 +1337,9 @@ export type FormKitNode<V = unknown> = {
    * - $parent - Selects the parent node
    * - $self — Selects the current node
    */
-  at: (address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})) => FormKitNode | undefined
+  at: (
+    address: FormKitAddress | '$root' | '$parent' | '$self' | (string & {})
+  ) => FormKitNode | undefined
   /**
    * The address of the current node from the root of the tree.
    */
@@ -1273,10 +1363,10 @@ export type FormKitNode<V = unknown> = {
    */
   config: FormKitConfig
   /**
-   * Defines the current input's library type definition — including node type,
+   * Defines the current input's library type definition — including node type,
    * schema, and props.
    */
-  define: (definition: FormKitTypeDefinition) => void
+  define: (definition: FormKitTypeDefinition<V>) => void
   /**
    * Increments a disturbance. A disturbance is a record that the input or a
    * member of its subtree is no longer "settled". Disturbed nodes are ones
@@ -1338,11 +1428,15 @@ export type FormKitNode<V = unknown> = {
    * Adds an event listener for a given event, and returns a "receipt" which is
    * a random string token. This token should be used to remove the listener
    * in the future. Alternatively you can assign a "receipt" property to the
-   * listener function and that receipt will be used instead — this allows
+   * listener function and that receipt will be used instead — this allows
    * multiple listeners to all be de-registered with a single off() call if they
    * share the same receipt.
    */
-  on: (eventName: string, listener: FormKitEventListener) => string
+  on: (
+    eventName: string,
+    listener: FormKitEventListener,
+    pos?: 'push' | 'unshift'
+  ) => string
   /**
    * Removes an event listener by its token. Receipts can be shared among many
    * event listeners by explicitly declaring the "receipt" property of the
@@ -1448,6 +1542,10 @@ export interface FormKitPlaceholderNode<V = unknown> {
    */
   use: (...args: any[]) => void
   /**
+   * Artificial props
+   */
+  props: Record<string, any>
+  /**
    * A name to use.
    */
   name: string
@@ -1460,6 +1558,33 @@ export interface FormKitPlaceholderNode<V = unknown> {
    */
   isSettled: boolean
 }
+
+/**
+ * A prop definition for a pseudo prop that defines a type and a default value.
+ * @public
+ */
+export type FormKitPseudoProp =
+  | {
+      boolean?: true
+      default?: boolean
+      setter?: undefined
+      getter?: undefined
+    }
+  | {
+      boolean?: undefined
+      default?: unknown
+      setter?: (value: unknown, node: FormKitNode) => unknown
+      getter?: (value: unknown, node: FormKitNode) => unknown
+    }
+
+/**
+ * Pseudo props are "non-runtime" props. Props that are not initially declared
+ * as props, and are fetch out of the attrs object (in the context of VueJS).
+ * @public
+ */
+export type FormKitPseudoProps =
+  | string[]
+  | Record<PropertyKey, FormKitPseudoProp>
 
 /**
  * Breadth and depth-first searches can use a callback of this notation.
@@ -1757,7 +1882,8 @@ function input(
   if (
     node.isCreated &&
     node.type === 'input' &&
-    eq(context._value, context.value)
+    eq(context._value, context.value) &&
+    !node.props.mergeStrategy
   ) {
     node.emit('commitRaw', context.value)
     // Perform an early return if the value hasn't changed during this input.
@@ -1854,12 +1980,11 @@ function partial(
     )
     return
   }
-  // In this case we know for sure we're dealing with a group, TS doesn't
-  // know that however, so we use some unpleasant casting here
+
   if (value !== valueRemoved) {
-    ;(context._value as unknown as FormKitGroupValue)[name as string] = value
+    ;(context._value as FormKitGroupValue)[name as string] = value
   } else {
-    delete (context._value as unknown as FormKitGroupValue)[name as string]
+    delete (context._value as FormKitGroupValue)[name as string]
   }
 }
 
@@ -1893,9 +2018,11 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // don’t send the value down since it will squash the child’s value.
       if (
         !child.isSettled ||
-        (!isObject(childValue) && eq(childValue, child._value))
+        ((!isObject(childValue) || child.props.mergeStrategy) &&
+          eq(childValue, child._value))
       )
         return
+
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
@@ -1926,7 +2053,7 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
  *    - Are groups and should maintain node identity.
  * 2. The value of the list will be a 1-1 representation of the children.
  * 3. If new values are *added* to the list, those nodes must be created by some
- *   other means — adding a value does not add a node automatically.
+ *   other means — adding a value does not add a node automatically.
  *
  * @param node - A {@link FormKitNode | FormKitNode}
  */
@@ -2009,7 +2136,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
 }
 
 /**
- * Disturbs the state of a node from settled to unsettled — creating appropriate
+ * Disturbs the state of a node from settled to unsettled — creating appropriate
  * promises and resolutions.
  *
  * @param node - A {@link FormKitNode | FormKitNode}
@@ -2048,8 +2175,11 @@ function calm(
 ) {
   if (value !== undefined && node.type !== 'input') {
     partial(context, value)
+    const shouldHydrate = !!(
+      node.config.mergeStrategy && node.config.mergeStrategy[value.name]
+    )
     // Commit the value up, but do not hydrate back down
-    return commit(node, context, true, false)
+    return commit(node, context, true, shouldHydrate)
   }
   if (context._d > 0) context._d--
   if (context._d === 0) {
@@ -2074,7 +2204,6 @@ function destroy(node: FormKitNode, context: FormKitContext) {
   // flush all messages out
   node.store.filter(() => false)
   if (node.parent) {
-    node.parent.emit('childRemoved', node)
     node.parent.remove(node)
   }
   deregister(node)
@@ -2102,10 +2231,24 @@ function define(
   context: FormKitContext,
   definition: FormKitTypeDefinition
 ) {
+  // Prop definitions that may have been registered before the input was
+  // ever defined, for example with a manual createNode()
   // Assign the type
   context.type = definition.type
   // Assign the definition
-  context.props.definition = clone(definition)
+  const clonedDef = clone(definition)
+  // Merge existing prop defs into the cloned input definition.
+  // @ts-ignore-next-line
+  node.props.__propDefs = mergeProps(
+    node.props.__propDefs ?? [],
+    clonedDef?.props || []
+  )
+  // Assign the prop defs to the cloned input definition.
+  clonedDef.props = node.props.__propDefs
+
+  // Assign the definition to the props
+  context.props.definition = clonedDef
+
   // Ensure the type is seeded with the `__init` value.
   context.value = context._value = createValue({
     type: node.type,
@@ -2152,18 +2295,35 @@ function define(
 function addProps(
   node: FormKitNode,
   context: FormKitContext,
-  props: string[]
+  props: FormKitPseudoProps
 ): FormKitNode {
+  const propNames = Array.isArray(props) ? props : Object.keys(props)
+  const defaults: Record<string, unknown> = !Array.isArray(props)
+    ? propNames.reduce((defaults, name) => {
+        if ('default' in props[name]) {
+          defaults[name] = props[name].default
+        }
+        return defaults
+      }, {} as Record<string, unknown>)
+    : {}
   if (node.props.attrs) {
     const attrs = { ...node.props.attrs }
     // Temporarily disable prop emits
     node.props._emit = false
     for (const attr in attrs) {
       const camelName = camel(attr)
-      if (props.includes(camelName)) {
+      if (propNames.includes(camelName)) {
         node.props[camelName] = attrs[attr]
         delete attrs[attr]
       }
+    }
+    // Assign defaults to any props
+    if (!Array.isArray(props)) {
+      propNames.forEach((prop) => {
+        if ('default' in props[prop] && node.props[prop] === undefined) {
+          node.props[prop] = defaults[prop]
+        }
+      })
     }
     const initial = cloneAny(context._value)
     node.props.initial =
@@ -2171,16 +2331,41 @@ function addProps(
     // Re-enable prop emits
     node.props._emit = true
     node.props.attrs = attrs
-
-    if (node.props.definition) {
-      node.props.definition.props = [
-        ...(node.props.definition?.props || []),
-        ...props,
-      ]
-    }
   }
+  const mergedProps = mergeProps(node.props.__propDefs ?? [], props)
+
+  if (node.props.definition) {
+    node.props.definition.props = mergedProps
+  }
+
+  // @ts-ignore-next-line
+  node.props.__propDefs = mergedProps
+
   node.emit('added-props', props)
   return node
+}
+
+function toPropsObj(
+  props: FormKitPseudoProps
+): Record<PropertyKey, FormKitPseudoProp> {
+  return !Array.isArray(props)
+    ? props
+    : props.reduce((props, prop) => {
+        props[prop] = {}
+        return props
+      }, {} as Record<PropertyKey, FormKitPseudoProp>)
+}
+
+function mergeProps(
+  props: FormKitPseudoProps,
+  newProps: FormKitPseudoProps
+): FormKitPseudoProps {
+  if (Array.isArray(props) && Array.isArray(newProps))
+    return props.concat(newProps)
+  return merge(toPropsObj(props), toPropsObj(newProps)) as Record<
+    PropertyKey,
+    FormKitPseudoProp
+  >
 }
 
 /**
@@ -2337,6 +2522,7 @@ function removeChild(
     child.config._rmn = child
   }
   node.ledger.unmerge(child)
+  node.emit('childRemoved', child)
   return node
 }
 
@@ -2788,7 +2974,7 @@ function submit(node: FormKitNode): void {
     node = node.parent
   } while (node)
   if (node.props.id) {
-    submitForm(node.props.id)
+    submitForm(node.props.id, node.props.__root)
   }
 }
 
@@ -2847,11 +3033,14 @@ function setErrors(
  */
 function clearErrors(
   node: FormKitNode,
-  context: FormKitContext,
+  _context: FormKitContext,
   clearChildErrors = true,
   sourceKey?: string
 ) {
-  setErrors(node, context, [])
+  // Clear all local errors:
+  node.store.filter((m) => {
+    return !(sourceKey === undefined || m.meta.source === sourceKey)
+  }, 'error')
   if (clearChildErrors) {
     sourceKey = sourceKey || `${node.name}-set`
     node.walk((child) => {
@@ -2880,13 +3069,37 @@ function createProps(initial: unknown) {
   }
   let node: FormKitNode
   let isEmitting = true
+  let propDefs: Record<PropertyKey, FormKitPseudoProp> = {}
   return new Proxy(props, {
     get(...args) {
       const [_t, prop] = args
-      if (has(props, prop)) return Reflect.get(...args)
-      if (node && typeof prop === 'string' && node.config[prop] !== undefined)
-        return node.config[prop]
-      return undefined
+      let val
+      if (has(props, prop)) {
+        val = Reflect.get(...args)
+        if (propDefs[prop]?.boolean) val = boolGetter(val)
+      } else if (
+        node &&
+        typeof prop === 'string' &&
+        node.config[prop] !== undefined
+      ) {
+        val = node.config[prop]
+        // If we are getting the merge strategy for an input, only retrieve this
+        // actual node’s merge strategy.
+        if (
+          prop === 'mergeStrategy' &&
+          node?.type === 'input' &&
+          isRecord(val) &&
+          node.name in val
+        ) {
+          val = val[node.name]
+        }
+      } else {
+        // default or undefined
+        val = propDefs[prop]?.default
+      }
+      const getter = propDefs[prop]?.getter
+      if (propDefs[prop]?.boolean) val = !!val
+      return getter ? getter(val, node) : val
     },
     set(target, property, originalValue, receiver) {
       if (property === '_n') {
@@ -2897,16 +3110,20 @@ function createProps(initial: unknown) {
         isEmitting = originalValue
         return true
       }
-      const { prop, value } = node.hook.prop.dispatch({
+      // eslint-disable-next-line prefer-const
+      let { prop, value } = node.hook.prop.dispatch({
         prop: property,
         value: originalValue,
       })
+      const setter = propDefs[prop]?.setter
+      value = setter ? setter(value, node) : value
       // Typescript compiler cannot handle a symbol index, even though js can:
       if (
         !eq(props[prop as string], value, false) ||
         typeof value === 'object'
       ) {
         const didSet = Reflect.set(target, prop, value, receiver)
+        if (prop === '__propDefs') propDefs = toPropsObj(value)
         if (isEmitting) {
           node.emit('prop', { prop, value })
           if (typeof prop === 'string') node.emit(`prop:${prop}`, value)
@@ -3071,6 +3288,7 @@ export function createPlaceholder(
     value: options?.value ?? null,
     _value: options?.value ?? null,
     type: options?.type ?? 'input',
+    props: {},
     use: () => {
       // noop
     },

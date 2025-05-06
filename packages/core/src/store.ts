@@ -26,7 +26,7 @@ export type FormKitMessage = Readonly<FormKitMessageProps>
 
 /**
  * A registry of input messages that should be applied to children of the node
- * they are passed to — where the string key of the object is the address of
+ * they are passed to — where the string key of the object is the address of
  * the node to apply the messages on and the value is the message itself.
  *
  * @public
@@ -126,9 +126,19 @@ export interface FormKitStoreTraps {
 /**
  * Creates a new FormKitMessage object.
  *
+ * ```ts
+ * // default:
+ * {
+ *   blocking: false,
+ *   key: token(),
+ *   meta: {},
+ *   type: 'state',
+ *   visible: true,
+ * }
+ * ```
+ *
  * @param conf - An object of optional properties of {@link FormKitMessage | FormKitMessage}.
  * @param node - A {@link @formkit/node#FormKitNode | FormKitNode}.
- *
  * @returns A {@link FormKitMessageProps | FormKitMessageProps}.
  *
  * @public

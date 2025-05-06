@@ -27,7 +27,8 @@ export interface FormKitObservedNode extends FormKitNode {
   stopObserve: () => FormKitDependencies
   watch: <T extends FormKitWatchable>(
     block: T,
-    after?: (value: ReturnType<T>) => void
+    after?: (value: ReturnType<T>) => void,
+    pos?: 'push' | 'unshift'
   ) => void
 }
 
@@ -47,7 +48,7 @@ export type FormKitDependencies = Map<FormKitNode, Set<string>> & {
  */
 export type FormKitObserverReceipts = Map<
   FormKitNode,
-  { [index: string]: string }
+  { [index: string]: string[] }
 >
 
 /**
@@ -137,6 +138,10 @@ export function createObserver(
     if (property === '_value') addDependency('input')
     if (property === 'props') return observeProps(value)
     if (property === 'ledger') return observeLedger(value)
+    if (property === 'children') {
+      addDependency('child')
+      addDependency('childRemoved')
+    }
     return value
   }
 
@@ -156,8 +161,9 @@ export function createObserver(
         case 'watch':
           return <T extends FormKitWatchable>(
             block: T,
-            after?: (value: unknown) => void
-          ) => watch(observed as FormKitObservedNode, block, after)
+            after?: (value: unknown) => void,
+            pos?: 'push' | 'unshift'
+          ) => watch(observed as FormKitObservedNode, block, after, pos)
         case 'observe':
           return () => {
             const old = new Map(deps)
@@ -207,17 +213,16 @@ export function createObserver(
 export function applyListeners(
   node: FormKitObservedNode,
   [toAdd, toRemove]: [FormKitDependencies, FormKitDependencies],
-  callback: FormKitEventListener
+  callback: FormKitEventListener,
+  pos?: 'unshift' | 'push'
 ): void {
   toAdd.forEach((events, depNode) => {
     events.forEach((event) => {
       node.receipts.has(depNode) || node.receipts.set(depNode, {})
-      node.receipts.set(
-        depNode,
-        Object.assign(node.receipts.get(depNode) ?? {}, {
-          [event]: depNode.on(event, callback),
-        })
-      )
+      const events = node.receipts.get(depNode) ?? {}
+      events[event] = events[event] ?? []
+      events[event].push(depNode.on(event, callback, pos))
+      node.receipts.set(depNode, events)
     })
   })
   toRemove.forEach((events, depNode) => {
@@ -225,7 +230,7 @@ export function applyListeners(
       if (node.receipts.has(depNode)) {
         const nodeReceipts = node.receipts.get(depNode)
         if (nodeReceipts && has(nodeReceipts, event)) {
-          depNode.off(nodeReceipts[event])
+          nodeReceipts[event].map(depNode.off)
           delete nodeReceipts[event]
           node.receipts.set(depNode, nodeReceipts)
         }
@@ -242,9 +247,10 @@ export function applyListeners(
 export function removeListeners(receipts: FormKitObserverReceipts): void {
   receipts.forEach((events, node) => {
     for (const event in events) {
-      node.off(events[event])
+      events[event].map(node.off)
     }
   })
+  receipts.clear()
 }
 
 /**
@@ -258,12 +264,16 @@ export function removeListeners(receipts: FormKitObserverReceipts): void {
 function watch<T extends FormKitWatchable>(
   node: FormKitObservedNode,
   block: T,
-  after?: (value: unknown) => void
+  after?: (value: unknown) => void,
+  pos?: 'push' | 'unshift'
 ): void {
   const doAfterObservation = (res: unknown) => {
     const newDeps = node.stopObserve()
-    applyListeners(node, diffDeps(oldDeps, newDeps), () =>
-      watch(node, block, after)
+    applyListeners(
+      node,
+      diffDeps(oldDeps, newDeps),
+      () => watch(node, block, after, pos),
+      pos
     )
     if (after) after(res)
   }
@@ -279,7 +289,7 @@ function watch<T extends FormKitWatchable>(
  * removed.
  * @param previous - The previous watcher dependencies.
  * @param current - The new/current watcher dependencies.
- * @returns A tuple of maps: `toAdd` and `toRemove`.
+ * @returns A tuple of maps: `toAdd` and `toRemove`.
  * @public
  */
 export function diffDeps(
@@ -321,6 +331,6 @@ export function diffDeps(
  * @returns A `boolean` indicating if the node is revoked.
  * @public
  */
-export function isKilled(node: FormKitObservedNode): boolean {
+export function isKilled(node: FormKitNode | FormKitObservedNode): boolean {
   return revokedObservers.has(node)
 }

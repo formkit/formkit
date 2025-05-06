@@ -1,9 +1,5 @@
-import {
-  FormKitNode,
-  FormKitPlugin,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
-} from '@formkit/core'
+import { FormKitSectionsSchema } from '@formkit/core'
+import { FormKitNode, FormKitPlugin } from '@formkit/core'
 import { clone, undefine } from '@formkit/utils'
 
 /**
@@ -14,12 +10,12 @@ import { clone, undefine } from '@formkit/utils'
  * remainingText: string - The text to be displayed after the remaining characters count in the tooltip.
  *                       Can be overriden by setting the maxlengthRemainingText prop on the field
  * fieldTypes: string[] - The field types to apply the plugin to, default is only textarea
- * 
+ *
  * @public
  */
 export interface MaxlengthCountdownOptions {
-  useAsDefault?: boolean,
-  remainingText?: string,
+  useAsDefault?: boolean
+  remainingText?: string
   fieldTypes?: string[]
 }
 
@@ -35,9 +31,12 @@ export interface MaxlengthCountdownOptions {
 export function createMaxLengthCountdownPlugin(
   MaxlengthCountdownOptions?: MaxlengthCountdownOptions
 ): FormKitPlugin {
-
   return (node: FormKitNode) => {
-    node.addProps(['maxlengthCountdown', 'maxlengthRemainingText', 'maxlengthStringCount'])
+    node.addProps([
+      'maxlengthCountdown',
+      'maxlengthRemainingText',
+      'maxlengthStringCount',
+    ])
 
     let usePlugin = MaxlengthCountdownOptions?.useAsDefault === true
 
@@ -48,28 +47,28 @@ export function createMaxLengthCountdownPlugin(
     }
 
     // ALLOW OVERRIDES FOR NON-DEFAULT FIELDS IF EXPLICITLY SET
-    if (undefine(node.props.maxlengthCountdown) ||
+    if (
+      undefine(node.props.maxlengthCountdown) ||
       node.props.maxlengthCountdown === 'true' ||
-      node.props.maxlengthCountdown === true) {
+      node.props.maxlengthCountdown === true
+    ) {
       usePlugin = true
     }
-    
+
     if (usePlugin) {
       node.on('created', () => {
         if (!node.props || !node.props.definition) return
         if (node.props.attrs.maxlength === undefined) return
 
-        if (node.props.attrs.maxlength && parseInt(node.props.attrs.maxlength) > 0) {
+        if (
+          node.props.attrs.maxlength &&
+          parseInt(node.props.attrs.maxlength) > 0
+        ) {
           const inputDefinition = clone(node.props.definition)
           const originalSchema = inputDefinition.schema
           if (typeof originalSchema !== 'function') return
 
-          const higherOrderSchema = (
-            extensions: Record<
-              string,
-              Partial<FormKitSchemaNode> | FormKitSchemaCondition
-            >
-          ) => {
+          const higherOrderSchema = (extensions: FormKitSectionsSchema) => {
             extensions.suffix = {
               if: 'true',
               children: [
@@ -84,11 +83,11 @@ export function createMaxLengthCountdownPlugin(
                       $el: 'span',
                       children: `$maxlengthStringCount + ' ' + $maxlengthRemainingText`,
                       class: '$classes.inputMaxlengthRemainingHover',
-                    }
-                  ]
+                    },
+                  ],
                 },
-                "$suffix || ''"
-              ]
+                "$suffix || ''",
+              ],
             }
 
             return originalSchema(extensions)
@@ -99,17 +98,21 @@ export function createMaxLengthCountdownPlugin(
             inputDefinition.schemaMemoKey += '-maxlength-remaining'
           }
           node.props.definition = inputDefinition
-          node.props.maxlengthRemainingText = node.props.maxlengthRemainingText ||
-              MaxlengthCountdownOptions?.remainingText ||
-              'remaining characters'
+          node.props.maxlengthRemainingText =
+            node.props.maxlengthRemainingText ||
+            MaxlengthCountdownOptions?.remainingText ||
+            'remaining characters'
 
-          let maxlength = parseInt(node.props.attrs.maxlength)
+          const maxlength = parseInt(node.props.attrs.maxlength)
 
           updateCountValue({ payload: node._value as string })
           node.on('input', updateCountValue)
 
-          function updateCountValue ({ payload }: { payload: string }) {
-            node.props.maxlengthStringCount = Math.max(0, maxlength - (payload ? payload.length : 0))
+          function updateCountValue({ payload }: { payload: string }) {
+            node.props.maxlengthStringCount = Math.max(
+              0,
+              maxlength - (payload ? payload.length : 0)
+            )
           }
         }
       })

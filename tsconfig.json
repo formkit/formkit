@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
-    "target": "es2019",
+    "target": "es2020",
     "lib": ["ES2021", "dom"],
     "allowJs": false,
     "strict": true,
@@ -18,18 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "noErrorTruncation": true,
-    "paths": {
-      "@components": [
-        "packages/vue/src/components/*"
-      ]
-    },
-    "types": [
-      "node",
-      "vite/client"
-    ]
+    "types": ["node", "vite/client", "./types/globals.d.ts"]
   },
-  "exclude": [
-    "*.vue",
-    "temp/formkit.theme.ts"
-  ]
+  "exclude": ["*.vue", "temp/formkit.theme.ts"]
 }

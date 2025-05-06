@@ -41,7 +41,7 @@ function getByQuantity(
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
@@ -115,20 +115,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Pakeisti datą',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Pasirinkta data yra netinkama.',
-  /**
    * Shown when there is something to close
    */
   close: 'Uždaryti',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Atidaryti',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -547,4 +547,10 @@ export const validation: FormKitValidationMessages = {
     return `Įveskite teisingą URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Pasirinkta data yra netinkama.',
 }
+
+export const lt = { ui, validation }

@@ -1,0 +1,53 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`clearing values > can destructure the value of a group (#1133) 1`] = `
+"<pre>{
+  \\"my-group\\": {
+    \\"foo\\": \\"abc\\",
+    \\"bar\\": \\"def\\"
+  }
+}</pre>"
+`;
+
+exports[`clearing values > renames radio inputs that are children 1`] = `
+"<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"radio\\" data-multiple=\\"true\\">
+  <fieldset class=\\"formkit-fieldset\\" id=\\"input_33\\">
+    <!---->
+    <!---->
+    <ul class=\\"formkit-options\\">
+      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"fiz_0\\" id=\\"input_33-option-a\\" value=\\"a\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
+          <!----></span><span class=\\"formkit-label\\">a</span>
+        </label>
+        <!---->
+      </li>
+      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\" data-checked=\\"true\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"fiz_0\\" id=\\"input_33-option-b\\" value=\\"b\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
+          <!----></span><span class=\\"formkit-label\\">b</span>
+        </label>
+        <!---->
+      </li>
+    </ul>
+  </fieldset>
+  <!---->
+  <!---->
+</div>
+<div class=\\"formkit-outer\\" data-family=\\"box\\" data-type=\\"radio\\" data-multiple=\\"true\\">
+  <fieldset class=\\"formkit-fieldset\\" id=\\"input_35\\">
+    <!---->
+    <!---->
+    <ul class=\\"formkit-options\\">
+      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\" data-checked=\\"true\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"fiz_1\\" id=\\"input_35-option-a\\" value=\\"a\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
+          <!----></span><span class=\\"formkit-label\\">a</span>
+        </label>
+        <!---->
+      </li>
+      <li class=\\"formkit-option\\"><label class=\\"formkit-wrapper\\"><span class=\\"formkit-inner\\"><!----><input class=\\"formkit-input\\" type=\\"radio\\" name=\\"fiz_1\\" id=\\"input_35-option-b\\" value=\\"b\\"><span class=\\"formkit-decorator\\" aria-hidden=\\"true\\"><!----></span>
+          <!----></span><span class=\\"formkit-label\\">b</span>
+        </label>
+        <!---->
+      </li>
+    </ul>
+  </fieldset>
+  <!---->
+  <!---->
+</div>"
+`;

@@ -1,4 +1,7 @@
-import { FormKitValidationMessages, createMessageName } from '@formkit/validation'
+import {
+  FormKitValidationMessages,
+  createMessageName,
+} from '@formkit/validation'
 
 /**
  * Here we can import additional helper functions to assist in formatting our
@@ -12,7 +15,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown on a button for adding additional items.
    */
@@ -85,17 +88,13 @@ export const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Тағйир додани сана',
-  /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -459,13 +458,15 @@ export const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#require-one}
    */
   require_one: ({ name, node, args: inputNames }) => {
-    const labels = inputNames.map(name => {
-      const dependentNode = node.at(name)
-      if (dependentNode) {
-        return createMessageName(dependentNode)
-      }
-      return false
-    }).filter(name => !!name)
+    const labels = inputNames
+      .map((name) => {
+        const dependentNode = node.at(name)
+        if (dependentNode) {
+          return createMessageName(dependentNode)
+        }
+        return false
+      })
+      .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
     return `${labels.join(' ё ')} зарур а`
@@ -501,4 +502,10 @@ export const validation: FormKitValidationMessages = {
     return `Лутфан URL-и дурустро дохил кунед.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Санаи интихобшуда нодуруст аст.',
 }
+
+export const tg = { ui, validation }

@@ -28,6 +28,7 @@ import {
   shallowClone,
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
+import { FormKitPseudoProps } from '@formkit/core'
 
 /**
  * A plugin that creates Vue-specific context object on each given node.
@@ -84,6 +85,19 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const hasShownErrors = ref(validationVisibility.value === 'live')
 
   /**
+   * If the input is required or not, this is the only validation rule that
+   * needs to be explicitly called out since it powers the aria-required attr.
+   */
+  const isRequired = ref<boolean>(false)
+  const checkForRequired = (parsedRules?: Array<{ name: string }>) => {
+    isRequired.value = (parsedRules ?? []).some(
+      (rule) => rule.name === 'required'
+    )
+  }
+  checkForRequired(node.props.parsedRules)
+  node.on('prop:parsedRules', ({ payload }) => checkForRequired(payload))
+
+  /**
    * An array of unique identifiers that should only be used for iterating
    * inside a synced list.
    */
@@ -108,6 +122,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       default:
         return false
     }
+  })
+
+  /**
+   * Determines if the input should be considered "invalid" — note that this is different than a valid input! A
+   * valid input is one where the input is not loading, not pending validation, not unsettled, and passes all
+   * validation rules. An invalid input is one whose validation rules are not explicitly not passing, and those rules
+   * are visible to the user.
+   */
+  const isInvalid = computed<boolean>(() => {
+    return context.state.failing && validationVisible.value
   })
 
   /**
@@ -155,6 +179,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     }, {} as Record<string, FormKitMessage>)
   )
 
+  const passing = computed<boolean>(() => !context.state.failing)
+
   /**
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
@@ -162,6 +188,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const cachedClasses = reactive<Record<string, string>>({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
+      if (!node) return ''
       const [target, property] = args
       let className: string | null = Reflect.get(...args)
       if (!className && typeof property === 'string') {
@@ -209,6 +236,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   const describedBy = computed<string | undefined>(() => {
+    if (!node) return undefined
     const describers = []
     if (context.help) {
       describers.push(`help-${node.props.id}`)
@@ -263,6 +291,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     items,
     label: node.props.label,
     messages,
+    didMount: false,
     node: markRaw(node),
     options: node.props.options,
     defaultMessagePlacement: true,
@@ -275,9 +304,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       submitted: false,
       settled: node.isSettled,
       valid: isValid,
+      invalid: isInvalid,
       errors: hasErrors,
       rules: hasValidation,
       validationVisible,
+      required: isRequired,
+      failing: false,
+      passing,
     },
     type: node.props.type,
     family: node.props.family,
@@ -303,6 +336,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * When the node mounts, set the didMount flag.
+   */
+  node.on('mounted', () => {
+    context.didMount = true
+  })
+
+  /**
    * Sets the settled state.
    */
   node.on('settled', ({ payload: isSettled }) => {
@@ -314,8 +354,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * object.
    * @param observe - Props to observe and register as context data.
    */
-  function observeProps(observe: string[]) {
-    observe.forEach((prop) => {
+  function observeProps(observe: FormKitPseudoProps) {
+    const propNames = Array.isArray(observe) ? observe : Object.keys(observe)
+    propNames.forEach((prop) => {
       prop = camel(prop)
       if (!has(context, prop)) {
         context[prop] = node.props[prop]
@@ -355,7 +396,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Once the input is defined, deal with it.
    * @param definition - Type definition.
    */
-  function definedAs(definition: FormKitTypeDefinition) {
+  function definedAs<V = unknown>(definition: FormKitTypeDefinition<V>) {
     if (definition.props) observeProps(definition.props)
   }
 
@@ -408,7 +449,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       node.isCreated &&
       hasTicked
     ) {
-      context.handlers.touch()
+      if (!node.store.validating?.value) {
+        context.handlers.touch()
+      } else {
+        const receipt = node.on('message-removed', ({ payload: message }) => {
+          if (message.key === 'validating') {
+            context.handlers.touch()
+            node.off(receipt)
+          }
+        })
+      }
     }
     if (
       isComplete &&
@@ -441,7 +491,6 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     } else if (message.visible) {
       availableMessages[message.key] = message
     } else if (message.type === 'state') {
-      // await node.settled
       context.state[message.key] = !!message.value
     }
   }

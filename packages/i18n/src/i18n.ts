@@ -49,6 +49,16 @@ export interface FormKitLocaleRegistry {
 }
 
 /**
+ * A registry of all i18n nodes.
+ */
+const i18nNodes = new Set<FormKitNode>()
+
+/**
+ * The currently active locale.
+ */
+let activeLocale: string | null = null
+
+/**
  * Create a new internationalization plugin for FormKit.
  *
  * @param registry - The registry of {@link @formkit/i18n#FormKitLocaleRegistry | FormKitLocales}.
@@ -61,6 +71,10 @@ export function createI18nPlugin(
   registry: FormKitLocaleRegistry
 ): FormKitPlugin {
   return function i18nPlugin(node: FormKitNode) {
+    i18nNodes.add(node)
+    if (activeLocale) node.config.locale = activeLocale
+
+    node.on('destroying', () => i18nNodes.delete(node))
     let localeKey = parseLocale(node.config.locale, registry)
     let locale = localeKey ? registry[localeKey] : ({} as FormKitLocale)
     /* If the locale prop changes, update the active locale */
@@ -123,4 +137,15 @@ function parseLocale(
     return locale
   }
   return false
+}
+
+/**
+ * Change the active locale of all FormKit instances (global).
+ * @param locale - The locale to change to
+ */
+export function changeLocale(locale: string) {
+  activeLocale = locale
+  for (const node of i18nNodes) {
+    node.config.locale = locale
+  }
 }

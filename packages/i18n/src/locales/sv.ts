@@ -16,7 +16,7 @@ import { FormKitLocaleMessages } from '../i18n'
  * Standard language for interface features.
  * @public
  */
-export const ui: FormKitLocaleMessages = {
+const ui: FormKitLocaleMessages = {
   /**
    * Shown when a button to remove items is visible.
    */
@@ -86,20 +86,20 @@ export const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Ändra datum',
   /**
-   * Shown when the date is invalid.
-   */
-  invalidDate: 'Det valda datumet är ogiltigt.',
-  /**
    * Shown when there is something to close
    */
   close: 'Stäng',
+  /**
+   * Shown when there is something to open.
+   */
+  open: 'Öppna',
 }
 
 /**
  * These are all the possible strings that pertain to validation messages.
  * @public
  */
-export const validation: FormKitValidationMessages = {
+const validation: FormKitValidationMessages = {
   /**
    * The value is not an accepted value.
    * @see {@link https://formkit.com/essentials/validation#accepted}
@@ -505,4 +505,10 @@ export const validation: FormKitValidationMessages = {
     return `Ange en giltig URL.`
     /* </i18n> */
   },
+  /**
+   * Shown when the date is invalid.
+   */
+  invalidDate: 'Det valda datumet är ogiltigt.',
 }
+
+export const sv = { ui, validation }

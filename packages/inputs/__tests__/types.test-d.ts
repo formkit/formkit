@@ -1,11 +1,16 @@
-import { describe, assertType, it } from 'vitest'
-import { FormKitEvents, FormKitInputSlots } from '../src/props'
+import { describe, assertType, it, expectTypeOf } from 'vitest'
+import { FormKitEvents, FormKitInputSlots, PropType } from '../src/props'
 import { createNode } from '@formkit/core'
+import type { FormKitTypeDefinition } from '@formkit/core'
 
 declare const textEvent: FormKitEvents<{ type: 'text' }>
 declare const formEvent: FormKitEvents<{ type: 'form' }>
 declare const textSlots: FormKitInputSlots<{ type: 'text' }>['text']
-
+declare const customInputProps: {
+  type: FormKitTypeDefinition<number>
+  modelValue: number
+}
+declare const customInputPropType: PropType<typeof customInputProps, 'value'>
 describe('base events', () => {
   it('has an input event', () => {
     assertType(textEvent('input', 'foo', createNode()))
@@ -58,5 +63,11 @@ describe('base slots', () => {
   it('does not allow the default slot', () => {
     // @ts-expect-error - default is not a valid slot
     assertType(textSlots.default)
+  })
+})
+
+describe('custom inputs', () => {
+  it('can infer the correct value type from a custom input definition', () => {
+    expectTypeOf(customInputPropType).toMatchTypeOf<number>(123)
   })
 })
