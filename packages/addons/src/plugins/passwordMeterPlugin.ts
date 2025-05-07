@@ -1,4 +1,10 @@
-import { FormKitNode, FormKitPlugin, FormKitSchemaNode, FormKitSchemaCondition } from '@formkit/core'
+import {
+  FormKitNode,
+  FormKitPlugin,
+  FormKitSchemaNode,
+  FormKitSectionsSchema,
+  FormKitSchemaDefinition
+} from '@formkit/core'
 
 interface PasswordMeterOptions {
   strongRegex?: string
@@ -14,7 +20,6 @@ const defaultOptions: Omit<PasswordMeterOptions, 'position'> = {
   weakLabel: 'Weak',
   mediumLabel: 'Medium',
   strongLabel: 'Strong',
-
 }
 
 /**
@@ -31,7 +36,7 @@ const defaultOptions: Omit<PasswordMeterOptions, 'position'> = {
  *       weakLabel: 'Weak password',
  *       mediumLabel: 'Good password',
  *       strongLabel: 'Strong password',
- *       position: 'popup'
+ *       // position: 'popup' // Example if position was configurable
  *     })
  *   ]
  * }))
@@ -61,16 +66,14 @@ export function createPasswordMeterPlugin(options?: PasswordMeterOptions): FormK
       // Ensure originalSchema is a function before proceeding
       if (typeof originalSchema !== 'function') return;
 
-      node.props.definition.schema = (extensions: Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>) => {
+      node.props.definition.schema = (extensions: FormKitSectionsSchema): FormKitSchemaDefinition => {
 
         // Define the meter element structure
         const meterElement: FormKitSchemaNode = {
           $el: 'div',
-          // Use $if condition based on focus state
-          $if: '$isFocused',
           attrs: {
             class: 'formkit-password-meter',
-            'data-position': 'popup', // Hardcoded position
+            'data-position': 'popup', // Hardcoded position, could be made dynamic via meterOptions
             'data-strength': '$strength', // Bind strength attribute from context
           },
           children: [
@@ -99,8 +102,9 @@ export function createPasswordMeterPlugin(options?: PasswordMeterOptions): FormK
         }
 
         // Add state variables needed by the meter element to the extensions
-        extensions.strengthLabel = '' // Initialize label state in context
-        extensions.strength = ''      // Initialize strength state in context
+        // These will be available in the schema's context
+        extensions.strengthLabel = '' as Partial<FormKitSchemaNode> // Initialize label state in context
+        extensions.strength = '' as Partial<FormKitSchemaNode>      // Initialize strength state in context
 
         // Call the original schema function with the modified extensions
         return originalSchema(extensions)
@@ -134,11 +138,11 @@ export function createPasswordMeterPlugin(options?: PasswordMeterOptions): FormK
       }
 
       // Update the node's context directly.
+      // This makes 'strength' and 'strengthLabel' available to the schema.
       if (node.context) {
         node.context.strength = strength;
         node.context.strengthLabel = label;
       }
     })
-
   }
 }
