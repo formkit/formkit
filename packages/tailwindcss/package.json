@@ -38,7 +38,7 @@
     "tailwindcss": "^3.0.0"
   },
   "dependencies": {
-    "@formkit/themes": "1.6.9"
+    "@formkit/themes": "workspace:*"
   },
   "devDependencies": {
     "@types/tailwindcss": "^3.1.0"
