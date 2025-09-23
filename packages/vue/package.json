@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "@formkit/core": "1.6.9",
-    "@formkit/dev": "1.6.9",
     "@formkit/i18n": "1.6.9",
     "@formkit/inputs": "1.6.9",
     "@formkit/observer": "1.6.9",
@@ -56,6 +55,7 @@
     "vue": "^3.4.0"
   },
   "devDependencies": {
+    "@formkit/dev": "workspace:^",
     "@formkit/icons": "workspace:^"
   }
 }
