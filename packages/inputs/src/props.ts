@@ -75,7 +75,7 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
   }
   color: { type: 'color'; value?: string }
   date: { type: 'date'; value?: string }
-  'datetime-local': { type: 'datetimeLocal'; value?: string }
+  'datetime-local': { type: 'datetime-local'; value?: string }
   email: {
     type: 'email'
     value?: string

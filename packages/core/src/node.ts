@@ -628,6 +628,14 @@ export interface FormKitFrameworkContextState {
    */
   errors: boolean
   /**
+   * Determines if the input should be considered "invalid" — note that this
+   * is not the opposite of the valid state. A valid input is one where the
+   * input is not loading, not pending validation, not unsettled, and
+   * passes all validation rules. An invalid input is one whose validation
+   * rules are not explicitly not passing, and those rules are visible to the user.
+   */
+  invalid: boolean
+  /**
    * Whether or not the input includes the "required" validation rule. This rule
    * is uniquely called out for accessibility reasons and should be used to
    * power the `aria-required` attribute.

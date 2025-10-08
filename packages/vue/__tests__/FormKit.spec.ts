@@ -568,7 +568,7 @@ describe('validation', () => {
     const [email, name] = wrapper.get('div').findAll('input')
     email.setValue('info@formkit.com')
     name.setValue('Rockefeller')
-    await new Promise((r) => setTimeout(r, 40))
+    await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.find('button').attributes()).not.toHaveProperty('disabled')
   })
 
@@ -622,12 +622,39 @@ describe('validation', () => {
         plugins: [[plugin, defaultConfig]],
       },
     })
+    await nextTick()
     const node = getNode(id)
     expect(node?.context?.state.validationVisible).toBe(false)
     wrapper.find('input').element.value = 'foobar'
     wrapper.find('input').trigger('input')
     await new Promise((r) => setTimeout(r, 20))
     expect(node?.context?.state.validationVisible).toBe(true)
+  })
+
+  it('removes data-invalid from the wrapper when validation rules are removed (#1384)', async () => {
+    const rules = ref('required')
+    const wrapper = mount(
+      {
+        setup() {
+          return { rules }
+        },
+        template:
+          '<FormKit type="text" validation-visibility="live" :validation="rules" />',
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      'true'
+    )
+    rules.value = ''
+    await new Promise((r) => setTimeout(r, 5))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
   })
 
   it('knows the state of validation visibility when set to submit', async () => {
@@ -1818,6 +1845,28 @@ describe('state', () => {
     expect(outer.attributes('data-invalid')).toBe(undefined)
   })
 
+  it('does not have data-invalid when the input is reset (#1376)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        delay: 0,
+        value: 'foobar',
+        validationVisibility: 'live',
+        id,
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)!
+    node.reset()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-outer').attributes('data-invalid')).toBe(
+      undefined
+    )
+  })
+
   it('adds data-errors when the input has errors directly applied via prop', async () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -2661,5 +2710,56 @@ describe('naked attributes', () => {
       },
     })
     expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('does not mark the input as invalid while it is validating', async () => {
+    async function long(node: FormKitNode) {
+      await new Promise((r) => setTimeout(r, 20))
+      return node.value === 'foo'
+    }
+    long.skipEmpty = false
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        name: 'long_validation',
+        id: 'inspect-long-validation-node',
+        delay: 0,
+        validationRules: {
+          long,
+        },
+        validationVisibility: 'live',
+        validation: 'long',
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+    const node = getNode('inspect-long-validation-node')!
+    // Before our validation rule has run, everything is fine...
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
+    expect(node.context!.state.invalid).toBe(false)
+    await new Promise((r) => setTimeout(r, 30))
+    // After our rule has run, the input should be invalid
+    expect(node.context!.state.invalid).toBe(true)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+
+    wrapper.find('input').setValue('foo')
+    await new Promise((r) => setTimeout(r, 5))
+    // While it is validating, the input should remain invalid
+    expect(node.context!.state.invalid).toBe(true)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe('true')
+    await new Promise((r) => setTimeout(r, 30))
+
+    // When the input has been validated, it should be valid
+    expect(node.context!.state.invalid).toBe(false)
+    expect(
+      wrapper.find('[data-family="text"]').attributes('data-invalid')
+    ).toBe(undefined)
   })
 })

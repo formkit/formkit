@@ -96,11 +96,7 @@ function observeIds() {
  */
 export function createAutoAnimatePlugin(
   options?: AutoAnimateOptions,
-  animationTargets: Record<string, string[]> = {
-    global: ['outer', 'inner'],
-    form: ['form'],
-    repeater: ['items'],
-  }
+  animationTargets: Record<string, string[]> = {}
 ): FormKitPlugin {
   return (node: FormKitNode) => {
     node.on('created', () => {

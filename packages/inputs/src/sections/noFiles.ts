@@ -7,5 +7,5 @@ import { createSection } from '../createSection'
  */
 export const noFiles = createSection('noFiles', () => ({
   $el: 'span',
-  if: '$value.length == 0',
+  if: '$value == null || $value.length == 0',
 }))

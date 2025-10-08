@@ -1532,6 +1532,27 @@ describe('resetting', () => {
     expect(node.at('foo')?.value).toBe('abc')
     expect(node.at('bim')?.value).toBe('xyz')
   })
+
+  it('can reset to initial value false', async () => {
+    const node = createNode({ value: false })
+    node.reset()
+
+    expect(node.value).toBe(false)
+
+    await node.input(true)
+    node.reset()
+    expect(node.value).toBe(false)
+  })
+
+  it('can reset to initial value null', async () => {
+    const node = createNode({ value: null })
+    node.reset()
+    expect(node.value).toBe(null)
+
+    await node.input('biz bar')
+    node.reset()
+    expect(node.value).toBe(null)
+  })
 })
 
 describe('errors', () => {

@@ -123,6 +123,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   /**
+   * Determines if the input should be considered "invalid" — note that this is different than a valid input! A
+   * valid input is one where the input is not loading, not pending validation, not unsettled, and passes all
+   * validation rules. An invalid input is one whose validation rules are not explicitly not passing, and those rules
+   * are visible to the user.
+   */
+  const isInvalid = computed<boolean>(() => {
+    return context.state.failing && validationVisible.value
+  })
+
+  /**
    * Determines if the input should be considered "complete".
    */
   const isComplete = computed<boolean>(() => {
@@ -167,6 +177,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     }, {} as Record<string, FormKitMessage>)
   )
 
+  const passing = computed<boolean>(() => !context.state.failing)
+
   /**
    * This is the reactive data object that is provided to all schemas and
    * forms. It is a subset of data in the core node object.
@@ -174,6 +186,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const cachedClasses = reactive<Record<string, string>>({})
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
+      if (!node) return ''
       const [target, property] = args
       let className: string | null = Reflect.get(...args)
       if (!className && typeof property === 'string') {
@@ -221,6 +234,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   })
 
   const describedBy = computed<string | undefined>(() => {
+    if (!node) return undefined
     const describers = []
     if (context.help) {
       describers.push(`help-${node.props.id}`)
@@ -288,10 +302,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       submitted: false,
       settled: node.isSettled,
       valid: isValid,
+      invalid: isInvalid,
       errors: hasErrors,
       rules: hasValidation,
       validationVisible,
       required: isRequired,
+      failing: false,
+      passing,
     },
     type: node.props.type,
     family: node.props.family,

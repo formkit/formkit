@@ -23,6 +23,14 @@ handling, and validation rules. To learn more check out the documentation websit
 
 <p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
 
+## Get Started Fast with KickStart
+<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
+  <img width="800" src="https://cdn.formk.it/og/kickstart-og.png" alt="KickStart">
+</a>
+<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
+  <img width="800" src="https://cdn.formk.it/web-assets/kickstart-loop.gif" alt="KickStart Demo">
+</a>
+
 ## Sponsors
 
 FormKit — which supports its whole feature set for _native HTML inputs_ (like `select`, `checkbox`, and `textarea`) — is and will always be an MIT-licensed
@@ -66,6 +74,12 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 <p style="margin-bottom: 1em;">
   <a href="https://wedgworth.com?utm_source=formkit&utm_medium=web">
     <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_wedgworth.png" alt="Wedgworth's Inc logo" style="width: 9%;">
+  </a>
+</p>
+
+<p style="margin-bottom: 1em;">
+  <a href="https://www.usemast.com/?utm_source=formkit&utm_medium=web">
+    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_mast.png" alt="Mast's logo" style="width: 9%;">
   </a>
 </p>
 
