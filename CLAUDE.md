@@ -62,8 +62,11 @@ Vue.js form building library. Monorepo with framework-agnostic core and Vue-spec
 
 ```bash
 pnpm build          # Build packages
-pnpm test           # Run vitest
+pnpm test           # Run vitest (interactive/watch mode)
+npx vitest run      # Run tests once (non-interactive)
 pnpm dev            # Dev server (examples)
 pnpm lint           # Lint
 pnpm playwright     # E2E tests
 ```
+
+**Note**: `pnpm test` runs vitest in watch mode. Use `npx vitest run` for single test run (CI/scripts).
