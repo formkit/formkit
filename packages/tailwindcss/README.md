@@ -2,6 +2,8 @@
 
 # @formkit/tailwindcss
 
+> **Deprecated**: This package is deprecated. Use `@formkit/themes/tailwindcss` instead, which provides the same functionality with additional features like `checked`, `prefix-icon`, and `suffix-icon` variants.
+
 This package contains tooling to assist with building a comprehensive Tailwind theme for FormKit.
 
 ## Installation
