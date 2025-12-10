@@ -14,10 +14,10 @@ const date_between: FormKitValidationRule = function date_between(
   dateB = dateB instanceof Date ? dateB.getTime() : Date.parse(dateB)
   const compareTo =
     value instanceof Date ? value.getTime() : Date.parse(String(value))
-  if (dateA && !dateB) {
+  if (dateA && isNaN(dateB)) {
     dateB = dateA
     dateA = Date.now()
-  } else if (!dateA || !compareTo) {
+  } else if (dateA === undefined || compareTo === undefined) {
     return false
   }
   return compareTo >= dateA && compareTo <= dateB
