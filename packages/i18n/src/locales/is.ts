@@ -409,7 +409,7 @@ const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} þarf að vera minna en eða nákvæmlega ${args[0]}.`
+    return `${s(name)} þarf að vera minni en eða nákvæmlega ${args[0]}.`
     /* </i18n> */
   },
 
