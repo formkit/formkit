@@ -61,7 +61,6 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
               'No maxHeight CSS property set for textarea with max-auto-height'
             )
           }
-          xx
 
           showScrollbars = maxHeight !== 0
           return maxHeight || Infinity
