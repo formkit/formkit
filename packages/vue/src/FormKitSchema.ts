@@ -36,6 +36,7 @@ import {
   getNode,
   warn,
   watchRegistry,
+  stopWatch,
   isNode,
   sugar,
 } from '@formkit/core'
@@ -182,6 +183,12 @@ let instanceKey: object
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const instanceScopes = new WeakMap<object, Record<string, any>[]>()
+/**
+ * A registry of watchRegistry receipts per schema instance for cleanup.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const instanceReceipts = new WeakMap<object, string[]>()
 
 /**
  * Indicates the a section of the schema is raw.
@@ -197,16 +204,18 @@ const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
  * Returns a reference as a placeholder to a specific location on an object.
  * @param data - A reactive data object
  * @param token - A dot-syntax string representing the object path
+ * @param receipts - Optional array to store watchRegistry receipts for cleanup
  * @returns
  */
 function getRef(
   token: string,
-  data: Record<string, any> | Ref<Record<string, any>>
+  data: Record<string, any> | Ref<Record<string, any>>,
+  receipts?: string[]
 ): Ref<unknown> {
   const value = ref<any>(null)
   if (token === 'get') {
     const nodeRefs: Record<string, Ref<unknown>> = {}
-    value.value = get.bind(null, nodeRefs)
+    value.value = get.bind(null, nodeRefs, receipts || [])
     return value
   }
   const path = token.split('.')
@@ -262,18 +271,25 @@ function getValue(
 
 /**
  * Get the node from the global registry
+ * @param nodeRefs - Cache of node references
+ * @param receipts - Array to store watchRegistry receipts for cleanup
  * @param id - A dot-syntax string where the node is located.
  */
-function get(nodeRefs: Record<string, Ref<unknown>>, id?: string) {
+function get(
+  nodeRefs: Record<string, Ref<unknown>>,
+  receipts: string[],
+  id?: string
+) {
   if (typeof id !== 'string') return warn(650)
   if (!(id in nodeRefs)) nodeRefs[id] = ref<unknown>(undefined)
   if (nodeRefs[id].value === undefined) {
     nodeRefs[id].value = null
     const root = getNode(id)
     if (root) nodeRefs[id].value = root.context
-    watchRegistry(id, ({ payload: node }) => {
+    const receipt = watchRegistry(id, ({ payload: node }) => {
       nodeRefs[id].value = isNode(node) ? node.context : node
     })
+    receipts.push(receipt)
   }
   return nodeRefs[id].value
 }
@@ -793,6 +809,7 @@ function createRenderFn(
   data: Record<string, any>,
   instanceKey: object
 ) {
+  const receipts = instanceReceipts.get(instanceKey) || []
   return instanceCreator(
     (requirements, hints: Record<string, boolean> = {}) => {
       return requirements.reduce((tokens, token) => {
@@ -812,7 +829,7 @@ function createRenderFn(
               hasSlot() ? data.slots[slot](scopedData) : null
           }
         } else {
-          const value = getRef(token, data)
+          const value = getRef(token, data, receipts)
           tokens[token] = () => useScope(token, value.value)
         }
         return tokens
@@ -832,6 +849,13 @@ function clean(
   memoKey: string | undefined,
   instanceKey: object
 ) {
+  // Clean up watchRegistry receipts to prevent memory leaks
+  const receipts = instanceReceipts.get(instanceKey)
+  if (receipts) {
+    receipts.forEach((receipt) => stopWatch(receipt))
+    instanceReceipts.delete(instanceKey)
+  }
+
   memoKey ??= toMemoKey(schema)
   memoKeys[memoKey]--
   if (memoKeys[memoKey] === 0) {
@@ -889,6 +913,7 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
     const instance = getCurrentInstance()
     let instanceKey = {}
     instanceScopes.set(instanceKey, [])
+    instanceReceipts.set(instanceKey, [])
     const library = { FormKit: markRaw(FormKit), ...props.library }
     let provider = parseSchema(library, props.schema, props.memoKey)
     let render: RenderChildren
@@ -901,6 +926,7 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
           const oldKey = instanceKey
           instanceKey = {}
           instanceScopes.set(instanceKey, [])
+          instanceReceipts.set(instanceKey, [])
           provider = parseSchema(library, props.schema, props.memoKey)
           render = createRenderFn(provider, data, instanceKey)
           if (newSchema === oldSchema) {

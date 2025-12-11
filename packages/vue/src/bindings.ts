@@ -27,7 +27,7 @@ import {
   cloneAny,
   shallowClone,
 } from '@formkit/utils'
-import { createObserver } from '@formkit/observer'
+import { createObserver, FormKitObservedNode } from '@formkit/observer'
 import { FormKitPseudoProps } from '@formkit/core'
 
 /**
@@ -186,6 +186,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * forms. It is a subset of data in the core node object.
    */
   const cachedClasses = reactive<Record<string, string>>({})
+  /**
+   * Track observers created for class generation so we can kill them on destroy.
+   */
+  const observers = new Set<FormKitObservedNode>()
   const classes = new Proxy(cachedClasses as Record<PropertyKey, string>, {
     get(...args) {
       if (!node) return ''
@@ -194,6 +198,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       if (!className && typeof property === 'string') {
         if (!has(target, property) && !property.startsWith('__v')) {
           const observedNode = createObserver(node)
+          observers.add(observedNode)
           observedNode.watch((node) => {
             const rootClasses =
               typeof node.config.rootClasses === 'function'
@@ -533,6 +538,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   node.emit('context', node, false)
 
   node.on('destroyed', () => {
+    // Kill all observers created for class generation to prevent memory leaks
+    observers.forEach((observer) => observer.kill())
+    observers.clear()
+
     node.context = undefined
     /* @ts-ignore */ // eslint-disable-line
     node = null
