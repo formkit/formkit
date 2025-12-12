@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'تاريخ التغيير',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'توجد أخطاء في النموذج الخاص بك.',
+  /**
    * Shown when there is something to close
    */
   close: 'أغلق',
@@ -355,8 +360,8 @@ const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = Number(first) <= Number(second) ? first : second
-    const max = Number(second) >= Number(first) ? second : first
+    const min = Math.min(first, second)
+    const max = Math.max(first, second)
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `يجب أن يكون ${s(name)} حرفًا واحدًا على الأقل.`

@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: '날짜 변경',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: '양식에 오류가 있습니다.',
+  /**
    * Shown when there is something to close
    */
   close: '닫기',
@@ -357,8 +362,8 @@ const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = Number(first) <= Number(second) ? first : second
-    const max = Number(second) >= Number(first) ? second : first
+    const min = Math.min(first, second)
+    const max = Math.max(first, second)
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} 하나 이상의 문자여야 합니다`
