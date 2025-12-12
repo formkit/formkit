@@ -88,6 +88,11 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Тағйир додани сана',
+  /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Дар шакли шумо хатогиҳо мавҷуданд.',
 }
 
 /**

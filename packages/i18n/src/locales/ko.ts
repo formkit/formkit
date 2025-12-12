@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: '날짜 변경',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: '양식에 오류가 있습니다.',
+  /**
    * Shown when there is something to close
    */
   close: '닫기',

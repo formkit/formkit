@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Tarixi dəyişdirin',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Formanızda xətalar var.',
+  /**
    * Shown when there is something to close
    */
   close: 'Bağlayın',

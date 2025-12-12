@@ -93,6 +93,11 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is something to open.
    */
   open: 'Нээлттэй',
+  /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Таны маягт дээр алдаа гарлаа.',
 }
 
 /**

@@ -88,6 +88,11 @@ const ui: FormKitLocaleMessages = {
    * Shown when there is a date to change.
    */
   changeDate: 'Feroarje datum',
+  /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Der binne flaters yn jo formulier.',
 }
 
 /**

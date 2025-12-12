@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Dátum módosítása',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Hibák találhatók az űrlapon.',
+  /**
    * Shown when there is something to close
    */
   close: 'Bezárás',

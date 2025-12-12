@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Modifier la date',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Des erreurs ont été détectées dans votre formulaire.',
+  /**
    * Shown when there is something to close
    */
   close: 'Fermer',

@@ -86,6 +86,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Mainīt datumu',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'Jūsu veidlapā ir kļūdas.',
+  /**
    * Shown when there is something to close
    */
   close: 'Aizvērt',
