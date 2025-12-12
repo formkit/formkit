@@ -46,4 +46,20 @@ describe('date_between', () => {
       )
     ).toBe(true)
   })
+
+  it.each([
+    ['1970-01-01', '1960-01-01', '1980-01-01'],
+    ['1980-01-01', '1970-01-01', '1990-01-01'],
+    ['1960-01-01', '1950-01-01', '1970-01-01'],
+  ])('passes when using 1970-01-01 as an argument', (value, dateA, dateB) => {
+    expect(
+      date_between(
+        createNode({
+          value: new Date(value),
+        }),
+        new Date(dateA),
+        new Date(dateB)
+      )
+    ).toBe(true)
+  })
 })

@@ -3,7 +3,7 @@
   "version": "1.6.9",
   "type": "module",
   "description": "FormKit base themes",
-  "types": "dist/index.d.ts",
+  "types": "dist/index.d.mts",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "exports": {
@@ -103,22 +103,6 @@
   },
   "dependencies": {
     "@formkit/core": "1.6.9"
-  },
-  "peerDependencies": {
-    "tailwindcss": "^3.2.0",
-    "unocss": "0.x.x",
-    "windicss": "^3.0.0"
-  },
-  "peerDependenciesMeta": {
-    "tailwindcss": {
-      "optional": true
-    },
-    "unocss": {
-      "optional": true
-    },
-    "windicss": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "windicss": "^3.5.6"

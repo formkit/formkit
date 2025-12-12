@@ -59,11 +59,11 @@ const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons that navigate state forward
    */
-  next: 'Vervolgens',
+  next: 'Volgende',
   /**
    * Shown on buttons that navigate state backward
    */
-  prev: 'Voorgaand',
+  prev: 'Vorige',
   /**
    * Shown when adding all values.
    */
@@ -360,8 +360,8 @@ const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = Number(first) <= Number(second) ? first : second
-    const max = Number(second) >= Number(first) ? second : first
+    const min = Math.min(first, second)
+    const max = Math.max(first, second)
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} moet minimaal één teken zijn.`

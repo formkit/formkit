@@ -366,8 +366,8 @@ const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = Number(first) <= Number(second) ? first : second
-    const max = Number(second) >= Number(first) ? second : first
+    const min = Math.min(first, second)
+    const max = Math.max(first, second)
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `${s(name)} þarf að vera að minnsta kosti einn stafur.`
@@ -414,7 +414,7 @@ const validation: FormKitValidationMessages = {
       /* </i18n> */
     }
     /* <i18n case="Shown when the user-provided value is greater than the maximum number supplied to the rule."> */
-    return `${s(name)} þarf að vera minna en eða nákvæmlega ${args[0]}.`
+    return `${s(name)} þarf að vera minni en eða nákvæmlega ${args[0]}.`
     /* </i18n> */
   },
 
