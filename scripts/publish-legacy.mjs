@@ -3,20 +3,19 @@
 /**
  * publish.mjs
  *
- * This publish script is responsible for preparing all packages in the FormKit
- * monorepo for publishing via CI. It helps the publisher assign proper semantic
- * versioning numbers to the built assets.
- *
+ * This publish script is responsible for publishing all of the
+ * packages in this FormKit monorepo and helping the publisher assign
+ * proper semantic versioning numbers to the built assets.
  * The essential steps of this build are:
- * - Get permission from user to build ALL packages
+ * - Get permission from user from user to build ALL packages
+ * - [TODO] Compare built .esm and .tsd files to latest published versions from NPM
  * - Show user packages that have changed / will be affected by dependency changes
  * - Prompt new version numbers to changed packages
- * - Present an overview of all changes represented by the publish action
- * - Write version bumps to package.json files
- * - Commit changes and create a git tag
- * - Push to remote - CI handles the actual npm publish
- *
- * For the legacy publish script that publishes directly, see publish-legacy.mjs
+ * - - Display only commits that affected files it the current package's directory
+ * - Present a overview of all changes represented by the publish action and their final version bumps
+ * - Publish all changes to affected packages
+ * - Commit version bumps to package.json files
+ * - Show final summary
  */
 
 import { execSync } from 'child_process'
@@ -41,88 +40,17 @@ import {
   updateFKCoreVersionExport,
 } from './utils.mjs'
 import { buildAllPackages } from './build.mjs'
+import axios from 'axios'
 
 const allPackages = []
 let toBePublished = []
 const prePublished = {}
-let versionSuffix = false // 'next' or 'dev' for non-master branches
-let isMasterBranch = false
-
-/**
- * Validates that the version is appropriate for the current branch.
- * - Master branch: must NOT have -next or -dev suffix
- * - Non-master branch: MUST have -next or -dev suffix
- */
-function validateVersionForBranch(version) {
-  const isPrerelease = version.includes('-next') || version.includes('-dev')
-
-  if (isMasterBranch && isPrerelease) {
-    msg.error(
-      '❌ Cannot use pre-release version suffix (-next/-dev) from master branch.'
-    )
-    msg.info('Pre-release versions can only be published from feature branches.')
-    return false
-  }
-
-  if (!isMasterBranch && !isPrerelease) {
-    msg.error(
-      '❌ Non-master branches must use -next or -dev version suffix.'
-    )
-    msg.info(
-      'This ensures @latest releases only come from the master branch.'
-    )
-    return false
-  }
-
-  return true
-}
-
-/**
- * Creates a git tag and pushes to remote, triggering CI publish.
- */
-async function createAndPushTag(version, dryRun = false) {
-  const tagName = `v${version}`
-
-  if (dryRun) {
-    msg.info(`\n[DRY RUN] Would create tag: ${chalk.cyan(tagName)}`)
-    msg.info(`[DRY RUN] Would push commit to remote`)
-    msg.info(`[DRY RUN] Would push tag to remote`)
-    msg.info(`\n[DRY RUN] CI would then publish with npm tag: ${chalk.cyan(versionSuffix || 'latest')}`)
-    return true
-  }
-
-  try {
-    msg.info('» Staging and committing changed files...')
-    execSync('git add .')
-    execSync(`git commit -m "chore: release ${tagName}"`)
-
-    msg.info(`» Creating tag ${chalk.cyan(tagName)}...`)
-    execSync(`git tag ${tagName}`)
-
-    msg.info('» Pushing commit to remote...')
-    execSync('git push origin HEAD')
-
-    msg.info('» Pushing tag to remote...')
-    execSync(`git push origin ${tagName}`)
-
-    msg.success(`\n✅ Tag ${chalk.cyan(tagName)} created and pushed!`)
-    msg.info('🚀 CI will now handle building and publishing to npm.')
-
-    const npmTag = versionSuffix || 'latest'
-    msg.info(`   NPM tag: @${npmTag}`)
-
-    return true
-  } catch (e) {
-    msg.error('Failed to create/push tag')
-    console.error(e.message)
-    return false
-  }
-}
+let tag = false
 
 /**
  * Main entry point to the build process
  */
-async function publishPackages({ force, skipClean, dryRun }) {
+async function publishPackages({ force, skipClean }) {
   if (!/pnpm\.cjs$/.test(process.env.npm_execpath)) {
     msg.error(`⚠️ You must run this command with pnpm instead of npm or yarn.`)
     msg.info('Please try again with:\n\n» pnpm run publish\n\n')
@@ -136,23 +64,19 @@ async function publishPackages({ force, skipClean, dryRun }) {
     return
   }
 
-  isMasterBranch = checkGitIsMasterBranch()
-
-  if (!isMasterBranch) {
-    const { confirmSuffix } = await prompts({
+  if (!checkGitIsMasterBranch()) {
+    const { confirmTag } = await prompts({
       type: 'select',
-      name: 'confirmSuffix',
-      message: `⚠️  Not on master branch! Which version suffix would you like to use?`,
+      name: 'confirmTag',
+      message: `⚠️  Not on master brach! Which tag would you like to publish?`,
       choices: [
         {
-          title: '-next (pre-release)',
-          description: 'For testing upcoming features',
-          value: 'next',
+          title: '@dev',
+          value: 'dev',
         },
         {
-          title: '-dev (development)',
-          description: 'For development/experimental builds',
-          value: 'dev',
+          title: '@next',
+          value: 'next',
         },
         {
           title: 'CANCEL',
@@ -160,12 +84,11 @@ async function publishPackages({ force, skipClean, dryRun }) {
         },
       ],
     })
-    versionSuffix = confirmSuffix
-    if (versionSuffix) {
-      msg.info(`Version suffix set to: -${confirmSuffix}`)
-      msg.info(`Packages will be published with @${confirmSuffix} npm tag`)
+    tag = confirmTag
+    if (tag) {
+      msg.info(`Setting tag to @${confirmTag}`)
     } else {
-      msg.error('✋ Publish cancelled')
+      msg.error('✋ Will not publish')
       return
     }
   }
@@ -184,7 +107,7 @@ async function publishPackages({ force, skipClean, dryRun }) {
   }
   await getChangedDist()
 
-  if (!toBePublished.length && !force && !versionSuffix)
+  if (!toBePublished.length && !force && !tag)
     return msg.error(
       `\nAll packages appear identical to their currently published versions. Nothing to publish... 👋\n`
     )
@@ -197,7 +120,7 @@ Any dependent packages will also require publishing to include dependency change
   toBePublished = await getPublishOrder(toBePublished)
   console.log(toBePublished, '\n')
 
-  if (!versionSuffix) {
+  if (!tag) {
     const { confirmBuild } = await prompts({
       type: 'confirm',
       name: 'confirmBuild',
@@ -211,10 +134,10 @@ Any dependent packages will also require publishing to include dependency change
   }
 
   let forceVersion = false
-  if (versionSuffix) {
+  if (tag) {
     forceVersion = await promptForTaggedVersion()
     msg.info(
-      `All packages will be set to version ${forceVersion}`
+      `All packages will publish at version ${forceVersion} on the tag @${tag}`
     )
   }
 
@@ -222,28 +145,17 @@ Any dependent packages will also require publishing to include dependency change
     await prePublishPackage(pkg, i, forceVersion)
   }
 
-  // Validate versions before proceeding
-  const sampleVersion = prePublished[Object.keys(prePublished)[0]]?.newVersion
-  if (sampleVersion && !validateVersionForBranch(sampleVersion)) {
-    return msg.error('Publish aborted due to version/branch mismatch. 👋')
-  }
-
-  msg.headline(`All packages configured. Preparing to tag and push...`)
+  msg.headline(`All packages configured. Preparing publish...`)
   msg.info(
-    `The following changes will be committed and tagged.\nPlease review and confirm:\n`
+    `The following changes will be committed and published.\nPlease review and confirm:\n`
   )
   drawPublishPreviewGraph(prePublished)
 
   console.log('\n\n')
-
-  if (dryRun) {
-    msg.warn('🔍 DRY RUN MODE - No changes will be made')
-  }
-
   const { confirmPublish } = await prompts({
     type: 'text',
     name: 'confirmPublish',
-    message: `To confirm${dryRun ? ' (dry run)' : ''} please type 'booyah':`,
+    message: `To confirm publish please type 'booyah':`,
     validate: (msg) => {
       if (msg === 'booyah') {
         return true
@@ -253,7 +165,7 @@ Any dependent packages will also require publishing to include dependency change
   })
   if (!confirmPublish && !force) return msg.error('Publish aborted. 👋')
 
-  msg.headline('  Preparing Release 🚀  ')
+  msg.headline('  Publishing 🚀  ')
   const didWrite = writePackageJSONFiles()
 
   // if core is being published, then update the FORMKIT_VERSION export
@@ -265,33 +177,73 @@ Any dependent packages will also require publishing to include dependency change
   if (!didWrite && !force) return msg.error('Publish aborted. 👋')
   console.log('\n\n')
 
-  // Get the version for the tag (use core's version as the tag)
-  const releaseVersion = prePublished.core?.newVersion || prePublished[Object.keys(prePublished)[0]]?.newVersion
+  const didPublish = publishAffectedPackages()
 
-  if (!releaseVersion) {
-    return msg.error('Could not determine release version. 👋')
-  }
-
-  const didTag = await createAndPushTag(releaseVersion, dryRun)
-
-  if (!didTag && !force) {
-    // Restore package.json files if tag creation failed
-    await restoredPackageJSONFiles()
-    return msg.error('Publish aborted. 👋')
-  }
-
-  if (dryRun) {
-    msg.info('\n🔍 Dry run complete. Restoring package.json files...')
+  if (tag || (!didPublish && !force)) {
     await restoredPackageJSONFiles()
   }
+  if (!didPublish && !force) return msg.error('Publish aborted. 👋')
 
-  msg.headline(' 🎉   Release prepared and pushed!')
-  msg.info('Monitor the GitHub Actions workflow for publish status.')
+  // signing off
+  if (!tag) {
+    const didCommit = await promptForGitCommit()
+    if (!didCommit && !force) return msg.error('Publish aborted. 👋')
+  }
+  msg.info(`♻️ Clearing JSDelivr @${tag || 'latest'} tag`)
+  const res = await axios({
+    method: 'POST',
+    url: 'https://purge.jsdelivr.net/',
+    headers: {
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
+    },
+    data: {
+      path: [
+        `/npm/@formkit/core@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/core@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/dev@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/dev@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/i18n@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/i18n@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/inputs@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/inputs@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/observer@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/observer@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/rules@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/rules@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/genesis/theme.css`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/genesis/theme.min.css`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/tailwindcss/index.mjs`,
+        `/npm/@formkit/themes@${
+          tag || 'latest'
+        }/dist/tailwindcss/index.min.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/unocss/index.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/unocss/index.min.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/windicss/index.mjs`,
+        `/npm/@formkit/themes@${tag || 'latest'}/dist/windicss/index.min.mjs`,
+        `/npm/@formkit/utils@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/utils@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/validation@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/validation@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/vue@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/vue@${tag || 'latest'}/dist/index.min.mjs`,
+        `/npm/@formkit/addons@${tag || 'latest'}/dist/index.mjs`,
+        `/npm/@formkit/addons@${tag || 'latest'}/dist/index.min.mjs`,
+      ],
+    },
+  })
+  if (res.data.id) {
+    msg.info(`Purge status: https://purge.jsdelivr.net/status/${res.data.id}`)
+  }
+  msg.headline(' 🎉   All changes published and committed!')
+  // drawPublishPreviewGraph(prePublished)
   console.log('\n\n')
 }
 
 async function promptForTaggedVersion() {
-  msg.info('Pre-release versions should include the commit hash!')
+  msg.info('Tagged versions should include the commit hash!')
   const hash = getCurrentHash()
   const packageJSON = getPackageJSON('core')
   const guessVersion = suggestVersionIncrement(packageJSON.version, 'minor')
@@ -299,7 +251,7 @@ async function promptForTaggedVersion() {
     type: 'text',
     name: 'version',
     message: `Including the suffix (hash: ${hash}), please enter the full version name.`,
-    initial: `${guessVersion}-${versionSuffix}.${hash}`,
+    initial: `${guessVersion}-${hash}`,
   })
   return version
 }
@@ -346,6 +298,62 @@ function writePackageJSONFiles() {
  */
 function restoredPackageJSONFiles() {
   execSync('git reset HEAD --hard')
+}
+
+/**
+ * Loops through prePublish object and publishes packages
+ */
+function publishAffectedPackages() {
+  const packages = Object.keys(Object.assign({}, prePublished))
+  let didPublish = true
+  while (packages.length) {
+    const pkg = packages.shift()
+    // const version = prePublished[pkg].newVersion
+    const tagStatement = tag ? ` --tag=${tag}` : ''
+    try {
+      execSync(`pnpm publish ./packages/${pkg}/ --no-git-checks${tagStatement}`)
+    } catch (e) {
+      didPublish = false
+      msg.error(`An error occurred publishing ${pkg}:`)
+      e.stdout && console.log(e.stdout.toString())
+      e.stderr && console.log(e.stderr.toString())
+    }
+  }
+  return didPublish
+}
+
+/**
+ * Prompts the user for a commit message and commits all changes
+ */
+async function promptForGitCommit() {
+  const { confirm } = await prompts({
+    type: 'text',
+    name: 'confirm',
+    message: `✅   All packages published. Do you want to commit? `,
+  })
+  if (!confirm) {
+    msg.info('» Cool, you do that committing on your own then ✌️')
+    return false
+  }
+  try {
+    msg.info('» Staging and committing changed files')
+    execSync(`git add .`)
+    execSync(`git status --short`)
+    const { commitMessage } = await prompts({
+      type: 'text',
+      name: 'commitMessage',
+      message: `✏️   Committing changes. Please provide a commit message: `,
+    })
+    if (commitMessage) {
+      execSync(`git commit -m "${commitMessage}"`)
+      return true
+    }
+    return false
+  } catch (e) {
+    console.log(e)
+    msg.error(`Changes were not committed`)
+    return false
+  }
 }
 
 /**
@@ -482,9 +490,7 @@ async function setNewPackageVersion(pkg, forceVersion = false) {
  * Given a version string and a version bump type - suggest the next version
  */
 function suggestVersionIncrement(version, updateType) {
-  // Strip any existing pre-release suffix for base version calculation
-  const baseVersion = version.split('-')[0]
-  let versionParts = baseVersion.split('.')
+  let versionParts = version.split('.')
   let targetIndex = versionParts.length - 1
   switch (updateType) {
     case 'major':
@@ -512,7 +518,7 @@ function suggestVersionIncrement(version, updateType) {
  * Confirm with user that all packages are going to be built
  */
 async function buildAllPackagesConsent() {
-  if (versionSuffix) {
+  if (tag) {
     const { value } = await prompts({
       type: 'select',
       name: 'value',
@@ -620,13 +626,10 @@ export default function () {
   cli.option('--skipClean', 'Skip checking if git is clean.', {
     default: false,
   })
-  cli.option('--dry-run', 'Preview changes without pushing to remote', {
-    default: false,
-  })
   cli
     .command(
       '[publish]',
-      'Prepares packages for publishing and pushes a release tag to trigger CI',
+      'Walks through publishing changed packages with proper versioning',
       { allowUnknownOptions: true }
     )
     .action((dir, options) => {
