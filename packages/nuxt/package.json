@@ -29,16 +29,19 @@
     "@formkit/core": "1.7.0-dev.4f55c07",
     "@formkit/i18n": "1.7.0-dev.4f55c07",
     "@formkit/vue": "1.7.0-dev.4f55c07",
-    "@nuxt/kit": "^3.10.3 || ^4.0.0",
     "chokidar": "^4.0.0",
     "pathe": "^2.0.0",
     "unplugin": "^2.0.0",
     "unplugin-formkit": "^0.2.13"
   },
+  "peerDependencies": {
+    "@nuxt/kit": "^3.10.3 || ^4.0.0"
+  },
   "devDependencies": {
+    "@nuxt/kit": "^4.0.0",
     "@nuxt/module-builder": "^1.0.0",
-    "@nuxt/schema": "^3.10.3 || ^4.0.0",
+    "@nuxt/schema": "^4.0.0",
     "@nuxt/test-utils": "^3.21.0",
-    "nuxt": "^3.10.3 || ^4.0.0"
+    "nuxt": "^4.0.0"
   }
 }
