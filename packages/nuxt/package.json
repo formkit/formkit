@@ -1,24 +1,21 @@
 {
   "name": "@formkit/nuxt",
-  "repository": "https://github.com/formkit/formkit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/formkit/formkit.git",
+    "directory": "packages/nuxt"
+  },
   "description": "The official Nuxt module for FormKit.",
   "version": "1.7.0-dev.4f55c07",
   "license": "MIT",
   "type": "module",
   "exports": {
-    "./package.json": "./package.json",
     ".": {
-      "import": {
-        "types": "./dist/module.d.mts",
-        "default": "./dist/module.mjs"
-      },
-      "require": {
-        "types": "./dist/module.d.ts",
-        "default": "./dist/module.cjs"
-      }
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
     }
   },
-  "types": "./dist/types.d.ts",
+  "main": "./dist/module.mjs",
   "files": [
     "dist"
   ],
@@ -32,16 +29,16 @@
     "@formkit/core": "1.7.0-dev.4f55c07",
     "@formkit/i18n": "1.7.0-dev.4f55c07",
     "@formkit/vue": "1.7.0-dev.4f55c07",
-    "@nuxt/kit": "^3.10.3",
-    "chokidar": "^3.6.0",
-    "pathe": "^1.1.2",
-    "unplugin": "^1.9.0",
+    "@nuxt/kit": "^3.10.3 || ^4.0.0",
+    "chokidar": "^4.0.0",
+    "pathe": "^2.0.0",
+    "unplugin": "^2.0.0",
     "unplugin-formkit": "^0.2.13"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "^0.5.5",
-    "@nuxt/schema": "^3.10.3",
-    "@nuxt/test-utils": "^3.11.0",
-    "nuxt": "^3.10.3"
+    "@nuxt/module-builder": "^1.0.0",
+    "@nuxt/schema": "^3.10.3 || ^4.0.0",
+    "@nuxt/test-utils": "^3.21.0",
+    "nuxt": "^3.10.3 || ^4.0.0"
   }
 }

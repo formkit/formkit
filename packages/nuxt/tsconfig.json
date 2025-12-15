@@ -1,6 +1,13 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node"
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "extends": "./.nuxt/tsconfig.json"
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "playground"]
 }

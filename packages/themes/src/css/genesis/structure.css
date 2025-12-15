@@ -64,12 +64,12 @@
   } */
 
   /* border removal for checkbox and radio inputs */
-  @nest [data-type='checkbox'] &, [data-type='radio'] & {
+  [data-type='checkbox'] &, [data-type='radio'] & {
     border: none;
     box-shadow: none;
     display: inline-block;
 
-    @nest [data-invalid] &:focus-within, [data-errors] &:focus-within {
+    [data-invalid] &:focus-within, [data-errors] &:focus-within {
       outline: none;
     }
   }
@@ -93,7 +93,7 @@
     }
   }
 
-  @nest input[type='date']& {
+  input[type='date']& {
     &::-webkit-calendar-picker-indicator {
       padding-top: 0;
       padding-bottom: 0;
@@ -106,7 +106,7 @@
     }
   }
 
-  @nest select& {
+  select& {
     padding-right: calc(var(--fk-padding-base) * 7);
 
     &[data-placeholder]:not([multiple]) {
@@ -130,7 +130,7 @@
     }
   }
 
-  @nest input[type='radio']& {
+  input[type='radio']& {
     & ~ .formkit-decorator {
       border-radius: var(--fk-border-radius-full);
 

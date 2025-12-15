@@ -14,7 +14,7 @@ await setup({
 describe('vite', async () => {
   it('builds and renders', async () => {
     const html = await $fetch('/')
-    expect(html.match(/<fieldset.*<\/fieldset>/)?.[0]).toMatchFileSnapshot(
+    await expect(html.match(/<fieldset.*<\/fieldset>/)?.[0]).toMatchFileSnapshot(
       './snapshots/index.html'
     )
   })

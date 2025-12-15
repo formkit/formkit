@@ -1,4 +1,4 @@
-import glob from 'glob'
+import { globSync, glob } from 'glob'
 import { mkdtemp, copyFile, readFile } from 'fs/promises'
 import { existsSync, lstatSync, readFileSync } from 'fs'
 import cac from 'cac'
@@ -68,7 +68,7 @@ async function deployESM(version) {
   const uploads = []
   msg.loader.start('» uploading files')
   getPackages().forEach((pkg) => {
-    const matches = glob.sync(`packages/${pkg}/dist/**/*`)
+    const matches = globSync(`packages/${pkg}/dist/**/*`)
     matches.forEach((file) => {
       if (
         !lstatSync(file).isDirectory() &&

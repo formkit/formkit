@@ -1134,7 +1134,7 @@ describe('rendering components', () => {
     })
     expect(wrapper.html())
       .toContain(`<select class=\"formkit-input\" id="where_waldo" name=\"foobar\">
-        <option class=\"formkit-option\" value=\"hello\">Hello</option>
+        <option class=\"formkit-option\" selected=\"\" value=\"hello\">Hello</option>
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)
   })
@@ -1205,7 +1205,7 @@ describe('rendering components', () => {
     })
     await nextTick()
     expect(wrapper.html()).toContain(
-      '<option hidden="" disabled="" data-is-placeholder="true" class="formkit-option" value="">Pick your drink</option>'
+      '<option hidden="" disabled="" data-is-placeholder="true" class="formkit-option" selected="" value="">Pick your drink</option>'
     )
   })
 

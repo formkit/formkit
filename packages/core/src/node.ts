@@ -2106,7 +2106,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   while (unused.size && emptyIndexes.length) {
     const child = unused.values().next().value
     const index = emptyIndexes.shift()
-    if (index === undefined) break
+    if (index === undefined || child === undefined) break
     newChildren[index] = child
     unused.delete(child)
   }
