@@ -1,6 +1,6 @@
 {
   "name": "@formkit/themes",
-  "version": "1.6.9",
+  "version": "1.7.0-dev.0833e93",
   "type": "module",
   "description": "FormKit base themes",
   "types": "dist/index.d.mts",
@@ -102,7 +102,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.9"
+    "@formkit/core": "1.7.0-dev.0833e93"
   },
   "devDependencies": {
     "windicss": "^3.5.6"

@@ -1,6 +1,6 @@
 {
   "name": "@formkit/validation",
-  "version": "1.6.9",
+  "version": "1.7.0-dev.0833e93",
   "type": "module",
   "description": "Validation plugin for FormKit",
   "main": "dist/index.cjs",
@@ -39,8 +39,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.9",
-    "@formkit/observer": "1.6.9",
-    "@formkit/utils": "1.6.9"
+    "@formkit/core": "1.7.0-dev.0833e93",
+    "@formkit/observer": "1.7.0-dev.0833e93",
+    "@formkit/utils": "1.7.0-dev.0833e93"
   }
 }
