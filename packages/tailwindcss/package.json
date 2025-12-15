@@ -1,7 +1,7 @@
 {
   "name": "@formkit/tailwindcss",
   "repository": "https://github.com/formkit/formkit",
-  "version": "1.7.0",
+  "version": "1.7.0-dev.4f55c07",
   "description": "A FormKit plugin for Tailwind that supplies custom variants based on input state",
   "type": "module",
   "main": "dist/index.cjs",
@@ -38,7 +38,7 @@
     "tailwindcss": "^3.0.0"
   },
   "dependencies": {
-    "@formkit/themes": "1.7.0"
+    "@formkit/themes": "1.7.0-dev.4f55c07"
   },
   "devDependencies": {
     "@types/tailwindcss": "^3.1.0"
