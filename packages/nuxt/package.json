@@ -6,7 +6,7 @@
     "directory": "packages/nuxt"
   },
   "description": "The official Nuxt module for FormKit.",
-  "version": "1.7.0-dev.4f55c07",
+  "version": "1.7.0-next.5c0925c",
   "license": "MIT",
   "type": "module",
   "exports": {
