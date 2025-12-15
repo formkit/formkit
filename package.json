@@ -73,7 +73,7 @@
     "test": "vitest",
     "build": "node scripts/cli.mjs --script build",
     "build-test": "pnpm build all && pnpm test",
-    "publish": "node scripts/cli.mjs --script publish",
+    "release": "node scripts/cli.mjs --script release",
     "local": "node scripts/cli.mjs --script local",
     "translate": "node scripts/cli.mjs --script translate",
     "cli": "node scripts/cli.mjs",

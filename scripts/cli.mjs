@@ -2,7 +2,7 @@ import cac from 'cac'
 import prompts from 'prompts'
 
 import build from './build.mjs'
-import publish from './publish.mjs'
+import release from './publish.mjs'
 import publishLocal from './publishLocal.mjs'
 import deploy from './deploy.mjs'
 import translate from './translate.mjs'
@@ -13,8 +13,8 @@ async function runCLI(s) {
     case 'build':
       script = build
       break
-    case 'publish':
-      script = publish
+    case 'release':
+      script = release
       break
     case 'deploy':
       script = deploy
@@ -40,8 +40,8 @@ async function runCLI(s) {
           value: build,
         },
         {
-          title: 'Publish',
-          value: publish,
+          title: 'Release',
+          value: release,
         },
         {
           title: 'Local',
