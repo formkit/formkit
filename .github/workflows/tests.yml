@@ -1,4 +1,4 @@
-name: Vitest & Playwright
+name: Tests
 on:
   push:
     branches:
@@ -9,59 +9,39 @@ on:
       - master
       - release/*
   workflow_dispatch:
+
 jobs:
-  Vitest:
+  test:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.0-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v4
-      - run: corepack enable
+
+      - name: Install pnpm
+        run: npm install -g pnpm@8
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build all
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
-      - uses: actions/cache@v3
-        name: Check for Playwright browsers cache
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build all
+
       - name: Run Vitest
         run: pnpm test
+
       - name: Run Typecheck
         run: pnpm run test typecheck
-  Playwright:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: corepack enable
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build all
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
-      - uses: actions/cache@v4
-        name: Check for Playwright browsers cache
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-      - name: Run Playwright tests
+
+      - name: Run Playwright
         run: pnpm run playwright
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
