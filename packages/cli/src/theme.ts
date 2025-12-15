@@ -35,6 +35,52 @@ const HAS_EXTENSION_RE = /\.(?:ts|js|mjs|cjs)$/
 let themeListResponse: Response | null = null
 let themes: Array<Record<string, any>> = []
 
+/**
+ * Detect the Tailwind CSS version from the user's package.json.
+ * Returns 3, 4, or null if unable to determine.
+ */
+async function detectTailwindVersion(): Promise<3 | 4 | null> {
+  try {
+    const pkgPath = resolve(process.cwd(), 'package.json')
+    if (!existsSync(pkgPath)) return null
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf-8'))
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+    const twVersion = deps['tailwindcss']
+    if (!twVersion) return null
+    // Check if v4 (handles ^4, ~4, 4.x.x, >=4, etc.)
+    if (/^[\^~>=]*4/.test(twVersion)) {
+      return 4
+    }
+    // Assume v3 for anything else
+    return 3
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Get the appropriate theme name based on detected Tailwind version.
+ * For TW3 projects, appends '-tw3' to use the legacy theme variant.
+ */
+function getThemeNameForTailwindVersion(
+  baseTheme: string,
+  twVersion: 3 | 4 | null
+): string {
+  // If TW3 is detected, use the -tw3 variant
+  if (twVersion === 3) {
+    return `${baseTheme}-tw3`
+  }
+  // For TW4 or unknown, use the default (TW4) theme
+  return baseTheme
+}
+
+/**
+ * Check if a theme is a TW3 variant (ends with -tw3)
+ */
+function isTw3Theme(themeName: string): boolean {
+  return themeName.endsWith('-tw3')
+}
+
 async function fetchThemes() {
   themeListResponse = await fetch(`${DEFAULT_THEME_API}/themes`)
   themes = await themeListResponse.json()
@@ -43,7 +89,24 @@ async function fetchThemes() {
 export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
   if (!themes.length) await fetchThemes()
 
+  // Detect Tailwind version from user's project
+  const detectedTwVersion = await detectTailwindVersion()
+  if (detectedTwVersion) {
+    info(`Detected Tailwind CSS v${detectedTwVersion} in your project`)
+  } else {
+    info('Could not detect Tailwind version, defaulting to v4 theme')
+  }
+
   let themeName = options.theme || ''
+
+  // If theme was explicitly provided, check if we need to adjust for TW version
+  if (options.theme && !isTw3Theme(options.theme)) {
+    // User provided a base theme name, adjust based on detected TW version
+    themeName = getThemeNameForTailwindVersion(options.theme, detectedTwVersion)
+    if (themeName !== options.theme) {
+      info(`Using ${themeName} for Tailwind v${detectedTwVersion} compatibility`)
+    }
+  }
 
   if (!options.theme) {
     const generatedTheme = await localGeneratedTheme()
@@ -88,11 +151,13 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
         )
       }
     }
+    // Filter out -tw3 variants from the selection (we'll add suffix automatically)
+    const baseThemes = themes.filter((t: any) => !isTw3Theme(t.slug))
     const { theme } = await prompts({
       type: 'select',
-      message: 'Select a theme',
+      message: `Select a theme${detectedTwVersion ? ` (for Tailwind v${detectedTwVersion})` : ''}`,
       name: 'theme',
-      choices: themes.map((theme: any) => ({
+      choices: baseThemes.map((theme: any) => ({
         title: theme.name,
         value: theme.slug,
         description:
@@ -102,7 +167,11 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
           ')',
       })),
     })
-    themeName = theme
+    // Apply the appropriate theme variant based on detected TW version
+    themeName = getThemeNameForTailwindVersion(theme, detectedTwVersion)
+    if (themeName !== theme) {
+      info(`Using ${themeName} for Tailwind v${detectedTwVersion} compatibility`)
+    }
   }
   if (!themeName) error('Please provide a theme name or path to a theme file.')
   green(`Locating ${themeName}...`)

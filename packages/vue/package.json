@@ -8,6 +8,10 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "iife": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.iife.js"
+      },
       "import": {
         "types": "./dist/index.d.mts",
         "development": "./dist/index.dev.mjs",
@@ -16,10 +20,6 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
-      },
-      "iife": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.iife.js"
       }
     }
   },

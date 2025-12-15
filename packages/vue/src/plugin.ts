@@ -12,6 +12,7 @@ import {
 import type { App, Plugin, InjectionKey } from 'vue'
 import FormKit, { FormKitComponent } from './FormKit'
 import FormKitSchema from './FormKitSchema'
+import { removeConfig } from './FormKitProvider'
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -134,6 +135,24 @@ export const plugin: Plugin = {
       globalThis.__FORMKIT_CONFIGS__ = (
         globalThis.__FORMKIT_CONFIGS__ || []
       ).concat([rootConfig])
+    }
+    /**
+     * Clean up when the app is unmounted.
+     * Use app.onUnmount if available (Vue 3.5+), otherwise wrap app.unmount.
+     */
+    const appWithOnUnmount = app as App<any> & {
+      onUnmount?: (callback: () => void) => void
+    }
+    if (typeof appWithOnUnmount.onUnmount === 'function') {
+      appWithOnUnmount.onUnmount(() => {
+        removeConfig(rootConfig)
+      })
+    } else {
+      const originalUnmount = app.unmount.bind(app)
+      app.unmount = () => {
+        removeConfig(rootConfig)
+        return originalUnmount()
+      }
     }
   },
 }

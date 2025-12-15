@@ -1,12 +1,30 @@
 import { defineComponent, SetupContext } from 'vue'
-import { FormKitOptions, createConfig } from '@formkit/core'
+import {
+  FormKitOptions,
+  FormKitRootConfig,
+  createConfig,
+} from '@formkit/core'
 import { optionsSymbol, configSymbol } from './plugin'
-import { provide, inject } from 'vue'
+import { provide, inject, onScopeDispose } from 'vue'
 import { h } from 'vue'
 import { Suspense } from 'vue'
 import { getCurrentInstance } from 'vue'
 import { ComponentInternalInstance } from 'vue'
 import { VNode } from 'vue'
+
+/**
+ * Removes a rootConfig from the global __FORMKIT_CONFIGS__ array.
+ * @param rootConfig - The config to remove
+ * @internal
+ */
+export function removeConfig(rootConfig: FormKitRootConfig) {
+  if (typeof window !== 'undefined' && globalThis.__FORMKIT_CONFIGS__) {
+    const index = globalThis.__FORMKIT_CONFIGS__.indexOf(rootConfig)
+    if (index !== -1) {
+      globalThis.__FORMKIT_CONFIGS__.splice(index, 1)
+    }
+  }
+}
 
 /**
  * A composable to provide a given configuration to all children.
@@ -47,6 +65,12 @@ export function useConfig(
       globalThis.__FORMKIT_CONFIGS__ || []
     ).concat([rootConfig])
   }
+  /**
+   * Clean up when the scope is disposed (component unmounted).
+   */
+  onScopeDispose(() => {
+    removeConfig(rootConfig)
+  })
 }
 
 export interface FormKitProviderProps {
