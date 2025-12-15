@@ -6,6 +6,7 @@
  *
  * @packageDocumentation
  */
+import { FormKitLibrary } from '@formkit/core'
 
 /**
  * Export the plugin.
@@ -114,7 +115,7 @@ export {
   range,
 }
 
-export const inputs = {
+export const inputs: FormKitLibrary = {
   button,
   submit,
   checkbox,
