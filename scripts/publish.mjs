@@ -256,13 +256,37 @@ Any dependent packages will also require publishing to include dependency change
   msg.headline('  Preparing Release 🚀  ')
   const didWrite = writePackageJSONFiles()
 
+  if (!didWrite && !force) return msg.error('Publish aborted. 👋')
+
+  // Update lockfile to match new package.json versions
+  msg.info('» Updating pnpm-lock.yaml...')
+  try {
+    execSync('pnpm install --no-frozen-lockfile', { stdio: 'inherit' })
+    msg.success('✅ Lockfile updated')
+  } catch (e) {
+    msg.error('Failed to update lockfile')
+    console.error(e.message)
+    await restoredPackageJSONFiles()
+    return msg.error('Publish aborted. 👋')
+  }
+
+  // Validate lockfile is in sync
+  msg.info('» Validating lockfile...')
+  try {
+    execSync('pnpm install --frozen-lockfile', { stdio: 'pipe' })
+    msg.success('✅ Lockfile validated')
+  } catch (e) {
+    msg.error('❌ Lockfile is out of sync with package.json files')
+    msg.info('This should not happen. Please check for errors above.')
+    await restoredPackageJSONFiles()
+    return msg.error('Publish aborted. 👋')
+  }
+
   // if core is being published, then update the FORMKIT_VERSION export
   // to match the newly set version number
   if (prePublished.core) {
     updateFKCoreVersionExport(prePublished.core.newVersion)
   }
-
-  if (!didWrite && !force) return msg.error('Publish aborted. 👋')
   console.log('\n\n')
 
   // Get the version for the tag (use core's version as the tag)
