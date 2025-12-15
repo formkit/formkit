@@ -59,3 +59,4 @@ Temporary Items
 
 # AWS
 /.aws/credentials
+.node_modules_tmp
