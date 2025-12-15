@@ -53,7 +53,7 @@ jobs:
         run: pnpm install
 
       - name: Build all packages
-        run: pnpm build
+        run: node scripts/cli.mjs --script build all
 
       - name: Publish packages
         run: node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}

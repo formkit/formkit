@@ -10,6 +10,9 @@
  */
 
 import { execSync } from 'child_process'
+import { existsSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import cac from 'cac'
 import axios from 'axios'
 import {
@@ -19,6 +22,21 @@ import {
   updateFKCoreVersionExport,
   msg,
 } from './utils.mjs'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const packagesDir = resolve(__dirname, '../packages')
+
+/**
+ * Verify that build output exists for a package
+ */
+function verifyBuildOutput(pkg) {
+  const distDir = resolve(packagesDir, pkg, 'dist')
+  if (!existsSync(distDir)) {
+    return false
+  }
+  return true
+}
 
 /**
  * Main CI publish function
@@ -32,9 +50,27 @@ async function ciPublish({ tag, purgeCdn }) {
   const packages = getPackages()
   const orderedPackages = getBuildOrder(packages)
 
+  // Verify build output exists
+  msg.info('Verifying build output...')
+  const missingBuilds = orderedPackages.filter((pkg) => !verifyBuildOutput(pkg))
+  if (missingBuilds.length > 0) {
+    msg.error('❌ Build output missing for packages:')
+    missingBuilds.forEach((pkg) => msg.error(`   - ${pkg}`))
+    msg.error('\nMake sure "pnpm build" completed successfully before publishing.')
+    process.exit(1)
+  }
+  msg.success('✅ Build output verified')
+
   // Update FORMKIT_VERSION in core dist files
-  const coreVersion = getPackageJSON('core').version
-  updateFKCoreVersionExport(coreVersion)
+  const coreDistFile = resolve(packagesDir, 'core/dist/index.mjs')
+  if (existsSync(coreDistFile)) {
+    const coreVersion = getPackageJSON('core').version
+    msg.info(`Updating FORMKIT_VERSION to ${coreVersion}...`)
+    updateFKCoreVersionExport(coreVersion)
+    msg.success('✅ Version updated in core dist files')
+  } else {
+    msg.warn('⚠️ Core dist files not found, skipping version update')
+  }
 
   msg.headline(
     `Publishing ${orderedPackages.length} packages with tag @${tag}`
