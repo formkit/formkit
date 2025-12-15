@@ -265,6 +265,11 @@ Any dependent packages will also require publishing to include dependency change
     msg.error('Failed to update lockfile')
     console.error(e.message)
     await restoredPackageJSONFiles()
+    // Clean up pre-release versions even on failure
+    if (versionSuffix) {
+      msg.info('\n» Cleaning up local package versions...')
+      cleanupPackageVersions()
+    }
     return msg.error('Publish aborted. 👋')
   }
 
@@ -287,16 +292,34 @@ Any dependent packages will also require publishing to include dependency change
   if (!didTag && !force) {
     // Restore package.json files if tag creation failed
     await restoredPackageJSONFiles()
+    // Clean up pre-release versions even on failure
+    if (versionSuffix) {
+      msg.info('\n» Cleaning up local package versions...')
+      cleanupPackageVersions()
+    }
     return msg.error('Publish aborted. 👋')
   }
 
   if (dryRun) {
     msg.info('\n🔍 Dry run complete. Restoring package.json files...')
     await restoredPackageJSONFiles()
+    // Clean up pre-release versions after dry run
+    if (versionSuffix) {
+      msg.info('\n» Cleaning up local package versions...')
+      cleanupPackageVersions()
+    }
   }
 
   msg.headline(' 🎉   Release prepared and pushed!')
   msg.info('Monitor the GitHub Actions workflow for publish status.')
+
+  // Clean up local package versions by stripping pre-release suffix
+  if (versionSuffix) {
+    msg.info('\n» Cleaning up local package versions...')
+    cleanupPackageVersions()
+    msg.success('✅ Local package.json versions cleaned (pre-release suffix removed)')
+  }
+
   console.log('\n\n')
 }
 
@@ -344,6 +367,29 @@ function writePackageJSONFiles() {
  */
 function restoredPackageJSONFiles() {
   execSync('git reset HEAD --hard')
+}
+
+/**
+ * Strip pre-release suffix from all package versions.
+ * Converts versions like "1.7.0-next.5c0925c" to "1.7.0"
+ * This keeps local package.json files clean after a release.
+ */
+function cleanupPackageVersions() {
+  const packages = getPackages()
+  for (const pkg of packages) {
+    try {
+      const packageJSON = getPackageJSON(pkg)
+      const currentVersion = packageJSON.version
+      const cleanVersion = currentVersion.split('-')[0]
+      if (cleanVersion !== currentVersion) {
+        packageJSON.version = cleanVersion
+        writePackageJSON(pkg, packageJSON)
+        msg.info(`Cleaned ${pkg}: ${currentVersion} → ${cleanVersion}`)
+      }
+    } catch (e) {
+      // Skip packages that don't have a valid package.json
+    }
+  }
 }
 
 /**
