@@ -42,15 +42,15 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.7.0-dev.4f55c07",
-    "@formkit/dev": "1.7.0-dev.4f55c07",
-    "@formkit/i18n": "1.7.0-dev.4f55c07",
-    "@formkit/inputs": "1.7.0-dev.4f55c07",
-    "@formkit/observer": "1.7.0-dev.4f55c07",
-    "@formkit/rules": "1.7.0-dev.4f55c07",
-    "@formkit/themes": "1.7.0-dev.4f55c07",
-    "@formkit/utils": "1.7.0-dev.4f55c07",
-    "@formkit/validation": "1.7.0-dev.4f55c07"
+    "@formkit/core": "workspace:^",
+    "@formkit/dev": "workspace:^",
+    "@formkit/i18n": "workspace:^",
+    "@formkit/inputs": "workspace:^",
+    "@formkit/observer": "workspace:^",
+    "@formkit/rules": "workspace:^",
+    "@formkit/themes": "workspace:^",
+    "@formkit/utils": "workspace:^",
+    "@formkit/validation": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.4.0"

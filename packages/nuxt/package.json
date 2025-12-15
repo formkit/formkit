@@ -26,9 +26,9 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@formkit/core": "1.7.0-dev.4f55c07",
-    "@formkit/i18n": "1.7.0-dev.4f55c07",
-    "@formkit/vue": "1.7.0-dev.4f55c07",
+    "@formkit/core": "workspace:^",
+    "@formkit/i18n": "workspace:^",
+    "@formkit/vue": "workspace:^",
     "chokidar": "^4.0.0",
     "pathe": "^2.0.0",
     "unplugin": "^2.0.0",

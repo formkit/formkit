@@ -77,11 +77,12 @@ async function ciPublish({ tag, purgeCdn }) {
   )
 
   for (const pkg of orderedPackages) {
-    const tagStatement = tag !== 'latest' ? `--tag=${tag}` : ''
+    const tagStatement = tag !== 'latest' ? `--tag ${tag}` : ''
     try {
       msg.info(`Publishing @formkit/${pkg}...`)
+      // Use pnpm publish to properly convert workspace:^ to real versions
       execSync(
-        `npm publish ./packages/${pkg}/ --access public ${tagStatement}`.trim(),
+        `pnpm publish ./packages/${pkg}/ --access public --no-git-checks ${tagStatement}`.trim(),
         {
           stdio: 'inherit',
         }

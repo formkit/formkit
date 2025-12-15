@@ -43,6 +43,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/cli": "1.7.0-dev.4f55c07"
+    "@formkit/cli": "workspace:^"
   }
 }

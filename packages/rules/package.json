@@ -39,8 +39,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.7.0-dev.4f55c07",
-    "@formkit/utils": "1.7.0-dev.4f55c07",
-    "@formkit/validation": "1.7.0-dev.4f55c07"
+    "@formkit/core": "workspace:^",
+    "@formkit/utils": "workspace:^",
+    "@formkit/validation": "workspace:^"
   }
 }

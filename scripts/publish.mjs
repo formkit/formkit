@@ -24,14 +24,12 @@ import cac from 'cac'
 import prompts from 'prompts'
 import chalk from 'chalk'
 import {
-  checkDependsOn,
   getPackages,
   getPackageJSON,
   writePackageJSON,
   checkGitCleanWorkingDirectory,
   checkGitIsMasterBranch,
   getLatestPackageCommits,
-  getFKDependenciesFromObj,
   getDependencyTree,
   drawDependencyTree,
   flattenDependencyTree,
@@ -270,18 +268,6 @@ Any dependent packages will also require publishing to include dependency change
     return msg.error('Publish aborted. 👋')
   }
 
-  // Validate lockfile is in sync
-  msg.info('» Validating lockfile...')
-  try {
-    execSync('pnpm install --frozen-lockfile', { stdio: 'pipe' })
-    msg.success('✅ Lockfile validated')
-  } catch (e) {
-    msg.error('❌ Lockfile is out of sync with package.json files')
-    msg.info('This should not happen. Please check for errors above.')
-    await restoredPackageJSONFiles()
-    return msg.error('Publish aborted. 👋')
-  }
-
   // if core is being published, then update the FORMKIT_VERSION export
   // to match the newly set version number
   if (prePublished.core) {
@@ -339,20 +325,8 @@ function writePackageJSONFiles() {
     const pkg = packages.shift()
     const packageJSON = getPackageJSON(pkg)
     packageJSON.version = prePublished[pkg].newVersion
-    if (prePublished[pkg].newDependencies) {
-      packageJSON.dependencies = Object.assign(
-        {},
-        packageJSON.dependencies,
-        prePublished[pkg].newDependencies
-      )
-    }
-    if (prePublished[pkg].newDevDependencies) {
-      packageJSON.devDependencies = Object.assign(
-        {},
-        packageJSON.devDependencies,
-        prePublished[pkg].newDevDependencies
-      )
-    }
+    // Note: Dependencies use workspace:^ protocol, so pnpm will automatically
+    // convert them to real versions at publish time. No manual sync needed.
     try {
       writePackageJSON(pkg, packageJSON)
       msg.info(`✅ /packages/${chalk.magenta(pkg)}/package.json updated`)
@@ -382,11 +356,6 @@ async function prePublishPackage(pkg, index, forceVersion = false) {
 
   msg.headline(`🔧  Configuring ${pkg}...`)
 
-  if (index > 0) {
-    // check for dependencies in published object and bump version(s)
-    updatePublishedDependencies(pkg)
-  }
-
   msg.info(
     `Latest ${commitNumber} commits affecting files in /packages/${pkg} directory: `
   )
@@ -398,62 +367,6 @@ async function prePublishPackage(pkg, index, forceVersion = false) {
   )
 
   await setNewPackageVersion(pkg, forceVersion)
-}
-
-/**
- * Checks if a package has dependency versions that need to be bumped
- * as part of the publish process
- */
-function updatePublishedDependencies(pkg) {
-  msg.info(`Checking if ${pkg} has dependencies in need of updating...`)
-  const packageJSON = getPackageJSON(pkg)
-  const dependencies = packageJSON.dependencies
-    ? getFKDependenciesFromObj(packageJSON.dependencies)
-    : []
-
-  for (const dep of Object.keys(prePublished)) {
-    if (checkDependsOn(pkg, dep)) {
-      console.log(
-        chalk.cyan(`Package ${chalk.magenta(
-          pkg
-        )} has a dependency on ${chalk.magenta(dep)}
-Dependency ${chalk.magenta(dep)} will be updated from ${chalk.magenta(
-          prePublished[dep].oldVersion
-        )} to ${chalk.magenta(prePublished[dep].newVersion)}`)
-      )
-      const targetNewDepGroup = dependencies.includes(dep)
-        ? 'newDependencies'
-        : 'newDevDependencies'
-      const targetOldDepGroup = dependencies.includes(dep)
-        ? 'oldDependencies'
-        : 'oldDevDependencies'
-      const depName = `@formkit/${dep}`
-      const newDepPayload = { [depName]: prePublished[dep].newVersion }
-      const oldDepPayload = { [depName]: prePublished[dep].oldVersion }
-      prePublished[pkg] = Object.assign({}, prePublished[pkg])
-      // assign new dependencies
-      prePublished[pkg][targetNewDepGroup] = prePublished[pkg][
-        targetNewDepGroup
-      ]
-        ? (prePublished[pkg][targetNewDepGroup] = Object.assign(
-            {},
-            prePublished[pkg][targetNewDepGroup],
-            newDepPayload
-          ))
-        : (prePublished[pkg][targetNewDepGroup] = newDepPayload)
-      // store old dependencies
-      prePublished[pkg][targetOldDepGroup] = prePublished[pkg][
-        targetOldDepGroup
-      ]
-        ? (prePublished[pkg][targetOldDepGroup] = Object.assign(
-            {},
-            prePublished[pkg][targetOldDepGroup],
-            oldDepPayload
-          ))
-        : (prePublished[pkg][targetOldDepGroup] = oldDepPayload)
-    }
-  }
-  console.log('\n')
 }
 
 /**
@@ -607,29 +520,6 @@ function drawPublishPreviewGraph(packages) {
         ' -> ' +
         chalk.green(pkg.newVersion)
     )
-
-    if (pkg.newDependencies) {
-      console.log(chalk.dim(`  ∟ dependencies:`))
-      for (const [depTitle, dep] of Object.entries(pkg.newDependencies)) {
-        console.log(
-          chalk.dim(`    ∟ ${depTitle}: `) +
-            chalk.red.dim(pkg.oldDependencies[depTitle]) +
-            ' -> ' +
-            chalk.green.dim(pkg.newDependencies[depTitle])
-        )
-      }
-    }
-    if (pkg.newDevDependencies) {
-      console.log(chalk.dim(`  ∟ devDependencies:`))
-      for (const [depTitle, dep] of Object.entries(pkg.newDevDependencies)) {
-        console.log(
-          chalk.dim(`    ∟ ${depTitle}: `) +
-            chalk.red.dim(pkg.oldDevDependencies[depTitle]) +
-            ' -> ' +
-            chalk.green.dim(pkg.newDevDependencies[depTitle])
-        )
-      }
-    }
   }
 }
 

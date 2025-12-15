@@ -39,6 +39,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/utils": "1.7.0-dev.4f55c07"
+    "@formkit/utils": "workspace:^"
   }
 }

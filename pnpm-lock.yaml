@@ -253,14 +253,14 @@ importers:
         specifier: latest
         version: 0.9.0
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/inputs':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../inputs
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
     devDependencies:
       '@formkit/vue':
         specifier: workspace:^
@@ -269,17 +269,17 @@ importers:
   packages/cli:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/inputs':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../inputs
       '@formkit/theme-creator':
         specifier: ^0.9.1
         version: 0.9.1(yaml@2.8.2)
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
       axios:
         specifier: ^1.6.7
         version: 1.13.2
@@ -321,17 +321,17 @@ importers:
   packages/core:
     dependencies:
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
 
   packages/dev:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
     devDependencies:
       '@formkit/vue':
         specifier: workspace:^
@@ -340,47 +340,47 @@ importers:
   packages/formkit:
     dependencies:
       '@formkit/cli':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07(yaml@2.8.2)
+        specifier: workspace:^
+        version: link:../cli
 
   packages/i18n:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
       '@formkit/validation':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../validation
 
   packages/icons:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
 
   packages/inputs:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
 
   packages/nuxt:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/i18n':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../i18n
       '@formkit/vue':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07(vue@3.5.25(typescript@5.9.3))
+        specifier: workspace:^
+        version: link:../vue
       chokidar:
         specifier: ^4.0.0
         version: 4.0.3
@@ -446,29 +446,29 @@ importers:
   packages/observer:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
 
   packages/rules:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
       '@formkit/validation':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../validation
 
   packages/tailwindcss:
     dependencies:
       '@formkit/themes':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../themes
       tailwindcss:
         specifier: ^3.0.0
         version: 3.4.19(yaml@2.8.2)
@@ -476,8 +476,8 @@ importers:
   packages/themes:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
     devDependencies:
       windicss:
         specifier: ^3.5.6
@@ -488,44 +488,44 @@ importers:
   packages/validation:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/observer':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../observer
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
 
   packages/vue:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       '@formkit/dev':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../dev
       '@formkit/i18n':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../i18n
       '@formkit/inputs':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../inputs
       '@formkit/observer':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../observer
       '@formkit/rules':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../rules
       '@formkit/themes':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../themes
       '@formkit/utils':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../utils
       '@formkit/validation':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../validation
       vue:
         specifier: ^3.5.13
         version: 3.5.25(typescript@5.9.3)
@@ -537,8 +537,8 @@ importers:
   packages/zod:
     dependencies:
       '@formkit/core':
-        specifier: 1.7.0-dev.4f55c07
-        version: 1.7.0-dev.4f55c07
+        specifier: workspace:^
+        version: link:../core
       zod:
         specifier: ^3.0.0
         version: 3.25.76
@@ -1368,50 +1368,14 @@ packages:
   '@formkit/auto-animate@1.0.0-beta.6':
     resolution: {integrity: sha512-PVDhLAlr+B4Xb7e+1wozBUWmXa6BFU8xUPR/W/E+TsQhPS1qkAdAsJ25keEnFrcePSnXHrOsh3tiFbEToOzV9w==}
 
-  '@formkit/cli@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-l9YOEGEzacZ/91ZpDuXSFU2nEmkwHRp7tlu0ZDw4mL0lXEQ+dWYFEiNijJv+bJ4yQXBwCmEA34IOrRL7lzF2Ew==}
-    hasBin: true
-
   '@formkit/core@1.6.9':
     resolution: {integrity: sha512-Zb5OkYKMf7Rp1pd4iUMv0TJQvfgl1PdKtRRQoGiTA0XIFLB/7tcRMr1wc5isA2JS+hllfxMTh3RWF8N+64fTMg==}
-
-  '@formkit/core@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-4Vd1Lu5A4MdmdS9E0nMtMt4Ist/mKGSriSgIKGRFOjcZ8lhp75J8yIlv4jLkApmiimRaU9QrHIwnaYXvmhVo6g==}
-
-  '@formkit/dev@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-TDWXiuxbjOLGxrqefAVTzMDp0xInJ2hjgc86pTUlbo04UIjNeG02UEbCwf57oxWGICSjgq8Vr30x/03XzTMKuQ==}
-
-  '@formkit/i18n@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-FGmP1HGTXYhfbwEqe0fdcP9wWEgtl8sALhzgY92d7phmNAlQLOuuErNPyHns52FvMXPzLcDsPJw/NPIOGE26ug==}
-
-  '@formkit/inputs@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-Ox8hokO6wVVnOr/WB11VALrS8YgRArRKdAqefsn3yNGY1yPZTO1jlU2J83nMx3b0SQkAt37cmpP7RioslPHUQQ==}
-
-  '@formkit/observer@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-C5dwNIvgJTy06xU1z9XcIyzGA1uZCPrPkM9oSu9Hu0cEWmiqk4W8GS2HriuERQsLlSrO6OmDGjgvAX9H7h5ECg==}
-
-  '@formkit/rules@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-7D5l09IlC4vf976a4r7gRUNImNI7yXYHqrHrmL00A38kro9NwbPpZRNpump5ImEkdYcycXJyxSR7BAVuLWEGvA==}
 
   '@formkit/theme-creator@0.9.1':
     resolution: {integrity: sha512-0fdOj5XCr/19paUEWxxwYGkMpz7Ob6HZWyOopo2DVfzFRdsbnlr0030ah9KegcnOBdT1zDA7FrqoT9CaJ49NnA==}
 
-  '@formkit/themes@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-UNPTXUYQEWZLJHiMUZxWA0sgJCUZcWSIitAbDzyG7whPAiSluoPweyW/rYkdCVXbeM80/1mLkmo74rG229YWOQ==}
-
   '@formkit/utils@1.6.9':
     resolution: {integrity: sha512-vSFhB/Sm/A+SdwKdBi4WhJcdbePqSYRaB878Ol9HL8roTmmmgQpThvkv6EjLM6aRRP27Il5rS8XtIAIeh8vdTA==}
-
-  '@formkit/utils@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-yBw97AZR01wWNB7dH3aJ1+mAtw+QGInjSNCKxb6sgeiNybWLl3svmXY/m3dvcx71jtZ/sG8GBocgD8rj+7ZAEg==}
-
-  '@formkit/validation@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-PAFLBvoL8Y9dkTStyxRjk+tb8dyVojPYvrT82XEBuLFCyVBjS2rsd+0iovftRb3dBwcnKbAy3IKwMEd/NcxGeA==}
-
-  '@formkit/vue@1.7.0-dev.4f55c07':
-    resolution: {integrity: sha512-F/zClMAVZ234cObR0d8baWzdlMI+Tna7j/vrEkmUWNWTdaA3U3wzNu3i7Up48qHGuDbvz07K1yn1AV0mUOmGwA==}
-    peerDependencies:
-      vue: ^3.5.13
 
   '@fortawesome/fontawesome-common-types@6.7.2':
     resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
@@ -8055,62 +8019,9 @@ snapshots:
 
   '@formkit/auto-animate@1.0.0-beta.6': {}
 
-  '@formkit/cli@1.7.0-dev.4f55c07(yaml@2.8.2)':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/inputs': 1.7.0-dev.4f55c07
-      '@formkit/theme-creator': 0.9.1(yaml@2.8.2)
-      '@formkit/utils': 1.7.0-dev.4f55c07
-      axios: 1.13.2
-      chalk: 5.6.2
-      commander: 9.5.0
-      execa: 6.1.0
-      get-port-please: 3.2.0
-      giget: 1.2.5
-      jiti: 1.21.7
-      open: 9.1.0
-      ora: 7.0.1
-      pathe: 1.1.2
-      prompts: 2.4.2
-    transitivePeerDependencies:
-      - debug
-      - tsx
-      - yaml
-
   '@formkit/core@1.6.9':
     dependencies:
       '@formkit/utils': 1.6.9
-
-  '@formkit/core@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/utils': 1.7.0-dev.4f55c07
-
-  '@formkit/dev@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-
-  '@formkit/i18n@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-      '@formkit/validation': 1.7.0-dev.4f55c07
-
-  '@formkit/inputs@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-
-  '@formkit/observer@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-
-  '@formkit/rules@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-      '@formkit/validation': 1.7.0-dev.4f55c07
 
   '@formkit/theme-creator@0.9.1(yaml@2.8.2)':
     dependencies:
@@ -8123,32 +8034,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@formkit/themes@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-
   '@formkit/utils@1.6.9': {}
-
-  '@formkit/utils@1.7.0-dev.4f55c07': {}
-
-  '@formkit/validation@1.7.0-dev.4f55c07':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/observer': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-
-  '@formkit/vue@1.7.0-dev.4f55c07(vue@3.5.25(typescript@5.9.3))':
-    dependencies:
-      '@formkit/core': 1.7.0-dev.4f55c07
-      '@formkit/dev': 1.7.0-dev.4f55c07
-      '@formkit/i18n': 1.7.0-dev.4f55c07
-      '@formkit/inputs': 1.7.0-dev.4f55c07
-      '@formkit/observer': 1.7.0-dev.4f55c07
-      '@formkit/rules': 1.7.0-dev.4f55c07
-      '@formkit/themes': 1.7.0-dev.4f55c07
-      '@formkit/utils': 1.7.0-dev.4f55c07
-      '@formkit/validation': 1.7.0-dev.4f55c07
-      vue: 3.5.25(typescript@5.9.3)
 
   '@fortawesome/fontawesome-common-types@6.7.2': {}
 
