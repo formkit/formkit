@@ -36,7 +36,7 @@ jobs:
         run: pnpm test
 
       - name: Run Typecheck
-        run: pnpm vitest --typecheck --run
+        run: pnpm vitest --typecheck.only --run
 
       - name: Run Playwright
         run: pnpm run playwright
