@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.49.0-noble
+      image: mcr.microsoft.com/playwright:v1.57.0-noble
       options: --user 1001
     steps:
       - uses: actions/checkout@v4
