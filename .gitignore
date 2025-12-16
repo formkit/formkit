@@ -62,3 +62,6 @@ Temporary Items
 
 # AI
 *.local.json
+
+# dmux worktrees
+.node_modules_tmp
