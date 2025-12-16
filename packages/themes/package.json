@@ -1,6 +1,6 @@
 {
   "name": "@formkit/themes",
-  "version": "1.7.0-next.5c0925c",
+  "version": "1.7.0-next.9ac5e1e",
   "type": "module",
   "description": "FormKit base themes",
   "types": "dist/index.d.mts",

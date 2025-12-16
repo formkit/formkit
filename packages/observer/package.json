@@ -1,6 +1,6 @@
 {
   "name": "@formkit/observer",
-  "version": "1.7.0-next.5c0925c",
+  "version": "1.7.0-next.9ac5e1e",
   "type": "module",
   "description": "Utility to wrap a FormKitNode in a dependency tracking observer proxy",
   "main": "dist/index.cjs",
