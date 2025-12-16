@@ -9,10 +9,10 @@ describe('date_after rule', () => {
   tomorrow.setDate(today.getDate() + 1)
   yesterday.setDate(today.getDate() - 1)
 
-  it('passes with today’s date object', () =>
-    expect(afterOrEqual(createNode({ value: today }))).toBe(true))
+  it("passes with today's date object", () =>
+    expect(afterOrEqual(createNode({ value: today }), today)).toBe(true))
 
-  it('passes with tomorrow’s date object', () =>
+  it("passes with tomorrow's date object", () =>
     expect(afterOrEqual(createNode({ value: tomorrow }))).toBe(true))
 
   it('passes with future date', () =>
@@ -21,7 +21,7 @@ describe('date_after rule', () => {
   it('passes with long past date', () =>
     expect(afterOrEqual(createNode({ value: yesterday }), 'Jan 15, 2000')).toBe(true))
 
-  it('fails with yesterday’s date', () =>
+  it("fails with yesterday's date", () =>
     expect(afterOrEqual(createNode({ value: yesterday }))).toBe(false))
 
   it('fails with old date string', () =>
