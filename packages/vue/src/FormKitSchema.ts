@@ -512,9 +512,9 @@ function parseSchema(
               // originally called this component's render function.
               const currentKey = instanceKey
               if (key) instanceKey = key
-              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
               if (iterationData)
                 instanceScopes.get(instanceKey)?.unshift(iterationData)
+              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
               const c = produceChildren(iterationData)
               // Ensure our instance key never changed during runtime
               if (slotData) instanceScopes.get(instanceKey)?.shift()

@@ -1,7 +1,7 @@
 {
   "name": "@formkit/inputs",
   "type": "module",
-  "version": "1.6.9",
+  "version": "1.7.0",
   "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
@@ -28,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/formkit/formkit.git",
+    "url": "git+https://github.com/formkit/formkit.git",
     "directory": "packages/inputs"
   },
   "contributors": [
@@ -39,7 +39,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.9",
-    "@formkit/utils": "1.6.9"
+    "@formkit/core": "workspace:^",
+    "@formkit/utils": "workspace:^"
   }
 }

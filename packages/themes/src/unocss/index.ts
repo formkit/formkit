@@ -1,4 +1,18 @@
-import type { Preset, Variant } from 'unocss'
+/**
+ * Minimal type definitions for UnoCSS compatibility.
+ * These match the UnoCSS API without requiring unocss as a dependency.
+ */
+interface VariantMatchResult {
+  matcher: string
+  selector?: (input: string) => string
+}
+
+type Variant = (matcher: string) => string | VariantMatchResult
+
+interface Preset {
+  name: string
+  variants?: Variant[]
+}
 
 const outerAttributes = [
   'disabled',

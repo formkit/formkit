@@ -1,6 +1,6 @@
 {
   "name": "formkit",
-  "version": "1.6.9",
+  "version": "1.7.0",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
@@ -32,7 +32,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/formkit/formkit.git",
+    "url": "git+https://github.com/formkit/formkit.git",
     "directory": "packages/cli"
   },
   "contributors": [
@@ -43,6 +43,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/cli": "1.6.9"
+    "@formkit/cli": "workspace:^"
   }
 }

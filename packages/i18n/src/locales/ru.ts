@@ -89,6 +89,11 @@ const ui: FormKitLocaleMessages = {
    */
   changeDate: 'Изменить дату',
   /**
+   * Shown above error summaries when someone attempts to submit a form with
+   * errors and the developer has implemented `<FormKitSummary />`.
+   */
+  summaryHeader: 'В вашей форме обнаружены ошибки.',
+  /**
    * Shown when there is something to close
    */
   close: 'Закрыть',
@@ -359,8 +364,8 @@ const validation: FormKitValidationMessages = {
    * @see {@link https://formkit.com/essentials/validation#length}
    */
   length({ name, args: [first = 0, second = Infinity] }) {
-    const min = Number(first) <= Number(second) ? first : second
-    const max = Number(second) >= Number(first) ? second : first
+    const min = Math.min(first, second)
+    const max = Math.max(first, second)
     if (min == 1 && max === Infinity) {
       /* <i18n case="Shown when the length of the user-provided value is not at least one character."> */
       return `Поле ${s(name)} должно содержать минимум один символ.`

@@ -1,6 +1,6 @@
 {
   "name": "@formkit/vue",
-  "version": "1.6.9",
+  "version": "1.7.0",
   "type": "module",
   "description": "Build industry leading Vue forms 10x faster.",
   "main": "dist/index.cjs",
@@ -8,6 +8,10 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "iife": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.iife.js"
+      },
       "import": {
         "types": "./dist/index.d.mts",
         "development": "./dist/index.dev.mjs",
@@ -16,10 +20,6 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
-      },
-      "iife": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.iife.js"
       }
     }
   },
@@ -31,7 +31,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/formkit/formkit.git",
+    "url": "git+https://github.com/formkit/formkit.git",
     "directory": "packages/rules"
   },
   "contributors": [
@@ -42,15 +42,15 @@
     "test": "jest"
   },
   "dependencies": {
-    "@formkit/core": "1.6.9",
-    "@formkit/dev": "1.6.9",
-    "@formkit/i18n": "1.6.9",
-    "@formkit/inputs": "1.6.9",
-    "@formkit/observer": "1.6.9",
-    "@formkit/rules": "1.6.9",
-    "@formkit/themes": "1.6.9",
-    "@formkit/utils": "1.6.9",
-    "@formkit/validation": "1.6.9"
+    "@formkit/core": "workspace:^",
+    "@formkit/dev": "workspace:^",
+    "@formkit/i18n": "workspace:^",
+    "@formkit/inputs": "workspace:^",
+    "@formkit/observer": "workspace:^",
+    "@formkit/rules": "workspace:^",
+    "@formkit/themes": "workspace:^",
+    "@formkit/utils": "workspace:^",
+    "@formkit/validation": "workspace:^"
   },
   "peerDependencies": {
     "vue": "^3.4.0"

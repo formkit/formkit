@@ -21,8 +21,8 @@ describe('buildTheme', () => {
       format: 'ts',
     })
 
-    expect(consoleMock).toHaveBeenNthCalledWith(
-      1,
+    // Tailwind detection may log first, so we check that Locating message was called (not necessarily first)
+    expect(consoleMock).toHaveBeenCalledWith(
       chalk.greenBright(
         'Locating ./packages/cli/__tests__/mocks/localTheme.ts...'
       )

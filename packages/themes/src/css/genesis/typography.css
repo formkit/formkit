@@ -15,7 +15,6 @@
   font-weight: var(--fk-font-weight-label);
   line-height: var(--fk-line-height-label);
 
-  @nest
   [data-type="checkbox"] &,
   [data-type="radio"] &,
   .formkit-option & {

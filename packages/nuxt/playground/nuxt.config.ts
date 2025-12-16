@@ -1,8 +1,12 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: ['@formkit/nuxt', '@nuxtjs/tailwindcss'],
+  modules: ['@formkit/nuxt'],
   formkit: {
-    autoImport: true,
+    autoImport: false,
+  },
+  sourcemap: {
+    server: false,
+    client: false,
   },
 })

@@ -785,6 +785,58 @@ describe('parsing dom elements', () => {
     expect(wrapper.text()).toBe('Not BbNot B')
   })
 
+  it('slot scope data should shadow outer iteration data with same variable name', async () => {
+    // Custom component that passes items to slot
+    const Counter = defineComponent({
+      props: { items: { type: Array } },
+      template: '<slot :items="items"></slot>',
+    })
+
+    const data = reactive({
+      outerList: [
+        { options: ['a', 'b', 'c'] },
+        { options: ['d', 'e', 'f'] },
+      ],
+      out: (arr: any) => JSON.stringify(arr),
+    })
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        library: { Counter: markRaw(Counter) },
+        schema: [
+          {
+            $cmp: 'Counter',
+            props: { items: '$outerList' },
+            children: [
+              {
+                $el: 'div',
+                for: ['item', 'index', '$items'],
+                children: [
+                  {
+                    $cmp: 'Counter',
+                    props: { items: '$item.options' },
+                    children: [
+                      {
+                        $el: 'span',
+                        children: '$out($items)',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    })
+
+    // Should output each item's options array, NOT the outer list
+    expect(wrapper.text()).toContain('["a","b","c"]')
+    expect(wrapper.text()).toContain('["d","e","f"]')
+    expect(wrapper.text()).not.toContain('options') // Should not contain the objects
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,
@@ -1134,7 +1186,7 @@ describe('rendering components', () => {
     })
     expect(wrapper.html())
       .toContain(`<select class=\"formkit-input\" id="where_waldo" name=\"foobar\">
-        <option class=\"formkit-option\" value=\"hello\">Hello</option>
+        <option class=\"formkit-option\" selected=\"\" value=\"hello\">Hello</option>
         <option class=\"formkit-option\" value=\"world\">World</option>
       </select>`)
   })
@@ -1205,7 +1257,7 @@ describe('rendering components', () => {
     })
     await nextTick()
     expect(wrapper.html()).toContain(
-      '<option hidden="" disabled="" data-is-placeholder="true" class="formkit-option" value="">Pick your drink</option>'
+      '<option hidden="" disabled="" data-is-placeholder="true" class="formkit-option" selected="" value="">Pick your drink</option>'
     )
   })
 

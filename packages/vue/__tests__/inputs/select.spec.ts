@@ -30,7 +30,7 @@ describe('select', () => {
     <div class="formkit-inner">
       <!---->
       <!----><select class="formkit-input" id="input_0" name="select_1" aria-describedby="help-input_0">
-        <option class="formkit-option" value="foo">FooBar</option>
+        <option class="formkit-option" selected="" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
@@ -65,7 +65,7 @@ describe('select', () => {
     <div class="formkit-inner">
       <!---->
       <!----><select class="formkit-input" id="input_1" name="select_d" aria-describedby="help-input_1">
-        <option disabled="" class="formkit-option" value="foo">FooBar</option>
+        <option disabled="" class="formkit-option" selected="" value="foo">FooBar</option>
         <option class="formkit-option" value="bar">BarFoo</option>
       </select>
       <!---->
@@ -96,7 +96,7 @@ describe('select', () => {
     <div class="formkit-inner">
       <!---->
       <!----><select class="formkit-input" id="input_2" name="select_foo">
-        <option class="formkit-option" value="foo">foo</option>
+        <option class="formkit-option" selected="" value="foo">foo</option>
         <option class="formkit-option" value="bar">bar</option>
       </select>
       <!---->
@@ -127,7 +127,7 @@ describe('select', () => {
     <div class="formkit-inner">
       <!---->
       <!----><select class="formkit-input" id="input_3" name="select_foo">
-        <option class="formkit-option" value="1">1</option>
+        <option class="formkit-option" selected="" value="1">1</option>
         <option class="formkit-option" value="2">2</option>
         <option class="formkit-option" value="3">3</option>
       </select>
@@ -163,7 +163,7 @@ describe('select', () => {
     <div class="formkit-inner">
       <!---->
       <!----><select class="formkit-input" id="select_foo" name="select_foo">
-        <option class="formkit-option" value="foo">Bar</option>
+        <option class="formkit-option" selected="" value="foo">Bar</option>
         <option class="formkit-option" value="baz">Bim</option>
       </select>
       <!---->
@@ -309,7 +309,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').element.innerHTML).toBe(
-      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
+      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" selected=\"\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option><option class=\"formkit-option\" value=\"jim\">Jam</option><option class=\"formkit-option\" value=\"bing\">Bam</option><option class=\"formkit-option\" value=\"baz\">Bim</option>`
     )
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
     expect(wrapper.find('select').element.selectedOptions[0]).toBe(
@@ -317,7 +317,7 @@ describe('select', () => {
     )
   })
 
-  it('order of the placeholder prop doesn’t matter', () => {
+  it("order of the placeholder prop doesn't matter", () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'select',
@@ -331,7 +331,7 @@ describe('select', () => {
       },
     })
     expect(wrapper.find('select').element.innerHTML).toBe(
-      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option>`
+      `<option hidden=\"\" disabled=\"\" data-is-placeholder=\"true\" class=\"formkit-option\" selected=\"\" value=\"\">Select one</option><option class=\"formkit-option\" value=\"foo\">Bar</option>`
     )
     expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
     expect(wrapper.find('select').element.selectedOptions[0]).toBe(
@@ -891,7 +891,7 @@ describe('selects rendered via schema', () => {
     })
     expect(wrapper.find('[name="character"]').html()).toBe(
       `<select class="formkit-input" id="character" name="character">
-  <option class="formkit-option" value="a">A</option>
+  <option class="formkit-option" selected="" value="a">A</option>
   <option class="formkit-option" value="aa">AA</option>
 </select>`
     )

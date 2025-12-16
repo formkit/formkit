@@ -59,4 +59,9 @@ Temporary Items
 
 # AWS
 /.aws/credentials
+
+# AI
+*.local.json
+
+# dmux worktrees
 .node_modules_tmp

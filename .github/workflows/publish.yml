@@ -1,0 +1,63 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write # Required for OIDC trusted publishing
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for branch detection
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm for trusted publishing
+        run: npm install -g npm@latest
+
+      - name: Determine npm tag from git tag
+        id: npm-tag
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG_NAME" == *"-next"* ]]; then
+            echo "tag=next" >> $GITHUB_OUTPUT
+          elif [[ "$TAG_NAME" == *"-dev"* ]]; then
+            echo "tag=dev" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+          echo "Determined npm tag: ${{ steps.npm-tag.outputs.tag || 'latest' }}"
+
+      - name: Verify branch for @latest releases
+        if: steps.npm-tag.outputs.tag == 'latest'
+        run: |
+          # Check if this tag is on master branch
+          if ! git branch -r --contains HEAD | grep -q 'origin/master'; then
+            echo "ERROR: @latest releases can only be published from master branch"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: node scripts/cli.mjs --script build all
+
+      - name: Publish packages
+        run: node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}
+
+      - name: Purge JSDelivr cache
+        run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ steps.npm-tag.outputs.tag }}

@@ -4,7 +4,6 @@
   }
 
   /* select input chevron */
-  @nest
   [data-type="select"]:not([data-multiple]) &:after {
     background-color: var(--fk-color-icon);
   }
@@ -14,7 +13,6 @@
   background-color: var(--fk-bg-input);
   color: var(--fk-color-input);
 
-  @nest
   input[type="radio"]& {
     &:checked ~ .formkit-decorator {
       &::before {
@@ -23,7 +21,6 @@
     }
   }
 
-  @nest
   input[type="checkbox"]& {
     &:checked ~ .formkit-decorator {
       &::before {

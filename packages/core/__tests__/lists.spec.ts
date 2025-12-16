@@ -8,7 +8,7 @@ import {
   createMessage,
 } from '../src'
 import { clone } from '@formkit/utils'
-import { createNameTree } from '.tests/helpers'
+import { createNameTree } from '../../../.tests/helpers'
 
 describe('lists', () => {
   it('can get a node’s index', () => {

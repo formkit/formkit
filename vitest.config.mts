@@ -1,22 +1,14 @@
 import { defineConfig } from 'vitest/config'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { replaceCodePlugin } from 'vite-plugin-replace'
 
 export default defineConfig({
   resolve: {
     conditions: ['development'],
   },
-  plugins: [
-    vueJsx(),
-    replaceCodePlugin({
-      replacements: [
-        {
-          from: '__DEV__',
-          to: 'false',
-        },
-      ],
-    }),
-  ],
+  define: {
+    __DEV__: 'false',
+  },
+  plugins: [vueJsx()],
   test: {
     environment: 'jsdom',
     retry: 2,

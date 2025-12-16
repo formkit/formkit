@@ -6,7 +6,6 @@ import prompts from 'prompts'
 import { error, green, __dirname, info } from './index'
 import ora from 'ora'
 import http from 'http'
-import url from 'url'
 import open from 'open'
 import { isDirEmpty, readPackageJSON, writePackageJSON } from './utils'
 import { buildTheme } from './theme'
@@ -25,8 +24,8 @@ async function login(): Promise<string> {
   const token = await new Promise<string>((resolve, reject) => {
     server = http
       .createServer((req, res) => {
-        const urlObj = url.parse(req.url as string, true)
-        const token = urlObj.query.token as string | undefined
+        const urlObj = new URL(req.url as string, 'http://localhost')
+        const token = urlObj.searchParams.get('token') ?? undefined
 
         if (token) {
           resolve(token)

@@ -1,7 +1,7 @@
 {
   "name": "@formkit/addons",
   "type": "module",
-  "version": "1.6.9",
+  "version": "1.7.0",
   "description": "Optional features you can add to your FormKit inputs.",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
@@ -30,7 +30,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/formkit/formkit.git",
+    "url": "git+https://github.com/formkit/formkit.git",
     "directory": "packages/addons"
   },
   "contributors": [
@@ -43,9 +43,9 @@
   },
   "dependencies": {
     "@formkit/auto-animate": "latest",
-    "@formkit/core": "1.6.9",
-    "@formkit/inputs": "1.6.9",
-    "@formkit/utils": "1.6.9"
+    "@formkit/core": "workspace:^",
+    "@formkit/inputs": "workspace:^",
+    "@formkit/utils": "workspace:^"
   },
   "devDependencies": {
     "@formkit/vue": "workspace:^"
