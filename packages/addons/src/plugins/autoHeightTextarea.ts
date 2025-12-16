@@ -46,6 +46,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
         if (!inputElement) return Infinity
 
         if (typeof node.props.maxAutoHeight === 'number') {
+          showScrollbars = true
           return Math.max(0, node.props.maxAutoHeight)
         }
 
@@ -66,7 +67,6 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           return maxHeight || Infinity
         }
 
-        showScrollbars = true
         return Infinity
       }
 
