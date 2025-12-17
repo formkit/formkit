@@ -70,3 +70,13 @@ pnpm playwright     # E2E tests
 ```
 
 **Note**: `pnpm test` runs vitest in watch mode. Use `npx vitest run` for single test run (CI/scripts).
+
+## Commit Conventions
+
+- `fix:` / `feat:` — Only for user-facing changes (these go in changelogs)
+- `chore:` — For internal tooling: build scripts, publish scripts, CI workflows, dev utilities
+- Examples:
+  - `fix(inputs): resolve checkbox validation issue` ✓
+  - `feat(core): add new event hook` ✓
+  - `chore: update publish workflow` ✓ (not `fix:`)
+  - `chore(cli): improve build script` ✓ (not `feat:`)
