@@ -5,8 +5,12 @@
  * This script is called by the publish.yml workflow after building all packages.
  *
  * Usage:
- *   node scripts/ci-publish.mjs --tag=latest    # Publish all packages
- *   node scripts/ci-publish.mjs --purge-cdn --tag=latest  # Only purge JSDelivr cache
+ *   node scripts/ci-publish.mjs --tag=latest                     # Publish all packages (production)
+ *   node scripts/ci-publish.mjs --tag=next --version=1.7.1-next.abc123  # Publish pre-release from tag
+ *   node scripts/ci-publish.mjs --purge-cdn --tag=latest         # Only purge JSDelivr cache
+ *
+ * For pre-release builds (next/dev), the --version flag sets all package.json versions
+ * before publishing. This allows publishing from a tag without committing version changes.
  */
 
 import { execSync } from 'child_process'
@@ -19,6 +23,7 @@ import {
   getPackages,
   getBuildOrder,
   getPackageJSON,
+  writePackageJSON,
   updateFKCoreVersionExport,
   msg,
 } from './utils.mjs'
@@ -39,9 +44,35 @@ function verifyBuildOutput(pkg) {
 }
 
 /**
+ * Check if a version is a pre-release (contains -next or -dev)
+ */
+function isPrerelease(version) {
+  return version && (version.includes('-next') || version.includes('-dev'))
+}
+
+/**
+ * Set version in all package.json files (for pre-release CI builds)
+ */
+function setPackageVersions(version) {
+  const packages = getPackages()
+  msg.info(`Setting all package versions to ${version}...`)
+  for (const pkg of packages) {
+    try {
+      const packageJSON = getPackageJSON(pkg)
+      packageJSON.version = version
+      writePackageJSON(pkg, packageJSON)
+    } catch (e) {
+      msg.error(`Failed to update version for ${pkg}`)
+      throw e
+    }
+  }
+  msg.success('✅ Package versions updated')
+}
+
+/**
  * Main CI publish function
  */
-async function ciPublish({ tag, purgeCdn }) {
+async function ciPublish({ tag, purgeCdn, version }) {
   if (purgeCdn) {
     await purgeJSDelivrCache(tag)
     return
@@ -61,10 +92,17 @@ async function ciPublish({ tag, purgeCdn }) {
   }
   msg.success('✅ Build output verified')
 
+  // For pre-release versions, set package.json versions from the provided version
+  // This is used when publishing from a tag where versions weren't committed
+  if (version && isPrerelease(version)) {
+    msg.info(`Pre-release detected: ${version}`)
+    setPackageVersions(version)
+  }
+
   // Update FORMKIT_VERSION in core dist files
   const coreDistFile = resolve(packagesDir, 'core/dist/index.mjs')
   if (existsSync(coreDistFile)) {
-    const coreVersion = getPackageJSON('core').version
+    const coreVersion = version || getPackageJSON('core').version
     msg.info(`Updating FORMKIT_VERSION to ${coreVersion}...`)
     updateFKCoreVersionExport(coreVersion)
     msg.success('✅ Version updated in core dist files')
@@ -163,6 +201,7 @@ async function purgeJSDelivrCache(tag) {
  */
 const cli = cac('ci-publish')
 cli.option('--tag <tag>', 'NPM tag to publish with', { default: 'latest' })
+cli.option('--version <version>', 'Version to set in package.json files (for pre-release builds from tags)')
 cli.option('--purge-cdn', 'Only purge JSDelivr cache', { default: false })
 cli.command('').action((options) => ciPublish(options))
 cli.help()

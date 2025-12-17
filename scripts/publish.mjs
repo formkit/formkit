@@ -76,28 +76,37 @@ function validateVersionForBranch(version) {
 
 /**
  * Creates a git tag and pushes to remote, triggering CI publish.
+ * For pre-release versions (next/dev), only creates and pushes the tag without committing.
+ * For production releases, commits version changes then creates and pushes tag.
  */
-async function createAndPushTag(version, dryRun = false) {
+async function createAndPushTag(version, dryRun = false, skipCommit = false) {
   const tagName = `v${version}`
 
   if (dryRun) {
     msg.info(`\n[DRY RUN] Would create tag: ${chalk.cyan(tagName)}`)
-    msg.info(`[DRY RUN] Would push commit to remote`)
+    if (!skipCommit) {
+      msg.info(`[DRY RUN] Would push commit to remote`)
+    }
     msg.info(`[DRY RUN] Would push tag to remote`)
     msg.info(`\n[DRY RUN] CI would then publish with npm tag: ${chalk.cyan(versionSuffix || 'latest')}`)
     return true
   }
 
   try {
-    msg.info('» Staging and committing changed files...')
-    execSync('git add .')
-    execSync(`git commit -m "chore: release ${tagName}"`)
+    if (!skipCommit) {
+      // Production release: commit version changes
+      msg.info('» Staging and committing changed files...')
+      execSync('git add .')
+      execSync(`git commit -m "chore: release ${tagName}"`)
+    }
 
     msg.info(`» Creating tag ${chalk.cyan(tagName)}...`)
     execSync(`git tag ${tagName}`)
 
-    msg.info('» Pushing commit to remote...')
-    execSync('git push origin HEAD')
+    if (!skipCommit) {
+      msg.info('» Pushing commit to remote...')
+      execSync('git push origin HEAD')
+    }
 
     msg.info('» Pushing tag to remote...')
     execSync(`git push origin ${tagName}`)
@@ -107,6 +116,10 @@ async function createAndPushTag(version, dryRun = false) {
 
     const npmTag = versionSuffix || 'latest'
     msg.info(`   NPM tag: @${npmTag}`)
+
+    if (skipCommit) {
+      msg.info('   CI will set package versions from tag before publishing.')
+    }
 
     return true
   } catch (e) {
@@ -261,35 +274,6 @@ Any dependent packages will also require publishing to include dependency change
   })
   if (!confirmPublish && !force) return msg.error('Publish aborted. 👋')
 
-  msg.headline('  Preparing Release 🚀  ')
-  const didWrite = writePackageJSONFiles()
-
-  if (!didWrite && !force) return msg.error('Publish aborted. 👋')
-
-  // Update lockfile to match new package.json versions
-  msg.info('» Updating pnpm-lock.yaml...')
-  try {
-    execSync('pnpm install --no-frozen-lockfile', { stdio: 'inherit' })
-    msg.success('✅ Lockfile updated')
-  } catch (e) {
-    msg.error('Failed to update lockfile')
-    console.error(e.message)
-    await restoredPackageJSONFiles()
-    // Clean up pre-release versions even on failure
-    if (versionSuffix) {
-      msg.info('\n» Cleaning up local package versions...')
-      cleanupPackageVersions()
-    }
-    return msg.error('Publish aborted. 👋')
-  }
-
-  // if core is being published, then update the FORMKIT_VERSION export
-  // to match the newly set version number
-  if (prePublished.core) {
-    updateFKCoreVersionExport(prePublished.core.newVersion)
-  }
-  console.log('\n\n')
-
   // Get the version for the tag (use core's version as the tag)
   const releaseVersion = prePublished.core?.newVersion || prePublished[Object.keys(prePublished)[0]]?.newVersion
 
@@ -297,38 +281,64 @@ Any dependent packages will also require publishing to include dependency change
     return msg.error('Could not determine release version. 👋')
   }
 
-  const didTag = await createAndPushTag(releaseVersion, dryRun)
+  msg.headline('  Preparing Release 🚀  ')
 
-  if (!didTag && !force) {
-    // Restore package.json files if tag creation failed
-    await restoredPackageJSONFiles()
-    // Clean up pre-release versions even on failure
-    if (versionSuffix) {
-      msg.info('\n» Cleaning up local package versions...')
-      cleanupPackageVersions()
+  if (versionSuffix) {
+    // Pre-release (next/dev): Just create and push the tag
+    // CI will set package versions from the tag name before publishing
+    msg.info('Pre-release mode: Creating tag without modifying package versions.')
+    msg.info('CI will extract version from tag and set it before publishing.\n')
+
+    const didTag = await createAndPushTag(releaseVersion, dryRun, true)
+
+    if (!didTag && !force) {
+      return msg.error('Publish aborted. 👋')
     }
-    return msg.error('Publish aborted. 👋')
-  }
 
-  if (dryRun) {
-    msg.info('\n🔍 Dry run complete. Restoring package.json files...')
-    await restoredPackageJSONFiles()
-    // Clean up pre-release versions after dry run
-    if (versionSuffix) {
-      msg.info('\n» Cleaning up local package versions...')
-      cleanupPackageVersions()
+    if (dryRun) {
+      msg.info('\n🔍 Dry run complete. No changes were made.')
+    }
+  } else {
+    // Production release (master): Write versions, commit, tag, push
+    const didWrite = writePackageJSONFiles()
+
+    if (!didWrite && !force) return msg.error('Publish aborted. 👋')
+
+    // Update lockfile to match new package.json versions
+    msg.info('» Updating pnpm-lock.yaml...')
+    try {
+      execSync('pnpm install --no-frozen-lockfile', { stdio: 'inherit' })
+      msg.success('✅ Lockfile updated')
+    } catch (e) {
+      msg.error('Failed to update lockfile')
+      console.error(e.message)
+      await restoredPackageJSONFiles()
+      return msg.error('Publish aborted. 👋')
+    }
+
+    // if core is being published, then update the FORMKIT_VERSION export
+    // to match the newly set version number
+    if (prePublished.core) {
+      updateFKCoreVersionExport(prePublished.core.newVersion)
+    }
+    console.log('\n\n')
+
+    const didTag = await createAndPushTag(releaseVersion, dryRun, false)
+
+    if (!didTag && !force) {
+      // Restore package.json files if tag creation failed
+      await restoredPackageJSONFiles()
+      return msg.error('Publish aborted. 👋')
+    }
+
+    if (dryRun) {
+      msg.info('\n🔍 Dry run complete. Restoring package.json files...')
+      await restoredPackageJSONFiles()
     }
   }
 
   msg.headline(' 🎉   Release prepared and pushed!')
   msg.info('Monitor the GitHub Actions workflow for publish status.')
-
-  // Restore local package versions to their original state
-  if (versionSuffix) {
-    msg.info('\n» Restoring local package versions...')
-    cleanupPackageVersions()
-    msg.success('✅ Local package.json versions restored to original')
-  }
 
   console.log('\n\n')
 }
