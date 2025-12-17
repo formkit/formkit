@@ -1,6 +1,6 @@
 {
   "name": "@formkit/utils",
-  "version": "1.7.1-dev.3466e73",
+  "version": "1.7.0",
   "description": "Shared utilities for FormKit packages",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",

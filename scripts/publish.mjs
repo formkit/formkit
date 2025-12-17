@@ -29,11 +29,9 @@ import {
   writePackageJSON,
   checkGitCleanWorkingDirectory,
   checkGitIsMasterBranch,
-  getLatestPackageCommits,
   getDependencyTree,
   drawDependencyTree,
   flattenDependencyTree,
-  isAlphaNumericVersion,
   msg,
   getCurrentHash,
   updateFKCoreVersionExport,
@@ -43,6 +41,7 @@ import { buildAllPackages } from './build.mjs'
 const allPackages = []
 let toBePublished = []
 const prePublished = {}
+const originalVersions = {} // Store original versions before modification for restoration
 let versionSuffix = false // 'next' or 'dev' for non-master branches
 let isMasterBranch = false
 
@@ -195,29 +194,40 @@ Any dependent packages will also require publishing to include dependency change
   toBePublished = await getPublishOrder(toBePublished)
   console.log(toBePublished, '\n')
 
-  if (!versionSuffix) {
-    const { confirmBuild } = await prompts({
-      type: 'confirm',
-      name: 'confirmBuild',
-      message: `Continue`,
-      initial: true,
-    })
-    if (!confirmBuild) {
-      msg.error('Build aborted. 👋')
-      return
-    }
-  }
-
   let forceVersion = false
   if (versionSuffix) {
+    // Pre-release: prompt for version type and tagged version
     forceVersion = await promptForTaggedVersion()
+    if (!forceVersion) {
+      return msg.error('Publish aborted. 👋')
+    }
     msg.info(
       `All packages will be set to version ${forceVersion}`
     )
+
+    // Store original versions before modification for restoration after release
+    for (const pkg of toBePublished) {
+      const packageJSON = getPackageJSON(pkg)
+      originalVersions[pkg] = packageJSON.version
+    }
+  } else {
+    // Main branch release: prompt once for version, apply to all packages
+    forceVersion = await promptForMasterVersion()
+    if (!forceVersion) {
+      return msg.error('Publish aborted. 👋')
+    }
+    msg.info(
+      `All packages will be set to version ${chalk.cyan(forceVersion)}`
+    )
   }
 
-  for (const [i, pkg] of toBePublished.entries()) {
-    await prePublishPackage(pkg, i, forceVersion)
+  for (const pkg of toBePublished) {
+    // For both cases, we now have a forceVersion, so just record the change
+    const packageJSON = getPackageJSON(pkg)
+    prePublished[pkg] = {
+      oldVersion: packageJSON.version,
+      newVersion: forceVersion,
+    }
   }
 
   // Validate versions before proceeding
@@ -313,27 +323,80 @@ Any dependent packages will also require publishing to include dependency change
   msg.headline(' 🎉   Release prepared and pushed!')
   msg.info('Monitor the GitHub Actions workflow for publish status.')
 
-  // Clean up local package versions by stripping pre-release suffix
+  // Restore local package versions to their original state
   if (versionSuffix) {
-    msg.info('\n» Cleaning up local package versions...')
+    msg.info('\n» Restoring local package versions...')
     cleanupPackageVersions()
-    msg.success('✅ Local package.json versions cleaned (pre-release suffix removed)')
+    msg.success('✅ Local package.json versions restored to original')
   }
 
   console.log('\n\n')
 }
 
 async function promptForTaggedVersion() {
+  const packageJSON = getPackageJSON('core')
+  const currentVersion = packageJSON.version
+
+  // First ask for version type
+  const { versionType } = await prompts({
+    type: 'select',
+    name: 'versionType',
+    message: `Current version is ${chalk.cyan(currentVersion)}. What type of version bump?`,
+    choices: [
+      { title: 'patch', description: 'Bug fixes (e.g., 1.7.0 → 1.7.1)', value: 'patch' },
+      { title: 'minor', description: 'New features (e.g., 1.7.0 → 1.8.0)', value: 'minor' },
+      { title: 'major', description: 'Breaking changes (e.g., 1.7.0 → 2.0.0)', value: 'major' },
+    ],
+  })
+
+  if (!versionType) {
+    return false
+  }
+
   msg.info('Pre-release versions should include the commit hash!')
   const hash = getCurrentHash()
-  const packageJSON = getPackageJSON('core')
-  const guessVersion = suggestVersionIncrement(packageJSON.version, 'minor')
+  const guessVersion = suggestVersionIncrement(currentVersion, versionType)
   const { version } = await prompts({
     type: 'text',
     name: 'version',
     message: `Including the suffix (hash: ${hash}), please enter the full version name.`,
     initial: `${guessVersion}-${versionSuffix}.${hash}`,
   })
+  return version
+}
+
+/**
+ * Prompt for a release version on main branch.
+ * Asks once for version type and version, applies to all packages.
+ */
+async function promptForMasterVersion() {
+  const packageJSON = getPackageJSON('core')
+  const currentVersion = packageJSON.version
+
+  // Ask for version type
+  const { versionType } = await prompts({
+    type: 'select',
+    name: 'versionType',
+    message: `Current version is ${chalk.cyan(currentVersion)}. What type of release?`,
+    choices: [
+      { title: 'patch', description: 'Bug fixes (e.g., 1.7.0 → 1.7.1)', value: 'patch' },
+      { title: 'minor', description: 'New features (e.g., 1.7.0 → 1.8.0)', value: 'minor' },
+      { title: 'major', description: 'Breaking changes (e.g., 1.7.0 → 2.0.0)', value: 'major' },
+    ],
+  })
+
+  if (!versionType) {
+    return false
+  }
+
+  const guessVersion = suggestVersionIncrement(currentVersion, versionType)
+  const { version } = await prompts({
+    type: 'text',
+    name: 'version',
+    message: `What should the new version be?`,
+    initial: guessVersion,
+  })
+
   return version
 }
 
@@ -370,9 +433,9 @@ function restoredPackageJSONFiles() {
 }
 
 /**
- * Strip pre-release suffix from all package versions.
- * Converts versions like "1.7.0-next.5c0925c" to "1.7.0"
- * This keeps local package.json files clean after a release.
+ * Restore package versions to their original state before the release.
+ * This ensures versions like "1.7.0" stay as "1.7.0" (not "1.7.1" after a patch bump).
+ * Falls back to stripping pre-release suffix if original not stored.
  */
 function cleanupPackageVersions() {
   const packages = getPackages()
@@ -380,85 +443,17 @@ function cleanupPackageVersions() {
     try {
       const packageJSON = getPackageJSON(pkg)
       const currentVersion = packageJSON.version
-      const cleanVersion = currentVersion.split('-')[0]
+      // Use stored original version if available, otherwise strip suffix
+      const cleanVersion = originalVersions[pkg] || currentVersion.split('-')[0]
       if (cleanVersion !== currentVersion) {
         packageJSON.version = cleanVersion
         writePackageJSON(pkg, packageJSON)
-        msg.info(`Cleaned ${pkg}: ${currentVersion} → ${cleanVersion}`)
+        msg.info(`Restored ${pkg}: ${currentVersion} → ${cleanVersion}`)
       }
     } catch (e) {
       // Skip packages that don't have a valid package.json
     }
   }
-}
-
-/**
- * Guided process for setting a new version on a package
- */
-async function prePublishPackage(pkg, index, forceVersion = false) {
-  const packageJSON = getPackageJSON(pkg)
-  const commitNumber = 5
-  const relevantCommits = getLatestPackageCommits(pkg, commitNumber)
-
-  msg.headline(`🔧  Configuring ${pkg}...`)
-
-  msg.info(
-    `Latest ${commitNumber} commits affecting files in /packages/${pkg} directory: `
-  )
-  console.log(relevantCommits)
-  console.log(
-    `The package ${chalk.cyan(pkg)} is currently on version ${chalk.cyan(
-      packageJSON.version
-    )}\n`
-  )
-
-  await setNewPackageVersion(pkg, forceVersion)
-}
-
-/**
- * Guided process to set a new package version
- */
-async function setNewPackageVersion(pkg, forceVersion = false) {
-  const packageJSON = getPackageJSON(pkg)
-  const isAlphaNumericVer = isAlphaNumericVersion(packageJSON.version)
-  let versionBumpType = 'patch'
-  const versionTypes = ['patch', 'minor', 'major']
-  let newPackageVersion = false
-
-  // If the version is forced, skip this step
-  if (!forceVersion) {
-    if (!isAlphaNumericVer) {
-      const { bumpType } = await prompts({
-        type: 'select',
-        name: 'bumpType',
-        message: `What type of version update is this publish?`,
-        choices: versionTypes.map((type) => {
-          return {
-            title: type,
-            value: type,
-          }
-        }),
-      })
-      versionBumpType = bumpType
-    } else {
-      versionBumpType = 'alphaNumeric'
-    }
-
-    const result = await prompts({
-      type: 'text',
-      name: 'newPackageVersion',
-      message: `What should the new version be?`,
-      initial: suggestVersionIncrement(packageJSON.version, versionBumpType),
-    })
-    newPackageVersion = result.newPackageVersion
-  } else {
-    newPackageVersion = forceVersion
-  }
-
-  prePublished[pkg] = Object.assign({}, prePublished[pkg], {
-    oldVersion: packageJSON.version,
-    newVersion: newPackageVersion,
-  })
 }
 
 /**

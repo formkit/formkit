@@ -1,6 +1,6 @@
 {
   "name": "@formkit/rules",
-  "version": "1.7.1-dev.3466e73",
+  "version": "1.7.0",
   "type": "module",
   "description": "Validation rules for FormKit",
   "main": "dist/index.cjs",
