@@ -28,18 +28,27 @@ jobs:
       - name: Update npm for trusted publishing
         run: npm install -g npm@latest
 
-      - name: Determine npm tag from git tag
+      - name: Determine npm tag and version from git tag
         id: npm-tag
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Extract version by removing 'v' prefix
+          VERSION=${TAG_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
           if [[ "$TAG_NAME" == *"-next"* ]]; then
             echo "tag=next" >> $GITHUB_OUTPUT
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
           elif [[ "$TAG_NAME" == *"-dev"* ]]; then
             echo "tag=dev" >> $GITHUB_OUTPUT
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
           else
             echo "tag=latest" >> $GITHUB_OUTPUT
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
           fi
-          echo "Determined npm tag: ${{ steps.npm-tag.outputs.tag || 'latest' }}"
+          echo "Git tag: $TAG_NAME"
+          echo "Version: $VERSION"
+          echo "NPM tag: $(if [[ "$TAG_NAME" == *"-next"* ]]; then echo next; elif [[ "$TAG_NAME" == *"-dev"* ]]; then echo dev; else echo latest; fi)"
 
       - name: Verify branch for @latest releases
         if: steps.npm-tag.outputs.tag == 'latest'
@@ -57,7 +66,12 @@ jobs:
         run: node scripts/cli.mjs --script build all
 
       - name: Publish packages
-        run: node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}
+        run: |
+          if [[ "${{ steps.npm-tag.outputs.is_prerelease }}" == "true" ]]; then
+            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }} --version=${{ steps.npm-tag.outputs.version }}
+          else
+            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}
+          fi
 
       - name: Purge JSDelivr cache
         run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ steps.npm-tag.outputs.tag }}
