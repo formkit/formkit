@@ -231,20 +231,17 @@ export async function createApp(
       '--template',
       `vue${options.lang === 'ts' ? '-ts' : ''}`,
     ])
-    await tailwindConfigForVite(
-      resolve(cwd(), `./${appName}`),
-      options.lang === 'ts'
-    )
     await addDependency(appName, '@formkit/vue', 'latest')
     await addDependency(appName, '@formkit/themes', 'latest')
     await addDependency(appName, '@formkit/core', 'latest')
     await addDependency(appName, '@formkit/icons', 'latest')
-    await addDependency(appName, 'tailwindcss')
-    await addDependency(appName, 'autoprefixer')
-    await addDependency(appName, 'postcss')
+    await addDependency(appName, 'tailwindcss', 'latest')
+    await addDependency(appName, '@tailwindcss/vite', 'latest')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
+    await downloadTheme(appName, options.lang === 'ts')
+    await setupViteConfig(appName, options.lang === 'ts')
     await addInitialApp(
       appName,
       'src/App.vue',
@@ -260,10 +257,8 @@ export async function createApp(
     )
     await writeFile(
       resolve(cwd(), `./${appName}/src/main.${options.lang}`),
-      buildMain()
+      buildMain(options.lang === 'ts')
     )
-
-    await downloadTheme(appName, options.lang === 'ts')
 
     green(`Created ${appName}!
 
@@ -424,54 +419,61 @@ async function downloadTheme(appName: string, ts: boolean) {
   process.chdir(resolve(cwd(), `../`))
 }
 
-async function tailwindConfigForVite(path: string, ts: boolean) {
+/**
+ * Sets up the Vite config with Tailwind CSS 4.
+ * Creates the main.css file and modifies vite.config.ts.
+ */
+async function setupViteConfig(dirName: string, ts: boolean) {
+  const projectPath = resolve(cwd(), `./${dirName}`)
+
+  // Create src/assets/main.css with Tailwind 4 imports
+  const cssDir = resolve(projectPath, 'src/assets')
+  await mkdir(cssDir, { recursive: true })
   await writeFile(
-    resolve(path, './postcss.config.cjs'),
-    `module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-  `
-  )
-  await writeFile(
-    resolve(path, './tailwind.config.js'),
-    `/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.vue",
-    "./formkit.theme.${ts ? 'ts' : 'mjs'}",
-    "./formkit.config.${ts ? 'ts' : 'mjs'}",
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+    resolve(cssDir, 'main.css'),
+    `@import "tailwindcss";
+@source "../../formkit.theme.${ts ? 'ts' : 'mjs'}";
+@source "../../formkit.config.${ts ? 'ts' : 'mjs'}";
+
+body {
+  @apply bg-gray-100;
 }
 `
   )
-  await writeFile(
-    resolve(path, './src/assets/main.css'),
-    `@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nbody {\n  @apply bg-gray-100;\n}\n`
+
+  // Modify vite.config.ts to add tailwindcss plugin
+  const viteConfigPath = resolve(projectPath, `vite.config.${ts ? 'ts' : 'js'}`)
+  let config = await readFile(viteConfigPath, 'utf-8')
+
+  // Add tailwindcss import at the top if not present
+  if (!config.includes('@tailwindcss/vite')) {
+    config = `import tailwindcss from '@tailwindcss/vite'\n${config}`
+  }
+
+  // Add tailwindcss() to plugins array
+  config = config.replace(
+    /plugins:\s*\[([^\]]*)\]/,
+    (_match, plugins) => {
+      const existingPlugins = plugins.trim()
+      if (existingPlugins) {
+        return `plugins: [${existingPlugins}, tailwindcss()]`
+      }
+      return `plugins: [tailwindcss()]`
+    }
   )
-  let html = await readFile(resolve(path, './index.html'), 'utf-8')
-  html = html.replace(
-    '</head>',
-    `  <link rel="stylesheet" href="/src/assets/main.css">\n  </head>`
-  )
-  await writeFile(resolve(path, './index.html'), html)
+
+  await writeFile(viteConfigPath, config)
 }
 
-function buildMain() {
+function buildMain(ts: boolean) {
   return `import { createApp } from 'vue'
 import { plugin, defaultConfig } from '@formkit/vue'
 import App from './App.vue'
 import formKitConfig from '../formkit.config'
+import './assets/main.css'
 
 const app = createApp(App)
-app.use(plugin, defaultConfig(formKitConfig))
+app.use(plugin, defaultConfig(formKitConfig${ts ? ' as Parameters<typeof defaultConfig>[0]' : ''}))
 app.mount('#app')
 `
 }
