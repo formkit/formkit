@@ -1,6 +1,6 @@
 import { execa, execaCommand } from 'execa'
-import { readFile, writeFile } from 'fs/promises'
-import { resolve } from 'path'
+import { mkdir, readFile, writeFile } from 'fs/promises'
+import { dirname, resolve } from 'path'
 import { cwd } from 'node:process'
 import prompts from 'prompts'
 import { error, green, __dirname, info } from './index'
@@ -295,15 +295,16 @@ export async function createApp(
     await addDependency(appName, '@formkit/core', 'latest')
     await addDependency(appName, '@formkit/vue', 'latest')
     await addDependency(appName, '@formkit/themes', 'latest')
-    await addDependency(appName, '@nuxtjs/tailwindcss')
+    await addDependency(appName, 'tailwindcss', 'latest')
+    await addDependency(appName, '@tailwindcss/vite', 'latest')
     if (options.pro) {
       await addDependency(appName, '@formkit/pro')
     }
-    await addNuxtModule(appName)
     await downloadTheme(appName, true)
+    await setupNuxtConfig(appName)
     await addInitialApp(
       appName,
-      'app.vue',
+      'app/app.vue',
       !!options.pro,
       options.lang === 'ts'
     )
@@ -319,6 +320,8 @@ async function addInitialApp(
   ts: boolean
 ) {
   const appPath = resolve(cwd(), `./${dirName}/${component}`)
+  // Ensure directory exists (for nested paths like app/app.vue)
+  await mkdir(dirname(appPath), { recursive: true })
   await writeFile(
     appPath,
     `<script setup${ts ? ' lang="ts"' : ''}>
@@ -473,14 +476,120 @@ app.mount('#app')
 `
 }
 
-async function addNuxtModule(dirName: string) {
-  const nuxtConfigPath = resolve(cwd(), `./${dirName}/nuxt.config.ts`)
-  const raw = await readFile(nuxtConfigPath, 'utf-8')
-  const configWithFormKit = raw.replace(
-    /(defineNuxtConfig\({\n).*?(\n}\))/g,
-    "$1  modules: ['@formkit/nuxt', '@nuxtjs/tailwindcss'],\n  formkit: {\n    autoImport: true\n  },\n  tailwindcss: {\n    config: {\n      content: ['./formkit.theme.ts']\n    }\n  }$2"
+/**
+ * Sets up the Nuxt config with FormKit and Tailwind CSS 4.
+ * Creates the main.css file and modifies nuxt.config.ts.
+ */
+async function setupNuxtConfig(dirName: string) {
+  const projectPath = resolve(cwd(), `./${dirName}`)
+
+  // Create app/assets/css/main.css
+  const cssDir = resolve(projectPath, 'app/assets/css')
+  await mkdir(cssDir, { recursive: true })
+  await writeFile(
+    resolve(cssDir, 'main.css'),
+    `@import "tailwindcss";
+@source "../../../formkit.theme.ts";
+@source "../../../formkit.config.ts";
+
+body {
+  @apply bg-gray-100;
+}
+`
   )
-  await writeFile(nuxtConfigPath, configWithFormKit)
+
+  // Modify nuxt.config.ts
+  const nuxtConfigPath = resolve(projectPath, 'nuxt.config.ts')
+  let config = await readFile(nuxtConfigPath, 'utf-8')
+
+  // Add tailwindcss import at the top if not present
+  if (!config.includes('@tailwindcss/vite')) {
+    config = `import tailwindcss from "@tailwindcss/vite";\n\n${config}`
+  }
+
+  // Find the defineNuxtConfig call and modify it
+  // This regex captures the content inside defineNuxtConfig({ ... })
+  const configMatch = config.match(/defineNuxtConfig\(\s*\{([\s\S]*?)\}\s*\)/)
+
+  if (configMatch) {
+    let configContent = configMatch[1]
+
+    // Check if modules exists and add @formkit/nuxt
+    if (configContent.includes('modules:')) {
+      // Add to existing modules array
+      configContent = configContent.replace(
+        /modules:\s*\[([^\]]*)\]/,
+        (_match, modules) => {
+          const existingModules = modules.trim()
+          if (existingModules) {
+            return `modules: [\n    '@formkit/nuxt',\n    ${existingModules}\n  ]`
+          }
+          return `modules: [\n    '@formkit/nuxt',\n  ]`
+        }
+      )
+    } else {
+      // Add modules array
+      configContent = addConfigProperty(configContent, `modules: [\n    '@formkit/nuxt',\n  ]`)
+    }
+
+    // Add css array if not present
+    if (!configContent.includes('css:')) {
+      configContent = addConfigProperty(configContent, `css: ['./app/assets/css/main.css']`)
+    }
+
+    // Add or merge vite config
+    if (configContent.includes('vite:')) {
+      // Merge with existing vite config
+      configContent = configContent.replace(
+        /vite:\s*\{([^}]*)\}/,
+        (match, viteContent) => {
+          if (viteContent.includes('plugins:')) {
+            // Add to existing plugins array
+            return match.replace(
+              /plugins:\s*\[([^\]]*)\]/,
+              (_pluginsMatch, plugins) => {
+                const existingPlugins = plugins.trim()
+                if (existingPlugins) {
+                  return `plugins: [\n      tailwindcss(),\n      ${existingPlugins}\n    ]`
+                }
+                return `plugins: [\n      tailwindcss(),\n    ]`
+              }
+            )
+          } else {
+            // Add plugins to vite config
+            return `vite: {\n    plugins: [\n      tailwindcss(),\n    ],${viteContent}}`
+          }
+        }
+      )
+    } else {
+      // Add vite config
+      configContent = addConfigProperty(configContent, `vite: {\n    plugins: [\n      tailwindcss(),\n    ],\n  }`)
+    }
+
+    // Reconstruct the config
+    config = config.replace(
+      /defineNuxtConfig\(\s*\{[\s\S]*?\}\s*\)/,
+      `defineNuxtConfig({${configContent}})`
+    )
+  }
+
+  await writeFile(nuxtConfigPath, config)
+}
+
+/**
+ * Helper to add a property to the nuxt config content.
+ */
+function addConfigProperty(configContent: string, property: string): string {
+  // Find a good insertion point - after any existing property or at the start
+  const trimmed = configContent.trim()
+  if (trimmed.length === 0) {
+    return `\n  ${property},\n`
+  }
+  // Add after the first line break or at the start
+  if (configContent.startsWith('\n')) {
+    return `\n  ${property},${configContent}`
+  }
+  return `\n  ${property},\n${configContent}`
 }
 
 /**
