@@ -52,6 +52,8 @@ function isPrerelease(version) {
 
 /**
  * Set version in all package.json files (for pre-release CI builds)
+ * Also converts workspace:^ dependencies to exact versions to avoid
+ * semver pre-release comparison issues (where hash sorting can pick wrong version)
  */
 function setPackageVersions(version) {
   const packages = getPackages()
@@ -60,6 +62,24 @@ function setPackageVersions(version) {
     try {
       const packageJSON = getPackageJSON(pkg)
       packageJSON.version = version
+
+      // For pre-releases, convert workspace:^ to exact versions
+      // This prevents semver from picking a "higher" hash that's actually older
+      if (packageJSON.dependencies) {
+        for (const dep of Object.keys(packageJSON.dependencies)) {
+          if (dep.startsWith('@formkit/') && packageJSON.dependencies[dep] === 'workspace:^') {
+            packageJSON.dependencies[dep] = `workspace:${version}`
+          }
+        }
+      }
+      if (packageJSON.devDependencies) {
+        for (const dep of Object.keys(packageJSON.devDependencies)) {
+          if (dep.startsWith('@formkit/') && packageJSON.devDependencies[dep] === 'workspace:^') {
+            packageJSON.devDependencies[dep] = `workspace:${version}`
+          }
+        }
+      }
+
       writePackageJSON(pkg, packageJSON)
     } catch (e) {
       msg.error(`Failed to update version for ${pkg}`)
