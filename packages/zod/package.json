@@ -1,6 +1,6 @@
 {
   "name": "@formkit/zod",
-  "version": "1.7.1-next.d067e54",
+  "version": "1.7.0",
   "type": "module",
   "description": "Zod validation for FormKit.",
   "main": "dist/index.cjs",

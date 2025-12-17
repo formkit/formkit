@@ -47,12 +47,12 @@ async function detectTailwindVersion(): Promise<3 | 4 | null> {
     const deps = { ...pkg.dependencies, ...pkg.devDependencies }
     const twVersion = deps['tailwindcss']
     if (!twVersion) return null
-    // Check if v4 (handles ^4, ~4, 4.x.x, >=4, etc.)
-    if (/^[\^~>=]*4/.test(twVersion)) {
-      return 4
+    // Check if v3 (handles ^3, ~3, 3.x.x, etc.)
+    if (/^[\^~>=]*3/.test(twVersion)) {
+      return 3
     }
-    // Assume v3 for anything else
-    return 3
+    // Default to v4 for anything else (including 'latest', ^4, etc.)
+    return 4
   } catch {
     return null
   }

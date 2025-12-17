@@ -1,7 +1,7 @@
 {
   "name": "@formkit/inputs",
   "type": "module",
-  "version": "1.7.1-next.d067e54",
+  "version": "1.7.0",
   "description": "Commonly shared types for FormKit",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
