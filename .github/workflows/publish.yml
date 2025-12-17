@@ -7,7 +7,7 @@ on:
 
 permissions:
   id-token: write # Required for OIDC trusted publishing
-  contents: read
+  contents: write # Required for creating GitHub releases
 
 jobs:
   publish:
@@ -75,3 +75,9 @@ jobs:
 
       - name: Purge JSDelivr cache
         run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ steps.npm-tag.outputs.tag }}
+
+      - name: Create GitHub Release
+        if: steps.npm-tag.outputs.tag == 'latest'
+        run: npx changelogithub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
