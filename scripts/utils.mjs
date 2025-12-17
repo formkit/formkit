@@ -360,15 +360,15 @@ export function checkGitIsMasterBranch() {
 }
 
 /**
- * Returns the current git commit hash, with n suffix characters.
+ * Returns the first n characters of the current git commit hash.
  */
-export function getCurrentHash(suffix = 7) {
+export function getCurrentHash(length = 7) {
   const hash = execSync(`git rev-parse HEAD`, {
     encoding: 'utf-8',
   })
     .toString()
     .trim()
-  return hash.substr(hash.length - suffix)
+  return hash.slice(0, length)
 }
 
 /**
