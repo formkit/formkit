@@ -83,7 +83,18 @@ function isTw3Theme(themeName: string): boolean {
 
 async function fetchThemes() {
   themeListResponse = await fetch(`${DEFAULT_THEME_API}/themes`)
-  themes = await themeListResponse.json()
+  if (!themeListResponse.ok) {
+    error(
+      `Failed to fetch themes from ${DEFAULT_THEME_API}/themes (${themeListResponse.status}). The theme server may be temporarily unavailable.`
+    )
+  }
+  const data = await themeListResponse.json()
+  if (!Array.isArray(data)) {
+    error(
+      `Unexpected response from theme API. Expected an array of themes but received: ${JSON.stringify(data).slice(0, 100)}`
+    )
+  }
+  themes = data
 }
 
 export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
