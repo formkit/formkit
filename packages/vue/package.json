@@ -1,6 +1,6 @@
 {
   "name": "@formkit/vue",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "type": "module",
   "description": "Build industry leading Vue forms 10x faster.",
   "main": "dist/index.cjs",

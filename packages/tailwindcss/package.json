@@ -5,7 +5,7 @@
     "url": "git+https://github.com/formkit/formkit.git",
     "directory": "packages/tailwindcss"
   },
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "A FormKit plugin for Tailwind that supplies custom variants based on input state",
   "type": "module",
   "main": "dist/index.cjs",
