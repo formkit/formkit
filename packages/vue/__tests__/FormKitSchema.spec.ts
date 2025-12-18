@@ -837,6 +837,45 @@ describe('parsing dom elements', () => {
     expect(wrapper.text()).not.toContain('options') // Should not contain the objects
   })
 
+  it('can access parent scope data in $cmp children (issue #1481)', async () => {
+    const SlotWrapper = defineComponent({
+      template: '<div class="wrapper"><slot /></div>',
+    })
+
+    const data = reactive({
+      value: { foo: 'bar' },
+    })
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        library: { SlotWrapper: markRaw(SlotWrapper) },
+        schema: [
+          {
+            $el: 'div',
+            attrs: { 'data-direct': true },
+            children: '$value.foo', // Should work
+          },
+          {
+            $cmp: 'SlotWrapper',
+            children: [
+              {
+                $el: 'div',
+                attrs: { 'data-in-cmp': true },
+                children: '$value.foo', // Bug: shows undefined
+              },
+            ],
+          },
+        ],
+      },
+    })
+
+    // Direct child should work
+    expect(wrapper.find('[data-direct]').text()).toBe('bar')
+    // Child inside $cmp should also work (currently fails)
+    expect(wrapper.find('[data-in-cmp]').text()).toBe('bar')
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,
