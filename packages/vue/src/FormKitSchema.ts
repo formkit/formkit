@@ -512,6 +512,14 @@ function parseSchema(
               // originally called this component's render function.
               const currentKey = instanceKey
               if (key) instanceKey = key
+              // Get parent scope and add it to new instance's scope so children
+              // can access parent scope data like $value (issue #1481)
+              const parentScope = instanceScopes.get(currentKey) || []
+              // Push parent scope items in reverse order to maintain priority
+              // (parent scope should have lowest priority)
+              for (let i = parentScope.length - 1; i >= 0; i--) {
+                instanceScopes.get(instanceKey)?.unshift(parentScope[i])
+              }
               if (iterationData)
                 instanceScopes.get(instanceKey)?.unshift(iterationData)
               if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
@@ -519,6 +527,10 @@ function parseSchema(
               // Ensure our instance key never changed during runtime
               if (slotData) instanceScopes.get(instanceKey)?.shift()
               if (iterationData) instanceScopes.get(instanceKey)?.shift()
+              // Clean up: remove parent scope data
+              for (let i = 0; i < parentScope.length; i++) {
+                instanceScopes.get(instanceKey)?.shift()
+              }
               instanceKey = currentKey
               return c as RenderableList
             },
