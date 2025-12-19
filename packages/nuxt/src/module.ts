@@ -16,6 +16,17 @@ import { createUnplugin } from 'unplugin'
 import type { NuxtModule } from '@nuxt/schema'
 import { unpluginFactory as unpluginFormKit } from 'unplugin-formkit'
 
+/**
+ * Optional FormKit packages that should have their types registered if installed.
+ * This ensures TypeScript recognizes types from these packages in Nuxt 4+ where
+ * stricter type isolation prevents automatic type resolution.
+ */
+const OPTIONAL_FORMKIT_PACKAGES = [
+  '@formkit/pro',
+  '@formkit/addons',
+  '@formkit/barcode',
+]
+
 export interface ModuleOptions {
   defaultConfig?: boolean
   configFile?: string
@@ -153,7 +164,28 @@ const useAutoImport = async function installLazy(options, nuxt) {
     filePath: '@formkit/vue',
     chunkName: '@formkit/vue',
   })
-  const { resolve } = createResolver(import.meta.url)
+  const { resolve, resolvePath } = createResolver(import.meta.url)
+
+  // Detect which optional FormKit packages are installed (for type registration)
+  const installedOptionalPackages: string[] = []
+  for (const pkg of OPTIONAL_FORMKIT_PACKAGES) {
+    try {
+      const pkgPath = await resolvePath(pkg)
+      if (existsSync(pkgPath)) {
+        installedOptionalPackages.push(pkg)
+      }
+    } catch {
+      // Package not installed or unresolvable
+    }
+  }
+
+  // Add FormKit typescript types explicitly.
+  nuxt.hook('prepare:types', (opts) => {
+    opts.references.push({ types: '@formkit/vue' })
+    for (const pkg of installedOptionalPackages) {
+      opts.references.push({ types: pkg })
+    }
+  })
 
   const configBase = resolve(
     nuxt.options.rootDir,
@@ -186,9 +218,25 @@ const useAutoImport = async function installLazy(options, nuxt) {
 const useFormKitPlugin = async function installNuxtPlugin(options, nuxt) {
   const resolver = createResolver(import.meta.url)
 
+  // Detect which optional FormKit packages are installed (for type registration)
+  const installedOptionalPackages: string[] = []
+  for (const pkg of OPTIONAL_FORMKIT_PACKAGES) {
+    try {
+      const pkgPath = await resolver.resolvePath(pkg)
+      if (existsSync(pkgPath)) {
+        installedOptionalPackages.push(pkg)
+      }
+    } catch {
+      // Package not installed or unresolvable
+    }
+  }
+
   // Add FormKit typescript types explicitly.
   nuxt.hook('prepare:types', (opts) => {
     opts.references.push({ types: '@formkit/vue' })
+    for (const pkg of installedOptionalPackages) {
+      opts.references.push({ types: pkg })
+    }
   })
 
   const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
