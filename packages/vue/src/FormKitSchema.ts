@@ -120,7 +120,8 @@ export type RenderableSlots = Record<string, RenderableSlot>
  */
 export type RenderableSlot = (
   data?: Record<string, any>,
-  key?: object
+  key?: object,
+  capturedScope?: Record<string, any>[]
 ) => RenderableList
 /**
  * Describes renderable children.
@@ -506,29 +507,30 @@ function parseSchema(
           return {
             default(
               slotData?: Record<string, any>,
-              key?: object
+              key?: object,
+              capturedScope?: Record<string, any>[]
             ): RenderableList {
               // We need to switch the current instance key back to the one that
               // originally called this component's render function.
               const currentKey = instanceKey
               if (key) instanceKey = key
-              // Get parent scope and add it to new instance's scope so children
-              // can access parent scope data like $value (issue #1481)
-              const parentScope = instanceScopes.get(currentKey) || []
-              // Push parent scope items in reverse order to maintain priority
-              // (parent scope should have lowest priority)
-              for (let i = parentScope.length - 1; i >= 0; i--) {
-                instanceScopes.get(instanceKey)?.unshift(parentScope[i])
+              // Push captured scope data so children can access parent scope
+              // data like $value (issue #1481). The scope is captured at
+              // createSlots time before cleanup runs.
+              const scopeItemsAdded = capturedScope?.length || 0
+              if (capturedScope) {
+                for (let i = capturedScope.length - 1; i >= 0; i--) {
+                  instanceScopes.get(instanceKey)?.unshift(capturedScope[i])
+                }
               }
               if (iterationData)
                 instanceScopes.get(instanceKey)?.unshift(iterationData)
               if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
               const c = produceChildren(iterationData)
-              // Ensure our instance key never changed during runtime
+              // Cleanup
               if (slotData) instanceScopes.get(instanceKey)?.shift()
               if (iterationData) instanceScopes.get(instanceKey)?.shift()
-              // Clean up: remove parent scope data
-              for (let i = 0; i < parentScope.length; i++) {
+              for (let i = 0; i < scopeItemsAdded; i++) {
                 instanceScopes.get(instanceKey)?.shift()
               }
               instanceKey = currentKey
@@ -572,10 +574,12 @@ function parseSchema(
   ): RenderableSlots | null {
     const slots = children(iterationData) as RenderableSlots
     const currentKey = instanceKey
+    // Capture current scope data before it gets cleaned up (issue #1481)
+    const capturedScope = instanceScopes.get(currentKey)?.slice() || []
     return Object.keys(slots).reduce((allSlots, slotName) => {
       const slotFn = slots && slots[slotName]
       allSlots[slotName] = (data?: Record<string, any>) => {
-        return (slotFn && slotFn(data, currentKey)) || null
+        return (slotFn && slotFn(data, currentKey, capturedScope)) || null
       }
       return allSlots
     }, {} as RenderableSlots)

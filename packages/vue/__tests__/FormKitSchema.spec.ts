@@ -876,6 +876,96 @@ describe('parsing dom elements', () => {
     expect(wrapper.find('[data-in-cmp]').text()).toBe('bar')
   })
 
+  it('can access $formkit group $value in $cmp children (issue #1481)', async () => {
+    const SlotWrapper = defineComponent({
+      template: '<div class="wrapper"><slot /></div>',
+    })
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library: { SlotWrapper: markRaw(SlotWrapper) },
+        schema: [
+          {
+            $formkit: 'group',
+            value: { foo: 'bar from group' },
+            children: [
+              {
+                $el: 'div',
+                attrs: { 'data-direct': true },
+                children: '$value.foo',
+              },
+              {
+                $cmp: 'SlotWrapper',
+                children: [
+                  {
+                    $el: 'div',
+                    attrs: { 'data-in-cmp': true },
+                    children: '$value.foo',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 10))
+    // Direct child should work
+    expect(wrapper.find('[data-direct]').text()).toBe('bar from group')
+    // Child inside $cmp should also work
+    expect(wrapper.find('[data-in-cmp]').text()).toBe('bar from group')
+  })
+
+  it('can access $value in deeply nested $cmp children (issue #1481)', async () => {
+    const Wrapper = defineComponent({
+      template: '<div class="wrapper"><slot /></div>',
+    })
+
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library: { Wrapper: markRaw(Wrapper) },
+        schema: [
+          {
+            $formkit: 'group',
+            value: { foo: 'deep value' },
+            children: [
+              {
+                $cmp: 'Wrapper', // Level 1
+                children: [
+                  {
+                    $cmp: 'Wrapper', // Level 2
+                    children: [
+                      {
+                        $cmp: 'Wrapper', // Level 3
+                        children: [
+                          {
+                            $el: 'div',
+                            attrs: { 'data-deep': true },
+                            children: '$value.foo',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('[data-deep]').text()).toBe('deep value')
+  })
+
   it('can render functional data reactively', async () => {
     const data = reactive({
       price: 10,
