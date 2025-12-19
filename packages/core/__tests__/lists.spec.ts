@@ -476,4 +476,73 @@ describe('synced lists', () => {
     expect(childA.value).toBe('C')
     expect(childB.value).toBe('D')
   })
+
+  it('preserves order of duplicate values in synced list (#1466)', async () => {
+    // Bug: duplicates get grouped together instead of preserving original order
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'A', 'B', 'C', 'D'],
+      sync: true,
+    })
+    await list.settled
+
+    // Create children at each index (simulating Vue rendering)
+    for (let i = 0; i < 6; i++) {
+      createNode({ parent: list, index: i })
+    }
+    await list.settled
+
+    // Children should have values in ORIGINAL order, not grouped
+    expect(list.children.map((c) => c.value)).toStrictEqual([
+      'A',
+      'B',
+      'A',
+      'B',
+      'C',
+      'D',
+    ])
+  })
+
+  it('creates placeholders with correct values for duplicate scalars (#1466)', async () => {
+    // Bug: placeholders get wrong values (iteration index instead of actual value)
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'A'],
+      sync: true,
+    })
+    await list.settled
+
+    // All placeholders should have correct values
+    expect(list.children[0].value).toBe('A')
+    expect(list.children[1].value).toBe('B')
+    expect(list.children[2].value).toBe('A')
+  })
+
+  it('syncs duplicate values to correct positions after splice (#1466)', async () => {
+    const nodes = [
+      createNode({ value: 'A' }),
+      createNode({ value: 'B' }),
+      createNode({ value: 'C' }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      sync: true,
+      children: nodes,
+    })
+    await list.settled
+
+    // Change middle value to duplicate of first
+    list.input(['A', 'A', 'C'], false)
+    await list.settled
+
+    // Node 0 should stay (value matches), node 1 stays but is reused (fallback),
+    // node 2 stays (value matches). The algorithm prefers reusing nodes over
+    // creating placeholders.
+    expect(list.children[0]).toBe(nodes[0])
+    expect(list.children[0].value).toBe('A')
+    expect(list.children[1]).toBe(nodes[1]) // Reused as fallback
+    expect(list.children[2]).toBe(nodes[2])
+    expect(list.children[2].value).toBe('C')
+  })
 })
