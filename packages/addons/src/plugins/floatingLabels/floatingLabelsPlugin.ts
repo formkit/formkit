@@ -3,7 +3,7 @@ import {
   FormKitPlugin,
   FormKitSectionsSchema,
 } from '@formkit/core'
-import { clone, whenAvailable } from '@formkit/utils'
+import { clone, extend, isPojo, whenAvailable } from '@formkit/utils'
 import { findSection } from '@formkit/inputs'
 
 /**
@@ -107,12 +107,16 @@ export function createFloatingLabelsPlugin(
           const originalSchema = inputDefinition.schema
           if (typeof originalSchema !== 'function') return
           const higherOrderSchema = (extensions: FormKitSectionsSchema) => {
-            extensions.outer = {
+            const outerAttrs = {
               attrs: {
                 'data-floating-label': 'true',
               },
             }
-            extensions.label = {
+            extensions.outer = isPojo(extensions.outer)
+              ? (extend(extensions.outer, outerAttrs, false, true) as (typeof extensions)['outer'])
+              : outerAttrs
+
+            const labelAttrs = {
               attrs: {
                 style: {
                   if: '$_offsetCalculated',
@@ -121,6 +125,9 @@ export function createFloatingLabelsPlugin(
                 },
               },
             }
+            extensions.label = isPojo(extensions.label)
+              ? (extend(extensions.label, labelAttrs, false, true) as (typeof extensions)['label'])
+              : labelAttrs
 
             const inputSchema = originalSchema(extensions)
             const finalSchema = Array.isArray(inputSchema)
