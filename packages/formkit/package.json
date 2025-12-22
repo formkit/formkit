@@ -1,6 +1,6 @@
 {
   "name": "formkit",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",
