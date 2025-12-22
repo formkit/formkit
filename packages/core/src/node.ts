@@ -2098,10 +2098,14 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
 
   // 3. If there are still unused nodes, and unused placeholders, we assign the
   //    unused nodes to the unused placeholders in order.
+  // IMPORTANT: Collect empty indexes in sequential order (0, 1, 2, ...) rather
+  // than iterating placeholderValues Map which groups indexes by value.
   const emptyIndexes: number[] = []
-  placeholderValues.forEach((indexes) => {
-    emptyIndexes.push(...indexes)
-  })
+  for (let i = 0; i < newChildren.length; i++) {
+    if (newChildren[i] === null) {
+      emptyIndexes.push(i)
+    }
+  }
 
   while (unused.size && emptyIndexes.length) {
     const child = unused.values().next().value
@@ -2112,8 +2116,8 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
   }
 
   // 4. If there are placeholders in the children, we create true placeholders.
-  emptyIndexes.forEach((index, value) => {
-    newChildren[index] = createPlaceholder({ value })
+  emptyIndexes.forEach((index) => {
+    newChildren[index] = createPlaceholder({ value: _value[index] })
   })
 
   // 5. If there are unused nodes, we remove them. To ensure we don’t remove any
