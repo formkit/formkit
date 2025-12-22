@@ -81,3 +81,49 @@ jobs:
         run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update docs-content changelog
+        if: steps.npm-tag.outputs.tag == 'latest'
+        env:
+          DOCS_DEPLOY_KEY: ${{ secrets.DOCS_CONTENT_DEPLOY_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.npm-tag.outputs.version }}"
+          TAG_NAME="v${VERSION}"
+
+          # Fetch release body from GitHub API
+          RELEASE_BODY=$(gh release view "$TAG_NAME" --json body -q .body)
+
+          # Setup SSH for docs-content
+          mkdir -p ~/.ssh
+          echo "$DOCS_DEPLOY_KEY" > ~/.ssh/docs_deploy_key
+          chmod 600 ~/.ssh/docs_deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+          # Clone docs-content
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/docs_deploy_key" git clone --depth 1 git@github.com:formkit/docs-content.git docs-content-repo
+          cd docs-content-repo
+
+          # Determine next file number
+          TARGET_DIR="_changelog"
+          LAST_NUM=$(ls "$TARGET_DIR" | grep -oE '^[0-9]+' | sort -n | tail -1)
+          NEXT_NUM=$((LAST_NUM + 1))
+
+          # Format date
+          DATE=$(date "+%B %-d, %Y")
+
+          # Create changelog file
+          {
+            echo "## ${VERSION}"
+            echo ""
+            echo "### ${DATE}"
+            echo ""
+            echo "$RELEASE_BODY"
+          } > "${TARGET_DIR}/${NEXT_NUM}.v${VERSION}.md"
+
+          # Commit and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "docs: add changelog for v${VERSION}"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/docs_deploy_key" git push origin master
