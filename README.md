@@ -150,4 +150,4 @@ This project exists thanks to all the people who volunteer their time to contrib
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2021-present, [FormKit, Inc.](https://formkit.com)
+Copyright (c) 2021-2026, [FormKit, Inc.](https://formkit.com)
