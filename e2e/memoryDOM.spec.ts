@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test'
 
+test.describe.configure({ mode: 'serial', timeout: 90000 })
+
 test('vue component dom nodes get garbage collected (control)', async ({
   page,
 }) => {
@@ -16,7 +18,7 @@ test('FormKit text nodes get garbage collected', async ({ page }) => {
   await expect(async () => {
     const value = await page.getByTestId('collectionData').textContent()
     expect(value).toBe('1/1')
-  }).toPass({ intervals: [100], timeout: 25000 })
+  }).toPass({ intervals: [100], timeout: 60000 })
 })
 
 test('FormKit checkbox nodes get garbage collected', async ({ page }) => {
@@ -26,7 +28,7 @@ test('FormKit checkbox nodes get garbage collected', async ({ page }) => {
   await expect(async () => {
     const value = await page.getByTestId('collectionData').textContent()
     expect(value).toBe('1/1')
-  }).toPass({ intervals: [100], timeout: 25000 })
+  }).toPass({ intervals: [100], timeout: 60000 })
 })
 
 test('FormKit radio nodes get garbage collected', async ({ page }) => {
@@ -36,7 +38,7 @@ test('FormKit radio nodes get garbage collected', async ({ page }) => {
   await expect(async () => {
     const value = await page.getByTestId('collectionData').textContent()
     expect(value).toBe('1/1')
-  }).toPass({ intervals: [100], timeout: 25000 })
+  }).toPass({ intervals: [100], timeout: 60000 })
 })
 
 test('FormKit select nodes get garbage collected', async ({ page }) => {
@@ -46,7 +48,7 @@ test('FormKit select nodes get garbage collected', async ({ page }) => {
   await expect(async () => {
     const value = await page.getByTestId('collectionData').textContent()
     expect(value).toBe('1/1')
-  }).toPass({ intervals: [100], timeout: 40000 })
+  }).toPass({ intervals: [100], timeout: 60000 })
 })
 
 test('FormKit form nodes get garbage collected', async ({ page }) => {

@@ -1,0 +1,45 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  margin: 0;
+  background: #f7f8fc;
+  color: #1e2230;
+}
+
+.page {
+  max-width: 760px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+}
+
+.schema-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #d9deeb;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.output {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #d9deeb;
+  border-radius: 10px;
+  background: #fff;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+}

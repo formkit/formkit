@@ -1,0 +1,60 @@
+{
+  "name": "@formkit/react",
+  "version": "1.7.2",
+  "type": "module",
+  "description": "Build industry leading React forms 10x faster.",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "development": "./dist/index.dev.mjs",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "keywords": [
+    "react",
+    "forms",
+    "inputs",
+    "validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/formkit/formkit.git",
+    "directory": "packages/react"
+  },
+  "contributors": [
+    "Justin Schroeder <justin@formkit.com>"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "vite --config ./playground/vite.config.mts --host --port 5179",
+    "dev-build": "vite build --config ./playground/vite.config.mts"
+  },
+  "dependencies": {
+    "@formkit/core": "workspace:^",
+    "@formkit/dev": "workspace:^",
+    "@formkit/i18n": "workspace:^",
+    "@formkit/inputs": "workspace:^",
+    "@formkit/observer": "workspace:^",
+    "@formkit/rules": "workspace:^",
+    "@formkit/themes": "workspace:^",
+    "@formkit/utils": "workspace:^",
+    "@formkit/validation": "workspace:^"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@formkit/icons": "workspace:^"
+  }
+}

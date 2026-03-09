@@ -12,11 +12,14 @@
     "@formkit/core": "workspace:^",
     "@formkit/i18n": "workspace:^",
     "@formkit/inputs": "workspace:^",
+    "@formkit/react": "workspace:^",
     "@formkit/themes": "workspace:^",
     "@formkit/vue": "workspace:^",
     "@formkit/zod": "workspace:^",
     "@vitejs/plugin-vue": "^5.2.0",
     "vite": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {

@@ -5,7 +5,8 @@ export default defineConfig({
   testDir: 'e2e',
 
   // Run all tests in parallel.
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
 
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!process.env.CI,
@@ -41,6 +42,11 @@ export default defineConfig({
     {
       command: 'node --expose-gc e2e/servers/formKitMemoryServer.mjs',
       url: 'http://localhost:8686',
+      reuseExistingServer: false,
+    },
+    {
+      command: 'node --expose-gc e2e/servers/formKitReactMemoryServer.mjs',
+      url: 'http://localhost:8788',
       reuseExistingServer: false,
     },
     {

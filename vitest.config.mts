@@ -1,5 +1,12 @@
 import { defineConfig } from 'vitest/config'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import react from '@vitejs/plugin-react'
+
+const vueJsxInclude = [
+  /packages\/vue\/.*\.[tj]sx$/,
+  /packages\/addons\/.*\.[tj]sx$/,
+  /packages\/nuxt\/.*\.[tj]sx$/,
+]
 
 export default defineConfig({
   resolve: {
@@ -8,7 +15,7 @@ export default defineConfig({
   define: {
     __DEV__: 'false',
   },
-  plugins: [vueJsx()],
+  plugins: [react(), vueJsx({ include: vueJsxInclude })],
   test: {
     environment: 'jsdom',
     retry: 2,
