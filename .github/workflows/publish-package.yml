@@ -44,7 +44,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: built-packages
-          path: .
+          path: packages
 
       - name: Publish @formkit/${{ inputs.package }}
         working-directory: packages/${{ inputs.package }}
