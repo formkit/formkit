@@ -1,0 +1,65 @@
+name: Publish Package
+
+on:
+  workflow_call:
+    inputs:
+      package:
+        description: 'Package directory name under packages/'
+        required: true
+        type: string
+      npm_tag:
+        description: 'npm dist-tag to publish with'
+        required: true
+        type: string
+      dry_run:
+        description: 'Run pnpm publish in dry-run mode'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Update npm for trusted publishing
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: built-packages
+          path: .
+
+      - name: Publish @formkit/${{ inputs.package }}
+        working-directory: packages/${{ inputs.package }}
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          NPM_TAG: ${{ inputs.npm_tag }}
+        run: |
+          EXTRA_ARGS=""
+          if [[ "$DRY_RUN" == "true" ]]; then
+            EXTRA_ARGS="--dry-run"
+          fi
+
+          for i in 1 2 3 4; do
+            pnpm publish --access public --no-git-checks --tag "$NPM_TAG" $EXTRA_ARGS && exit 0
+            echo "Attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          exit 1
