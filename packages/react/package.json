@@ -4,7 +4,11 @@
   "type": "module",
   "description": "Build industry leading React forms 10x faster.",
   "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.cts",
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./package.json": "./package.json",
     ".": {

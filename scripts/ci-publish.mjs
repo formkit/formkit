@@ -6,10 +6,11 @@
  *
  * Usage:
  *   node scripts/ci-publish.mjs --tag=latest                     # Publish all packages (production)
- *   node scripts/ci-publish.mjs --tag=next --version=1.7.1-next.abc123  # Publish pre-release from tag
+ *   node scripts/ci-publish.mjs --tag=next --version=2.0.0-abc123.dev   # Publish pre-release from tag
+ *   node scripts/ci-publish.mjs --tag=next --version=2.0.0-abc123.dev --dry-run
  *   node scripts/ci-publish.mjs --purge-cdn --tag=latest         # Only purge JSDelivr cache
  *
- * For pre-release builds (next/dev), the --version flag sets all package.json versions
+ * For pre-release builds, the --version flag sets all package.json versions
  * before publishing. This allows publishing from a tag without committing version changes.
  */
 
@@ -44,10 +45,20 @@ function verifyBuildOutput(pkg) {
 }
 
 /**
- * Check if a version is a pre-release (contains -next or -dev)
+ * Infer the npm dist-tag from a version string.
+ */
+function inferTagFromVersion(version) {
+  if (!version) return 'latest'
+  if (/(^|[-.])next([.-]|$)/.test(version)) return 'next'
+  if (/(^|[-.])dev([.-]|$)/.test(version)) return 'dev'
+  return 'latest'
+}
+
+/**
+ * Check if a version is a pre-release.
  */
 function isPrerelease(version) {
-  return version && (version.includes('-next') || version.includes('-dev'))
+  return inferTagFromVersion(version) !== 'latest'
 }
 
 /**
@@ -92,7 +103,7 @@ function setPackageVersions(version) {
 /**
  * Main CI publish function
  */
-async function ciPublish({ tag, purgeCdn, version }) {
+async function ciPublish({ tag, purgeCdn, version, dryRun }) {
   if (purgeCdn) {
     await purgeJSDelivrCache(tag)
     return
@@ -131,28 +142,29 @@ async function ciPublish({ tag, purgeCdn, version }) {
   }
 
   msg.headline(
-    `Publishing ${orderedPackages.length} packages with tag @${tag}`
+    `${dryRun ? 'Dry-run publishing' : 'Publishing'} ${orderedPackages.length} packages with tag @${tag}`
   )
 
   for (const pkg of orderedPackages) {
     const tagStatement = tag !== 'latest' ? `--tag ${tag}` : ''
+    const dryRunStatement = dryRun ? '--dry-run' : ''
     try {
-      msg.info(`Publishing @formkit/${pkg}...`)
+      msg.info(`${dryRun ? 'Dry-run publishing' : 'Publishing'} @formkit/${pkg}...`)
       // Use pnpm publish to properly convert workspace:^ to real versions
       execSync(
-        `pnpm publish ./packages/${pkg}/ --access public --no-git-checks ${tagStatement}`.trim(),
+        `pnpm publish ./packages/${pkg}/ --access public --no-git-checks ${tagStatement} ${dryRunStatement}`.trim(),
         {
           stdio: 'inherit',
         }
       )
-      msg.success(`✅ @formkit/${pkg} published`)
+      msg.success(`✅ @formkit/${pkg} ${dryRun ? 'dry-run complete' : 'published'}`)
     } catch (e) {
-      msg.error(`❌ Failed to publish @formkit/${pkg}`)
+      msg.error(`❌ Failed to ${dryRun ? 'dry-run publish' : 'publish'} @formkit/${pkg}`)
       process.exit(1) // Fail fast
     }
   }
 
-  msg.success('All packages published successfully!')
+  msg.success(`All packages ${dryRun ? 'completed dry-run publish' : 'published'} successfully!`)
 }
 
 /**
@@ -197,6 +209,8 @@ async function purgeJSDelivrCache(tag) {
           `/npm/@formkit/utils@${tag}/dist/index.min.mjs`,
           `/npm/@formkit/validation@${tag}/dist/index.mjs`,
           `/npm/@formkit/validation@${tag}/dist/index.min.mjs`,
+          `/npm/@formkit/react@${tag}/dist/index.mjs`,
+          `/npm/@formkit/react@${tag}/dist/index.min.mjs`,
           `/npm/@formkit/vue@${tag}/dist/index.mjs`,
           `/npm/@formkit/vue@${tag}/dist/index.min.mjs`,
           `/npm/@formkit/addons@${tag}/dist/index.mjs`,
@@ -223,6 +237,7 @@ const cli = cac('ci-publish')
 cli.option('--tag <tag>', 'NPM tag to publish with', { default: 'latest' })
 cli.option('--version <version>', 'Version to set in package.json files (for pre-release builds from tags)')
 cli.option('--purge-cdn', 'Only purge JSDelivr cache', { default: false })
+cli.option('--dry-run', 'Run pnpm publish in dry-run mode', { default: false })
 cli.command('').action((options) => ciPublish(options))
 cli.help()
 cli.parse()

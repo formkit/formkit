@@ -4,6 +4,31 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish, e.g. 2.0.0-abc123.dev'
+        required: false
+        type: string
+      npm_tag:
+        description: 'npm dist-tag to publish with'
+        required: false
+        default: 'next'
+        type: choice
+        options:
+          - latest
+          - next
+          - dev
+      git_ref:
+        description: 'Git ref to checkout for manual publishes'
+        required: false
+        default: 'react'
+        type: string
+      dry_run:
+        description: 'Run publish in dry-run mode'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   id-token: write # Required for OIDC trusted publishing
@@ -16,6 +41,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Need full history for branch detection
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.git_ref || github.ref }}
 
       - uses: pnpm/action-setup@v4
 
@@ -31,24 +57,40 @@ jobs:
       - name: Determine npm tag and version from git tag
         id: npm-tag
         run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          # Extract version by removing 'v' prefix
-          VERSION=${TAG_NAME#v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          infer_tag() {
+            local version="$1"
+            if [[ "$version" =~ (^|[-.])next([.-]|$) ]]; then
+              echo "next"
+            elif [[ "$version" =~ (^|[-.])dev([.-]|$) ]]; then
+              echo "dev"
+            else
+              echo "latest"
+            fi
+          }
 
-          if [[ "$TAG_NAME" == *"-next"* ]]; then
-            echo "tag=next" >> $GITHUB_OUTPUT
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
-          elif [[ "$TAG_NAME" == *"-dev"* ]]; then
-            echo "tag=dev" >> $GITHUB_OUTPUT
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+            TAG="${{ inputs.npm_tag }}"
+            if [[ -z "$VERSION" ]]; then
+              echo "ERROR: workflow_dispatch requires a version input"
+              exit 1
+            fi
           else
-            echo "tag=latest" >> $GITHUB_OUTPUT
-            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG_NAME#v}
+            TAG=$(infer_tag "$VERSION")
+            echo "Git tag: $TAG_NAME"
           fi
-          echo "Git tag: $TAG_NAME"
+
           echo "Version: $VERSION"
-          echo "NPM tag: $(if [[ "$TAG_NAME" == *"-next"* ]]; then echo next; elif [[ "$TAG_NAME" == *"-dev"* ]]; then echo dev; else echo latest; fi)"
+          echo "NPM tag: $TAG"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          if [[ "$TAG" == "latest" ]]; then
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Verify branch for @latest releases
         if: steps.npm-tag.outputs.tag == 'latest'
@@ -67,23 +109,28 @@ jobs:
 
       - name: Publish packages
         run: |
+          EXTRA_ARGS=""
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.dry_run }}" == "true" ]]; then
+            EXTRA_ARGS="--dry-run"
+          fi
           if [[ "${{ steps.npm-tag.outputs.is_prerelease }}" == "true" ]]; then
-            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }} --version=${{ steps.npm-tag.outputs.version }}
+            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }} --version=${{ steps.npm-tag.outputs.version }} $EXTRA_ARGS
           else
-            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}
+            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }} $EXTRA_ARGS
           fi
 
       - name: Purge JSDelivr cache
+        if: github.event_name != 'workflow_dispatch' || inputs.dry_run != true
         run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ steps.npm-tag.outputs.tag }}
 
       - name: Create GitHub Release
-        if: steps.npm-tag.outputs.tag == 'latest'
+        if: steps.npm-tag.outputs.tag == 'latest' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
         run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update docs-content changelog
-        if: steps.npm-tag.outputs.tag == 'latest'
+        if: steps.npm-tag.outputs.tag == 'latest' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
         env:
           DOCS_DEPLOY_KEY: ${{ secrets.DOCS_CONTENT_DEPLOY_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
