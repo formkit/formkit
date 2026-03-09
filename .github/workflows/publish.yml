@@ -330,7 +330,8 @@ jobs:
           node-version: '20'
 
       - name: Purge JSDelivr cache
-        run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ needs.build.outputs.tag }}
+        continue-on-error: true
+        run: node scripts/purge-jsdelivr.mjs --tag=${{ needs.build.outputs.tag }}
 
       - name: Create GitHub Release
         if: needs.build.outputs.tag == 'latest'
