@@ -532,11 +532,10 @@ export interface FormKitFrameworkContext<T = any> {
    */
   id: string
   /**
-   * An array of symbols that represent the a child’s nodes. These are not the
-   * child’s nodes but are just symbols representing them. They are used to
-   * iterate over the children for rendering purposes.
+   * An array of stable render keys for child nodes. Framework integrations use
+   * these to iterate over children without relying on array position.
    */
-  items: symbol[]
+  items: Array<string | symbol>
   /**
    * The label of the input.
    */
