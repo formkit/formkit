@@ -11,8 +11,19 @@ export interface FormKitIconProps {
   iconLoaderUrl?: ((iconName: string) => string) | null
 }
 
+function resolveSyncIcon(
+  iconHandler: FormKitIconLoader | undefined,
+  iconName: string
+) {
+  if (!iconHandler || typeof iconHandler !== 'function' || !iconName) {
+    return undefined
+  }
+
+  const iconOrPromise = iconHandler(iconName)
+  return iconOrPromise instanceof Promise ? undefined : iconOrPromise
+}
+
 export function FormKitIcon(props: FormKitIconProps) {
-  const [icon, setIcon] = useState<undefined | string>(undefined)
   const config = useContext(optionsSymbol)
   const parent = useContext(parentSymbol)
 
@@ -41,17 +52,30 @@ export function FormKitIcon(props: FormKitIconProps) {
     return iconPlugin?.iconHandler
   }, [config?.plugins, parent, props.iconLoader, props.iconLoaderUrl])
 
+  const [icon, setIcon] = useState<undefined | string>(() =>
+    resolveSyncIcon(iconHandler, props.icon)
+  )
+
   useEffect(() => {
     if (!iconHandler || typeof iconHandler !== 'function' || !props.icon) {
       setIcon(undefined)
       return
     }
 
+    let isActive = true
     const iconOrPromise = iconHandler(props.icon)
     if (iconOrPromise instanceof Promise) {
-      iconOrPromise.then((iconValue) => setIcon(iconValue))
+      iconOrPromise.then((iconValue) => {
+        if (isActive) {
+          setIcon(iconValue)
+        }
+      })
     } else {
       setIcon(iconOrPromise)
+    }
+
+    return () => {
+      isActive = false
     }
   }, [iconHandler, props.icon])
 

@@ -18,7 +18,7 @@ export { defineFormKitConfig } from './composables/defineFormKitConfig'
 export * from './plugin'
 
 export {
-  default as FormKit,
+  FormKit,
   parentSymbol,
   componentSymbol,
   getCurrentSchemaNode,

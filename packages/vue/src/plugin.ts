@@ -10,7 +10,7 @@ import {
   reset,
 } from '@formkit/core'
 import type { App, Plugin, InjectionKey } from 'vue'
-import FormKit, { FormKitComponent } from './FormKit'
+import FormKit from './FormKit'
 import FormKitSchema from './FormKitSchema'
 import { removeConfig } from './FormKitProvider'
 
@@ -19,8 +19,7 @@ declare module 'vue' {
     $formkit: FormKitVuePlugin
   }
   interface GlobalComponents {
-    // @ts-ignore
-    FormKit: FormKitComponent
+    FormKit: typeof FormKit
     FormKitSchema: typeof FormKitSchema
   }
 }

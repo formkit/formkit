@@ -1,8 +1,4 @@
-import {
-  error,
-  FormKitNode,
-  FormKitSchemaDefinition,
-} from '@formkit/core'
+import { error, FormKitNode, FormKitSchemaDefinition } from '@formkit/core'
 import {
   Children,
   ComponentType,
@@ -16,6 +12,7 @@ import {
   useImperativeHandle,
   memo,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { FormKitSchema } from './FormKitSchema'
@@ -33,7 +30,7 @@ export interface FormKitRenderSlots {
   [index: string]: (data?: Record<string, any>) => ReactNode
 }
 
-export type FormKitComponentProps = FormKitInputs<any> & {
+export type FormKitComponentProps<Props extends FormKitInputs<Props>> = Props & {
   children?: ReactNode | ((data?: Record<string, any>) => ReactNode)
   slots?: FormKitRenderSlots
   onNode?: (node: FormKitNode) => void
@@ -44,19 +41,54 @@ export type FormKitComponentProps = FormKitInputs<any> & {
   [key: string]: any
 }
 
-export type FormKitComponent = (
-  props: FormKitComponentProps & { ref?: Ref<FormKitNode | undefined> }
+export type FormKitComponent = <Props extends FormKitInputs<Props>>(
+  props: FormKitComponentProps<Props> & { ref?: Ref<FormKitNode | undefined> }
 ) => ReactElement | null
 
 let currentSchemaNode: FormKitNode | null = null
 
 export const getCurrentSchemaNode = () => currentSchemaNode
 
-function toSlots(
-  children: ReactNode | ((data?: Record<string, any>) => ReactNode),
-  explicitSlots?: FormKitRenderSlots
-): FormKitRenderSlots {
-  const slots: FormKitRenderSlots = { ...(explicitSlots || {}) }
+function resolveSchemaState(
+  node: FormKitNode,
+  sectionsSchema?: Record<string, unknown>
+): {
+  schema: FormKitSchemaDefinition
+  memoKey: string | undefined
+} {
+  const schemaDefinition = node.props.definition?.schema as
+    | FormKitSchemaDefinition
+    | ((sectionsSchema?: Record<string, unknown>) => FormKitSchemaDefinition)
+    | undefined
+
+  if (!schemaDefinition) error(601, node)
+
+  if (typeof schemaDefinition === 'function') {
+    currentSchemaNode = node
+    const generated = schemaDefinition({ ...(sectionsSchema || {}) })
+    currentSchemaNode = null
+    const schemaMemoKey =
+      node.props.definition?.schemaMemoKey ||
+      ('memoKey' in schemaDefinition &&
+      typeof schemaDefinition.memoKey === 'string'
+        ? schemaDefinition.memoKey
+        : node.props.type)
+
+    return {
+      schema: generated,
+      memoKey: `${schemaMemoKey}${JSON.stringify(sectionsSchema || {})}`,
+    }
+  }
+
+  return {
+    schema: schemaDefinition,
+    memoKey: node.props.definition?.schemaMemoKey,
+  }
+}
+
+function hasRenderableChildren(
+  children: ReactNode | ((data?: Record<string, any>) => ReactNode)
+) {
   const isRenderableObject = (value: unknown) => {
     return (
       typeof value === 'object' &&
@@ -65,26 +97,75 @@ function toSlots(
       '$$typeof' in (value as Record<string, unknown>)
     )
   }
-  if (typeof children === 'function') {
-    slots.default = children
-  } else if (
-    children !== undefined &&
-    children !== null &&
-    (typeof children !== 'object' || Array.isArray(children) || isRenderableObject(children))
-  ) {
-    slots.default = () => Children.toArray(children as ReactNode)
-  }
-  return slots
+
+  return (
+    typeof children === 'function' ||
+    (children !== undefined &&
+      children !== null &&
+      (typeof children !== 'object' ||
+        Array.isArray(children) ||
+        isRenderableObject(children)))
+  )
 }
 
-function FormKitImpl(
-  props: FormKitComponentProps,
+function useStableSlots(
+  children: ReactNode | ((data?: Record<string, any>) => ReactNode),
+  explicitSlots?: FormKitRenderSlots
+) {
+  const latestChildren = useRef(children)
+  const latestExplicitSlots = useRef(explicitSlots)
+
+  latestChildren.current = children
+  latestExplicitSlots.current = explicitSlots
+
+  const explicitSlotNames = Object.keys(explicitSlots || {})
+    .filter((slotName) => typeof explicitSlots?.[slotName] === 'function')
+    .sort()
+  const shouldExposeDefaultSlot =
+    typeof explicitSlots?.default === 'function' ||
+    hasRenderableChildren(children)
+
+  return useMemo(() => {
+    const slotNames = new Set(explicitSlotNames)
+    if (shouldExposeDefaultSlot) {
+      slotNames.add('default')
+    }
+
+    const stableSlots: FormKitRenderSlots = {}
+
+    for (const slotName of slotNames) {
+      stableSlots[slotName] = (data?: Record<string, any>) => {
+        const currentExplicitSlots = latestExplicitSlots.current || {}
+        const explicitSlot = currentExplicitSlots[slotName]
+
+        if (typeof explicitSlot === 'function') {
+          return explicitSlot(data)
+        }
+
+        if (slotName !== 'default') {
+          return null
+        }
+
+        const currentChildren = latestChildren.current
+        if (typeof currentChildren === 'function') {
+          return currentChildren(data)
+        }
+
+        return hasRenderableChildren(currentChildren)
+          ? Children.toArray(currentChildren as ReactNode)
+          : null
+      }
+    }
+
+    return stableSlots
+  }, [explicitSlotNames.join('|'), shouldExposeDefaultSlot])
+}
+
+function FormKitImpl<Props extends FormKitInputs<Props>>(
+  props: FormKitComponentProps<Props>,
   ref: Ref<FormKitNode | undefined>
 ): ReactElement | null {
-  const slots = useMemo(
-    () => toSlots(props.children, props.slots),
-    [props.children, props.slots]
-  )
+  const slots = useStableSlots(props.children, props.slots)
 
   const node = useInput({ ...props, slots } as any)
 
@@ -107,37 +188,19 @@ function FormKitImpl(
     })
   }
 
-  const [schema, setSchema] = useState<FormKitSchemaDefinition>([])
+  const [schema, setSchema] = useState<FormKitSchemaDefinition>(
+    () => resolveSchemaState(node, props.sectionsSchema).schema
+  )
   const [memoKey, setMemoKey] = useState<string | undefined>(
-    node.props.definition?.schemaMemoKey
+    () => resolveSchemaState(node, props.sectionsSchema).memoKey
   )
 
   const generateSchema = useCallback(() => {
-    const schemaDefinition = node.props.definition?.schema as
-      | FormKitSchemaDefinition
-      | ((
-          sectionsSchema?: Record<string, unknown>
-        ) => FormKitSchemaDefinition)
-      | undefined
-
-    if (!schemaDefinition) error(601, node)
-
-    if (typeof schemaDefinition === 'function') {
-      currentSchemaNode = node
-      const generated = schemaDefinition({ ...(props.sectionsSchema || {}) })
-      currentSchemaNode = null
-      setSchema(generated)
-      const schemaMemoKey =
-        node.props.definition?.schemaMemoKey ||
-        ('memoKey' in schemaDefinition &&
-        typeof schemaDefinition.memoKey === 'string'
-          ? schemaDefinition.memoKey
-          : node.props.type)
-      const nextMemoKey = `${schemaMemoKey}${JSON.stringify(props.sectionsSchema || {})}`
-      setMemoKey((existing) => (existing === nextMemoKey ? existing : nextMemoKey))
-    } else {
-      setSchema(schemaDefinition)
-    }
+    const nextState = resolveSchemaState(node, props.sectionsSchema)
+    setSchema(nextState.schema)
+    setMemoKey((existing) =>
+      existing === nextState.memoKey ? existing : nextState.memoKey
+    )
   }, [node, props.sectionsSchema])
 
   useEffect(() => {
@@ -163,7 +226,7 @@ function FormKitImpl(
     | undefined
 
   const library = {
-    FormKit: formkitComponent,
+    FormKit,
     ...definitionLibrary,
     ...(props.library ?? {}),
   }
@@ -179,9 +242,11 @@ function FormKitImpl(
   if (node.type !== 'input') {
     return createElement(
       componentSymbol.Provider,
-      { value: () => {
-        /* noop */
-      } },
+      {
+        value: () => {
+          /* noop */
+        },
+      },
       createElement(parentSymbol.Provider, { value: node }, rendered)
     )
   }
@@ -192,7 +257,9 @@ function FormKitImpl(
 const formkitForwardRef = forwardRef(FormKitImpl)
 formkitForwardRef.displayName = 'FormKit'
 
-export const formkitComponent = memo(formkitForwardRef) as unknown as FormKitComponent
+export const FormKit: <Props extends FormKitInputs<Props>>(
+  props: FormKitComponentProps<Props> & { ref?: Ref<FormKitNode | undefined> }
+) => ReactElement | null = memo(formkitForwardRef) as unknown as FormKitComponent
 
 export type FormKitSetupContext<Props extends FormKitInputs<Props>> = {
   props: Props
@@ -200,5 +267,5 @@ export type FormKitSetupContext<Props extends FormKitInputs<Props>> = {
   emit: (...args: any[]) => void
 }
 
-export default formkitComponent
+export default FormKit
 export { parentSymbol, componentSymbol }

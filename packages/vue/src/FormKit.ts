@@ -15,6 +15,7 @@ import {
   ComponentCustomProps,
   markRaw,
 } from 'vue'
+import type { DefineComponent } from 'vue'
 import { useInput } from './composables/useInput'
 import { FormKitSchema } from './FormKitSchema'
 import {
@@ -40,7 +41,7 @@ export type Slots<Props extends FormKitInputs<Props>> =
  * The TypeScript definition for the FormKit component.
  * @public
  */
-export type FormKitComponent = <Props extends FormKitInputs<Props>>(
+type FormKitCallableComponent = <Props extends FormKitInputs<Props>>(
   props: Props & VNodeProps & AllowedComponentProps & ComponentCustomProps,
   context?: Pick<FormKitSetupContext<Props>, 'attrs' | 'emit' | 'slots'>,
   setup?: FormKitSetupContext<Props>
@@ -63,6 +64,13 @@ export interface FormKitSetupContext<Props extends FormKitInputs<Props>> {
   slots: Slots<Props>
   emit: FormKitEvents<Props>
 }
+
+type FormKitRuntimeProps = FormKitInputs<any> &
+  VNodeProps &
+  AllowedComponentProps &
+  ComponentCustomProps
+
+type FormKitRuntimeComponentType = DefineComponent<FormKitRuntimeProps>
 
 /**
  * Flag to determine if we are running on the server.
@@ -214,13 +222,19 @@ function FormKit<Props extends FormKitInputs<Props>>(
  *
  * @public
  */
-export const formkitComponent = /* #__PURE__ */ defineComponent(
+export const FormKitRuntimeComponent = /* #__PURE__ */ defineComponent(
   FormKit as any,
   {
     props: runtimeProps as any,
     inheritAttrs: false,
   }
-) as unknown as FormKitComponent
+) as FormKitRuntimeComponentType
+
+export type FormKitComponent = typeof FormKitRuntimeComponent &
+  FormKitCallableComponent
+
+export const formkitComponent =
+  FormKitRuntimeComponent as unknown as FormKitComponent
 
 // ☝️ We need to cheat here a little bit since our runtime props and our
 // public prop interface are different (we treat some attrs as props to allow

@@ -42,6 +42,56 @@ describe('form structure (react)', () => {
 
     expect(container.querySelector('form')?.getAttribute('id')).toBe(id)
   })
+
+  it('keeps render-prop slots stable across rerenders', async () => {
+    const { container } = renderWithFormKit(
+      createElement(
+        FormKit as any,
+        {
+          type: 'form',
+          actions: false,
+          defaultValue: {
+            team: {
+              email: 'first@example.com',
+            },
+          },
+        },
+        ({ value }: { value: Record<string, any> }) =>
+          createElement(
+            'div',
+            null,
+            createElement(
+              FormKit as any,
+              {
+                type: 'group',
+                name: 'team',
+              },
+              () =>
+                createElement(FormKit as any, {
+                  id: 'team-email',
+                  type: 'text',
+                  name: 'email',
+                })
+            ),
+            createElement('pre', { id: 'team-value' }, JSON.stringify(value))
+          )
+      ),
+      defaultConfig()
+    )
+
+    const input = container.querySelector('#team-email') as HTMLInputElement
+    expect(input).toBeTruthy()
+
+    fireEvent.input(input, {
+      target: { value: 'next@example.com' },
+    })
+
+    await waitFor(() => {
+      expect(container.querySelector('#team-value')?.textContent).toContain(
+        'next@example.com'
+      )
+    })
+  })
 })
 
 describe('form submission (react)', () => {
@@ -253,8 +303,12 @@ describe('form submission (react)', () => {
       defaultConfig()
     )
 
-    expect(container.querySelector('[data-disabled] input[disabled]')).toBeTruthy()
-    expect(container.querySelector('[data-disabled] select[disabled]')).toBeTruthy()
+    expect(
+      container.querySelector('[data-disabled] input[disabled]')
+    ).toBeTruthy()
+    expect(
+      container.querySelector('[data-disabled] select[disabled]')
+    ).toBeTruthy()
   })
 
   it('can reset form on submit via node.reset', async () => {
