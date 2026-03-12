@@ -120,8 +120,10 @@ export function createFloatingLabelsPlugin(
               attrs: {
                 style: {
                   if: '$_offsetCalculated',
-                  then: '$: "background-color: " + $_labelBackgroundColor + "; left: " + $_labelOffset + ";"',
-                  else: '$: "transition: none; background-color: " + $_labelBackgroundColor + "; left: " + $_labelOffset + ";"',
+                  then:
+                    '$: ({ "background-color": $_labelBackgroundColor, left: $_labelOffset })',
+                  else:
+                    '$: ({ transition: "none", "background-color": $_labelBackgroundColor, left: $_labelOffset })',
                 },
               },
             }
