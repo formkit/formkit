@@ -30,6 +30,14 @@ export interface FormKitRenderSlots {
   [index: string]: (data?: Record<string, any>) => ReactNode
 }
 
+/**
+ * The public prop surface for the React FormKit component.
+ *
+ * The `type` prop selects the active input definition, which in turn narrows
+ * the rest of the available props and slots.
+ *
+ * @public
+ */
 export type FormKitComponentProps<Props extends FormKitInputs<Props>> = Props & {
   children?: ReactNode | ((data?: Record<string, any>) => ReactNode)
   slots?: FormKitRenderSlots
@@ -41,6 +49,11 @@ export type FormKitComponentProps<Props extends FormKitInputs<Props>> = Props & 
   [key: string]: any
 }
 
+/**
+ * The public React FormKit component signature.
+ *
+ * @public
+ */
 export type FormKitComponent = <Props extends FormKitInputs<Props>>(
   props: FormKitComponentProps<Props> & { ref?: Ref<FormKitNode | undefined> }
 ) => ReactElement | null
@@ -257,6 +270,15 @@ function FormKitImpl<Props extends FormKitInputs<Props>>(
 const formkitForwardRef = forwardRef(FormKitImpl)
 formkitForwardRef.displayName = 'FormKit'
 
+/**
+ * The root FormKit React component. Use it to render any FormKit input:
+ *
+ * ```tsx
+ * <FormKit type="text" label="Name" />
+ * ```
+ *
+ * @public
+ */
 export const FormKit: <Props extends FormKitInputs<Props>>(
   props: FormKitComponentProps<Props> & { ref?: Ref<FormKitNode | undefined> }
 ) => ReactElement | null = memo(formkitForwardRef) as unknown as FormKitComponent
