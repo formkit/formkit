@@ -29,6 +29,20 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
 - In general, listening to events in FormKit is an antipattern. FormKit already collects and reconciles state for you, so prefer reacting to value, validation state, form state, and node structure instead of manually wiring event chains.
 - Reach for imperative event handlers only when there is no clear node- or state-driven alternative.
 
+## Styling and themes
+
+- Prefer Tailwind CSS 4 as the primary styling mechanism when the project can support it.
+- Avoid the legacy Genesis theme by default. Prefer Regenesis or another Tailwind theme from the FormKit theme workflow.
+- To generate a project-root Tailwind theme, prefer the FormKit CLI:
+  - `formkit theme --theme=regenesis`
+  - or `npx formkit@latest theme --theme=regenesis`
+- That command generates `formkit.theme.(mjs|ts)` in the project root. Then:
+  - import `rootClasses` from `./formkit.theme` into the FormKit config
+  - add `@source "./formkit.theme.ts";` and `@source "./formkit.config.ts";` to the main Tailwind 4 CSS entry
+- For theme creation or deeper customization, start with:
+  - `/essentials/styling`
+  - `/guides/create-a-tailwind-theme`
+
 ## Core nodes
 
 - `form`: submission boundary and top-level collector. A form aggregates descendant values, manages submit lifecycle, validation visibility, settled state, loading/submitting, and errors.
@@ -42,6 +56,11 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
 - Prefer `form`, `group`, and `list` composition over manual object or array assembly.
 - Prefer node APIs, props, and derived FormKit state over DOM queries or duplicate framework state.
 - For cross-field behavior, model the relationship in the FormKit tree before introducing custom event plumbing.
+- For backend validation or submission failures, prefer a small adapter/helper that maps the backend error payload into FormKit form errors plus keyed input errors.
+- Normalize backend field paths into FormKit addresses such as `email`, `group.name`, or `group.list.2.name`, then pass them to `node.setErrors()` or framework `setErrors()`.
+- For nested groups and lists, prefer dot-notation addresses over one-off manual field wiring in submit handlers.
+- Prefer Tailwind 4 theme generation over ad hoc styling when the project needs a cohesive FormKit design system.
+- When a project needs first-party FormKit styling, generate Regenesis before considering Genesis.
 - When customizing markup or behavior, preserve the existing schema and section structure unless the task really requires replacing it.
 - In React, avoid mirroring FormKit form state in separate React state unless there is a clear boundary reason.
 - In Vue or Nuxt, avoid watchers that duplicate FormKit state when node context or collected values already express the behavior.
@@ -52,6 +71,7 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
 2. Pick the runtime-specific markdown page from `references/docs-index.md`.
 3. Prefer the smallest declarative change that keeps behavior inside FormKit.
 4. If multiple fields interact, model that through `form`, `group`, `list`, validation, schema, or node state before adding listeners.
+5. If backend errors are involved, add or reuse one adapter that converts the server response into FormKit form errors and dot-notation input-error keys.
 
 ## Pulling specific docs
 
@@ -64,4 +84,8 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
   - `/essentials/architecture`
   - `/essentials/forms`
   - `/essentials/validation`
+  - `/essentials/styling`
+  - `/guides/create-a-tailwind-theme`
+  - `/inputs/form`
+  - `/inputs/repeater`
   - the specific `/inputs/<type>` page involved in the task

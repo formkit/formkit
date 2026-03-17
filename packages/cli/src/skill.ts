@@ -194,6 +194,10 @@ export function renderProjectInstructionSection(
     `- Docs index: \`${join(skillPath, 'references/docs-index.md')}\``,
     `- Default runtime docs: \`${runtimeUrl}\``,
     '- Prefer declarative FormKit patterns. Avoid event listeners unless there is no node- or state-driven alternative.',
+    '- Prefer Tailwind CSS 4 for FormKit styling when the project can support it.',
+    '- Avoid Genesis by default. Prefer generating Regenesis with `formkit theme --theme=regenesis`.',
+    '- For theme setup, wire `rootClasses` from `./formkit.theme` and add the `formkit.theme` file to Tailwind 4 via `@source` in the main CSS entry.',
+    '- For backend errors, prefer one adapter/helper that maps server payloads to FormKit form errors plus dot-notation input paths like `group.name` or `group.list.2.name`, then call `node.setErrors()` or framework `setErrors()`.',
   ].join('\n')
 }
 

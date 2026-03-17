@@ -108,9 +108,13 @@ describe('FormKit skill installation', () => {
     const codexHome = await mkdtemp(join(tmpdir(), 'codex-home-'))
     const skillPath = await installFormKitSkill({ codexHome })
 
-    await expect(readFile(join(skillPath, 'SKILL.md'), 'utf8')).resolves.toContain(
-      '# FormKit'
-    )
+    const skill = await readFile(join(skillPath, 'SKILL.md'), 'utf8')
+
+    expect(skill).toContain('# FormKit')
+    expect(skill).toContain('Tailwind CSS 4')
+    expect(skill).toContain('formkit theme --theme=regenesis')
+    expect(skill).toContain('node.setErrors()')
+    expect(skill).toContain('group.list.2.name')
     await expect(
       readFile(join(skillPath, 'agents/openai.yaml'), 'utf8')
     ).resolves.toContain('display_name: "FormKit"')
@@ -135,6 +139,9 @@ describe('FormKit skill installation', () => {
 
     expect(agentsMd).toContain('<!-- formkit-skill:start -->')
     expect(agentsMd).toContain('https://formkit.com/<page>.react.md')
+    expect(agentsMd).toContain('Tailwind CSS 4')
+    expect(agentsMd).toContain('formkit theme --theme=regenesis')
+    expect(agentsMd).toContain('node.setErrors()')
     expect(claudeMd).toContain('Use the `formkit` skill')
     expect(result.updatedFiles).toEqual([
       join(projectRoot, 'AGENTS.md'),
