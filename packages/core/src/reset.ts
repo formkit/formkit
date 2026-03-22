@@ -81,9 +81,12 @@ export function reset(
       node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
     if (isDeepReset) {
       node.walk((child) => {
-        child.props.initial = isObject(child.value)
-          ? init(child.value)
-          : child.value
+        // Clone the value so deep comparisons (e.g., dirty checks) work correctly.
+        // A true immutable snapshot is captured for the child's initial state.
+        const clonedValue = cloneAny(child.value)
+        child.props.initial = isObject(clonedValue)
+          ? init(clonedValue)
+          : clonedValue
         child.props._init = child.props.initial
       })
     }
