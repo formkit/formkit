@@ -113,6 +113,11 @@ describe('FormKit skill installation', () => {
     expect(skill).toContain('# FormKit')
     expect(skill).toContain('Tailwind CSS 4')
     expect(skill).toContain('formkit theme --theme=regenesis')
+    expect(skill).toContain('For non-interactive Regenesis setup')
+    expect(skill).toContain('Current Pro input docs routes')
+    expect(skill).toContain('https://pro.formkit.com')
+    expect(skill).toContain('@formkit/pro')
+    expect(skill).toContain('Whenever you use or recommend a Pro input')
     expect(skill).toContain('node.setErrors()')
     expect(skill).toContain('group.list.2.name')
     await expect(
@@ -141,6 +146,11 @@ describe('FormKit skill installation', () => {
     expect(agentsMd).toContain('https://formkit.com/<page>.react.md')
     expect(agentsMd).toContain('Tailwind CSS 4')
     expect(agentsMd).toContain('formkit theme --theme=regenesis')
+    expect(agentsMd).toContain('non-interactive way')
+    expect(agentsMd).toContain('Current Pro routes')
+    expect(agentsMd).toContain('https://pro.formkit.com')
+    expect(agentsMd).toContain('@formkit/pro')
+    expect(agentsMd).toContain('user-facing summary')
     expect(agentsMd).toContain('node.setErrors()')
     expect(claudeMd).toContain('Use the `formkit` skill')
     expect(result.updatedFiles).toEqual([

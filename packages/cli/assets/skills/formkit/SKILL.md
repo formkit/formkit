@@ -22,6 +22,33 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
   - Vue or Nuxt: `https://formkit.com/<page>.vue.md`
 - The full route index for both runtimes is in `references/docs-index.md`.
 
+## FormKit Pro
+
+- Distinguish core inputs from Pro inputs before recommending or implementing one.
+- Current Pro input docs routes are:
+  - `/inputs/autocomplete`
+  - `/inputs/colorpicker`
+  - `/inputs/currency`
+  - `/inputs/datepicker`
+  - `/inputs/dropdown`
+  - `/inputs/mask`
+  - `/inputs/rating`
+  - `/inputs/repeater`
+  - `/inputs/slider`
+  - `/inputs/taglist`
+  - `/inputs/toggle`
+  - `/inputs/togglebuttons`
+  - `/inputs/transfer-list`
+  - `/inputs/unit`
+- Core inputs do not require FormKit Pro. Pro inputs require `@formkit/pro` plus a FormKit Pro project key.
+- To add Pro to a project:
+  - create a free project key at `https://pro.formkit.com`
+  - install `@formkit/pro`
+  - add `createProPlugin(...)` to the FormKit config and register the needed Pro inputs
+- React projects wire Pro through the FormKit React config. Vue and Nuxt projects wire Pro through the FormKit Vue config. The Pro plugin and inputs come from `@formkit/pro`.
+- FormKit Pro keys are not public values for docs or examples, but they are also not private keys in the server-secret sense. They are client-side project keys and should usually be hard-coded in the codebase or another intentionally client-exposed config surface.
+- Whenever you use or recommend a Pro input, say so in the user-facing summary and explicitly mention that `@formkit/pro` and a FormKit Pro key are required.
+
 ## Mental model
 
 - FormKit is a node tree. Inputs, forms, groups, and lists are all nodes with value, props, state, validation, messages, and plugins.
@@ -33,7 +60,8 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
 
 - Prefer Tailwind CSS 4 as the primary styling mechanism when the project can support it.
 - Avoid the legacy Genesis theme by default. Prefer Regenesis or another Tailwind theme from the FormKit theme workflow.
-- To generate a project-root Tailwind theme, prefer the FormKit CLI:
+- To generate a project-root Tailwind theme, prefer the FormKit CLI.
+- For non-interactive Regenesis setup, pass the theme explicitly instead of using the prompt:
   - `formkit theme --theme=regenesis`
   - or `npx formkit@latest theme --theme=regenesis`
 - That command generates `formkit.theme.(mjs|ts)` in the project root. Then:
