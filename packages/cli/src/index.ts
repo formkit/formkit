@@ -1,15 +1,23 @@
 import { FORMKIT_VERSION } from '@formkit/core'
 import { Command } from 'commander'
 import chalk from 'chalk'
+import { readFileSync } from 'fs'
 import { exportInput } from './exportInput'
 import { createApp } from './createApp'
 import { buildTheme } from './theme'
 import { createTheme } from './createTheme'
-import { dirname } from 'path'
+import { setupSkill } from './skill'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { execa } from 'execa'
 
 const __filename = fileURLToPath(import.meta.url)
+const cliVersion =
+  FORMKIT_VERSION === '__FKV__'
+    ? JSON.parse(
+        readFileSync(resolve(dirname(__filename), '../package.json'), 'utf8')
+      ).version
+    : FORMKIT_VERSION
 
 /**
  * @internal
@@ -48,7 +56,7 @@ const program = new Command()
 program
   .name('FormKit CLI')
   .description('The official FormKit command line utility.')
-  .version(FORMKIT_VERSION)
+  .version(cliVersion)
 
 program
   .command('export')
@@ -103,6 +111,13 @@ program
   .action(buildTheme)
 
 program
+  .command('skill')
+  .description(
+    'Install the FormKit coding-agent skill and optionally enable it for this project.'
+  )
+  .action(setupSkill)
+
+program
   .command('create-theme')
   .argument('[name]', 'The public name of the theme, for example "Monokai".')
   .option(
@@ -126,6 +141,7 @@ export async function cli(): Promise<void> {
 }
 
 export * from './theme'
+export * from './skill'
 
 /**
  * @internal
