@@ -9,27 +9,87 @@
   <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
 </p>
 
+<h1 align="center">The form framework for coding agents.</h1>
+
 <p align="center">
-  <a href="https://formkit.com">Documentation website</a>
+Co-located validation, self-structuring data, composability, and a compact single-component API<br>that makes it easy for coding agents to reason about complex forms without boilerplate or guesswork.
 </p>
 
-# FormKit
+<p align="center">
+  <b>Vue</b> · <b>React</b> · <b>Nuxt</b>&nbsp;&nbsp;—&nbsp;&nbsp;Trusted by NBC, Nike, Bosch, Walmart, and thousands of teams that ship at scale.
+</p>
 
-<h2><img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3 form development. 10x faster.</h2>
+<br>
 
-FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
-faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
-handling, and validation rules. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+<p align="center">
+  <code>npx formkit skill</code>
+</p>
 
-<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
+<p align="center">
+  Install the FormKit skill for your coding agent.<br>
+  Supports <b>Claude Code</b>, <b>Codex</b>, <b>Cursor</b>, <b>Cline</b>, <b>Gemini</b>, <b>OpenCode</b>, <b>Amp</b>, and more.<br>
+  Auto-detects your framework and configures your agent with FormKit docs and best practices.
+</p>
 
-## Get Started Fast with KickStart
-<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
-  <img width="800" src="https://cdn.formk.it/og/kickstart-og.png" alt="KickStart">
-</a>
-<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
-  <img width="800" src="https://cdn.formk.it/web-assets/kickstart-loop.gif" alt="KickStart Demo">
-</a>
+<p align="center">
+  <a href="https://formkit.com">Documentation</a> · <a href="https://formkit.com/getting-started/installation">Get Started</a> · <a href="https://discord.gg/Vhu97pAC76">Discord</a>
+</p>
+
+<br>
+Every `<FormKit>` component owns a **node**. Nodes automatically structure data across components at any depth — no prop-drilling, event spaghetti, or ad-hoc state stores. The result is a compact representation of form state that agents and humans can both reason about.
+
+```jsx
+<FormKit type="form" onSubmit={handleSubmit}>
+  <FormKit type="text" name="email" label="Email" validation="required|email" />
+  <FormKit
+    type="password"
+    name="password"
+    label="Password"
+    validation="required|length:8"
+  />
+</FormKit>
+```
+
+That's a fully accessible form with labels, validation, error messages, loading state, and submit handling. All generated from one component.
+
+## Predictable structure, increased efficacy.
+
+FormKit automatically structures data across components — at any depth — providing your agent with a stable structure for composition without prop-drilling, event spaghetti, or ad-hoc state stores. Generated forms stay structured, editable, and consistent as your product evolves.
+
+- **One component, every input** — `<FormKit type="text">`, `<FormKit type="select">`, `<FormKit type="checkbox">` — a consistent, predictable API across all inputs
+- **Co-located validation** — 30+ built-in rules declared inline. No separate validation schemas, no event listeners, no glue code
+- **Self-structuring data** — `type="group"` nests as objects, `type="list"` nests as arrays. Data shape mirrors component shape automatically
+- **Schema** — generate entire forms from JSON. Conditional rendering, loops, expressions, dynamic data — all serializable
+- **Theming** — first-class Tailwind CSS support with the Regenesis theme, or bring your own styles
+- **i18n** — 30+ languages included, swap at runtime
+- **Accessibility** — proper ARIA attributes, labels, and descriptions generated automatically
+- **Plugins** — extend or override anything. Validation, i18n, and even input types are all plugins
+
+## FormKit Pro
+
+Premium inputs for complex interfaces — autocomplete, datepicker, repeater, color picker, drag-and-drop, mask, rating, slider, tag list, toggle, and more. Built on the same FormKit Node, same schema, same theming system. Get your project key at **[pro.formkit.com](https://pro.formkit.com)**.
+
+## Get Started
+
+Follow the installation guide for your framework:
+
+- **[FormKit Installation Guide](https://formkit.com/getting-started/installation)**
+
+## Architecture
+
+FormKit cleanly separates its framework-agnostic core from framework bindings:
+
+```
+@formkit/core          →  Node tree, events, plugins, schema compiler
+@formkit/validation    →  Validation engine
+@formkit/rules         →  Built-in validation rules
+@formkit/i18n          →  Internationalization
+@formkit/inputs        →  Input type definitions
+@formkit/themes        →  Theme utilities
+─────────────────────────────────────────────
+@formkit/vue           →  Vue 3 bindings
+@formkit/react         →  React 18/19 bindings
+```
 
 ## Sponsors
 
@@ -86,55 +146,6 @@ and continually improve it! There are a variety of sponsor tiers and benefits fo
 ### Backers
 
 [uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic), [João Bondim](https://github.com/JesterIruka)
-
-<table style="width: 100%;">
-	<tr>
-		<th colspan="2">
-			<h2>Key features</h3>
-		</th>
-	<tr>
-	<tr>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">☝️ Comprehensive package</h4>
-			<p>FormKit is an all-in-one form-authoring framework with <a href="https://formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://formkit.com/essentials/validation">validation</a>, form <a href="https://formkit.com/essentials/styling">UI & styling</a>, <a href="https://formkit.com/inputs/form#error-handling">error handling</a>,   <a href="https://formkit.com/essentials/schema">generation</a>, a11y, <a href="https://formkit.com/essentials/internationalization">i18n</a>, and more! </p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4>
-			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. FormKit provides a <a href="https://formkit.com/essentials/inputs#props--attributes">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
-		</td>
-	</tr>
-	<tr>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">🎯 Validation built in</h4>
-			<p>Ridiculously easy <a href="https://formkit.com/essentials/validation">validation</a> out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add <a href="https://formkit.com/essentials/validation#custom-rules">custom validation rules</a> too.</p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">⚡️ Blazing-fast Performance</h4>
-			<p>FormKit can handle the most demanding forms — wizards, multi-step, deeply nested repeating groups, and more.</p>
-		</td>
-	</tr>
-	<tr>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4>
-			<p>Extend FormKit's functionality or reuse custom inputs, validation rules and messages across projects by tapping into the <a href="https://formkit.com/advanced/core#plugins">plugin system</a>. Make your plugin open source to share with others!</p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">✨ Generate forms</h4>
-			<p><a href="https://formkit.com/essentials/schema">Generate an entire form</a> from a JSON-compatible schema. Schema allows you to render complex forms from JSON with conditional rendering, logic, dynamic data, groups, wrappers, HTML elements, and custom components.</p>
-		</td>
-	</tr>
-  <tr>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🎨 Robust Theming</h4>
-			<p>FormKit works easily alongside your favorite UI frameworks like Bootstrap and utility-class tools like Tailwind. With numerous ways to <a href="https://formkit.com/essentials/styling#custom-classes">modify classes</a> and <a href="https://formkit.com/essentials/inputs#schema-overrides">DOM structure</a>, integrating FormKit plays nicely with any frontend.</p>
-		</td>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🌐 Internationalization</h4>
-			<p>FormKit is made for all! Thanks to the FormKit community, FormKit ships with support for <a href="https://formkit.com/essentials/internationalization">many languages</a>. Don't see your language? Contribute one with our <a href="https://i18n.formkit.com">locale builder.</a></p>
-		</td>
-	</tr>
-
-</table>
 
 ## Contributing
 
