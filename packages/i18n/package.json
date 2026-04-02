@@ -1,6 +1,6 @@
 {
   "name": "@formkit/i18n",
-  "version": "1.7.2",
+  "version": "2.0.0",
   "type": "module",
   "description": "Internationalization layer for FormKit.",
   "main": "dist/index.cjs",
