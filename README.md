@@ -67,7 +67,7 @@ That's a fully accessible form with labels, validation, error messages, loading 
 
 Premium inputs for complex interfaces — autocomplete, datepicker, repeater, color picker, drag-and-drop, mask, rating, slider, tag list, toggle, and more. Built on the same FormKit Node, same schema, same theming system.
 
-**[Explore Pro inputs &rarr;](https://formkit.com/inputs)**
+**[Explore Pro inputs &rarr;](https://formkit.com/pro)**
 
 <br>
 
