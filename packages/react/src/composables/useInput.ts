@@ -31,6 +31,7 @@ import {
   useRef,
 } from 'react'
 import { optionsSymbol } from '../plugin'
+import { onSSRComplete } from './onSSRComplete'
 import { componentSymbol, parentSymbol, rootSymbol } from '../context'
 
 interface FormKitComponentListeners {
@@ -193,7 +194,8 @@ export function useInput<Props extends FormKitInputs<Props>>(
   props: Props & Record<string, any>,
   options: FormKitOptions = {}
 ): FormKitNode {
-  const config = Object.assign({}, useContext(optionsSymbol) || {}, options)
+  const providedOptions = useContext(optionsSymbol)
+  const config = Object.assign({}, providedOptions || {}, options)
   const __root = useContext(rootSymbol)
   const __cmpCallback = useContext(componentSymbol)
   const inheritedParent = useContext(parentSymbol)
@@ -280,6 +282,10 @@ export function useInput<Props extends FormKitInputs<Props>>(
     __cmpCallback(created)
 
     if (!created.props.definition) error(600, created)
+
+    onSSRComplete(providedOptions || undefined, () => {
+      created.destroy()
+    })
 
     return created
     // eslint-disable-next-line react-hooks/exhaustive-deps

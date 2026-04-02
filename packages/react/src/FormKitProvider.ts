@@ -33,12 +33,19 @@ export function removeConfig(rootConfig: FormKitRootConfig) {
 function normalizeOptions(
   config?: FormKitOptions | ((...args: any[]) => FormKitOptions)
 ): FormKitOptions {
+  const resolvedConfig =
+    typeof config === 'function' ? config() : config
+
+  if (resolvedConfig?.config?.rootConfig) {
+    return resolvedConfig
+  }
+
   const options = Object.assign(
     {
       alias: 'FormKit',
       schemaAlias: 'FormKitSchema',
     },
-    typeof config === 'function' ? config() : config
+    resolvedConfig
   )
 
   const rootConfig = createConfig(options.config || {})

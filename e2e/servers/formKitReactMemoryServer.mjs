@@ -2,15 +2,17 @@ import React from 'react'
 import { renderToString } from 'react-dom/server'
 import http from 'http'
 import {
+  createPlugin,
   FormKit,
   FormKitProvider,
   defaultConfig,
+  ssrComplete,
 } from '../../packages/react/dist/index.mjs'
 
-function App() {
+function App({ config }) {
   return React.createElement(
     FormKitProvider,
-    { config: defaultConfig() },
+    { config },
     React.createElement(
       FormKit,
       { type: 'form' },
@@ -79,7 +81,9 @@ const server = http.createServer((req, res) => {
     return
   }
 
-  const html = renderToString(React.createElement(App))
+  const config = createPlugin(defaultConfig()).options
+  const html = renderToString(React.createElement(App, { config }))
+  ssrComplete(config)
   if (typeof globalThis.gc === 'function') globalThis.gc() // eslint-disable-line no-undef
 
   res.statusCode = 200

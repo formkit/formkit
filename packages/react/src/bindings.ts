@@ -107,16 +107,6 @@ function hasContextValueChanged(current: unknown, next: unknown): boolean {
   return true
 }
 
-const listItemKeys = new Map<symbol, string>()
-let nextListItemKey = 0
-
-function toListItemKey(uid: symbol): string {
-  if (!listItemKeys.has(uid)) {
-    listItemKeys.set(uid, `fk-item-${nextListItemKey++}`)
-  }
-  return listItemKeys.get(uid) as string
-}
-
 /**
  * React bindings plugin — creates a mutable framework context and reactive
  * store notifications for React subscribers.
@@ -273,7 +263,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     handlers,
     help: node.props.help,
     id: node.props.id as string,
-    items: node.children.map((child) => toListItemKey(child.uid)),
+    items: node.children.map((child) => child.uid),
     label: node.props.label,
     messages: {},
     didMount: false,
@@ -496,7 +486,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     }
 
     if (node.type === 'list' && node.sync) {
-      context.items = node.children.map((child) => toListItemKey(child.uid))
+      context.items = node.children.map((child) => child.uid)
     }
 
     context.state.empty = empty(payload)
