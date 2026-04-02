@@ -13,7 +13,7 @@
 
 Co-located validation, self-structuring data, composability, and a compact single-component API<br>that makes it easy for coding agents to reason about complex forms without boilerplate or guesswork.
 
-**React** · **Vue** &nbsp;—&nbsp; Trusted by NBC, Nike, Bosch, Walmart, and thousands of teams that ship at scale.
+**React** · **Vue** &nbsp;—&nbsp; Trusted by NBC, Nike, Bosch, Anthem Blue Cross, and thousands of teams that ship at scale.
 
 [Documentation](https://formkit.com) &nbsp;&middot;&nbsp; [Get Started](https://formkit.com/getting-started/installation) &nbsp;&middot;&nbsp; [Discord](https://discord.gg/Vhu97pAC76)
 
