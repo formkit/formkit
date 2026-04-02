@@ -1,0 +1,8 @@
+interface:
+  display_name: "FormKit"
+  short_description: "Work effectively with FormKit forms"
+  brand_color: "#f97316"
+  default_prompt: "Use $formkit to plan or implement a FormKit change in this project."
+
+policy:
+  allow_implicit_invocation: true

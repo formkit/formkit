@@ -1,153 +1,125 @@
-<p align="center">
-  <a href="https://www.formkit.com#gh-light-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png" alt="FormKit Logo"></a>
-  <a href="https://www.formkit.com#gh-dark-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo-white.png" alt="FormKit Logo"></a>
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/formkit/formkit/actions"><img title="Build Badge" alt="GitHub Build Status" src="https://github.com/formkit/formkit/actions/workflows/tests.yml/badge.svg"></a>
-  <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>
-  <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
-</p>
+<a href="https://www.formkit.com#gh-light-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png" alt="FormKit Logo"></a>
+<a href="https://www.formkit.com#gh-dark-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo-white.png" alt="FormKit Logo"></a>
 
-<p align="center">
-  <a href="https://formkit.com">Documentation website</a>
-</p>
+<br>
 
-# FormKit
+<a href="https://github.com/formkit/formkit/actions"><img alt="GitHub Build Status" src="https://github.com/formkit/formkit/actions/workflows/tests.yml/badge.svg"></a>&nbsp;
+<a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>&nbsp;
+<a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
 
-<h2><img width="20" style="vertical-align:middle;" src="https://cdn.formk.it/vendor-logos/vue-logo.png"> Vue 3 form development. 10x faster.</h2>
+**The form framework for coding agents.**
 
-FormKit is a form-authoring framework for Vue developers that makes building high quality production-ready forms 10x
-faster. It is easy-to-learn and ships with production-ready scaffolding like inputs, forms, submission and error
-handling, and validation rules. To learn more check out the documentation website at: [formkit.com](https://www.formkit.com).
+Co-located validation, self-structuring data, composability, and a compact single-component API<br>that makes it easy for coding agents to reason about complex forms without boilerplate or guesswork.
 
-<p align="center"><a href="https://formkit.com"><img width="190" src="https://cdn.formk.it/web-assets/read-the-docs.svg" /></a></p>
+**React** · **Vue** &nbsp;—&nbsp; Trusted by NBC, Nike, Bosch, Walmart, and thousands of teams that ship at scale.
 
-## Get Started Fast with KickStart
-<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
-  <img width="800" src="https://cdn.formk.it/og/kickstart-og.png" alt="KickStart">
-</a>
-<a href="https://kickstart.formkit.com" target="_blank" rel="noopener noreferrer">
-  <img width="800" src="https://cdn.formk.it/web-assets/kickstart-loop.gif" alt="KickStart Demo">
-</a>
+[Documentation](https://formkit.com) &nbsp;&middot;&nbsp; [Get Started](https://formkit.com/getting-started/installation) &nbsp;&middot;&nbsp; [Discord](https://discord.gg/Vhu97pAC76)
+
+</div>
+
+> [!TIP]
+> **Set up your coding agent for FormKit**
+> ```
+> npx formkit skill
+> ```
+> Supports **Claude Code**, **Codex**, **Cursor**, **Cline**, **Gemini**, **OpenCode**, **Amp**, and more.
+> Auto-detects your framework and configures your agent with the right docs and best practices.
+
+<br>
+
+## One primitive. Infinite flexibility.
+
+> *"Forms today remain fundamentally unsolved. We need a new low-level primitive to power the next generation of web applications written with AI. The FormKit Node is that primitive."*
+>
+> — Justin Schroeder, Creator of FormKit
+
+Every `<FormKit>` component owns a **node**. Nodes automatically structure data across components at any depth — no prop-drilling, event spaghetti, or ad-hoc state stores. The result is a compact representation of form state that agents and humans can both reason about. Generated forms stay structured, editable, and consistent as your product evolves.
+
+```jsx
+<FormKit type="form" onSubmit={handleSubmit}>
+  <FormKit type="text" name="email" label="Email" validation="required|email" />
+  <FormKit type="password" name="password" label="Password" validation="required|length:8" />
+</FormKit>
+```
+
+That's a fully accessible form with labels, validation, error messages, loading state, and submit handling — all from one component.
+
+<br>
+
+## What you get
+
+| Feature | |
+|---|---|
+| **One component, every input** | `<FormKit type="text">`, `<FormKit type="select">`, `<FormKit type="checkbox">` — consistent, predictable API across all inputs |
+| **Co-located validation** | 30+ built-in rules declared inline. No separate validation schemas, no event listeners, no glue code |
+| **Self-structuring data** | `type="group"` nests as objects, `type="list"` nests as arrays. Data shape mirrors component shape automatically |
+| **Schema** | Generate entire forms from JSON. Conditional rendering, loops, expressions, dynamic data — all serializable |
+| **Theming** | First-class Tailwind CSS support with the Regenesis theme, or bring your own styles |
+| **i18n** | 30+ languages included, swap at runtime |
+| **Accessibility** | ARIA attributes, labels, and descriptions generated automatically |
+| **Plugins** | Extend or override anything — validation, i18n, and even input types are all plugins |
+
+<br>
+
+## FormKit Pro
+
+Premium inputs for complex interfaces — autocomplete, datepicker, repeater, color picker, drag-and-drop, mask, rating, slider, tag list, toggle, and more. Built on the same FormKit Node, same schema, same theming system.
+
+**[Explore Pro inputs &rarr;](https://formkit.com/pro)**
+
+<br>
+
+## Architecture
+
+FormKit cleanly separates its framework-agnostic core from framework bindings. The same core powers every framework — same validation rules, same schemas, same plugins.
+
+```
+@formkit/core          →  Node tree, events, plugins, schema compiler
+@formkit/validation    →  Validation engine
+@formkit/rules         →  Built-in validation rules
+@formkit/i18n          →  Internationalization
+@formkit/inputs        →  Input type definitions
+@formkit/themes        →  Theme utilities
+─────────────────────────────────────────────
+@formkit/react         →  React 18/19 bindings
+@formkit/vue           →  Vue 3 bindings
+```
+
+<br>
 
 ## Sponsors
 
-FormKit — which supports its whole feature set for _native HTML inputs_ (like `select`, `checkbox`, and `textarea`) — is and will always be an MIT-licensed
-open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably
-and continually improve it! There are a variety of sponsor tiers and benefits for each sponsor.
+FormKit — which supports its whole feature set for _native HTML inputs_ (like `select`, `checkbox`, and `textarea`) — is and will always be an MIT-licensed open source project. Please consider [sponsoring FormKit](https://github.com/sponsors/formkit) so we can sustainably and continually improve it!
 
-### 💎 Platinum sponsors
+#### 💎 Platinum
 
-<p style="margin-bottom: 1em;">
-  <a href="https://vueschool.io?friend=formkit">
-    <img src="https://cdn.formk.it/web-assets/sponsors/vueschool.png" alt="Vue School logo" style="width: 25%;">
-  </a>
-</p>
+<a href="https://vueschool.io?friend=formkit"><img src="https://cdn.formk.it/web-assets/sponsors/vueschool.png" alt="Vue School" width="200"></a>
 
-### 🥇 Gold sponsors
+#### 🥇 Gold
 
-<p style="margin-bottom: 1em;">
-  <a href="https://fieldman.co?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/fieldman-logo.svg" alt="Fieldman logo" style="width: 22%;">
-  </a>
-</p>
+<a href="https://fieldman.co?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/fieldman-logo.svg" alt="Fieldman" width="175"></a>
 
-### 🥈 Silver sponsors
+#### 🥉 Bronze
 
-<p><a href="https://github.com/sponsors/formkit"><img width="180" src="https://cdn.formk.it/web-assets/your-logo-here.svg" /></a></p>
+<a href="https://www.perbyte.com?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte" width="110"></a>&nbsp;&nbsp;
+<a href="https://zammad.com?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/zammad_logo-transparent.png" alt="Zammad" width="110"></a>&nbsp;&nbsp;
+<a href="https://wedgworth.com?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_wedgworth.png" alt="Wedgworth's Inc" width="70"></a>&nbsp;&nbsp;
+<a href="https://www.usemast.com/?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_mast.png" alt="Mast" width="70"></a>
 
-### 🥉 Bronze sponsors
+#### Backers
 
-<p style="margin-bottom: 1em;">
-  <a href="https://www.perbyte.com?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte logo" style="width: 14%;">
-  </a>
-</p>
+[uscreen](https://uscreen.de) · [gfenn08](https://github.com/gfenn08) · [Ryan E](https://github.com/VikingDadMedic) · [João Bondim](https://github.com/JesterIruka)
 
-<p style="margin-bottom: 1em;">
-  <a href="https://zammad.com?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/zammad_logo-transparent.png" alt="Zammad logo" style="width: 14%;">
-  </a>
-</p>
-
-<p style="margin-bottom: 1em;">
-  <a href="https://wedgworth.com?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_wedgworth.png" alt="Wedgworth's Inc logo" style="width: 9%;">
-  </a>
-</p>
-
-<p style="margin-bottom: 1em;">
-  <a href="https://www.usemast.com/?utm_source=formkit&utm_medium=web">
-    <img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_mast.png" alt="Mast's logo" style="width: 9%;">
-  </a>
-</p>
-
-### Backers
-
-[uscreen](https://uscreen.de), [gfenn08](https://github.com/gfenn08), [Ryan E](https://github.com/VikingDadMedic), [João Bondim](https://github.com/JesterIruka)
-
-<table style="width: 100%;">
-	<tr>
-		<th colspan="2">
-			<h2>Key features</h3>
-		</th>
-	<tr>
-	<tr>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">☝️ Comprehensive package</h4>
-			<p>FormKit is an all-in-one form-authoring framework with <a href="https://formkit.com/essentials/inputs">input scaffolding</a> (labels, help text, etc.), <a href="https://formkit.com/essentials/validation">validation</a>, form <a href="https://formkit.com/essentials/styling">UI & styling</a>, <a href="https://formkit.com/inputs/form#error-handling">error handling</a>,   <a href="https://formkit.com/essentials/schema">generation</a>, a11y, <a href="https://formkit.com/essentials/internationalization">i18n</a>, and more! </p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">😎 Developer happiness</h4>
-			<p>Forms are everywhere, yet surprisingly tedious to author — well, not anymore. FormKit provides a <a href="https://formkit.com/essentials/inputs#props--attributes">powerful and flexible API</a> to developers that makes complex form creation a breeze.</p>
-		</td>
-	</tr>
-	<tr>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">🎯 Validation built in</h4>
-			<p>Ridiculously easy <a href="https://formkit.com/essentials/validation">validation</a> out-of-the-box to handle 95% of use-cases. Help text, validation rules, and validation messages are simple props. Need more? You can add <a href="https://formkit.com/essentials/validation#custom-rules">custom validation rules</a> too.</p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">⚡️ Blazing-fast Performance</h4>
-			<p>FormKit can handle the most demanding forms — wizards, multi-step, deeply nested repeating groups, and more.</p>
-		</td>
-	</tr>
-	<tr>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🔌 Plugin system</h4>
-			<p>Extend FormKit's functionality or reuse custom inputs, validation rules and messages across projects by tapping into the <a href="https://formkit.com/advanced/core#plugins">plugin system</a>. Make your plugin open source to share with others!</p>
-		</td>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em;">✨ Generate forms</h4>
-			<p><a href="https://formkit.com/essentials/schema">Generate an entire form</a> from a JSON-compatible schema. Schema allows you to render complex forms from JSON with conditional rendering, logic, dynamic data, groups, wrappers, HTML elements, and custom components.</p>
-		</td>
-	</tr>
-  <tr>
-		<td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🎨 Robust Theming</h4>
-			<p>FormKit works easily alongside your favorite UI frameworks like Bootstrap and utility-class tools like Tailwind. With numerous ways to <a href="https://formkit.com/essentials/styling#custom-classes">modify classes</a> and <a href="https://formkit.com/essentials/inputs#schema-overrides">DOM structure</a>, integrating FormKit plays nicely with any frontend.</p>
-		</td>
-    <td style="width: 50%; vertical-align: top;">
-			<h4 style="margin-top: 0.25em">🌐 Internationalization</h4>
-			<p>FormKit is made for all! Thanks to the FormKit community, FormKit ships with support for <a href="https://formkit.com/essentials/internationalization">many languages</a>. Don't see your language? Contribute one with our <a href="https://i18n.formkit.com">locale builder.</a></p>
-		</td>
-	</tr>
-
-</table>
+<br>
 
 ## Contributing
 
 Thank you for your willingness to contribute to this free and open source project! When contributing, consider first discussing your desired change with the core team via [GitHub issues](https://github.com/formkit/formkit/issues), [Discord](https://discord.gg/Vhu97pAC76), or other method.
 
-### Contributors
-
-This project exists thanks to all the people who volunteer their time to contribute!
-
 <a href="https://github.com/formkit/formkit/graphs/contributors"><img src="https://contributors-img.web.app/image?repo=formkit/formkit" /></a>
 
 ## License
 
-[MIT](https://opensource.org/licenses/MIT)
-
-Copyright (c) 2021-present, [FormKit, Inc.](https://formkit.com)
+[MIT](https://opensource.org/licenses/MIT) · Copyright (c) 2021-2026, [FormKit, Inc.](https://formkit.com)

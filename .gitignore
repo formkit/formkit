@@ -64,4 +64,7 @@ Temporary Items
 *.local.json
 
 # dmux worktrees
+.pnpm-store/
+packages/nuxt/playground/jiti/
+packages/nuxt/playground/node-compile-cache/
 .node_modules_tmp

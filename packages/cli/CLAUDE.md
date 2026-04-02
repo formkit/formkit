@@ -10,8 +10,12 @@ src/
   createApp.ts    - Scaffolds Vite/Nuxt apps with FormKit + Tailwind
   createTheme.ts  - Scaffolds new themes from @formkit/theme-starter
   exportInput.ts  - Exports input definitions from @formkit/inputs
+  skill.ts        - Installs the FormKit skill and updates project agent files
+  skillDocs.ts    - Generates the runtime-specific docs URL index for the skill
   theme.ts        - Generates/edits formkit.theme.ts files
   utils.ts        - File utilities (isDirEmpty, package.json helpers, git user)
+assets/skills/
+  formkit/        - Bundled skill template copied into ~/.codex/skills/formkit
 bin/
   formkit.mjs     - Shebang entry, uses jiti to run dist/index.mjs
 ```
@@ -23,12 +27,14 @@ bin/
 | `formkit export [input]` | Export input type to local file | `exportInput.ts` |
 | `formkit create-app [name]` | Scaffold Vite/Nuxt app | `createApp.ts` |
 | `formkit theme` | Generate/edit formkit.theme.ts | `theme.ts` |
+| `formkit skill` | Install FormKit coding-agent skill + project wiring | `skill.ts` |
 | `formkit create-theme [name]` | Scaffold new theme package | `createTheme.ts` |
 
 ## Key Abstractions
 
 ### Public Exports
 - `cli()` - Main entry, parses commands via Commander
+- `setupSkill()` - Installs the bundled FormKit skill and applies project enablement
 - `buildTheme(options)` - Generate theme file programmatically
 - `generate(theme, variables, isTS, semantic, themeName)` - Core theme generation
 - `extractThemeData(code)` - Parse checksum/variables/theme from generated file
@@ -37,6 +43,8 @@ bin/
 - `exportInput()` - Fetches input source from local dist or CDN, transforms imports
 - `createApp()` - Prompts user, runs create-vite/nuxi, adds deps, writes configs
 - `createTheme()` - Downloads theme-starter, customizes package.json/LICENSE/meta
+- `installFormKitSkill()` - Copies bundled skill assets into Codex home
+- `enableAgentsForProject()` - Updates `AGENTS.md` / `CLAUDE.md` or prints manual setup
 
 ### Logging Helpers
 - `red()`, `green()`, `info()`, `warning()`, `error()` - Chalk-wrapped console output
@@ -75,6 +83,14 @@ program
 - API interaction: `theme.ts` `apiTheme()` function
 - Edit mode (live sync): `theme.ts` `editMode()` uses local HTTP server on port 5480-5550
 
+### Updating the FormKit skill docs index
+
+```bash
+pnpm --dir packages/cli generate:skill-docs
+```
+
+This reads the sibling `docs-content` tree and rewrites `assets/skills/formkit/references/docs-index.md`.
+
 ### Adding Features to create-app
 
 - Framework templates: `createApp.ts` line 227 (Vite) and 276 (Nuxt)
@@ -110,6 +126,7 @@ What constitutes a breaking change:
 
 Update this CLAUDE.md when:
 - New command added to `program` in `src/index.ts`
+- Skill asset layout or docs-index generation changes in `src/skill.ts`, `src/skillDocs.ts`, or `assets/skills/formkit/**`
 - New export added to `src/index.ts`
 - External API endpoints change (themes.formkit.com, pro.formkit.com)
 - Generated file format changes in `theme.ts` or `createApp.ts`

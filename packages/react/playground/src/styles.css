@@ -1,0 +1,34 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+@source "../formkit.theme.ts";
+@source "../formkit.config.ts";
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --playground-bg: #f1f5f9;
+    --playground-fg: #0f172a;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --playground-bg: #020617;
+    --playground-fg: #e2e8f0;
+  }
+
+  body {
+    @apply m-0 antialiased;
+    background-color: var(--playground-bg);
+    color: var(--playground-fg);
+  }
+}
+
+@layer components {
+  .schema-box {
+    @apply mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/70;
+  }
+
+  .json-output {
+    @apply m-0 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-3 text-xs text-slate-100;
+  }
+}

@@ -4,18 +4,49 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish, e.g. 2.0.0-abc123.dev'
+        required: false
+        type: string
+      npm_tag:
+        description: 'npm dist-tag to publish with'
+        required: false
+        default: 'next'
+        type: choice
+        options:
+          - latest
+          - next
+          - dev
+      git_ref:
+        description: 'Git ref to checkout for manual publishes'
+        required: false
+        default: 'react'
+        type: string
+      dry_run:
+        description: 'Run publish in dry-run mode'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
-  id-token: write # Required for OIDC trusted publishing
-  contents: write # Required for creating GitHub releases
+  id-token: write
+  contents: write
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      dry_run: ${{ steps.publish-mode.outputs.dry_run }}
+      is_prerelease: ${{ steps.publish-meta.outputs.is_prerelease }}
+      tag: ${{ steps.publish-meta.outputs.tag }}
+      version: ${{ steps.publish-meta.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Need full history for branch detection
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.git_ref || github.ref }}
 
       - uses: pnpm/action-setup@v4
 
@@ -23,37 +54,57 @@ jobs:
         with:
           node-version: '20'
           cache: pnpm
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: Update npm for trusted publishing
-        run: npm install -g npm@latest
+      - name: Determine publish mode
+        id: publish-mode
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.dry_run }}" == "true" ]]; then
+            echo "dry_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Determine npm tag and version from git tag
-        id: npm-tag
+        id: publish-meta
         run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
-          # Extract version by removing 'v' prefix
-          VERSION=${TAG_NAME#v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          infer_tag() {
+            local version="$1"
+            if [[ "$version" =~ (^|[-.])next([.-]|$) ]]; then
+              echo "next"
+            elif [[ "$version" =~ (^|[-.])dev([.-]|$) ]]; then
+              echo "dev"
+            else
+              echo "latest"
+            fi
+          }
 
-          if [[ "$TAG_NAME" == *"-next"* ]]; then
-            echo "tag=next" >> $GITHUB_OUTPUT
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
-          elif [[ "$TAG_NAME" == *"-dev"* ]]; then
-            echo "tag=dev" >> $GITHUB_OUTPUT
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+            TAG="${{ inputs.npm_tag }}"
+            if [[ -z "$VERSION" ]]; then
+              echo "ERROR: workflow_dispatch requires a version input"
+              exit 1
+            fi
           else
-            echo "tag=latest" >> $GITHUB_OUTPUT
-            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            VERSION=${TAG_NAME#v}
+            TAG=$(infer_tag "$VERSION")
+            echo "Git tag: $TAG_NAME"
           fi
-          echo "Git tag: $TAG_NAME"
+
           echo "Version: $VERSION"
-          echo "NPM tag: $(if [[ "$TAG_NAME" == *"-next"* ]]; then echo next; elif [[ "$TAG_NAME" == *"-dev"* ]]; then echo dev; else echo latest; fi)"
+          echo "NPM tag: $TAG"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" == "latest" ]]; then
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Verify branch for @latest releases
-        if: steps.npm-tag.outputs.tag == 'latest'
+        if: steps.publish-meta.outputs.tag == 'latest'
         run: |
-          # Check if this tag is on master branch
           if ! git branch -r --contains HEAD | grep -q 'origin/master'; then
             echo "ERROR: @latest releases can only be published from master branch"
             exit 1
@@ -65,54 +116,253 @@ jobs:
       - name: Build all packages
         run: node scripts/cli.mjs --script build all
 
-      - name: Publish packages
-        run: |
-          if [[ "${{ steps.npm-tag.outputs.is_prerelease }}" == "true" ]]; then
-            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }} --version=${{ steps.npm-tag.outputs.version }}
-          else
-            node scripts/ci-publish.mjs --tag=${{ steps.npm-tag.outputs.tag }}
-          fi
+      - name: Prepare packages for publish
+        run: node scripts/ci-prepare-publish.mjs --version=${{ steps.publish-meta.outputs.version }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-packages
+          path: |
+            packages/*/dist
+            packages/*/package.json
+          retention-days: 1
+
+  publish-utils:
+    needs: build
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: utils
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-core:
+    needs: [build, publish-utils]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: core
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-inputs:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: inputs
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-addons:
+    needs: [build, publish-core, publish-inputs]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: addons
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-cli:
+    needs: [build, publish-core, publish-inputs]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: cli
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-dev:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: dev
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-formkit:
+    needs: [build, publish-cli]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: formkit
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-observer:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: observer
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-validation:
+    needs: [build, publish-core, publish-observer]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: validation
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-i18n:
+    needs: [build, publish-core, publish-validation]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: i18n
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-icons:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: icons
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-rules:
+    needs: [build, publish-core, publish-validation]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: rules
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-themes:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: themes
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-vue:
+    needs:
+      [
+        build,
+        publish-core,
+        publish-dev,
+        publish-i18n,
+        publish-inputs,
+        publish-observer,
+        publish-rules,
+        publish-themes,
+        publish-validation,
+      ]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: vue
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-nuxt:
+    needs: [build, publish-core, publish-i18n, publish-vue]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: nuxt
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-react:
+    needs:
+      [
+        build,
+        publish-core,
+        publish-dev,
+        publish-i18n,
+        publish-inputs,
+        publish-observer,
+        publish-rules,
+        publish-themes,
+        publish-validation,
+      ]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: react
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-tailwindcss:
+    needs: [build, publish-themes]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: tailwindcss
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  publish-zod:
+    needs: [build, publish-core]
+    uses: ./.github/workflows/publish-package.yml
+    with:
+      package: zod
+      npm_tag: ${{ needs.build.outputs.tag }}
+      dry_run: ${{ needs.build.outputs.dry_run == 'true' }}
+
+  post-publish:
+    if: needs.build.outputs.dry_run != 'true'
+    needs:
+      [
+        build,
+        publish-addons,
+        publish-cli,
+        publish-core,
+        publish-dev,
+        publish-formkit,
+        publish-i18n,
+        publish-icons,
+        publish-inputs,
+        publish-nuxt,
+        publish-observer,
+        publish-react,
+        publish-rules,
+        publish-tailwindcss,
+        publish-themes,
+        publish-utils,
+        publish-validation,
+        publish-vue,
+        publish-zod,
+      ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.git_ref || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Purge JSDelivr cache
-        run: node scripts/ci-publish.mjs --purge-cdn --tag=${{ steps.npm-tag.outputs.tag }}
+        continue-on-error: true
+        run: node scripts/purge-jsdelivr.mjs --tag=${{ needs.build.outputs.tag }}
 
       - name: Create GitHub Release
-        if: steps.npm-tag.outputs.tag == 'latest'
+        if: needs.build.outputs.tag == 'latest'
         run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update docs-content changelog
-        if: steps.npm-tag.outputs.tag == 'latest'
+        if: needs.build.outputs.tag == 'latest'
         env:
           DOCS_DEPLOY_KEY: ${{ secrets.DOCS_CONTENT_DEPLOY_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.npm-tag.outputs.version }}"
+          VERSION="${{ needs.build.outputs.version }}"
           TAG_NAME="v${VERSION}"
 
-          # Fetch release body from GitHub API
           RELEASE_BODY=$(gh release view "$TAG_NAME" --json body -q .body)
 
-          # Setup SSH for docs-content
           mkdir -p ~/.ssh
           echo "$DOCS_DEPLOY_KEY" > ~/.ssh/docs_deploy_key
           chmod 600 ~/.ssh/docs_deploy_key
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-          # Clone docs-content
           GIT_SSH_COMMAND="ssh -i ~/.ssh/docs_deploy_key" git clone --depth 1 git@github.com:formkit/docs-content.git docs-content-repo
           cd docs-content-repo
 
-          # Determine next file number
           TARGET_DIR="_changelog"
           LAST_NUM=$(ls "$TARGET_DIR" | grep -oE '^[0-9]+' | sort -n | tail -1)
           NEXT_NUM=$((LAST_NUM + 1))
-
-          # Format date
           DATE=$(date "+%B %-d, %Y")
 
-          # Create changelog file
           {
             echo "## ${VERSION}"
             echo ""
@@ -121,7 +371,6 @@ jobs:
             echo "$RELEASE_BODY"
           } > "${TARGET_DIR}/${NEXT_NUM}.v${VERSION}.md"
 
-          # Commit and push
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .

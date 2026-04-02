@@ -40,7 +40,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "generate:skill-docs": "node ./scripts/generate-skill-docs-index.mjs",
+    "test": "vitest --config ../../vitest.config.mts run packages/cli/__tests__/cli.spec.ts packages/cli/__tests__/skill.spec.ts"
   },
   "dependencies": {
     "@formkit/core": "workspace:^",

@@ -4,7 +4,7 @@ import chalk from 'chalk'
 import { readFile } from 'fs/promises'
 import { mkdirSync } from 'fs'
 import { resolve } from 'pathe'
-import { createNode } from '@formkit/core'
+import { createNode } from '../../core/src/index'
 
 beforeAll(() => {
   mkdirSync(resolve(process.cwd(), 'temp'), { recursive: true })

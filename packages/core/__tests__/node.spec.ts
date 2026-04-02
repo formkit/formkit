@@ -1538,6 +1538,38 @@ describe('resetting', () => {
     expect(node.at('bim')?.value).toBe('xyz')
   })
 
+  it('deep reset captures immutable initial snapshots for nested groups', async () => {
+    const node = createNode({
+      type: 'group',
+      children: [
+        createNode({
+          name: 'user',
+          type: 'group',
+          children: [createNode({ name: 'name' })],
+        }),
+      ],
+    })
+
+    node.reset({ user: { name: 'abc' } })
+
+    const user = node.at('user')
+    const name = node.at('user.name')
+
+    expect(user).toBeDefined()
+    expect(name).toBeDefined()
+    expect(user!.value).toEqual({ name: 'abc' })
+    expect(user!.props.initial).toEqual({ name: 'abc' })
+    expect(user!.props._init).toEqual({ name: 'abc' })
+    expect(user!.props.initial).not.toBe(user!.value)
+    expect(user!.props._init).not.toBe(user!.value)
+
+    await name!.input('xyz')
+
+    expect(user!.value).toEqual({ name: 'xyz' })
+    expect(user!.props.initial).toEqual({ name: 'abc' })
+    expect(user!.props._init).toEqual({ name: 'abc' })
+  })
+
   it('can reset to initial value false', async () => {
     const node = createNode({ value: false })
     node.reset()
