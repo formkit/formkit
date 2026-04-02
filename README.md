@@ -3,27 +3,21 @@
 <a href="https://www.formkit.com#gh-light-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo.png" alt="FormKit Logo"></a>
 <a href="https://www.formkit.com#gh-dark-mode-only" target="_blank" rel="noopener noreferrer"><img width="200" src="https://cdn.formk.it/brand-assets/formkit-logo-white.png" alt="FormKit Logo"></a>
 
-<br><br>
+<br>
 
 <a href="https://github.com/formkit/formkit/actions"><img alt="GitHub Build Status" src="https://github.com/formkit/formkit/actions/workflows/tests.yml/badge.svg"></a>&nbsp;
 <a href="https://www.npmjs.com/package/@formkit/vue"><img alt="npm" src="https://img.shields.io/npm/v/@formkit/vue"></a>&nbsp;
 <a href="https://github.com/formkit/formkit"><img alt="GitHub" src="https://img.shields.io/github/license/formkit/formkit"></a>
 
-<br><br>
-
 **The form framework for coding agents.**
 
 Co-located validation, self-structuring data, composability, and a compact single-component API<br>that makes it easy for coding agents to reason about complex forms without boilerplate or guesswork.
 
-**Vue** · **React** · **Nuxt** &nbsp;—&nbsp; Trusted by NBC, Nike, Bosch, Walmart, and thousands of teams that ship at scale.
-
-<br>
+**React** · **Vue** &nbsp;—&nbsp; Trusted by NBC, Nike, Bosch, Walmart, and thousands of teams that ship at scale.
 
 [Documentation](https://formkit.com) &nbsp;&middot;&nbsp; [Get Started](https://formkit.com/getting-started/installation) &nbsp;&middot;&nbsp; [Discord](https://discord.gg/Vhu97pAC76)
 
 </div>
-
-<br>
 
 > [!TIP]
 > **Set up your coding agent for FormKit**
@@ -56,7 +50,7 @@ That's a fully accessible form with labels, validation, error messages, loading 
 
 ## What you get
 
-| | |
+| Feature | |
 |---|---|
 | **One component, every input** | `<FormKit type="text">`, `<FormKit type="select">`, `<FormKit type="checkbox">` — consistent, predictable API across all inputs |
 | **Co-located validation** | 30+ built-in rules declared inline. No separate validation schemas, no event listeners, no glue code |
@@ -73,7 +67,7 @@ That's a fully accessible form with labels, validation, error messages, loading 
 
 Premium inputs for complex interfaces — autocomplete, datepicker, repeater, color picker, drag-and-drop, mask, rating, slider, tag list, toggle, and more. Built on the same FormKit Node, same schema, same theming system.
 
-**[Get your project key &rarr;](https://pro.formkit.com)**
+**[Explore Pro inputs &rarr;](https://formkit.com/inputs)**
 
 <br>
 
@@ -89,8 +83,8 @@ FormKit cleanly separates its framework-agnostic core from framework bindings. T
 @formkit/inputs        →  Input type definitions
 @formkit/themes        →  Theme utilities
 ─────────────────────────────────────────────
-@formkit/vue           →  Vue 3 bindings
 @formkit/react         →  React 18/19 bindings
+@formkit/vue           →  Vue 3 bindings
 ```
 
 <br>
@@ -109,7 +103,7 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 
 #### 🥈 Silver
 
-<a href="https://github.com/sponsors/formkit"><img src="https://cdn.formk.it/web-assets/your-logo-here.svg" alt="Your logo here" width="180"></a>
+[Become a silver sponsor &rarr;](https://github.com/sponsors/formkit)
 
 #### 🥉 Bronze
 
