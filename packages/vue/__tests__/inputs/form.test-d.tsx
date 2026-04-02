@@ -5,16 +5,16 @@ import { FormKitGroupValue, FormKitNode } from '@formkit/core'
 
 describe('describe form input types', () => {
   it('accepts the correct value type', () => {
-    assertType(<FormKit type="form" value={{ name: 'happy.png' }} />)
+    assertType(FormKit({ type: 'form', value: { name: 'happy.png' } }))
   })
 
   it('has a submit event', () => {
     assertType(
-      <FormKit
-        type="form"
-        onSubmit={(foo) => foo}
-        value={{ name: 'happy.png' }}
-      />
+      FormKit({
+        type: 'form',
+        onSubmit: (foo) => foo,
+        value: { name: 'happy.png' },
+      })
     )
   })
 
@@ -32,30 +32,32 @@ describe('describe form input types', () => {
 
   it('does not allow a string as a value', () => {
     // @ts-expect-error - value cannot be a string
-    assertType(<FormKit type="form" value="123" />)
+    assertType(FormKit({ type: 'form', value: '123' }))
   })
 
   it('does not allow a number as a value', () => {
     // @ts-expect-error - value cannot be a number
-    assertType(<FormKit type="form" value={123} />)
+    assertType(FormKit({ type: 'form', value: 123 }))
   })
 
   it('does not require a value', () => {
-    assertType(<FormKit type="form" />)
+    assertType(FormKit({ type: 'form' }))
   })
 
   it('has an input event with an unknown value', () => {
     // @ts-expect-error - value is unknown not a string
-    assertType(<FormKit type="form" onInput={(value: string) => value} />)
-    assertType(<FormKit type="form" onInput={(value: unknown) => value} />)
+    assertType(FormKit({ type: 'form', onInput: (value: string) => value }))
+    assertType(
+      FormKit({ type: 'form', onInput: (value: unknown) => value })
+    )
   })
 
   it('has an submit event with an any value', () => {
     assertType(
-      <FormKit
-        type="form"
-        onSubmit={(value: string, node: FormKitNode) => value && node}
-      />
+      FormKit({
+        type: 'form',
+        onSubmit: (value: string, node: FormKitNode) => value && node,
+      })
     )
   })
 })

@@ -6,7 +6,7 @@ import { BaseSlots } from '../../../../.tests/helpers'
 
 describe('describe text input types', () => {
   it('accepts the correct value type', () => {
-    assertType(<FormKit type="text" value="132" />)
+    assertType(FormKit({ type: 'text', value: '132' }))
   })
 
   it('has some of the the base slots', () => {
@@ -23,28 +23,28 @@ describe('describe text input types', () => {
   })
 
   it('defaults to a text input', () => {
-    assertType(<FormKit />)
-    assertType(<FormKit value="132" />)
+    assertType(FormKit({}))
+    assertType(FormKit({ value: '132' }))
     // @ts-expect-error - value cannot be a number
-    assertType(<FormKit value={132} />)
+    assertType(FormKit({ value: 132 }))
   })
 
   it('does not allow object values', () => {
     // @ts-expect-error - value cannot be a string
-    assertType(<FormKit type="text" value={123} />)
+    assertType(FormKit({ type: 'text', value: 123 }))
   })
 
   it('has an input event with an unknown value', () => {
     // @ts-expect-error - value is unknown not a string
-    assertType(<FormKit type="text" onInput={(value: string) => value} />)
-    assertType(<FormKit type="text" onInput={(value: unknown) => value} />)
+    assertType(FormKit({ type: 'text', onInput: (value: string) => value }))
+    assertType(FormKit({ type: 'text', onInput: (value: unknown) => value }))
   })
 
   it('changes its value type when the number prop is applied', () => {
-    assertType(<FormKit type="text" number value="string" />)
-    assertType(<FormKit type="text" number value={123431} />)
-    assertType(<FormKit type="text" number value={undefined} />)
+    assertType(FormKit({ type: 'text', number: true, value: 'string' }))
+    assertType(FormKit({ type: 'text', number: true, value: 123431 }))
+    assertType(FormKit({ type: 'text', number: true, value: undefined }))
     // @ts-expect-error - value cannot be a boolean
-    assertType(<FormKit type="text" number value={true} />)
+    assertType(FormKit({ type: 'text', number: true, value: true }))
   })
 })
