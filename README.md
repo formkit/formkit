@@ -101,10 +101,6 @@ FormKit — which supports its whole feature set for _native HTML inputs_ (like 
 
 <a href="https://fieldman.co?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/fieldman-logo.svg" alt="Fieldman" width="175"></a>
 
-#### 🥈 Silver
-
-[Become a silver sponsor &rarr;](https://github.com/sponsors/formkit)
-
 #### 🥉 Bronze
 
 <a href="https://www.perbyte.com?utm_source=formkit&utm_medium=web"><img src="https://cdn.formk.it/web-assets/sponsors/bronze-sponsor_perbyte.png" alt="PerByte" width="110"></a>&nbsp;&nbsp;
