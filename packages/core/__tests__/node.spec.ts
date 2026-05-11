@@ -1570,6 +1570,20 @@ describe('resetting', () => {
     expect(user!.props._init).toEqual({ name: 'abc' })
   })
 
+  it('calls input hooks once with the final value during deep reset (#1699)', () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'name', value: 'old value' })],
+    })
+    const inputHook = vi.fn((value, next) => next(value))
+
+    node.at('name')!.hook.input(inputHook)
+    node.reset({ name: 'new value' })
+
+    expect(inputHook.mock.calls.map(([value]) => value)).toEqual(['new value'])
+    expect(node.value).toEqual({ name: 'new value' })
+  })
+
   it('can reset to initial value false', async () => {
     const node = createNode({ value: false })
     node.reset()
