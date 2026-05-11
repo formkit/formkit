@@ -21,11 +21,49 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
-import { componentSymbol } from '../src/FormKit'
+import { componentSymbol, registerHotReload } from '../src/FormKit'
 import { FormKitMessages } from '../src/FormKitMessages'
 import { star } from '@formkit/icons'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
+
+describe('hmr', () => {
+  it('unregisters Vite HMR listeners on unmount (formkit/formkit#1068)', () => {
+    const hot = {
+      on: vi.fn(),
+      off: vi.fn(),
+    }
+    let cleanup = () => {}
+    const forceUpdate = vi.fn()
+    const node = { props: { preserve: false } } as FormKitNode
+    registerHotReload(
+      node,
+      { proxy: { $forceUpdate: forceUpdate } } as any,
+      hot,
+      (handler) => {
+        cleanup = handler
+      }
+    )
+    const beforeUpdate = hot.on.mock.calls[0][1]
+    const afterUpdate = hot.on.mock.calls[1][1]
+    beforeUpdate()
+    expect(node.props.preserve).toBe(true)
+    afterUpdate()
+    expect(forceUpdate).toHaveBeenCalledTimes(1)
+    expect(node.props.preserve).toBe(false)
+    cleanup()
+    expect(hot.off).toHaveBeenNthCalledWith(
+      1,
+      'vite:beforeUpdate',
+      beforeUpdate
+    )
+    expect(hot.off).toHaveBeenNthCalledWith(
+      2,
+      'vite:afterUpdate',
+      afterUpdate
+    )
+  })
+})
 
 describe('props', () => {
   it('loads input definition props before the plugins are executed', () => {
