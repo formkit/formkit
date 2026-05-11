@@ -63,6 +63,23 @@ function setBackgroundColor(
   }, timeout)
 }
 
+function observeBackgroundAncestors(
+  nodeRoot: HTMLElement,
+  callback: () => void
+): MutationObserver | undefined {
+  if (typeof MutationObserver === 'undefined') return
+  const observer = new MutationObserver(callback)
+  let element: HTMLElement | null = nodeRoot
+  while (element) {
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    })
+    element = element.parentElement
+  }
+  return observer
+}
+
 /**
  * Creates a new floating label plugin.
  *
@@ -77,6 +94,7 @@ export function createFloatingLabelsPlugin(
 ): FormKitPlugin {
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
+    let backgroundObserver: MutationObserver | undefined
     node.addProps({
       floatingLabel: {
         boolean: true,
@@ -190,6 +208,10 @@ export function createFloatingLabelsPlugin(
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
           setBackgroundColor(node, nodeEl, 100)
+          backgroundObserver = observeBackgroundAncestors(nodeEl, () => {
+            if (!node.context || !nodeEl) return
+            setBackgroundColor(node, nodeEl, 0)
+          })
           observer.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
@@ -209,6 +231,11 @@ export function createFloatingLabelsPlugin(
           node.props._labelOffset = `calc(${offset}px - 0.25em)`
         }
       }
+
+      node.on('destroyed', () => {
+        backgroundObserver?.disconnect()
+        backgroundObserver = undefined
+      })
     }
   }
   return floatingLabelsPlugin
