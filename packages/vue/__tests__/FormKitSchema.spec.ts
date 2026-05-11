@@ -2,7 +2,7 @@ import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
-import { createNode, resetRegistry } from '@formkit/core'
+import { createNode, getNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import { defaultConfig } from '../src'
@@ -656,6 +656,39 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.text()).toBe('0: a1: b2: c')
+  })
+
+  it('preserves native date values during partial delete input events', async () => {
+    const id = 'date-partial-delete'
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'date',
+            id,
+            name: 'birthDate',
+            value: '2024-02-10',
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input').element as HTMLInputElement
+    input.focus()
+    input.value = ''
+    input.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        inputType: 'deleteContentBackward',
+      })
+    )
+    await nextTick()
+
+    expect(getNode(id)?.value).toBe('2024-02-10')
+    wrapper.unmount()
   })
 
   it('can render the loop data inside the default slot when nested in an $el', async () => {
