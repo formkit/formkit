@@ -292,47 +292,60 @@ export function createIconHandler(
       return iconName
     }
 
-    // is this a default icon that should only load from a stylesheet?
+    // Default icons use stylesheet values first, then a custom loader if one is
+    // configured, but never fall back to the CDN loader.
     const isDefault = iconName.startsWith('default:')
     iconName = isDefault ? iconName.split(':')[1] : iconName
 
     // check if we've already loaded the icon before
-    const iconWasAlreadyLoaded = iconName in iconRegistry
+    const defaultRegistryKey = `default:${iconName}`
+    const iconWasAlreadyLoaded =
+      iconName in iconRegistry ||
+      (isDefault && defaultRegistryKey in iconRegistry)
+    const iconRequestKey =
+      isDefault && typeof iconLoader !== 'function'
+        ? defaultRegistryKey
+        : iconName
 
     let loadedIcon: string | undefined | Promise<string | undefined> = undefined
 
     if (iconWasAlreadyLoaded) {
-      return iconRegistry[iconName]
-    } else if (!iconRequests[iconName]) {
+      return iconRegistry[iconName] ?? iconRegistry[defaultRegistryKey]
+    } else if (!iconRequests[iconRequestKey]) {
       loadedIcon = getIconFromStylesheet(iconName)
       loadedIcon =
         isClient && typeof loadedIcon === 'undefined'
           ? Promise.resolve(loadedIcon)
           : loadedIcon
       if (loadedIcon instanceof Promise) {
-        iconRequests[iconName] = loadedIcon
+        iconRequests[iconRequestKey] = loadedIcon
           .then((iconValue) => {
-            if (!iconValue && typeof iconName === 'string' && !isDefault) {
-              return (loadedIcon =
-                typeof iconLoader === 'function'
-                  ? iconLoader(iconName)
-                  : getRemoteIcon(iconName, iconLoaderUrl))
+            if (!iconValue && typeof iconName === 'string') {
+              if (typeof iconLoader === 'function') {
+                return (loadedIcon = iconLoader(iconName))
+              } else if (!isDefault) {
+                return (loadedIcon = getRemoteIcon(iconName, iconLoaderUrl))
+              }
             }
             return iconValue
           })
           .then((finalIcon) => {
             if (typeof iconName === 'string') {
-              iconRegistry[isDefault ? `default:${iconName}` : iconName] =
+              iconRegistry[
+                isDefault && typeof iconLoader !== 'function'
+                  ? defaultRegistryKey
+                  : iconName
+              ] =
                 finalIcon
             }
             return finalIcon
           })
       } else if (typeof loadedIcon === 'string') {
-        iconRegistry[isDefault ? `default:${iconName}` : iconName] = loadedIcon
+        iconRegistry[isDefault ? defaultRegistryKey : iconName] = loadedIcon
         return loadedIcon
       }
     }
-    return iconRequests[iconName]
+    return iconRequests[iconRequestKey]
   }
 }
 
