@@ -102,7 +102,7 @@ export function createFloatingLabelsPlugin(
         // available for users who want to update the background color manually
         node.context.handlers.updateLabelBackgroundColor = () => {
           if (!node.context || !nodeEl) return
-          setBackgroundColor(node, nodeEl, 0)
+          setBackgroundColor(node, nodeEl, 0, timeouts)
         }
 
         const inputDefinition = clone(node.props.definition)
