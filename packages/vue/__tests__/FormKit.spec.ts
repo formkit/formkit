@@ -63,6 +63,23 @@ describe('hmr', () => {
       afterUpdate
     )
   })
+
+  it('does not require test HMR stubs to implement off', () => {
+    const hot = {
+      on: vi.fn(),
+    }
+    let cleanup = () => {}
+    registerHotReload(
+      { props: { preserve: false } } as FormKitNode,
+      { proxy: { $forceUpdate: vi.fn() } } as any,
+      hot,
+      (handler) => {
+        cleanup = handler
+      }
+    )
+
+    expect(() => cleanup()).not.toThrow()
+  })
 })
 
 describe('props', () => {

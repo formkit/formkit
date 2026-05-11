@@ -113,7 +113,7 @@ type HotReloadAPI = {
     event: 'vite:beforeUpdate' | 'vite:afterUpdate',
     handler: () => void
   ) => void
-  off: (
+  off?: (
     event: 'vite:beforeUpdate' | 'vite:afterUpdate',
     handler: () => void
   ) => void
@@ -142,8 +142,8 @@ export function registerHotReload(
   hot.on('vite:beforeUpdate', beforeUpdate)
   hot.on('vite:afterUpdate', afterUpdate)
   cleanup(() => {
-    hot.off('vite:beforeUpdate', beforeUpdate)
-    hot.off('vite:afterUpdate', afterUpdate)
+    hot.off?.('vite:beforeUpdate', beforeUpdate)
+    hot.off?.('vite:afterUpdate', afterUpdate)
   })
 }
 
