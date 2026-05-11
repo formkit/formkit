@@ -12,6 +12,19 @@ export default function casts(node: FormKitNode): void {
   const strict = ['number', 'range', 'hidden'].includes(node.props.type)
   node.hook.input((value, next) => {
     if (value === '') return next(undefined)
+    if (
+      strict &&
+      typeof value === 'string' &&
+      (value === '-' ||
+        value === '+' ||
+        value === '.' ||
+        value === '-.' ||
+        value === '+.' ||
+        value === '-0' ||
+        value.endsWith('.'))
+    ) {
+      return next(value)
+    }
     const numericValue =
       node.props.number === 'integer' ? parseInt(value) : parseFloat(value)
     if (!Number.isFinite(numericValue))
