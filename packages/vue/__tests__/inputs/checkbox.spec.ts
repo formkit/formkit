@@ -298,6 +298,22 @@ describe('multiple checkboxes', () => {
     expect(wrapper.find('li').html()).toMatchSnapshot()
   })
 
+  it('renders the help slot even when there is no help prop (#1427)', async () => {
+    const wrapper = mount(
+      {
+        template: `
+        <FormKit type="checkbox">
+          <template #help>
+            <div id="help-slot">Render me anyway</div>
+          </template>
+        </FormKit>
+      `,
+      },
+      global
+    )
+    expect(wrapper.find('#help-slot').exists()).toBe(true)
+  })
+
   it('can set the default value from a v-modeled form', () => {
     const wrapper = mount(
       {

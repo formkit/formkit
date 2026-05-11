@@ -201,6 +201,20 @@ describe('single checkbox (react)', () => {
     expect(container.querySelector('#hello-world')).toBeTruthy()
   })
 
+  it('renders the help slot even when no help prop is provided (#1427)', () => {
+    const { container } = renderWithFormKit(
+      createElement(FormKit as any, {
+        type: 'checkbox',
+        slots: {
+          help: () => createElement('div', { id: 'help-slot' }, 'Render me anyway'),
+        },
+      }),
+      defaultConfig()
+    )
+
+    expect(container.querySelector('#help-slot')).toBeTruthy()
+  })
+
   it('does not render label when it is not provided', () => {
     const { container } = renderWithFormKit(
       createElement(FormKit as any, { type: 'checkbox' }),
