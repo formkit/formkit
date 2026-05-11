@@ -4,7 +4,7 @@ import { FormKit, plugin, defaultConfig, resetCount } from '@formkit/vue'
 import { createFloatingLabelsPlugin } from '../src/plugins/floatingLabels/floatingLabelsPlugin'
 import { FormKitNode, FormKitPlugin, FormKitSectionsSchema } from '@formkit/core'
 import { clone } from '@formkit/utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * A test plugin that adds a custom data attribute to the outer section.
@@ -132,5 +132,32 @@ describe('floatingLabels', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.html()).toContain('data-floating-label="true"')
     wrapper.unmount()
+  })
+
+  it('clears scheduled timers on unmount', async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        label: 'Test Label',
+        floatingLabel: true,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createFloatingLabelsPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.unmount()
+
+    expect(clearTimeoutSpy).toHaveBeenCalled()
   })
 })
