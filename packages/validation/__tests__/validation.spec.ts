@@ -560,6 +560,62 @@ describe('validation rule sequencing', () => {
     expect(foo.store).not.toHaveProperty('rule_length')
   })
 
+  it('reruns sibling-dependent rules when followed by other rules (#1348)', async () => {
+    const distinct: FormKitValidationRule = vi.fn((node) => {
+      const parent = node.at('$parent')
+      if (!parent || typeof node.name !== 'string') return true
+      const parentValue = parent.value as Record<string, unknown>
+      for (const siblingName in parentValue) {
+        if (siblingName === node.name) continue
+        if (parentValue[siblingName] === node.value) return false
+      }
+      return true
+    })
+    const length: FormKitValidationRule = vi.fn(({ value }, min, max) => {
+      const size = String(value).length
+      return size >= parseInt(min) && size <= parseInt(max)
+    })
+    const validation = createValidationPlugin({ distinct, length })
+    const form = createNode({
+      type: 'group',
+      value: { myItems: { first: 'a', second: 'b', third: 'b' } },
+      plugins: [validation],
+      children: [
+        createNode({
+          type: 'group',
+          name: 'myItems',
+          children: [
+            createNode({
+              name: 'first',
+              props: { validation: 'distinct|length:0,5' },
+            }),
+            createNode({
+              name: 'second',
+              props: { validation: 'distinct|length:0,5' },
+            }),
+            createNode({
+              name: 'third',
+              props: { validation: 'distinct|length:0,5' },
+            }),
+          ],
+        }),
+      ],
+    })
+    const second = form.at('$self.myItems.second')!
+    const third = form.at('$self.myItems.third')!
+    await nextTick()
+    expect(Boolean(second.store.rule_distinct)).toBe(true)
+    expect(Boolean(third.store.rule_distinct)).toBe(true)
+    second.input('c', false)
+    await nextTick()
+    expect(Boolean(second.store.rule_distinct)).toBe(false)
+    expect(Boolean(third.store.rule_distinct)).toBe(false)
+    second.input('b', false)
+    await nextTick()
+    expect(Boolean(second.store.rule_distinct)).toBe(true)
+    expect(Boolean(third.store.rule_distinct)).toBe(true)
+  })
+
   it('removes validation messages that come after failing rules', async () => {
     const node = createNode({
       plugins: [validationPlugin],
