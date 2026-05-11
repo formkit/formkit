@@ -282,6 +282,16 @@ async function isTargetStepAllowed(
   targetStep: FormKitFrameworkContext
 ): Promise<boolean> {
   if (currentStep === targetStep) return true
+  const nodes = [currentStep.node]
+  currentStep.node.walk((node) => {
+    nodes.push(node)
+  })
+  await Promise.all(nodes.map((node) => node.settled))
+  await Promise.all(
+    nodes
+      .filter((node) => node.ledger.value('validating'))
+      .map((node) => node.ledger.settled('validating'))
+  )
   const { allowIncomplete } = currentStep.node.parent?.props || {}
   const parentNode = currentStep.node.parent
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
@@ -364,6 +374,40 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
       targetStep.node.parent.props.activeStep = targetStep.node.name
     }
   }
+}
+
+function findTargetStep(
+  node: FormKitNode,
+  target: number | string
+): FormKitFrameworkContext | undefined {
+  if (typeof target === 'number') {
+    return node.props.steps[target]
+  }
+  return node.props.steps.find(
+    (step: Record<string, any>) => step.node.name === target
+  )
+}
+
+function goToStep(node: FormKitNode, target: number | string) {
+  // goTo is often called during mount, before child steps and their values have
+  // finished initializing.
+  setTimeout(() => attemptGoToStep(node, target), 0)
+}
+
+function attemptGoToStep(node: FormKitNode, target: number | string) {
+  const targetStep = findTargetStep(node, target)
+  if (targetStep) {
+    setActiveStep(targetStep)
+    return
+  }
+  const receipt = node.on('child', () => {
+    const targetStep = findTargetStep(node, target)
+    if (targetStep) {
+      node.off(receipt)
+      setActiveStep(targetStep)
+    }
+  })
+  node.on('destroying', () => node.off(receipt))
 }
 
 /**
@@ -547,15 +591,7 @@ export function createMultiStepPlugin(
         })
         node.extend('goTo', {
           get: (node) => (target: number | string) => {
-            if (typeof target === 'number') {
-              const targetStep = node.props.steps[target]
-              setActiveStep(targetStep)
-            } else if (typeof target === 'string') {
-              const targetStep = node.props.steps.find(
-                (step: Record<string, any>) => step.node.name === target
-              )
-              setActiveStep(targetStep)
-            }
+            goToStep(node, target)
           },
           set: false,
         })

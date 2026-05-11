@@ -7,6 +7,7 @@ import {
   defaultConfig,
   resetCount,
 } from '@formkit/vue'
+import { getNode } from '@formkit/core'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -313,6 +314,47 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
     expect(wrapper.html()).toMatchSnapshot()
+    wrapper.unmount()
+  })
+
+  it('allows initial goTo after the current step settles (#1362)', async () => {
+    const id = 'multi-step-go-to'
+    const wrapper = mount(
+      {
+        data() {
+          return { id }
+        },
+        mounted() {
+          getNode(id)?.goTo('favorite')
+        },
+        template: `
+          <FormKit :id="id" type="multi-step" :allow-incomplete="false">
+            <FormKit type="step" name="basics">
+              <FormKit type="text" name="name" value="Ada" validation="required" />
+            </FormKit>
+            <FormKit type="step" name="favorite">
+              <FormKit type="text" name="color" />
+            </FormKit>
+          </FormKit>
+        `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [createMultiStepPlugin()],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+
+    await new Promise((r) => setTimeout(r, 25))
+    expect(getNode(id)?.props.activeStep).toBe('favorite')
     wrapper.unmount()
   })
 
