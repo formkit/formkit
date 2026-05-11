@@ -277,6 +277,33 @@ describe('the number feature', () => {
     const node = getNode(id)!
     expect(node.value).toBe(123)
   })
+  it('normalizes the DOM value when integer casts collapse to the current number (#1704)', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: 'integer',
+        delay: 0,
+      },
+      attachTo: document.body,
+      ...global,
+    })
+    const input = wrapper.find('input')
+
+    input.element.value = '123'
+    await input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)!.value).toBe(123)
+    expect(input.element.value).toBe('123')
+
+    input.element.value = '123.4'
+    await input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(getNode(id)!.value).toBe(123)
+    expect(input.element.value).toBe('123')
+  })
   it('forces initial values to an integer on a number input', async () => {
     const id = `a${token()}`
     const wrapper = mount(FormKit, {
