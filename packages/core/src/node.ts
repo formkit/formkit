@@ -2127,9 +2127,11 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
       if (!('__FKP' in child)) {
         const parent = child._c.parent
         if (!parent || isPlaceholder(parent)) return
+        // Emit before detaching so deep listeners on ancestors can observe it.
+        child.emit('destroying', child)
         parent.ledger.unmerge(child)
         child._c.parent = null
-        child.destroy()
+        destroy(child, child._c, false)
       }
     })
   }
@@ -2202,8 +2204,12 @@ function calm(
  *
  * @internal
  */
-function destroy(node: FormKitNode, context: FormKitContext) {
-  node.emit('destroying', node)
+function destroy(
+  node: FormKitNode,
+  context: FormKitContext,
+  emitDestroying = true
+) {
+  if (emitDestroying) node.emit('destroying', node)
   // flush all messages out
   node.store.filter(() => false)
   if (node.parent) {
