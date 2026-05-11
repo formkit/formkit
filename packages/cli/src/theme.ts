@@ -13,6 +13,7 @@ import open from 'open'
 import { parse as parseUrl } from 'url'
 import { token } from '@formkit/utils'
 import { getPort } from 'get-port-please'
+import { normalizeGeneratedTheme } from './themeNormalize'
 
 interface BuildThemeOptions {
   semantic: boolean
@@ -565,7 +566,7 @@ async function apiTheme(
   })
   if (res.ok) {
     const code = await res.text()
-    return code
+    return normalizeGeneratedTheme(themeName, code)
   } else {
     error(`Could not generate theme — ${res.statusText}`)
   }
