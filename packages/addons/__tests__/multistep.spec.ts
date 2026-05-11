@@ -7,6 +7,7 @@ import {
   defaultConfig,
   resetCount,
 } from '@formkit/vue'
+import { getNode } from '@formkit/core'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -313,6 +314,78 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
     expect(wrapper.html()).toMatchSnapshot()
+    wrapper.unmount()
+  })
+
+  it('allows navigation after programmatic input updates settle step conditions (#1135)', async () => {
+    const beforeStepChange = vi.fn(() => true)
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: { beforeStepChange },
+        schema: [
+          {
+            $formkit: 'multi-step',
+            id: 'issue1135MultiStep',
+            allowIncomplete: false,
+            beforeStepChange: '$beforeStepChange',
+            children: [
+              {
+                $formkit: 'step',
+                name: 'stepOne',
+                children: [
+                  {
+                    $formkit: 'radio',
+                    id: 'issue1135Answer',
+                    name: 'answer',
+                    options: { yes: 'Yes', no: 'No' },
+                    validation: 'required',
+                  },
+                ],
+              },
+              {
+                $formkit: 'step',
+                name: 'stepTwo',
+                if: "$get(issue1135Answer).value === 'yes'",
+                children: [
+                  {
+                    $formkit: 'text',
+                    name: 'confirm',
+                    validation: 'required',
+                  },
+                ],
+              },
+              {
+                $formkit: 'step',
+                name: 'stepThree',
+              },
+            ],
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 15))
+    const multistep = getNode('issue1135MultiStep')!
+    multistep.input({
+      stepOne: { answer: 'yes' },
+      stepTwo: { confirm: 'ready' },
+    })
+    multistep.goTo('stepTwo')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(beforeStepChange).toHaveBeenCalledTimes(1)
+    expect(multistep.props.activeStep).toBe('stepTwo')
     wrapper.unmount()
   })
 
