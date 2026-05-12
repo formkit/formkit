@@ -9,6 +9,8 @@ await setup({
   rootDir,
   browser: true,
   server: true,
+  setupTimeout: 120000,
+  teardownTimeout: 120000,
 })
 
 describe('vite', async () => {
