@@ -158,6 +158,28 @@ export type FormKitSchemaNode =
   | FormKitSchemaFormKit
 
 /**
+ * A partial schema node used to extend or unset section schema properties.
+ *
+ * @public
+ */
+export type FormKitSchemaNodeExtension =
+  | FormKitSchemaTextNode
+  | (Omit<Partial<FormKitSchemaDOMNode>, '$el'> & {
+      $el?: FormKitSchemaDOMNode['$el'] | undefined
+      $cmp?: undefined
+      $formkit?: undefined
+    })
+  | (Omit<Partial<FormKitSchemaComponent>, '$cmp'> & {
+      $cmp?: FormKitSchemaComponent['$cmp'] | undefined
+      $el?: undefined
+      $formkit?: undefined
+    })
+  | (Partial<FormKitSchemaFormKit> & {
+      $el?: undefined
+      $cmp?: undefined
+    })
+
+/**
  * An entire schema object or subtree from any entry point. Can be a single
  * node, an array of nodes, or a conditional. This is the type that is passed to
  * the FormKitSchema constructor.
@@ -176,7 +198,7 @@ export type FormKitSchemaDefinition =
  */
 export interface FormKitSchemaComposable {
   (
-    extendWith?: Partial<FormKitSchemaNode>,
+    extendWith?: FormKitSchemaNodeExtension,
     children?: string | FormKitSchemaNode[] | FormKitSchemaCondition,
     ...args: any[]
   ): FormKitSchemaNode
@@ -188,7 +210,7 @@ export interface FormKitSchemaComposable {
  */
 export type FormKitSectionsSchema = Record<
   string,
-  Partial<FormKitSchemaNode> | FormKitSchemaCondition | null
+  FormKitSchemaNodeExtension | FormKitSchemaCondition | null
 >
 
 /**

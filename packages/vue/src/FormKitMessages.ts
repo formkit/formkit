@@ -10,8 +10,7 @@ import {
 import { createSection } from '@formkit/inputs'
 import {
   FormKitNode,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
+  FormKitSectionsSchema,
 } from '@formkit/core'
 import { parentSymbol } from './FormKit'
 import FormKitSchema from './FormKitSchema'
@@ -54,9 +53,7 @@ export const FormKitMessages = /* #__PURE__ */ defineComponent({
       required: false,
     },
     sectionsSchema: {
-      type: Object as PropType<
-        Record<string, Partial<FormKitSchemaNode> | FormKitSchemaCondition>
-      >,
+      type: Object as PropType<FormKitSectionsSchema>,
       default: {},
     },
     defaultPosition: {

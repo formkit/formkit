@@ -9,6 +9,7 @@ import {
   FormKitSchemaFormKit,
   FormKitSectionsSchema,
   FormKitSchemaCondition,
+  FormKitSchemaNodeExtension,
 } from '@formkit/core'
 
 /**
@@ -158,7 +159,7 @@ export function createRoot(
  * @public
  */
 export function isSchemaObject(
-  schema: Partial<FormKitSchemaNode> | null
+  schema: FormKitSchemaNodeExtension | FormKitSchemaCondition | null
 ): schema is
   | FormKitSchemaDOMNode
   | FormKitSchemaComponent
@@ -184,7 +185,7 @@ export function isSchemaObject(
 /*@__NO_SIDE_EFFECTS__*/
 export function extendSchema(
   schema: FormKitSchemaNode,
-  extension: Partial<FormKitSchemaNode> | null = {}
+  extension: FormKitSchemaNodeExtension | FormKitSchemaCondition | null = {}
 ): FormKitSchemaNode {
   if (typeof schema === 'string') {
     return isSchemaObject(extension) || typeof extension === 'string'

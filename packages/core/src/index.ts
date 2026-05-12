@@ -98,6 +98,7 @@ export type {
   FormKitSchemaFormKit,
   FormKitSchemaMeta,
   FormKitSchemaNode,
+  FormKitSchemaNodeExtension,
   FormKitSchemaProps,
   FormKitSchemaTextNode,
   FormKitSchemaDefinition,
