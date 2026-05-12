@@ -282,6 +282,16 @@ async function isTargetStepAllowed(
   targetStep: FormKitFrameworkContext
 ): Promise<boolean> {
   if (currentStep === targetStep) return true
+  const nodes = [currentStep.node]
+  currentStep.node.walk((node) => {
+    nodes.push(node)
+  })
+  await Promise.all(nodes.map((node) => node.settled))
+  await Promise.all(
+    nodes
+      .filter((node) => node.ledger.value('validating'))
+      .map((node) => node.ledger.settled('validating'))
+  )
   const { allowIncomplete } = currentStep.node.parent?.props || {}
   const parentNode = currentStep.node.parent
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
@@ -364,22 +374,29 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   }
 }
 
-async function goToStep(node: FormKitNode, target: number | string) {
-  await node.settled
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  const targetStep = getTargetStep(node, target)
-  if (targetStep) return setActiveStep(targetStep)
-  node.props._pendingStepTarget = target
-}
-
-function getTargetStep(node: FormKitNode, target: number | string) {
+function findTargetStep(
+  node: FormKitNode,
+  target: number | string
+): FormKitFrameworkContext | undefined {
   if (typeof target === 'number') {
     return node.props.steps[target]
-  } else if (typeof target === 'string') {
-    return node.props.steps.find(
-      (step: Record<string, any>) => step.node.name === target
-    )
   }
+  return node.props.steps.find(
+    (step: Record<string, any>) => step.node.name === target
+  )
+}
+
+async function goToStep(node: FormKitNode, target: number | string) {
+  // goTo is often called during mount, before child steps and their values have
+  // finished initializing.
+  await node.settled
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  const targetStep = findTargetStep(node, target)
+  if (targetStep) {
+    void setActiveStep(targetStep)
+    return
+  }
+  node.props._pendingStepTarget = target
 }
 
 /**
@@ -604,7 +621,10 @@ export function createMultiStepPlugin(
           ? node.props.steps[0].node.name
           : ''
         if (node.props._pendingStepTarget !== undefined) {
-          const targetStep = getTargetStep(node, node.props._pendingStepTarget)
+          const targetStep = findTargetStep(
+            node,
+            node.props._pendingStepTarget
+          )
           if (targetStep) {
             node.props._pendingStepTarget = undefined
             void setActiveStep(targetStep)
