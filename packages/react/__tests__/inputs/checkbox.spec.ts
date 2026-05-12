@@ -291,6 +291,15 @@ describe('multiple checkboxes (react)', () => {
     fireEvent.click(icon as HTMLElement)
 
     expect(onDecoratorIconClick).toHaveBeenCalledTimes(1)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: 'Enter' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(2)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: ' ' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(3)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: 'Escape' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(3)
   })
 
   it('multi-checkboxes set array values immediately', () => {
