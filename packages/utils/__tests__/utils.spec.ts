@@ -554,6 +554,9 @@ describe('undefine', () => {
   it('undefines undefined', () => {
     expect(undefine(undefined)).toBe(undefined)
   })
+  it('undefines null', () => {
+    expect(undefine(null)).toBe(undefined)
+  })
   it('undefines the string false', () => {
     expect(undefine('false')).toBe(undefined)
   })
