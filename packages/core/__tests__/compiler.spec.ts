@@ -344,6 +344,17 @@ describe('logic compiler', () => {
     ).toBe('foo')
   })
 
+  it('returns undefined when a function tail accesses missing nested properties (#1657)', () => {
+    const data: Record<string, any> = {
+      get: () => ({ value: { name: 'Name' } }),
+    }
+    expect(
+      compile('$get(test).value.test.test.test.name').provide(([token]) => {
+        return { [token]: () => data[token] }
+      })()
+    ).toBe(undefined)
+  })
+
   it('can call a function on a tail', () => {
     const data: Record<string, any> = {
       add: (a: number) => ({
