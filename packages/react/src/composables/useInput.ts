@@ -7,6 +7,7 @@ import {
   createMessage,
   FormKitPseudoProps,
   FormKitGroupValue,
+  isNode,
 } from '@formkit/core'
 import { FormKitRuntimeProps, FormKitInputs } from '@formkit/inputs'
 import {
@@ -27,6 +28,7 @@ import {
 import {
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react'
@@ -188,6 +190,33 @@ function patternMatches(
 function getModelValue(props: Record<string, any>): unknown {
   if (props.modelValue !== undefined) return props.modelValue
   return props.value
+}
+
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect
+
+const committedReactNodes = new WeakSet<FormKitNode>()
+
+// React StrictMode can replay render before commit. Since createNode currently
+// attaches to the parent during render, discard only siblings that never commit.
+function destroyAbandonedRenderPhaseSiblings(
+  parent: FormKitNode | null,
+  node: FormKitNode
+): void {
+  if (!parent) return
+  for (const child of [...parent.children]) {
+    if (
+      isNode(child) &&
+      child !== node &&
+      child.parent === parent &&
+      child.name === node.name &&
+      child.props.type === node.props.type &&
+      !committedReactNodes.has(child) &&
+      child.context?.didMount === false
+    ) {
+      child.destroy()
+    }
+  }
 }
 
 export function useInput<Props extends FormKitInputs<Props>>(
@@ -521,6 +550,16 @@ export function useInput<Props extends FormKitInputs<Props>>(
   }, [isVModeled, node, value])
 
   const modeledValue = getModelValue(props)
+
+  useIsomorphicLayoutEffect(() => {
+    committedReactNodes.add(node)
+    queueMicrotask(() => {
+      destroyAbandonedRenderPhaseSiblings(parent, node)
+    })
+    return () => {
+      committedReactNodes.delete(node)
+    }
+  }, [node, parent])
 
   useEffect(() => {
     if (!isVModeled) return

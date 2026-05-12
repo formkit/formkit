@@ -121,6 +121,16 @@ function setIncompleteMessage(node: FormKitNode) {
 export default function form(node: FormKitNode): void {
   node.props.isForm = true
   node.ledger.count('validating', (m) => m.key === 'validating')
+  const submitHandler = handleSubmit.bind(null, node)
+
+  const assignSubmitHandler = () => {
+    if (
+      node.context?.handlers &&
+      node.context.handlers.submit !== submitHandler
+    ) {
+      node.context.handlers.submit = submitHandler
+    }
+  }
 
   node.props.submitAttrs ??= {
     disabled: node.props.disabled,
@@ -131,13 +141,12 @@ export default function form(node: FormKitNode): void {
   })
 
   node.on('created', () => {
-    if (node.context?.handlers) {
-      node.context.handlers.submit = handleSubmit.bind(null, node)
-    }
+    assignSubmitHandler()
     if (!has(node.props, 'actions')) {
       node.props.actions = true
     }
   })
+  node.on('context', assignSubmitHandler)
   node.on('prop:incompleteMessage', () => {
     if (node.store.incomplete) setIncompleteMessage(node)
   })

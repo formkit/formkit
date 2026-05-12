@@ -1,6 +1,6 @@
 import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { createElement } from 'react'
+import { StrictMode, createElement } from 'react'
 import { fireEvent, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKit, defaultConfig } from '../../src'
@@ -142,6 +142,38 @@ describe('form submission (react)', () => {
     await waitFor(() => {
       expect(submitHandler).toHaveBeenCalledTimes(1)
     })
+  })
+
+  it('does not retain abandoned StrictMode render-phase child nodes', async () => {
+    let formNode: FormKitNode | undefined
+
+    renderWithFormKit(
+      createElement(
+        StrictMode,
+        null,
+        createElement(
+          FormKit as any,
+          {
+            type: 'form',
+            onNode: (node: FormKitNode) => {
+              formNode = node
+            },
+          },
+          createElement(FormKit as any, {
+            name: 'email',
+            label: 'Email',
+            validation: 'required|email',
+            delay: 0,
+          })
+        )
+      ),
+      defaultConfig()
+    )
+
+    await waitFor(() => {
+      expect(formNode?.children).toHaveLength(1)
+    })
+    expect(formNode?.ledger.value('blocking')).toBe(1)
   })
 
   it('sets submitted state when submitted', async () => {
