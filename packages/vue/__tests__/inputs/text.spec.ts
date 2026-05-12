@@ -294,6 +294,36 @@ describe('the number feature', () => {
     const node = getNode(id)!
     expect(node.value).toBe(12345)
   })
+  it('allows negative decimals to be typed on number inputs (#1671)', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: true,
+        delay: 0,
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    const domInput = node.context!.handlers.DOMInput
+
+    domInput({ target: { value: '-' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('-')
+
+    domInput({ target: { value: '-0' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('-0')
+
+    domInput({ target: { value: '-0.' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('-0.')
+
+    domInput({ target: { value: '-0.5' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(-0.5)
+  })
   it('knows when it is mounted', async () => {
     const wrapper = mount(FormKit, {
       props: {
