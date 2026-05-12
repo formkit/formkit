@@ -448,8 +448,39 @@ export async function generate(
        classes[memoKey] = sectionClasses
      }
    }
-   return classes[memoKey] ?? { [semanticKey]: true }
+   return stateScopedClasses(node, classes[memoKey] ?? { [semanticKey]: true })
  }
+
+function stateScopedClasses (node${
+    isTS ? ': FormKitNode' : ''
+  }, sectionClasses${
+    isTS ? ': Record<string, boolean>' : ''
+  })${isTS ? ': Record<string, boolean>' : ''} {
+  const invalid = node.context?.state.invalid
+  const errors = node.context?.state.errors
+  const shouldFilterInvalid = invalid === false
+  const shouldFilterErrors = errors === false
+  if (!shouldFilterInvalid && !shouldFilterErrors) return sectionClasses
+  const filteredClasses = { ...sectionClasses }
+  for (const className of Object.keys(filteredClasses)) {
+    if (shouldFilterInvalid && isStateClass(className, 'invalid')) {
+      filteredClasses[className] = false
+    }
+    if (shouldFilterErrors && isStateClass(className, 'errors')) {
+      filteredClasses[className] = false
+    }
+  }
+  return filteredClasses
+}
+
+function isStateClass (className${isTS ? ': string' : ''}, state${
+    isTS ? ': string' : ''
+  })${isTS ? ': boolean' : ''} {
+  return (
+    className.includes('group-data-[' + state) ||
+    className.includes('formkit-' + state)
+  )
+}
 
 /**
  * These classes have already been merged with globals using tailwind-merge
@@ -468,8 +499,64 @@ const globals${
   } = ${JSON.stringify(globals, null, 2)};
 `
 
-  const checksum = createHash('sha256').update(themeFile).digest('hex')
-  return themeFile.replace(/@checksum -/, `@checksum - ${checksum}`)
+  return addThemeChecksum(themeFile)
+}
+
+function addThemeChecksum(themeFile: string): string {
+  const withoutChecksum = themeFile.replace(/@checksum -[^\n]*/, '@checksum -')
+  const checksum = createHash('sha256').update(withoutChecksum).digest('hex')
+  return withoutChecksum.replace(/@checksum -/, `@checksum - ${checksum}`)
+}
+
+function scopeGeneratedThemeStateClasses(themeFile: string): string {
+  if (
+    !themeFile.includes('return classes[memoKey] ?? { [semanticKey]: true }') ||
+    themeFile.includes('function stateScopedClasses')
+  ) {
+    return themeFile
+  }
+  const isTS = themeFile.includes("import type { FormKitNode }")
+  const helper = `function stateScopedClasses (node${
+    isTS ? ': FormKitNode' : ''
+  }, sectionClasses${
+    isTS ? ': Record<string, boolean>' : ''
+  })${isTS ? ': Record<string, boolean>' : ''} {
+  const invalid = node.context?.state.invalid
+  const errors = node.context?.state.errors
+  const shouldFilterInvalid = invalid === false
+  const shouldFilterErrors = errors === false
+  if (!shouldFilterInvalid && !shouldFilterErrors) return sectionClasses
+  const filteredClasses = { ...sectionClasses }
+  for (const className of Object.keys(filteredClasses)) {
+    if (shouldFilterInvalid && isStateClass(className, 'invalid')) {
+      filteredClasses[className] = false
+    }
+    if (shouldFilterErrors && isStateClass(className, 'errors')) {
+      filteredClasses[className] = false
+    }
+  }
+  return filteredClasses
+}
+
+function isStateClass (className${isTS ? ': string' : ''}, state${
+    isTS ? ': string' : ''
+  })${isTS ? ': boolean' : ''} {
+  return (
+    className.includes('group-data-[' + state) ||
+    className.includes('formkit-' + state)
+  )
+}
+`
+  const scopedTheme = themeFile
+    .replace(
+      'return classes[memoKey] ?? { [semanticKey]: true }',
+      'return stateScopedClasses(node, classes[memoKey] ?? { [semanticKey]: true })'
+    )
+    .replace(
+      '\n/**\n * These classes have already been merged',
+      `\n${helper}\n/**\n * These classes have already been merged`
+    )
+  return addThemeChecksum(scopedTheme)
 }
 
 function parseVariables(variables?: string): Record<string, string> {
@@ -566,7 +653,10 @@ async function apiTheme(
   })
   if (res.ok) {
     const code = await res.text()
-    return normalizeGeneratedTheme(themeName, code)
+    if (semantic) return code
+    return scopeGeneratedThemeStateClasses(
+      normalizeGeneratedTheme(themeName, code)
+    )
   } else {
     error(`Could not generate theme — ${res.statusText}`)
   }
