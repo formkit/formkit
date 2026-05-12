@@ -2585,6 +2585,7 @@ function walkTree(
 function resetConfig(node: FormKitNode, context: FormKitContext) {
   const parent = node.parent || undefined
   context.config = createConfig(node.config._t, parent)
+  context.config._n = node
   node.walk((n) => n.resetConfig())
 }
 
@@ -2887,6 +2888,19 @@ function createConfig(
   parent?: FormKitNode | null
 ): FormKitConfig {
   let node: FormKitNode | undefined = undefined
+  const getExplicitInheritedValue = (prop: string) => {
+    let currentParent = parent
+    while (currentParent) {
+      const parentValue = currentParent.config._t[prop]
+      if (parentValue !== undefined) return parentValue
+      currentParent = currentParent.parent
+    }
+    if (target.rootConfig) {
+      const rootValue = target.rootConfig[prop]
+      if (rootValue !== undefined) return rootValue
+    }
+    return undefined
+  }
   return new Proxy(target, {
     get(...args) {
       const prop = args[1]
@@ -2894,6 +2908,12 @@ function createConfig(
       const localValue = Reflect.get(...args)
       // Check our local values first
       if (localValue !== undefined) return localValue
+      // Input nodes default to 20ms delay unless an ancestor/root explicitly
+      // configured a different value.
+      if (prop === 'delay' && node?.type === 'input') {
+        const inheritedDelay = getExplicitInheritedValue(prop)
+        return inheritedDelay !== undefined ? inheritedDelay : 20
+      }
       // Then check our parent values next
       if (parent) {
         const parentVal = parent.config[prop as string]
