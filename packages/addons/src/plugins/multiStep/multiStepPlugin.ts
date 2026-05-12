@@ -287,13 +287,11 @@ async function isTargetStepAllowed(
   const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
   const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
 
-  // show the current step errors because this step has
-  // been visited.
-  const currentStepIsValid = triggerStepValidations(currentStep)
-  currentStep.showStepErrors = true
-
   // if we are navigating forward, check our current step is complete
   if (targetStepIndex >= currentStepIndex) {
+    // show the current step errors because the user is advancing past it.
+    const currentStepIsValid = triggerStepValidations(currentStep)
+    currentStep.showStepErrors = true
     // if the current step is invalid and we do not allow incomplete
     // then prevent navigation
     if (!currentStepIsValid && !allowIncomplete) {

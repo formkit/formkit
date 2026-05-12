@@ -65,6 +65,36 @@ const multiStepSchemaBasicWithProps = [
   },
 ]
 
+const multiStepSchemaWithRequiredSecondStep = [
+  {
+    $formkit: 'multi-step',
+    children: [
+      {
+        $formkit: 'step',
+        name: 'stepOne',
+        children: [
+          {
+            $formkit: 'text',
+            name: 'firstName',
+            validation: 'required',
+          },
+        ],
+      },
+      {
+        $formkit: 'step',
+        name: 'stepTwo',
+        children: [
+          {
+            $formkit: 'text',
+            name: 'lastName',
+            validation: 'required',
+          },
+        ],
+      },
+    ],
+  },
+]
+
 describe('multistep', () => {
   beforeEach(() => {
     resetCount()
@@ -376,6 +406,47 @@ describe('multistep', () => {
       'Step Bravo<',
       'Step Charlie<',
     ])
+    wrapper.unmount()
+  })
+
+  it('does not show validation on a later step after navigating back (#1696)', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: multiStepSchemaWithRequiredSecondStep,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    const lastNameOuter = () =>
+      wrapper
+        .find('input[name="lastName"]')
+        .element.closest('.formkit-outer') as HTMLElement
+
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('input[name="firstName"]').setValue('Ada')
+    wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    expect(lastNameOuter().getAttribute('data-invalid')).toBe(null)
+    expect(lastNameOuter().getAttribute('data-submitted')).toBe(null)
+
+    wrapper.find('.formkit-step-previous button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('input[name="firstName"]').setValue('')
+    wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(lastNameOuter().getAttribute('data-invalid')).toBe(null)
+    expect(lastNameOuter().getAttribute('data-submitted')).toBe(null)
     wrapper.unmount()
   })
 })
