@@ -67,9 +67,12 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
           node.props.submitBehavior !== 'live'
         if (autoDisable) node.props.disabled = true
         node.store.set(loading)
-        await retVal
-        if (autoDisable) node.props.disabled = false
-        node.store.remove('loading')
+        try {
+          await retVal
+        } finally {
+          if (autoDisable) node.props.disabled = false
+          node.store.remove('loading')
+        }
       }
     } else {
       if (submitEvent.target instanceof HTMLFormElement) {

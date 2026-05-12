@@ -1003,6 +1003,45 @@ describe('form submission', () => {
     expect(button.element.disabled).toBe(false)
   })
 
+  it('re-enables the form when an async submit handler rejects (#1415)', async () => {
+    let rejectSubmit!: (error: Error) => void
+    const wrapper = mount(
+      {
+        methods: {
+          doSave() {
+            return new Promise((_, reject) => {
+              rejectSubmit = reject
+            })
+          },
+        },
+        template: `<FormKit id="rejecting-form" type="form" @submit="doSave">
+          <FormKit type="text" name="foo" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode('rejecting-form')!
+    const event = new Event('submit', { cancelable: true, bubbles: true })
+    Object.defineProperty(event, 'target', {
+      value: wrapper.find('form').element,
+    })
+    const submit = node.context?.handlers.submit(event) as Promise<void>
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
+    expect(wrapper.find('input').element.disabled).toBe(true)
+    rejectSubmit(new Error('submit failed'))
+    await expect(submit).rejects.toThrow('submit failed')
+    await nextTick()
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(
+      false
+    )
+    expect(wrapper.find('input').element.disabled).toBe(false)
+  })
+
   it('the form remains enabled if submit-behavior is live', async () => {
     const wrapper = mount(
       {
