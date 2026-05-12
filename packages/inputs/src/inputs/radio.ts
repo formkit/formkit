@@ -59,6 +59,7 @@ export const radio: FormKitTypeDefinition = {
                   bind: '$option.attrs',
                   attrs: {
                     id: '$option.attrs.id',
+                    onChange: '$attrs.onChange',
                     value: '$option.value',
                     checked: '$fns.isChecked($option.value)',
                   },
