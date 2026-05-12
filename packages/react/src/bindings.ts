@@ -222,6 +222,22 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
 
   let committedValue = node.value
   let inputValue = node.value
+  let pendingDOMInputValue: string | undefined
+
+  const domInputValue = (payload: unknown) => {
+    if (
+      typeof pendingDOMInputValue === 'string' &&
+      typeof node.props.number !== 'undefined' &&
+      node.props.number !== 'integer' &&
+      typeof payload === 'number' &&
+      Number.isFinite(payload) &&
+      pendingDOMInputValue.includes('.') &&
+      pendingDOMInputValue !== String(payload)
+    ) {
+      return pendingDOMInputValue
+    }
+    return payload
+  }
 
   let contextRef: FormKitFrameworkContext | undefined
   const notifyContextMutation = () => {
@@ -261,7 +277,8 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
-        node.input((e.target as HTMLInputElement).value)
+        pendingDOMInputValue = (e.target as HTMLInputElement).value
+        node.input(pendingDOMInputValue)
         node.emit('dom-input-event', e)
       },
     },
@@ -450,7 +467,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     if (node.type !== 'input') {
       context._value = shallowClone(payload)
     } else {
-      context._value = payload
+      context._value = domInputValue(payload)
     }
     flush()
   })
@@ -460,8 +477,9 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
       context.value = context._value = shallowClone(payload)
     } else {
       context.value = payload
-      context._value = payload
+      context._value = domInputValue(payload)
     }
+    pendingDOMInputValue = undefined
     context.state.empty = empty(payload)
     queueMicrotask(() => {
       if (node) node.emit('modelUpdated')
