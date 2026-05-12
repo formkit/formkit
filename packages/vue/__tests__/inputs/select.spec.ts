@@ -451,6 +451,39 @@ describe('select', () => {
     expect(wrapper.html()).toMatchSnapshot()
   })
 
+  it('removes placeholder state when selecting a grouped option', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'select',
+        delay: 0,
+        placeholder: 'Select one',
+        options: [
+          {
+            group: 'Letters',
+            options: {
+              a: 'A',
+              b: 'B',
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
+    await wrapper.find('select').setValue('b')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(getNode(id)?.value).toBe('b')
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe(
+      undefined
+    )
+  })
+
   it('can render a group of options with masked values', async () => {
     const id = `a${token()}`
     const wrapper = mount(
