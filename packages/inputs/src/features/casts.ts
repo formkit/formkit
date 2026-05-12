@@ -21,7 +21,8 @@ export default function casts(node: FormKitNode): void {
         value === '-.' ||
         value === '+.' ||
         value === '-0' ||
-        value.endsWith('.'))
+        value === '-0.' ||
+        value === '+0.')
     ) {
       return next(value)
     }

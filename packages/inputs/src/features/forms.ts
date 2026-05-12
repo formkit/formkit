@@ -1,5 +1,5 @@
 import { createMessage, FormKitNode } from '@formkit/core'
-import { has, clone } from '@formkit/utils'
+import { has, clone, eq } from '@formkit/utils'
 
 const loading = createMessage({
   key: 'loading',
@@ -18,6 +18,15 @@ async function handleSubmit(node: FormKitNode, submitEvent: Event) {
   const submitNonce = Math.random()
   node.props._submitNonce = submitNonce
   submitEvent.preventDefault()
+  // Allow same-tick DOM input handlers to disturb the form before we wait for
+  // the settled state. Then synchronously commit pending field edits so submit
+  // reads the same current values a native form submit would.
+  await Promise.resolve()
+  node.walk((child) => {
+    if (child.type === 'input' && !eq(child._value, child.value)) {
+      child.input(child._value, false)
+    }
+  })
   await node.settled
 
   if (node.ledger.value('validating')) {

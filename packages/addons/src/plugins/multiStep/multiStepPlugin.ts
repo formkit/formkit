@@ -362,14 +362,19 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   if (e) {
     e.preventDefault()
   }
-  if (targetStep && targetStep.node.name && targetStep.node.parent) {
-    const currentStep = targetStep.node.parent.props.steps.find(
+  const parentNode = targetStep?.node.parent
+  if (targetStep && targetStep.node.name && parentNode) {
+    const currentStep = parentNode.props.steps.find(
       (step: FormKitFrameworkContext) =>
-        step.node.name === targetStep.node.parent?.props.activeStep
+        step.node.name === parentNode.props.activeStep
     )
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
-    if (stepIsAllowed && targetStep.node.parent.context) {
-      targetStep.node.parent.props.activeStep = targetStep.node.name
+    if (
+      stepIsAllowed &&
+      targetStep.node.parent === parentNode &&
+      parentNode.context
+    ) {
+      parentNode.props.activeStep = targetStep.node.name
     }
   }
 }
@@ -409,15 +414,16 @@ async function incrementStep(
   delta: number,
   currentStep: FormKitFrameworkContext
 ) {
-  if (currentStep && currentStep.node.name && currentStep.node.parent) {
-    const steps = currentStep.node.parent.props.steps
+  const parentNode = currentStep?.node.parent
+  if (currentStep && currentStep.node.name && parentNode) {
+    const steps = parentNode.props.steps
     const stepIndex = currentStep.stepIndex
     const targetStep = steps[(stepIndex as number) + delta]
     if (!targetStep) return
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
-    if (targetStep && stepIsAllowed) {
-      currentStep.node.parent.props.activeStep = targetStep.node.name
+    if (targetStep && stepIsAllowed && currentStep.node.parent === parentNode) {
+      parentNode.props.activeStep = targetStep.node.name
     }
   }
 }
