@@ -2131,6 +2131,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
         child.emit('destroying', child)
         parent.ledger.unmerge(child)
         child._c.parent = null
+        node.emit('childRemoved', child)
         destroy(child, child._c, false)
       }
     })
