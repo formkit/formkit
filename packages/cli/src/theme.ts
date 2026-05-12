@@ -10,6 +10,7 @@ import prompts from 'prompts'
 import { createHash } from 'crypto'
 import ora, { Ora } from 'ora'
 import open from 'open'
+import createJiti from 'jiti'
 import { parse as parseUrl } from 'url'
 import { token } from '@formkit/utils'
 import { getPort } from 'get-port-please'
@@ -599,9 +600,13 @@ async function localTheme(
   const path = getPath(paths)
   if (!path) error(`Could not find ${themeName}.`)
 
-  const theme = (await import(path)) as { default: Theme<ThemeOptions> }
-  if (typeof theme !== 'object' || !theme.default) error('Invalid theme file.')
-  return theme.default
+  const jiti = createJiti(import.meta.url, { interopDefault: true })
+  const theme = (await jiti.import(path, {})) as
+    | Theme<ThemeOptions>
+    | { default?: Theme<ThemeOptions> }
+  const themeFunction = typeof theme === 'function' ? theme : theme.default
+  if (!themeFunction) error('Invalid theme file.')
+  return themeFunction
 }
 
 export function extractThemeData(
