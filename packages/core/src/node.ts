@@ -2129,6 +2129,7 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
         if (!parent || isPlaceholder(parent)) return
         parent.ledger.unmerge(child)
         child._c.parent = null
+        node.emit('childRemoved', child)
         child.destroy()
       }
     })
