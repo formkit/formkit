@@ -744,9 +744,12 @@ export function getAt(obj: any, addr: string): unknown {
  * @public
  */
 export function undefine(value: unknown): true | undefined {
-  return value !== undefined && value !== 'false' && value !== false
-    ? true
-    : undefined
+  const shouldDefine =
+    value !== undefined &&
+    value !== null &&
+    value !== 'false' &&
+    value !== false
+  return shouldDefine ? true : undefined
 }
 
 /**

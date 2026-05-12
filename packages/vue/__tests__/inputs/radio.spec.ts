@@ -268,8 +268,8 @@ describe('radios', () => {
     expect(getNode(id)!.value).toEqual(null)
   })
 
-  it('applies undefined to a "false" disabled prop', async () => {
-    const disabled = ref('false')
+  it('applies undefined to a false or null disabled prop', async () => {
+    const disabled = ref<string | null>('false')
     const wrapper = mount(
       {
         setup() {
@@ -288,6 +288,11 @@ describe('radios', () => {
         ...global,
       }
     )
+    expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
+      undefined
+    )
+    disabled.value = null
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
       undefined
     )
