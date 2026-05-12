@@ -30,6 +30,14 @@ import {
 import { createObserver } from '@formkit/observer'
 import { FormKitPseudoProps } from '@formkit/core'
 
+const nativeDateInputTypes = new Set([
+  'date',
+  'datetime-local',
+  'month',
+  'time',
+  'week',
+])
+
 /**
  * A plugin that creates Vue-specific context object on each given node.
  *
@@ -302,8 +310,11 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
-        pendingDOMInputValue = (e.target as HTMLInputElement).value
-        node.input(pendingDOMInputValue)
+        const target = e.target as HTMLInputElement
+        pendingDOMInputValue = target.value
+        if (!isPartialNativeDateDelete(e, target, node._value)) {
+          node.input(pendingDOMInputValue)
+        }
         node.emit('dom-input-event', e)
       },
     },
@@ -580,6 +591,22 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     /* @ts-ignore */ // eslint-disable-line
     node = null
   })
+}
+
+function isPartialNativeDateDelete(
+  e: Event,
+  target: HTMLInputElement,
+  currentValue: unknown
+): boolean {
+  const inputType =
+    'inputType' in e && typeof e.inputType === 'string' ? e.inputType : ''
+  return (
+    inputType.startsWith('delete') &&
+    nativeDateInputTypes.has(target.type) &&
+    target.value === '' &&
+    target.ownerDocument?.activeElement === target &&
+    !empty(currentValue)
+  )
 }
 
 export default vueBindings
