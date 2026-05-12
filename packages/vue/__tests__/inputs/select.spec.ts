@@ -199,6 +199,40 @@ describe('select', () => {
     expect(wrapper.find('select').element.value).toBe('foo')
   })
 
+  it('selects the first dynamically loaded value when no value or placeholder is specified (#1432)', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            options: [] as Array<{ label: string; value: string }>,
+          }
+        },
+        template: `
+          <FormKit
+            id="${id}"
+            type="select"
+            name="country"
+            :options="options"
+          />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)!
+    expect(node.value).toBeUndefined()
+
+    wrapper.vm.options = [{ label: 'First option', value: 'First value' }]
+    await nextTick()
+    await node.settled
+
+    expect(node.value).toBe('First value')
+    expect(wrapper.find('select').element.value).toBe('First value')
+  })
+
   it('does not select the first value when multiple', () => {
     const wrapper = mount(FormKit, {
       props: {
