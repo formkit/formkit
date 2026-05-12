@@ -517,6 +517,54 @@ describe('multistep', () => {
     wrapper.unmount()
   })
 
+  it('updates step tab labels when the label prop changes (#1377)', async () => {
+    const data = reactive({
+      firstLabel: 'First label',
+      secondLabel: 'Second label',
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'multi-step',
+            children: [
+              {
+                $formkit: 'step',
+                name: 'first',
+                label: '$firstLabel',
+              },
+              {
+                $formkit: 'step',
+                name: 'second',
+                label: '$secondLabel',
+              },
+            ],
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 15))
+    expect(wrapper.html()).toContain('First label')
+    data.firstLabel = 'Translated label'
+    await new Promise((r) => setTimeout(r, 15))
+    expect(wrapper.html()).toContain('Translated label')
+    expect(wrapper.html()).not.toContain('First label')
+    wrapper.unmount()
+  })
+
   it('preserves the order of steps even when a step is conditionally rendered', async () => {
     const data = reactive({
       showStepTwo: true,

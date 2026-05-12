@@ -608,8 +608,12 @@ export function createMultiStepPlugin(
         node.props.steps = orderSteps(node, node.props.steps)
         setNodePositionProps(node.props.steps)
 
-        childNode.props.stepName =
-          childNode.props.label || camel2title(childNode.name)
+        const setStepName = () => {
+          childNode.props.stepName =
+            childNode.props.label || camel2title(childNode.name)
+        }
+        setStepName()
+        childNode.on('prop:label', setStepName)
         childNode.props.errorCount = 0
         childNode.props.blockingCount = 0
         childNode.props.isActiveStep = isFirstStep
