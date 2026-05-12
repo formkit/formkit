@@ -21,6 +21,9 @@ export interface FloatingLabelsOptions {
  */
 function findParentWithBackgroundColor(element: HTMLElement): string {
   let backgroundColor = 'white'
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return backgroundColor
+  }
   while (backgroundColor === 'white' && element.parentElement) {
     element = element.parentElement
     const style = window.getComputedStyle(element)
@@ -38,7 +41,8 @@ function findParentWithBackgroundColor(element: HTMLElement): string {
     if (opacityMatch) {
       const opacityVar = opacityMatch[1]
       const opacity =
-        getComputedStyle(document.documentElement)
+        window
+          .getComputedStyle(document.documentElement)
           .getPropertyValue(opacityVar)
           .trim() || '1'
       backgroundColor = `rgba(${bgColor}, ${opacity})`
@@ -55,16 +59,11 @@ function findParentWithBackgroundColor(element: HTMLElement): string {
  */
 function setBackgroundColor(
   node: FormKitNode,
-  nodeRoot: HTMLElement,
-  timeout: number,
-  timeouts: Set<ReturnType<typeof setTimeout>>
-) {
-  const scheduledTimeout = setTimeout(() => {
-    timeouts.delete(scheduledTimeout)
-    if (typeof window === 'undefined' || !node.props) return
-    node.props._labelBackgroundColor = findParentWithBackgroundColor(nodeRoot)
-  }, timeout)
-  timeouts.add(scheduledTimeout)
+  nodeRoot: HTMLElement
+): void {
+  if (typeof window === 'undefined' || !node.context || !nodeRoot.isConnected)
+    return
+  node.props._labelBackgroundColor = findParentWithBackgroundColor(nodeRoot)
 }
 
 /**
@@ -83,6 +82,23 @@ export function createFloatingLabelsPlugin(
     let nodeEl: HTMLElement | null = null
     let observer: MutationObserver | null = null
     const timeouts = new Set<ReturnType<typeof setTimeout>>()
+
+    const setManagedTimeout = (callback: () => void, delay: number) => {
+      const timeout = setTimeout(() => {
+        timeouts.delete(timeout)
+        callback()
+      }, delay)
+      timeouts.add(timeout)
+      return timeout
+    }
+
+    const clearTimeouts = () => {
+      for (const timeout of timeouts) {
+        clearTimeout(timeout)
+      }
+      timeouts.clear()
+    }
+
     node.addProps({
       floatingLabel: {
         boolean: true,
@@ -102,7 +118,8 @@ export function createFloatingLabelsPlugin(
         // available for users who want to update the background color manually
         node.context.handlers.updateLabelBackgroundColor = () => {
           if (!node.context || !nodeEl) return
-          setBackgroundColor(node, nodeEl, 0, timeouts)
+          const nodeRoot = nodeEl
+          setManagedTimeout(() => setBackgroundColor(node, nodeRoot), 0)
         }
 
         const inputDefinition = clone(node.props.definition)
@@ -186,31 +203,24 @@ export function createFloatingLabelsPlugin(
 
           // delay the enabling of animations until after
           // initial label positions are set
-          const scheduledTimeout = setTimeout(() => {
-            timeouts.delete(scheduledTimeout)
-            if (!node.props) return
+          setManagedTimeout(() => {
+            if (!node.context) return
             node.props._offsetCalculated = true
           }, 100)
-          timeouts.add(scheduledTimeout)
         })
 
         whenAvailable(node.context.id, () => {
           if (!node.context) return
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
-          setBackgroundColor(node, nodeEl, 100, timeouts)
+          const nodeRoot = nodeEl
+          setManagedTimeout(() => setBackgroundColor(node, nodeRoot), 100)
           observer?.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
             attributes: true,
           })
         })
-      })
-
-      node.on('destroyed', () => {
-        observer?.disconnect()
-        timeouts.forEach((timeout) => clearTimeout(timeout))
-        timeouts.clear()
       })
 
       function calculateLabelOffset(node: FormKitNode, nodeEl: HTMLElement) {
@@ -224,6 +234,13 @@ export function createFloatingLabelsPlugin(
           node.props._labelOffset = `calc(${offset}px - 0.25em)`
         }
       }
+
+      node.on('destroyed', () => {
+        clearTimeouts()
+        observer?.disconnect()
+        observer = null
+        nodeEl = null
+      })
     }
   }
   return floatingLabelsPlugin

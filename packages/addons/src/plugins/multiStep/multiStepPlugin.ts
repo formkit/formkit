@@ -364,6 +364,24 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   }
 }
 
+async function goToStep(node: FormKitNode, target: number | string) {
+  await node.settled
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  const targetStep = getTargetStep(node, target)
+  if (targetStep) return setActiveStep(targetStep)
+  node.props._pendingStepTarget = target
+}
+
+function getTargetStep(node: FormKitNode, target: number | string) {
+  if (typeof target === 'number') {
+    return node.props.steps[target]
+  } else if (typeof target === 'string') {
+    return node.props.steps.find(
+      (step: Record<string, any>) => step.node.name === target
+    )
+  }
+}
+
 /**
  * Changes the current step by the delta value if the target step is allowed.
  *
@@ -491,7 +509,7 @@ export function createMultiStepPlugin(
       if (!node.context) return
 
       isFirstStep = true // reset variable, next step will be first step in multistep
-      node.addProps(['steps', 'tabs', 'activeStep'])
+      node.addProps(['steps', 'tabs', 'activeStep', '_pendingStepTarget'])
 
       node.context.fns.preRenderSteps = createPreRenderStepsFunction(node)
       node.context.fns.getStepCount = () => {
@@ -545,15 +563,7 @@ export function createMultiStepPlugin(
         })
         node.extend('goTo', {
           get: (node) => (target: number | string) => {
-            if (typeof target === 'number') {
-              const targetStep = node.props.steps[target]
-              setActiveStep(targetStep)
-            } else if (typeof target === 'string') {
-              const targetStep = node.props.steps.find(
-                (step: Record<string, any>) => step.node.name === target
-              )
-              setActiveStep(targetStep)
-            }
+            void goToStep(node, target)
           },
           set: false,
         })
@@ -593,6 +603,13 @@ export function createMultiStepPlugin(
           : node.props.steps[0]
           ? node.props.steps[0].node.name
           : ''
+        if (node.props._pendingStepTarget !== undefined) {
+          const targetStep = getTargetStep(node, node.props._pendingStepTarget)
+          if (targetStep) {
+            node.props._pendingStepTarget = undefined
+            void setActiveStep(targetStep)
+          }
+        }
       })
 
       node.on('prop:activeStep', ({ payload }) => {
