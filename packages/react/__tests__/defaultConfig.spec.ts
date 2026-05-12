@@ -62,6 +62,24 @@ describe('defaultConfig (react)', () => {
     expect(container.innerHTML).toBe('<h1>Fooey world</h1>')
   })
 
+  it('allows default input overrides (#1188)', () => {
+    const { container } = renderWithFormKit(
+      createElement(FormKit as any, {
+        type: 'button',
+      }),
+      defaultConfig({
+        inputs: {
+          button: {
+            type: 'input',
+            schema: [{ $el: 'h1', children: 'Custom button' }],
+          },
+        },
+      })
+    )
+
+    expect(container.innerHTML).toBe('<h1>Custom button</h1>')
+  })
+
   it('allows single message overrides', () => {
     const t = token()
     const { container } = renderWithFormKit(
