@@ -2162,6 +2162,30 @@ describe('exposures', () => {
     )
   })
 
+  it('ignores stale DOM input events after the node is destroyed (#1702)', () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        template: `<FormKit id="${id}" />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)
+    const handler = node?.context?.handlers.DOMInput
+    const input = document.createElement('input')
+    const event = new Event('input')
+    input.value = 'late input'
+    Object.defineProperty(event, 'target', { value: input })
+
+    wrapper.unmount()
+
+    expect(() => handler?.(event)).not.toThrow()
+  })
+
   it('debounces the input event (not fired on mount) and not the inputRaw event', async () => {
     const wrapper = mount(FormKit, {
       props: {
