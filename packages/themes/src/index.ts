@@ -137,6 +137,14 @@ export const iconRegistry: Record<string, string | undefined> = {}
  * A collection of existing icon requests to avoid duplicate fetching
  */
 const iconRequests: Record<string, any> = {}
+const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
+const observedIconProps = new WeakMap<FormKitNode, Set<string>>()
+
+function normalizeIconProp(sectionKey: string): string {
+  return sectionKey.replace(/-([a-zA-Z])/g, (_, char: string) =>
+    char.toUpperCase()
+  )
+}
 
 /**
  * Creates the theme plugin based on a given theme name.
@@ -184,6 +192,21 @@ export function createThemePlugin(
       node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl
     )
     loadIconPropIcons(node, node.props.iconHandler)
+    node.on('added-props', ({ payload }) => {
+      if (!node.props.iconHandler) return
+      const props = Array.isArray(payload) ? payload : Object.keys(payload ?? {})
+      props.forEach((prop) => {
+        if (typeof prop === 'string' && iconPattern.test(prop)) {
+          observeIconProp(node, node.props.iconHandler, prop)
+        }
+      })
+    })
+    node.on('prop', ({ payload }) => {
+      if (!node.props.iconHandler || typeof payload?.prop !== 'string') return
+      if (iconPattern.test(payload.prop)) {
+        observeIconProp(node, node.props.iconHandler, payload.prop)
+      }
+    })
 
     node.on('created', () => {
       // set up the `-icon` click handlers
@@ -400,13 +423,27 @@ function loadIconPropIcons(
   node: FormKitNode,
   iconHandler: FormKitIconLoader
 ): void {
-  const iconRegex = /^[a-zA-Z-]+(?:-icon|Icon)$/
   const iconProps = Object.keys(node.props).filter((prop) => {
-    return iconRegex.test(prop)
+    return iconPattern.test(prop)
   })
   iconProps.forEach((sectionKey) => {
-    return loadPropIcon(node, iconHandler, sectionKey)
+    return observeIconProp(node, iconHandler, sectionKey)
   })
+}
+
+function observeIconProp(
+  node: FormKitNode,
+  iconHandler: FormKitIconLoader,
+  sectionKey: string
+): void {
+  const normalizedSectionKey = normalizeIconProp(sectionKey)
+  if (!observedIconProps.has(node)) {
+    observedIconProps.set(node, new Set())
+  }
+  const observedProps = observedIconProps.get(node)!
+  if (observedProps.has(normalizedSectionKey)) return
+  observedProps.add(normalizedSectionKey)
+  loadPropIcon(node, iconHandler, normalizedSectionKey)
 }
 
 /**

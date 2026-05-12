@@ -1678,6 +1678,30 @@ describe('icons', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(iconClick).toHaveBeenCalledTimes(1)
   })
+
+  it('renders icons assigned by a plugin after theme setup (#1695)', async () => {
+    const assignPrefixIcon = (node: FormKitNode) => {
+      if (node.props.type === 'password') {
+        node.props.prefixIcon = 'star'
+      }
+    }
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'password',
+        plugins: [assignPrefixIcon],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.html()).toContain(
+      `<label class="formkit-prefix-icon formkit-icon"`
+    )
+    expect(wrapper.html()).toContain(`data-prefix-icon="true"`)
+  })
 })
 
 describe('prefix and suffix', () => {
@@ -2702,6 +2726,7 @@ describe('naked attributes', () => {
       props: {
         type: 'text',
         name: 'table_stakes',
+        id: 'clickable-icon-accessibility',
         suffixIcon: 'star',
         onSuffixIconClick: handler,
       },

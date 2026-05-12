@@ -383,6 +383,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       'preserveErrors',
       'id',
       'dirtyBehavior',
+      'prefixIcon',
+      'suffixIcon',
     ]
     const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
     const matchingProps = Object.keys(node.props).filter((prop) => {
