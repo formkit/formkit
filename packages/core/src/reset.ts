@@ -130,6 +130,7 @@ export function reset(
     node._e.play(node)
     clearState(node)
     node.emit('reset', node)
+    node.walk((child) => child.emit('reset', child))
     return node
   }
   warn(152, id)
