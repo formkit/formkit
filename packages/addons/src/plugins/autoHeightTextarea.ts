@@ -16,6 +16,10 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
     node.on('mounted', () => {
       const autoHeight = undefine(node.props.autoHeight)
       let inputElement: HTMLElement | undefined | null = null
+      let hiddenTextarea: HTMLTextAreaElement | undefined
+      let inputReceipt: string | undefined
+      let isDestroyed = false
+      let resizeObserver: ResizeObserver | undefined
       let showScrollbars = false
 
       const getMinAutoHeight = () => {
@@ -75,6 +79,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
       whenAvailable(
         node.context.id,
         () => {
+          if (isDestroyed) return
           inputElement = node.props.__root?.getElementById(
             node?.context?.id ? node.context.id : ''
           )
@@ -93,7 +98,7 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
             document.body.appendChild(scrollbarStyle)
           }
 
-          const hiddenTextarea = inputElement.cloneNode(
+          hiddenTextarea = inputElement.cloneNode(
             false
           ) as HTMLTextAreaElement
           hiddenTextarea.classList.add('formkit-auto-height-textarea')
@@ -127,14 +132,20 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
           inputElement.after(hiddenTextarea)
           calculateHeight({ payload: node._value as string })
 
-          node.on('input', calculateHeight)
+          inputReceipt = node.on('input', calculateHeight)
+          if (typeof ResizeObserver !== 'undefined') {
+            resizeObserver = new ResizeObserver(() => {
+              void calculateHeight({ payload: lastValue as string })
+            })
+            resizeObserver.observe(inputElement)
+          }
           async function calculateHeight({ payload }: { payload: string }) {
             lastValue = payload
-            if (!inputElement) return
+            if (!inputElement || !hiddenTextarea) return
             await new Promise((r) => setTimeout(r, 10))
 
             // If the current value is not the one we enqueued, just ignore.
-            if (lastValue !== payload) return
+            if (isDestroyed || lastValue !== payload) return
 
             hiddenTextarea.value = payload
 
@@ -159,6 +170,16 @@ export function createAutoHeightTextareaPlugin(): FormKitPlugin {
         },
         node.props.__root
       )
+
+      node.on('destroyed', () => {
+        isDestroyed = true
+        if (inputReceipt) node.off(inputReceipt)
+        resizeObserver?.disconnect()
+        hiddenTextarea?.remove()
+        inputElement?.classList.remove('formkit-auto-height-textarea')
+        hiddenTextarea = undefined
+        inputElement = null
+      })
     })
   }
 
