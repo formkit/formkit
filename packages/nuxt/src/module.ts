@@ -14,7 +14,7 @@ import {
 } from '@nuxt/kit'
 import { createUnplugin } from 'unplugin'
 import type { NuxtModule } from '@nuxt/schema'
-import { unpluginFactory as unpluginFormKit } from 'unplugin-formkit'
+import { formKitAutoImportPlugin } from './autoImport'
 
 /**
  * Optional FormKit packages that should have their types registered if installed.
@@ -199,13 +199,10 @@ const useAutoImport = async function installLazy(options, nuxt) {
 
   addBuildPlugin(
     createUnplugin(
-      unpluginFormKit.bind(
-        {},
-        {
-          defaultConfig: options.defaultConfig,
-          configFile: configBase,
-        }
-      ) as unknown as typeof unpluginFormKit
+      formKitAutoImportPlugin.bind(null, {
+        defaultConfig: options.defaultConfig,
+        configFile: configBase,
+      })
     )
   )
 } satisfies NuxtModule<ModuleOptions>
