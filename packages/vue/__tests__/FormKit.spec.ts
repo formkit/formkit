@@ -1,6 +1,7 @@
 import {
   nextTick,
   h,
+  computed,
   reactive,
   ref,
   PropType,
@@ -2841,5 +2842,47 @@ describe('naked attributes', () => {
     expect(
       wrapper.find('[data-family="text"]').attributes('data-invalid')
     ).toBe(undefined)
+  })
+})
+
+describe('config classes', () => {
+  it('reacts to updated classes in the config prop (#1146)', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const altTheme = ref(false)
+          const config = computed(() => ({
+            classes: {
+              label: altTheme.value ? 'text-orange-700' : '',
+            },
+          }))
+          function toggleTheme() {
+            altTheme.value = true
+          }
+          return { config, toggleTheme }
+        },
+        template: `
+        <FormKit
+          type="text"
+          label="Config label"
+          :config="config"
+        />
+        <button @click="toggleTheme">Toggle theme</button>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.find('.formkit-label').attributes('class')).toBe(
+      'formkit-label'
+    )
+    wrapper.find('button').trigger('click')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-label').attributes('class')).toBe(
+      'formkit-label text-orange-700'
+    )
   })
 })
