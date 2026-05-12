@@ -66,6 +66,23 @@ function setBackgroundColor(
   node.props._labelBackgroundColor = findParentWithBackgroundColor(nodeRoot)
 }
 
+function observeBackgroundAncestors(
+  nodeRoot: HTMLElement,
+  callback: () => void
+): MutationObserver | undefined {
+  if (typeof MutationObserver === 'undefined') return
+  const observer = new MutationObserver(callback)
+  let element: HTMLElement | null = nodeRoot
+  while (element) {
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    })
+    element = element.parentElement
+  }
+  return observer
+}
+
 /**
  * Creates a new floating label plugin.
  *
@@ -81,6 +98,7 @@ export function createFloatingLabelsPlugin(
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
     let observer: MutationObserver | null = null
+    let backgroundObserver: MutationObserver | undefined
     const timeouts = new Set<ReturnType<typeof setTimeout>>()
 
     const setManagedTimeout = (callback: () => void, delay: number) => {
@@ -215,6 +233,14 @@ export function createFloatingLabelsPlugin(
           if (!nodeEl) return
           const nodeRoot = nodeEl
           setManagedTimeout(() => setBackgroundColor(node, nodeRoot), 100)
+          backgroundObserver = observeBackgroundAncestors(nodeRoot, () => {
+            if (!node.context || !nodeEl) return
+            const currentNodeRoot = nodeEl
+            setManagedTimeout(
+              () => setBackgroundColor(node, currentNodeRoot),
+              0
+            )
+          })
           observer?.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
@@ -239,6 +265,8 @@ export function createFloatingLabelsPlugin(
         clearTimeouts()
         observer?.disconnect()
         observer = null
+        backgroundObserver?.disconnect()
+        backgroundObserver = undefined
         nodeEl = null
       })
     }
