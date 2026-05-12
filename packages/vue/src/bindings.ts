@@ -404,6 +404,23 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   node.props.definition && definedAs(node.props.definition)
 
+  function syncStrictNumericInput(payload: unknown) {
+    if (
+      typeof node.props.number === 'undefined' ||
+      !['number', 'range'].includes(node.props.type)
+    ) {
+      return
+    }
+    const input = node.props.__root?.querySelector?.(
+      `#${node.props.id}`
+    ) as HTMLInputElement | null
+    if (!input) return
+    const normalizedValue = payload === undefined ? '' : String(payload)
+    if (input.value !== normalizedValue) {
+      input.value = normalizedValue
+    }
+  }
+
   /**
    * When new props are added to the core node as "props" (ie not attrs) then
    * we automatically need to start tracking them here.
@@ -438,6 +455,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       value.value = _value.value = payload
       triggerRef(value)
     }
+    syncStrictNumericInput(payload)
     node.emit('modelUpdated')
   })
 
