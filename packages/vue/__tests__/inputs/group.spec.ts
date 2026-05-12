@@ -427,4 +427,99 @@ describe('clearing values', () => {
     await new Promise((r) => setTimeout(r, 25))
     expect(wrapper.find('pre').html()).toMatchSnapshot()
   })
+
+  it('re-initializes a remounted group in a child component (#1433)', async () => {
+    const formId = token()
+    const ChildComponent = defineComponent({
+      data() {
+        return {
+          action: 'message',
+          options: [
+            {
+              value: 'message',
+              label: 'Message',
+            },
+            {
+              value: 'redirect',
+              label: 'Redirect',
+            }
+          ],
+          success_message: 'Success message',
+          redirect_url: 'google.com.ua',
+        }
+      },
+      template: `
+        <div>
+          <FormKit
+            type="select"
+            name="action"
+            label="Action"
+            v-model="action"
+            :options="options"
+          />
+
+          <template v-if="action === 'message'">
+            <FormKit type="group" name="en" key="message-group">
+              <FormKit
+                key="message-field"
+                type="text"
+                name="success_message"
+                label="Success message"
+                :value="success_message"
+              />
+            </FormKit>
+          </template>
+
+          <template v-if="action === 'redirect'">
+            <FormKit type="group" name="en" key="redirect-group">
+              <FormKit
+                key="redirect-field"
+                type="text"
+                name="redirect_url"
+                label="Redirect URL"
+                :value="redirect_url"
+              />
+            </FormKit>
+          </template>
+        </div>`,
+    })
+    const wrapper = mount(
+      defineComponent({
+        components: { ChildComponent },
+        template: `
+          <FormKit type="form" id="${formId}">
+            <ChildComponent />
+          </FormKit>`,
+      }),
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    await wrapper.find('select').setValue('redirect')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(getNode(formId)!.value).toMatchObject({
+      action: 'redirect',
+      en: {
+        redirect_url: 'google.com.ua',
+      }
+    })
+    expect(
+      (getNode(formId)!.value as Record<string, any>).en
+    ).not.toHaveProperty('success_message')
+
+    await wrapper.find('select').setValue('message')
+    await new Promise((r) => setTimeout(r, 25))
+    expect(getNode(formId)!.value).toMatchObject({
+      action: 'message',
+      en: {
+        success_message: 'Success message',
+      }
+    })
+    expect(
+      (getNode(formId)!.value as Record<string, any>).en
+    ).not.toHaveProperty('redirect_url')
+  })
 })

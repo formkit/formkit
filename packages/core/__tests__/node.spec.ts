@@ -1276,6 +1276,34 @@ describe('value propagation in a node tree', () => {
     })
   })
 
+  it('preserves a replacement child value when removing another child with the same name', () => {
+    const redirect = createNode({
+      type: 'group',
+      name: 'en',
+      children: [createNode({ name: 'redirect_url', value: 'google.com.ua' })],
+    })
+    const message = createNode({
+      type: 'group',
+      name: 'en',
+      children: [
+        createNode({ name: 'success_message', value: 'Success message' }),
+      ],
+    })
+    const parent = createNode({
+      type: 'group',
+      children: [redirect],
+    })
+
+    parent.add(message)
+    parent.remove(redirect)
+
+    expect(parent.value).toStrictEqual({
+      en: {
+        success_message: 'Success message',
+      },
+    })
+  })
+
   it('can re-arrange the order of a list’s values', async () => {
     const food = createNode({
       type: 'list',
