@@ -1218,6 +1218,39 @@ describe('programmatic submission', () => {
 })
 
 describe('resetting', () => {
+  it('restores invalid state after reset and resubmission (#1630)', async () => {
+    const formId = token()
+    const wrapper = mount(
+      defineComponent({
+        template: `
+        <FormKit type="form" id="${formId}" :actions="false">
+          <FormKit type="text" name="first" validation="required" :delay="0" />
+          <FormKit type="text" name="second" validation="required" :delay="0" />
+        </FormKit>`,
+      }),
+      global
+    )
+
+    const outers = () => wrapper.findAll('.formkit-outer')
+    const inputs = () => wrapper.findAll('input')
+
+    inputs()[0].setValue('abc')
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(outers()[0].attributes('data-invalid')).toBe(undefined)
+    expect(outers()[1].attributes('data-invalid')).toBe('true')
+
+    getNode(formId)!.reset()
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(outers()[0].attributes('data-invalid')).toBe('true')
+    expect(outers()[1].attributes('data-invalid')).toBe('true')
+  })
+
   it('can be reset to a specific value', async () => {
     const submitHandler = vi.fn()
     const formId = token()
