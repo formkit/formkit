@@ -176,9 +176,9 @@ describe('radios (react)', () => {
     })
   })
 
-  it('applies undefined to a false disabled prop', async () => {
+  it('applies undefined to a false or null disabled prop', async () => {
     function Host() {
-      const [disabled, setDisabled] = useState('false')
+      const [disabled, setDisabled] = useState<string | null>('false')
       return createElement(
         'div',
         null,
@@ -195,6 +195,14 @@ describe('radios (react)', () => {
           'button',
           {
             type: 'button',
+            onClick: () => setDisabled(null),
+          },
+          'null'
+        ),
+        createElement(
+          'button',
+          {
+            type: 'button',
             onClick: () => setDisabled('true'),
           },
           'disable'
@@ -207,6 +215,12 @@ describe('radios (react)', () => {
     expect(container.querySelector('.formkit-outer')?.getAttribute('data-disabled')).toBeNull()
 
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
+
+    await waitFor(() => {
+      expect(container.querySelector('.formkit-outer')?.getAttribute('data-disabled')).toBeNull()
+    })
+
+    fireEvent.click(container.querySelectorAll('button')[1] as HTMLButtonElement)
 
     await waitFor(() => {
       expect(container.querySelector('.formkit-outer')?.getAttribute('data-disabled')).toBe('true')
