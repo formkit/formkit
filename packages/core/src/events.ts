@@ -65,11 +65,28 @@ export interface FormKitEventEmitter {
 export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
   const receipts = new Map<string, string[]>()
+  const originIds = new WeakMap<FormKitNode, number>()
+  let originCounter = 0
   let buffer: undefined | Map<string, [FormKitNode, FormKitEvent]> = undefined
+
+  const eventKey = (event: FormKitEvent) => {
+    let originId = originIds.get(event.origin)
+    if (originId === undefined) {
+      originId = ++originCounter
+      originIds.set(event.origin, originId)
+    }
+    const payloadKey =
+      event.payload &&
+      typeof event.payload === 'object' &&
+      'key' in event.payload
+        ? `:${String(event.payload.key)}`
+        : ''
+    return `${event.name}:${originId}${payloadKey}`
+  }
 
   const emitter = (node: FormKitNode, event: FormKitEvent) => {
     if (buffer) {
-      buffer.set(event.name, [node, event])
+      buffer.set(eventKey(event), [node, event])
       return
     }
     if (listeners.has(event.name)) {

@@ -747,6 +747,56 @@ describe('form submission', () => {
     expect(isDirty(id)).toBe(false)
   })
 
+  it('updates nested group dirty state after resetting with a new value (#1687)', async () => {
+    const formId = `form_${token()}`
+    const groupId = `group_${token()}`
+    const inputId = `input_${token()}`
+    const config = defaultConfig({
+      props: {
+        dirtyBehavior: 'compare',
+      },
+    })
+    mount(
+      {
+        template: /* html */ `<FormKit id="${formId}" type="form">
+        <FormKit id="${groupId}" type="group" name="user">
+          <FormKit type="text" name="name" id="${inputId}" value="123" :delay="0" />
+        </FormKit>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, config]],
+        },
+      }
+    )
+
+    const isDirty = (id: string) => getNode(id)?.context?.state.dirty
+    const form = getNode(formId)!
+    const input = getNode(inputId)!
+
+    form.reset({ user: { name: 'reset' } })
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(false)
+    expect(isDirty(groupId)).toBe(false)
+    expect(isDirty(inputId)).toBe(false)
+
+    await input.input('changed', false)
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(true)
+    expect(isDirty(groupId)).toBe(true)
+    expect(isDirty(inputId)).toBe(true)
+
+    await input.input('reset', false)
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(false)
+    expect(isDirty(groupId)).toBe(false)
+    expect(isDirty(inputId)).toBe(false)
+  })
+
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       defineComponent({

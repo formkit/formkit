@@ -2,6 +2,7 @@ import { createNode } from '../src/node'
 import { createShippingTree } from '../../../.tests/helpers'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKitEvent } from '../src/events'
+import { createMessage } from '../src/store'
 
 describe('emitting and listening to events', () => {
   it('can emit an arbitrary event', () => {
@@ -114,6 +115,56 @@ describe('emitting and listening to events', () => {
     expect(foo).toHaveBeenCalledTimes(1)
     expect(bar).toHaveBeenCalledTimes(1)
     expect(foo).toHaveBeenCalledWith(expect.objectContaining({ payload: 223 }))
+  })
+
+  it('replays paused events separately for each origin', () => {
+    const parent = createNode({
+      type: 'group',
+      children: [createNode({ name: 'child' })],
+    })
+    const child = parent.at('child')!
+    const local = vi.fn()
+    const deep = vi.fn()
+
+    parent.on('foo', local)
+    parent.on('foo.deep', deep)
+
+    parent._e.pause(parent)
+    parent.emit('foo', 'parent')
+    child.emit('foo', 'child')
+    parent._e.play(parent)
+
+    expect(local).toHaveBeenCalledTimes(1)
+    expect(local).toHaveBeenCalledWith(
+      expect.objectContaining({ payload: 'parent', origin: parent })
+    )
+    expect(deep).toHaveBeenCalledTimes(2)
+    expect(deep.mock.calls.map(([event]) => event.payload)).toEqual([
+      'parent',
+      'child',
+    ])
+  })
+
+  it('replays paused message events separately for each message key', () => {
+    const node = createNode()
+    const listener = vi.fn()
+
+    node.on('message-added', listener)
+
+    node._e.pause()
+    node.store.set(
+      createMessage({ key: 'first', value: true, visible: false }, node)
+    )
+    node.store.set(
+      createMessage({ key: 'second', value: true, visible: false }, node)
+    )
+    node._e.play()
+
+    expect(listener).toHaveBeenCalledTimes(2)
+    expect(listener.mock.calls.map(([event]) => event.payload.key)).toEqual([
+      'first',
+      'second',
+    ])
   })
 
   it('can emit an event with custom meta', () => {
