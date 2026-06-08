@@ -252,6 +252,28 @@ describe('synced lists', () => {
     expect(list.children[1]).toBe(nodes[2])
   })
 
+  it('emits childRemoved when removing a synced list node via value', async () => {
+    const nodes = [
+      createNode({ value: 'A' }),
+      createNode({ value: 'B' }),
+      createNode({ value: 'C' }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      sync: true,
+      children: nodes,
+    })
+    const listener = vi.fn()
+    list.on('childRemoved', listener)
+
+    list.input(['A', 'C'], false)
+    await list.settled
+
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listener.mock.calls[0][0].payload).toBe(nodes[1])
+  })
+
   it('can remove a node in synced list by splicing the value', async () => {
     const nodes = [
       createNode({
