@@ -25,7 +25,7 @@ import {
   InputType,
   runtimeProps,
 } from '@formkit/inputs'
-import { getCurrentInstance } from 'vue'
+import { getCurrentInstance, onBeforeUnmount } from 'vue'
 
 /**
  * The type definition for the FormKit’s slots, this is not intended to be used
@@ -107,6 +107,46 @@ let currentSchemaNode: FormKitNode | null = null
  * @public
  */
 export const getCurrentSchemaNode = () => currentSchemaNode
+
+type HotReloadAPI = {
+  on: (
+    event: 'vite:beforeUpdate' | 'vite:afterUpdate',
+    handler: () => void
+  ) => void
+  off?: (
+    event: 'vite:beforeUpdate' | 'vite:afterUpdate',
+    handler: () => void
+  ) => void
+}
+
+/**
+ * Registers Vite HMR handlers for a FormKit component instance.
+ *
+ * @internal
+ */
+export function registerHotReload(
+  node: FormKitNode,
+  instance: ReturnType<typeof getCurrentInstance>,
+  hot: HotReloadAPI,
+  cleanup: (handler: () => void) => void = onBeforeUnmount
+) {
+  let initPreserve: boolean | undefined
+  const beforeUpdate = () => {
+    initPreserve = node.props.preserve
+    node.props.preserve = true
+  }
+  const afterUpdate = () => {
+    instance?.proxy?.$forceUpdate()
+    node.props.preserve = initPreserve
+  }
+  hot.on('vite:beforeUpdate', beforeUpdate)
+  hot.on('vite:afterUpdate', afterUpdate)
+  cleanup(() => {
+    hot.off?.('vite:beforeUpdate', beforeUpdate)
+    hot.off?.('vite:afterUpdate', afterUpdate)
+  })
+}
+
 /**
  * The actual runtime setup function for the FormKit component.
  *
@@ -130,16 +170,7 @@ function FormKit<Props extends FormKitInputs<Props>>(
       )
   }
   if (__DEV__ && import.meta.hot) {
-    const instance = getCurrentInstance()
-    let initPreserve: boolean | undefined
-    import.meta.hot?.on('vite:beforeUpdate', () => {
-      initPreserve = node.props.preserve
-      node.props.preserve = true
-    })
-    import.meta.hot?.on('vite:afterUpdate', () => {
-      instance?.proxy?.$forceUpdate()
-      node.props.preserve = initPreserve
-    })
+    registerHotReload(node, getCurrentInstance(), import.meta.hot)
   }
   const schema = ref<FormKitSchemaDefinition>([])
   let memoKey: string | undefined = node.props.definition.schemaMemoKey
