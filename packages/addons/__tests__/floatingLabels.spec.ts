@@ -2,9 +2,14 @@ import { h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig, resetCount } from '@formkit/vue'
 import { createFloatingLabelsPlugin } from '../src/plugins/floatingLabels/floatingLabelsPlugin'
-import { FormKitNode, FormKitPlugin, FormKitSectionsSchema } from '@formkit/core'
+import {
+  FormKitNode,
+  FormKitPlugin,
+  FormKitSectionsSchema,
+  getNode,
+} from '@formkit/core'
 import { clone } from '@formkit/utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * A test plugin that adds a custom data attribute to the outer section.
@@ -43,6 +48,8 @@ describe('floatingLabels', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
+    document.body.className = ''
     document.body.innerHTML = ''
   })
 
@@ -131,6 +138,52 @@ describe('floatingLabels', () => {
 
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.html()).toContain('data-floating-label="true"')
+    wrapper.unmount()
+  })
+
+  it('updates label background color when an ancestor theme class changes (#1243)', async () => {
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((element) => {
+      const backgroundColor =
+        element === document.body
+          ? document.body.classList.contains('dark')
+            ? 'rgb(0, 0, 0)'
+            : 'rgb(255, 255, 255)'
+          : 'rgba(0, 0, 0, 0)'
+
+      return {
+        backgroundColor,
+        getPropertyValue: () => '1',
+        paddingLeft: '0px',
+      } as unknown as CSSStyleDeclaration
+    })
+    const wrapper = mount(FormKit, {
+      props: {
+        id: 'floating-theme',
+        type: 'text',
+        label: 'Test Label',
+        floatingLabel: true,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createFloatingLabelsPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 110))
+    const node = getNode('floating-theme')!
+    expect(node.props._labelBackgroundColor).toBe('rgb(255, 255, 255)')
+
+    document.body.classList.add('dark')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(node.props._labelBackgroundColor).toBe('rgb(0, 0, 0)')
     wrapper.unmount()
   })
 })
