@@ -38,14 +38,22 @@ function isSelected(
  */
 function containsValue(
   options: FormKitOptionsListWithGroups,
-  value: unknown
+  value: unknown,
+  ignorePlaceholder = false
 ): boolean {
   return options.some((option) => {
     if (isGroupOption(option)) {
-      return containsValue(option.options, value)
+      return containsValue(option.options, value, ignorePlaceholder)
     } else {
-      return (
-        ('__original' in option ? option.__original : option.value) === value
+      if (
+        ignorePlaceholder &&
+        option.attrs &&
+        'data-is-placeholder' in option.attrs
+      )
+        return false
+      return eq(
+        '__original' in option ? option.__original : option.value,
+        value
       )
     }
   })
@@ -182,15 +190,7 @@ export default function select(node: FormKitNode): void {
       node.context.fns.isSelected = isSelected.bind(null, node)
       node.context.fns.showPlaceholder = (value: unknown, placeholder) => {
         if (!Array.isArray(node.props.options)) return false
-        const hasMatchingValue = node.props.options.some(
-          (option: FormKitOptionsItem) => {
-            if (option.attrs && 'data-is-placeholder' in option.attrs)
-              return false
-            const optionValue =
-              '__original' in option ? option.__original : option.value
-            return eq(value, optionValue)
-          }
-        )
+        const hasMatchingValue = containsValue(node.props.options, value, true)
         return placeholder && !hasMatchingValue ? true : undefined
       }
     }
