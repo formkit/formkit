@@ -49,6 +49,7 @@ describe('floatingLabels', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.useRealTimers()
     document.body.className = ''
     document.body.innerHTML = ''
   })
@@ -212,5 +213,33 @@ describe('floatingLabels', () => {
     wrapper.unmount()
 
     expect(clearTimeoutSpy).toHaveBeenCalled()
+  })
+
+  it('clears delayed background color updates when unmounted', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        label: 'Test Label',
+        floatingLabel: true,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createFloatingLabelsPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+    const getComputedStyle = vi.spyOn(window, 'getComputedStyle')
+
+    wrapper.unmount()
+    await vi.advanceTimersByTimeAsync(100)
+
+    expect(getComputedStyle).not.toHaveBeenCalled()
   })
 })

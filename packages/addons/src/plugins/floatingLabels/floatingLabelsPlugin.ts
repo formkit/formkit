@@ -21,6 +21,9 @@ export interface FloatingLabelsOptions {
  */
 function findParentWithBackgroundColor(element: HTMLElement): string {
   let backgroundColor = 'white'
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return backgroundColor
+  }
   while (backgroundColor === 'white' && element.parentElement) {
     element = element.parentElement
     const style = window.getComputedStyle(element)
@@ -38,7 +41,8 @@ function findParentWithBackgroundColor(element: HTMLElement): string {
     if (opacityMatch) {
       const opacityVar = opacityMatch[1]
       const opacity =
-        getComputedStyle(document.documentElement)
+        window
+          .getComputedStyle(document.documentElement)
           .getPropertyValue(opacityVar)
           .trim() || '1'
       backgroundColor = `rgba(${bgColor}, ${opacity})`
@@ -61,7 +65,14 @@ function setBackgroundColor(
 ) {
   const scheduledTimeout = setTimeout(() => {
     timeouts.delete(scheduledTimeout)
-    if (typeof window === 'undefined' || !node.props) return
+    if (
+      typeof window === 'undefined' ||
+      !node.context ||
+      !node.props ||
+      !nodeRoot.isConnected
+    ) {
+      return
+    }
     node.props._labelBackgroundColor = findParentWithBackgroundColor(nodeRoot)
   }, timeout)
   timeouts.add(scheduledTimeout)
@@ -206,7 +217,7 @@ export function createFloatingLabelsPlugin(
           // initial label positions are set
           const scheduledTimeout = setTimeout(() => {
             timeouts.delete(scheduledTimeout)
-            if (!node.props) return
+            if (!node.context || !node.props) return
             node.props._offsetCalculated = true
           }, 100)
           timeouts.add(scheduledTimeout)
@@ -231,10 +242,12 @@ export function createFloatingLabelsPlugin(
 
       node.on('destroyed', () => {
         observer?.disconnect()
+        observer = null
         backgroundObserver?.disconnect()
         backgroundObserver = undefined
         timeouts.forEach((timeout) => clearTimeout(timeout))
         timeouts.clear()
+        nodeEl = null
       })
 
       function calculateLabelOffset(node: FormKitNode, nodeEl: HTMLElement) {
