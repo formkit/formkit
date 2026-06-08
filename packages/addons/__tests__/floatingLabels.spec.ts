@@ -186,4 +186,31 @@ describe('floatingLabels', () => {
     expect(node.props._labelBackgroundColor).toBe('rgb(0, 0, 0)')
     wrapper.unmount()
   })
+
+  it('clears scheduled timers on unmount', async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'text',
+        label: 'Test Label',
+        floatingLabel: true,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createFloatingLabelsPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.unmount()
+
+    expect(clearTimeoutSpy).toHaveBeenCalled()
+  })
 })

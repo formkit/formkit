@@ -56,11 +56,15 @@ function findParentWithBackgroundColor(element: HTMLElement): string {
 function setBackgroundColor(
   node: FormKitNode,
   nodeRoot: HTMLElement,
-  timeout: number
+  timeout: number,
+  timeouts: Set<ReturnType<typeof setTimeout>>
 ) {
-  setTimeout(() => {
+  const scheduledTimeout = setTimeout(() => {
+    timeouts.delete(scheduledTimeout)
+    if (typeof window === 'undefined' || !node.props) return
     node.props._labelBackgroundColor = findParentWithBackgroundColor(nodeRoot)
   }, timeout)
+  timeouts.add(scheduledTimeout)
 }
 
 function observeBackgroundAncestors(
@@ -95,6 +99,8 @@ export function createFloatingLabelsPlugin(
   const floatingLabelsPlugin = (node: FormKitNode) => {
     let nodeEl: HTMLElement | null = null
     let backgroundObserver: MutationObserver | undefined
+    let observer: MutationObserver | null = null
+    const timeouts = new Set<ReturnType<typeof setTimeout>>()
     node.addProps({
       floatingLabel: {
         boolean: true,
@@ -114,7 +120,7 @@ export function createFloatingLabelsPlugin(
         // available for users who want to update the background color manually
         node.context.handlers.updateLabelBackgroundColor = () => {
           if (!node.context || !nodeEl) return
-          setBackgroundColor(node, nodeEl, 0)
+          setBackgroundColor(node, nodeEl, 0, timeouts)
         }
 
         const inputDefinition = clone(node.props.definition)
@@ -192,32 +198,43 @@ export function createFloatingLabelsPlugin(
 
         // set a mutation observer on the nodeEl parent to refire calculateLabelOffset
         // whenever the children are changed
-        const observer = new MutationObserver(() => {
+        observer = new MutationObserver(() => {
           if (!nodeEl) return
           calculateLabelOffset(node, nodeEl)
 
           // delay the enabling of animations until after
           // initial label positions are set
-          setTimeout(() => {
+          const scheduledTimeout = setTimeout(() => {
+            timeouts.delete(scheduledTimeout)
+            if (!node.props) return
             node.props._offsetCalculated = true
           }, 100)
+          timeouts.add(scheduledTimeout)
         })
 
         whenAvailable(node.context.id, () => {
           if (!node.context) return
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
-          setBackgroundColor(node, nodeEl, 100)
+          setBackgroundColor(node, nodeEl, 100, timeouts)
           backgroundObserver = observeBackgroundAncestors(nodeEl, () => {
             if (!node.context || !nodeEl) return
-            setBackgroundColor(node, nodeEl, 0)
+            setBackgroundColor(node, nodeEl, 0, timeouts)
           })
-          observer.observe(nodeEl.parentNode as Node, {
+          observer?.observe(nodeEl.parentNode as Node, {
             childList: true,
             subtree: true,
             attributes: true,
           })
         })
+      })
+
+      node.on('destroyed', () => {
+        observer?.disconnect()
+        backgroundObserver?.disconnect()
+        backgroundObserver = undefined
+        timeouts.forEach((timeout) => clearTimeout(timeout))
+        timeouts.clear()
       })
 
       function calculateLabelOffset(node: FormKitNode, nodeEl: HTMLElement) {
@@ -232,10 +249,6 @@ export function createFloatingLabelsPlugin(
         }
       }
 
-      node.on('destroyed', () => {
-        backgroundObserver?.disconnect()
-        backgroundObserver = undefined
-      })
     }
   }
   return floatingLabelsPlugin
