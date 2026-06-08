@@ -144,6 +144,41 @@ describe('file inputs', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(wrapper.find('.formkit-no-files').exists()).toBe(true)
   })
+  it('clears the native file input value when its parent form resets (#1249)', async () => {
+    const formId = 'file-reset-form'
+    const fileId = 'file-reset-input'
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit id="${formId}" type="form">
+            <FormKit
+              id="${fileId}"
+              type="file"
+              name="file"
+            />
+          </FormKit>
+      `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const fileInput = wrapper.find(`#${fileId}`).element as HTMLInputElement
+    Object.defineProperty(fileInput, 'value', {
+      configurable: true,
+      writable: true,
+      value: 'C:\\fakepath\\test.jpg',
+    })
+
+    getNode(formId)!.reset()
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(fileInput.value).toBe('')
+    wrapper.unmount()
+  })
   it('always renders data-multiple="true" when the multiple attribute exists and is not false', () => {
     const wrapper = mount(
       {
