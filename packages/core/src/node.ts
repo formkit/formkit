@@ -2002,8 +2002,22 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   // For "synced" lists the underlying nodes need to be synced to their values
   // before hydration.
   if (node.type === 'list' && node.sync) syncListNodes(node, context)
+  // Frameworks can briefly mount a same-name replacement before unmounting the
+  // old node. In that overlap, the children remain the source of truth.
+  const duplicateNames = new Set<PropertyKey>()
+  if (node.type !== 'list') {
+    const childNames = new Set<PropertyKey>()
+    context.children.forEach((child) => {
+      if (childNames.has(child.name)) duplicateNames.add(child.name)
+      childNames.add(child.name)
+    })
+  }
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
+    if (duplicateNames.has(child.name) && !child.props.mergeStrategy) {
+      partial(context, { name: child.name, value: child.value })
+      return
+    }
     if (child.name in _value) {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
@@ -2513,9 +2527,12 @@ function removeChild(
       parent = parent.parent
     }
     if (!preserve) {
+      const sibling = context.children.find(
+        (sibling) => sibling.name === child.name
+      )
       node.calm({
         name: node.type === 'list' ? childIndex : child.name,
-        value: valueRemoved,
+        value: sibling && node.type !== 'list' ? sibling.value : valueRemoved,
       })
     } else {
       node.calm()
