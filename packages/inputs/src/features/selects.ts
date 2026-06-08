@@ -118,6 +118,21 @@ function firstValue(options: FormKitOptionsListWithGroups): unknown {
 }
 
 /**
+ * Determines if a select should default to its first option.
+ * @param node - A formkit node.
+ * @param value - The current value of the node.
+ */
+function shouldSelectFirstOption(node: FormKitNode, value: unknown): boolean {
+  return !!(
+    !node.props.placeholder &&
+    value === undefined &&
+    Array.isArray(node.props?.options) &&
+    node.props.options.length &&
+    !undefine(node.props?.attrs?.multiple)
+  )
+}
+
+/**
  * Converts the options prop to usable values.
  * @param node - A formkit node.
  * @public
@@ -181,14 +196,14 @@ export default function select(node: FormKitNode): void {
     }
   })
 
+  node.on('prop:options', () => {
+    if (shouldSelectFirstOption(node, node._value)) {
+      node.input(firstValue(node.props.options), false)
+    }
+  })
+
   node.hook.input((value, next) => {
-    if (
-      !node.props.placeholder &&
-      value === undefined &&
-      Array.isArray(node.props?.options) &&
-      node.props.options.length &&
-      !undefine(node.props?.attrs?.multiple)
-    ) {
+    if (shouldSelectFirstOption(node, value)) {
       value = firstValue(node.props.options)
     }
     return next(value)
