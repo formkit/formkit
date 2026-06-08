@@ -9,8 +9,7 @@ import { createSection, localize } from '@formkit/inputs'
 import { token } from '@formkit/utils'
 import {
   FormKitNode,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
+  FormKitSectionsSchema,
   FormKitFrameworkContext,
 } from '@formkit/core'
 import FormKitSchema from './FormKitSchema'
@@ -76,10 +75,7 @@ export interface FormKitSummaryMessage {
 export interface FormKitSummaryProps {
   node?: FormKitNode
   forceShow?: boolean
-  sectionsSchema?: Record<
-    string,
-    Partial<FormKitSchemaNode> | FormKitSchemaCondition
-  >
+  sectionsSchema?: FormKitSectionsSchema
   onShow?: (summaries: Array<FormKitSummaryMessage>) => void
 }
 

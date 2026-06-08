@@ -12,6 +12,7 @@ import {
   warn,
   FormKitSchemaDOMNode,
   FormKitSectionsSchema,
+  FormKitSchemaNodeExtension,
 } from '@formkit/core'
 import {
   isSchemaObject,
@@ -381,7 +382,7 @@ export function $for(
 /*@__NO_SIDE_EFFECTS__*/
 export function $extend(
   section: FormKitSchemaExtendableSection,
-  extendWith: Partial<FormKitSchemaNode>
+  extendWith: FormKitSchemaNodeExtension
 ): FormKitSchemaExtendableSection {
   const extendable = (extensions: FormKitSectionsSchema) => {
     const node = section({})

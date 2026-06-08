@@ -2,8 +2,7 @@ import { ReactNode, createElement, useContext, useEffect, useMemo } from 'react'
 import { createSection } from '@formkit/inputs'
 import {
   FormKitNode,
-  FormKitSchemaNode,
-  FormKitSchemaCondition,
+  FormKitSectionsSchema,
 } from '@formkit/core'
 import { undefine } from '@formkit/utils'
 import FormKitSchema from './FormKitSchema'
@@ -29,10 +28,7 @@ const definition = messages(message('$message.value'))
 
 export interface FormKitMessagesProps {
   node?: FormKitNode
-  sectionsSchema?: Record<
-    string,
-    Partial<FormKitSchemaNode> | FormKitSchemaCondition
-  >
+  sectionsSchema?: FormKitSectionsSchema
   defaultPosition?: 'true' | 'false' | boolean | undefined
   library?: Record<string, any>
   children?: ReactNode
