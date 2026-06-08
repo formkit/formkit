@@ -10,6 +10,9 @@ import { getNode } from './registry'
  */
 function clearState(node: FormKitNode) {
   const clear = (n: FormKitNode) => {
+    const hasValidationMessages = Object.values(n.store).some(
+      (message) => message.type === 'validation'
+    )
     for (const key in n.store) {
       const message = n.store[key]
       if (
@@ -18,7 +21,10 @@ function clearState(node: FormKitNode) {
       ) {
         n.store.remove(key)
       } else if (message.type === 'state') {
-        n.store.set({ ...message, value: false })
+        n.store.set({
+          ...message,
+          value: key === 'failing' ? hasValidationMessages : false,
+        })
       }
     }
   }
