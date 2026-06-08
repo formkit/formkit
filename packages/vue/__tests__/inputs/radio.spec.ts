@@ -79,6 +79,25 @@ describe('radios', () => {
     expect(warning).toHaveBeenCalledTimes(1)
   })
 
+  it('passes onChange handlers through to option radios (#1612)', async () => {
+    const onChange = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'radio',
+        options: ['A', 'B', 'C'],
+        onChange,
+      },
+      ...global,
+    })
+
+    const radios = wrapper.get('fieldset').findAll('input[type="radio"]')
+    radios[1].element.checked = true
+    radios[1].trigger('change')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
   it('changes the selected radios when value is set on node', async () => {
     const id = token()
     const wrapper = mount(
