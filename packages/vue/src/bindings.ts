@@ -236,12 +236,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
   })
 
-  node.on('prop:rootClasses', () => {
+  const resetClasses = () => {
     const keys = Object.keys(cachedClasses)
     for (const key of keys) {
       delete cachedClasses[key]
     }
-  })
+  }
+
+  node.on('prop:rootClasses', resetClasses)
+  node.on('config:rootClasses', resetClasses)
+  node.on('config:classes', resetClasses)
 
   const describedBy = computed<string | undefined>(() => {
     if (!node) return undefined
