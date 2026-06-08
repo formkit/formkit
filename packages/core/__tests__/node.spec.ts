@@ -562,6 +562,22 @@ describe('props system', () => {
     expect(child.props.delay).toBe(50)
   })
 
+  it('does not inherit the default delay from group and list parents (#1265)', () => {
+    const groupChild = createNode({ name: 'groupChild' })
+    createNode({
+      type: 'group',
+      children: [groupChild],
+    })
+    expect(groupChild.props.delay).toBe(20)
+
+    const listChild = createNode({ name: 'listChild' })
+    createNode({
+      type: 'list',
+      children: [listChild],
+    })
+    expect(listChild.props.delay).toBe(20)
+  })
+
   it('can override a configuration value', () => {
     const child = createNode({ name: 'name', props: { delay: 500 } })
     createNode({
