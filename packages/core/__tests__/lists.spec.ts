@@ -114,6 +114,30 @@ describe('lists', () => {
     expect(commitListener).toHaveBeenCalledTimes(1)
   })
 
+  it('bubbles destroying events for synced list children removed by value (#1291)', async () => {
+    const removed = createNode({ value: 'remove@example.com' })
+    const kept = createNode({ value: 'keep@example.com' })
+    const repeater = createNode({
+      type: 'list',
+      value: ['remove@example.com', 'keep@example.com'],
+      sync: true,
+      children: [removed, kept],
+    })
+    const destroying = vi.fn()
+    repeater.on('destroying.deep', destroying)
+
+    repeater.input(['keep@example.com'], false)
+    await repeater.settled
+
+    expect(repeater.children).toHaveLength(1)
+    expect(repeater.children[0]?.uid).toBe(kept.uid)
+    expect(removed.parent).toBeNull()
+    expect(destroying).toHaveBeenCalledTimes(1)
+    const [event] = destroying.mock.calls[0]
+    expect(event.origin.uid).toBe(removed.uid)
+    expect(event.payload.uid).toBe(removed.uid)
+  })
+
   it('emits a singe commit event for type list', () => {
     const commitEvent = vi.fn()
     const lib = function libraryPlugin() {}
