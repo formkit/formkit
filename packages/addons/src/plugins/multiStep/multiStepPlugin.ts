@@ -389,7 +389,10 @@ async function goToStep(node: FormKitNode, target: number | string) {
   node.props._pendingStepTarget = target
 }
 
-function getTargetStep(node: FormKitNode, target: number | string) {
+function getTargetStep(
+  node: FormKitNode,
+  target: number | string
+): FormKitFrameworkContext | undefined {
   const steps = node.props.steps as FormKitFrameworkContext[] | undefined
   if (!Array.isArray(steps)) return
   if (typeof target === 'number') {
@@ -399,6 +402,7 @@ function getTargetStep(node: FormKitNode, target: number | string) {
       (step: Record<string, any>) => step.node.name === target
     )
   }
+  return undefined
 }
 
 /**
