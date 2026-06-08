@@ -257,6 +257,63 @@ describe('multistep', () => {
     wrapper.unmount()
   })
 
+  it('does not expose aggregate invalid state on structural containers (#1208)', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit type="form" id="multistep-form">
+            <FormKit type="multi-step" name="steps" allow-incomplete>
+              <FormKit type="step" name="stepOne">
+                <FormKit
+                  type="text"
+                  name="name"
+                  validation="required"
+                  value="Riki"
+                />
+              </FormKit>
+              <FormKit type="step" name="stepTwo">
+                <FormKit type="text" name="email" validation="required" />
+              </FormKit>
+            </FormKit>
+          </FormKit>
+        `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [createMultiStepPlugin()],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('button[type="submit"]').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(
+      wrapper.find('.formkit-outer[data-type="multi-step"]').attributes()
+    ).not.toHaveProperty('data-invalid')
+    wrapper.findAll('.formkit-step').forEach((step) => {
+      expect(step.attributes()).not.toHaveProperty('data-invalid')
+    })
+    expect(
+      wrapper.find('.formkit-outer[data-type="text"]').attributes()
+    ).not.toHaveProperty('data-invalid')
+    expect(
+      wrapper.findAll('.formkit-outer[data-type="text"]')[1].attributes()
+    ).toHaveProperty('data-invalid')
+    wrapper.unmount()
+  })
+
   it('Does not allow step advancement when current step is invalid', async () => {
     const wrapper = mount(FormKitSchema, {
       props: {
