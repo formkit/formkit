@@ -1591,6 +1591,21 @@ describe('schema $get function', () => {
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toBe('15')
   })
+
+  it('returns undefined when a $get tail accesses missing nested properties (#1657)', () => {
+    createNode({
+      type: 'input',
+      plugins: [corePlugin],
+      props: { id: 'test' },
+      value: { name: 'Name' },
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$get(test).value.test.test.test.name'],
+      },
+    })
+    expect(wrapper.html()).toBe('undefined')
+  })
 })
 
 describe('$reset', () => {

@@ -1,4 +1,4 @@
-import { isQuotedString, rmEscapes, parseArgs, getAt } from '@formkit/utils'
+import { has, isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
 import { warn, error } from './errors'
 
 /**
@@ -60,6 +60,23 @@ type LogicOperator = (
  */
 interface LogicOperators {
   [index: string]: LogicOperator
+}
+
+function getTailValue(obj: any, addr: string): unknown {
+  if (!obj || typeof obj !== 'object') return null
+  const segments = addr.split('.')
+  let current = obj
+  for (const i in segments) {
+    const segment = segments[i]
+    if (!has(current, segment)) return undefined
+    const value = current[segment]
+    if (+i === segments.length - 1) {
+      return typeof value === 'function' ? value.bind(current) : value
+    }
+    if (!value || typeof value !== 'object') return undefined
+    current = value
+  }
+  return undefined
 }
 
 /**
@@ -480,7 +497,7 @@ export function compile(expr: string): FormKitCompilerOutput {
                 (tokenSet: Record<string, any>, token: string) => {
                   const isTail = token === tail || tail?.startsWith(`${token}(`)
                   if (isTail) {
-                    const value = getAt(userFuncReturn, token)
+                    const value = getTailValue(userFuncReturn, token)
                     tokenSet[token] = () => value
                   } else {
                     tokenSet[token] = rootTokens[token]
