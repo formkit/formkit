@@ -32,6 +32,26 @@ function clearState(node: FormKitNode) {
   node.walk(clear)
 }
 
+const missingResetValue = Symbol('missingResetValue')
+
+function valueAtResetAddress(
+  value: unknown,
+  address: Array<string | number>
+): unknown | typeof missingResetValue {
+  let current = value
+  for (const segment of address) {
+    if (
+      current === null ||
+      typeof current !== 'object' ||
+      !(segment in current)
+    ) {
+      return missingResetValue
+    }
+    current = (current as Record<string | number, unknown>)[segment]
+  }
+  return current
+}
+
 /**
  * Resets an input to its "initial" value. If the input is a group or list it
  * resets all the children as well.
@@ -61,12 +81,24 @@ export function reset(
     node._e.pause(node)
     // Set it back to basics
     const resetValue = cloneAny(resetTo)
-    if (resetTo && !empty(resetTo)) {
+    const isDeepReset =
+      node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
+    if (isDeepReset) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
       node.props._init = node.props.initial
+      node.walk((child) => {
+        const resetAddress = child.address.slice(node.address.length)
+        const childResetValue = valueAtResetAddress(resetValue, resetAddress)
+        const nextInitial =
+          childResetValue === missingResetValue
+            ? initial(child)
+            : cloneAny(childResetValue)
+        child.props.initial = isObject(nextInitial)
+          ? init(nextInitial)
+          : nextInitial
+        child.props._init = child.props.initial
+      })
     }
-
-    node.input(initial(node), false)
 
     // Set children back to basics in case they were additive (had their own value for example)
     node.walk((child) => {
@@ -83,8 +115,6 @@ export function reset(
 
     // If this is a deep reset, we need to make sure the "initial" state of all
     // children are also reset. Fixes https://github.com/formkit/formkit/issues/791#issuecomment-1651213253
-    const isDeepReset =
-      node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
     if (isDeepReset) {
       node.walk((child) => {
         // Clone the value so deep comparisons (e.g., dirty checks) work correctly.
