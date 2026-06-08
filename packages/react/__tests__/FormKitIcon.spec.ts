@@ -1,6 +1,6 @@
 import { createElement, useState } from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { FormKitIcon, FormKitProvider, defaultConfig } from '../src'
 
 const chevronIcon =
@@ -18,8 +18,8 @@ describe('FormKitIcon component (react)', () => {
         createElement(FormKitIcon, {
           icon: chevronIcon,
           iconLoader: (iconName) => iconName,
-        })
-      )
+        }),
+      ),
     )
 
     await waitFor(() => {
@@ -40,8 +40,8 @@ describe('FormKitIcon component (react)', () => {
         },
         createElement(FormKitIcon, {
           icon: 'libraryIcon',
-        })
-      )
+        }),
+      ),
     )
 
     await waitFor(() => {
@@ -66,21 +66,66 @@ describe('FormKitIcon component (react)', () => {
           'div',
           null,
           createElement(FormKitIcon, { icon }),
-          createElement('button', { onClick: () => setIcon('circleIcon') }, 'swap')
-        )
+          createElement(
+            'button',
+            { onClick: () => setIcon('circleIcon') },
+            'swap',
+          ),
+        ),
       )
     }
 
     const { container } = render(createElement(Host))
 
     await waitFor(() => {
-      expect(container.querySelector('svg')?.getAttribute('viewBox')).toBe('0 0 16 7')
+      expect(container.querySelector('svg')?.getAttribute('viewBox')).toBe(
+        '0 0 16 7',
+      )
     })
 
     fireEvent.click(container.querySelector('button') as HTMLButtonElement)
 
     await waitFor(() => {
-      expect(container.querySelector('svg')?.getAttribute('viewBox')).toBe('0 0 32 32')
+      expect(container.querySelector('svg')?.getAttribute('viewBox')).toBe(
+        '0 0 32 32',
+      )
     })
+  })
+
+  it('triggers click handlers with keyboard activation', async () => {
+    const onClick = vi.fn()
+    const { container } = render(
+      createElement(
+        FormKitProvider,
+        {
+          config: defaultConfig({
+            icons: {
+              libraryIcon: chevronIcon,
+            },
+          }),
+        },
+        createElement(FormKitIcon, {
+          icon: 'libraryIcon',
+          onClick,
+        }),
+      ),
+    )
+
+    await waitFor(() => {
+      expect(container.querySelector('.formkit-icon svg')).toBeTruthy()
+    })
+
+    const icon = container.querySelector('.formkit-icon') as HTMLElement
+    expect(icon.getAttribute('role')).toBe('button')
+    expect(icon.getAttribute('tabindex')).toBe('0')
+
+    fireEvent.keyDown(icon, { key: 'Enter' })
+    expect(onClick).toHaveBeenCalledTimes(1)
+
+    fireEvent.keyDown(icon, { key: ' ' })
+    expect(onClick).toHaveBeenCalledTimes(2)
+
+    fireEvent.keyDown(icon, { key: 'Escape' })
+    expect(onClick).toHaveBeenCalledTimes(2)
   })
 })

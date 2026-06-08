@@ -42,7 +42,7 @@ export interface FormKitIconLoaderUrl {
  * @public
  */
 export function generateClasses(
-  classes: Record<string, Record<string, string>>
+  classes: Record<string, Record<string, string>>,
 ): Record<string, string | FormKitClasses | Record<string, boolean>> {
   const classesBySectionKey: Record<string, Record<string, any>> = {}
   Object.keys(classes).forEach((type) => {
@@ -78,7 +78,7 @@ export function generateClasses(
 function addClassesBySection(
   node: FormKitNode,
   _sectionKey: string,
-  classesByType: Record<string, () => string>
+  classesByType: Record<string, () => string>,
 ): string {
   const type = node.props.type
   const family = node.props.family
@@ -152,7 +152,7 @@ export function createThemePlugin(
   theme?: string,
   icons?: Record<string, string | undefined>,
   iconLoaderUrl?: FormKitIconLoaderUrl,
-  iconLoader?: FormKitIconLoader
+  iconLoader?: FormKitIconLoader,
 ): (node: FormKitNode) => any {
   if (icons) {
     // add any user-provided icons to the registry
@@ -181,15 +181,15 @@ export function createThemePlugin(
     node.addProps(['iconLoader', 'iconLoaderUrl'])
     node.props.iconHandler = createIconHandler(
       node.props?.iconLoader ? node.props.iconLoader : iconLoader,
-      node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl
+      node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl,
     )
     loadIconPropIcons(node, node.props.iconHandler)
 
     node.on('created', () => {
       // set up the `-icon` click handlers
       if (node?.context?.handlers) {
-        node.context.handlers.iconClick = (
-          sectionKey: string
+        const iconClick = (
+          sectionKey: string,
         ): ((e: MouseEvent) => void) | void => {
           const clickHandlerProp = `on${sectionKey
             .charAt(0)
@@ -201,6 +201,20 @@ export function createThemePlugin(
             }
           }
           return undefined
+        }
+        node.context.handlers.iconClick = iconClick
+        node.context.handlers.iconKeydown = (
+          sectionKey: string,
+        ): ((e: KeyboardEvent) => void) | void => {
+          if (!iconClick(sectionKey)) return undefined
+          return (e: KeyboardEvent) => {
+            if (isKeyboardClick(e)) {
+              e.preventDefault()
+              if (e.currentTarget instanceof HTMLElement) {
+                e.currentTarget.click()
+              }
+            }
+          }
         }
       }
       if (node?.context?.fns) {
@@ -218,6 +232,10 @@ export function createThemePlugin(
 
   themePlugin.iconHandler = createIconHandler(iconLoader, iconLoaderUrl)
   return themePlugin
+}
+
+function isKeyboardClick(e: KeyboardEvent): boolean {
+  return e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'
 }
 
 /**
@@ -280,10 +298,10 @@ function loadTheme(theme: string) {
  */
 export function createIconHandler(
   iconLoader?: FormKitIconLoader,
-  iconLoaderUrl?: FormKitIconLoaderUrl
+  iconLoaderUrl?: FormKitIconLoaderUrl,
 ): FormKitIconLoader {
   return (
-    iconName: string | boolean
+    iconName: string | boolean,
   ): string | undefined | Promise<string | undefined> => {
     // bail if we got something that wasn't string
     if (typeof iconName !== 'string') return
@@ -337,7 +355,7 @@ export function createIconHandler(
 }
 
 function getIconFromStylesheet(
-  iconName: string
+  iconName: string,
 ): string | undefined | Promise<string | undefined> {
   if (!isClient) return
   if (themeHasLoaded) {
@@ -369,7 +387,7 @@ function loadStylesheetIcon(iconName: string) {
  */
 function getRemoteIcon(
   iconName: string,
-  iconLoaderUrl?: FormKitIconLoaderUrl
+  iconLoaderUrl?: FormKitIconLoaderUrl,
 ): Promise<string | undefined> | undefined {
   const formkitVersion = FORMKIT_VERSION.startsWith('__')
     ? 'latest'
@@ -398,7 +416,7 @@ function getRemoteIcon(
  */
 function loadIconPropIcons(
   node: FormKitNode,
-  iconHandler: FormKitIconLoader
+  iconHandler: FormKitIconLoader,
 ): void {
   const iconRegex = /^[a-zA-Z-]+(?:-icon|Icon)$/
   const iconProps = Object.keys(node.props).filter((prop) => {
@@ -415,7 +433,7 @@ function loadIconPropIcons(
 function loadPropIcon(
   node: FormKitNode,
   iconHandler: FormKitIconLoader,
-  sectionKey: string
+  sectionKey: string,
 ): Promise<void> | void {
   const iconName = node.props[sectionKey]
   const loadedIcon = iconHandler(iconName)

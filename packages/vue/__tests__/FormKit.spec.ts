@@ -1674,9 +1674,19 @@ describe('icons', () => {
         ],
       },
     })
-    wrapper.find('.formkit-prefix-icon').trigger('click')
+    const icon = wrapper.find('.formkit-prefix-icon')
+    icon.trigger('click')
     await new Promise((r) => setTimeout(r, 10))
     expect(iconClick).toHaveBeenCalledTimes(1)
+
+    await icon.trigger('keydown', { key: 'Enter' })
+    expect(iconClick).toHaveBeenCalledTimes(2)
+
+    await icon.trigger('keydown', { key: ' ' })
+    expect(iconClick).toHaveBeenCalledTimes(3)
+
+    await icon.trigger('keydown', { key: 'Escape' })
+    expect(iconClick).toHaveBeenCalledTimes(3)
   })
 })
 
