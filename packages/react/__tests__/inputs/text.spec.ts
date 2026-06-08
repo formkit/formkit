@@ -184,6 +184,39 @@ describe('the number feature (react)', () => {
     expect(getNode(id)!.value).toBe(123.123)
   })
 
+  it('preserves raw float text in the DOM context while editing (#1262)', async () => {
+    const id = `a${token()}`
+
+    renderWithFormKit(
+      createElement(FormKit as any, {
+        id,
+        type: 'number',
+        number: 'float',
+        delay: 0,
+      }),
+      defaultConfig()
+    )
+    const node = getNode(id)!
+    const input = async (value: string) => {
+      node.context!.handlers.DOMInput({
+        target: { value },
+      } as unknown as Event)
+      await node.settled
+    }
+
+    await input('0.')
+    expect(node.value).toBe('0.')
+    expect(node.context!._value).toBe('0.')
+
+    await input('0.0')
+    expect(node.value).toBe(0)
+    expect(node.context!._value).toBe('0.0')
+
+    await input('0.01')
+    expect(node.value).toBe(0.01)
+    expect(node.context!._value).toBe(0.01)
+  })
+
   it('forces initial values to an integer when number is integer', async () => {
     const id = `a${token()}`
 

@@ -261,6 +261,22 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   const value = ref(node.value)
   const _value = ref(node.value)
+  let pendingDOMInputValue: string | undefined
+
+  const domInputValue = (payload: unknown) => {
+    if (
+      typeof pendingDOMInputValue === 'string' &&
+      typeof node.props.number !== 'undefined' &&
+      node.props.number !== 'integer' &&
+      typeof payload === 'number' &&
+      Number.isFinite(payload) &&
+      pendingDOMInputValue.includes('.') &&
+      pendingDOMInputValue !== String(payload)
+    ) {
+      return pendingDOMInputValue
+    }
+    return payload
+  }
 
   const context: FormKitFrameworkContext = reactive({
     _value,
@@ -296,7 +312,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       DOMInput: (e: Event) => {
         const target = e.target as HTMLInputElement
         if (!isPartialNativeDateDelete(e, target, node._value)) {
-          node.input(target.value)
+          pendingDOMInputValue = target.value
+          node.input(pendingDOMInputValue)
         }
         node.emit('dom-input-event', e)
       },
@@ -421,7 +438,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   function syncStrictNumericInput(payload: unknown) {
     if (
-      typeof node.props.number === 'undefined' ||
+      node.props.number !== 'integer' ||
       !['number', 'range'].includes(node.props.type)
     ) {
       return
@@ -449,7 +466,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       _value.value = shallowClone(payload)
     } else {
-      _value.value = payload
+      _value.value = domInputValue(payload)
       triggerRef(_value)
     }
   })
@@ -467,10 +484,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       value.value = _value.value = shallowClone(payload)
     } else {
-      value.value = _value.value = payload
+      value.value = payload
+      _value.value = domInputValue(payload)
       triggerRef(value)
     }
     syncStrictNumericInput(payload)
+    pendingDOMInputValue = undefined
     node.emit('modelUpdated')
   })
 
