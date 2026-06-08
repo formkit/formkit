@@ -282,10 +282,22 @@ async function isTargetStepAllowed(
   targetStep: FormKitFrameworkContext
 ): Promise<boolean> {
   if (currentStep === targetStep) return true
-  const { allowIncomplete } = currentStep.node.parent?.props || {}
+  const nodes = [currentStep.node]
+  currentStep.node.walk((node) => {
+    nodes.push(node)
+  })
+  await Promise.all(nodes.map((node) => node.settled))
+  await Promise.all(
+    nodes
+      .filter((node) => node.ledger.value('validating'))
+      .map((node) => node.ledger.settled('validating'))
+  )
   const parentNode = currentStep.node.parent
-  const currentStepIndex = parentNode?.props.steps.indexOf(currentStep)
-  const targetStepIndex = parentNode?.props.steps.indexOf(targetStep)
+  if (!parentNode) return false
+  const { allowIncomplete } = parentNode.props
+  const currentStepIndex = parentNode.props.steps.indexOf(currentStep)
+  const targetStepIndex = parentNode.props.steps.indexOf(targetStep)
+  if (currentStepIndex === -1 || targetStepIndex === -1) return false
 
   // if we are navigating forward, check our current step is complete
   if (targetStepIndex >= currentStepIndex) {
@@ -312,12 +324,11 @@ async function isTargetStepAllowed(
 
   // check if there is a function for the stepChange guard
   const beforeStepChange =
-    currentStep.node.props.beforeStepChange ||
-    currentStep.node.parent?.props.beforeStepChange
+    currentStep.node.props.beforeStepChange || parentNode.props.beforeStepChange
 
   if (beforeStepChange && typeof beforeStepChange === 'function') {
-    if (parentNode) {
-      parentNode?.store.set(
+    if (parentNode.context) {
+      parentNode.store.set(
         createMessage({
           key: 'loading',
           value: true,
@@ -332,8 +343,8 @@ async function isTargetStepAllowed(
       targetStep,
       delta: targetStepIndex - currentStepIndex,
     })
-    if (parentNode) {
-      parentNode?.store.remove('loading')
+    if (parentNode.context) {
+      parentNode.store.remove('loading')
       parentNode.props.disabled = false
       currentStep.disabled = false
     }
@@ -352,14 +363,20 @@ async function setActiveStep(targetStep: FormKitFrameworkContext, e?: Event) {
   if (e) {
     e.preventDefault()
   }
-  if (targetStep && targetStep.node.name && targetStep.node.parent) {
-    const currentStep = targetStep.node.parent.props.steps.find(
+  const parentNode = targetStep?.node.parent
+  if (targetStep && targetStep.node.name && parentNode) {
+    const currentStep = parentNode.props.steps.find(
       (step: FormKitFrameworkContext) =>
-        step.node.name === targetStep.node.parent?.props.activeStep
+        step.node.name === parentNode.props.activeStep
     )
+    if (!currentStep) return
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
-    if (stepIsAllowed && targetStep.node.parent.context) {
-      targetStep.node.parent.props.activeStep = targetStep.node.name
+    if (
+      stepIsAllowed &&
+      targetStep.node.parent === parentNode &&
+      parentNode.context
+    ) {
+      parentNode.props.activeStep = targetStep.node.name
     }
   }
 }
@@ -373,10 +390,12 @@ async function goToStep(node: FormKitNode, target: number | string) {
 }
 
 function getTargetStep(node: FormKitNode, target: number | string) {
+  const steps = node.props.steps as FormKitFrameworkContext[] | undefined
+  if (!Array.isArray(steps)) return
   if (typeof target === 'number') {
-    return node.props.steps[target]
+    return steps[target]
   } else if (typeof target === 'string') {
-    return node.props.steps.find(
+    return steps.find(
       (step: Record<string, any>) => step.node.name === target
     )
   }
@@ -392,15 +411,21 @@ async function incrementStep(
   delta: number,
   currentStep: FormKitFrameworkContext
 ) {
-  if (currentStep && currentStep.node.name && currentStep.node.parent) {
-    const steps = currentStep.node.parent.props.steps
+  const parentNode = currentStep?.node.parent
+  if (currentStep && currentStep.node.name && parentNode) {
+    const steps = parentNode.props.steps
     const stepIndex = currentStep.stepIndex
     const targetStep = steps[(stepIndex as number) + delta]
     if (!targetStep) return
     const stepIsAllowed = await isTargetStepAllowed(currentStep, targetStep)
 
-    if (targetStep && stepIsAllowed) {
-      currentStep.node.parent.props.activeStep = targetStep.node.name
+    if (
+      targetStep &&
+      stepIsAllowed &&
+      currentStep.node.parent === parentNode &&
+      parentNode.context
+    ) {
+      parentNode.props.activeStep = targetStep.node.name
     }
   }
 }

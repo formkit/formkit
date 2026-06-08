@@ -524,6 +524,47 @@ describe('multistep', () => {
     wrapper.unmount()
   })
 
+  it('allows initial goTo after the current step settles (#1362)', async () => {
+    const id = 'multi-step-go-to'
+    const wrapper = mount(
+      {
+        data() {
+          return { id }
+        },
+        mounted() {
+          getNode(id)?.goTo('favorite')
+        },
+        template: `
+          <FormKit :id="id" type="multi-step" :allow-incomplete="false">
+            <FormKit type="step" name="basics">
+              <FormKit type="text" name="name" value="Ada" validation="required" />
+            </FormKit>
+            <FormKit type="step" name="favorite">
+              <FormKit type="text" name="color" />
+            </FormKit>
+          </FormKit>
+        `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [createMultiStepPlugin()],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+
+    await new Promise((r) => setTimeout(r, 25))
+    expect(getNode(id)?.props.activeStep).toBe('favorite')
+    wrapper.unmount()
+  })
+
   it('preserves the order of steps even when a step is conditionally rendered', async () => {
     const data = reactive({
       showStepTwo: true,
