@@ -134,6 +134,40 @@ describe('radios', () => {
     ).toStrictEqual([true, false, false])
   })
 
+  it('clears the checked state when resetting an unchanged initial value (#1637)', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'B',
+          }
+        },
+        template: `<FormKit id="${id}" :delay="0" v-model="value" type="radio" :options="[
+          'A',
+          'B',
+          'C'
+        ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+
+    const radios = wrapper.get('div').findAll('input[type="radio"]')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, true, false])
+
+    wrapper.vm.value = undefined
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, false, false])
+    expect(getNode(id)?.value).toBe(undefined)
+  })
+
   it('can have an object value', async () => {
     const id = token()
     const wrapper = mount(

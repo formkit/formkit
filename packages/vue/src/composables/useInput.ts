@@ -438,7 +438,7 @@ export function useInput<
 
   // let inputTimeout: number | undefined
 
-  let clonedValueBeforeVmodel: unknown = undefined
+  let clonedValueBeforeVmodel: unknown = cloneAny(value)
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
