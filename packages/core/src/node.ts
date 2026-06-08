@@ -1637,6 +1637,11 @@ export const valueMoved = Symbol('moved')
  */
 export const valueInserted = Symbol('inserted')
 
+// uids of synced-list children removed this tick, by parent + old index. Lets
+// addChild hand the same uid to a re-mounted child so its render key doesn't
+// change (see #1758). Cleared next microtask.
+const recentlyRemovedSyncUids = new WeakMap<FormKitNode, Map<number, symbol>>()
+
 /**
  * A simple type guard to determine if the context being evaluated is a list
  * type.
@@ -2416,7 +2421,25 @@ function addChild(
         // remove that replace it with the real node (the current child).
         child._c.uid = existingNode.uid
         parentContext.children.splice(listIndex, 1, child)
+      } else if (existingNode && parent.sync) {
+        // Synced lists always have a placeholder waiting for a mounting child,
+        // so a real node sitting here means the framework re-mounted and put the
+        // new child in before pulling the old one out. Take over its slot and
+        // uid instead of inserting a duplicate, which would grow the value and
+        // spin up an endless re-mount loop (#1758).
+        child._c.uid = existingNode.uid
+        parentContext.children.splice(listIndex, 1, child)
       } else {
+        // Same re-mount, opposite order: the old child left first, so the slot's
+        // empty. Reuse its uid if we stashed one this tick so the key holds.
+        if (!existingNode && parent.sync) {
+          const removedUids = recentlyRemovedSyncUids.get(parent)
+          const reusableUid = removedUids?.get(listIndex)
+          if (reusableUid) {
+            child._c.uid = reusableUid
+            removedUids?.delete(listIndex)
+          }
+        }
         parentContext.children.splice(listIndex, 0, child)
       }
 
@@ -2517,6 +2540,17 @@ function removeChild(
 ) {
   const childIndex = context.children.indexOf(child)
   if (childIndex !== -1) {
+    if (node.sync && node.type === 'list') {
+      // Hang onto the uid in case this is a re-mount and addChild is about to
+      // add the replacement back at the same index (#1758).
+      let removedUids = recentlyRemovedSyncUids.get(node)
+      if (!removedUids) {
+        removedUids = new Map()
+        recentlyRemovedSyncUids.set(node, removedUids)
+      }
+      removedUids.set(childIndex, child.uid)
+      queueMicrotask(() => removedUids?.delete(childIndex))
+    }
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
     // If an ancestor uses the preserve prop, then we are expected to not remove

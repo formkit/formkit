@@ -567,4 +567,63 @@ describe('synced lists', () => {
     expect(list.children[2]).toBe(nodes[2])
     expect(list.children[2].value).toBe('C')
   })
+
+  it('reuses the slot when a synced child re-mounts over an existing node (#1758)', async () => {
+    const list = createNode<Array<{ x: string }>>({
+      type: 'list',
+      value: [{ x: 'A' }],
+      sync: true,
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'x', value: 'A' })],
+        }),
+      ],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    const originalUid = list.children[0].uid
+
+    // Re-mount where the new node is added before the old one is removed.
+    const replacement = createNode({
+      type: 'group',
+      index: 0,
+      parent: list,
+      children: [createNode({ name: 'x', value: 'A' })],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    expect(list.value).toEqual([{ x: 'A' }])
+    expect(replacement.uid).toBe(originalUid)
+  })
+
+  it('reuses the uid of a just-removed synced child on re-mount (#1758)', async () => {
+    const list = createNode<Array<{ x: string }>>({
+      type: 'list',
+      value: [{ x: 'A' }],
+      sync: true,
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'x', value: 'A' })],
+        }),
+      ],
+    })
+    await list.settled
+    const originalUid = list.children[0].uid
+
+    // Re-mount the other way round: old node removed first, then replacement
+    // added back at the same index in the same tick.
+    list.children[0].destroy()
+    const replacement = createNode({
+      type: 'group',
+      index: 0,
+      parent: list,
+      children: [createNode({ name: 'x', value: 'A' })],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    expect(list.value).toEqual([{ x: 'A' }])
+    expect(replacement.uid).toBe(originalUid)
+  })
 })
