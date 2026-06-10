@@ -512,6 +512,9 @@ function addThemeChecksum(themeFile: string): string {
 function scopeGeneratedThemeStateClasses(themeFile: string): string {
   if (
     !themeFile.includes('return classes[memoKey] ?? { [semanticKey]: true }') ||
+    // Both anchors must exist — rewriting the call site without injecting the
+    // helper would emit a theme that throws ReferenceError on every lookup.
+    !themeFile.includes('\n/**\n * These classes have already been merged') ||
     themeFile.includes('function stateScopedClasses')
   ) {
     return themeFile
