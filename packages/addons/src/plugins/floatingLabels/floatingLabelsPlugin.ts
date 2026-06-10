@@ -111,6 +111,7 @@ export function createFloatingLabelsPlugin(
     let nodeEl: HTMLElement | null = null
     let backgroundObserver: MutationObserver | undefined
     let observer: MutationObserver | null = null
+    let isDestroyed = false
     const timeouts = new Set<ReturnType<typeof setTimeout>>()
     node.addProps({
       floatingLabel: {
@@ -224,7 +225,7 @@ export function createFloatingLabelsPlugin(
         })
 
         whenAvailable(node.context.id, () => {
-          if (!node.context) return
+          if (isDestroyed || !node.context) return
           nodeEl = document.getElementById(node.context?.id)
           if (!nodeEl) return
           setBackgroundColor(node, nodeEl, 100, timeouts)
@@ -241,6 +242,7 @@ export function createFloatingLabelsPlugin(
       })
 
       node.on('destroyed', () => {
+        isDestroyed = true
         observer?.disconnect()
         observer = null
         backgroundObserver?.disconnect()

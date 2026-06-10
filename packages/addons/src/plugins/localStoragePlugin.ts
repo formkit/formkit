@@ -37,7 +37,13 @@ function omitFileValues(value: unknown, node: FormKitNode): unknown {
     if (isPlaceholder(child)) return
     const key = child.name as string | number
     if (child.props.type === 'file') {
-      delete sanitized[key as keyof typeof sanitized]
+      if (Array.isArray(sanitized)) {
+        // Deleting from an array would leave a hole that serializes to null —
+        // store the file input’s empty value to keep list positions intact.
+        sanitized[key as number] = []
+      } else {
+        delete sanitized[key as keyof typeof sanitized]
+      }
       return
     }
     const childValue = (value as Record<string | number, unknown>)[key]
