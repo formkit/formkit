@@ -68,7 +68,8 @@ function getTailValue(obj: any, addr: string): unknown {
   let current = obj
   for (const i in segments) {
     const segment = segments[i]
-    if (!has(current, segment)) return undefined
+    // Use `in` so prototype members (class getters/methods) still resolve.
+    if (!(segment in current)) return undefined
     const value = current[segment]
     if (+i === segments.length - 1) {
       return typeof value === 'function' ? value.bind(current) : value
