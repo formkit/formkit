@@ -199,6 +199,40 @@ describe('select', () => {
     expect(wrapper.find('select').element.value).toBe('foo')
   })
 
+  it('selects the first dynamically loaded value when no value or placeholder is specified (#1432)', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            options: [] as Array<{ label: string; value: string }>,
+          }
+        },
+        template: `
+          <FormKit
+            id="${id}"
+            type="select"
+            name="country"
+            :options="options"
+          />`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode(id)!
+    expect(node.value).toBeUndefined()
+
+    wrapper.vm.options = [{ label: 'First option', value: 'First value' }]
+    await nextTick()
+    await node.settled
+
+    expect(node.value).toBe('First value')
+    expect(wrapper.find('select').element.value).toBe('First value')
+  })
+
   it('does not select the first value when multiple', () => {
     const wrapper = mount(FormKit, {
       props: {
@@ -449,6 +483,39 @@ describe('select', () => {
     )
     expect(wrapper.find('select').element.value).toBe('m')
     expect(wrapper.html()).toMatchSnapshot()
+  })
+
+  it('removes placeholder state when selecting a grouped option', async () => {
+    const id = `a${token()}`
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'select',
+        delay: 0,
+        placeholder: 'Select one',
+        options: [
+          {
+            group: 'Letters',
+            options: {
+              a: 'A',
+              b: 'B',
+            },
+          },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe('true')
+    await wrapper.find('select').setValue('b')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(getNode(id)?.value).toBe('b')
+    expect(wrapper.find('select').attributes('data-placeholder')).toBe(
+      undefined
+    )
   })
 
   it('can render a group of options with masked values', async () => {

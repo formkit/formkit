@@ -7,6 +7,7 @@ import {
   defaultConfig,
   resetCount,
 } from '@formkit/vue'
+import { getNode } from '@formkit/core'
 import { createMultiStepPlugin } from '../src/plugins/multiStep/multiStepPlugin'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -60,6 +61,36 @@ const multiStepSchemaBasicWithProps = [
       {
         $formkit: 'step',
         name: 'stepThree',
+      },
+    ],
+  },
+]
+
+const multiStepSchemaWithRequiredSecondStep = [
+  {
+    $formkit: 'multi-step',
+    children: [
+      {
+        $formkit: 'step',
+        name: 'stepOne',
+        children: [
+          {
+            $formkit: 'text',
+            name: 'firstName',
+            validation: 'required',
+          },
+        ],
+      },
+      {
+        $formkit: 'step',
+        name: 'stepTwo',
+        children: [
+          {
+            $formkit: 'text',
+            name: 'lastName',
+            validation: 'required',
+          },
+        ],
       },
     ],
   },
@@ -257,6 +288,63 @@ describe('multistep', () => {
     wrapper.unmount()
   })
 
+  it('does not expose aggregate invalid state on structural containers (#1208)', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit type="form" id="multistep-form">
+            <FormKit type="multi-step" name="steps" allow-incomplete>
+              <FormKit type="step" name="stepOne">
+                <FormKit
+                  type="text"
+                  name="name"
+                  validation="required"
+                  value="Riki"
+                />
+              </FormKit>
+              <FormKit type="step" name="stepTwo">
+                <FormKit type="text" name="email" validation="required" />
+              </FormKit>
+            </FormKit>
+          </FormKit>
+        `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [createMultiStepPlugin()],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('button[type="submit"]').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(
+      wrapper.find('.formkit-outer[data-type="multi-step"]').attributes()
+    ).not.toHaveProperty('data-invalid')
+    wrapper.findAll('.formkit-step').forEach((step) => {
+      expect(step.attributes()).not.toHaveProperty('data-invalid')
+    })
+    expect(
+      wrapper.find('.formkit-outer[data-type="text"]').attributes()
+    ).not.toHaveProperty('data-invalid')
+    expect(
+      wrapper.findAll('.formkit-outer[data-type="text"]')[1].attributes()
+    ).toHaveProperty('data-invalid')
+    wrapper.unmount()
+  })
+
   it('Does not allow step advancement when current step is invalid', async () => {
     const wrapper = mount(FormKitSchema, {
       props: {
@@ -313,6 +401,167 @@ describe('multistep', () => {
     await new Promise((r) => setTimeout(r, 15))
     // 2nd tab is active (without labels due to props)
     expect(wrapper.html()).toMatchSnapshot()
+    wrapper.unmount()
+  })
+
+  it('updates step tab labels when the label prop changes (#1377)', async () => {
+    const data = reactive({
+      firstLabel: 'First label',
+      secondLabel: 'Second label',
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'multi-step',
+            children: [
+              {
+                $formkit: 'step',
+                name: 'first',
+                label: '$firstLabel',
+              },
+              {
+                $formkit: 'step',
+                name: 'second',
+                label: '$secondLabel',
+              },
+            ],
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 15))
+    expect(wrapper.html()).toContain('First label')
+    data.firstLabel = 'Translated label'
+    await new Promise((r) => setTimeout(r, 15))
+    expect(wrapper.html()).toContain('Translated label')
+    expect(wrapper.html()).not.toContain('First label')
+    wrapper.unmount()
+  })
+
+  it('allows navigation after programmatic input updates settle step conditions (#1135)', async () => {
+    const beforeStepChange = vi.fn(() => true)
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: { beforeStepChange },
+        schema: [
+          {
+            $formkit: 'multi-step',
+            id: 'issue1135MultiStep',
+            allowIncomplete: false,
+            beforeStepChange: '$beforeStepChange',
+            children: [
+              {
+                $formkit: 'step',
+                name: 'stepOne',
+                children: [
+                  {
+                    $formkit: 'radio',
+                    id: 'issue1135Answer',
+                    name: 'answer',
+                    options: { yes: 'Yes', no: 'No' },
+                    validation: 'required',
+                  },
+                ],
+              },
+              {
+                $formkit: 'step',
+                name: 'stepTwo',
+                if: "$get(issue1135Answer).value === 'yes'",
+                children: [
+                  {
+                    $formkit: 'text',
+                    name: 'confirm',
+                    validation: 'required',
+                  },
+                ],
+              },
+              {
+                $formkit: 'step',
+                name: 'stepThree',
+              },
+            ],
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    await new Promise((r) => setTimeout(r, 15))
+    const multistep = getNode('issue1135MultiStep')!
+    multistep.input({
+      stepOne: { answer: 'yes' },
+      stepTwo: { confirm: 'ready' },
+    })
+    multistep.goTo('stepTwo')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(beforeStepChange).toHaveBeenCalledTimes(1)
+    expect(multistep.props.activeStep).toBe('stepTwo')
+    wrapper.unmount()
+  })
+
+  it('allows initial goTo after the current step settles (#1362)', async () => {
+    const id = 'multi-step-go-to'
+    const wrapper = mount(
+      {
+        data() {
+          return { id }
+        },
+        mounted() {
+          getNode(id)?.goTo('favorite')
+        },
+        template: `
+          <FormKit :id="id" type="multi-step" :allow-incomplete="false">
+            <FormKit type="step" name="basics">
+              <FormKit type="text" name="name" value="Ada" validation="required" />
+            </FormKit>
+            <FormKit type="step" name="favorite">
+              <FormKit type="text" name="color" />
+            </FormKit>
+          </FormKit>
+        `,
+      },
+      {
+        attachTo: document.body,
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [createMultiStepPlugin()],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+
+    await new Promise((r) => setTimeout(r, 25))
+    expect(getNode(id)?.props.activeStep).toBe('favorite')
     wrapper.unmount()
   })
 
@@ -376,6 +625,47 @@ describe('multistep', () => {
       'Step Bravo<',
       'Step Charlie<',
     ])
+    wrapper.unmount()
+  })
+
+  it('does not show validation on a later step after navigating back (#1696)', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: multiStepSchemaWithRequiredSecondStep,
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              plugins: [createMultiStepPlugin()],
+            }),
+          ],
+        ],
+      },
+    })
+
+    const lastNameOuter = () =>
+      wrapper
+        .find('input[name="lastName"]')
+        .element.closest('.formkit-outer') as HTMLElement
+
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('input[name="firstName"]').setValue('Ada')
+    wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    expect(lastNameOuter().getAttribute('data-invalid')).toBe(null)
+    expect(lastNameOuter().getAttribute('data-submitted')).toBe(null)
+
+    wrapper.find('.formkit-step-previous button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+    await wrapper.find('input[name="firstName"]').setValue('')
+    wrapper.find('.formkit-step-next button').trigger('click')
+    await new Promise((r) => setTimeout(r, 15))
+
+    expect(lastNameOuter().getAttribute('data-invalid')).toBe(null)
+    expect(lastNameOuter().getAttribute('data-submitted')).toBe(null)
     wrapper.unmount()
   })
 })

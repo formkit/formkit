@@ -2,7 +2,7 @@ import FormKitIcon from '../src/FormKitIcon'
 import { plugin } from '../src/plugin'
 import { defaultConfig } from '../src'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 // const wait = (delay?: number) => new Promise((r) => setTimeout(r, delay ? delay : 0))
 
@@ -17,7 +17,7 @@ describe('FormKitIcon component', () => {
       },
     })
     expect(wrapper.html()).toStrictEqual(
-      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>'
+      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>',
     )
   })
 
@@ -41,7 +41,7 @@ describe('FormKitIcon component', () => {
       },
     })
     expect(wrapper.html()).toStrictEqual(
-      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>'
+      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>',
     )
   })
 
@@ -67,11 +67,48 @@ describe('FormKitIcon component', () => {
       },
     })
     expect(wrapper.html()).toStrictEqual(
-      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>'
+      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"></path></svg></span>',
     )
     await wrapper.setProps({ icon: 'circleIcon' })
     expect(wrapper.html()).toStrictEqual(
-      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle fill="currentColor" cx="16" cy="16" r="16"></circle></svg></span>'
+      '<span class="formkit-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle fill="currentColor" cx="16" cy="16" r="16"></circle></svg></span>',
     )
+  })
+
+  it('triggers click handlers with keyboard activation', async () => {
+    const onClick = vi.fn()
+    const wrapper = mount(FormKitIcon, {
+      props: {
+        icon: `libraryIcon`,
+      },
+      attrs: {
+        onClick,
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              icons: {
+                libraryIcon:
+                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 7"><path d="M8,6.5c-.13,0-.26-.05-.35-.15L3.15,1.85c-.2-.2-.2-.51,0-.71,.2-.2,.51-.2,.71,0l4.15,4.15L12.15,1.15c.2-.2,.51-.2,.71,0,.2,.2,.2,.51,0,.71l-4.5,4.5c-.1,.1-.23,.15-.35,.15Z" fill="currentColor"/></svg>',
+              },
+            }),
+          ],
+        ],
+      },
+    })
+
+    expect(wrapper.attributes('role')).toBe('button')
+    expect(wrapper.attributes('tabindex')).toBe('0')
+
+    await wrapper.trigger('keydown', { key: 'Enter' })
+    expect(onClick).toHaveBeenCalledTimes(1)
+
+    await wrapper.trigger('keydown', { key: ' ' })
+    expect(onClick).toHaveBeenCalledTimes(2)
+
+    await wrapper.trigger('keydown', { key: 'Escape' })
+    expect(onClick).toHaveBeenCalledTimes(2)
   })
 })

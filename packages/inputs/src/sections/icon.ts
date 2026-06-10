@@ -7,7 +7,7 @@ import { createSection, FormKitSchemaExtendableSection } from '../createSection'
  */
 export const icon = (
   sectionKey: string,
-  el?: string
+  el?: string,
 ): FormKitSchemaExtendableSection => {
   return createSection(`${sectionKey}Icon`, () => {
     const rawIconProp = `_raw${sectionKey
@@ -20,6 +20,7 @@ export const icon = (
         class: `$classes.${sectionKey}Icon + " " + $classes.icon`,
         innerHTML: `$${rawIconProp}`,
         onClick: `$handlers.iconClick(${sectionKey})`,
+        onKeydown: `$handlers.iconKeydown && $handlers.iconKeydown(${sectionKey})`,
         role: `$fns.iconRole(${sectionKey})`,
         tabindex: `$fns.iconRole(${sectionKey}) === "button" && "0" || undefined`,
         for: {

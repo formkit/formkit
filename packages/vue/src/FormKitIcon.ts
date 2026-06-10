@@ -1,4 +1,4 @@
-import { h, ref, watch, defineComponent, inject, PropType } from 'vue'
+import { h, ref, watch, defineComponent, inject, PropType, useAttrs } from 'vue'
 import { optionsSymbol } from './plugin'
 import { parentSymbol } from './FormKit'
 import { FormKitPlugin } from '@formkit/core'
@@ -11,6 +11,7 @@ import { FormKitIconLoader, createIconHandler } from '@formkit/themes'
  */
 export const FormKitIcon = /* #__PURE__ */ defineComponent({
   name: 'FormKitIcon',
+  inheritAttrs: false,
   props: {
     icon: {
       type: String,
@@ -27,6 +28,7 @@ export const FormKitIcon = /* #__PURE__ */ defineComponent({
   },
   setup(props) {
     const icon = ref<undefined | string>(undefined)
+    const attrs = useAttrs()
     const config = inject(optionsSymbol, {})
     const parent = inject(parentSymbol, null)
     let iconHandler: FormKitIconLoader | undefined = undefined
@@ -72,19 +74,62 @@ export const FormKitIcon = /* #__PURE__ */ defineComponent({
       () => {
         loadIcon()
       },
-      { immediate: true }
+      { immediate: true },
     )
 
     return () => {
       if (props.icon && icon.value) {
-        return h('span', {
-          class: 'formkit-icon',
+        const {
+          class: iconClass,
+          onKeydown: onKeydownAttr,
+          onKeyDown: onKeyDownAttr,
+          ...passThroughAttrs
+        } = attrs
+        const clickable = hasEventHandler(passThroughAttrs.onClick)
+        const onKeydown = onKeydownAttr || onKeyDownAttr
+        const iconAttrs: Record<string, unknown> = {
+          ...passThroughAttrs,
+          class: ['formkit-icon', iconClass],
           innerHTML: icon.value,
-        })
+        }
+        if (clickable) {
+          iconAttrs.role = attrs.role || 'button'
+          if (attrs.tabindex === undefined && attrs.tabIndex === undefined) {
+            iconAttrs.tabindex = '0'
+          }
+          iconAttrs.onKeydown = (e: KeyboardEvent) => {
+            callEventHandler(onKeydown, e)
+            if (!e.defaultPrevented && isKeyboardClick(e)) {
+              e.preventDefault()
+              if (e.currentTarget instanceof HTMLElement) {
+                e.currentTarget.click()
+              }
+            }
+          }
+        } else if (onKeydown) {
+          iconAttrs.onKeydown = onKeydown
+        }
+        return h('span', iconAttrs)
       }
       return null
     }
   },
 })
+
+function hasEventHandler(handler: unknown): boolean {
+  return typeof handler === 'function' || Array.isArray(handler)
+}
+
+function callEventHandler(handler: unknown, event: Event) {
+  if (Array.isArray(handler)) {
+    handler.forEach((eventHandler) => callEventHandler(eventHandler, event))
+  } else if (typeof handler === 'function') {
+    handler(event)
+  }
+}
+
+function isKeyboardClick(e: KeyboardEvent): boolean {
+  return e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'
+}
 
 export default FormKitIcon

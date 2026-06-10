@@ -114,6 +114,30 @@ describe('lists', () => {
     expect(commitListener).toHaveBeenCalledTimes(1)
   })
 
+  it('bubbles destroying events for synced list children removed by value (#1291)', async () => {
+    const removed = createNode({ value: 'remove@example.com' })
+    const kept = createNode({ value: 'keep@example.com' })
+    const repeater = createNode({
+      type: 'list',
+      value: ['remove@example.com', 'keep@example.com'],
+      sync: true,
+      children: [removed, kept],
+    })
+    const destroying = vi.fn()
+    repeater.on('destroying.deep', destroying)
+
+    repeater.input(['keep@example.com'], false)
+    await repeater.settled
+
+    expect(repeater.children).toHaveLength(1)
+    expect(repeater.children[0]?.uid).toBe(kept.uid)
+    expect(removed.parent).toBeNull()
+    expect(destroying).toHaveBeenCalledTimes(1)
+    const [event] = destroying.mock.calls[0]
+    expect(event.origin.uid).toBe(removed.uid)
+    expect(event.payload.uid).toBe(removed.uid)
+  })
+
   it('emits a singe commit event for type list', () => {
     const commitEvent = vi.fn()
     const lib = function libraryPlugin() {}
@@ -250,6 +274,28 @@ describe('synced lists', () => {
     // last node was removed and the values shifted.
     expect(list.children[0]).toBe(nodes[0])
     expect(list.children[1]).toBe(nodes[2])
+  })
+
+  it('emits childRemoved when removing a synced list node via value', async () => {
+    const nodes = [
+      createNode({ value: 'A' }),
+      createNode({ value: 'B' }),
+      createNode({ value: 'C' }),
+    ]
+    const list = createNode<string[]>({
+      type: 'list',
+      value: ['A', 'B', 'C'],
+      sync: true,
+      children: nodes,
+    })
+    const listener = vi.fn()
+    list.on('childRemoved', listener)
+
+    list.input(['A', 'C'], false)
+    await list.settled
+
+    expect(listener).toHaveBeenCalledTimes(1)
+    expect(listener.mock.calls[0][0].payload).toBe(nodes[1])
   })
 
   it('can remove a node in synced list by splicing the value', async () => {
@@ -544,5 +590,64 @@ describe('synced lists', () => {
     expect(list.children[1]).toBe(nodes[1]) // Reused as fallback
     expect(list.children[2]).toBe(nodes[2])
     expect(list.children[2].value).toBe('C')
+  })
+
+  it('reuses the slot when a synced child re-mounts over an existing node (#1758)', async () => {
+    const list = createNode<Array<{ x: string }>>({
+      type: 'list',
+      value: [{ x: 'A' }],
+      sync: true,
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'x', value: 'A' })],
+        }),
+      ],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    const originalUid = list.children[0].uid
+
+    // Re-mount where the new node is added before the old one is removed.
+    const replacement = createNode({
+      type: 'group',
+      index: 0,
+      parent: list,
+      children: [createNode({ name: 'x', value: 'A' })],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    expect(list.value).toEqual([{ x: 'A' }])
+    expect(replacement.uid).toBe(originalUid)
+  })
+
+  it('reuses the uid of a just-removed synced child on re-mount (#1758)', async () => {
+    const list = createNode<Array<{ x: string }>>({
+      type: 'list',
+      value: [{ x: 'A' }],
+      sync: true,
+      children: [
+        createNode({
+          type: 'group',
+          children: [createNode({ name: 'x', value: 'A' })],
+        }),
+      ],
+    })
+    await list.settled
+    const originalUid = list.children[0].uid
+
+    // Re-mount the other way round: old node removed first, then replacement
+    // added back at the same index in the same tick.
+    list.children[0].destroy()
+    const replacement = createNode({
+      type: 'group',
+      index: 0,
+      parent: list,
+      children: [createNode({ name: 'x', value: 'A' })],
+    })
+    await list.settled
+    expect(list.children).toHaveLength(1)
+    expect(list.value).toEqual([{ x: 'A' }])
+    expect(replacement.uid).toBe(originalUid)
   })
 })

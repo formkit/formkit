@@ -201,6 +201,20 @@ describe('single checkbox (react)', () => {
     expect(container.querySelector('#hello-world')).toBeTruthy()
   })
 
+  it('renders the help slot even when no help prop is provided (#1427)', () => {
+    const { container } = renderWithFormKit(
+      createElement(FormKit as any, {
+        type: 'checkbox',
+        slots: {
+          help: () => createElement('div', { id: 'help-slot' }, 'Render me anyway'),
+        },
+      }),
+      defaultConfig()
+    )
+
+    expect(container.querySelector('#help-slot')).toBeTruthy()
+  })
+
   it('does not render label when it is not provided', () => {
     const { container } = renderWithFormKit(
       createElement(FormKit as any, { type: 'checkbox' }),
@@ -277,6 +291,15 @@ describe('multiple checkboxes (react)', () => {
     fireEvent.click(icon as HTMLElement)
 
     expect(onDecoratorIconClick).toHaveBeenCalledTimes(1)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: 'Enter' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(2)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: ' ' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(3)
+
+    fireEvent.keyDown(icon as HTMLElement, { key: 'Escape' })
+    expect(onDecoratorIconClick).toHaveBeenCalledTimes(3)
   })
 
   it('multi-checkboxes set array values immediately', () => {

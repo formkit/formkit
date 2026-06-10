@@ -75,6 +75,43 @@ describe('buildTheme', () => {
       'text-green-300': true,
     })
   })
+
+  it('filters invalid and error state classes when the node state is not invalid', async () => {
+    await buildTheme({
+      theme: './packages/cli/__tests__/mocks/localTheme.ts',
+      outFile: 'temp/formkit.invalid.theme.ts',
+      format: 'ts',
+    })
+    // @ts-ignore
+    const { rootClasses } = await import(
+      resolve(process.cwd(), 'temp/formkit.invalid.theme.ts')
+    )
+    const validNode = createNode({
+      type: 'input',
+      props: { type: 'text', rootClasses, family: 'text' },
+    })
+    ;(validNode as any).context = {
+      state: { invalid: false, errors: false },
+    }
+
+    const validClasses = rootClasses('input', validNode)
+    expect(validClasses['group-data-[invalid]:border-red-500']).toBe(false)
+    expect(validClasses['dark:group-data-[invalid]:ring-red-500']).toBe(false)
+    expect(validClasses['group-data-[errors]:border-red-600']).toBe(false)
+
+    const invalidNode = createNode({
+      type: 'input',
+      props: { type: 'text', rootClasses, family: 'text' },
+    })
+    ;(invalidNode as any).context = {
+      state: { invalid: true, errors: false },
+    }
+
+    const invalidClasses = rootClasses('input', invalidNode)
+    expect(invalidClasses['group-data-[invalid]:border-red-500']).toBe(true)
+    expect(invalidClasses['dark:group-data-[invalid]:ring-red-500']).toBe(true)
+    expect(invalidClasses['group-data-[errors]:border-red-600']).toBe(false)
+  })
 })
 
 describe('extractThemeData', () => {
@@ -91,7 +128,7 @@ describe('extractThemeData', () => {
     )
     const themeData = extractThemeData(fileString)
     expect(themeData).toEqual([
-      '9902ad56008296f4db97332febf34b6c1e82159dcb57f81f30198bca7c3ebe92',
+      'd160dc067f884513c65fd0a522f685f21e4ec9102c23261ac2c7a019b80110ac',
       'spacing=5',
       'simple',
     ])

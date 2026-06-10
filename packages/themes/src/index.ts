@@ -42,7 +42,7 @@ export interface FormKitIconLoaderUrl {
  * @public
  */
 export function generateClasses(
-  classes: Record<string, Record<string, string>>
+  classes: Record<string, Record<string, string>>,
 ): Record<string, string | FormKitClasses | Record<string, boolean>> {
   const classesBySectionKey: Record<string, Record<string, any>> = {}
   Object.keys(classes).forEach((type) => {
@@ -78,7 +78,7 @@ export function generateClasses(
 function addClassesBySection(
   node: FormKitNode,
   _sectionKey: string,
-  classesByType: Record<string, () => string>
+  classesByType: Record<string, () => string>,
 ): string {
   const type = node.props.type
   const family = node.props.family
@@ -137,6 +137,14 @@ export const iconRegistry: Record<string, string | undefined> = {}
  * A collection of existing icon requests to avoid duplicate fetching
  */
 const iconRequests: Record<string, any> = {}
+const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
+const observedIconProps = new WeakMap<FormKitNode, Set<string>>()
+
+function normalizeIconProp(sectionKey: string): string {
+  return sectionKey.replace(/-([a-zA-Z])/g, (_, char: string) =>
+    char.toUpperCase()
+  )
+}
 
 /**
  * Creates the theme plugin based on a given theme name.
@@ -152,7 +160,7 @@ export function createThemePlugin(
   theme?: string,
   icons?: Record<string, string | undefined>,
   iconLoaderUrl?: FormKitIconLoaderUrl,
-  iconLoader?: FormKitIconLoader
+  iconLoader?: FormKitIconLoader,
 ): (node: FormKitNode) => any {
   if (icons) {
     // add any user-provided icons to the registry
@@ -181,15 +189,30 @@ export function createThemePlugin(
     node.addProps(['iconLoader', 'iconLoaderUrl'])
     node.props.iconHandler = createIconHandler(
       node.props?.iconLoader ? node.props.iconLoader : iconLoader,
-      node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl
+      node.props?.iconLoaderUrl ? node.props.iconLoaderUrl : iconLoaderUrl,
     )
     loadIconPropIcons(node, node.props.iconHandler)
+    node.on('added-props', ({ payload }) => {
+      if (!node.props.iconHandler) return
+      const props = Array.isArray(payload) ? payload : Object.keys(payload ?? {})
+      props.forEach((prop) => {
+        if (typeof prop === 'string' && iconPattern.test(prop)) {
+          observeIconProp(node, node.props.iconHandler, prop)
+        }
+      })
+    })
+    node.on('prop', ({ payload }) => {
+      if (!node.props.iconHandler || typeof payload?.prop !== 'string') return
+      if (iconPattern.test(payload.prop)) {
+        observeIconProp(node, node.props.iconHandler, payload.prop)
+      }
+    })
 
     node.on('created', () => {
       // set up the `-icon` click handlers
       if (node?.context?.handlers) {
-        node.context.handlers.iconClick = (
-          sectionKey: string
+        const iconClick = (
+          sectionKey: string,
         ): ((e: MouseEvent) => void) | void => {
           const clickHandlerProp = `on${sectionKey
             .charAt(0)
@@ -201,6 +224,20 @@ export function createThemePlugin(
             }
           }
           return undefined
+        }
+        node.context.handlers.iconClick = iconClick
+        node.context.handlers.iconKeydown = (
+          sectionKey: string,
+        ): ((e: KeyboardEvent) => void) | void => {
+          if (!iconClick(sectionKey)) return undefined
+          return (e: KeyboardEvent) => {
+            if (isKeyboardClick(e)) {
+              e.preventDefault()
+              if (e.currentTarget instanceof HTMLElement) {
+                e.currentTarget.click()
+              }
+            }
+          }
         }
       }
       if (node?.context?.fns) {
@@ -218,6 +255,10 @@ export function createThemePlugin(
 
   themePlugin.iconHandler = createIconHandler(iconLoader, iconLoaderUrl)
   return themePlugin
+}
+
+function isKeyboardClick(e: KeyboardEvent): boolean {
+  return e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'
 }
 
 /**
@@ -280,10 +321,10 @@ function loadTheme(theme: string) {
  */
 export function createIconHandler(
   iconLoader?: FormKitIconLoader,
-  iconLoaderUrl?: FormKitIconLoaderUrl
+  iconLoaderUrl?: FormKitIconLoaderUrl,
 ): FormKitIconLoader {
   return (
-    iconName: string | boolean
+    iconName: string | boolean,
   ): string | undefined | Promise<string | undefined> => {
     // bail if we got something that wasn't string
     if (typeof iconName !== 'string') return
@@ -292,52 +333,65 @@ export function createIconHandler(
       return iconName
     }
 
-    // is this a default icon that should only load from a stylesheet?
+    // Default icons use stylesheet values first, then a custom loader if one is
+    // configured, but never fall back to the CDN loader.
     const isDefault = iconName.startsWith('default:')
     iconName = isDefault ? iconName.split(':')[1] : iconName
 
     // check if we've already loaded the icon before
-    const iconWasAlreadyLoaded = iconName in iconRegistry
+    const defaultRegistryKey = `default:${iconName}`
+    const iconWasAlreadyLoaded =
+      iconName in iconRegistry ||
+      (isDefault && defaultRegistryKey in iconRegistry)
+    const iconRequestKey =
+      isDefault && typeof iconLoader !== 'function'
+        ? defaultRegistryKey
+        : iconName
 
     let loadedIcon: string | undefined | Promise<string | undefined> = undefined
 
     if (iconWasAlreadyLoaded) {
-      return iconRegistry[iconName]
-    } else if (!iconRequests[iconName]) {
+      return iconRegistry[iconName] ?? iconRegistry[defaultRegistryKey]
+    } else if (!iconRequests[iconRequestKey]) {
       loadedIcon = getIconFromStylesheet(iconName)
       loadedIcon =
         isClient && typeof loadedIcon === 'undefined'
           ? Promise.resolve(loadedIcon)
           : loadedIcon
       if (loadedIcon instanceof Promise) {
-        iconRequests[iconName] = loadedIcon
+        iconRequests[iconRequestKey] = loadedIcon
           .then((iconValue) => {
-            if (!iconValue && typeof iconName === 'string' && !isDefault) {
-              return (loadedIcon =
-                typeof iconLoader === 'function'
-                  ? iconLoader(iconName)
-                  : getRemoteIcon(iconName, iconLoaderUrl))
+            if (!iconValue && typeof iconName === 'string') {
+              if (typeof iconLoader === 'function') {
+                return (loadedIcon = iconLoader(iconName))
+              } else if (!isDefault) {
+                return (loadedIcon = getRemoteIcon(iconName, iconLoaderUrl))
+              }
             }
             return iconValue
           })
           .then((finalIcon) => {
             if (typeof iconName === 'string') {
-              iconRegistry[isDefault ? `default:${iconName}` : iconName] =
+              iconRegistry[
+                isDefault && typeof iconLoader !== 'function'
+                  ? defaultRegistryKey
+                  : iconName
+              ] =
                 finalIcon
             }
             return finalIcon
           })
       } else if (typeof loadedIcon === 'string') {
-        iconRegistry[isDefault ? `default:${iconName}` : iconName] = loadedIcon
+        iconRegistry[isDefault ? defaultRegistryKey : iconName] = loadedIcon
         return loadedIcon
       }
     }
-    return iconRequests[iconName]
+    return iconRequests[iconRequestKey]
   }
 }
 
 function getIconFromStylesheet(
-  iconName: string
+  iconName: string,
 ): string | undefined | Promise<string | undefined> {
   if (!isClient) return
   if (themeHasLoaded) {
@@ -369,7 +423,7 @@ function loadStylesheetIcon(iconName: string) {
  */
 function getRemoteIcon(
   iconName: string,
-  iconLoaderUrl?: FormKitIconLoaderUrl
+  iconLoaderUrl?: FormKitIconLoaderUrl,
 ): Promise<string | undefined> | undefined {
   const formkitVersion = FORMKIT_VERSION.startsWith('__')
     ? 'latest'
@@ -398,15 +452,29 @@ function getRemoteIcon(
  */
 function loadIconPropIcons(
   node: FormKitNode,
-  iconHandler: FormKitIconLoader
+  iconHandler: FormKitIconLoader,
 ): void {
-  const iconRegex = /^[a-zA-Z-]+(?:-icon|Icon)$/
   const iconProps = Object.keys(node.props).filter((prop) => {
-    return iconRegex.test(prop)
+    return iconPattern.test(prop)
   })
   iconProps.forEach((sectionKey) => {
-    return loadPropIcon(node, iconHandler, sectionKey)
+    return observeIconProp(node, iconHandler, sectionKey)
   })
+}
+
+function observeIconProp(
+  node: FormKitNode,
+  iconHandler: FormKitIconLoader,
+  sectionKey: string
+): void {
+  const normalizedSectionKey = normalizeIconProp(sectionKey)
+  if (!observedIconProps.has(node)) {
+    observedIconProps.set(node, new Set())
+  }
+  const observedProps = observedIconProps.get(node)!
+  if (observedProps.has(normalizedSectionKey)) return
+  observedProps.add(normalizedSectionKey)
+  loadPropIcon(node, iconHandler, normalizedSectionKey)
 }
 
 /**
@@ -415,7 +483,7 @@ function loadIconPropIcons(
 function loadPropIcon(
   node: FormKitNode,
   iconHandler: FormKitIconLoader,
-  sectionKey: string
+  sectionKey: string,
 ): Promise<void> | void {
   const iconName = node.props[sectionKey]
   const loadedIcon = iconHandler(iconName)

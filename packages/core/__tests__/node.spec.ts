@@ -562,6 +562,22 @@ describe('props system', () => {
     expect(child.props.delay).toBe(50)
   })
 
+  it('does not inherit the default delay from group and list parents (#1265)', () => {
+    const groupChild = createNode({ name: 'groupChild' })
+    createNode({
+      type: 'group',
+      children: [groupChild],
+    })
+    expect(groupChild.props.delay).toBe(20)
+
+    const listChild = createNode({ name: 'listChild' })
+    createNode({
+      type: 'list',
+      children: [listChild],
+    })
+    expect(listChild.props.delay).toBe(20)
+  })
+
   it('can override a configuration value', () => {
     const child = createNode({ name: 'name', props: { delay: 500 } })
     createNode({
@@ -1260,6 +1276,34 @@ describe('value propagation in a node tree', () => {
     })
   })
 
+  it('preserves a replacement child value when removing another child with the same name', () => {
+    const redirect = createNode({
+      type: 'group',
+      name: 'en',
+      children: [createNode({ name: 'redirect_url', value: 'google.com.ua' })],
+    })
+    const message = createNode({
+      type: 'group',
+      name: 'en',
+      children: [
+        createNode({ name: 'success_message', value: 'Success message' }),
+      ],
+    })
+    const parent = createNode({
+      type: 'group',
+      children: [redirect],
+    })
+
+    parent.add(message)
+    parent.remove(redirect)
+
+    expect(parent.value).toStrictEqual({
+      en: {
+        success_message: 'Success message',
+      },
+    })
+  })
+
   it('can re-arrange the order of a list’s values', async () => {
     const food = createNode({
       type: 'list',
@@ -1517,6 +1561,33 @@ describe('resetting', () => {
     expect(node.value).toEqual({ alpha: 'abc' })
   })
 
+  it('can reset an input node to an explicit value which becomes the initial', async () => {
+    const node = createNode({ value: 'initial' })
+    await node.input('changed')
+    node.reset('reset-to-this')
+    expect(node.value).toBe('reset-to-this')
+    expect(node.props.initial).toBe('reset-to-this')
+    // A subsequent reset without arguments resets to the new initial.
+    await node.input('changed again')
+    node.reset()
+    expect(node.value).toBe('reset-to-this')
+  })
+
+  it('can reset a group to an explicit value which becomes the initial', async () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'alpha', value: 'abc' })],
+    })
+    await node.at('alpha')!.input('changed')
+    node.reset({ alpha: 'xyz' })
+    expect(node.value).toEqual({ alpha: 'xyz' })
+    expect(node.at('alpha')!.value).toBe('xyz')
+    // A subsequent reset without arguments resets to the new initial.
+    await node.at('alpha')!.input('changed again')
+    node.reset()
+    expect(node.value).toEqual({ alpha: 'xyz' })
+  })
+
   it('emits an reset event', async () => {
     const resetEvent = vi.fn()
     const node = createNode({ value: 'foobar' })
@@ -1568,6 +1639,20 @@ describe('resetting', () => {
     expect(user!.value).toEqual({ name: 'xyz' })
     expect(user!.props.initial).toEqual({ name: 'abc' })
     expect(user!.props._init).toEqual({ name: 'abc' })
+  })
+
+  it('calls input hooks once with the final value during deep reset (#1699)', () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'name', value: 'old value' })],
+    })
+    const inputHook = vi.fn((value, next) => next(value))
+
+    node.at('name')!.hook.input(inputHook)
+    node.reset({ name: 'new value' })
+
+    expect(inputHook.mock.calls.map(([value]) => value)).toEqual(['new value'])
+    expect(node.value).toEqual({ name: 'new value' })
   })
 
   it('can reset to initial value false', async () => {

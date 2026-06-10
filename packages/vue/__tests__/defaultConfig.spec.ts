@@ -69,6 +69,30 @@ describe('defaultConfig', () => {
     expect(wrapper.html()).toEqual('<h1>Fooey world</h1>')
   })
 
+  it('allows default input overrides (#1188)', () => {
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'button',
+      },
+      global: {
+        plugins: [
+          [
+            plugin,
+            defaultConfig({
+              inputs: {
+                button: {
+                  type: 'input',
+                  schema: [{ $el: 'h1', children: 'Custom button' }],
+                },
+              },
+            }),
+          ],
+        ],
+      },
+    })
+    expect(wrapper.html()).toEqual('<h1>Custom button</h1>')
+  })
+
   it('allows single message overrides', () => {
     const t = token()
     const wrapper = mount(FormKit, {

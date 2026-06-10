@@ -10,6 +10,9 @@ import { getNode } from './registry'
  */
 function clearState(node: FormKitNode) {
   const clear = (n: FormKitNode) => {
+    const hasValidationMessages = Object.values(n.store).some(
+      (message) => message.type === 'validation'
+    )
     for (const key in n.store) {
       const message = n.store[key]
       if (
@@ -18,12 +21,35 @@ function clearState(node: FormKitNode) {
       ) {
         n.store.remove(key)
       } else if (message.type === 'state') {
-        n.store.set({ ...message, value: false })
+        n.store.set({
+          ...message,
+          value: key === 'failing' ? hasValidationMessages : false,
+        })
       }
     }
   }
   clear(node)
   node.walk(clear)
+}
+
+const missingResetValue = Symbol('missingResetValue')
+
+function valueAtResetAddress(
+  value: unknown,
+  address: Array<string | number>
+): unknown | typeof missingResetValue {
+  let current = value
+  for (const segment of address) {
+    if (
+      current === null ||
+      typeof current !== 'object' ||
+      !(segment in current)
+    ) {
+      return missingResetValue
+    }
+    current = (current as Record<string | number, unknown>)[segment]
+  }
+  return current
 }
 
 /**
@@ -55,12 +81,27 @@ export function reset(
     node._e.pause(node)
     // Set it back to basics
     const resetValue = cloneAny(resetTo)
-    if (resetTo && !empty(resetTo)) {
+    const hasExplicitReset = Boolean(resetTo && !empty(resetTo))
+    const isDeepReset =
+      hasExplicitReset && node.type !== 'input' && isObject(resetTo)
+    if (hasExplicitReset) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
       node.props._init = node.props.initial
     }
-
-    node.input(initial(node), false)
+    if (isDeepReset) {
+      node.walk((child) => {
+        const resetAddress = child.address.slice(node.address.length)
+        const childResetValue = valueAtResetAddress(resetValue, resetAddress)
+        const nextInitial =
+          childResetValue === missingResetValue
+            ? initial(child)
+            : cloneAny(childResetValue)
+        child.props.initial = isObject(nextInitial)
+          ? init(nextInitial)
+          : nextInitial
+        child.props._init = child.props.initial
+      })
+    }
 
     // Set children back to basics in case they were additive (had their own value for example)
     node.walk((child) => {
@@ -77,8 +118,6 @@ export function reset(
 
     // If this is a deep reset, we need to make sure the "initial" state of all
     // children are also reset. Fixes https://github.com/formkit/formkit/issues/791#issuecomment-1651213253
-    const isDeepReset =
-      node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
     if (isDeepReset) {
       node.walk((child) => {
         // Clone the value so deep comparisons (e.g., dirty checks) work correctly.
@@ -94,6 +133,7 @@ export function reset(
     node._e.play(node)
     clearState(node)
     node.emit('reset', node)
+    node.walk((child) => child.emit('reset', child))
     return node
   }
   warn(152, id)

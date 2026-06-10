@@ -1637,6 +1637,11 @@ export const valueMoved = Symbol('moved')
  */
 export const valueInserted = Symbol('inserted')
 
+// uids of synced-list children removed this tick, by parent + old index. Lets
+// addChild hand the same uid to a re-mounted child so its render key doesn't
+// change (see #1758). Cleared next microtask.
+const recentlyRemovedSyncUids = new WeakMap<FormKitNode, Map<number, symbol>>()
+
 /**
  * A simple type guard to determine if the context being evaluated is a list
  * type.
@@ -2002,8 +2007,22 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   // For "synced" lists the underlying nodes need to be synced to their values
   // before hydration.
   if (node.type === 'list' && node.sync) syncListNodes(node, context)
+  // Frameworks can briefly mount a same-name replacement before unmounting the
+  // old node. In that overlap, the children remain the source of truth.
+  const duplicateNames = new Set<PropertyKey>()
+  if (node.type !== 'list') {
+    const childNames = new Set<PropertyKey>()
+    context.children.forEach((child) => {
+      if (childNames.has(child.name)) duplicateNames.add(child.name)
+      childNames.add(child.name)
+    })
+  }
   context.children.forEach((child) => {
     if (typeof _value !== 'object') return
+    if (duplicateNames.has(child.name) && !child.props.mergeStrategy) {
+      partial(context, { name: child.name, value: child.value })
+      return
+    }
     if (child.name in _value) {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
@@ -2127,9 +2146,12 @@ function syncListNodes(node: FormKitNode, context: FormKitContext) {
       if (!('__FKP' in child)) {
         const parent = child._c.parent
         if (!parent || isPlaceholder(parent)) return
+        // Emit before detaching so deep listeners on ancestors can observe it.
+        child.emit('destroying', child)
         parent.ledger.unmerge(child)
         child._c.parent = null
-        child.destroy()
+        node.emit('childRemoved', child)
+        destroy(child, child._c, false)
       }
     })
   }
@@ -2202,8 +2224,12 @@ function calm(
  *
  * @internal
  */
-function destroy(node: FormKitNode, context: FormKitContext) {
-  node.emit('destroying', node)
+function destroy(
+  node: FormKitNode,
+  context: FormKitContext,
+  emitDestroying = true
+) {
+  if (emitDestroying) node.emit('destroying', node)
   // flush all messages out
   node.store.filter(() => false)
   if (node.parent) {
@@ -2401,7 +2427,25 @@ function addChild(
         // remove that replace it with the real node (the current child).
         child._c.uid = existingNode.uid
         parentContext.children.splice(listIndex, 1, child)
+      } else if (existingNode && parent.sync) {
+        // Synced lists always have a placeholder waiting for a mounting child,
+        // so a real node sitting here means the framework re-mounted and put the
+        // new child in before pulling the old one out. Take over its slot and
+        // uid instead of inserting a duplicate, which would grow the value and
+        // spin up an endless re-mount loop (#1758).
+        child._c.uid = existingNode.uid
+        parentContext.children.splice(listIndex, 1, child)
       } else {
+        // Same re-mount, opposite order: the old child left first, so the slot's
+        // empty. Reuse its uid if we stashed one this tick so the key holds.
+        if (!existingNode && parent.sync) {
+          const removedUids = recentlyRemovedSyncUids.get(parent)
+          const reusableUid = removedUids?.get(listIndex)
+          if (reusableUid) {
+            child._c.uid = reusableUid
+            removedUids?.delete(listIndex)
+          }
+        }
         parentContext.children.splice(listIndex, 0, child)
       }
 
@@ -2502,6 +2546,17 @@ function removeChild(
 ) {
   const childIndex = context.children.indexOf(child)
   if (childIndex !== -1) {
+    if (node.sync && node.type === 'list') {
+      // Hang onto the uid in case this is a re-mount and addChild is about to
+      // add the replacement back at the same index (#1758).
+      let removedUids = recentlyRemovedSyncUids.get(node)
+      if (!removedUids) {
+        removedUids = new Map()
+        recentlyRemovedSyncUids.set(node, removedUids)
+      }
+      removedUids.set(childIndex, child.uid)
+      queueMicrotask(() => removedUids?.delete(childIndex))
+    }
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
     // If an ancestor uses the preserve prop, then we are expected to not remove
@@ -2513,9 +2568,12 @@ function removeChild(
       parent = parent.parent
     }
     if (!preserve) {
+      const sibling = context.children.find(
+        (sibling) => sibling.name === child.name
+      )
       node.calm({
         name: node.type === 'list' ? childIndex : child.name,
-        value: valueRemoved,
+        value: sibling && node.type !== 'list' ? sibling.value : valueRemoved,
       })
     } else {
       node.calm()
@@ -2585,6 +2643,7 @@ function walkTree(
 function resetConfig(node: FormKitNode, context: FormKitContext) {
   const parent = node.parent || undefined
   context.config = createConfig(node.config._t, parent)
+  context.config._n = node
   node.walk((n) => n.resetConfig())
 }
 
@@ -2887,6 +2946,19 @@ function createConfig(
   parent?: FormKitNode | null
 ): FormKitConfig {
   let node: FormKitNode | undefined = undefined
+  const getExplicitInheritedValue = (prop: string) => {
+    let currentParent = parent
+    while (currentParent) {
+      const parentValue = currentParent.config._t[prop]
+      if (parentValue !== undefined) return parentValue
+      currentParent = currentParent.parent
+    }
+    if (target.rootConfig) {
+      const rootValue = target.rootConfig[prop]
+      if (rootValue !== undefined) return rootValue
+    }
+    return undefined
+  }
   return new Proxy(target, {
     get(...args) {
       const prop = args[1]
@@ -2894,6 +2966,12 @@ function createConfig(
       const localValue = Reflect.get(...args)
       // Check our local values first
       if (localValue !== undefined) return localValue
+      // Input nodes default to 20ms delay unless an ancestor/root explicitly
+      // configured a different value.
+      if (prop === 'delay' && node?.type === 'input') {
+        const inheritedDelay = getExplicitInheritedValue(prop)
+        return inheritedDelay !== undefined ? inheritedDelay : 20
+      }
       // Then check our parent values next
       if (parent) {
         const parentVal = parent.config[prop as string]

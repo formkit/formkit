@@ -1,6 +1,7 @@
 import {
   nextTick,
   h,
+  computed,
   reactive,
   ref,
   PropType,
@@ -21,11 +22,66 @@ import { describe, expect, it, vi } from 'vitest'
 import { FormKitFrameworkContext } from '@formkit/core'
 import { changeLocale, de } from '@formkit/i18n'
 import { createInput } from '../src'
-import { componentSymbol } from '../src/FormKit'
+import { componentSymbol, registerHotReload } from '../src/FormKit'
 import { FormKitMessages } from '../src/FormKitMessages'
 import { star } from '@formkit/icons'
 
 // Object.assign(defaultConfig.nodeOptions, { validationVisibility: 'live' })
+
+describe('hmr', () => {
+  it('unregisters Vite HMR listeners on unmount (formkit/formkit#1068)', () => {
+    const hot = {
+      on: vi.fn(),
+      off: vi.fn(),
+    }
+    let cleanup = () => {}
+    const forceUpdate = vi.fn()
+    const node = { props: { preserve: false } } as FormKitNode
+    registerHotReload(
+      node,
+      { proxy: { $forceUpdate: forceUpdate } } as any,
+      hot,
+      (handler) => {
+        cleanup = handler
+      }
+    )
+    const beforeUpdate = hot.on.mock.calls[0][1]
+    const afterUpdate = hot.on.mock.calls[1][1]
+    beforeUpdate()
+    expect(node.props.preserve).toBe(true)
+    afterUpdate()
+    expect(forceUpdate).toHaveBeenCalledTimes(1)
+    expect(node.props.preserve).toBe(false)
+    cleanup()
+    expect(hot.off).toHaveBeenNthCalledWith(
+      1,
+      'vite:beforeUpdate',
+      beforeUpdate
+    )
+    expect(hot.off).toHaveBeenNthCalledWith(
+      2,
+      'vite:afterUpdate',
+      afterUpdate
+    )
+  })
+
+  it('does not require test HMR stubs to implement off', () => {
+    const hot = {
+      on: vi.fn(),
+    }
+    let cleanup = () => {}
+    registerHotReload(
+      { props: { preserve: false } } as FormKitNode,
+      { proxy: { $forceUpdate: vi.fn() } } as any,
+      hot,
+      (handler) => {
+        cleanup = handler
+      }
+    )
+
+    expect(() => cleanup()).not.toThrow()
+  })
+})
 
 describe('props', () => {
   it('loads input definition props before the plugins are executed', () => {
@@ -1674,9 +1730,43 @@ describe('icons', () => {
         ],
       },
     })
-    wrapper.find('.formkit-prefix-icon').trigger('click')
+    const icon = wrapper.find('.formkit-prefix-icon')
+    icon.trigger('click')
     await new Promise((r) => setTimeout(r, 10))
     expect(iconClick).toHaveBeenCalledTimes(1)
+
+    await icon.trigger('keydown', { key: 'Enter' })
+    expect(iconClick).toHaveBeenCalledTimes(2)
+
+    await icon.trigger('keydown', { key: ' ' })
+    expect(iconClick).toHaveBeenCalledTimes(3)
+
+    await icon.trigger('keydown', { key: 'Escape' })
+    expect(iconClick).toHaveBeenCalledTimes(3)
+  })
+
+  it('renders icons assigned by a plugin after theme setup (#1695)', async () => {
+    const assignPrefixIcon = (node: FormKitNode) => {
+      if (node.props.type === 'password') {
+        node.props.prefixIcon = 'star'
+      }
+    }
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'password',
+        plugins: [assignPrefixIcon],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig({ icons: { star } })]],
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.html()).toContain(
+      `<label class="formkit-prefix-icon formkit-icon"`
+    )
+    expect(wrapper.html()).toContain(`data-prefix-icon="true"`)
   })
 })
 
@@ -2702,6 +2792,7 @@ describe('naked attributes', () => {
       props: {
         type: 'text',
         name: 'table_stakes',
+        id: 'clickable-icon-accessibility',
         suffixIcon: 'star',
         onSuffixIconClick: handler,
       },
@@ -2761,5 +2852,47 @@ describe('naked attributes', () => {
     expect(
       wrapper.find('[data-family="text"]').attributes('data-invalid')
     ).toBe(undefined)
+  })
+})
+
+describe('config classes', () => {
+  it('reacts to updated classes in the config prop (#1146)', async () => {
+    const wrapper = mount(
+      {
+        setup() {
+          const altTheme = ref(false)
+          const config = computed(() => ({
+            classes: {
+              label: altTheme.value ? 'text-orange-700' : '',
+            },
+          }))
+          function toggleTheme() {
+            altTheme.value = true
+          }
+          return { config, toggleTheme }
+        },
+        template: `
+        <FormKit
+          type="text"
+          label="Config label"
+          :config="config"
+        />
+        <button @click="toggleTheme">Toggle theme</button>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+
+    expect(wrapper.find('.formkit-label').attributes('class')).toBe(
+      'formkit-label'
+    )
+    wrapper.find('button').trigger('click')
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('.formkit-label').attributes('class')).toBe(
+      'formkit-label text-orange-700'
+    )
   })
 })

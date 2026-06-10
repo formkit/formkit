@@ -30,6 +30,14 @@ import {
 import { createObserver } from '@formkit/observer'
 import { FormKitPseudoProps } from '@formkit/core'
 
+const nativeDateInputTypes = new Set([
+  'date',
+  'datetime-local',
+  'month',
+  'time',
+  'week',
+])
+
 /**
  * A plugin that creates Vue-specific context object on each given node.
  *
@@ -228,12 +236,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     },
   })
 
-  node.on('prop:rootClasses', () => {
+  const resetClasses = () => {
     const keys = Object.keys(cachedClasses)
     for (const key of keys) {
       delete cachedClasses[key]
     }
-  })
+  }
+
+  node.on('prop:rootClasses', resetClasses)
+  node.on('config:rootClasses', resetClasses)
+  node.on('config:classes', resetClasses)
 
   const describedBy = computed<string | undefined>(() => {
     if (!node) return undefined
@@ -249,6 +261,29 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   const value = ref(node.value)
   const _value = ref(node.value)
+  let pendingDOMInputValue: string | undefined
+  /**
+   * True when a native date-family input reported an empty value via a delete
+   * inputType while focused (Firefox partial segment deletion, #1741). The
+   * commit is deferred until the input loses focus so a legitimate full clear
+   * still reaches the node.
+   */
+  let pendingNativeDateDeleteSync = false
+
+  const domInputValue = (payload: unknown) => {
+    if (
+      typeof pendingDOMInputValue === 'string' &&
+      typeof node.props.number !== 'undefined' &&
+      node.props.number !== 'integer' &&
+      typeof payload === 'number' &&
+      Number.isFinite(payload) &&
+      pendingDOMInputValue.includes('.') &&
+      pendingDOMInputValue !== String(payload)
+    ) {
+      return pendingDOMInputValue
+    }
+    return payload
+  }
 
   const context: FormKitFrameworkContext = reactive({
     _value,
@@ -265,6 +300,29 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     handlers: {
       blur: (e?: Event) => {
         if (!node) return
+        if (pendingNativeDateDeleteSync) {
+          // A native date input reported an empty value via a delete
+          // inputType while focused (#1741) and no further input event
+          // occurred — the user actually cleared the value, so commit it now
+          // that the input is no longer being edited.
+          pendingNativeDateDeleteSync = false
+          const target = e?.target as HTMLInputElement | null
+          node.input(
+            target && nativeDateInputTypes.has(target.type) ? target.value : ''
+          )
+        }
+        if (
+          typeof node.props.number !== 'undefined' &&
+          ['number', 'range', 'hidden'].includes(node.props.type) &&
+          typeof node._value === 'string' &&
+          node._value !== ''
+        ) {
+          // Strict numeric inputs allow transient strings (`-`, `-0`, `5.`)
+          // to pass through while typing (#1671, #1262) — once editing ends
+          // they must normalize to an actual number (or undefined).
+          const numericValue = Number(node._value)
+          node.input(Number.isFinite(numericValue) ? numericValue : undefined)
+        }
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         )
@@ -282,7 +340,14 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
-        node.input((e.target as HTMLInputElement).value)
+        const target = e.target as HTMLInputElement
+        if (isPartialNativeDateDelete(e, target, node._value)) {
+          pendingNativeDateDeleteSync = true
+        } else {
+          pendingNativeDateDeleteSync = false
+          pendingDOMInputValue = target.value
+          node.input(pendingDOMInputValue)
+        }
         node.emit('dom-input-event', e)
       },
     },
@@ -383,6 +448,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       'preserveErrors',
       'id',
       'dirtyBehavior',
+      'prefixIcon',
+      'suffixIcon',
     ]
     const iconPattern = /^[a-zA-Z-]+(?:-icon|Icon)$/
     const matchingProps = Object.keys(node.props).filter((prop) => {
@@ -402,6 +469,26 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
 
   node.props.definition && definedAs(node.props.definition)
 
+  function syncStrictNumericInput(payload: unknown) {
+    if (
+      node.props.number !== 'integer' ||
+      !['number', 'range'].includes(node.props.type)
+    ) {
+      return
+    }
+    // getElementById is available on both Document and ShadowRoot and, unlike
+    // querySelector, accepts ids that are not valid CSS selectors (e.g.
+    // "user.email" or "1foo").
+    const input = node.props.__root?.getElementById?.(
+      String(node.props.id)
+    ) as HTMLInputElement | null
+    if (!input) return
+    const normalizedValue = payload === undefined ? '' : String(payload)
+    if (input.value !== normalizedValue) {
+      input.value = normalizedValue
+    }
+  }
+
   /**
    * When new props are added to the core node as "props" (ie not attrs) then
    * we automatically need to start tracking them here.
@@ -415,7 +502,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       _value.value = shallowClone(payload)
     } else {
-      _value.value = payload
+      _value.value = domInputValue(payload)
       triggerRef(_value)
     }
   })
@@ -433,9 +520,12 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
       value.value = _value.value = shallowClone(payload)
     } else {
-      value.value = _value.value = payload
+      value.value = payload
+      _value.value = domInputValue(payload)
       triggerRef(value)
     }
+    syncStrictNumericInput(payload)
+    pendingDOMInputValue = undefined
     node.emit('modelUpdated')
   })
 
@@ -537,6 +627,22 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     /* @ts-ignore */ // eslint-disable-line
     node = null
   })
+}
+
+function isPartialNativeDateDelete(
+  e: Event,
+  target: HTMLInputElement,
+  currentValue: unknown
+): boolean {
+  const inputType =
+    'inputType' in e && typeof e.inputType === 'string' ? e.inputType : ''
+  return (
+    inputType.startsWith('delete') &&
+    nativeDateInputTypes.has(target.type) &&
+    target.value === '' &&
+    target.ownerDocument?.activeElement === target &&
+    !empty(currentValue)
+  )
 }
 
 export default vueBindings

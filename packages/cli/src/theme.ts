@@ -10,9 +10,11 @@ import prompts from 'prompts'
 import { createHash } from 'crypto'
 import ora, { Ora } from 'ora'
 import open from 'open'
+import createJiti from 'jiti'
 import { parse as parseUrl } from 'url'
 import { token } from '@formkit/utils'
 import { getPort } from 'get-port-please'
+import { normalizeGeneratedTheme } from './themeNormalize'
 
 interface BuildThemeOptions {
   semantic: boolean
@@ -447,8 +449,39 @@ export async function generate(
        classes[memoKey] = sectionClasses
      }
    }
-   return classes[memoKey] ?? { [semanticKey]: true }
+   return stateScopedClasses(node, classes[memoKey] ?? { [semanticKey]: true })
  }
+
+function stateScopedClasses (node${
+    isTS ? ': FormKitNode' : ''
+  }, sectionClasses${
+    isTS ? ': Record<string, boolean>' : ''
+  })${isTS ? ': Record<string, boolean>' : ''} {
+  const invalid = node.context?.state.invalid
+  const errors = node.context?.state.errors
+  const shouldFilterInvalid = invalid === false
+  const shouldFilterErrors = errors === false
+  if (!shouldFilterInvalid && !shouldFilterErrors) return sectionClasses
+  const filteredClasses = { ...sectionClasses }
+  for (const className of Object.keys(filteredClasses)) {
+    if (shouldFilterInvalid && isStateClass(className, 'invalid')) {
+      filteredClasses[className] = false
+    }
+    if (shouldFilterErrors && isStateClass(className, 'errors')) {
+      filteredClasses[className] = false
+    }
+  }
+  return filteredClasses
+}
+
+function isStateClass (className${isTS ? ': string' : ''}, state${
+    isTS ? ': string' : ''
+  })${isTS ? ': boolean' : ''} {
+  return (
+    className.includes('group-data-[' + state) ||
+    className.includes('formkit-' + state)
+  )
+}
 
 /**
  * These classes have already been merged with globals using tailwind-merge
@@ -467,8 +500,67 @@ const globals${
   } = ${JSON.stringify(globals, null, 2)};
 `
 
-  const checksum = createHash('sha256').update(themeFile).digest('hex')
-  return themeFile.replace(/@checksum -/, `@checksum - ${checksum}`)
+  return addThemeChecksum(themeFile)
+}
+
+function addThemeChecksum(themeFile: string): string {
+  const withoutChecksum = themeFile.replace(/@checksum -[^\n]*/, '@checksum -')
+  const checksum = createHash('sha256').update(withoutChecksum).digest('hex')
+  return withoutChecksum.replace(/@checksum -/, `@checksum - ${checksum}`)
+}
+
+function scopeGeneratedThemeStateClasses(themeFile: string): string {
+  if (
+    !themeFile.includes('return classes[memoKey] ?? { [semanticKey]: true }') ||
+    // Both anchors must exist — rewriting the call site without injecting the
+    // helper would emit a theme that throws ReferenceError on every lookup.
+    !themeFile.includes('\n/**\n * These classes have already been merged') ||
+    themeFile.includes('function stateScopedClasses')
+  ) {
+    return themeFile
+  }
+  const isTS = themeFile.includes("import type { FormKitNode }")
+  const helper = `function stateScopedClasses (node${
+    isTS ? ': FormKitNode' : ''
+  }, sectionClasses${
+    isTS ? ': Record<string, boolean>' : ''
+  })${isTS ? ': Record<string, boolean>' : ''} {
+  const invalid = node.context?.state.invalid
+  const errors = node.context?.state.errors
+  const shouldFilterInvalid = invalid === false
+  const shouldFilterErrors = errors === false
+  if (!shouldFilterInvalid && !shouldFilterErrors) return sectionClasses
+  const filteredClasses = { ...sectionClasses }
+  for (const className of Object.keys(filteredClasses)) {
+    if (shouldFilterInvalid && isStateClass(className, 'invalid')) {
+      filteredClasses[className] = false
+    }
+    if (shouldFilterErrors && isStateClass(className, 'errors')) {
+      filteredClasses[className] = false
+    }
+  }
+  return filteredClasses
+}
+
+function isStateClass (className${isTS ? ': string' : ''}, state${
+    isTS ? ': string' : ''
+  })${isTS ? ': boolean' : ''} {
+  return (
+    className.includes('group-data-[' + state) ||
+    className.includes('formkit-' + state)
+  )
+}
+`
+  const scopedTheme = themeFile
+    .replace(
+      'return classes[memoKey] ?? { [semanticKey]: true }',
+      'return stateScopedClasses(node, classes[memoKey] ?? { [semanticKey]: true })'
+    )
+    .replace(
+      '\n/**\n * These classes have already been merged',
+      `\n${helper}\n/**\n * These classes have already been merged`
+    )
+  return addThemeChecksum(scopedTheme)
 }
 
 function parseVariables(variables?: string): Record<string, string> {
@@ -511,9 +603,13 @@ async function localTheme(
   const path = getPath(paths)
   if (!path) error(`Could not find ${themeName}.`)
 
-  const theme = (await import(path)) as { default: Theme<ThemeOptions> }
-  if (typeof theme !== 'object' || !theme.default) error('Invalid theme file.')
-  return theme.default
+  const jiti = createJiti(import.meta.url, { interopDefault: true })
+  const theme = (await jiti.import(path, {})) as
+    | Theme<ThemeOptions>
+    | { default?: Theme<ThemeOptions> }
+  const themeFunction = typeof theme === 'function' ? theme : theme.default
+  if (!themeFunction) error('Invalid theme file.')
+  return themeFunction
 }
 
 export function extractThemeData(
@@ -564,8 +660,8 @@ async function apiTheme(
     }),
   })
   if (res.ok) {
-    const code = await res.text()
-    return code
+    const code = normalizeGeneratedTheme(themeName, await res.text())
+    return semantic ? code : scopeGeneratedThemeStateClasses(code)
   } else {
     error(`Could not generate theme — ${res.statusText}`)
   }

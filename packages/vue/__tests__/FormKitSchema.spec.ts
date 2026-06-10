@@ -2,7 +2,7 @@ import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
-import { createNode, resetRegistry } from '@formkit/core'
+import { createNode, getNode, resetRegistry } from '@formkit/core'
 import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import { defaultConfig } from '../src'
@@ -656,6 +656,79 @@ describe('parsing dom elements', () => {
       },
     })
     expect(wrapper.text()).toBe('0: a1: b2: c')
+  })
+
+  it('preserves native date values during partial delete input events', async () => {
+    const id = 'date-partial-delete'
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'date',
+            id,
+            name: 'birthDate',
+            value: '2024-02-10',
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input').element as HTMLInputElement
+    input.focus()
+    input.value = ''
+    input.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        inputType: 'deleteContentBackward',
+      })
+    )
+    await nextTick()
+
+    expect(getNode(id)?.value).toBe('2024-02-10')
+    wrapper.unmount()
+  })
+
+  it('commits a full clear of a native date input by the time it blurs', async () => {
+    const id = 'date-full-clear'
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'date',
+            id,
+            name: 'birthDate',
+            value: '2024-02-10',
+            delay: 0,
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input').element as HTMLInputElement
+    input.focus()
+    // The user selects the whole value and deletes it — same DOM signature as
+    // a partial segment delete, so the commit is deferred while focused:
+    input.value = ''
+    input.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        inputType: 'deleteContentBackward',
+      })
+    )
+    await nextTick()
+    expect(getNode(id)?.value).toBe('2024-02-10')
+
+    // When the input loses focus the cleared value must reach the node:
+    input.dispatchEvent(new Event('blur'))
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)?.value).toBe('')
+    wrapper.unmount()
   })
 
   it('can render the loop data inside the default slot when nested in an $el', async () => {
@@ -1557,6 +1630,21 @@ describe('schema $get function', () => {
     })
     await new Promise((r) => setTimeout(r, 5))
     expect(wrapper.html()).toBe('15')
+  })
+
+  it('returns undefined when a $get tail accesses missing nested properties (#1657)', () => {
+    createNode({
+      type: 'input',
+      plugins: [corePlugin],
+      props: { id: 'test' },
+      value: { name: 'Name' },
+    })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: ['$get(test).value.test.test.test.name'],
+      },
+    })
+    expect(wrapper.html()).toBe('undefined')
   })
 })
 

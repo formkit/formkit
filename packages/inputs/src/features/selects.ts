@@ -38,14 +38,22 @@ function isSelected(
  */
 function containsValue(
   options: FormKitOptionsListWithGroups,
-  value: unknown
+  value: unknown,
+  ignorePlaceholder = false
 ): boolean {
   return options.some((option) => {
     if (isGroupOption(option)) {
-      return containsValue(option.options, value)
+      return containsValue(option.options, value, ignorePlaceholder)
     } else {
-      return (
-        ('__original' in option ? option.__original : option.value) === value
+      if (
+        ignorePlaceholder &&
+        option.attrs &&
+        'data-is-placeholder' in option.attrs
+      )
+        return false
+      return eq(
+        '__original' in option ? option.__original : option.value,
+        value
       )
     }
   })
@@ -118,6 +126,21 @@ function firstValue(options: FormKitOptionsListWithGroups): unknown {
 }
 
 /**
+ * Determines if a select should default to its first option.
+ * @param node - A formkit node.
+ * @param value - The current value of the node.
+ */
+function shouldSelectFirstOption(node: FormKitNode, value: unknown): boolean {
+  return !!(
+    !node.props.placeholder &&
+    value === undefined &&
+    Array.isArray(node.props?.options) &&
+    node.props.options.length &&
+    !undefine(node.props?.attrs?.multiple)
+  )
+}
+
+/**
  * Converts the options prop to usable values.
  * @param node - A formkit node.
  * @public
@@ -167,28 +190,20 @@ export default function select(node: FormKitNode): void {
       node.context.fns.isSelected = isSelected.bind(null, node)
       node.context.fns.showPlaceholder = (value: unknown, placeholder) => {
         if (!Array.isArray(node.props.options)) return false
-        const hasMatchingValue = node.props.options.some(
-          (option: FormKitOptionsItem) => {
-            if (option.attrs && 'data-is-placeholder' in option.attrs)
-              return false
-            const optionValue =
-              '__original' in option ? option.__original : option.value
-            return eq(value, optionValue)
-          }
-        )
+        const hasMatchingValue = containsValue(node.props.options, value, true)
         return placeholder && !hasMatchingValue ? true : undefined
       }
     }
   })
 
+  node.on('prop:options', () => {
+    if (shouldSelectFirstOption(node, node._value)) {
+      node.input(firstValue(node.props.options), false)
+    }
+  })
+
   node.hook.input((value, next) => {
-    if (
-      !node.props.placeholder &&
-      value === undefined &&
-      Array.isArray(node.props?.options) &&
-      node.props.options.length &&
-      !undefine(node.props?.attrs?.multiple)
-    ) {
+    if (shouldSelectFirstOption(node, value)) {
       value = firstValue(node.props.options)
     }
     return next(value)

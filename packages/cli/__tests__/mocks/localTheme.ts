@@ -32,7 +32,8 @@ export default createTheme({
       outer: 'text-green-300',
     },
     text: {
-      input: '$border $radius p-2 border-slate-$borderStrength(-1)',
+      input:
+        '$border $radius p-2 border-slate-$borderStrength(-1) group-data-[invalid]:border-red-500 dark:group-data-[invalid]:ring-red-500 group-data-[errors]:border-red-600',
     },
     select: {
       inner: '$border $radius p-4',

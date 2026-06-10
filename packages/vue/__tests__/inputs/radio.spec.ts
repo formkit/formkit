@@ -79,6 +79,25 @@ describe('radios', () => {
     expect(warning).toHaveBeenCalledTimes(1)
   })
 
+  it('passes onChange handlers through to option radios (#1612)', async () => {
+    const onChange = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: {
+        type: 'radio',
+        options: ['A', 'B', 'C'],
+        onChange,
+      },
+      ...global,
+    })
+
+    const radios = wrapper.get('fieldset').findAll('input[type="radio"]')
+    radios[1].element.checked = true
+    radios[1].trigger('change')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
   it('changes the selected radios when value is set on node', async () => {
     const id = token()
     const wrapper = mount(
@@ -113,6 +132,40 @@ describe('radios', () => {
     expect(
       inputs.map((input) => (input.element as HTMLInputElement).checked)
     ).toStrictEqual([true, false, false])
+  })
+
+  it('clears the checked state when resetting an unchanged initial value (#1637)', async () => {
+    const id = token()
+    const wrapper = mount(
+      {
+        data() {
+          return {
+            value: 'B',
+          }
+        },
+        template: `<FormKit id="${id}" :delay="0" v-model="value" type="radio" :options="[
+          'A',
+          'B',
+          'C'
+        ]" />`,
+      },
+      {
+        ...global,
+      }
+    )
+
+    const radios = wrapper.get('div').findAll('input[type="radio"]')
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, true, false])
+
+    wrapper.vm.value = undefined
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(
+      radios.map((radio) => (radio.element as HTMLInputElement).checked)
+    ).toStrictEqual([false, false, false])
+    expect(getNode(id)?.value).toBe(undefined)
   })
 
   it('can have an object value', async () => {
@@ -215,8 +268,8 @@ describe('radios', () => {
     expect(getNode(id)!.value).toEqual(null)
   })
 
-  it('applies undefined to a "false" disabled prop', async () => {
-    const disabled = ref('false')
+  it('applies undefined to a false or null disabled prop', async () => {
+    const disabled = ref<string | null>('false')
     const wrapper = mount(
       {
         setup() {
@@ -235,6 +288,11 @@ describe('radios', () => {
         ...global,
       }
     )
+    expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
+      undefined
+    )
+    disabled.value = null
+    await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('.formkit-outer').attributes('data-disabled')).toBe(
       undefined
     )

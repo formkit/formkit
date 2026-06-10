@@ -747,6 +747,56 @@ describe('form submission', () => {
     expect(isDirty(id)).toBe(false)
   })
 
+  it('updates nested group dirty state after resetting with a new value (#1687)', async () => {
+    const formId = `form_${token()}`
+    const groupId = `group_${token()}`
+    const inputId = `input_${token()}`
+    const config = defaultConfig({
+      props: {
+        dirtyBehavior: 'compare',
+      },
+    })
+    mount(
+      {
+        template: /* html */ `<FormKit id="${formId}" type="form">
+        <FormKit id="${groupId}" type="group" name="user">
+          <FormKit type="text" name="name" id="${inputId}" value="123" :delay="0" />
+        </FormKit>
+      </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, config]],
+        },
+      }
+    )
+
+    const isDirty = (id: string) => getNode(id)?.context?.state.dirty
+    const form = getNode(formId)!
+    const input = getNode(inputId)!
+
+    form.reset({ user: { name: 'reset' } })
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(false)
+    expect(isDirty(groupId)).toBe(false)
+    expect(isDirty(inputId)).toBe(false)
+
+    await input.input('changed', false)
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(true)
+    expect(isDirty(groupId)).toBe(true)
+    expect(isDirty(inputId)).toBe(true)
+
+    await input.input('reset', false)
+    await new Promise((r) => setTimeout(r, 20))
+
+    expect(isDirty(formId)).toBe(false)
+    expect(isDirty(groupId)).toBe(false)
+    expect(isDirty(inputId)).toBe(false)
+  })
+
   it('keeps data with preserve prop', async () => {
     const wrapper = mount(
       defineComponent({
@@ -951,6 +1001,45 @@ describe('form submission', () => {
       wrapper.findAll('input').map((input) => input.element.disabled)
     ).toEqual([false, false])
     expect(button.element.disabled).toBe(false)
+  })
+
+  it('re-enables the form when an async submit handler rejects (#1415)', async () => {
+    let rejectSubmit!: (error: Error) => void
+    const wrapper = mount(
+      {
+        methods: {
+          doSave() {
+            return new Promise((_, reject) => {
+              rejectSubmit = reject
+            })
+          },
+        },
+        template: `<FormKit id="rejecting-form" type="form" @submit="doSave">
+          <FormKit type="text" name="foo" />
+        </FormKit>`,
+      },
+      {
+        global: {
+          plugins: [[plugin, defaultConfig]],
+        },
+      }
+    )
+    const node = getNode('rejecting-form')!
+    const event = new Event('submit', { cancelable: true, bubbles: true })
+    Object.defineProperty(event, 'target', {
+      value: wrapper.find('form').element,
+    })
+    const submit = node.context?.handlers.submit(event) as Promise<void>
+    await new Promise((r) => setTimeout(r, 10))
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(true)
+    expect(wrapper.find('input').element.disabled).toBe(true)
+    rejectSubmit(new Error('submit failed'))
+    await expect(submit).rejects.toThrow('submit failed')
+    await nextTick()
+    expect(wrapper.find('form').element.hasAttribute('data-loading')).toBe(
+      false
+    )
+    expect(wrapper.find('input').element.disabled).toBe(false)
   })
 
   it('the form remains enabled if submit-behavior is live', async () => {
@@ -1168,6 +1257,39 @@ describe('programmatic submission', () => {
 })
 
 describe('resetting', () => {
+  it('restores invalid state after reset and resubmission (#1630)', async () => {
+    const formId = token()
+    const wrapper = mount(
+      defineComponent({
+        template: `
+        <FormKit type="form" id="${formId}" :actions="false">
+          <FormKit type="text" name="first" validation="required" :delay="0" />
+          <FormKit type="text" name="second" validation="required" :delay="0" />
+        </FormKit>`,
+      }),
+      global
+    )
+
+    const outers = () => wrapper.findAll('.formkit-outer')
+    const inputs = () => wrapper.findAll('input')
+
+    inputs()[0].setValue('abc')
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(outers()[0].attributes('data-invalid')).toBe(undefined)
+    expect(outers()[1].attributes('data-invalid')).toBe('true')
+
+    getNode(formId)!.reset()
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('form').trigger('submit')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(outers()[0].attributes('data-invalid')).toBe('true')
+    expect(outers()[1].attributes('data-invalid')).toBe('true')
+  })
+
   it('can be reset to a specific value', async () => {
     const submitHandler = vi.fn()
     const formId = token()
@@ -1569,7 +1691,7 @@ describe('FormKitMessages', () => {
     await new Promise((r) => setTimeout(r, 5))
     wrapper.find('input').setValue('a')
     wrapper.find('form').trigger('submit')
-    await new Promise((r) => setTimeout(r, 20))
+    await new Promise((r) => setTimeout(r, 50))
     expect(submitHandler).toHaveBeenCalledTimes(1)
     expect(submitHandler).toHaveBeenLastCalledWith(
       { name: 'a' },

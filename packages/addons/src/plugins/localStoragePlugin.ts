@@ -1,4 +1,4 @@
-import { FormKitNode, FormKitPlugin } from '@formkit/core'
+import { FormKitNode, FormKitPlugin, isPlaceholder } from '@formkit/core'
 import { undefine } from '@formkit/utils'
 
 /**
@@ -24,6 +24,37 @@ export interface LocalStorageOptions {
   beforeSave?: (payload: any) => any
   beforeLoad?: (payload: any) => any
   clearOnSubmit?: boolean
+}
+
+function omitFileValues(value: unknown, node: FormKitNode): unknown {
+  if (!value || typeof value !== 'object') return value
+  const sanitized: Record<string | number, unknown> | unknown[] = Array.isArray(
+    value
+  )
+    ? [...value]
+    : { ...(value as Record<string | number, unknown>) }
+  node.children.forEach((child) => {
+    if (isPlaceholder(child)) return
+    const key = child.name as string | number
+    if (child.props.type === 'file') {
+      if (Array.isArray(sanitized)) {
+        // Deleting from an array would leave a hole that serializes to null —
+        // store the file input’s empty value to keep list positions intact.
+        sanitized[key as number] = []
+      } else {
+        delete sanitized[key as keyof typeof sanitized]
+      }
+      return
+    }
+    const childValue = (value as Record<string | number, unknown>)[key]
+    if (childValue !== undefined) {
+      ;(sanitized as Record<string | number, unknown>)[key] = omitFileValues(
+        childValue,
+        child
+      )
+    }
+  })
+  return sanitized
 }
 
 /**
@@ -102,6 +133,9 @@ export function createLocalStoragePlugin(
         const value = forceValue || localStorage.getItem(storageKey)
         if (!value) return
         const loadValue = JSON.parse(value)
+        if (loadValue && typeof loadValue.data === 'object') {
+          loadValue.data = omitFileValues(loadValue.data, node)
+        }
         if (typeof localStorageOptions?.beforeLoad === 'function') {
           node.props.disabled = true
           try {
@@ -122,7 +156,7 @@ export function createLocalStoragePlugin(
       }
 
       const saveValue = async (payload: unknown) => {
-        let savePayload = payload
+        let savePayload = omitFileValues(payload, node)
         if (typeof localStorageOptions?.beforeSave === 'function') {
           try {
             savePayload = await localStorageOptions.beforeSave(payload)
