@@ -103,5 +103,5 @@ export const checkbox: FormKitTypeDefinition = {
   /**
    * The key used to memoize the schema.
    */
-  schemaMemoKey: 'qje02tb3gu8',
+  schemaMemoKey: '9g770pdxxdk',
 }
