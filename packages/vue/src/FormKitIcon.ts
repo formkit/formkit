@@ -106,6 +106,8 @@ export const FormKitIcon = /* #__PURE__ */ defineComponent({
               }
             }
           }
+        } else if (onKeydown) {
+          iconAttrs.onKeydown = onKeydown
         }
         return h('span', iconAttrs)
       }
