@@ -12,17 +12,24 @@ export default function casts(node: FormKitNode): void {
   const strict = ['number', 'range', 'hidden'].includes(node.props.type)
   node.hook.input((value, next) => {
     if (value === '') return next(undefined)
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      // Already a number — preserve it (including -0, which parseFloat would
+      // collapse to 0 via string coercion).
+      return next(node.props.number === 'integer' ? Math.trunc(value) : value)
+    }
     if (
       strict &&
       typeof value === 'string' &&
       (value === '-' ||
         value === '+' ||
-        value === '.' ||
-        value === '-.' ||
-        value === '+.' ||
         value === '-0' ||
-        value.endsWith('.'))
+        // A numeric prefix ending in a decimal separator (".", "-.", "5.")
+        // is an in-progress value — anything else (e.g. "abc.") is not.
+        /^[-+]?\d*\.$/.test(value))
     ) {
+      // Transient strings that may become valid numbers as the user types
+      // are passed through so typing isn't interrupted (#1671, #1262). They
+      // are normalized to numbers when the input blurs.
       return next(value)
     }
     const numericValue =

@@ -262,6 +262,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const value = ref(node.value)
   const _value = ref(node.value)
   let pendingDOMInputValue: string | undefined
+  /**
+   * True when a native date-family input reported an empty value via a delete
+   * inputType while focused (Firefox partial segment deletion, #1741). The
+   * commit is deferred until the input loses focus so a legitimate full clear
+   * still reaches the node.
+   */
+  let pendingNativeDateDeleteSync = false
 
   const domInputValue = (payload: unknown) => {
     if (
@@ -293,6 +300,29 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     handlers: {
       blur: (e?: Event) => {
         if (!node) return
+        if (pendingNativeDateDeleteSync) {
+          // A native date input reported an empty value via a delete
+          // inputType while focused (#1741) and no further input event
+          // occurred — the user actually cleared the value, so commit it now
+          // that the input is no longer being edited.
+          pendingNativeDateDeleteSync = false
+          const target = e?.target as HTMLInputElement | null
+          node.input(
+            target && nativeDateInputTypes.has(target.type) ? target.value : ''
+          )
+        }
+        if (
+          typeof node.props.number !== 'undefined' &&
+          ['number', 'range', 'hidden'].includes(node.props.type) &&
+          typeof node._value === 'string' &&
+          node._value !== ''
+        ) {
+          // Strict numeric inputs allow transient strings (`-`, `-0`, `5.`)
+          // to pass through while typing (#1671, #1262) — once editing ends
+          // they must normalize to an actual number (or undefined).
+          const numericValue = Number(node._value)
+          node.input(Number.isFinite(numericValue) ? numericValue : undefined)
+        }
         node.store.set(
           createMessage({ key: 'blurred', visible: false, value: true })
         )
@@ -311,7 +341,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       },
       DOMInput: (e: Event) => {
         const target = e.target as HTMLInputElement
-        if (!isPartialNativeDateDelete(e, target, node._value)) {
+        if (isPartialNativeDateDelete(e, target, node._value)) {
+          pendingNativeDateDeleteSync = true
+        } else {
+          pendingNativeDateDeleteSync = false
           pendingDOMInputValue = target.value
           node.input(pendingDOMInputValue)
         }
@@ -443,8 +476,11 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     ) {
       return
     }
-    const input = node.props.__root?.querySelector?.(
-      `#${node.props.id}`
+    // getElementById is available on both Document and ShadowRoot and, unlike
+    // querySelector, accepts ids that are not valid CSS selectors (e.g.
+    // "user.email" or "1foo").
+    const input = node.props.__root?.getElementById?.(
+      String(node.props.id)
     ) as HTMLInputElement | null
     if (!input) return
     const normalizedValue = payload === undefined ? '' : String(payload)

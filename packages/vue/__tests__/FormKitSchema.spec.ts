@@ -691,6 +691,46 @@ describe('parsing dom elements', () => {
     wrapper.unmount()
   })
 
+  it('commits a full clear of a native date input by the time it blurs', async () => {
+    const id = 'date-full-clear'
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [
+          {
+            $formkit: 'date',
+            id,
+            name: 'birthDate',
+            value: '2024-02-10',
+            delay: 0,
+          },
+        ],
+      },
+      attachTo: document.body,
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const input = wrapper.find('input').element as HTMLInputElement
+    input.focus()
+    // The user selects the whole value and deletes it — same DOM signature as
+    // a partial segment delete, so the commit is deferred while focused:
+    input.value = ''
+    input.dispatchEvent(
+      new InputEvent('input', {
+        bubbles: true,
+        inputType: 'deleteContentBackward',
+      })
+    )
+    await nextTick()
+    expect(getNode(id)?.value).toBe('2024-02-10')
+
+    // When the input loses focus the cleared value must reach the node:
+    input.dispatchEvent(new Event('blur'))
+    await new Promise((r) => setTimeout(r, 10))
+    expect(getNode(id)?.value).toBe('')
+    wrapper.unmount()
+  })
+
   it('can render the loop data inside the default slot when nested in an $el', async () => {
     const colors = ref(['red', 'green', 'blue'])
     const items = ref(['a', 'b', 'c'])

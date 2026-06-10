@@ -383,6 +383,88 @@ describe('the number feature', () => {
     await new Promise((r) => setTimeout(r, 10))
     expect(node.value).toBe(-0.5)
   })
+  it('never commits non-numeric garbage on strict number inputs', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: true,
+        delay: 0,
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    const domInput = node.context!.handlers.DOMInput
+
+    domInput({ target: { value: 'abc.' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(undefined)
+
+    domInput({ target: { value: 'e.' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(undefined)
+  })
+  it('normalizes transient numeric strings when the input blurs', async () => {
+    const id = `a${token()}`
+    mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: true,
+        delay: 0,
+      },
+      ...global,
+    })
+    const node = getNode(id)!
+    const domInput = node.context!.handlers.DOMInput
+    const blur = node.context!.handlers.blur
+
+    // '-0' is preserved while typing, but commits as the number -0 on blur:
+    domInput({ target: { value: '-0' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('-0')
+    blur()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(-0)
+
+    // a trailing decimal separator commits as a number on blur:
+    domInput({ target: { value: '5.' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('5.')
+    blur()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(5)
+
+    // a lone minus sign commits as undefined on blur:
+    domInput({ target: { value: '-' } } as unknown as Event)
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe('-')
+    blur()
+    await new Promise((r) => setTimeout(r, 10))
+    expect(node.value).toBe(undefined)
+  })
+  it('syncs strict integer inputs whose id is not a valid css selector', async () => {
+    const id = `1${token()}.dot`
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'number',
+        number: 'integer',
+        delay: 0,
+      },
+      attachTo: document.body,
+      ...global,
+    })
+    const input = wrapper.find('input')
+
+    input.element.value = '123.4'
+    await input.trigger('input')
+    await new Promise((r) => setTimeout(r, 10))
+
+    expect(getNode(id)!.value).toBe(123)
+    expect(input.element.value).toBe('123')
+  })
   it('knows when it is mounted', async () => {
     const wrapper = mount(FormKit, {
       props: {
