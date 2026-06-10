@@ -1561,6 +1561,33 @@ describe('resetting', () => {
     expect(node.value).toEqual({ alpha: 'abc' })
   })
 
+  it('can reset an input node to an explicit value which becomes the initial', async () => {
+    const node = createNode({ value: 'initial' })
+    await node.input('changed')
+    node.reset('reset-to-this')
+    expect(node.value).toBe('reset-to-this')
+    expect(node.props.initial).toBe('reset-to-this')
+    // A subsequent reset without arguments resets to the new initial.
+    await node.input('changed again')
+    node.reset()
+    expect(node.value).toBe('reset-to-this')
+  })
+
+  it('can reset a group to an explicit value which becomes the initial', async () => {
+    const node = createNode({
+      type: 'group',
+      children: [createNode({ name: 'alpha', value: 'abc' })],
+    })
+    await node.at('alpha')!.input('changed')
+    node.reset({ alpha: 'xyz' })
+    expect(node.value).toEqual({ alpha: 'xyz' })
+    expect(node.at('alpha')!.value).toBe('xyz')
+    // A subsequent reset without arguments resets to the new initial.
+    await node.at('alpha')!.input('changed again')
+    node.reset()
+    expect(node.value).toEqual({ alpha: 'xyz' })
+  })
+
   it('emits an reset event', async () => {
     const resetEvent = vi.fn()
     const node = createNode({ value: 'foobar' })

@@ -81,11 +81,14 @@ export function reset(
     node._e.pause(node)
     // Set it back to basics
     const resetValue = cloneAny(resetTo)
+    const hasExplicitReset = Boolean(resetTo && !empty(resetTo))
     const isDeepReset =
-      node.type !== 'input' && resetTo && !empty(resetTo) && isObject(resetTo)
-    if (isDeepReset) {
+      hasExplicitReset && node.type !== 'input' && isObject(resetTo)
+    if (hasExplicitReset) {
       node.props.initial = isObject(resetValue) ? init(resetValue) : resetValue
       node.props._init = node.props.initial
+    }
+    if (isDeepReset) {
       node.walk((child) => {
         const resetAddress = child.address.slice(node.address.length)
         const childResetValue = valueAtResetAddress(resetValue, resetAddress)
