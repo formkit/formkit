@@ -1,4 +1,4 @@
-import { has, isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
+import { isQuotedString, rmEscapes, parseArgs } from '@formkit/utils'
 import { warn, error } from './errors'
 
 /**
