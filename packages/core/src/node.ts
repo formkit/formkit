@@ -2234,6 +2234,8 @@ function destroy(
   node.store.filter(() => false)
   if (node.parent) {
     node.parent.remove(node)
+  } else {
+    node.config._rmn = node
   }
   deregister(node)
   node.emit('destroyed', node)
@@ -2995,7 +2997,7 @@ function createConfig(
         return true
       }
       if (prop === '_rmn') {
-        if (target.rootConfig) target.rootConfig._rm(node as FormKitNode)
+        if (target.rootConfig && node) target.rootConfig._rm(node)
         node = undefined
         return true
       }

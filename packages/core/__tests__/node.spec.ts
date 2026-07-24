@@ -286,6 +286,56 @@ describe('node', () => {
     )
   })
 
+  it('removes a destroyed root node from its rootConfig (#1667)', () => {
+    const rootConfig = createConfig()
+    const tracked = new Set<FormKitNode>()
+    const originalAdd = rootConfig._add
+    const originalRm = rootConfig._rm
+    const remove = vi.fn(originalRm)
+    rootConfig._add = (node) => {
+      tracked.add(node)
+      originalAdd(node)
+    }
+    rootConfig._rm = (node) => {
+      tracked.delete(node)
+      remove(node)
+    }
+    const node = createNode({ config: { rootConfig } })
+    expect(tracked.has(node)).toBe(true)
+    node.destroy()
+    expect(tracked.has(node)).toBe(false)
+    expect(remove).toHaveBeenCalledTimes(1)
+    node.destroy()
+    expect(remove).toHaveBeenCalledTimes(1)
+  })
+
+  it('removes a destroyed child node from its rootConfig (#1667)', () => {
+    const rootConfig = createConfig()
+    const tracked = new Set<FormKitNode>()
+    const originalAdd = rootConfig._add
+    const originalRm = rootConfig._rm
+    rootConfig._add = (node) => {
+      tracked.add(node)
+      originalAdd(node)
+    }
+    rootConfig._rm = (node) => {
+      tracked.delete(node)
+      originalRm(node)
+    }
+    const child = createNode({ name: 'child', config: { rootConfig } })
+    const group = createNode({
+      type: 'group',
+      config: { rootConfig },
+      children: [child],
+    })
+    expect(tracked.has(group)).toBe(true)
+    expect(tracked.has(child)).toBe(true)
+    child.destroy()
+    expect(tracked.has(child)).toBe(false)
+    group.destroy()
+    expect(tracked.has(group)).toBe(false)
+  })
+
   it('always has an __FKNode__ trap property', () => {
     const node = createNode()
     expect(node.__FKNode__).toBe(true)
