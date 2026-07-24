@@ -1,6 +1,6 @@
 {
   "name": "@formkit/core",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "The framework agnostic core of FormKit",
   "type": "module",
   "main": "dist/index.cjs",
