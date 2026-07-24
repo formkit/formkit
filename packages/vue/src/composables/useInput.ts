@@ -41,6 +41,7 @@ import {
 } from 'vue'
 import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
+import { onSSRComplete } from './onSSRComplete'
 import { FormKitGroupValue } from 'packages/core/src'
 import { FormKitPseudoProps } from '@formkit/core'
 
@@ -481,6 +482,12 @@ export function useInput<
    * When this input shuts down, we need to "delete" the node too.
    */
   onBeforeUnmount(() => node.destroy())
+
+  /**
+   * `onBeforeUnmount` never fires during SSR, so we destroy the node here to
+   * free it from module-level registries and avoid leaking it across requests.
+   */
+  onSSRComplete(instance?.appContext.app, () => node.destroy())
 
   return node
 }
