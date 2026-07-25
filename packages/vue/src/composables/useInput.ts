@@ -38,6 +38,7 @@ import {
   onBeforeUnmount,
   onMounted,
   SetupContext,
+  nextTick,
 } from 'vue'
 import { FormKitInputs } from '@formkit/inputs'
 import { optionsSymbol } from '../plugin'
@@ -175,6 +176,7 @@ export function useInput<
 
   // Track if the input has mounted or not.
   let isMounted = false
+  let isUnmounted = false
   onMounted(() => {
     isMounted = true
   })
@@ -469,6 +471,15 @@ export function useInput<
       { deep: true }
     )
 
+    // Vue can coalesce reset's emitted model update with a same-tick ref write.
+    node.on('reset', () => {
+      nextTick(() => {
+        if (!isUnmounted && node.context && !eq(props.modelValue, node.value)) {
+          node.input(props.modelValue, false)
+        }
+      })
+    })
+
     /**
      * On initialization, if the node’s value was updated (like in a plugin
      * hook) then we should emit a `modelUpdated` event.
@@ -481,7 +492,10 @@ export function useInput<
   /**
    * When this input shuts down, we need to "delete" the node too.
    */
-  onBeforeUnmount(() => node.destroy())
+  onBeforeUnmount(() => {
+    isUnmounted = true
+    node.destroy()
+  })
 
   /**
    * `onBeforeUnmount` never fires during SSR, so we destroy the node here to

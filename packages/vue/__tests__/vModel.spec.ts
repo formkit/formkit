@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defaultConfig } from '../src'
 import { plugin } from '../src/plugin'
-import { FormKitNode, getNode } from '@formkit/core'
+import { FormKitNode, getNode, reset } from '@formkit/core'
 import { token } from '@formkit/utils'
 
 describe('v-model', () => {
@@ -122,6 +122,55 @@ describe('v-model', () => {
     expect(wrapper.find('pre').text()).toBe(
       '{\n  "group": {\n    "text": "foo"\n  }\n}'
     )
+  })
+
+  it('keeps v-modeled nodes in sync when reset is followed by a same-tick ref write (#1763)', async () => {
+    const formId = token()
+    const inputId = token()
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          const value = ref('init')
+          const resetAndSet = () => {
+            reset(formId)
+            value.value = 'new'
+          }
+          return { resetAndSet, value }
+        },
+        template: `
+          <FormKit type="form" id="${formId}" :actions="false">
+            <FormKit
+              id="${inputId}"
+              name="input"
+              v-model="value"
+            />
+          </FormKit>
+          <button @click="resetAndSet">reset</button>
+        `,
+      }),
+      {
+        global: { plugins: [[plugin, defaultConfig]] },
+      }
+    )
+
+    const settleVueUpdates = async () => {
+      await nextTick()
+      await nextTick()
+    }
+
+    await wrapper.find('button').trigger('click')
+    await settleVueUpdates()
+
+    expect(wrapper.find('input').element.value).toBe('new')
+    expect(getNode(inputId)?.value).toBe('new')
+    expect(wrapper.vm.value).toBe('new')
+
+    await wrapper.find('button').trigger('click')
+    await settleVueUpdates()
+
+    expect(wrapper.find('input').element.value).toBe('new')
+    expect(getNode(inputId)?.value).toBe('new')
+    expect(wrapper.vm.value).toBe('new')
   })
 
   it('Works with both v-model and model-value', async () => {
