@@ -69,7 +69,7 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   async setup(options, nuxt) {
     nuxt.options.build.transpile.push('@formkit/vue')
     if (options.autoImport) {
-      useAutoImport(options, nuxt)
+      await useAutoImport(options, nuxt)
     } else {
       useFormKitPlugin(options, nuxt)
     }
