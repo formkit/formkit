@@ -340,6 +340,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
         )
       },
       DOMInput: (e: Event) => {
+        if (!node) return
         const target = e.target as HTMLInputElement
         if (isPartialNativeDateDelete(e, target, node._value)) {
           pendingNativeDateDeleteSync = true

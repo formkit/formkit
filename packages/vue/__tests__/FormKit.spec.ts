@@ -2162,6 +2162,20 @@ describe('exposures', () => {
     )
   })
 
+  it('ignores DOM input events that arrive after the node is destroyed', () => {
+    const errorHandler = vi.fn()
+    const wrapper = mount(FormKit, {
+      global: {
+        plugins: [[plugin, defaultConfig]],
+        config: { errorHandler },
+      },
+    })
+    const input = wrapper.find('input').element
+    wrapper.unmount()
+    input.dispatchEvent(new Event('input'))
+    expect(errorHandler).not.toHaveBeenCalled()
+  })
+
   it('debounces the input event (not fired on mount) and not the inputRaw event', async () => {
     const wrapper = mount(FormKit, {
       props: {
