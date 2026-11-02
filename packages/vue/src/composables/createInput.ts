@@ -35,6 +35,8 @@ function isComponent(obj: any): obj is Component {
  * @param schemaOrComponent - The actual schema of the input or the component.
  * @param definitionOptions - Any options in the FormKitTypeDefinition you want
  * to define.
+ * @param sectionsSchema - Section overrides (the same shape as the
+ * `sectionsSchema` prop) applied to the input's base schema.
  *
  * @returns {@link @formkit/core#FormKitTypeDefinition | FormKitTypeDefinition}
  *

@@ -20,6 +20,21 @@ function isComponent(obj: any): obj is ComponentType<any> {
   )
 }
 
+/**
+ * Creates a new input from schema or a React component with the "standard"
+ * FormKit features in place such as labels, help text, validation messages, and
+ * class support.
+ *
+ * @param schemaOrComponent - The actual schema of the input or the component.
+ * @param definitionOptions - Any options in the FormKitTypeDefinition you want
+ * to define.
+ * @param sectionsSchema - Section overrides (the same shape as the
+ * `sectionsSchema` prop) applied to the input's base schema.
+ *
+ * @returns {@link @formkit/core#FormKitTypeDefinition | FormKitTypeDefinition}
+ *
+ * @public
+ */
 export function createInput<V = unknown>(
   schemaOrComponent: FormKitSchemaNode | FormKitSection | ComponentType<any>,
   definitionOptions: Partial<FormKitTypeDefinition<V>> = {},
