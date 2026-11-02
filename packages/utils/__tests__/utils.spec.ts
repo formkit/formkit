@@ -23,6 +23,18 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('eq', () => {
+  it('treats NaN as equal to NaN (#1555)', () => {
+    expect(eq(NaN, NaN)).toBe(true)
+    expect(eq({ a: NaN }, { a: NaN })).toBe(true)
+    expect(eq({ a: NaN }, { a: NaN }, false)).toBe(true)
+    expect(eq([NaN, 1], [NaN, 1])).toBe(true)
+    expect(eq(new Date('nope'), new Date('nope'))).toBe(true)
+    expect(eq(NaN, 0)).toBe(false)
+    expect(eq(NaN, 'NaN')).toBe(false)
+    expect(eq(NaN, undefined)).toBe(false)
+    expect(eq(0, -0)).toBe(true)
+  })
+
   it('evaluates simple primitives correctly', () => {
     expect(eq('123', '123')).toBe(true)
     expect(eq('123', 123)).toBe(false)
