@@ -91,13 +91,10 @@ export function useFormKitContext<T = FormKitGroupValue>(
       const targetNode = parentNode.at(address)
       if (!targetNode) return
       const latestContext = targetNode.context as FormKitFrameworkContext<T>
-      setContext((previous) => {
-          if (previous !== latestContext) {
-          runEffect(latestContext)
-          return latestContext
-        }
-        return previous
-      })
+      // State updaters can run during render (and be replayed or discarded),
+      // so the user effect runs here instead of inside the updater.
+      setContext(latestContext)
+      runEffect(latestContext)
     })
 
     return () => {

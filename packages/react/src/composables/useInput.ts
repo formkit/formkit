@@ -27,11 +27,20 @@ import {
 import {
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react'
 import { optionsSymbol } from '../plugin'
 import { onSSRComplete } from './onSSRComplete'
+import {
+  claim,
+  findUnclaimed,
+  isDestroyed,
+  takeRenderKey,
+  trackUnclaimed,
+} from './nodeClaims'
 import { componentSymbol, parentSymbol, rootSymbol } from '../context'
 
 interface FormKitComponentListeners {
@@ -190,6 +199,13 @@ function getModelValue(props: Record<string, any>): unknown {
   return props.value
 }
 
+/**
+ * useLayoutEffect on the client, useEffect on the server (where neither runs,
+ * but React 18 warns about useLayoutEffect).
+ */
+const useIsomorphicLayoutEffect =
+  typeof window === 'undefined' ? useEffect : useLayoutEffect
+
 export function useInput<Props extends FormKitInputs<Props>>(
   props: Props & Record<string, any>,
   options: FormKitOptions = {}
@@ -261,12 +277,25 @@ export function useInput<Props extends FormKitInputs<Props>>(
     : props.parent || inheritedParent || null
 
   // Node creation has side effects (global registration, attaching to the
-  // parent), so it must run exactly once per component instance. useMemo is
-  // not safe here: React StrictMode intentionally calls memo factories twice
-  // and discards one result, which left an orphaned duplicate node attached to
-  // the parent form (see #1776). A ref survives StrictMode's double render.
+  // parent) but must happen during render because children need their parent
+  // node while rendering. React can discard renders (StrictMode double render,
+  // Suspense retries, interrupted transitions), so freshly created nodes start
+  // out unclaimed and are reused by a re-render at the same tree position,
+  // claimed on commit, or swept if never committed. See ./nodeClaims and #1776.
+  const renderKey = takeRenderKey(props)
+  const nameKey =
+    typeof props.name === 'string' && props.name
+      ? `${props.type ?? 'text'}|${props.name}`
+      : undefined
+  const [, forceRender] = useState(0)
   const nodeRef = useRef<FormKitNode | null>(null)
-  const node = (nodeRef.current ??= (() => {
+  if (nodeRef.current === null || isDestroyed(nodeRef.current)) {
+    nodeRef.current =
+      findUnclaimed(renderKey, parent, nameKey) ?? createFormKitNode()
+  }
+  const node = nodeRef.current
+
+  function createFormKitNode(): FormKitNode {
     const nodeOptions = extend(
       config || {},
       {
@@ -293,8 +322,21 @@ export function useInput<Props extends FormKitInputs<Props>>(
       created.destroy()
     })
 
+    trackUnclaimed(renderKey, created, parent, nameKey)
+
     return created
-  })())
+  }
+
+  useIsomorphicLayoutEffect(() => {
+    if (isDestroyed(node)) {
+      // Our node was destroyed before we committed (a very slow render that
+      // got swept, or an <Activity> boundary that hid and re-showed us).
+      // Re-render so a fresh node is created.
+      forceRender((n) => n + 1)
+      return
+    }
+    claim(node)
+  }, [node])
 
   const lateBoundProps = useRef<Set<string | RegExp>>(
     new Set(

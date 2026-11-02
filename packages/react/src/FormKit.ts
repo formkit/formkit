@@ -19,6 +19,7 @@ import { FormKitSchema } from './FormKitSchema'
 import { FormKitInputs, FormKitInputSlots, InputType } from '@formkit/inputs'
 import { useInput } from './composables/useInput'
 import { componentSymbol, parentSymbol } from './context'
+import { setRenderKey } from './composables/nodeClaims'
 import { useReactiveStore } from './reactiveStore'
 
 export type Slots<Props extends FormKitInputs<Props>> =
@@ -180,6 +181,9 @@ function FormKitImpl<Props extends FormKitInputs<Props>>(
 ): ReactElement | null {
   const slots = useStableSlots(props.children, props.slots)
 
+  // Hand useInput the original props object: it is stable across a StrictMode
+  // double render, our spread copy is not (see composables/nodeClaims).
+  setRenderKey(props)
   const node = useInput({ ...props, slots } as any)
 
   if (!node.props.definition) error(600, node)
