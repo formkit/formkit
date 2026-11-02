@@ -8,6 +8,23 @@ import { useContext, useEffect, useState } from 'react'
 import { parentSymbol } from '../context'
 import { useReactiveStore } from '../reactiveStore'
 
+/**
+ * Returns a function that calls the latest user effect at most once per
+ * target. React StrictMode replays effects (setup → cleanup → setup) in
+ * development, which would otherwise run non-idempotent user callbacks twice
+ * for the same node/context (Vue calls them once). See #1776.
+ */
+function useEffectOnce<T extends object>(
+  effectRef: { current: ((target: T) => void) | undefined }
+): (target: T) => void {
+  const [seen] = useState(() => new WeakSet<object>())
+  return (target: T) => {
+    if (!effectRef.current || seen.has(target)) return
+    seen.add(target)
+    effectRef.current(target)
+  }
+}
+
 export function useFormKitContext<T = FormKitGroupValue>(
   effect?: (context: FormKitFrameworkContext<T>) => void
 ): FormKitFrameworkContext<T> | undefined
@@ -33,6 +50,7 @@ export function useFormKitContext<T = FormKitGroupValue>(
       undefined,
   }))
   effectRef.current = effect
+  const runEffect = useEffectOnce(effectRef as any)
   const [context, setContext] = useState<FormKitFrameworkContext<T> | undefined>(
     () => {
       if (!parentNode) return undefined
@@ -56,7 +74,7 @@ export function useFormKitContext<T = FormKitGroupValue>(
     if (!address) {
       const next = parentNode.context as FormKitFrameworkContext<T>
       setContext(next)
-      if (next && effectRef.current) effectRef.current(next)
+      if (next) runEffect(next)
       return
     }
 
@@ -64,7 +82,7 @@ export function useFormKitContext<T = FormKitGroupValue>(
       | FormKitFrameworkContext<T>
       | undefined
     setContext(nextContext)
-    if (nextContext && effectRef.current) effectRef.current(nextContext)
+    if (nextContext) runEffect(nextContext)
 
     const root = parentNode.at('$root')
     if (!root) return
@@ -73,13 +91,10 @@ export function useFormKitContext<T = FormKitGroupValue>(
       const targetNode = parentNode.at(address)
       if (!targetNode) return
       const latestContext = targetNode.context as FormKitFrameworkContext<T>
-      setContext((previous) => {
-          if (previous !== latestContext) {
-          if (effectRef.current) effectRef.current(latestContext)
-          return latestContext
-        }
-        return previous
-      })
+      // State updaters can run during render (and be replayed or discarded),
+      // so the user effect runs here instead of inside the updater.
+      setContext(latestContext)
+      runEffect(latestContext)
     })
 
     return () => {
@@ -102,6 +117,7 @@ export function useFormKitContextById<T = any>(
       undefined,
   }))
   effectRef.current = effect
+  const runEffect = useEffectOnce(effectRef as any)
   const [context, setContext] = useState<FormKitFrameworkContext<T> | undefined>(
     () => getNode<T>(id)?.context as FormKitFrameworkContext<T> | undefined
   )
@@ -111,7 +127,7 @@ export function useFormKitContextById<T = any>(
     if (targetNode) {
       const next = targetNode.context as FormKitFrameworkContext<T>
       setContext(next)
-      if (effectRef.current) effectRef.current(next)
+      runEffect(next)
       return
     }
 
@@ -121,7 +137,7 @@ export function useFormKitContextById<T = any>(
         stopWatch(receipt)
         queueMicrotask(() => {
           setContext(next)
-          if (effectRef.current) effectRef.current(next)
+          runEffect(next)
         })
       }
     })
@@ -144,6 +160,7 @@ export function useFormKitNodeById<T>(
     current: (effect as ((node: FormKitNode<T>) => void) | undefined) ?? undefined,
   }))
   effectRef.current = effect
+  const runEffect = useEffectOnce(effectRef as any)
   const [nodeRef, setNodeRef] = useState<FormKitNode<T> | undefined>(() =>
     getNode<T>(id)
   )
@@ -152,7 +169,7 @@ export function useFormKitNodeById<T>(
     const targetNode = getNode<T>(id)
     if (targetNode) {
       setNodeRef(targetNode)
-      if (effectRef.current) effectRef.current(targetNode)
+      runEffect(targetNode)
       return
     }
 
@@ -162,7 +179,7 @@ export function useFormKitNodeById<T>(
         stopWatch(receipt)
         queueMicrotask(() => {
           setNodeRef(typedNode)
-          if (effectRef.current) effectRef.current(typedNode)
+          runEffect(typedNode)
         })
       }
     })
