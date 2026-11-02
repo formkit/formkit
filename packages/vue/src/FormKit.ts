@@ -261,8 +261,15 @@ export const FormKitRuntimeComponent = /* #__PURE__ */ defineComponent(
   }
 ) as FormKitRuntimeComponentType
 
-export type FormKitComponent = typeof FormKitRuntimeComponent &
-  FormKitCallableComponent
+/**
+ * The public type of the `<FormKit>` component. This is intentionally *only*
+ * the generic callable signature — intersecting it with `DefineComponent`
+ * gives it a construct signature, which vue-tsc resolves first, and that
+ * erases all prop and slot inference (see #1777). If you need a
+ * `DefineComponent` type, use `typeof FormKitRuntimeComponent`.
+ * @public
+ */
+export type FormKitComponent = FormKitCallableComponent
 
 export const formkitComponent =
   FormKitRuntimeComponent as unknown as FormKitComponent
