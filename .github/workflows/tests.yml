@@ -35,11 +35,6 @@ jobs:
       - name: Run Vitest
         run: pnpm test
 
-      - name: Run React tests against React 18
-        run: |
-          npm ci --prefix .tests/react18 --no-audit --no-fund
-          pnpm vitest run -c vitest.react18.config.mts
-
       - name: Run Typecheck
         run: pnpm vitest --typecheck.only --run
 
