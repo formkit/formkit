@@ -120,12 +120,15 @@ export function eq(
   deep = true,
   explicit: string[] = ['__key']
 ): boolean {
-  if (valA === valB) return true
+  if (valA === valB || bothNaN(valA, valB)) return true
   if (typeof valB === 'object' && typeof valA === 'object') {
     if (valA instanceof Map) return false
     if (valA instanceof Set) return false
     if (valA instanceof Date && valB instanceof Date)
-      return valA.getTime() === valB.getTime()
+      return (
+        valA.getTime() === valB.getTime() ||
+        bothNaN(valA.getTime(), valB.getTime())
+      )
     if (valA instanceof RegExp && valB instanceof RegExp)
       return eqRegExp(valA, valB)
     if (valA === null || valB === null) return false
@@ -135,12 +138,22 @@ export function eq(
     }
     for (const key in valA) {
       if (!(key in valB)) return false
-      if (valA[key] !== valB[key] && !deep) return false
+      if (valA[key] !== valB[key] && !bothNaN(valA[key], valB[key]) && !deep)
+        return false
       if (deep && !eq(valA[key], valB[key], deep, explicit)) return false
     }
     return true
   }
   return false
+}
+
+/**
+ * True when both values are NaN. Form values should treat NaN as equal to
+ * itself (like Object.is / Vue's change detection) so a NaN value doesn't look
+ * permanently "changed". +0 and -0 remain equal, unlike Object.is.
+ */
+function bothNaN(a: unknown, b: unknown): boolean {
+  return a !== a && b !== b
 }
 
 /**
