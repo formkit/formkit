@@ -59,7 +59,7 @@ const ui: FormKitLocaleMessages = {
   /**
    * Shown on buttons that navigate state forward
    */
-  next: '[次へ]',
+  next: '次へ',
   /**
    * Shown on buttons that navigate state backward
    */
@@ -100,7 +100,7 @@ const ui: FormKitLocaleMessages = {
   /**
    * Shown when there is something to open.
    */
-  open: '[開く]',
+  open: '開く',
 }
 
 /**
@@ -482,7 +482,7 @@ const validation: FormKitValidationMessages = {
       .filter((name) => !!name)
     labels.unshift(name)
     /* <i18n case="Shown when the user-provided has not provided a value for at least one of the required fields."> */
-    return `${labels.join('または')}${labels}が必要です。`
+    return `${labels.join('または')}が必要です。`
     /* </i18n> */
   },
 
