@@ -260,7 +260,13 @@ export function useInput<Props extends FormKitInputs<Props>>(
     ? null
     : props.parent || inheritedParent || null
 
-  const node = useMemo(() => {
+  // Node creation has side effects (global registration, attaching to the
+  // parent), so it must run exactly once per component instance. useMemo is
+  // not safe here: React StrictMode intentionally calls memo factories twice
+  // and discards one result, which left an orphaned duplicate node attached to
+  // the parent form (see #1776). A ref survives StrictMode's double render.
+  const nodeRef = useRef<FormKitNode | null>(null)
+  const node = (nodeRef.current ??= (() => {
     const nodeOptions = extend(
       config || {},
       {
@@ -288,8 +294,7 @@ export function useInput<Props extends FormKitInputs<Props>>(
     })
 
     return created
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  })())
 
   const lateBoundProps = useRef<Set<string | RegExp>>(
     new Set(
