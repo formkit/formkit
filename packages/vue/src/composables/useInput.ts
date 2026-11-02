@@ -32,6 +32,7 @@ import {
   provide,
   watch,
   getCurrentInstance,
+  nextTick,
   computed,
   ref,
   WatchStopHandle,
@@ -158,6 +159,18 @@ export function useInput<
    * The current instance.
    */
   const instance = getCurrentInstance()
+  /**
+   * Whether the parent listens for model updates (a real two-way v-model, as
+   * opposed to a one-way :model-value binding).
+   */
+  const hasModelListener = () => {
+    const vnodeProps = instance?.vnode.props
+    return (
+      !!vnodeProps &&
+      ('onUpdate:modelValue' in vnodeProps ||
+        'onUpdate:model-value' in vnodeProps)
+    )
+  }
 
   /**
    * Extracts the listeners.
@@ -452,6 +465,21 @@ export function useInput<
     if (isVModeled && node.context) {
       clonedValueBeforeVmodel = cloneAny(node.value)
       context.emit('update:modelValue', shallowClone(node.value))
+      if (hasModelListener()) {
+        // If the parent changes its model again in the same tick (e.g.
+        // `reset(form); model.value = 'new'`) its value can end up identical
+        // to the previous prop, so Vue never updates our modelValue prop and
+        // the watcher below never fires. Re-check once the parent has
+        // re-rendered and adopt its model if it differs (#1763).
+        nextTick(() => {
+          if (!node.context) return
+          const model = props.modelValue
+          if (model !== undefined && !eq(model, node.value)) {
+            clonedValueBeforeVmodel = cloneAny(model)
+            node.input(model, false)
+          }
+        })
+      }
     }
   })
 

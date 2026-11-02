@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defaultConfig } from '../src'
 import { plugin } from '../src/plugin'
-import { FormKitNode, getNode } from '@formkit/core'
+import { FormKitNode, getNode, reset } from '@formkit/core'
 import { token } from '@formkit/utils'
 
 describe('v-model', () => {
@@ -163,5 +163,70 @@ describe('v-model', () => {
     data2.value = 'bar'
     await new Promise((r) => setTimeout(r, 10))
     expect(wrapper.find('pre').text()).toMatchSnapshot()
+  })
+
+  describe('re-syncs when the parent model changes in the same tick (#1763)', () => {
+    const settle = async () => {
+      await new Promise((r) => setTimeout(r, 50))
+      await nextTick()
+    }
+
+    it('keeps v-model in sync after reset() then setting the model', async () => {
+      const formId = token()
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const myRef = ref('init')
+            const myReset = () => {
+              reset(formId)
+              myRef.value = 'new'
+            }
+            return { myRef, myReset, formId }
+          },
+          template: `<FormKit type="form" :id="formId" :actions="false"><FormKit name="input" v-model="myRef" /></FormKit>`,
+        }),
+        { global: { plugins: [[plugin, defaultConfig]] } }
+      )
+      const vm: any = wrapper.vm
+      for (let i = 0; i < 3; i++) {
+        vm.myReset()
+        await settle()
+        expect(getNode(formId)!.at('input')!.value).toBe('new')
+        expect(vm.myRef).toBe('new')
+        expect((wrapper.find('input').element as HTMLInputElement).value).toBe('new')
+      }
+    })
+
+    it('does not fight user input on a one-way :model-value binding', async () => {
+      const id = token()
+      const wrapper = mount(
+        defineComponent({
+          setup: () => ({ id }),
+          template: `<FormKit :id="id" model-value="fixed" />`,
+        }),
+        { global: { plugins: [[plugin, defaultConfig]] } }
+      )
+      await wrapper.find('input').setValue('typed')
+      await settle()
+      expect(getNode(id)!.value).toBe('typed')
+    })
+
+    it('adopts a transformed value from the v-model handler', async () => {
+      const id = token()
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            const model = ref('')
+            return { id, model }
+          },
+          template: `<FormKit :id="id" :model-value="model" @update:model-value="(v) => (model = String(v).toUpperCase())" />`,
+        }),
+        { global: { plugins: [[plugin, defaultConfig]] } }
+      )
+      await wrapper.find('input').setValue('abc')
+      await settle()
+      expect((wrapper.vm as any).model).toBe('ABC')
+      expect(getNode(id)!.value).toBe('ABC')
+    })
   })
 })
