@@ -37,6 +37,7 @@ import { lv } from './locales/lv'
 import { mn } from './locales/mn'
 import { nb } from './locales/nb'
 import { nl } from './locales/nl'
+import { nn } from './locales/nn'
 import { pl } from './locales/pl'
 import { pt } from './locales/pt'
 import { ro } from './locales/ro'
@@ -94,6 +95,7 @@ export const locales = {
   lv,
   nb,
   nl,
+  nn,
   pl,
   pt,
   ro,
@@ -147,6 +149,7 @@ export {
   lv,
   nb,
   nl,
+  nn,
   pl,
   pt,
   ro,
