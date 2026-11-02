@@ -43,8 +43,11 @@ export type Slots<Props extends FormKitInputs<Props>> =
  */
 type FormKitCallableComponent = <Props extends FormKitInputs<Props>>(
   props: Props & VNodeProps & AllowedComponentProps & ComponentCustomProps,
-  context?: Pick<FormKitSetupContext<Props>, 'attrs' | 'emit' | 'slots'>,
-  setup?: FormKitSetupContext<Props>
+  // These are intentionally loose: Vue's h() passes its own FunctionalComponent
+  // context here, which is not assignable to our typed slots. Slot and emit
+  // inference comes from the `__ctx` member of the return type instead.
+  context?: any,
+  setup?: any
 ) => VNode<
   RendererNode,
   RendererElement,
