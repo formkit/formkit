@@ -392,6 +392,12 @@ export interface FormKitContext {
    */
   _d: number
   /**
+   * For group nodes: how many children currently use each name. Lets addChild
+   * reconcile only the new child while still detecting duplicate names.
+   * @internal
+   */
+  _names?: Map<PropertyKey, number>
+  /**
    * A node’s internal event emitter.
    */
   _e: FormKitEventEmitter
@@ -1947,10 +1953,15 @@ function commit(
   node: FormKitNode,
   context: FormKitContext,
   calm = true,
-  hydrate = true
+  hydrate: boolean | FormKitNode = true
 ) {
   context._value = context.value = node.hook.commit.dispatch(context._value)
-  if (node.type !== 'input' && hydrate) node.hydrate()
+  if (node.type !== 'input' && hydrate) {
+    // Passing a child reconciles only that child (used when a child is added
+    // to a group, where the rest of the tree is already in sync — #1792).
+    if (typeof hydrate === 'object') hydrateChild(node, context, hydrate)
+    else node.hydrate()
+  }
   node.emit('commitRaw', context.value)
   node.emit('commit', context.value)
   if (calm) node.calm()
@@ -1993,6 +2004,104 @@ function partial(
 }
 
 /**
+ * Reconciles a single child with its parent's value: pushes the parent's value
+ * down, or reserves the child's value on the parent (see hydrate()).
+ *
+ * @internal
+ */
+function reconcileChild(
+  context: FormKitContext,
+  _value: KeyedValue,
+  child: FormKitNode | FormKitPlaceholderNode,
+  key: PropertyKey,
+  isDuplicate: boolean,
+  parentType: FormKitNodeType
+) {
+  const name = key as string
+  if (isDuplicate && !child.props.mergeStrategy) {
+    partial(context, { name, value: child.value })
+    return
+  }
+  if (name in _value) {
+    // In this case, the parent has a value to give to the child, so we
+    // perform a down-tree synchronous input which will cascade values down
+    // and then ultimately back up.
+    const childValue =
+      child.type !== 'input' ||
+      (_value[name] && typeof _value[name] === 'object')
+        ? init(_value[name])
+        : _value[name]
+    // If the two are already equal or the child is currently disturbed then
+    // don’t send the value down since it will squash the child’s value.
+    if (
+      !child.isSettled ||
+      ((!isObject(childValue) || child.props.mergeStrategy) &&
+        eq(childValue, child._value))
+    )
+      return
+
+    // If there is a change to the child, push the new value down.
+    child.input(childValue, false)
+  } else {
+    if (parentType !== 'list' || typeof name === 'number') {
+      // In this case, the parent’s values have no knowledge of the child
+      // value — this typically occurs on the commit at the end of addChild()
+      // we need to create a value reservation for this node’s name. This is
+      // especially important when dealing with lists where index matters.
+      partial(context, { name, value: child.value })
+    }
+    if (!_value.__init) {
+      // In this case, someone has explicitly set the value to an empty object
+      // with node.input({}) so we do not define the __init property:
+      if (child.type === 'group') child.input({}, false)
+      else if (child.type === 'list') child.input([], false)
+      else child.input(undefined, false)
+    }
+  }
+}
+
+/**
+ * How many children of a group use each name. Built from the actual children
+ * the first time it's needed (children can be supplied before addChild runs),
+ * then kept in sync by addChild/removeChild.
+ *
+ * @internal
+ */
+function childNameCounts(context: FormKitContext): Map<PropertyKey, number> {
+  if (!context._names) {
+    context._names = new Map()
+    for (const child of context.children) {
+      context._names.set(child.name, (context._names.get(child.name) ?? 0) + 1)
+    }
+  }
+  return context._names
+}
+
+/**
+ * Reconciles just one child of a group (instead of every child, as hydrate()
+ * does). Used when a child is added, so mounting n inputs is O(n), not O(n²).
+ *
+ * @internal
+ */
+function hydrateChild(
+  node: FormKitNode,
+  context: FormKitContext,
+  child: FormKitNode
+) {
+  if (typeof context._value !== 'object') return
+  const name = child.name
+  const isDuplicate = (childNameCounts(context).get(name) ?? 0) > 1
+  reconcileChild(
+    context,
+    context._value as KeyedValue,
+    child,
+    name,
+    isDuplicate,
+    node.type
+  )
+}
+
+/**
  * Hydrate node and its children
  *
  * @param node - A {@link FormKitNode | FormKitNode}
@@ -2024,46 +2133,14 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   children.forEach((child, i) => {
     if (typeof _value !== 'object') return
     const name = names[i]
-    if (duplicateNames.has(name) && !child.props.mergeStrategy) {
-      partial(context, { name, value: child.value })
-      return
-    }
-    if (name in _value) {
-      // In this case, the parent has a value to give to the child, so we
-      // perform a down-tree synchronous input which will cascade values down
-      // and then ultimately back up.
-      const childValue =
-        child.type !== 'input' ||
-        (_value[name] && typeof _value[name] === 'object')
-          ? init(_value[name])
-          : _value[name]
-      // If the two are already equal or the child is currently disturbed then
-      // don’t send the value down since it will squash the child’s value.
-      if (
-        !child.isSettled ||
-        ((!isObject(childValue) || child.props.mergeStrategy) &&
-          eq(childValue, child._value))
-      )
-        return
-
-      // If there is a change to the child, push the new value down.
-      child.input(childValue, false)
-    } else {
-      if (node.type !== 'list' || typeof name === 'number') {
-        // In this case, the parent’s values have no knowledge of the child
-        // value — this typically occurs on the commit at the end of addChild()
-        // we need to create a value reservation for this node’s name. This is
-        // especially important when dealing with lists where index matters.
-        partial(context, { name, value: child.value })
-      }
-      if (!_value.__init) {
-        // In this case, someone has explicitly set the value to an empty object
-        // with node.input({}) so we do not define the __init property:
-        if (child.type === 'group') child.input({}, false)
-        else if (child.type === 'list') child.input([], false)
-        else child.input(undefined, false)
-      }
-    }
+    reconcileChild(
+      context,
+      _value,
+      child,
+      name,
+      duplicateNames.has(name),
+      node.type
+    )
   })
   return node
 }
@@ -2477,6 +2554,13 @@ function addChild(
     } else {
       parentContext.children.push(child)
     }
+    // Keep the name counts in sync once they exist (see childNameCounts()).
+    if (parentContext._names) {
+      parentContext._names.set(
+        child.name,
+        (parentContext._names.get(child.name) ?? 0) + 1
+      )
+    }
     if (!child.isSettled) parent.disturb()
   }
   if (child.parent !== parent) {
@@ -2495,8 +2579,10 @@ function addChild(
   }
   // Finally we call commit here, which sub-calls hydrate(), hydrate() will
   // resolve any conflict between the parent and child values, and also ensure
-  // proper "placeholders" are made on the parent.
-  commit(parent, parentContext, false)
+  // proper "placeholders" are made on the parent. For groups only the new
+  // child's key changed, so reconcile just that child (#1792). Lists keep the
+  // full hydrate since inserting a child shifts the index-names of others.
+  commit(parent, parentContext, false, parent.type === 'group' ? child : true)
   parent.ledger.merge(child)
   parent.emit('child', child)
   return parent
@@ -2566,6 +2652,11 @@ function removeChild(
     }
     if (child.isSettled) node.disturb()
     context.children.splice(childIndex, 1)
+    if (context._names) {
+      const count = (context._names.get(child.name) ?? 1) - 1
+      if (count > 0) context._names.set(child.name, count)
+      else context._names.delete(child.name)
+    }
     // If an ancestor uses the preserve prop, then we are expected to not remove
     // our values on this node either, see #53
     let preserve = undefine(child.props.preserve)

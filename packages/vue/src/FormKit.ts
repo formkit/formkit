@@ -179,7 +179,15 @@ function FormKit<Props extends FormKitInputs<Props>>(
     if (!schemaDefinition) error(601, node)
     if (typeof schemaDefinition === 'function') {
       currentSchemaNode = node
-      schema.value = schemaDefinition({ ...(props.sectionsSchema || {}) })
+      // A generated schema is only ever replaced (see the `schema` event), never
+      // mutated in place, so don't make it deeply reactive: FormKitSchema's
+      // deep watcher would otherwise traverse every input's whole schema tree
+      // on mount (#1792).
+      const generated = schemaDefinition({ ...(props.sectionsSchema || {}) })
+      schema.value =
+        generated && typeof generated === 'object'
+          ? markRaw(generated)
+          : generated
       currentSchemaNode = null
       if (
         (memoKey && props.sectionsSchema) ||

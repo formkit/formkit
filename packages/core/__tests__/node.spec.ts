@@ -1809,3 +1809,41 @@ describe('merge-strategy', () => {
     expect(a.value).toBe(newValue)
   })
 })
+
+describe('incremental hydration when adding children (#1792)', () => {
+  it('builds the correct value for a group with many children', () => {
+    const parent = createNode({ type: 'group' })
+    for (let i = 0; i < 300; i++) {
+      parent.add(createNode({ name: `f${i}`, value: `v${i}` }))
+    }
+    const value = parent.value as Record<string, string>
+    expect(Object.keys(value).length).toBe(300)
+    expect(value.f0).toBe('v0')
+    expect(value.f299).toBe('v299')
+  })
+
+  it('pushes an existing parent value down to a newly added child', () => {
+    const parent = createNode({ type: 'group', value: { a: 'from parent' } })
+    const child = createNode({ name: 'a' })
+    parent.add(child)
+    expect(child.value).toBe('from parent')
+  })
+
+  it('tracks duplicate names across add, remove and re-add', () => {
+    const parent = createNode({ type: 'group' })
+    const first = createNode({ type: 'group', name: 'en', value: { a: '1' } })
+    const second = createNode({ type: 'group', name: 'en', value: { b: '2' } })
+    parent.add(first)
+    parent.add(second)
+    // The newer same-name child wins while both are mounted.
+    expect(parent.value).toStrictEqual({ en: { b: '2' } })
+    parent.remove(first)
+    expect(parent.value).toStrictEqual({ en: { b: '2' } })
+    const third = createNode({ type: 'group', name: 'en', value: { c: '3' } })
+    parent.add(third)
+    // `second` and `third` now overlap: the newest child's value wins again
+    // instead of `second`'s value being pushed down into `third`.
+    expect(third.value).toStrictEqual({ c: '3' })
+    expect(parent.value).toStrictEqual({ en: { c: '3' } })
+  })
+})
