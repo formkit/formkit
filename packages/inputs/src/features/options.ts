@@ -37,13 +37,14 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
         }
         if (typeof option == 'object') {
           if ('group' in option) {
-            option.options = normalizeOptions(option.options || [], i)
-            return option as FormKitOptionsGroupItem
+            return maskedOption(option, {
+              options: normalizeOptions(option.options || [], i),
+            }) as FormKitOptionsGroupItem
           } else if ('value' in option && typeof option.value !== 'string') {
-            Object.assign(option, {
+            return maskedOption(option, {
               value: `__mask_${i.count++}`,
               __original: option.value,
-            })
+            }) as FormKitOptionsItem
           }
         }
         return option as FormKitOptionsItem
@@ -55,6 +56,41 @@ export function normalizeOptions<T extends FormKitOptionsPropWithGroups>(
       label: options[value],
       value,
     }
+  })
+}
+
+/**
+ * Returns a view of a user-provided option with some properties overridden,
+ * without mutating the user's object (#1550). Every other read is forwarded to
+ * the original, so reactive objects (e.g. Vue `reactive()` options whose labels
+ * change in place) keep working exactly as before.
+ */
+function maskedOption<T extends object>(
+  option: T,
+  overrides: Record<string, unknown>
+): T {
+  return new Proxy(option, {
+    get(target, prop, receiver) {
+      if (typeof prop === 'string' && prop in overrides) return overrides[prop]
+      return Reflect.get(target, prop, receiver)
+    },
+    has(target, prop) {
+      return (typeof prop === 'string' && prop in overrides) || prop in target
+    },
+    ownKeys(target) {
+      return [...new Set([...Reflect.ownKeys(target), ...Object.keys(overrides)])]
+    },
+    getOwnPropertyDescriptor(target, prop) {
+      if (typeof prop === 'string' && prop in overrides) {
+        return {
+          value: overrides[prop],
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        }
+      }
+      return Reflect.getOwnPropertyDescriptor(target, prop)
+    },
   })
 }
 

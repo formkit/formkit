@@ -5,7 +5,7 @@ import { defaultConfig } from '../../src/defaultConfig'
 import { mount } from '@vue/test-utils'
 import { getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { nextTick, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 import { describe, expect, it } from 'vitest'
 
 describe('select', () => {
@@ -965,6 +965,7 @@ describe('selects rendered via schema', () => {
   })
 
   it('continues counting the mask value when making modifications (#1046)', async () => {
+    const id = token()
     const options = ref([
       { label: 'A', value: ['a'] },
       { label: 'B', value: ['b'] },
@@ -973,10 +974,10 @@ describe('selects rendered via schema', () => {
     mount(
       {
         setup() {
-          return { options }
+          return { options, id }
         },
         template: `
-        <FormKit type="select" :options="options" />
+        <FormKit type="select" :id="id" :options="options" />
       `,
       },
       {
@@ -985,19 +986,65 @@ describe('selects rendered via schema', () => {
         },
       }
     )
-    expect(options.value).toEqual([
-      { label: 'A', value: '__mask_1', __original: ['a'] },
-      { label: 'B', value: '__mask_2', __original: ['b'] },
-      { label: 'C', value: '__mask_3', __original: ['c'] },
-    ])
+    const masks = () =>
+      (getNode(id)!.props.options as any[]).map((o) => [o.value, o.__original])
+    const unique = () => new Set(masks().map(([m]) => m)).size === masks().length
+    expect(masks().map(([, o]) => o)).toEqual([['a'], ['b'], ['c']])
+    expect(masks().every(([m]) => /^__mask_\d+$/.test(m))).toBe(true)
+    expect(unique()).toBe(true)
 
     options.value = [...options.value, { label: 'D', value: ['d'] }]
     await nextTick()
+    expect(masks().map(([, o]) => o)).toEqual([['a'], ['b'], ['c'], ['d']])
+    expect(unique()).toBe(true)
+    // The user's options are never mutated (#1550).
     expect(options.value).toEqual([
-      { label: 'A', value: '__mask_1', __original: ['a'] },
-      { label: 'B', value: '__mask_2', __original: ['b'] },
-      { label: 'C', value: '__mask_3', __original: ['c'] },
-      { label: 'D', value: '__mask_4', __original: ['d'] },
+      { label: 'A', value: ['a'] },
+      { label: 'B', value: ['b'] },
+      { label: 'C', value: ['c'] },
+      { label: 'D', value: ['d'] },
     ])
   })
+
 })
+
+describe('select options are not mutated (#1550)', () => {
+  it('keeps the provided options intact and still returns original values', async () => {
+    const id = token()
+    const options = [
+      { label: 'One', value: 1 },
+      { label: 'Two', value: 2 },
+    ]
+    const wrapper = mount(FormKit, {
+      props: { type: 'select', id, options },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await nextTick()
+    expect(options).toEqual([
+      { label: 'One', value: 1 },
+      { label: 'Two', value: 2 },
+    ])
+    const select = wrapper.find('select')
+    const second = select.findAll('option')[1].element as HTMLOptionElement
+    await select.setValue(second.value)
+    await new Promise((r) => setTimeout(r, 30))
+    expect(getNode(id)!.value).toBe(2)
+  })
+
+  it('re-renders labels changed in place on reactive options', async () => {
+    const options = reactive([
+      { label: 'Before', value: 1 },
+      { label: 'Other', value: 2 },
+    ])
+    const wrapper = mount(
+      { setup: () => ({ options }), template: `<FormKit type="select" :options="options" />` },
+      { global: { plugins: [[plugin, defaultConfig]] } }
+    )
+    await nextTick()
+    expect(wrapper.find('option').text()).toBe('Before')
+    options[0].label = 'After'
+    await nextTick()
+    expect(wrapper.find('option').text()).toBe('After')
+  })
+})
+
