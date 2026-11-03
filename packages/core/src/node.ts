@@ -2653,6 +2653,9 @@ function removeChild(
     if (child.isSettled) node.disturb()
     // Read the name before the splice: index-based names change with it.
     const childName = child.name
+    // Whether another child may share this name (unknown counts → assume yes).
+    const mayHaveSameNameSibling =
+      node.type !== 'list' && (context._names?.get(childName) ?? 2) > 1
     context.children.splice(childIndex, 1)
     if (context._names) {
       const count = (context._names.get(childName) ?? 1) - 1
@@ -2668,9 +2671,11 @@ function removeChild(
       parent = parent.parent
     }
     if (!preserve) {
-      const sibling = context.children.find(
-        (sibling) => sibling.name === child.name
-      )
+      // Only scan the siblings when one may share the name: scanning on every
+      // removal made unmounting a large group O(n²) (#1792).
+      const sibling = mayHaveSameNameSibling
+        ? context.children.find((sibling) => sibling.name === childName)
+        : undefined
       node.calm({
         name: node.type === 'list' ? childIndex : child.name,
         value: sibling && node.type !== 'list' ? sibling.value : valueRemoved,

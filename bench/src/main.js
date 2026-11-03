@@ -35,7 +35,11 @@ window.runBench = async (name, n) => {
   await raf(); await raf()
   const ms = performance.now() - t0
   const inputs = document.querySelectorAll('#mount input').length
+  const u0 = performance.now()
   app.unmount()
-  return { ms, inputs }
+  await nextTick()
+  await raf()
+  const unmountMs = performance.now() - u0
+  return { ms, inputs, unmountMs }
 }
 window.benchReady = true

@@ -22,6 +22,8 @@ settled and two animation frames have painted.
 | `validated` | `flat` + `validation="required|length:2"` on each      |
 | `rows`      | form › list › N/10 groups › 10 text inputs (tables)    |
 
+Each result also reports `unmount`: the median time to unmount the app.
+
 Compare against a baseline by running the bench on both branches with the
 same machine and Node version; numbers are only comparable relative to each
 other.
