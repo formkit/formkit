@@ -1,5 +1,6 @@
 import { FormKitNode } from './node'
 import { createEmitter, FormKitEventListener } from './events'
+import { warnOnDuplicateId } from './duplicateIds'
 
 /**
  * A global registry of nodes by their alias or name (if root).
@@ -27,6 +28,10 @@ const receipts: string[] = []
  */
 export function register(node: FormKitNode): void {
   if (node.props.id) {
+    if (__DEV__) {
+      const id = node.props.id
+      warnOnDuplicateId(id, node, registry.get(id), (n) => reflected.get(n) === id)
+    }
     registry.set(node.props.id, node)
     reflected.set(node, node.props.id)
     emit(node, {
@@ -49,6 +54,10 @@ export function deregister(node: FormKitNode): void {
   if (reflected.has(node)) {
     const id = reflected.get(node)! // eslint-disable-line @typescript-eslint/no-non-null-assertion
     reflected.delete(node)
+    // Only remove the registry entry if it still points at this node. A node
+    // with the same id may already have replaced it (e.g. a remount where the
+    // old node is destroyed after the new one registers).
+    if (registry.get(id) !== node) return
     registry.delete(id)
     emit(node, {
       payload: null,
