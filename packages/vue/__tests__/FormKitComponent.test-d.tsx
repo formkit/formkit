@@ -19,8 +19,10 @@ describe('FormKitComponent public type', () => {
   })
 
   it('infers slot props from the input type', () => {
+    // Slot types come from the `__ctx` member of the return type (that's what
+    // vue-tsc reads); the context parameter is intentionally loose for h().
     type ListSlots = NonNullable<
-      Parameters<typeof FormKit<{ type: 'list'; value: object[] }>>[1]
+      ReturnType<typeof FormKit<{ type: 'list'; value: object[] }>>['__ctx']
     >['slots']
     type DefaultSlotProps = Parameters<NonNullable<ListSlots['default']>>[0]
     expectTypeOf<DefaultSlotProps['items']>().not.toBeAny()
