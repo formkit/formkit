@@ -10,6 +10,7 @@ src/
 ├── plugins/
 │   ├── autoAnimatePlugin.ts    # Auto-animate DOM sections
 │   ├── autoHeightTextarea.ts   # Auto-resize textarea height
+│   ├── describeForm.ts         # describeForm(): JSON snapshot of a form (agents/tests)
 │   ├── floatingLabels/
 │   │   └── floatingLabelsPlugin.ts  # Material-style floating labels
 │   ├── inputCount.ts           # Character count display
@@ -39,6 +40,7 @@ src/
 | `createLocalStoragePlugin(options?)` | Persist/restore form data | `group` types (form, group, multi-step) |
 | `createMaxLengthCountdownPlugin(options?)` | Shows remaining chars in suffix | `textarea` (configurable) |
 | `createMultiStepPlugin(options?)` | Wizard-style multi-step forms | Creates `multi-step` and `step` types |
+| `describeForm(node, options?)` | Not a plugin: returns a JSON description of a node tree (fields, rules, options, errors; values opt-in, passwords redacted) | Any node |
 
 ### Multi-Step System
 
