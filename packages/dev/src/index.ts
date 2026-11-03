@@ -69,6 +69,8 @@ const warnings: Record<
     `Schema function "${fn}()" is not a valid function.`,
   151: ({ data: id }: { data: string }) => `No form element with id: ${id}`,
   152: ({ data: id }: { data: string }) => `No input element with id: ${id}`,
+  153: ({ data: id }: { data: string }) =>
+    `Duplicate FormKit id "${id}": another input already uses it. Ids must be globally unique (e.g. don't set a fixed id on inputs inside a repeater or list). Only the most recently registered node can be found with getNode("${id}").`,
   /**
    * Input specific warnings:
    */
