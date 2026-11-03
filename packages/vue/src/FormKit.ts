@@ -14,6 +14,7 @@ import {
   AllowedComponentProps,
   ComponentCustomProps,
   markRaw,
+  isProxy,
 } from 'vue'
 import type { DefineComponent } from 'vue'
 import { useInput } from './composables/useInput'
@@ -184,8 +185,11 @@ function FormKit<Props extends FormKitInputs<Props>>(
       // deep watcher would otherwise traverse every input's whole schema tree
       // on mount (#1792).
       const generated = schemaDefinition({ ...(props.sectionsSchema || {}) })
+      // Only mark schemas we freshly generated: a schema function may return
+      // an object the user owns (e.g. a reactive schema they mutate), which
+      // must stay reactive and must not be tagged by us.
       schema.value =
-        generated && typeof generated === 'object'
+        generated && typeof generated === 'object' && !isProxy(generated)
           ? markRaw(generated)
           : generated
       currentSchemaNode = null

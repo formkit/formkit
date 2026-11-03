@@ -2651,11 +2651,13 @@ function removeChild(
       queueMicrotask(() => removedUids?.delete(childIndex))
     }
     if (child.isSettled) node.disturb()
+    // Read the name before the splice: index-based names change with it.
+    const childName = child.name
     context.children.splice(childIndex, 1)
     if (context._names) {
-      const count = (context._names.get(child.name) ?? 1) - 1
-      if (count > 0) context._names.set(child.name, count)
-      else context._names.delete(child.name)
+      const count = (context._names.get(childName) ?? 1) - 1
+      if (count > 0) context._names.set(childName, count)
+      else context._names.delete(childName)
     }
     // If an ancestor uses the preserve prop, then we are expected to not remove
     // our values on this node either, see #53
