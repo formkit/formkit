@@ -68,3 +68,7 @@ Temporary Items
 packages/nuxt/playground/jiti/
 packages/nuxt/playground/node-compile-cache/
 .node_modules_tmp
+
+# benchmarks
+bench/dist
+bench/*.cpuprofile

@@ -2009,29 +2009,34 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
   if (node.type === 'list' && node.sync) syncListNodes(node, context)
   // Frameworks can briefly mount a same-name replacement before unmounting the
   // old node. In that overlap, the children remain the source of truth.
+  // Note: hydrate() runs for every child added or committed, so read each
+  // child's name (a proxied getter) only once per call.
+  const children = context.children
+  const names = children.map((child) => child.name)
   const duplicateNames = new Set<PropertyKey>()
   if (node.type !== 'list') {
     const childNames = new Set<PropertyKey>()
-    context.children.forEach((child) => {
-      if (childNames.has(child.name)) duplicateNames.add(child.name)
-      childNames.add(child.name)
-    })
+    for (const name of names) {
+      if (childNames.has(name)) duplicateNames.add(name)
+      childNames.add(name)
+    }
   }
-  context.children.forEach((child) => {
+  children.forEach((child, i) => {
     if (typeof _value !== 'object') return
-    if (duplicateNames.has(child.name) && !child.props.mergeStrategy) {
-      partial(context, { name: child.name, value: child.value })
+    const name = names[i]
+    if (duplicateNames.has(name) && !child.props.mergeStrategy) {
+      partial(context, { name, value: child.value })
       return
     }
-    if (child.name in _value) {
+    if (name in _value) {
       // In this case, the parent has a value to give to the child, so we
       // perform a down-tree synchronous input which will cascade values down
       // and then ultimately back up.
       const childValue =
         child.type !== 'input' ||
-        (_value[child.name] && typeof _value[child.name] === 'object')
-          ? init(_value[child.name])
-          : _value[child.name]
+        (_value[name] && typeof _value[name] === 'object')
+          ? init(_value[name])
+          : _value[name]
       // If the two are already equal or the child is currently disturbed then
       // don’t send the value down since it will squash the child’s value.
       if (
@@ -2044,12 +2049,12 @@ function hydrate(node: FormKitNode, context: FormKitContext): FormKitNode {
       // If there is a change to the child, push the new value down.
       child.input(childValue, false)
     } else {
-      if (node.type !== 'list' || typeof child.name === 'number') {
+      if (node.type !== 'list' || typeof name === 'number') {
         // In this case, the parent’s values have no knowledge of the child
         // value — this typically occurs on the commit at the end of addChild()
         // we need to create a value reservation for this node’s name. This is
         // especially important when dealing with lists where index matters.
-        partial(context, { name: child.name, value: child.value })
+        partial(context, { name, value: child.value })
       }
       if (!_value.__init) {
         // In this case, someone has explicitly set the value to an empty object

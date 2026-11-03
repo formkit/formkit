@@ -91,7 +91,8 @@
     "nuxt-dev": "cd packages/nuxt && npx nuxi dev playground --host",
     "nuxt-build": "cd packages/nuxt && pnpm build",
     "tailwind-dev": "vite packages/tailwindcss/playground --host",
-    "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch"
+    "tailwind-css": "npx tailwindcss -c packages/tailwindcss/playground/tailwind.config.cjs -i packages/tailwindcss/playground/src/index.css -o packages/tailwindcss/playground/dist/index.css --watch",
+    "bench": "node bench/run.mjs"
   },
   "size-limit": [
     {
