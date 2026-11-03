@@ -2910,3 +2910,22 @@ describe('config classes', () => {
     )
   })
 })
+
+describe('generated schemas (#1792)', () => {
+  it('keeps a user-owned reactive schema returned by a schema function reactive', async () => {
+    const shared = reactive([{ $el: 'span', attrs: { class: 'item' }, children: 'one' }])
+    const definition = { type: 'input', schema: () => shared as any }
+    const wrapper = mount(FormKit, {
+      props: { type: definition as any },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await nextTick()
+    expect(wrapper.findAll('.item').map((e) => e.text())).toEqual(['one'])
+    shared.push({ $el: 'span', attrs: { class: 'item' }, children: 'two' })
+    await nextTick()
+    await nextTick()
+    expect(wrapper.findAll('.item').map((e) => e.text())).toEqual(['one', 'two'])
+    // We never tag the user's own object.
+    expect((shared as any).__v_skip).toBeUndefined()
+  })
+})
