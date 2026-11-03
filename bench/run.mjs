@@ -17,6 +17,7 @@ const runs = Number(process.argv[5] || 7)
 const results = {}
 for (const sc of scenarios) {
   const times = []
+  const unmounts = []
   let inputs = 0
   for (let i = 0; i < runs + 1; i++) {
     const page = await browser.newPage()
@@ -37,10 +38,10 @@ for (const sc of scenarios) {
       writeFileSync(new URL(`./profile-${sc}.cpuprofile`, import.meta.url), JSON.stringify(profile))
     }
     await page.close()
-    if (i > 0) times.push(r.ms) // first run is warm-up
+    if (i > 0) { times.push(r.ms); unmounts.push(r.unmountMs) } // first run is warm-up
     inputs = r.inputs
   }
-  results[sc] = { median: Math.round(median(times)), min: Math.round(Math.min(...times)), max: Math.round(Math.max(...times)), inputs }
+  results[sc] = { median: Math.round(median(times)), min: Math.round(Math.min(...times)), max: Math.round(Math.max(...times)), unmount: Math.round(median(unmounts)), inputs }
 }
 if (mode === 'time') console.log(JSON.stringify(results, null, 1))
 await browser.close(); srv.close()
