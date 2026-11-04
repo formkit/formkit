@@ -18,5 +18,10 @@ export default defineConfig({
   },
   define: { __DEV__: 'false' },
   logLevel: 'warn',
-  build: { outDir: 'dist', emptyOutDir: true },
+  // BENCH_MINIFY=0 keeps function names readable in `pnpm bench profile`.
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    minify: process.env.BENCH_MINIFY !== '0',
+  },
 })

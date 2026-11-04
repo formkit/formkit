@@ -2180,6 +2180,8 @@ describe('exposures', () => {
     const wrapper = mount(FormKit, {
       props: {
         type: 'group',
+        onInput: () => {},
+        onInputRaw: () => {},
       },
       slots: {
         default() {
@@ -2203,6 +2205,42 @@ describe('exposures', () => {
     await new Promise((r) => setTimeout(r, 50))
     expect(wrapper.emitted('inputRaw')!.length).toBe(4)
     expect(wrapper.emitted('input')).toBe(undefined)
+  })
+
+  it('still emits input/inputRaw on plain inputs without listeners', async () => {
+    const wrapper = mount(FormKit, {
+      props: { type: 'text', delay: 0 },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('input').setValue('hi')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.emitted('inputRaw')!.at(-1)![0]).toBe('hi')
+    expect(wrapper.emitted('input')!.at(-1)![0]).toBe('hi')
+  })
+
+  it('does not read a group value for input events nobody listens to (#1792)', async () => {
+    const onInputRaw = vi.fn()
+    const wrapper = mount(FormKit, {
+      props: { type: 'group' },
+      slots: {
+        default: () => [h(FormKit as any, { name: 'a', value: '1' })],
+      },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.emitted('inputRaw')).toBe(undefined)
+    const listened = mount(FormKit, {
+      props: { type: 'group', onInputRaw },
+      slots: {
+        default: () => [h(FormKit as any, { name: 'a', value: '1' })],
+      },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await new Promise((r) => setTimeout(r, 20))
+    expect(onInputRaw).toHaveBeenCalled()
+    expect(onInputRaw.mock.calls.at(-1)![0]).toEqual({ a: '1' })
+    listened.unmount()
   })
 
   it('can set values on a group with values that dont have correlating nodes', async () => {
