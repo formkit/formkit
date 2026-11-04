@@ -443,11 +443,12 @@ export function useInput<
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
-  // Reading `node.context.value` on a group forces its (lazy) value clone, so
-  // only read it when someone is listening (#1792).
+  // Reading `node.context.value` on a group/list forces its (lazy) value
+  // clone, so those only emit when someone is listening (#1792). Plain inputs
+  // always emit, as before (their context value is a plain ref — no cost).
   const hasListener = (...handlerKeys: string[]) => {
     const props = instance?.vnode.props
-    if (!instance) return true
+    if (node.type === 'input' || !instance) return true
     if (!props) return false
     return handlerKeys.some((key) => props[key] || props[`${key}Once`])
   }

@@ -2207,6 +2207,18 @@ describe('exposures', () => {
     expect(wrapper.emitted('input')).toBe(undefined)
   })
 
+  it('still emits input/inputRaw on plain inputs without listeners', async () => {
+    const wrapper = mount(FormKit, {
+      props: { type: 'text', delay: 0 },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await new Promise((r) => setTimeout(r, 10))
+    wrapper.find('input').setValue('hi')
+    await new Promise((r) => setTimeout(r, 20))
+    expect(wrapper.emitted('inputRaw')!.at(-1)![0]).toBe('hi')
+    expect(wrapper.emitted('input')!.at(-1)![0]).toBe('hi')
+  })
+
   it('does not read a group value for input events nobody listens to (#1792)', async () => {
     const onInputRaw = vi.fn()
     const wrapper = mount(FormKit, {
