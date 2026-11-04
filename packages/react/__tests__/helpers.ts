@@ -19,7 +19,9 @@ export function renderWithFormKit(
   // Render under StrictMode by default: it is what Next.js, Vite and CRA apps
   // run in development, and it double-invokes renders/memos/effects, which
   // previously duplicated nodes and broke form submission (#1776).
+  const tree = createElement(FormKitProvider, { config }, node)
+  // FORMKIT_TEST_NO_STRICT=1 renders without StrictMode (production-like).
   return render(
-    createElement(StrictMode, null, createElement(FormKitProvider, { config }, node))
+    process.env.FORMKIT_TEST_NO_STRICT ? tree : createElement(StrictMode, null, tree)
   )
 }
