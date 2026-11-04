@@ -4,3 +4,5 @@ __tests__
 playground
 node_modules
 yarn-error.log
+CLAUDE.md
+AGENTS.md
