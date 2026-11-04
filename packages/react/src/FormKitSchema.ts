@@ -6,6 +6,7 @@ import {
   cloneElement,
   createElement as h,
   isValidElement,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -94,6 +95,36 @@ type ProviderRegistry = ((
 
 const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
 const memoKeys: Record<string, number> = {}
+
+/**
+ * Cached section ref callbacks, per refs object and section, so React keeps a
+ * stable callback ref instead of detaching/re-attaching it every render.
+ */
+const sectionRefFns = new WeakMap<
+  Record<string, unknown>,
+  Map<string, (el: unknown) => void>
+>()
+
+function sectionRefFn(
+  refs: unknown,
+  section: string
+): ((el: unknown) => void) | undefined {
+  if (!refs || typeof refs !== 'object') return undefined
+  const store = refs as Record<string, unknown>
+  let fns = sectionRefFns.get(store)
+  if (!fns) {
+    fns = new Map()
+    sectionRefFns.set(store, fns)
+  }
+  let fn = fns.get(section)
+  if (!fn) {
+    fn = (el: unknown) => {
+      store[section] = el ?? null
+    }
+    fns.set(section, fn)
+  }
+  return fn
+}
 
 let instanceKey: object
 
@@ -367,7 +398,15 @@ interface DomValueHostProps {
 
 function DomValueHost({ attrs, children, element }: DomValueHostProps) {
   const ref = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null)
-  const { defaultValue, value, ...passthrough } = attrs
+  const { defaultValue, value, ref: sectionRef, ...passthrough } = attrs
+  // Keep our own ref and forward the element to a section ref (#200).
+  const setRef = useCallback(
+    (el: HTMLInputElement | HTMLTextAreaElement | null) => {
+      ref.current = el
+      if (typeof sectionRef === 'function') sectionRef(el)
+    },
+    [sectionRef]
+  )
   const initialValue =
     value !== undefined ? value : defaultValue !== undefined ? defaultValue : ''
   const initialValueRef = useRef(initialValue)
@@ -403,7 +442,7 @@ function DomValueHost({ attrs, children, element }: DomValueHostProps) {
     {
       ...passthrough,
       defaultValue: initialValueRef.current,
-      ref,
+      ref: setRef,
     },
     children
   )
@@ -887,6 +926,15 @@ function parseSchema(
   ): RenderNodes {
     const [condition, element, attrs, children, alternate, iterator, resolve] =
       parseNode(lib, node)
+    // Sections expose their DOM element on the instance's refs (#200).
+    const section =
+      isDOM(node) && typeof node.meta?.section === 'string'
+        ? (node.meta.section as string)
+        : undefined
+    // One provider per compiled schema (not per section) keeps this cheap.
+    const getRefs = section
+      ? (sectionRefsProvider ??= provider(compile('$__fkSectionRefs')))
+      : undefined
 
     let createNodes: RenderNodes = ((iterationData?: Record<string, unknown>) => {
       if (condition && element === null && children) {
@@ -917,6 +965,21 @@ function parseSchema(
           resolvedEl as string | ComponentType<any> | null,
           attrs()
         )
+        // Sections repeated by a `for` loop (options, messages…) would
+        // overwrite each other, so only non-repeated DOM sections get refs.
+        if (
+          getRefs &&
+          typeof resolvedEl === 'string' &&
+          !(iterationData as any)?.__idata
+        ) {
+          const sectionRef = sectionRefFn(getRefs(), section as string)
+          if (
+            sectionRef &&
+            !(normalizedAttrs && typeof normalizedAttrs === 'object' && 'ref' in normalizedAttrs)
+          ) {
+            normalizedAttrs = { ...(normalizedAttrs || {}), ref: sectionRef }
+          }
+        }
         const slots: RenderableSlots | null = children?.slot
           ? createSlots(children, iterationData)
           : null
@@ -1090,6 +1153,7 @@ function parseSchema(
   }
 
   const providers: ProviderRegistry = []
+  let sectionRefsProvider: (() => unknown) | undefined
 
   function provider(
     compiled: FormKitCompilerOutput,
