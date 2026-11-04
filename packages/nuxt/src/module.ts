@@ -46,7 +46,8 @@ export interface ModuleOptions {
    * - `clearErrors`,
    * - `submitForm`,
    * - `reset`,
-   * - `FormKitNode`
+   *
+   * (Common FormKit types like `FormKitNode` are auto-imported in every mode.)
    *
    * @experimental
    */
@@ -71,6 +72,12 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
     // Type-only auto-imports have no runtime cost, so register them in both
     // installation modes (#1307).
     addImports(typeImports)
+    // Make sure those types resolve even when @formkit/core isn't a direct
+    // dependency of the app (strict pnpm layouts).
+    const ts = (nuxt.options as any).typescript
+    if (ts && Array.isArray(ts.hoist) && !ts.hoist.includes('@formkit/core')) {
+      ts.hoist.push('@formkit/core')
+    }
     if (options.autoImport) {
       await useAutoImport(options, nuxt)
     } else {

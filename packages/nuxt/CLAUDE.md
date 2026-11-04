@@ -29,6 +29,8 @@ interface ModuleOptions {
 
 ### Installation Modes
 
+**Both modes** auto-import common types (type-only, from `@formkit/core`): `FormKitNode`, `FormKitPlugin`, `FormKitConfig`, `FormKitFrameworkContext`, `FormKitMessage`, `FormKitSchemaDefinition`, `FormKitSchemaNode`, `FormKitTypeDefinition`, and hoist `@formkit/core` for type resolution.
+
 **Global Plugin Mode** (`autoImport: false`, default):
 - Generates `formkitPlugin.mjs` template at build time
 - Watches config file in dev mode for hot reload
@@ -39,7 +41,6 @@ interface ModuleOptions {
 - Uses `unplugin-formkit` for lazy `<FormKitLazyProvider>` wrapping
 - Auto-imports components: `FormKit`, `FormKitProvider`, `FormKitMessages`, `FormKitSummary`, `FormKitIcon`, `FormKitSchema`
 - Auto-imports functions: `getNode`, `createInput`, `setErrors`, `clearErrors`, `submitForm`, `reset`, `useFormKitContext`, `useFormKitContextById`, `useFormKitNodeById`
-- Auto-imports types: `FormKitNode`
 - Better tree-shaking, smaller initial bundle
 
 ### SSR Handling
