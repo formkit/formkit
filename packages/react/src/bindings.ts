@@ -327,10 +327,14 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     // Section DOM elements (#200). Plain object: writing a ref never
     // notifies the reactive store, so it can't cause re-renders.
     refs: sectionRefs,
-    // Private alias the schema renderer writes through (user schema data with
-    // its own `refs` key is never touched).
-    __fkSectionRefs: sectionRefs,
   }
+  // Private alias the schema renderer writes through (user schema data with
+  // its own `refs` key is never touched). Non-enumerable: hidden from
+  // Object.keys, devtools and serializers.
+  Object.defineProperty(context, '__fkSectionRefs', {
+    value: sectionRefs,
+    enumerable: false,
+  })
 
   contextRef = context
 
