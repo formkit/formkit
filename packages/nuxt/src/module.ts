@@ -46,7 +46,8 @@ export interface ModuleOptions {
    * - `clearErrors`,
    * - `submitForm`,
    * - `reset`,
-   * - `FormKitNode`
+   *
+   * (Common FormKit types like `FormKitNode` are auto-imported in every mode.)
    *
    * @experimental
    */
@@ -68,6 +69,15 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
   },
   async setup(options, nuxt) {
     nuxt.options.build.transpile.push('@formkit/vue')
+    // Type-only auto-imports have no runtime cost, so register them in both
+    // installation modes (#1307).
+    addImports(typeImports)
+    // Make sure those types resolve even when @formkit/core isn't a direct
+    // dependency of the app (strict pnpm layouts).
+    const ts = (nuxt.options as any).typescript
+    if (ts && Array.isArray(ts.hoist) && !ts.hoist.includes('@formkit/core')) {
+      ts.hoist.push('@formkit/core')
+    }
     if (options.autoImport) {
       await useAutoImport(options, nuxt)
     } else {
@@ -78,16 +88,26 @@ const module: NuxtModule<ModuleOptions> = defineNuxtModule<ModuleOptions>({
 })
 
 /**
+ * Commonly used FormKit types that are auto-imported (type-only) in every
+ * Nuxt app using the module, e.g. `function submit(data, node: FormKitNode)`.
+ */
+const typeImports = [
+  'FormKitNode',
+  'FormKitPlugin',
+  'FormKitConfig',
+  'FormKitFrameworkContext',
+  'FormKitMessage',
+  'FormKitSchemaDefinition',
+  'FormKitSchemaNode',
+  'FormKitTypeDefinition',
+].map((name) => ({ from: '@formkit/core', name, type: true }))
+
+/**
  * Installs FormKit via lazy loading. This is the preferred method of
  * installation as it allows for a smaller bundle size and better tree shaking.
  */
 const useAutoImport = async function installLazy(options, nuxt) {
   addImports([
-    {
-      from: '@formkit/core',
-      name: 'FormKitNode',
-      type: true,
-    },
     {
       from: '@formkit/vue',
       name: 'createInput',
