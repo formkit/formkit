@@ -503,6 +503,12 @@ export interface FormKitFrameworkContext<T = any> {
    */
   _value: T
   /**
+   * DOM elements of the input's rendered sections, keyed by section name
+   * (`outer`, `wrapper`, `label`, `inner`, `input`, `help`, …). Populated by
+   * the framework renderer once the input mounts.
+   */
+  refs?: Record<string, Element | null>
+  /**
    * The root document or shadow root the input is inside. This can be set by
    * using a higher-order `<FormKitRoot>` component.
    */

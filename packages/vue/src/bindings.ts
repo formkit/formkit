@@ -448,6 +448,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     ui,
     value,
     classes,
+    // Section DOM elements (#200). markRaw: never make DOM nodes reactive.
+    refs: markRaw({}),
   })
 
   /**

@@ -238,7 +238,13 @@ function FormKit<Props extends FormKitInputs<Props>>(
   }
 
   // // Expose the FormKitNode to template refs.
-  context.expose({ node })
+  context.expose({
+    node,
+    // DOM elements of each rendered section, e.g. `refs.input` (#200).
+    get refs() {
+      return node.context?.refs
+    },
+  })
   return () =>
     h(
       FormKitSchema,
