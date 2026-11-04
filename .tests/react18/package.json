@@ -1,0 +1,11 @@
+{
+  "name": "formkit-react18-fixture",
+  "private": true,
+  "description": "Isolated React 18 install for running @formkit/react tests against React 18 (see vitest.react18.config.mts).",
+  "dependencies": {
+    "@testing-library/react": "16.3.0",
+    "@testing-library/dom": "10.4.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
