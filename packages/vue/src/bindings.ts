@@ -350,6 +350,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     return payload
   }
 
+  const sectionRefs: Record<string, Element | null> = markRaw({})
   const context: FormKitFrameworkContext = reactive({
     _value,
     attrs: node.props.attrs,
@@ -449,7 +450,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     value,
     classes,
     // Section DOM elements (#200). markRaw: never make DOM nodes reactive.
-    refs: markRaw({}),
+    refs: sectionRefs,
+    // Private alias the schema renderer writes through, so user schema data
+    // with its own `refs` key is never touched.
+    __fkSectionRefs: sectionRefs,
   })
 
   /**

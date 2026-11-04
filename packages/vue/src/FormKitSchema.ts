@@ -633,7 +633,10 @@ function parseSchema(
       isDOM(node) && typeof node.meta?.section === 'string'
         ? (node.meta.section as string)
         : undefined
-    const getRefs = section ? provider(compile('$refs')) : undefined
+    // One provider per compiled schema (not per section) keeps this cheap.
+    const getRefs = section
+      ? (sectionRefsProvider ??= provider(compile('$__fkSectionRefs')))
+      : undefined
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
     // manner possible.
@@ -662,7 +665,9 @@ function parseSchema(
           : null
         // Handle dom elements and components
         let elementAttrs = attrs()
-        if (getRefs) {
+        // Sections repeated by a `for` loop (options, messages…) would
+        // overwrite each other, so only non-repeated sections get refs.
+        if (getRefs && !(iterationData as any)?.__idata) {
           const sectionRef = sectionRefFn(getRefs(), section as string)
           if (sectionRef && !(elementAttrs && 'ref' in elementAttrs)) {
             elementAttrs = { ...(elementAttrs || {}), ref: sectionRef }
@@ -753,6 +758,7 @@ function parseSchema(
    * Data providers produced as a result of the compiler.
    */
   const providers: ProviderRegistry = []
+  let sectionRefsProvider: (() => unknown) | undefined
 
   /**
    * Append the requisite compiler provider and return the compiled function.

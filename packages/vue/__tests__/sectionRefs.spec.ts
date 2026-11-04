@@ -71,15 +71,39 @@ describe('section refs (#200)', () => {
     expect(formkit.value.refs.help).toBe(null)
   })
 
-  it('does not touch data in a standalone FormKitSchema', async () => {
-    const data = { refs: { untouched: true } as Record<string, unknown> }
-    mount(FormKitSchema, {
-      props: { schema: [{ $el: 'div', meta: { section: 'outer' }, children: 'hi' }], data },
+  it('never writes into user schema data that has a refs key', async () => {
+    const userRefs = Object.freeze({ mine: true })
+    const data = { refs: userRefs }
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        schema: [{ $el: 'div', meta: { section: 'outer' }, children: 'hi' }],
+        data,
+      },
       ...global,
     })
     await flushPromises()
-    // Only FormKit inputs opt in via their context; plain data with a `refs`
-    // key still gets populated, so check it's harmless and scoped.
-    expect(data.refs.untouched).toBe(true)
+    expect(wrapper.text()).toBe('hi')
+    expect(data.refs).toEqual({ mine: true })
+  })
+
+  it('does not ref sections repeated in a loop (checkbox options)', async () => {
+    const formkit = ref<any>()
+    mount(
+      {
+        setup: () => () =>
+          h(FormKit, {
+            ref: formkit,
+            type: 'checkbox',
+            options: ['a', 'b', 'c'],
+          }),
+      },
+      global
+    )
+    await flushPromises()
+    const refs = formkit.value.refs
+    expect(refs.outer).toBeInstanceOf(HTMLElement)
+    expect(refs.options).toBeInstanceOf(HTMLElement)
+    // The per-option `input` section is repeated, so it has no single ref.
+    expect(refs.input).toBe(undefined)
   })
 })
