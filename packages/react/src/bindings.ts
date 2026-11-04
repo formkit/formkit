@@ -285,6 +285,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     notifyContextMutation
   )
 
+  const sectionRefs: Record<string, Element | null> = {}
   const context: FormKitFrameworkContext = {
     _value: inputValue,
     attrs: node.props.attrs,
@@ -323,6 +324,12 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     ui,
     value: committedValue,
     classes,
+    // Section DOM elements (#200). Plain object: writing a ref never
+    // notifies the reactive store, so it can't cause re-renders.
+    refs: sectionRefs,
+    // Private alias the schema renderer writes through (user schema data with
+    // its own `refs` key is never touched).
+    __fkSectionRefs: sectionRefs,
   }
 
   contextRef = context
