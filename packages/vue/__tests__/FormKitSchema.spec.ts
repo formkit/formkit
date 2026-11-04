@@ -1704,3 +1704,36 @@ describe('$reset', () => {
     expect(wrapper.find('input').attributes('class')).toBe('my-class')
   })
 })
+
+describe('schema memoization', () => {
+  it('frees the replaced schema’s memo entry, not the replacing one’s', async () => {
+    const MyComponent = defineComponent({
+      props: { onClick: Function },
+      template: `<button @click="onClick">clicked</button>`,
+    })
+    const library = markRaw({ MyComponent })
+    const schemaA = (onClick: () => void): FormKitSchemaNode[] => [
+      { $cmp: 'MyComponent', props: { onClick } },
+    ]
+    const schemaB = (onClick: () => void): FormKitSchemaNode[] => [
+      { $cmp: 'MyComponent', props: { onClick }, children: 'b' },
+    ]
+
+    let clicked = ''
+    // Same source text both times, only `id` differs - so schemaA(handler('1'))
+    // and schemaA(handler('2')) memoize to the same key (toMemoKey reduces
+    // functions to their source text).
+    const handler = (id: string) => () => (clicked = id)
+
+    const wrapper = mount(FormKitSchema, {
+      props: { schema: schemaA(handler('1')), library },
+    })
+    wrapper.setProps({ schema: schemaB(handler('1')) }) // leaves schemaA's entry behind
+    await nextTick()
+    wrapper.setProps({ schema: schemaA(handler('2')) }) // back to schemaA's shape
+    await nextTick()
+    await wrapper.find('button').trigger('click')
+
+    expect(clicked).toBe('2')
+  })
+})
