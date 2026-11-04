@@ -443,10 +443,20 @@ export function useInput<
   /**
    * Explicitly watch the input value, and emit changes (lazy)
    */
+  // Reading `node.context.value` on a group forces its (lazy) value clone, so
+  // only read it when someone is listening (#1792).
+  const hasListener = (...handlerKeys: string[]) => {
+    const props = instance?.vnode.props
+    if (!instance) return true
+    if (!props) return false
+    return handlerKeys.some((key) => props[key] || props[`${key}Once`])
+  }
   node.on('modelUpdated', () => {
     // Emit the values after commit
-    context.emit('inputRaw', node.context?.value, node)
-    if (isMounted) {
+    if (hasListener('onInputRaw')) {
+      context.emit('inputRaw', node.context?.value, node)
+    }
+    if (isMounted && hasListener('onInput')) {
       context.emit('input', node.context?.value, node)
     }
     if (isVModeled && node.context) {

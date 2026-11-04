@@ -8,7 +8,9 @@ import {
   nextTick,
   isRef,
   isReactive,
+  customRef,
 } from 'vue'
+import type { Ref } from 'vue'
 import {
   FormKitPlugin,
   FormKitFrameworkContext,
@@ -29,6 +31,67 @@ import {
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
 import { FormKitPseudoProps } from '@formkit/core'
+
+/**
+ * A ref holding a group/list value whose shallow clone is created lazily, on
+ * first read. Groups commit once per child while a form mounts, and eagerly
+ * cloning the (growing) value on every commit made mounting large forms
+ * O(n²) even though nothing reads the value until mounting is done (#1792).
+ * Writing `.value` behaves like a normal ref; `.lazyClone(payload)` defers the
+ * clone until the next read.
+ */
+interface LazyCloneRef<T> extends Ref<T> {
+  lazyClone(payload: unknown): void
+  /** Resolve to the same (lazily created) object as another lazy ref. */
+  aliasOf(other: LazyCloneRef<T>): void
+}
+
+function lazyCloneRef<T>(initial: T): LazyCloneRef<T> {
+  const toReactive = (v: any) =>
+    v !== null && typeof v === 'object' ? reactive(v) : v
+  let cache: any = toReactive(initial)
+  let pending: unknown
+  let dirty = false
+  let alias: LazyCloneRef<T> | undefined
+  let notify: () => void = () => {}
+  const r = customRef<T>((track, trigger) => {
+    notify = trigger
+    return {
+      get() {
+        track()
+        if (alias) {
+          cache = alias.value
+          alias = undefined
+        } else if (dirty) {
+          dirty = false
+          cache = toReactive(shallowClone(pending))
+          pending = undefined
+        }
+        return cache
+      },
+      set(v) {
+        dirty = false
+        alias = undefined
+        pending = undefined
+        cache = toReactive(v)
+        trigger()
+      },
+    }
+  }) as LazyCloneRef<T>
+  r.lazyClone = (payload: unknown) => {
+    alias = undefined
+    pending = payload
+    dirty = true
+    notify()
+  }
+  r.aliasOf = (other: LazyCloneRef<T>) => {
+    dirty = false
+    pending = undefined
+    alias = other
+    notify()
+  }
+  return r
+}
 
 const nativeDateInputTypes = new Set([
   'date',
@@ -259,8 +322,10 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     return describers.length ? describers.join(' ') : undefined
   })
 
-  const value = ref(node.value)
-  const _value = ref(node.value)
+  // Groups and lists get lazily-cloned value refs (see lazyCloneRef).
+  const isAggregate = node.type !== 'input'
+  const value = isAggregate ? lazyCloneRef(node.value) : ref(node.value)
+  const _value = isAggregate ? lazyCloneRef(node.value) : ref(node.value)
   let pendingDOMInputValue: string | undefined
   /**
    * True when a native date-family input reported an empty value via a delete
@@ -500,8 +565,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * Watch for input events from core.
    */
   node.on('input', ({ payload }) => {
-    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      _value.value = shallowClone(payload)
+    if (isAggregate && !isRef(payload) && !isReactive(payload)) {
+      ;(_value as LazyCloneRef<unknown>).lazyClone(payload)
     } else {
       _value.value = domInputValue(payload)
       triggerRef(_value)
@@ -518,8 +583,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
    * same value"
    */
   node.on('commitRaw', ({ payload }) => {
-    if (node.type !== 'input' && !isRef(payload) && !isReactive(payload)) {
-      value.value = _value.value = shallowClone(payload)
+    if (isAggregate && !isRef(payload) && !isReactive(payload)) {
+      ;(value as LazyCloneRef<unknown>).lazyClone(payload)
+      ;(_value as LazyCloneRef<unknown>).aliasOf(value as LazyCloneRef<unknown>)
     } else {
       value.value = payload
       _value.value = domInputValue(payload)
