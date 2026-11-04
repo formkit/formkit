@@ -12,10 +12,11 @@ export interface FormKitDescribeOptions {
    */
   values?: boolean
   /**
-   * Input types whose values are never included, even when `values` is on.
-   * Defaults to `['password']`.
+   * Additional input types whose values are never included, even when
+   * `values` is on. These are added to the defaults (`password` and
+   * `hidden`). Pass `false` to turn redaction off entirely.
    */
-  redact?: string[]
+  redact?: string[] | false
   /**
    * Which error messages to include: every blocking message (`'all'`, the
    * default) or only the ones currently shown to the user (`'visible'`).
@@ -42,6 +43,8 @@ export interface FormKitOptionDescription {
   label: string
   value: unknown
   disabled?: boolean
+  /** The label of the option group this option belongs to, if any. */
+  group?: string
 }
 
 /**
@@ -107,7 +110,11 @@ export function describeForm(
   node: FormKitNode,
   options: FormKitDescribeOptions = {}
 ): FormKitFieldDescription {
-  const redact = new Set(options.redact ?? ['password'])
+  const redact = new Set(
+    options.redact === false
+      ? []
+      : [...DEFAULT_REDACTED, ...(options.redact ?? [])]
+  )
   return describeNode(
     node,
     {
@@ -118,6 +125,11 @@ export function describeForm(
     ''
   )
 }
+
+/**
+ * Input types whose values are redacted by default.
+ */
+const DEFAULT_REDACTED = ['password', 'hidden']
 
 interface DescribeContext {
   values: boolean
@@ -152,7 +164,9 @@ function describeNode(
 
   if (typeof props.options === 'function' || props.optionsLoader) {
     description.optionsLoader = true
-  } else if (Array.isArray(props.options) && props.options.length) {
+  }
+  // Include static options, and options that a loader has already loaded.
+  if (Array.isArray(props.options) && props.options.length) {
     description.options = describeOptions(props.options)
   }
 
@@ -181,7 +195,7 @@ function describeRules(node: FormKitNode): FormKitRuleDescription[] {
     name: String(
       validation.name || validation.rule?.ruleName || validation.rule?.name
     ),
-    args: (validation.args ?? []).map(toJSONValue),
+    args: (validation.args ?? []).map((arg: unknown) => toJSONValue(arg)),
   }))
 }
 
@@ -214,21 +228,33 @@ function hasBlocking(node: FormKitNode): boolean {
   return node.children.some((child) => hasBlocking(child as FormKitNode))
 }
 
-function describeOptions(options: any[]): FormKitOptionDescription[] {
+function describeOptions(
+  options: any[],
+  group?: string
+): FormKitOptionDescription[] {
   const described: FormKitOptionDescription[] = []
   for (const option of options) {
     if (option && typeof option === 'object' && Array.isArray(option.options)) {
-      // An option group: flatten it.
-      described.push(...describeOptions(option.options))
+      // An option group: flatten it, but remember the group's label.
+      described.push(...describeOptions(option.options, option.group))
     } else if (option && typeof option === 'object' && 'value' in option) {
+      // Core masks non-string option values (`__mask_N`) and keeps the real
+      // value in `__original` — always report the real one.
+      const value = '__original' in option ? option.__original : option.value
       const item: FormKitOptionDescription = {
-        label: String(option.label ?? option.value),
-        value: toJSONValue(option.value),
+        label: String(option.label ?? value),
+        value: toJSONValue(value),
       }
       if (isOn(option.attrs?.disabled)) item.disabled = true
+      if (group !== undefined) item.group = String(group)
       described.push(item)
     } else {
-      described.push({ label: String(option), value: toJSONValue(option) })
+      const item: FormKitOptionDescription = {
+        label: String(option),
+        value: toJSONValue(option),
+      }
+      if (group !== undefined) item.group = String(group)
+      described.push(item)
     }
   }
   return described
@@ -243,10 +269,12 @@ function isOn(value: unknown): boolean {
 }
 
 /**
- * Coerce a value into something JSON-safe (functions, symbols, and cycles are
- * dropped; dates become ISO strings).
+ * Coerce a value into something JSON-safe. Plain objects and arrays are copied;
+ * dates become ISO strings, regular expressions their source, Maps/Sets
+ * arrays, and Files `{ name, size, type }`. Functions, symbols and circular
+ * references are dropped. (Lossy for other non-plain objects.)
  */
-function toJSONValue(value: unknown, seen = new WeakSet<object>()): unknown {
+function toJSONValue(value: unknown, ancestors = new Set<object>()): unknown {
   if (value === null || value === undefined) return value ?? null
   if (typeof value === 'number') return Number.isFinite(value) ? value : null
   if (typeof value === 'string' || typeof value === 'boolean') return value
@@ -255,17 +283,34 @@ function toJSONValue(value: unknown, seen = new WeakSet<object>()): unknown {
   if (value instanceof Date) {
     return isNaN(value.getTime()) ? null : value.toISOString()
   }
+  if (value instanceof RegExp) return value.toString()
+  if (typeof File !== 'undefined' && value instanceof File) {
+    return { name: value.name, size: value.size, type: value.type }
+  }
   if (typeof value === 'object') {
-    if (seen.has(value)) return undefined
-    seen.add(value)
-    if (Array.isArray(value)) {
-      return value.map((item) => toJSONValue(item, seen) ?? null)
+    // Only true cycles are dropped: an object may appear more than once.
+    if (ancestors.has(value)) return undefined
+    ancestors.add(value)
+    let result: unknown
+    if (value instanceof Map) {
+      result = [...value.entries()].map(([k, v]) => [
+        toJSONValue(k, ancestors) ?? null,
+        toJSONValue(v, ancestors) ?? null,
+      ])
+    } else if (value instanceof Set || Array.isArray(value)) {
+      result = [...value].map((item) => toJSONValue(item, ancestors) ?? null)
+    } else {
+      const obj: Record<string, unknown> = {}
+      for (const key of Object.keys(value)) {
+        const item = toJSONValue(
+          (value as Record<string, unknown>)[key],
+          ancestors
+        )
+        if (item !== undefined) obj[key] = item
+      }
+      result = obj
     }
-    const result: Record<string, unknown> = {}
-    for (const key of Object.keys(value)) {
-      const item = toJSONValue((value as Record<string, unknown>)[key], seen)
-      if (item !== undefined) result[key] = item
-    }
+    ancestors.delete(value)
     return result
   }
   return undefined
