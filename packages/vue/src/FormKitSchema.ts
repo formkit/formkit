@@ -168,6 +168,36 @@ const memo: Record<string, [RenderChildren, ProviderRegistry]> = {}
 const memoKeys: Record<string, number> = {}
 
 /**
+ * Cached ref callbacks, per refs object and section, so Vue doesn't rebind a
+ * section's template ref on every render.
+ */
+const sectionRefFns = new WeakMap<
+  Record<string, unknown>,
+  Map<string, (el: unknown) => void>
+>()
+
+function sectionRefFn(
+  refs: unknown,
+  section: string
+): ((el: unknown) => void) | undefined {
+  if (!refs || typeof refs !== 'object') return undefined
+  const store = refs as Record<string, unknown>
+  let fns = sectionRefFns.get(store)
+  if (!fns) {
+    fns = new Map()
+    sectionRefFns.set(store, fns)
+  }
+  let fn = fns.get(section)
+  if (!fn) {
+    fn = (el: unknown) => {
+      store[section] = el ?? null
+    }
+    fns.set(section, fn)
+  }
+  return fn
+}
+
+/**
  * This object represents the current component instance during render. It is
  * critical for linking the current instance to the data required for render.
  */
@@ -598,6 +628,15 @@ function parseSchema(
     // Parses the schema node into pertinent parts
     const [condition, element, attrs, children, alternate, iterator, resolve] =
       parseNode(library, node)
+    // Sections expose their DOM element on the instance's `refs` (#200).
+    const section =
+      isDOM(node) && typeof node.meta?.section === 'string'
+        ? (node.meta.section as string)
+        : undefined
+    // One provider per compiled schema (not per section) keeps this cheap.
+    const getRefs = section
+      ? (sectionRefsProvider ??= provider(compile('$__fkSectionRefs')))
+      : undefined
     // This is a sub-render function (called within a render function). It must
     // only use pre-compiled features, and be organized in the most efficient
     // manner possible.
@@ -625,9 +664,19 @@ function parseSchema(
           ? createSlots(children, iterationData)
           : null
         // Handle dom elements and components
+        // Vue props may hold a ref callback, which isn't a schema attribute.
+        let elementAttrs = attrs() as Record<string, unknown> | null
+        // Sections repeated by a `for` loop (options, messages…) would
+        // overwrite each other, so only non-repeated sections get refs.
+        if (getRefs && !(iterationData as any)?.__idata) {
+          const sectionRef = sectionRefFn(getRefs(), section as string)
+          if (sectionRef && !(elementAttrs && 'ref' in elementAttrs)) {
+            elementAttrs = { ...(elementAttrs || {}), ref: sectionRef }
+          }
+        }
         return h(
           el as ConcreteComponent,
-          attrs(),
+          elementAttrs as any,
           (slots || (children ? children(iterationData) : [])) as Renderable[]
         )
       }
@@ -710,6 +759,7 @@ function parseSchema(
    * Data providers produced as a result of the compiler.
    */
   const providers: ProviderRegistry = []
+  let sectionRefsProvider: (() => unknown) | undefined
 
   /**
    * Append the requisite compiler provider and return the compiled function.
