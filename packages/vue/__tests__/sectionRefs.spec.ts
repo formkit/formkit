@@ -106,4 +106,13 @@ describe('section refs (#200)', () => {
     // The per-option `input` section is repeated, so it has no single ref.
     expect(refs.input).toBe(undefined)
   })
+
+  it('keeps the private refs alias out of the enumerable context keys', async () => {
+    mount(FormKit, { props: { id: 'refs-keys', type: 'text' }, ...global })
+    await flushPromises()
+    const ctx = getNode('refs-keys')!.context!
+    expect(Object.keys(ctx)).toContain('refs')
+    expect(Object.keys(ctx)).not.toContain('__fkSectionRefs')
+    expect((ctx as any).__fkSectionRefs).toBe(ctx.refs)
+  })
 })
