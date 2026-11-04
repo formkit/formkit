@@ -451,9 +451,13 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     classes,
     // Section DOM elements (#200). markRaw: never make DOM nodes reactive.
     refs: sectionRefs,
-    // Private alias the schema renderer writes through, so user schema data
-    // with its own `refs` key is never touched.
-    __fkSectionRefs: sectionRefs,
+  })
+  // Private alias the schema renderer writes through, so user schema data
+  // with its own `refs` key is never touched. Non-enumerable: hidden from
+  // Object.keys, devtools and serializers.
+  Object.defineProperty(context, '__fkSectionRefs', {
+    value: sectionRefs,
+    enumerable: false,
   })
 
   /**
