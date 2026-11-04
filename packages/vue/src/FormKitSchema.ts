@@ -664,7 +664,8 @@ function parseSchema(
           ? createSlots(children, iterationData)
           : null
         // Handle dom elements and components
-        let elementAttrs = attrs()
+        // Vue props may hold a ref callback, which isn't a schema attribute.
+        let elementAttrs = attrs() as Record<string, unknown> | null
         // Sections repeated by a `for` loop (options, messages…) would
         // overwrite each other, so only non-repeated sections get refs.
         if (getRefs && !(iterationData as any)?.__idata) {
@@ -675,7 +676,7 @@ function parseSchema(
         }
         return h(
           el as ConcreteComponent,
-          elementAttrs,
+          elementAttrs as any,
           (slots || (children ? children(iterationData) : [])) as Renderable[]
         )
       }
