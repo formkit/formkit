@@ -265,7 +265,9 @@ function isText(value: unknown): value is string | number {
 }
 
 function isOn(value: unknown): boolean {
-  return value !== undefined && value !== false && value !== 'false'
+  return (
+    value !== undefined && value !== null && value !== false && value !== 'false'
+  )
 }
 
 /**
