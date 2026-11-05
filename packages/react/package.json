@@ -1,6 +1,6 @@
 {
   "name": "@formkit/react",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "type": "module",
   "description": "Build industry leading React forms 10x faster.",
   "main": "dist/index.cjs",
