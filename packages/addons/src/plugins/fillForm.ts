@@ -255,9 +255,14 @@ function resolve(node: FormKitNode, key: string): FormKitNode | undefined {
 }
 
 function childNamed(node: FormKitNode, name: string): FormKitNode | undefined {
-  return node.children.find((child) =>
-    node.type === 'list' ? String(child.index) === name : String(child.name) === name
-  ) as FormKitNode | undefined
+  // Lists address children by position; groups by name.
+  if (node.type === 'list') {
+    const child = node.children[Number(name)]
+    return /^\d+$/.test(name) && child ? (child as FormKitNode) : undefined
+  }
+  return node.children.find((child) => String(child.name) === name) as
+    | FormKitNode
+    | undefined
 }
 
 function resolveOptionValue(
