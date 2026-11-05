@@ -1,4 +1,3 @@
-import { token } from '@formkit/utils'
 import { FormKitContext, FormKitNode, isNode } from './node'
 
 /**
@@ -62,6 +61,17 @@ export interface FormKitEventEmitter {
  *
  * @internal
  */
+/**
+ * Shared (never mutated) modifiers list for event names without modifiers.
+ */
+const noModifiers: string[] = []
+
+/**
+ * Listener receipts only need to be unique, so a counter is enough (and much
+ * cheaper than a random token on every node.on() during mount).
+ */
+let receiptCount = 0
+
 export function createEmitter(): FormKitEventEmitter {
   const listeners = new Map<string, FormKitEventListenerWrapper[]>()
   const receipts = new Map<string, string[]>()
@@ -130,8 +140,12 @@ export function createEmitter(): FormKitEventEmitter {
     if (__DEV__ && pos !== 'push' && pos !== 'unshift') {
       throw new Error('Event listeners can only be added to the top or bottom')
     }
-    const [event, ...modifiers] = eventName.split('.')
-    const receipt = listener.receipt || token()
+    // Most event names have no modifiers: skip the split (hot during mount).
+    const dot = eventName.indexOf('.')
+    const event = dot === -1 ? eventName : eventName.slice(0, dot)
+    const modifiers =
+      dot === -1 ? noModifiers : eventName.slice(dot + 1).split('.')
+    const receipt = listener.receipt || `__fkr${(++receiptCount).toString(36)}`
     const wrapper: FormKitEventListenerWrapper = {
       modifiers,
       event,
