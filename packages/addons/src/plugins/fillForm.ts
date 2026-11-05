@@ -1,6 +1,5 @@
 import type { FormKitNode, FormKitMessage } from '@formkit/core'
 import { eq } from '@formkit/utils'
-import { describeForm } from './describeForm'
 
 /**
  * Options for {@link fillForm}.
@@ -156,7 +155,9 @@ export async function fillForm(
     const submit = node.context?.handlers?.submit as
       | ((e: Event) => Promise<void>)
       | undefined
-    if (node.props.type === 'form' && typeof submit === 'function') {
+    if (!settled) {
+      result.submitError = 'The form did not settle within the timeout'
+    } else if (node.props.type === 'form' && typeof submit === 'function') {
       let dispatched = false
       const watch = (payload: any, next: any) => {
         dispatched = true
@@ -164,8 +165,15 @@ export async function fillForm(
       }
       node.hook.submit(watch)
       try {
-        await submit(new Event('submit', { cancelable: true }))
-        result.submitted = dispatched
+        const outcome = await raceTimeout(
+          submit(new Event('submit', { cancelable: true })),
+          options.timeout ?? 5000
+        )
+        if (outcome === TIMED_OUT) {
+          result.submitError = 'Submit did not finish within the timeout'
+        } else {
+          result.submitted = dispatched
+        }
       } catch (err) {
         result.submitError =
           err instanceof Error ? err.message : String(err ?? 'Submit failed')
@@ -178,14 +186,13 @@ export async function fillForm(
   }
 
   // 4. Report.
-  const description = describeForm(node)
-  result.valid = description.valid
   result.fields = writes.map(({ address, node: field }) => {
-    const d = describeForm(field)
-    return { address, valid: d.valid, errors: d.errors }
+    const errors = errorsOf(field)
+    return { address, valid: !hasBlocking(field) && !errors.length, errors }
   })
-  result.invalid = collectInvalid(description)
+  result.invalid = collectInvalid(node)
   result.errors = nodeMessages(node)
+  result.valid = !hasBlocking(node) && !result.invalid.length && !hasErrorMessages(node)
   return result
 }
 
@@ -272,9 +279,14 @@ function resolveOptionValue(
   const options = node.props.options
   const multiple =
     isOn(node.props.multiple) ||
-    (node.props.type === 'checkbox' && Array.isArray(options))
+    (node.props.type === 'checkbox' && Array.isArray(options)) ||
+    Array.isArray(node.value)
   const asList = (v: unknown) =>
-    multiple && !Array.isArray(v) ? (v == null ? [] : [v]) : v
+    multiple && !Array.isArray(v) ? (v == null || v === '' ? [] : [v]) : v
+  // null / undefined / '' clear the input rather than looking for an option.
+  if (value === null || value === undefined || value === '') {
+    return { value: asList(value) }
+  }
   if (!Array.isArray(options) || !options.length) {
     const asyncOptions =
       typeof options === 'function' || typeof node.props.optionsLoader === 'function'
@@ -335,18 +347,64 @@ function flattenOptions(options: any[]): any[] {
   return flat
 }
 
+/**
+ * Every input, group or list (below the filled node) with blocking messages
+ * or error messages — including non-blocking `setErrors()` field errors.
+ */
 function collectInvalid(
-  d: ReturnType<typeof describeForm>
+  root: FormKitNode
 ): Array<{ address: string; errors: string[] }> {
   const out: Array<{ address: string; errors: string[] }> = []
-  const walk = (field: ReturnType<typeof describeForm>) => {
-    if (field.nodeType === 'input' && !field.valid) {
-      out.push({ address: field.address, errors: field.errors })
+  const walk = (node: FormKitNode, address: string) => {
+    const errors = errorsOf(node)
+    const ownBlocking = [...storeMessages(node)].some((m) => m.blocking)
+    if (errors.length || (node.type === 'input' && ownBlocking)) {
+      out.push({ address, errors })
     }
-    field.children?.forEach(walk)
+    node.children.forEach((child, i) => {
+      const name = node.type === 'list' ? String(i) : String(child.name)
+      walk(child as FormKitNode, address ? `${address}.${name}` : name)
+    })
   }
-  d.children?.forEach(walk)
+  root.children.forEach((child, i) =>
+    walk(child as FormKitNode, root.type === 'list' ? String(i) : String(child.name))
+  )
   return out
+}
+
+function* storeMessages(node: FormKitNode): Generator<FormKitMessage> {
+  for (const key in node.store) {
+    const message = node.store[key] as FormKitMessage
+    if (message && typeof message === 'object' && 'type' in message) yield message
+  }
+}
+
+/**
+ * A node's error messages: blocking validation messages plus every `error`
+ * message (server errors from `setErrors()` are non-blocking).
+ */
+function errorsOf(node: FormKitNode): string[] {
+  const errors: string[] = []
+  for (const message of storeMessages(node)) {
+    if (
+      ((message.type === 'validation' && message.blocking) ||
+        message.type === 'error') &&
+      (typeof message.value === 'string' || typeof message.value === 'number')
+    ) {
+      errors.push(String(message.value))
+    }
+  }
+  return errors
+}
+
+function hasBlocking(node: FormKitNode): boolean {
+  for (const message of storeMessages(node)) if (message.blocking) return true
+  return node.children.some((child) => hasBlocking(child as FormKitNode))
+}
+
+function hasErrorMessages(node: FormKitNode): boolean {
+  for (const message of storeMessages(node)) if (message.type === 'error') return true
+  return node.children.some((child) => hasErrorMessages(child as FormKitNode))
 }
 
 /**
@@ -369,6 +427,23 @@ function nodeMessages(node: FormKitNode): string[] {
     }
   }
   return messages
+}
+
+const TIMED_OUT = Symbol('timed out')
+
+async function raceTimeout<T>(
+  promise: Promise<T>,
+  timeout: number
+): Promise<T | typeof TIMED_OUT> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timedOut = new Promise<typeof TIMED_OUT>((resolve) => {
+    timer = setTimeout(() => resolve(TIMED_OUT), timeout)
+  })
+  try {
+    return await Promise.race([promise, timedOut])
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**
@@ -401,7 +476,9 @@ function hasPendingValidation(node: FormKitNode): boolean {
 }
 
 function isOn(value: unknown): boolean {
-  return value !== undefined && value !== false && value !== 'false'
+  return (
+    value !== undefined && value !== null && value !== false && value !== 'false'
+  )
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

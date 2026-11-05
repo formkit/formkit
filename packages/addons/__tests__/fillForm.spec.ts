@@ -216,3 +216,75 @@ describe('fillForm (review cases)', () => {
     expect(result.submitted).toBe(false)
   })
 })
+
+describe('fillForm (final review cases)', () => {
+  const mountWith = (children: () => any[], formProps: Record<string, unknown> = {}) =>
+    mount(
+      { render: () => h(FormKit, { type: 'form', id: 'fill3', actions: false, ...formProps }, children) },
+      global
+    )
+
+  it('does not hang submitting when validation never settles', async () => {
+    mountWith(() => [
+      h(FormKit, {
+        type: 'text',
+        name: 'a',
+        validation: 'never',
+        validationRules: { never: () => new Promise<boolean>(() => {}) },
+      }),
+    ], { onSubmit: vi.fn() })
+    await flushPromises()
+    const result = await fillForm(getNode('fill3')!, { a: 'x' }, { submit: true, timeout: 100 })
+    expect(result.settled).toBe(false)
+    expect(result.submitted).toBe(false)
+    expect(result.submitError).toMatch(/settle/)
+  })
+
+  it('does not hang when onSubmit never resolves', async () => {
+    mountWith(() => [h(FormKit, { type: 'text', name: 'a' })], {
+      onSubmit: () => new Promise(() => {}),
+    })
+    await flushPromises()
+    const result = await fillForm(getNode('fill3')!, { a: 'x' }, { submit: true, timeout: 100 })
+    expect(result.submitted).toBe(false)
+    expect(result.submitError).toMatch(/finish/)
+  })
+
+  it('reports field-level server errors from setErrors after submit', async () => {
+    mountWith(() => [h(FormKit, { type: 'email', name: 'email' })], {
+      onSubmit: async (_data: any, node: any) => {
+        node.setErrors([], { email: 'Email taken' })
+      },
+    })
+    await flushPromises()
+    const result = await fillForm(getNode('fill3')!, { email: 'a@b.co' }, { submit: true })
+    expect(result.submitted).toBe(true)
+    expect(result.valid).toBe(false)
+    expect(result.invalid).toEqual([{ address: 'email', errors: ['Email taken'] }])
+    expect(result.fields[0]).toEqual({ address: 'email', valid: false, errors: ['Email taken'] })
+  })
+
+  it('treats disabled: null as enabled and lets null clear an option input', async () => {
+    mountWith(() => [
+      h(FormKit, { type: 'text', name: 't', disabled: null }),
+      h(FormKit, { type: 'radio', name: 'r', value: 'a', options: ['a', 'b'] }),
+    ])
+    await flushPromises()
+    const form = getNode('fill3')!
+    const result = await fillForm(form, { t: 'x', r: null })
+    expect(result.skipped).toEqual([])
+    expect(result.unmatched).toEqual([])
+    expect((form.value as any).t).toBe('x')
+    expect((form.value as any).r).toBe(null)
+  })
+
+  it('lists group-level errors in invalid', async () => {
+    mountWith(() => [h(FormKit, { type: 'group', name: 'g' }, () => [h(FormKit, { type: 'text', name: 'x' })])])
+    await flushPromises()
+    const form = getNode('fill3')!
+    form.at('g')!.setErrors(['Group problem'])
+    const result = await fillForm(form, { 'g.x': 'ok' })
+    expect(result.invalid).toEqual([{ address: 'g', errors: ['Group problem'] }])
+    expect(result.valid).toBe(false)
+  })
+})
