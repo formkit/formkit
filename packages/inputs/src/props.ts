@@ -731,7 +731,13 @@ export interface FormKitBaseProps {
   preserveErrors: 'true' | 'false' | boolean
   placeholder: string
   step: string | number
-  validationVisibility: 'live' | 'blur' | 'dirty' | 'submit'
+  validationVisibility:
+    | 'live'
+    | 'blur'
+    | 'dirty'
+    | 'submit'
+    | 'blur dirty'
+    | 'dirty blur'
 }
 
 /**
