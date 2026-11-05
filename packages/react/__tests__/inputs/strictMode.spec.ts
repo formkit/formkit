@@ -1,6 +1,6 @@
 import { FormKitNode, getNode } from '@formkit/core'
 import { token } from '@formkit/utils'
-import { createElement, StrictMode, version as reactVersion } from 'react'
+import { createElement, StrictMode } from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { FormKit, FormKitProvider, defaultConfig } from '../../src'
@@ -10,20 +10,15 @@ import { FormKit, FormKitProvider, defaultConfig } from '../../src'
  * created its node twice, leaving an orphaned duplicate attached to the parent
  * and making valid forms fail submission.
  */
-// React 18 StrictMode re-runs the mount render with fresh hooks, which still
-// creates a throwaway node (tracked in #1784). React 19 is covered.
-const isReact18 = reactVersion.startsWith('18.')
-
 describe('React StrictMode (#1776)', () => {
   for (const strict of [false, true]) {
     const mode = strict ? 'strict' : 'non-strict'
-    const test = strict && isReact18 ? it.skip : it
     const mount = (tree: any, config = defaultConfig()) => {
       const provided = createElement(FormKitProvider, { config }, tree)
       return render(strict ? createElement(StrictMode, null, provided) : provided)
     }
 
-    test(`submits a valid form whose value comes from the form (${mode})`, async () => {
+    it(`submits a valid form whose value comes from the form (${mode})`, async () => {
       const onSubmit = vi.fn()
       const onSubmitInvalid = vi.fn()
       const { container } = mount(
@@ -44,7 +39,7 @@ describe('React StrictMode (#1776)', () => {
       expect(container.textContent).not.toContain('not all fields')
     })
 
-    test(`creates exactly one node per component (${mode})`, async () => {
+    it(`creates exactly one node per component (${mode})`, async () => {
       const created: FormKitNode[] = []
       const id = `form_${token()}`
       mount(
@@ -67,8 +62,14 @@ describe('React StrictMode (#1776)', () => {
       )
       await new Promise((r) => setTimeout(r, 20))
       const form = getNode(id)!
-      // form, group, street, list, 2 list items, submit button
-      expect(created.filter((n) => n.type !== 'input' || n.props.type !== 'submit').length).toBe(6)
+      // form, group, street, list, 2 list items (submit button excluded).
+      // Count the nodes that ended up in the tree: React 18 StrictMode renders
+      // twice with fresh hooks, and its throwaway render's (detached) nodes
+      // must never join the form (#1784).
+      const inTree = new Set<FormKitNode>([form])
+      form.walk((n) => inTree.add(n))
+      expect(created.filter((n) => inTree.has(n) && n.props.type !== 'submit').length).toBe(6)
+      expect(created.filter((n) => !inTree.has(n) && n.parent).length).toBe(0)
       expect(form.children.length).toBe(2)
       expect(form.value).toEqual({ address: { street: '1 Main' }, tags: ['a', 'b'] })
     })

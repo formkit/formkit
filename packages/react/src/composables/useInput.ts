@@ -27,10 +27,13 @@ import {
 import {
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react'
 import { optionsSymbol } from '../plugin'
+
+const isBrowser = typeof window !== 'undefined'
 import { onSSRComplete } from './onSSRComplete'
 import { componentSymbol, parentSymbol, rootSymbol } from '../context'
 
@@ -260,24 +263,49 @@ export function useInput<Props extends FormKitInputs<Props>>(
     ? null
     : props.parent || inheritedParent || null
 
-  // Node creation has side effects (global registration, attaching to the
-  // parent), so it must run exactly once per component instance. useMemo is
-  // not safe here: React StrictMode intentionally calls memo factories twice
-  // and discards one result, which left an orphaned duplicate node attached to
-  // the parent form (see #1776). A ref survives React 19's StrictMode double
-  // render. React 18 StrictMode and discarded concurrent renders still create
-  // throwaway nodes; tracked in a follow-up (attach nodes on commit).
+  // In the browser the node is created *detached* during render (it inherits
+  // the parent's config and plugins but doesn't join it) and attached to its
+  // parent on commit, in a layout effect. A render React throws away (React 18
+  // StrictMode's fresh-hooks double render, interrupted concurrent renders,
+  // Suspense retries) therefore leaves an unreferenced node to be garbage
+  // collected instead of a ghost attached to the form (#1776, #1784). On the
+  // server there are no effects, so nodes attach immediately.
+  const detach = isBrowser && !!parent
   const nodeRef = useRef<FormKitNode | null>(null)
   if (nodeRef.current === null) nodeRef.current = createFormKitNode()
   const node = nodeRef.current
 
+  useLayoutEffect(() => {
+    if (!detach || !parent || node.parent === parent) return
+    // Features can opt a node out of its parent during creation (e.g. submit
+    // buttons are `ignore`d) — respect that instead of attaching.
+    if (node.props.ignore) return
+    parent.add(node, props.index)
+  }, [node, parent, detach])
+
   function createFormKitNode(): FormKitNode {
+    // A detached node doesn't receive its parent's value until it attaches,
+    // so seed it now to render the right value the first time.
+    let initialValue = value
+    if (
+      detach &&
+      !isVModeled &&
+      props.name &&
+      parent &&
+      parent.type === 'group' &&
+      parent.value &&
+      typeof parent.value === 'object' &&
+      props.name in (parent.value as Record<string, unknown>)
+    ) {
+      initialValue = cloneAny((parent.value as Record<string, unknown>)[props.name])
+    }
     const nodeOptions = extend(
       config || {},
       {
         name: props.name || undefined,
-        value,
+        value: initialValue,
         parent,
+        detached: detach,
         plugins: (config.plugins || []).concat(props.plugins ?? []),
         config: props.config || {},
         props: createInitialProps,

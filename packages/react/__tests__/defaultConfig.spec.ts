@@ -39,8 +39,12 @@ describe('defaultConfig (react)', () => {
       defaultConfig({ plugins: [newPlugin] })
     )
 
-    expect(newPlugin).toHaveBeenCalledTimes(1)
     const node = getNode('tuesday')!
+    // Once per node. (React 18 StrictMode also creates — and discards — a node
+    // for its throwaway render.)
+    expect(
+      (newPlugin as any).mock.calls.filter(([n]: [any]) => n === node).length
+    ).toBe(1)
     expect(node.value).toBe('foobar.')
   })
 

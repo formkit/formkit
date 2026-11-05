@@ -392,6 +392,12 @@ export interface FormKitContext {
    */
   _d: number
   /**
+   * True while a node created with `detached: true` still has to register its
+   * explicit id (it does so when it's attached).
+   * @internal
+   */
+  _pendingRegister?: boolean
+  /**
    * For group nodes: how many children currently use each name. Lets addChild
    * reconcile only the new child while still detecting duplicate names.
    * @internal
@@ -718,6 +724,16 @@ export type FormKitOptions = Partial<
      * automatically be inherited by any children.
      */
     plugins: FormKitPlugin[]
+    /**
+     * Create the node *detached* from `parent`: it inherits the parent's
+     * config and plugins (and finds its definition through them), but is not
+     * added to the parent's children and is not registered by id until it is
+     * attached with `parent.add(node)`. Framework integrations use this to
+     * create nodes during render and attach them on commit, so a render that
+     * is thrown away (React StrictMode, interrupted concurrent renders) never
+     * touches the form.
+     */
+    detached: boolean
     /**
      * For internal use only.
      */
@@ -2590,6 +2606,11 @@ function addChild(
   // full hydrate since inserting a child shifts the index-names of others.
   commit(parent, parentContext, false, parent.type === 'group' ? child : true)
   parent.ledger.merge(child)
+  // A node created detached registers its explicit id once it's attached.
+  if (child._c._pendingRegister) {
+    child._c._pendingRegister = false
+    register(child)
+  }
   parent.emit('child', child)
   return parent
 }
@@ -3392,7 +3413,7 @@ function createContext(options: FormKitOptions): FormKitContext {
     isSettled: true,
     ledger: createLedger(),
     name: createName(options),
-    parent: options.parent || null,
+    parent: (!options.detached && options.parent) || null,
     plugins: new Set<FormKitPlugin>(),
     props: createProps(value),
     settled: Promise.resolve(value),
@@ -3432,11 +3453,12 @@ function nodeInit<V>(
   )
   node.props._emit = true
   // Attempt to find a definition from the pre-existing plugins.
+  const inheritFrom = options.parent || null
   findDefinition(
     node,
     new Set([
       ...(options.plugins || []),
-      ...(node.parent ? node.parent.plugins : []),
+      ...(inheritFrom ? inheritFrom.plugins : []),
     ])
   )
   // Then we apply each plugin's root code, we do this with an explicit loop
@@ -3446,6 +3468,9 @@ function nodeInit<V>(
       use(node, node._c, plugin, true, false)
     }
   }
+  // A detached node still inherits its intended parent's plugins now (they
+  // are deduped when it is attached later).
+  if (options.detached && inheritFrom) use(node, node._c, inheritFrom.plugins)
   // Apply the parent to each child.
   node.each((child) => node.add(child))
   // If the node has a parent, ensure it's properly nested bi-directionally.
@@ -3456,8 +3481,12 @@ function nodeInit<V>(
   input(node, node._c, node._value, false)
   // Release the store buffer
   node.store.release()
-  // Register the node globally if someone explicitly gave it an id
-  if (hasInitialId) register(node)
+  // Register the node globally if someone explicitly gave it an id. A
+  // detached node registers when it is attached.
+  if (hasInitialId) {
+    if (options.detached) node._c._pendingRegister = true
+    else register(node)
+  }
   // Our node is finally ready, emit it to the world
   node.emit('created', node)
   node.isCreated = true

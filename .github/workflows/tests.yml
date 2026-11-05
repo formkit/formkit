@@ -35,14 +35,11 @@ jobs:
       - name: Run Vitest
         run: pnpm test
 
-      - name: Run React tests against React 18 (production mode)
-        # React 18 StrictMode (dev) still creates throwaway nodes (#1784), so
-        # this job renders without StrictMode to guard React 18 production.
-        env:
-          FORMKIT_TEST_NO_STRICT: '1'
+      - name: Run React tests against React 18 (StrictMode and production mode)
         run: |
           npm ci --prefix .tests/react18 --no-audit --no-fund
           pnpm vitest run -c vitest.react18.config.mts
+          FORMKIT_TEST_NO_STRICT=1 pnpm vitest run -c vitest.react18.config.mts
 
       - name: Run Typecheck
         run: pnpm vitest --typecheck.only --run
