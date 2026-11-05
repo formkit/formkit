@@ -30,6 +30,16 @@ import {
   shallowClone,
 } from '@formkit/utils'
 import { createObserver } from '@formkit/observer'
+
+/**
+ * The validation-visibility modes in a (possibly combined) value like
+ * "blur dirty".
+ */
+function visibilityModes(value: unknown): string[] {
+  return String(value ?? '')
+    .split(/[\s,|]+/)
+    .filter(Boolean)
+}
 import { FormKitPseudoProps } from '@formkit/core'
 
 /**
@@ -153,7 +163,9 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   /**
    * Keep track of if this input has ever shown validation errors.
    */
-  const hasShownErrors = ref(validationVisibility.value === 'live')
+  const hasShownErrors = ref(
+    visibilityModes(validationVisibility.value).includes('live')
+  )
 
   /**
    * If the input is required or not, this is the only validation rule that
@@ -183,16 +195,20 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (!hasShownErrors.value && !context.state.settled) {
       return false
     }
-    switch (validationVisibility.value) {
-      case 'live':
-        return true
-      case 'blur':
-        return context.state.blurred
-      case 'dirty':
-        return context.state.dirty
-      default:
-        return false
-    }
+    // Several modes can be combined, e.g. "blur dirty": messages show as
+    // soon as any of them applies (#973).
+    return visibilityModes(validationVisibility.value).some((mode) => {
+      switch (mode) {
+        case 'live':
+          return true
+        case 'blur':
+          return context.state.blurred
+        case 'dirty':
+          return context.state.dirty
+        default:
+          return false
+      }
+    })
   })
 
   /**

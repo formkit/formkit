@@ -34,16 +34,30 @@ function computeValidationVisible(
   if (!hasShownErrors && !context.state.settled) {
     return false
   }
-  switch (validationVisibility) {
-    case 'live':
-      return true
-    case 'blur':
-      return context.state.blurred
-    case 'dirty':
-      return context.state.dirty
-    default:
-      return false
-  }
+  // Several modes can be combined, e.g. "blur dirty": messages show as soon
+  // as any of them applies (#973).
+  return visibilityModes(validationVisibility).some((mode) => {
+    switch (mode) {
+      case 'live':
+        return true
+      case 'blur':
+        return context.state.blurred
+      case 'dirty':
+        return context.state.dirty
+      default:
+        return false
+    }
+  })
+}
+
+/**
+ * The validation-visibility modes in a (possibly combined) value like
+ * "blur dirty".
+ */
+function visibilityModes(value: unknown): string[] {
+  return String(value ?? '')
+    .split(/[\s,|]+/)
+    .filter(Boolean)
 }
 
 function createReactiveContextBag<T extends Record<string, any>>(
@@ -148,7 +162,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     node.props.validationVisibility ||
     (node.props.type === 'checkbox' ? 'dirty' : 'blur')
 
-  let hasShownErrors = validationVisibility === 'live'
+  let hasShownErrors = visibilityModes(validationVisibility).includes('live')
 
   let isRequired = false
   const checkForRequired = (parsedRules?: Array<{ name: string }>) => {
