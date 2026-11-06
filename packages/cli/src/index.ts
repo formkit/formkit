@@ -78,12 +78,15 @@ program
     '-l, --lang <ts|js>',
     'Create a TypeScript (ts) or JavaScript (js) app.'
   )
-  .option('-f, --framework <vite|nuxt>', 'Create a new Vite or Nuxt app.')
+  .option(
+    '-f, --framework <vue|nuxt|react>',
+    'Create a new Vue (Vite), Nuxt, or React (Vite) app. `vite` is an alias for `vue`.'
+  )
   .option(
     '--pro <key>',
     'Creates the project with FormKit pro installed if a project key is provided.'
   )
-  .description('Creates a new Vue 3 Vite application with FormKit installed.')
+  .description('Creates a new Vue, Nuxt, or React application with FormKit installed.')
   .action(createApp)
 
 program

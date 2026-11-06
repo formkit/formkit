@@ -13,7 +13,7 @@ import { buildTheme } from './theme'
 const APP_URL = 'https://pro.formkit.com'
 interface CreateAppOptions {
   lang: 'ts' | 'js'
-  framework: 'nuxt' | 'vite'
+  framework: 'nuxt' | 'vite' | 'vue' | 'react'
   pro?: string
 }
 
@@ -185,15 +185,26 @@ export async function createApp(
       name: 'framework',
       message: 'What framework would you like to use?',
       choices: [
-        { title: 'Vite', value: 'vite' },
+        { title: 'Vue (Vite)', value: 'vite' },
         { title: 'Nuxt', value: 'nuxt' },
+        { title: 'React (Vite)', value: 'react' },
       ],
       initial: 1,
     })
-    options.framework = res.framework as 'vite' | 'nuxt'
+    options.framework = res.framework as CreateAppOptions['framework']
+  }
+  // `vue` is an alias for the Vue + Vite starter.
+  if (options.framework === 'vue') options.framework = 'vite'
+  if (!['vite', 'nuxt', 'react'].includes(options.framework as string)) {
+    error(
+      `Unknown framework "${options.framework}". Use vue (or vite), nuxt, or react.`
+    )
   }
 
-  if (!options.lang && options.framework === 'vite') {
+  if (
+    !options.lang &&
+    (options.framework === 'vite' || options.framework === 'react')
+  ) {
     const res = await prompts({
       type: 'select',
       name: 'lang',
@@ -251,13 +262,54 @@ export async function createApp(
     await writeFile(
       resolve(
         cwd(),
-        `./${appName}/formkit.config.${options.lang ? 'ts' : 'mjs'}`
+        `./${appName}/formkit.config.${options.lang === 'ts' ? 'ts' : 'mjs'}`
       ),
       buildFormKitConfig(options as CreateAppOptions)
     )
     await writeFile(
       resolve(cwd(), `./${appName}/src/main.${options.lang}`),
       buildMain(options.lang === 'ts')
+    )
+
+    green(`Created ${appName}!
+
+      To run your new app:
+      📁 cd ${appName}
+      ✅ npm install
+      🚀 npm run dev
+    `)
+  } else if (options.framework === 'react') {
+    const ts = options.lang === 'ts'
+    await execa('npx', [
+      '--yes',
+      'create-vite@latest',
+      appName,
+      '--template',
+      `react${ts ? '-ts' : ''}`,
+    ])
+    await addDependency(appName, '@formkit/react', 'latest')
+    await addDependency(appName, '@formkit/core', 'latest')
+    await addDependency(appName, '@formkit/inputs', 'latest')
+    await addDependency(appName, '@formkit/themes', 'latest')
+    await addDependency(appName, '@formkit/icons', 'latest')
+    await addDependency(appName, 'tailwindcss', 'latest')
+    await addDependency(appName, '@tailwindcss/vite', 'latest')
+    if (options.pro) {
+      await addDependency(appName, '@formkit/pro')
+    }
+    await downloadTheme(appName, ts)
+    await setupViteConfig(appName, ts)
+    await writeFile(
+      resolve(cwd(), `./${appName}/formkit.config.${ts ? 'ts' : 'mjs'}`),
+      buildFormKitConfig(options as CreateAppOptions)
+    )
+    await writeFile(
+      resolve(cwd(), `./${appName}/src/App.${ts ? 'tsx' : 'jsx'}`),
+      buildReactApp(!!options.pro)
+    )
+    await writeFile(
+      resolve(cwd(), `./${appName}/src/main.${ts ? 'tsx' : 'jsx'}`),
+      buildReactMain(ts)
     )
 
     green(`Created ${appName}!
@@ -465,6 +517,93 @@ body {
   await writeFile(viteConfigPath, config)
 }
 
+function buildReactMain(ts: boolean) {
+  return `import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { FormKitProvider, defaultConfig } from '@formkit/react'
+import App from './App'
+import formkitConfig from '../formkit.config'
+import './assets/main.css'
+
+createRoot(document.getElementById('root')${ts ? '!' : ''}).render(
+  <StrictMode>
+    <FormKitProvider config={defaultConfig(formkitConfig())}>
+      <App />
+    </FormKitProvider>
+  </StrictMode>
+)
+`
+}
+
+function buildReactApp(pro: boolean) {
+  return `import { FormKit } from '@formkit/react'
+
+async function submit() {
+  await new Promise((r) => setTimeout(r, 1000))
+  alert('Submitted! 🎉')
+}
+
+export default function App() {
+  return (
+    <div className="bg-white rounded-xl shadow-xl p-8 mx-auto my-16 max-w-[450px]">
+      <img
+        src="https://pro.formkit.com/logo.svg"
+        alt="FormKit Logo"
+        width="244"
+        height="50"
+        className="mx-auto mb-8 w-48"
+      />
+      <FormKit type="form" onSubmit={submit}>
+        <FormKit
+          type="text"
+          name="name"
+          label="Name"
+          help="What do people call you?"
+        />
+        <FormKit
+          type="checkbox"
+          name="flavors"
+          label="Favorite ice cream flavors"
+          options={{
+            vanilla: 'Vanilla',
+            chocolate: 'Chocolate',
+            strawberry: 'Strawberry',
+            'mint-chocolate-chip': 'Mint Chocolate Chip',
+            'rocky-road': 'Rocky Road',
+            'cookie-dough': 'Cookie Dough',
+            pistachio: 'Pistachio',
+          }}
+          validation="required|min:2"
+        />${
+          pro
+            ? `
+        <FormKit
+          type="repeater"
+          name="invitees"
+          label="Invitees"
+          help="Who else should we invite to FormKit?"
+        >
+          <FormKit
+            type="text"
+            name="email"
+            label="Email"
+            validation="required|email"
+          />
+        </FormKit>`
+            : ''
+        }
+        <FormKit
+          type="checkbox"
+          name="agree"
+          label="I agree FormKit is the best form authoring framework."
+        />
+      </FormKit>
+    </div>
+  )
+}
+`
+}
+
 function buildMain(ts: boolean) {
   return `import { createApp } from 'vue'
 import { plugin, defaultConfig } from '@formkit/vue'
@@ -602,7 +741,9 @@ function addConfigProperty(configContent: string, property: string): string {
 function buildFormKitConfig(options: CreateAppOptions): string {
   const imports = ['import { genesisIcons } from "@formkit/icons"']
   imports.push('import { rootClasses } from "./formkit.theme"')
-  if (options.lang === 'ts' && options.framework === 'vite') {
+  if (options.framework === 'react') {
+    imports.push("import { defineFormKitConfig } from '@formkit/react'")
+  } else if (options.lang === 'ts' && options.framework === 'vite') {
     imports.push("import { DefaultConfigOptions } from '@formkit/vue'")
   } else if (options.lang === 'ts' && options.framework === 'nuxt') {
     imports.push("import { defineFormKitConfig } from '@formkit/vue'")
@@ -631,8 +772,14 @@ export default config`
 ${config}
 }))`
 
+  const reactExport = `export default defineFormKitConfig({
+${config}
+})`
+
   let defaultExport = ''
-  if (options.framework === 'nuxt') {
+  if (options.framework === 'react') {
+    defaultExport = reactExport
+  } else if (options.framework === 'nuxt') {
     defaultExport = nuxtExport
   } else if (options.framework === 'vite') {
     defaultExport = viteExport
