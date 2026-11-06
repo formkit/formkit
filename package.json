@@ -21,7 +21,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^4.1.0",
     "@vue/eslint-config-typescript": "^14.1.0",
-    "@vue/server-renderer": "^3.5.0",
+    "@vue/server-renderer": "^3.5.45",
     "@vue/shared": "^3.5.0",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
