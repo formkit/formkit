@@ -88,4 +88,39 @@ describe('localStorage plugin', () => {
     expect(wrapper.find('.formkit-file-name').exists()).toBe(false)
     wrapper.unmount()
   })
+  it('does not save while the control field is off', async () => {
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit type="form" name="ctlForm" use-local-storage="true">
+            <FormKit type="checkbox" name="remember" :value="false" />
+            <FormKit id="ctl-name" type="text" name="name" value="Ada" />
+          </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [
+                  createLocalStoragePlugin({
+                    debounce: 0,
+                    key: 'local-storage-test',
+                    control: 'remember',
+                  }),
+                ],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    await new Promise((r) => setTimeout(r, 20))
+    await getNode('ctl-name')!.input('secret', false)
+    await new Promise((r) => setTimeout(r, 20))
+    expect(localStorage.getItem('formkit-local-storage-test-ctlForm')).toBeNull()
+    wrapper.unmount()
+  })
 })
