@@ -350,6 +350,33 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     enumerable: false,
   })
 
+  // A group/list commits once per child commit, and empty() walks every key of
+  // an object (for...in), so computing `state.empty` eagerly on each commit is
+  // O(n²) when mounting a large form. Compute it lazily (once per read).
+  let emptyDirty = false
+  let emptyCache = context.state.empty
+  if (node.type !== 'input') {
+    Object.defineProperty(context.state, 'empty', {
+      enumerable: true,
+      configurable: true,
+      get() {
+        if (emptyDirty) {
+          emptyCache = empty(node?.value)
+          emptyDirty = false
+        }
+        return emptyCache
+      },
+      set(value: boolean) {
+        emptyCache = value
+        emptyDirty = false
+      },
+    })
+  }
+  const markEmptyDirty = (payload: unknown) => {
+    if (node.type !== 'input') emptyDirty = true
+    else context.state.empty = empty(payload)
+  }
+
   contextRef = context
 
   ensureReactiveStore(context)
@@ -505,7 +532,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
       context._value = domInputValue(payload)
     }
     pendingDOMInputValue = undefined
-    context.state.empty = empty(payload)
+    markEmptyDirty(payload)
     queueMicrotask(() => {
       if (node) node.emit('modelUpdated')
     })
@@ -546,7 +573,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
       context.items = getReactListItems(node)
     }
 
-    context.state.empty = empty(payload)
+    markEmptyDirty(payload)
     flush()
   })
 
