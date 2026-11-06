@@ -361,7 +361,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
       configurable: true,
       get() {
         if (emptyDirty) {
-          emptyCache = empty(node?.value)
+          emptyCache = empty(context.value)
           emptyDirty = false
         }
         return emptyCache
