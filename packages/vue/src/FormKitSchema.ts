@@ -977,7 +977,7 @@ export const FormKitSchema = /* #__PURE__ */ defineComponent({
             // function completely.
             ;(instance?.proxy?.$forceUpdate as unknown as CallableFunction)()
           }
-          clean(props.schema, props.memoKey, oldKey)
+          clean(oldSchema, props.memoKey, oldKey)
         },
         { deep: true }
       )
