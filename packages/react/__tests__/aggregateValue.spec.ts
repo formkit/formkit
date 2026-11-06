@@ -46,6 +46,23 @@ describe('group context.value (lazy clone)', () => {
     expect(g.context!._value).toEqual({ y: 2 })
   })
 
+  it('_value reflects a group input before its delayed commit', async () => {
+    renderWithFormKit(h(FormKit as any, { type: 'group', id: 'av4', delay: 50 }))
+    const g = getNode('av4')!
+    await g.settled
+    const committed = g.context!.value
+    await act(async () => {
+      g.input({ z: 1 })
+    })
+    expect(g.context!._value).toEqual({ z: 1 })
+    expect(g.context!.value).toBe(committed)
+    await act(async () => {
+      await g.settled
+    })
+    expect(g.context!.value).toEqual({ z: 1 })
+    expect(g.context!._value).toBe(g.context!.value)
+  })
+
   it('list values clone as arrays', async () => {
     renderWithFormKit(
       h(FormKit as any, { type: 'list', id: 'avl' }, [
