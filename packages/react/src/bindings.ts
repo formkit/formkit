@@ -377,6 +377,64 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
     else context.state.empty = empty(payload)
   }
 
+  // Same O(n²) shape for the value itself: a group/list used to shallowClone
+  // its whole value on every child commit/input. Instead remember the latest
+  // payload and clone it once, on first read (React reads during render, which
+  // is batched). After a commit `_value` is the same object as `value`, as
+  // before. Direct writes replace the cached clone.
+  let valuePayload: unknown
+  let valueDirty = false
+  let valueCache: unknown = context.value
+  let _valuePayload: unknown
+  let _valueDirty = false
+  let _valueCache: unknown = context._value
+  let _valueLinked = false
+  if (node.type !== 'input') {
+    Object.defineProperty(context, 'value', {
+      enumerable: true,
+      configurable: true,
+      get() {
+        if (valueDirty) {
+          valueCache = shallowClone(valuePayload)
+          valueDirty = false
+        }
+        return valueCache
+      },
+      set(value: unknown) {
+        valueCache = value
+        valueDirty = false
+      },
+    })
+    Object.defineProperty(context, '_value', {
+      enumerable: true,
+      configurable: true,
+      get() {
+        if (_valueLinked) return context.value
+        if (_valueDirty) {
+          _valueCache = shallowClone(_valuePayload)
+          _valueDirty = false
+        }
+        return _valueCache
+      },
+      set(value: unknown) {
+        _valueLinked = false
+        _valueCache = value
+        _valueDirty = false
+      },
+    })
+  }
+  const markAggregateCommitted = (payload: unknown) => {
+    valuePayload = payload
+    valueDirty = true
+    _valueLinked = true
+    _valueDirty = false
+  }
+  const markAggregateInput = (payload: unknown) => {
+    _valueLinked = false
+    _valuePayload = payload
+    _valueDirty = true
+  }
+
   contextRef = context
 
   ensureReactiveStore(context)
@@ -517,7 +575,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
 
   node.on('input', ({ payload }) => {
     if (node.type !== 'input') {
-      context._value = shallowClone(payload)
+      markAggregateInput(payload)
     } else {
       context._value = domInputValue(payload)
     }
@@ -526,7 +584,7 @@ const reactBindings: FormKitPlugin = function reactBindings(node) {
 
   node.on('commitRaw', ({ payload }) => {
     if (node.type !== 'input') {
-      context.value = context._value = shallowClone(payload)
+      markAggregateCommitted(payload)
     } else {
       context.value = payload
       context._value = domInputValue(payload)
