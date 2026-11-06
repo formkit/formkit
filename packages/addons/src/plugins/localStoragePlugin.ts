@@ -106,10 +106,11 @@ export function createLocalStoragePlugin(
       const controlField = localStorageOptions?.control ?? undefined
       let controlNode: FormKitNode | undefined
       if (typeof controlField === 'string') {
-        const controlNode = node.at(controlField)
-        if (controlNode) {
-          controlNode.on('commit', () => {
-            useLocalStorage = shouldUseLocalStorage(controlNode)
+        controlNode = node.at(controlField)
+        const control = controlNode
+        if (control) {
+          control.on('commit', () => {
+            useLocalStorage = shouldUseLocalStorage(control)
             if (!useLocalStorage) {
               localStorage.removeItem(storageKey)
             }
