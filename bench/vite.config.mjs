@@ -8,7 +8,7 @@ const pkg = (name) =>
 
 const packages = [
   'utils', 'core', 'dev', 'observer', 'validation', 'i18n', 'inputs',
-  'rules', 'themes', 'vue',
+  'rules', 'themes', 'vue', 'react',
 ]
 
 export default defineConfig({
@@ -16,7 +16,7 @@ export default defineConfig({
   resolve: {
     alias: Object.fromEntries(packages.map((p) => [`@formkit/${p}`, pkg(p)])),
   },
-  define: { __DEV__: 'false' },
+  define: { __DEV__: 'false', 'process.env.NODE_ENV': JSON.stringify('production') },
   logLevel: 'warn',
   // BENCH_MINIFY=0 keeps function names readable in `pnpm bench profile`.
   build: {

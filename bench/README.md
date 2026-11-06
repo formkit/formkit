@@ -1,7 +1,9 @@
 # Benchmarks
 
-Mount-time benchmarks for `@formkit/vue` in a real (headless) Chromium, used
-to measure performance changes (see #1314).
+Mount-time benchmarks for `@formkit/vue` and `@formkit/react` in a real
+(headless) Chromium, used to measure performance changes (see #1314). The
+bundle is built in production mode (`process.env.NODE_ENV=production`), so
+Vue and React run their production builds.
 
 ```bash
 pnpm build          # the bench uses packages/*/dist
@@ -21,6 +23,7 @@ settled and two animation frames have painted.
 | `flat`      | one form with N text inputs                            |
 | `validated` | `flat` + `validation="required|length:2"` on each      |
 | `rows`      | form › list › N/10 groups › 10 text inputs (tables)    |
+| `react-flat` / `react-validated` / `react-rows` | same shapes with `@formkit/react` |
 
 Each result also reports `unmount`: the median time to unmount the app.
 
