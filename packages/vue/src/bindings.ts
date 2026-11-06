@@ -342,6 +342,16 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
   const isAggregate = node.type !== 'input'
   const value = isAggregate ? lazyCloneRef(node.value) : ref(node.value)
   const _value = isAggregate ? lazyCloneRef(node.value) : ref(node.value)
+  // A group/list commits once per child commit, and empty() walks every key of
+  // an object (for...in), so computing `state.empty` eagerly on each commit is
+  // O(n²) when mounting a large form. Compute it lazily (once per read) instead.
+  const emptyVersion = ref(0)
+  const aggregateEmpty = isAggregate
+    ? computed(() => {
+        emptyVersion.value
+        return empty(node.value)
+      })
+    : undefined
   let pendingDOMInputValue: string | undefined
   /**
    * True when a native date-family input reported an empty value via a delete
@@ -448,7 +458,7 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
       blurred: false,
       complete: isComplete,
       dirty: false,
-      empty: empty(value),
+      empty: (aggregateEmpty as unknown as boolean) ?? empty(value),
       submitted: false,
       settled: node.isSettled,
       valid: isValid,
@@ -657,7 +667,8 @@ const vueBindings: FormKitPlugin = function vueBindings(node) {
     if (node.type === 'list' && node.sync) {
       items.value = node.children.map((child) => child.uid)
     }
-    context.state.empty = empty(payload)
+    if (isAggregate) emptyVersion.value++
+    else context.state.empty = empty(payload)
   })
 
   /**
