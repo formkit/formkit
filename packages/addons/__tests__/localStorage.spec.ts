@@ -22,6 +22,16 @@ const global = {
   },
 }
 
+// Node 26+ ships its own `localStorage` global, which is undefined unless
+// --localstorage-file is set and shadows jsdom's. Restore jsdom's storage.
+declare const jsdom: { window: Window } | undefined
+if (!globalThis.localStorage && typeof jsdom !== 'undefined') {
+  Object.defineProperty(globalThis, 'localStorage', {
+    value: jsdom.window.localStorage,
+    configurable: true,
+  })
+}
+
 describe('localStorage plugin', () => {
   beforeEach(() => {
     localStorage.clear()
