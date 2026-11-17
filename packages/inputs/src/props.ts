@@ -151,8 +151,15 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
       | (Props['type'] extends FormKitTypeDefinition<any>
           ? Props['type']
           : never & {})
-      | (Props['type'] extends keyof FormKitInputProps<Props>
-          ? Props['type']
+      // A union of known types (e.g. a dynamic `type` binding) cannot be
+      // narrowed to a single input, so it falls through here — but only for
+      // types without required props. A single known type must satisfy its
+      // own entry, otherwise `<FormKit type="mask" />` would type-check
+      // without its `mask` (#1818).
+      | (IsUnion<Props['type']> extends true
+          ? Props['type'] extends LooseInputTypes<Props>
+            ? Props['type']
+            : never
           : never)
     value?: Props['type'] extends FormKitTypeDefinition<infer T>
       ? T
@@ -161,6 +168,37 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
       : string
   }
 }
+
+/**
+ * True when T is a union of two or more members.
+ * @public
+ */
+export type IsUnion<T, U = T> = T extends any
+  ? [U] extends [T]
+    ? false
+    : true
+  : never
+
+/**
+ * The keys of T that are required.
+ * @public
+ */
+export type RequiredKeys<T> = {
+  [K in keyof T]-?: {} extends Pick<T, K> ? never : K
+}[keyof T]
+
+/**
+ * Input types whose only required prop is `type`. These are the only types
+ * the untyped fallthrough input (`_`) will accept.
+ * @public
+ */
+export type LooseInputTypes<Props extends FormKitInputs<Props>> = {
+  [K in keyof FormKitInputProps<Props>]: [
+    Exclude<RequiredKeys<FormKitInputProps<Props>[K]>, 'type'>
+  ] extends [never]
+    ? K
+    : never
+}[keyof FormKitInputProps<Props>]
 
 /**
  * A merger of input props, base props, and conditional props. This is then
@@ -180,11 +218,11 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
     Partial<
       K extends keyof FormKitInputEventsAsProps<Props>
         ? Omit<
-            FormKitEventsAsProps,
+            FormKitEventsAsProps<Props>,
             keyof FormKitInputEventsAsProps<Props>[K]
           > &
             FormKitInputEventsAsProps<Props>[K]
-        : FormKitEventsAsProps
+        : FormKitEventsAsProps<Props>
     > &
     FormKitInputProps<Props>[K]
 }
@@ -316,10 +354,15 @@ export interface FormKitBaseEvents<Props extends FormKitInputs<Props>> {
  *
  * @public
  */
-export interface FormKitEventsAsProps {
-  onInput: (value: unknown, node: FormKitNode) => any
-  onInputRaw: (value: unknown, node: FormKitNode) => any
-  'onUpdate:modelValue': (value: unknown, node: FormKitNode) => any
+export interface FormKitEventsAsProps<
+  Props extends FormKitInputs<Props> = any
+> {
+  onInput: (value: PropType<Props, 'value'>, node: FormKitNode) => any
+  onInputRaw: (value: PropType<Props, 'value'>, node: FormKitNode) => any
+  'onUpdate:modelValue': (
+    value: PropType<Props, 'value'>,
+    node: FormKitNode
+  ) => any
   onNode: (node: FormKitNode) => any
 }
 
