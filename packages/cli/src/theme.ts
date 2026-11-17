@@ -1,6 +1,12 @@
 import { existsSync } from 'fs'
 import http from 'http'
 import { writeFile, readFile } from 'fs/promises'
+import {
+  extractThemePrefix,
+  normalizePrefix,
+  prefixGeneratedTheme,
+  type TailwindVersion,
+} from './themePrefix'
 import { resolve } from 'pathe'
 import { error, red, green, __dirname, info } from './index'
 import { Theme, ThemeOptions } from '@formkit/theme-creator'
@@ -23,6 +29,11 @@ interface BuildThemeOptions {
   api?: string
   format?: 'ts' | 'mjs'
   outFile?: string
+  /**
+   * A Tailwind class prefix (#1157): `tw` for Tailwind v4 (`prefix(tw)`),
+   * `tw-` for Tailwind v3 (`prefix: 'tw-'`).
+   */
+  prefix?: string
 }
 
 interface ServerResponse {
@@ -140,7 +151,15 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
             initial: true,
           })
           if (editMode) {
-            return await editTheme(path, code, checksum, variables, theme)
+            return await editTheme(
+              path,
+              code,
+              checksum,
+              variables,
+              theme,
+              extractThemePrefix(code),
+              isTw3Theme(theme) ? 3 : detectedTwVersion ?? 4
+            )
           }
         } else if (generatedTheme) {
           red(
@@ -238,6 +257,19 @@ export async function buildTheme(options: Partial<BuildThemeOptions> = {}) {
     }
   }
 
+  if (theme && options.prefix) {
+    if (options.semantic) {
+      info('--prefix is ignored for semantic (CSS) themes.')
+    } else {
+      const twVersion: TailwindVersion = isTw3Theme(themeName)
+        ? 3
+        : detectedTwVersion ?? 4
+      const prefix = normalizePrefix(options.prefix, twVersion)
+      theme = addThemeChecksum(prefixGeneratedTheme(theme, prefix, twVersion))
+      info(`Prefixed theme classes with "${prefix}" (Tailwind v${twVersion})`)
+    }
+  }
+
   if (theme) {
     const outFile =
       options.outFile || 'formkit.theme.' + (options.semantic ? 'css' : format)
@@ -253,7 +285,9 @@ async function editTheme(
   code: string,
   checksum: string,
   variables: string,
-  theme: string
+  theme: string,
+  prefix?: string,
+  twVersion: TailwindVersion = 4
 ) {
   const codeWithoutChecksum = code.replace(
     `* @checksum - ${checksum}`,
@@ -275,7 +309,7 @@ async function editTheme(
       return error('Aborting.')
     }
   }
-  await editMode(theme, variables, path)
+  await editMode(theme, variables, path, prefix, twVersion)
 }
 
 /**
@@ -295,7 +329,9 @@ async function shorten(url: string): Promise<string> {
 async function editMode(
   theme: string,
   variables: string,
-  filePath: string
+  filePath: string,
+  prefix?: string,
+  twVersion: TailwindVersion = 4
 ): Promise<void> {
   const nonce = token()
   const port = await getPort({
@@ -335,7 +371,14 @@ async function editMode(
               false,
               spinner
             )
-            await writeFile(filePath, themeCode)
+            await writeFile(
+              filePath,
+              prefix
+                ? addThemeChecksum(
+                    prefixGeneratedTheme(themeCode, prefix, twVersion)
+                  )
+                : themeCode
+            )
             spinner.text = `⚡️ theme updated.`
             savedAt = Date.now()
           } else {

@@ -108,6 +108,10 @@ program
     '--api <url>',
     'An alternative API endpoint to use for theme fetching and generation.'
   )
+  .option(
+    '--prefix <prefix>',
+    'Prefix every Tailwind class in the theme, matching your Tailwind prefix: "tw" for v4 (prefix(tw)), "tw-" for v3 (prefix: \'tw-\').'
+  )
   .description(
     'Creates a FormKit theme file (formkit.theme.ts) using a known theme and variables.'
   )
