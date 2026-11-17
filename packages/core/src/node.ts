@@ -1408,6 +1408,26 @@ export type FormKitNode<V = unknown> = {
    */
   extend: (key: string, trap: FormKitTrap) => FormKitNode
   /**
+   * Starting with this node and walking up through its ancestors, return the
+   * first node matching a given selector (like `Element.closest()` in the
+   * DOM). Selectors can be simple strings or a function.
+   *
+   * @example
+   *
+   * ```js
+   * // The nearest ancestor (or self) named "address"
+   * node.closest('address')
+   * // The nearest list
+   * node.closest('list', 'type')
+   * // Any custom condition
+   * node.closest('', (n) => n.props.attrs?.['data-section'] === 'billing')
+   * ```
+   */
+  closest: (
+    selector: string,
+    searcher?: keyof FormKitNode | FormKitSearchFunction
+  ) => FormKitNode | undefined
+  /**
    * Within a given tree, find a node matching a given selector. Selectors
    * can be simple strings or a function.
    */
@@ -1731,6 +1751,7 @@ const traps = {
   input: trap(input),
   each: trap(eachChild),
   emit: trap(emit),
+  closest: trap(closest),
   find: trap(find),
   on: trap(on),
   off: trap(off),
@@ -2960,13 +2981,15 @@ function select(
   node: FormKitNode,
   selector: string | number
 ): FormKitNode | undefined {
-  const matches = String(selector).match(/^(find)\((.*)\)$/)
+  const matches = String(selector).match(/^(find|closest)\((.*)\)$/)
   if (matches) {
     const [, action, argStr] = matches
     const args = argStr.split(',').map((arg) => arg.trim())
     switch (action) {
       case 'find':
         return node.find(args[0], args[1] as keyof FormKitNode)
+      case 'closest':
+        return node.closest(args[0], args[1] as keyof FormKitNode)
       default:
         return undefined
     }
@@ -2994,6 +3017,37 @@ function find(
   searcher: keyof FormKitNode | FormKitSearchFunction
 ): FormKitNode | undefined {
   return bfs(node, searchTerm, searcher)
+}
+
+/**
+ * Walk up from a node (inclusive) and return the first node matching the
+ * search, or undefined.
+ *
+ * @param node - A {@link FormKitNode | FormKitNode}
+ * @param _context - A {@link FormKitContext | FormKitContext}
+ * @param searchTerm - The term we are searching for
+ * @param searcher - Either a key of {@link FormKitNode | FormKitNode}, or a {@link FormKitSearchFunction | FormKitSearchFunction}
+ *
+ * @returns A {@link FormKitNode | FormKitNode} or `undefined`
+ *
+ * @internal
+ */
+function closest(
+  node: FormKitNode,
+  _context: FormKitContext,
+  searchTerm: string,
+  searcher: keyof FormKitNode | FormKitSearchFunction = 'name'
+): FormKitNode | undefined {
+  const search: FormKitSearchFunction =
+    typeof searcher === 'string'
+      ? (n: FormKitNode) => n[searcher] == searchTerm // non-strict comparison is intentional (matches bfs)
+      : searcher
+  let current: FormKitNode | null = node
+  while (current) {
+    if (search(current, searchTerm)) return current
+    current = current.parent
+  }
+  return undefined
 }
 
 /**
