@@ -573,6 +573,28 @@ describe('node', () => {
     expect(row).toBeTruthy()
     expect(row).toBe(root.at('tickets.0.row'))
   })
+
+  it('can find the closest ancestor by name, including itself (#1198)', () => {
+    const [root, nestedChild] = createTicketTree()
+    expect(nestedChild.closest('seat')).toBe(nestedChild)
+    expect(nestedChild.closest('tickets')).toBe(root.at('tickets'))
+    expect(nestedChild.closest(root.name)).toBe(root)
+    expect(nestedChild.closest('email')).toBeUndefined()
+  })
+
+  it('can find the closest ancestor by type or a search function', () => {
+    const [root, nestedChild] = createTicketTree()
+    expect(nestedChild.closest('list', 'type')).toBe(root.at('tickets'))
+    expect(
+      nestedChild.closest('', (n) => n.type === 'group' && !n.parent)
+    ).toBe(root)
+  })
+
+  it('can use closest() in an address', () => {
+    const [root, nestedChild] = createTicketTree()
+    expect(nestedChild.at('$self.closest(tickets).0.price')?.value).toBe(499)
+    expect(nestedChild.at(['closest(list, type)'])).toBe(root.at('tickets'))
+  })
 })
 
 describe('props system', () => {
