@@ -152,15 +152,10 @@ export interface FormKitInputProps<Props extends FormKitInputs<Props>> {
           ? Props['type']
           : never & {})
       // A union of known types (e.g. a dynamic `type` binding) cannot be
-      // narrowed to a single input, so it falls through here — but only for
-      // types without required props. A single known type must satisfy its
-      // own entry, otherwise `<FormKit type="mask" />` would type-check
-      // without its `mask` (#1818).
-      | (IsUnion<Props['type']> extends true
-          ? Props['type'] extends LooseInputTypes<Props>
-            ? Props['type']
-            : never
-          : never)
+      // narrowed to a single input, so it falls through here. A single known
+      // type must satisfy its own entry, so its prop types are enforced
+      // (#1818).
+      | (IsUnion<Props['type']> extends true ? Props['type'] : never)
     value?: Props['type'] extends FormKitTypeDefinition<infer T>
       ? T
       : Props['type'] extends AllReals
@@ -178,27 +173,6 @@ export type IsUnion<T, U = T> = T extends any
     ? false
     : true
   : never
-
-/**
- * The keys of T that are required.
- * @public
- */
-export type RequiredKeys<T> = {
-  [K in keyof T]-?: {} extends Pick<T, K> ? never : K
-}[keyof T]
-
-/**
- * Input types whose only required prop is `type`. These are the only types
- * the untyped fallthrough input (`_`) will accept.
- * @public
- */
-export type LooseInputTypes<Props extends FormKitInputs<Props>> = {
-  [K in keyof FormKitInputProps<Props>]: [
-    Exclude<RequiredKeys<FormKitInputProps<Props>[K]>, 'type'>
-  ] extends [never]
-    ? K
-    : never
-}[keyof FormKitInputProps<Props>]
 
 /**
  * A merger of input props, base props, and conditional props. This is then
@@ -224,7 +198,10 @@ export type MergedProps<Props extends FormKitInputs<Props>> = {
             FormKitInputEventsAsProps<Props>[K]
         : FormKitEventsAsProps<Props>
     > &
-    FormKitInputProps<Props>[K]
+    // Required props (other than `type`) are not yet enforced: wrappers that
+    // forward `$attrs` or optional props rely on this. See #1818.
+    Pick<FormKitInputProps<Props>[K], 'type' & keyof FormKitInputProps<Props>[K]> &
+    Partial<Omit<FormKitInputProps<Props>[K], 'type'>>
 }
 
 /**
