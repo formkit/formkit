@@ -218,6 +218,7 @@ const instanceScopes = new WeakMap<object, Record<string, any>[]>()
  * Indicates the a section of the schema is raw.
  */
 const raw = '__raw__'
+const deepPrefix = '__deep__'
 
 /**
  * Is a class prop.
@@ -380,7 +381,8 @@ function parseSchema(
   function parseAttrs(
     unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition,
     bindExp?: string,
-    _default = {}
+    _default = {},
+    deep = false
   ): () => FormKitSchemaAttributes {
     const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
     const boundAttrs = bindExp ? provider(compile(bindExp)) : () => ({})
@@ -411,6 +413,13 @@ function parseSchema(
         const value = unparsedAttrs[attr]
         let getValue: () => any
         const isStr = typeof value === 'string'
+        // attributes prefixed with __deep__ parse every nested object *and*
+        // array as schema attributes, e.g. expressions inside options (#1506)
+        let deepAttr = deep
+        if (attr.startsWith(deepPrefix)) {
+          attr = attr.substring(deepPrefix.length)
+          deepAttr = true
+        }
 
         if (attr.startsWith(raw)) {
           // attributes prefixed with __raw__ should not be parsed
@@ -428,6 +437,13 @@ function parseSchema(
         } else if (typeof value === 'object' && isConditional(value)) {
           // Conditional attrs require further processing
           getValue = parseConditionAttr(value, undefined)
+        } else if (
+          deepAttr &&
+          value !== null &&
+          typeof value === 'object' &&
+          (Array.isArray(value) || isPojo(value))
+        ) {
+          getValue = parseAttrs(value, undefined, {}, true)
         } else if (typeof value === 'object' && isPojo(value)) {
           // Sub-parse pojos
           getValue = parseAttrs(value)

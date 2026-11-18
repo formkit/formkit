@@ -133,6 +133,7 @@ let instanceKey: object
 const instanceScopes = new WeakMap<object, Record<string, any>[]>()
 
 const raw = '__raw__'
+const deepPrefix = '__deep__'
 const isClassProp = /[a-zA-Z0-9\-][cC]lass$/
 const booleanAttrs = new Set([
   'checked',
@@ -717,7 +718,8 @@ function parseSchema(
   function parseAttrs(
     unparsedAttrs?: FormKitSchemaAttributes | FormKitSchemaAttributesCondition,
     bindExp?: string,
-    _default = {}
+    _default = {},
+    deep = false
   ): () => any {
     const explicitAttrs = new Set(Object.keys(unparsedAttrs || {}))
     const boundAttrs = bindExp ? provider(compile(bindExp)) : () => ({})
@@ -746,6 +748,13 @@ function parseSchema(
         const value = unparsedAttrs[attr]
         let getAttrValue: () => any
         const isStr = typeof value === 'string'
+        // attributes prefixed with __deep__ parse every nested object *and*
+        // array as schema attributes, e.g. expressions inside options (#1506)
+        let deepAttr = deep
+        if (attr.startsWith(deepPrefix)) {
+          attr = attr.substring(deepPrefix.length)
+          deepAttr = true
+        }
 
         if (attr.startsWith(raw)) {
           attr = attr.substring(7)
@@ -759,7 +768,15 @@ function parseSchema(
           getAttrValue = provider(compile(value))
         } else if (typeof value === 'object' && isConditional(value)) {
           getAttrValue = parseConditionAttr(value, undefined)
+        } else if (
+          deepAttr &&
+          value !== null &&
+          typeof value === 'object' &&
+          (Array.isArray(value) || isPojo(value))
+        ) {
+          getAttrValue = parseAttrs(value, undefined, {}, true)
         } else if (typeof value === 'object' && isPojo(value)) {
+          // Sub-parse pojos
           getAttrValue = parseAttrs(value)
         } else {
           getAttrValue = () => value
@@ -772,7 +789,10 @@ function parseSchema(
       }
     }
 
-    if (Object.keys(staticAttrs).length === setters.length - 1) {
+    if (
+      !Array.isArray(unparsedAttrs) &&
+      Object.keys(staticAttrs).length === setters.length - 1
+    ) {
       return () => staticAttrs
     }
 

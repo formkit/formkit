@@ -1571,6 +1571,57 @@ describe('rendering components', () => {
       '<h1 class="formkit-help" id="help-foobar">foobar</h1>'
     )
   })
+  it('parses nested arrays and objects in props prefixed with __deep__ (#1506)', async () => {
+    const data = reactive({ blocked: true, suffix: '!' })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        schema: [
+          {
+            $formkit: 'select',
+            name: 'fruit',
+            __deep__options: [
+              { label: 'Apple', value: 'apple' },
+              {
+                label: '$: "Banana" + $suffix',
+                value: 'banana',
+                attrs: { disabled: '$blocked' },
+              },
+            ],
+          },
+        ],
+      },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await nextTick()
+    const banana = () => wrapper.find('option[value="banana"]')
+    expect(banana().text()).toBe('Banana!')
+    expect(banana().attributes('disabled')).toBeDefined()
+    data.blocked = false
+    data.suffix = '?'
+    await nextTick()
+    await nextTick()
+    expect(banana().text()).toBe('Banana?')
+    expect(banana().attributes('disabled')).toBeUndefined()
+  })
+
+  it('does not parse arrays in props without the __deep__ prefix', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: { blocked: true },
+        schema: [
+          {
+            $formkit: 'select',
+            name: 'price',
+            options: [{ label: '$10', value: 'ten' }],
+          },
+        ],
+      },
+      global: { plugins: [[plugin, defaultConfig]] },
+    })
+    await nextTick()
+    expect(wrapper.find('option[value="ten"]').text()).toBe('$10')
+  })
 })
 
 describe('schema $get function', () => {
