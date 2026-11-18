@@ -10,6 +10,7 @@ import {
   provide,
   markRaw,
   ConcreteComponent,
+  shallowRef,
 } from 'vue'
 import { mount } from '@vue/test-utils'
 import { FormKit, plugin, defaultConfig } from '../src'
@@ -2836,6 +2837,31 @@ describe('naked attributes', () => {
     expect(wrapper.html()).toContain(
       '<h2>I have 99 issues but components arent one</h2>'
     )
+  })
+
+  it('FormKitMessages message ids match the input aria-describedby', async () => {
+    const wrapper = mount(
+      {
+        components: { FormKitMessages },
+        setup() {
+          const node = shallowRef<FormKitNode>()
+          return { node }
+        },
+        template: `<div>
+          <FormKit id="msgId" type="text" validation="required" validation-visibility="live" @node="node = $event" />
+          <FormKitMessages v-if="node" :node="node" />
+        </div>`,
+      },
+      { attachTo: document.body, global: { plugins: [[plugin, defaultConfig]] } }
+    )
+    await new Promise((r) => setTimeout(r, 10))
+    const described = wrapper.find('#msgId').attributes('aria-describedby')
+    expect(described).toBe('msgId-rule_required')
+    const message = wrapper.find(`[id="${described}"]`)
+    expect(message.exists()).toBe(true)
+    expect(message.text()).toContain('required')
+    expect(wrapper.html()).not.toContain('id="undefined-')
+    wrapper.unmount()
   })
 
   it('outputs accessibility attributes on clickable icons', () => {

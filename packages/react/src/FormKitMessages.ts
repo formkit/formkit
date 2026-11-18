@@ -53,6 +53,9 @@ export function FormKitMessages(props: FormKitMessagesProps) {
 
   const data = {
     messages: node?.context?.messages || {},
+    // Message ids are `$id + '-' + key`, matching the input's
+    // aria-describedby — so the node's id must be in scope.
+    id: node?.props.id,
     fns: node?.context?.fns || {},
     classes: node?.context?.classes || {},
   }

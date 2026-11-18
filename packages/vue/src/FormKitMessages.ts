@@ -85,6 +85,9 @@ export const FormKitMessages = /* #__PURE__ */ defineComponent({
     const data = computed(() => {
       return {
         messages: node.value?.context?.messages || {},
+        // Message ids are `$id + '-' + key`, matching the input's
+        // aria-describedby — so the node's id must be in scope.
+        id: node.value?.props.id,
         fns: node.value?.context?.fns || {},
         classes: node.value?.context?.classes || {},
       }
