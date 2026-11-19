@@ -122,7 +122,15 @@ program
   .description(
     'Install the FormKit coding-agent skill and optionally enable it for this project.'
   )
-  .action(setupSkill)
+  .option(
+    '--agents <agents>',
+    'Comma separated agents to enable for this project, e.g. "codex,claude-code".'
+  )
+  .option(
+    '-y, --yes',
+    'Allow writing project instruction files (AGENTS.md / CLAUDE.md) without asking. Required in non-interactive shells.'
+  )
+  .action((options) => setupSkill({ ...options, version: cliVersion }))
 
 program
   .command('create-theme')

@@ -1,12 +1,13 @@
 import { mkdtemp, readFile, writeFile } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join, resolve } from 'pathe'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   detectProjectRuntime,
   enableAgentsForProject,
   installFormKitSkill,
   renderProjectInstructionSection,
+  setupSkill,
   upsertBoundedSection,
 } from '../src/skill'
 import {
@@ -171,5 +172,60 @@ describe('FormKit skill installation', () => {
 
     expect(once).toBe(twice)
     expect(twice.match(/formkit-skill:start/gu)).toHaveLength(1)
+  })
+
+  describe('consent for project instruction files (#1828)', () => {
+    async function runSetup(options: Record<string, unknown>) {
+      const projectRoot = await mkdtemp(join(tmpdir(), 'formkit-consent-'))
+      const codexHome = await mkdtemp(join(tmpdir(), 'codex-home-'))
+      const prevHome = process.env.CODEX_HOME
+      const stdinTTY = process.stdin.isTTY
+      process.env.CODEX_HOME = codexHome
+      // Simulate an agent / CI shell (no TTY)
+      Object.defineProperty(process.stdin, 'isTTY', { value: false, configurable: true })
+      const log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+      try {
+        await setupSkill({ ...options, cwd: projectRoot })
+      } finally {
+        log.mockRestore()
+        Object.defineProperty(process.stdin, 'isTTY', { value: stdinTTY, configurable: true })
+        if (prevHome === undefined) delete process.env.CODEX_HOME
+        else process.env.CODEX_HOME = prevHome
+      }
+      return { projectRoot, codexHome, log }
+    }
+
+    it('never edits AGENTS.md/CLAUDE.md non-interactively without --yes', async () => {
+      const { projectRoot, codexHome } = await runSetup({
+        agents: 'codex,claude-code',
+      })
+      await expect(readFile(join(projectRoot, 'AGENTS.md'), 'utf8')).rejects.toThrow()
+      await expect(readFile(join(projectRoot, 'CLAUDE.md'), 'utf8')).rejects.toThrow()
+      // The skill itself is still installed
+      await expect(
+        readFile(join(codexHome, 'skills/formkit/SKILL.md'), 'utf8')
+      ).resolves.toContain('# FormKit')
+    })
+
+    it('edits them with explicit --agents and --yes', async () => {
+      const { projectRoot } = await runSetup({ agents: 'codex', yes: true })
+      await expect(readFile(join(projectRoot, 'AGENTS.md'), 'utf8')).resolves.toContain(
+        '<!-- formkit-skill:start -->'
+      )
+      await expect(readFile(join(projectRoot, 'CLAUDE.md'), 'utf8')).rejects.toThrow()
+    })
+
+    it('does not touch project files when no agents are given', async () => {
+      const { projectRoot } = await runSetup({})
+      await expect(readFile(join(projectRoot, 'AGENTS.md'), 'utf8')).rejects.toThrow()
+    })
+
+    it('pins the refresh command to the installing CLI version', async () => {
+      const codexHome = await mkdtemp(join(tmpdir(), 'codex-home-'))
+      const skillPath = await installFormKitSkill({ codexHome, version: '9.9.9' })
+      const skill = await readFile(join(skillPath, 'SKILL.md'), 'utf8')
+      expect(skill).toContain('npx formkit@9.9.9 skill')
+      expect(skill).not.toContain('npx formkit skill')
+    })
   })
 })

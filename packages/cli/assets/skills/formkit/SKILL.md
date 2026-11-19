@@ -9,9 +9,9 @@ Use this skill when you are building, debugging, or refactoring FormKit forms, i
 
 ## Install and setup
 
-- Install or refresh this skill with `npx formkit skill`.
+- Install or refresh this skill with `npx formkit skill` — **ask the user before running it**; it runs a package from npm.
 - The installer copies the skill to `~/.codex/skills/formkit`.
-- The installer can also wire project instructions for Codex (`AGENTS.md`) and Claude Code (`CLAUDE.md`).
+- It only adds a bounded FormKit section to project instructions for Codex (`AGENTS.md`) or Claude Code (`CLAUDE.md`) after showing the files and getting confirmation; in non-interactive shells it never edits them unless run with `--agents codex,claude-code --yes`.
 - For OpenCode, Cline, Gemini, Qwen, Amp, pi, Cursor, Copilot, and Crush, the installer prints a ready-to-paste project instructions block.
 
 ## Runtime selection

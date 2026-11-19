@@ -56,17 +56,58 @@ const AUTO_ENABLE_FILES: Record<string, string> = {
 const FORMKIT_SECTION_START = '<!-- formkit-skill:start -->'
 const FORMKIT_SECTION_END = '<!-- formkit-skill:end -->'
 
-export async function setupSkill(): Promise<void> {
+export interface SetupSkillOptions {
+  /**
+   * Comma separated agent ids to enable for this project (e.g.
+   * "codex,claude-code"). Skips the agent prompt.
+   */
+  agents?: string
+  /**
+   * Write project instruction files (AGENTS.md / CLAUDE.md) without asking.
+   * Required to modify project files in a non-interactive shell.
+   */
+  yes?: boolean
+  /**
+   * The CLI version, used to pin the refresh command in the installed skill.
+   */
+  version?: string
+  /**
+   * Working directory (defaults to process.cwd()).
+   * @internal
+   */
+  cwd?: string
+}
+
+/**
+ * Project instruction files that enabling these agents would create/modify.
+ */
+export function projectFilesForAgents(
+  agents: Array<string>,
+  projectRoot: string
+): Array<string> {
+  return agents
+    .filter((agentId) => agentId in AUTO_ENABLE_FILES)
+    .map((agentId) => resolve(projectRoot, AUTO_ENABLE_FILES[agentId]))
+}
+
+export async function setupSkill(
+  options: SetupSkillOptions = {}
+): Promise<void> {
+  // Agents and CI often run this without a terminal. Project instruction
+  // files are never modified there unless explicitly requested with
+  // --agents and --yes (formkit/formkit#1828).
+  const interactive = !!(process.stdin.isTTY && process.stdout.isTTY)
   try {
-    const projectRoot = await resolveProjectRoot(process.cwd())
+    const cwd = options.cwd ?? process.cwd()
+    const projectRoot = await resolveProjectRoot(cwd)
     const detectedRuntime =
-      (await detectProjectRuntime(process.cwd())) ??
-      (projectRoot === process.cwd()
+      (await detectProjectRuntime(cwd)) ??
+      (projectRoot === cwd
         ? null
         : await detectProjectRuntime(projectRoot))
     const questions: Array<PromptObject<'runtime' | 'agents'>> = []
 
-    if (!detectedRuntime) {
+    if (!detectedRuntime && interactive) {
       questions.push({
         type: 'select',
         name: 'runtime',
@@ -79,28 +120,84 @@ export async function setupSkill(): Promise<void> {
       })
     }
 
-    questions.push({
-      type: 'multiselect',
-      name: 'agents',
-      message: 'Enable FormKit guidance on this project for which coding agents?',
-      choices: SUPPORTED_AGENTS.map((agent) => ({
-        title: agent.label,
-        value: agent.id,
-        selected: agent.id === 'codex',
-      })),
-      instructions: false,
-      min: 0,
-    })
+    const explicitAgents = options.agents
+      ?.split(',')
+      .map((a) => a.trim())
+      .filter(Boolean)
 
-    const response = await prompts(questions, {
-      onCancel: () => {
-        throw new Error('cancelled')
-      },
-    })
+    if (!explicitAgents && interactive) {
+      questions.push({
+        type: 'multiselect',
+        name: 'agents',
+        message:
+          'Enable FormKit guidance on this project for which coding agents? (none selected = skill only)',
+        choices: SUPPORTED_AGENTS.map((agent) => ({
+          title: agent.label,
+          value: agent.id,
+          selected: false,
+        })),
+        instructions: false,
+        min: 0,
+      })
+    }
 
-    const runtime = (detectedRuntime ?? response.runtime) as FormKitRuntime
-    const selectedAgents = (response.agents ?? []) as Array<string>
-    const skillPath = await installFormKitSkill()
+    const response = questions.length
+      ? await prompts(questions, {
+          onCancel: () => {
+            throw new Error('cancelled')
+          },
+        })
+      : {}
+
+    const runtime = (detectedRuntime ??
+      (response as any).runtime ??
+      'react') as FormKitRuntime
+    let selectedAgents = (explicitAgents ??
+      (response as any).agents ??
+      []) as Array<string>
+
+    // Show exactly which project files would change and get consent.
+    const projectFiles = projectFilesForAgents(selectedAgents, projectRoot)
+    if (projectFiles.length && !options.yes) {
+      if (!interactive) {
+        console.log(
+          chalk.yellow(
+            `Not modifying ${projectFiles.join(', ')} without confirmation. Re-run with --yes to allow it.`
+          )
+        )
+        selectedAgents = selectedAgents.filter(
+          (agentId) => !(agentId in AUTO_ENABLE_FILES)
+        )
+      } else {
+        console.log(
+          chalk.blue(
+            `This will add a bounded FormKit section to:\n${projectFiles
+              .map((f) => `  - ${f}`)
+              .join('\n')}`
+          )
+        )
+        const { confirm } = await prompts(
+          {
+            type: 'confirm',
+            name: 'confirm',
+            message: 'Modify these project files?',
+            initial: false,
+          },
+          {
+            onCancel: () => {
+              throw new Error('cancelled')
+            },
+          }
+        )
+        if (!confirm) {
+          selectedAgents = selectedAgents.filter(
+            (agentId) => !(agentId in AUTO_ENABLE_FILES)
+          )
+        }
+      }
+    }
+
+    const skillPath = await installFormKitSkill({ version: options.version })
     const enablement = await enableAgentsForProject({
       agents: selectedAgents,
       projectRoot,
@@ -152,6 +249,7 @@ export async function detectProjectRuntime(
 export async function installFormKitSkill(options: {
   codexHome?: string
   sourceDir?: string
+  version?: string
 } = {}): Promise<string> {
   const sourceDir = options.sourceDir ?? (await getFormKitSkillSourceDir())
   const codexHome = options.codexHome ?? getCodexHome()
@@ -160,6 +258,18 @@ export async function installFormKitSkill(options: {
   await mkdir(dirname(destination), { recursive: true })
   await rm(destination, { recursive: true, force: true })
   await cp(sourceDir, destination, { recursive: true })
+
+  // Pin the refresh command to the exact CLI version that installed the
+  // skill, so agents never run an unreviewed "latest" (formkit#1828).
+  if (options.version) {
+    const skillFile = resolve(destination, 'SKILL.md')
+    const skill = await readFile(skillFile, 'utf8')
+    await writeFile(
+      skillFile,
+      skill.replaceAll('npx formkit skill', `npx formkit@${options.version} skill`),
+      'utf8'
+    )
+  }
 
   return destination
 }
