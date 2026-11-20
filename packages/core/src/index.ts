@@ -91,6 +91,7 @@ export type {
   FormKitSchemaAttributes,
   FormKitSchemaAttributesCondition,
   FormKitSchemaComponent,
+  FormKitSchemaSlotContent,
   FormKitSchemaComposable,
   FormKitSchemaCondition,
   FormKitSchemaContext,

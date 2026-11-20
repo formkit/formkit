@@ -112,7 +112,27 @@ export type FormKitSchemaAttributes =
 export type FormKitSchemaComponent = {
   $cmp: string
   props?: Record<string, any>
+  /**
+   * Named slots for the component. Each slot accepts the same content as
+   * `children` (an array of nodes, a string/expression, or a conditional).
+   * The component's slot props are in scope for the slot's nodes. If both
+   * `children` and `slots.default` are provided, `slots.default` wins. In
+   * React, each named slot is passed as a render-function prop of the same
+   * name.
+   */
+  slots?: Record<string, FormKitSchemaSlotContent>
 } & FormKitSchemaProps
+
+/**
+ * The content of a named slot on a component schema node — the same forms
+ * accepted by `children`.
+ *
+ * @public
+ */
+export type FormKitSchemaSlotContent =
+  | string
+  | FormKitSchemaNode[]
+  | FormKitSchemaCondition
 
 /**
  * Syntactic sugar for a FormKitSchemaComponent node that uses FormKit.

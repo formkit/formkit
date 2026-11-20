@@ -803,6 +803,82 @@ function parseSchema(
     }
   }
 
+  /**
+   * Compiles any form of schema children (string, expression, array of nodes
+   * or a conditional) down to a function that produces them.
+   * @param lib - The available components
+   * @param content - The children content to compile
+   */
+  function compileChildren(
+    lib: FormKitComponentLibrary,
+    content: string | FormKitSchemaNode[] | FormKitSchemaCondition
+  ): RenderChildren | null {
+    if (typeof content === 'string') {
+      // We are dealing with a raw string value
+      if (content.startsWith('$slots.')) {
+        return provider(compile(content))
+      } else if (content.startsWith('$') && content.length > 1) {
+        const value = provider(compile(content))
+        return () => String(value())
+      }
+      return () => String(content)
+    } else if (Array.isArray(content)) {
+      // We are dealing with node sub-children
+      return createElements(lib, content)
+    } else if (content && typeof content === 'object') {
+      // This is a conditional if/else clause
+      const [childCondition, c, a] = parseCondition(lib, content)
+      return (iterationData?: Record<string, unknown>) =>
+        childCondition && childCondition()
+          ? c && c(iterationData)
+          : a && a(iterationData)
+    }
+    return null
+  }
+
+  /**
+   * Wraps a children producing function in a slot function that pushes the
+   * slot props, iteration data, and captured parent scope (#1481) into the
+   * instance scope while the slot content renders.
+   * @param produceChildren - The compiled slot content
+   * @param iterationData - Data from a parent for loop (if any)
+   */
+  function createScopedSlot(
+    produceChildren: RenderChildren,
+    iterationData?: Record<string, unknown>
+  ): RenderableSlot {
+    return (
+      slotData?: Record<string, any>,
+      key?: object,
+      capturedScope?: Record<string, any>[]
+    ): RenderableList => {
+      // We need to switch the current instance key back to the one that
+      // originally called this component's render function.
+      const currentKey = instanceKey
+      if (key) instanceKey = key
+      // Push captured scope data so children can access parent scope
+      // data like $value (issue #1481). The scope is captured at
+      // createSlots time before cleanup runs.
+      const scopeItemsAdded = capturedScope?.length || 0
+      if (capturedScope) {
+        for (let i = capturedScope.length - 1; i >= 0; i--) {
+          instanceScopes.get(instanceKey)?.unshift(capturedScope[i])
+        }
+      }
+      if (iterationData) instanceScopes.get(instanceKey)?.unshift(iterationData)
+      if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+      const c = produceChildren(iterationData)
+      // Cleanup
+      if (slotData) instanceScopes.get(instanceKey)?.shift()
+      if (iterationData) instanceScopes.get(instanceKey)?.shift()
+      for (let i = 0; i < scopeItemsAdded; i++) {
+        instanceScopes.get(instanceKey)?.shift()
+      }
+      instanceKey = currentKey
+      return c as RenderableList
+    }
+  }
+
   function parseNode(
     lib: FormKitComponentLibrary,
     _node: FormKitSchemaNode
@@ -842,67 +918,49 @@ function parseSchema(
       condition = () => true
     }
 
-    if ('children' in node) {
-      if (typeof node.children === 'string') {
-        if (node.children.startsWith('$slots.')) {
-          element = element === 'text' ? 'slot' : element
-          children = provider(compile(node.children))
-        } else if (node.children.startsWith('$') && node.children.length > 1) {
-          const value = provider(compile(node.children))
-          children = () => String(value())
-        } else {
-          children = () => String(node.children)
-        }
-      } else if (Array.isArray(node.children)) {
-        children = createElements(lib, node.children)
-      } else if (node.children) {
-        const [childCondition, c, a] = parseCondition(lib, node.children)
-        children = (iterationData?: Record<string, unknown>) =>
-          childCondition && childCondition()
-            ? c && c(iterationData)
-            : a && a(iterationData)
+    // Compile children down to a function
+    if ('children' in node && node.children) {
+      if (
+        typeof node.children === 'string' &&
+        node.children.startsWith('$slots.')
+      ) {
+        // this is a lone text node, turn it into a slot
+        element = element === 'text' ? 'slot' : element
       }
+      children = compileChildren(lib, node.children)
     }
 
     if (isComponent(node)) {
-      if (children) {
-        const produceChildren = children
-        children = (iterationData?: Record<string, unknown>) => {
-          return {
-            default(
-              slotData?: Record<string, any>,
-              key?: object,
-              capturedScope?: Record<string, any>[]
-            ): RenderableList {
-              const currentKey = instanceKey
-              if (key) instanceKey = key
-
-              const scopeItemsAdded = capturedScope?.length || 0
-              if (capturedScope) {
-                for (let i = capturedScope.length - 1; i >= 0; i--) {
-                  instanceScopes.get(instanceKey)?.unshift(capturedScope[i])
-                }
-              }
-
-              if (iterationData)
-                instanceScopes.get(instanceKey)?.unshift(iterationData)
-              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-
-              const c = produceChildren(iterationData)
-
-              if (slotData) instanceScopes.get(instanceKey)?.shift()
-              if (iterationData) instanceScopes.get(instanceKey)?.shift()
-              for (let i = 0; i < scopeItemsAdded; i++) {
-                instanceScopes.get(instanceKey)?.shift()
-              }
-
-              instanceKey = currentKey
-              return c as RenderableList
-            },
-          }
+      // Children of components need to be provided as an object of slots.
+      // `children` is the default slot, and `slots` may provide named slots
+      // (#190). If both `children` and `slots.default` are provided,
+      // `slots.default` wins.
+      const slotProducers: Record<string, RenderChildren> = {}
+      if (children) slotProducers.default = children
+      if (node.slots && typeof node.slots === 'object') {
+        for (const slotName in node.slots) {
+          const content = node.slots[slotName]
+          if (content === undefined || content === null) continue
+          const produce = compileChildren(lib, content)
+          if (produce) slotProducers[slotName] = produce
         }
+      }
+      const slotNames = Object.keys(slotProducers)
+      if (slotNames.length) {
+        // We create a new scope for each slot, and then on each render pass
+        // the scoped slot props to the scope.
+        children = (iterationData?: Record<string, unknown>) =>
+          slotNames.reduce((slots, slotName) => {
+            slots[slotName] = createScopedSlot(
+              slotProducers[slotName],
+              iterationData
+            )
+            return slots
+          }, {} as RenderableSlots)
         children.slot = true
       } else {
+        // If we dont have any children, we still need to provide an object
+        // instead of an empty array (which raises a warning)
         children = () => ({})
       }
     }
@@ -938,6 +996,23 @@ function parseSchema(
       }
       return allSlots
     }, {} as RenderableSlots)
+  }
+
+  /**
+   * Maps named (non-default) slots to render-function props.
+   * @param slots - The slots to map
+   */
+  function namedSlotProps(
+    slots: RenderableSlots
+  ): Record<string, (props?: Record<string, any>) => ReactNode> {
+    const props: Record<string, (props?: Record<string, any>) => ReactNode> =
+      {}
+    for (const slotName in slots) {
+      if (slotName === 'default') continue
+      props[slotName] = (slotProps?: Record<string, any>) =>
+        slots[slotName](slotProps) as ReactNode
+    }
+    return props
   }
 
   function createElement(
@@ -1009,6 +1084,9 @@ function parseSchema(
             resolvedEl as ComponentType<any>,
             {
               ...(normalizedAttrs || {}),
+              // React has no slots: named slots are passed as render-function
+              // props of the same name (#190). The default slot is children.
+              ...namedSlotProps(slots),
               slots,
             },
             slots.default ? slots.default() : null
