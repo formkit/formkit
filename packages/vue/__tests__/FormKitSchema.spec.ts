@@ -2,7 +2,7 @@ import { reactive, nextTick, defineComponent, markRaw, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { FormKitSchemaNode, FormKitSchemaDOMNode } from '@formkit/core'
 import { FormKitSchema } from '../src/FormKitSchema'
-import { createNode, getNode, resetRegistry } from '@formkit/core'
+import { createNode, getNode, resetRegistry, sugar } from '@formkit/core'
 import corePlugin from '../src/bindings'
 import { plugin } from '../src/plugin'
 import { defaultConfig } from '../src'
@@ -1787,4 +1787,218 @@ describe('schema memoization', () => {
 
     expect(clicked).toBe('2')
   })
+})
+
+describe('named slots on $cmp nodes (#190)', () => {
+  const Card = defineComponent({
+    name: 'Card',
+    data() {
+      return { title: 'Card title', count: 1 }
+    },
+    template: `<div class="card">
+      <header><slot name="header" :title="title" :count="count" /></header>
+      <main><slot :count="count" /></main>
+      <footer><slot name="footer" :count="count" /></footer>
+      <button @click="count++">inc</button>
+    </div>`,
+  })
+  const library = markRaw({ Card })
+
+  it('renders a named slot alongside the default slot', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            children: [{ $el: 'p', children: 'Body' }],
+            slots: {
+              header: [{ $el: 'h2', children: 'Header' }],
+              footer: 'Footer text',
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.find('header').html()).toBe(
+      '<header>\n  <h2>Header</h2>\n</header>'
+    )
+    expect(wrapper.find('main p').text()).toBe('Body')
+    expect(wrapper.find('footer').text()).toBe('Footer text')
+  })
+
+  it('renders named slots without any children', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library,
+        schema: [{ $cmp: 'Card', slots: { footer: 'Only footer' } }],
+      },
+    })
+    expect(wrapper.find('footer').text()).toBe('Only footer')
+    expect(wrapper.find('main').text()).toBe('')
+  })
+
+  it('makes scoped slot props available and reacts to changes', async () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            slots: {
+              header: [{ $el: 'h2', children: '$title' }],
+              footer: '$: "Count: " + $count',
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.find('h2').text()).toBe('Card title')
+    expect(wrapper.find('footer').text()).toBe('Count: 1')
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.find('footer').text()).toBe('Count: 2')
+  })
+
+  it('can access parent scope data and react to data changes', async () => {
+    const data = reactive({ value: { foo: 'bar' }, user: 'Jane' })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            slots: {
+              header: [
+                { $el: 'h2', children: '$: $title + " for " + $user' },
+              ],
+              footer: '$value.foo',
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.find('h2').text()).toBe('Card title for Jane')
+    expect(wrapper.find('footer').text()).toBe('bar')
+    data.user = 'Bob'
+    data.value.foo = 'baz'
+    await nextTick()
+    expect(wrapper.find('h2').text()).toBe('Card title for Bob')
+    expect(wrapper.find('footer').text()).toBe('baz')
+  })
+
+  it('can access iteration scope when the $cmp is in a for loop', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data: { items: ['a', 'b'] },
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            for: ['item', 'index', '$items'],
+            slots: { footer: '$: $item + $index' },
+          },
+        ],
+      },
+    })
+    expect(wrapper.findAll('footer').map((f) => f.text())).toEqual([
+      'a0',
+      'b1',
+    ])
+  })
+
+  it('supports conditional slot content', async () => {
+    const data = reactive({ show: true })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            slots: {
+              header: {
+                if: '$show',
+                then: [{ $el: 'h2', children: 'Shown' }],
+                else: [{ $el: 'h3', children: 'Hidden' }],
+              },
+              footer: [
+                { $el: 'span', if: '$count > 1', children: 'Many' },
+              ],
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.find('h2').text()).toBe('Shown')
+    expect(wrapper.find('footer span').exists()).toBe(false)
+    data.show = false
+    await nextTick()
+    expect(wrapper.find('h2').exists()).toBe(false)
+    expect(wrapper.find('h3').text()).toBe('Hidden')
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.find('footer span').text()).toBe('Many')
+  })
+
+  it('supports for loops inside slot content', async () => {
+    const data = reactive({ tags: ['x', 'y'] })
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        data,
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            slots: {
+              header: [
+                {
+                  $el: 'span',
+                  for: ['tag', '$tags'],
+                  children: '$: $tag + $count',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    })
+    expect(wrapper.findAll('header span').map((s) => s.text())).toEqual([
+      'x1',
+      'y1',
+    ])
+    data.tags.push('z')
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.findAll('header span').map((s) => s.text())).toEqual([
+      'x2',
+      'y2',
+      'z2',
+    ])
+  })
+
+  it('prefers slots.default over children', () => {
+    const wrapper = mount(FormKitSchema, {
+      props: {
+        library,
+        schema: [
+          {
+            $cmp: 'Card',
+            children: 'from children',
+            slots: { default: '$: "from slots " + $count' },
+          },
+        ],
+      },
+    })
+    expect(wrapper.find('main').text()).toBe('from slots 1')
+  })
+
+  it('does not change $formkit sugar nodes or strip slots from $cmp', () => {
+    // $formkit sugar keeps treating unknown keys (including `slots`) as props
+    expect(sugar({ $formkit: 'text', slots: { a: 'b' } } as any)).toEqual({
+      $cmp: 'FormKit',
+      props: { type: 'text', slots: { a: 'b' } },
+    })
+    const cmp: FormKitSchemaNode = { $cmp: 'Card', slots: { header: 'Hi' } }
+    expect(sugar(cmp)).toBe(cmp)
+  })
+
 })

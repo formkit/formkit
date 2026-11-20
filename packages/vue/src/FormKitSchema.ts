@@ -465,6 +465,82 @@ function parseSchema(
   }
 
   /**
+   * Compiles any form of schema children (string, expression, array of nodes
+   * or a conditional) down to a function that produces them.
+   * @param library - The available components
+   * @param content - The children content to compile
+   */
+  function compileChildren(
+    library: FormKitComponentLibrary,
+    content: string | FormKitSchemaNode[] | FormKitSchemaCondition
+  ): RenderChildren | null {
+    if (typeof content === 'string') {
+      // We are dealing with a raw string value
+      if (content.startsWith('$slots.')) {
+        return provider(compile(content))
+      } else if (content.startsWith('$') && content.length > 1) {
+        const value = provider(compile(content))
+        return () => String(value())
+      }
+      return () => String(content)
+    } else if (Array.isArray(content)) {
+      // We are dealing with node sub-children
+      return createElements(library, content)
+    } else if (content && typeof content === 'object') {
+      // This is a conditional if/else clause
+      const [childCondition, c, a] = parseCondition(library, content)
+      return (iterationData?: Record<string, unknown>) =>
+        childCondition && childCondition()
+          ? c && c(iterationData)
+          : a && a(iterationData)
+    }
+    return null
+  }
+
+  /**
+   * Wraps a children producing function in a slot function that pushes the
+   * slot props, iteration data, and captured parent scope (#1481) into the
+   * instance scope while the slot content renders.
+   * @param produceChildren - The compiled slot content
+   * @param iterationData - Data from a parent for loop (if any)
+   */
+  function createScopedSlot(
+    produceChildren: RenderChildren,
+    iterationData?: Record<string, unknown>
+  ): RenderableSlot {
+    return (
+      slotData?: Record<string, any>,
+      key?: object,
+      capturedScope?: Record<string, any>[]
+    ): RenderableList => {
+      // We need to switch the current instance key back to the one that
+      // originally called this component's render function.
+      const currentKey = instanceKey
+      if (key) instanceKey = key
+      // Push captured scope data so children can access parent scope
+      // data like $value (issue #1481). The scope is captured at
+      // createSlots time before cleanup runs.
+      const scopeItemsAdded = capturedScope?.length || 0
+      if (capturedScope) {
+        for (let i = capturedScope.length - 1; i >= 0; i--) {
+          instanceScopes.get(instanceKey)?.unshift(capturedScope[i])
+        }
+      }
+      if (iterationData) instanceScopes.get(instanceKey)?.unshift(iterationData)
+      if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
+      const c = produceChildren(iterationData)
+      // Cleanup
+      if (slotData) instanceScopes.get(instanceKey)?.shift()
+      if (iterationData) instanceScopes.get(instanceKey)?.shift()
+      for (let i = 0; i < scopeItemsAdded; i++) {
+        instanceScopes.get(instanceKey)?.shift()
+      }
+      instanceKey = currentKey
+      return c as RenderableList
+    }
+  }
+
+  /**
    * Given a single schema node, parse it and extract the value.
    * @param data - A state object provided to each node
    * @param node - The schema node being parsed
@@ -517,77 +593,47 @@ function parseSchema(
 
     // Compile children down to a function
     if ('children' in node && node.children) {
-      if (typeof node.children === 'string') {
-        // We are dealing with a raw string value
-        if (node.children.startsWith('$slots.')) {
-          // this is a lone text node, turn it into a slot
-          element = element === 'text' ? 'slot' : element
-          children = provider(compile(node.children))
-        } else if (node.children.startsWith('$') && node.children.length > 1) {
-          const value = provider(compile(node.children))
-          children = () => String(value())
-        } else {
-          children = () => String(node.children)
-        }
-      } else if (Array.isArray(node.children)) {
-        // We are dealing with node sub-children
-        children = createElements(library, node.children)
-      } else {
-        // This is a conditional if/else clause
-        const [childCondition, c, a] = parseCondition(library, node.children)
-        children = (iterationData?: Record<string, unknown>) =>
-          childCondition && childCondition()
-            ? c && c(iterationData)
-            : a && a(iterationData)
+      if (
+        typeof node.children === 'string' &&
+        node.children.startsWith('$slots.')
+      ) {
+        // this is a lone text node, turn it into a slot
+        element = element === 'text' ? 'slot' : element
       }
+      children = compileChildren(library, node.children)
     }
 
     if (isComponent(node)) {
-      if (children) {
-        // Children of components need to be provided as an object of slots
-        // so we provide an object with the default slot provided as children.
-        // We also create a new scope for this default slot, and then on each
-        // render pass the scoped slot props to the scope.
-        const produceChildren = children
-        children = (iterationData?: Record<string, unknown>) => {
-          return {
-            default(
-              slotData?: Record<string, any>,
-              key?: object,
-              capturedScope?: Record<string, any>[]
-            ): RenderableList {
-              // We need to switch the current instance key back to the one that
-              // originally called this component's render function.
-              const currentKey = instanceKey
-              if (key) instanceKey = key
-              // Push captured scope data so children can access parent scope
-              // data like $value (issue #1481). The scope is captured at
-              // createSlots time before cleanup runs.
-              const scopeItemsAdded = capturedScope?.length || 0
-              if (capturedScope) {
-                for (let i = capturedScope.length - 1; i >= 0; i--) {
-                  instanceScopes.get(instanceKey)?.unshift(capturedScope[i])
-                }
-              }
-              if (iterationData)
-                instanceScopes.get(instanceKey)?.unshift(iterationData)
-              if (slotData) instanceScopes.get(instanceKey)?.unshift(slotData)
-              const c = produceChildren(iterationData)
-              // Cleanup
-              if (slotData) instanceScopes.get(instanceKey)?.shift()
-              if (iterationData) instanceScopes.get(instanceKey)?.shift()
-              for (let i = 0; i < scopeItemsAdded; i++) {
-                instanceScopes.get(instanceKey)?.shift()
-              }
-              instanceKey = currentKey
-              return c as RenderableList
-            },
-          }
+      // Children of components need to be provided as an object of slots.
+      // `children` is the default slot, and `slots` may provide named slots
+      // (#190). If both `children` and `slots.default` are provided,
+      // `slots.default` wins.
+      const slotProducers: Record<string, RenderChildren> = {}
+      if (children) slotProducers.default = children
+      if (node.slots && typeof node.slots === 'object') {
+        for (const slotName in node.slots) {
+          const content = node.slots[slotName]
+          if (content === undefined || content === null) continue
+          const produce = compileChildren(library, content)
+          if (produce) slotProducers[slotName] = produce
         }
+      }
+      const slotNames = Object.keys(slotProducers)
+      if (slotNames.length) {
+        // We create a new scope for each slot, and then on each render pass
+        // the scoped slot props to the scope.
+        children = (iterationData?: Record<string, unknown>) =>
+          slotNames.reduce((slots, slotName) => {
+            slots[slotName] = createScopedSlot(
+              slotProducers[slotName],
+              iterationData
+            )
+            return slots
+          }, {} as RenderableSlots)
         children.slot = true
       } else {
         // If we dont have any children, we still need to provide an object
-        // instead of an empty array (which raises a warning in vue)
+        // instead of an empty array (which raises a warning)
         children = () => ({})
       }
     }
