@@ -21,6 +21,10 @@ function scenario(name, n) {
     return () => h(FormKit, { type: 'form', id: 'bench', actions: false }, () =>
       Array.from({ length: n }, (_, i) => h(FormKit, { type: 'text', name: `f${i}`, label: `Field ${i}`, ...extra })))
   }
+  if (name === 'flat-wrapped') {
+    return () => h(FormKit, { type: 'form', id: 'bench', actions: false }, () =>
+      h('div', Array.from({ length: n }, (_, i) => h(FormKit, { type: 'text', name: `f${i}`, label: `Field ${i}` }))))
+  }
   if (name === 'rows') {
     const rows = Math.round(n / 10)
     return () => h(FormKit, { type: 'form', id: 'bench', actions: false }, () =>
