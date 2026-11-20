@@ -23,6 +23,7 @@ settled and two animation frames have painted.
 | `flat`      | one form with N text inputs                            |
 | `validated` | `flat` + `validation="required|length:2"` on each      |
 | `rows`      | form › list › N/10 groups › 10 text inputs (tables)    |
+| `flat-wrapped` | `flat` with the inputs inside one `<div>` (see #1792: Chromium/WebKit form-association cost) |
 | `react-flat` / `react-validated` / `react-rows` | same shapes with `@formkit/react` |
 
 Each result also reports `unmount`: the median time to unmount the app.
