@@ -201,7 +201,6 @@ describe('createWebMCPPlugin', () => {
       'address.city',
       'age',
       'email',
-      'password',
       'plan',
       'tags',
       'terms',
@@ -266,6 +265,70 @@ describe('createWebMCPPlugin', () => {
     expect(await fill.execute({ values: 'bad' } as any)).toEqual({
       error: '`values` must be an object.',
     })
+  })
+
+  it('excludes and refuses password inputs unless sensitive: true', async () => {
+    const mc = fakeModelContext()
+    mount(signupForm(), withPlugin({ modelContext: mc as any }))
+    await flushPromises()
+    const fill = mc.tools.get(`formkit_fill_${ID}`)!
+    const refused: any = await fill.execute({
+      values: { email: 'ada@example.com', password: 'stolen' },
+    })
+    expect(refused.error).toContain('password')
+    expect(getNode('sign-Up.Form')!.value).toEqual(
+      expect.objectContaining({ password: 'hunter2', email: undefined })
+    )
+
+    const mc2 = fakeModelContext()
+    mount(
+      signupForm({ id: 'sens' }),
+      withPlugin({ modelContext: mc2 as any, sensitive: true })
+    )
+    await flushPromises()
+    const sensitiveFill = mc2.tools.get('formkit_fill_sens')!
+    expect(
+      (sensitiveFill.inputSchema as any).properties.values.properties.password
+    ).toEqual({ type: 'string', description: 'Password' })
+    const result: any = await sensitiveFill.execute({
+      values: { password: 'correct-horse', csrf: 'forged' },
+    })
+    // Hidden inputs stay locked even with sensitive: true.
+    expect(result.error).toContain('csrf')
+    const ok: any = await sensitiveFill.execute({
+      values: { password: 'correct-horse' },
+    })
+    expect(ok.fields.map((f: any) => f.address)).toEqual(['password'])
+    expect(getNode('sens')!.value).toEqual(
+      expect.objectContaining({ password: 'correct-horse' })
+    )
+    // Values are still never described.
+    const described = JSON.stringify(
+      await mc2.tools.get('formkit_describe_sens')!.execute()
+    )
+    expect(described).not.toContain('correct-horse')
+  })
+
+  it('does literally nothing per form without a model context', async () => {
+    // A proxy node that records every property access: without WebMCP the
+    // plugin may only read props.type (and must not add listeners or
+    // describe the form).
+    const accessed: PropertyKey[] = []
+    const on = vi.fn()
+    const node = new Proxy(
+      { props: { type: 'form', id: 'zero' }, on, children: [] } as any,
+      {
+        get(target, key) {
+          accessed.push(key)
+          return target[key]
+        },
+      }
+    )
+    createWebMCPPlugin()(node)
+    createWebMCPPlugin({ values: true, submit: true })(node)
+    await flushPromises()
+    expect(on).not.toHaveBeenCalled()
+    expect(accessed).toEqual(['props', 'props'])
   })
 
   it('fill refuses to write hidden inputs', async () => {

@@ -79,6 +79,12 @@ export interface FormKitWebMCPOptions {
    */
   submit?: boolean
   /**
+   * Let agents fill sensitive inputs (`password`). By default they are left
+   * out of the fill schema and fills to them are refused. Their values are
+   * never returned either way. Defaults to `false`.
+   */
+  sensitive?: boolean
+  /**
    * Transform a tool's JSON result before it is returned to the agent, e.g.
    * to wrap it as MCP content with {@link webMCPTextResult}. By default the
    * plain JSON object is returned.
@@ -263,6 +269,9 @@ function createTools(
   options: FormKitWebMCPOptions
 ): FormKitWebMCPTool[] {
   const id = webMCPToolId(String(node.props.id ?? node.name))
+  const notFillable = new Set(
+    options.sensitive === true ? NOT_FILLABLE : [...NOT_FILLABLE, ...SENSITIVE]
+  )
   const shape = describeForm(node)
   const title = formTitle(node, shape)
   const wrap = (kind: FormKitWebMCPToolKind, result: unknown) =>
@@ -282,7 +291,7 @@ function createTools(
     {
       name: `formkit_fill_${id}`,
       description: `Fill in the ${title}. Pass \`values\` keyed by field address (from formkit_describe_${id}); for fields with options, give an option value or its label. Values are entered as if a user typed them, then validated. Returns which fields were written and any validation errors. Does not submit the form.`,
-      inputSchema: fillSchema(shape),
+      inputSchema: fillSchema(shape, notFillable),
       execute: async (args) => {
         const { values, strict } = parseArgs(args)
         if (!values || typeof values !== 'object' || Array.isArray(values)) {
@@ -290,6 +299,7 @@ function createTools(
         }
         const blocked = blockedAddresses(
           node,
+          notFillable,
           values as Record<string, unknown>
         )
         if (blocked.length) {
@@ -380,9 +390,13 @@ function collectErrors(
 }
 
 /**
- * Input types that are not meant to be filled by a person (or an agent).
+ * Input types an agent may never fill: app-controlled or not values at all.
  */
-const NOT_FILLABLE = new Set(['hidden', 'button', 'submit'])
+const NOT_FILLABLE = ['hidden', 'button', 'submit']
+/**
+ * Input types an agent may fill only with `sensitive: true`.
+ */
+const SENSITIVE = ['password']
 /**
  * Addresses in `values` (flat dot addresses or nested objects/arrays) that
  * point at non-fillable inputs like `hidden` — app-controlled values such as
@@ -390,12 +404,13 @@ const NOT_FILLABLE = new Set(['hidden', 'button', 'submit'])
  */
 function blockedAddresses(
   node: FormKitNode,
+  notFillable: Set<string>,
   values: Record<string, unknown>
 ): string[] {
   const locked: string[] = []
   const walk = (field: FormKitFieldDescription) => {
     if (field.nodeType === 'input') {
-      if (field.address && NOT_FILLABLE.has(field.type)) locked.push(field.address)
+      if (field.address && notFillable.has(field.type)) locked.push(field.address)
     } else field.children?.forEach(walk)
   }
   walk(describeForm(node))
@@ -423,12 +438,15 @@ const FORMATS: Record<string, string> = {
   time: 'time',
 }
 
-function fillSchema(shape: FormKitFieldDescription): FormKitJSONSchema {
+function fillSchema(
+  shape: FormKitFieldDescription,
+  notFillable: Set<string>
+): FormKitJSONSchema {
   const properties: Record<string, FormKitJSONSchema> = {}
   const walk = (field: FormKitFieldDescription) => {
     if (field.disabled) return
     if (field.nodeType === 'input') {
-      if (field.address && !NOT_FILLABLE.has(field.type)) {
+      if (field.address && !notFillable.has(field.type)) {
         properties[field.address] = fieldSchema(field)
       }
       return
