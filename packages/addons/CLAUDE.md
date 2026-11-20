@@ -11,6 +11,8 @@ src/
 │   ├── autoAnimatePlugin.ts    # Auto-animate DOM sections
 │   ├── autoHeightTextarea.ts   # Auto-resize textarea height
 │   ├── describeForm.ts         # describeForm(): JSON snapshot of a form (agents/tests)
+│   ├── fillForm.ts             # fillForm(): write side of describeForm
+│   ├── webMCP.ts               # createWebMCPPlugin(): experimental WebMCP tools per form
 │   ├── floatingLabels/
 │   │   └── floatingLabelsPlugin.ts  # Material-style floating labels
 │   ├── inputCount.ts           # Character count display
@@ -40,6 +42,7 @@ src/
 | `createLocalStoragePlugin(options?)` | Persist/restore form data | `group` types (form, group, multi-step) |
 | `createMaxLengthCountdownPlugin(options?)` | Shows remaining chars in suffix | `textarea` (configurable) |
 | `createMultiStepPlugin(options?)` | Wizard-style multi-step forms | Creates `multi-step` and `step` types |
+| `createWebMCPPlugin(options?)` | Experimental: registers `formkit_describe/fill/submit_<id>` WebMCP tools (`document`/`navigator.modelContext`), unregisters on destroy | `type="form"` only |
 | `describeForm(node, options?)` | Not a plugin: returns a JSON description of a node tree (fields, rules, options, errors; values opt-in, passwords redacted) | Any node |
 
 ### Multi-Step System
