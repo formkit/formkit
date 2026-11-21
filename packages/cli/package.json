@@ -1,6 +1,6 @@
 {
   "name": "@formkit/cli",
-  "version": "2.8.1",
+  "version": "2.9.0",
   "type": "module",
   "description": "FormKit command line interface.",
   "main": "dist/index.cjs",

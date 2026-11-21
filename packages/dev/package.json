@@ -1,6 +1,6 @@
 {
   "name": "@formkit/dev",
-  "version": "2.8.1",
+  "version": "2.9.0",
   "type": "module",
   "description": "Development tools for FormKit.",
   "main": "dist/index.cjs",
