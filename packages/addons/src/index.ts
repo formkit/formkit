@@ -14,4 +14,9 @@ export * from './plugins/autoHeightTextarea'
 export * from './plugins/maxlengthCountdown'
 export * from './plugins/describeForm'
 export * from './plugins/fillForm'
+export { toJSONSchema } from './plugins/toJSONSchema'
+export type {
+  FormKitJSONSchema,
+  FormKitToJSONSchemaOptions
+} from './plugins/toJSONSchema'
 export * from './plugins/webMCP'
