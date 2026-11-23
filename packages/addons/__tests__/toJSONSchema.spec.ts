@@ -51,7 +51,7 @@ describe('toJSONSchema', () => {
     expect(schema.required).toEqual(['addresses', 'secret'])
     expect(schema.additionalProperties).toBe(false)
     expect(schema.properties.addresses).toMatchObject({
-      type: 'array',
+      type: ['array', 'null'],
       minItems: 1,
       maxItems: 3,
       items: {
@@ -165,5 +165,50 @@ describe('toJSONSchema', () => {
       maxItems: 2,
       items: { enum: ['a', 'b'] }
     })
+  })
+})
+
+describe('toJSONSchema with real mounted inputs', () => {
+  it('maps validation strings parsed by the validation plugin', async () => {
+    const { mount, flushPromises } = await import('@vue/test-utils')
+    const { h } = await import('vue')
+    const { defaultConfig, plugin, FormKit } = await import('@formkit/vue')
+    const { getNode } = await import('@formkit/core')
+    mount(
+      {
+        render: () =>
+          h(FormKit, { type: 'form', id: 'real', actions: false }, () => [
+            h(FormKit, { type: 'email', name: 'email', label: 'Email', validation: 'required|email' }),
+            h(FormKit, { type: 'text', name: 'username', validation: 'required|length:3,12|matches:/^[a-z]+$/' }),
+            h(FormKit, { type: 'number', name: 'age', number: 'integer', validation: 'between:18,99' }),
+            h(FormKit, { type: 'select', name: 'plan', options: [{ label: 'Free', value: 'free' }, { label: 'Pro', value: 'pro' }] }),
+            h(FormKit, { type: 'checkbox', name: 'tags', options: ['a', 'b'], validation: 'length:1' }),
+            h(FormKit, { type: 'group', name: 'address' }, () => [
+              h(FormKit, { type: 'text', name: 'city', validation: 'required' }),
+            ]),
+          ]),
+      },
+      { global: { plugins: [[plugin, defaultConfig]] } } as any
+    )
+    await flushPromises()
+    const schema = toJSONSchema(getNode('real')!, { strict: true }) as any
+    expect(schema.type).toBe('object')
+    expect(schema.required).toEqual(expect.arrayContaining(['email', 'username']))
+    expect(schema.properties.email).toMatchObject({ type: 'string', format: 'email', title: 'Email' })
+    expect(schema.properties.username).toMatchObject({ type: 'string', minLength: 3, maxLength: 12, pattern: '^[a-z]+$' })
+    expect(schema.properties.age).toMatchObject({ type: ['integer', 'null'], minimum: 18, maximum: 99 })
+    expect(schema.properties.plan.enum).toEqual(['free', 'pro', null])
+    expect(schema.properties.tags).toMatchObject({ type: ['array', 'null'], minItems: 1 })
+    expect(schema.properties.address).toMatchObject({ type: ['object', 'null'], required: ['city'], additionalProperties: false })
+    expect(schema.additionalProperties).toBe(false)
+    // strict: optional fields are required-but-nullable
+    expect(schema.required).toEqual(expect.arrayContaining(['age', 'plan', 'tags', 'address']))
+    expect(schema.properties.age.type).toEqual(['integer', 'null'])
+    expect(schema.properties.plan.enum).toEqual(['free', 'pro', null])
+    expect(schema.properties.email.type).toBe('string')
+    // non-strict leaves optional fields alone
+    const loose = toJSONSchema(getNode('real')!) as any
+    expect(loose.properties.age.type).toBe('integer')
+    expect(loose.required).not.toContain('age')
   })
 })

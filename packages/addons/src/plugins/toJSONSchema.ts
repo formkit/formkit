@@ -16,6 +16,20 @@ export interface FormKitToJSONSchemaOptions {
   labels?: boolean
 }
 
+/**
+ * Allow `null` for an optional field (strict mode).
+ */
+function nullable(schema: FormKitJSONSchema): FormKitJSONSchema {
+  const out: FormKitJSONSchema = { ...schema }
+  if (typeof out.type === 'string') out.type = [out.type, 'null']
+  else if (Array.isArray(out.type) && !out.type.includes('null'))
+    out.type = [...out.type, 'null']
+  if (Array.isArray(out.enum) && !out.enum.includes(null))
+    out.enum = [...out.enum, null]
+  if (!out.type && !out.enum) return { anyOf: [schema, { type: 'null' }] }
+  return out
+}
+
 /** Convert a FormKit node into a JSON Schema. @public */
 export function toJSONSchema(
   node: FormKitNode,
@@ -61,7 +75,11 @@ export function fieldToJSONSchema(
     const required: string[] = []
     for (const child of field.children ?? []) {
       if (child.disabled || child.ignore) continue
-      properties[child.name] = fieldToJSONSchema(child, options)
+      const childSchema = fieldToJSONSchema(child, options)
+      // Strict structured-output modes require every property to be listed in
+      // `required`, so optional fields are made nullable instead.
+      properties[child.name] =
+        options.strict && !child.required ? nullable(childSchema) : childSchema
       if (child.required || options.strict) required.push(child.name)
     }
     schema = { type: 'object', properties }
