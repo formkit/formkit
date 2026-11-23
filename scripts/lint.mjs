@@ -12,10 +12,9 @@ async function publint(packages) {
   }
   const pkg = packages.shift()
   if (!pkg) return
-  await execa('npx', ['publint', `./packages/${pkg}`]).pipeStdout(
-    process.stdout
-  )
-  publint(packages)
+  // execa 9 removed .pipeStdout(); stream output straight through instead.
+  await execa('npx', ['publint', `./packages/${pkg}`], { stdio: 'inherit' })
+  await publint(packages)
 }
 
 publint()
