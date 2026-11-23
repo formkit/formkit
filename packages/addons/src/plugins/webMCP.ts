@@ -1,16 +1,8 @@
 import type { FormKitNode, FormKitPlugin } from '@formkit/core'
-import {
-  describeForm,
-  type FormKitFieldDescription,
-} from './describeForm'
+import { describeForm, type FormKitFieldDescription } from './describeForm'
 import { fillForm, type FormKitFillResult } from './fillForm'
-
-/**
- * A JSON schema object (loosely typed — WebMCP accepts any JSON schema).
- *
- * @public
- */
-export type FormKitJSONSchema = Record<string, unknown>
+import { fieldToJSONSchema, type FormKitJSONSchema } from './toJSONSchema'
+export type { FormKitJSONSchema } from './toJSONSchema'
 
 /**
  * A tool as handed to `modelContext.registerTool()`.
@@ -156,7 +148,7 @@ export function createWebMCPPlugin(
         tools.map(({ name, description, inputSchema }) => [
           name,
           description,
-          inputSchema,
+          inputSchema
         ])
       )
       if (next === signature) return
@@ -199,9 +191,11 @@ const WATCHED_PROPS = new Set<unknown>([
   'help',
   'options',
   'disabled',
+  'ignore',
+  'number',
   'multiple',
   'attrs',
-  'parsedRules',
+  'parsedRules'
 ])
 
 function findModelContext(): FormKitModelContext | undefined {
@@ -281,12 +275,17 @@ function createTools(
     {
       name: `formkit_describe_${id}`,
       description: `Describe the ${title}: every field's address, type, label, validation rules, options, validity and error messages${
-        options.values ? ', and current values (passwords are never included)' : ''
+        options.values
+          ? ', and current values (passwords are never included)'
+          : ''
       }. Call this before filling the form.`,
       inputSchema: { type: 'object', properties: {} },
       annotations: { readOnlyHint: true },
       execute: async () =>
-        wrap('describe', describeForm(node, { values: options.values ?? false })),
+        wrap(
+          'describe',
+          describeForm(node, { values: options.values ?? false })
+        )
     },
     {
       name: `formkit_fill_${id}`,
@@ -304,7 +303,7 @@ function createTools(
         )
         if (blocked.length) {
           return wrap('fill', {
-            error: `These fields cannot be filled by an agent: ${blocked.join(', ')}`,
+            error: `These fields cannot be filled by an agent: ${blocked.join(', ')}`
           })
         }
         try {
@@ -316,11 +315,11 @@ function createTools(
           return wrap('fill', result)
         } catch (err) {
           return wrap('fill', {
-            error: err instanceof Error ? err.message : String(err),
+            error: err instanceof Error ? err.message : String(err)
           })
         }
-      },
-    },
+      }
+    }
   ]
 
   if (options.submit === true) {
@@ -329,7 +328,7 @@ function createTools(
       description: `Submit the ${title} through its normal submit handler (validation runs first; an invalid form is not submitted). Returns whether it is valid, whether it was submitted, and any errors.`,
       inputSchema: { type: 'object', properties: {} },
       annotations: { consequentialHint: true },
-      execute: async () => wrap('submit', await submitNode(node)),
+      execute: async () => wrap('submit', await submitNode(node))
     })
   }
   return tools
@@ -349,7 +348,9 @@ function parseArgs(args: unknown): Record<string, unknown> {
       return {}
     }
   }
-  return args && typeof args === 'object' ? (args as Record<string, unknown>) : {}
+  return args && typeof args === 'object'
+    ? (args as Record<string, unknown>)
+    : {}
 }
 
 async function submitNode(node: FormKitNode) {
@@ -368,7 +369,7 @@ async function submitNode(node: FormKitNode) {
   const shape = describeForm(node)
   const result: Record<string, unknown> = {
     valid: shape.valid,
-    errors: collectErrors(shape),
+    errors: collectErrors(shape)
   }
   if (submitted !== undefined) result.submitted = submitted
   if (submitError !== undefined) result.submitError = submitError
@@ -410,7 +411,8 @@ function blockedAddresses(
   const locked: string[] = []
   const walk = (field: FormKitFieldDescription) => {
     if (field.nodeType === 'input') {
-      if (field.address && notFillable.has(field.type)) locked.push(field.address)
+      if (field.address && notFillable.has(field.type))
+        locked.push(field.address)
     } else field.children?.forEach(walk)
   }
   walk(describeForm(node))
@@ -421,21 +423,12 @@ function blockedAddresses(
     for (const [key, child] of Object.entries(value)) {
       const address = prefix ? `${prefix}.${key}` : key
       if (locked.includes(address)) blocked.push(address)
-      else if (locked.some((a) => a.startsWith(`${address}.`))) visit(child, address)
+      else if (locked.some((a) => a.startsWith(`${address}.`)))
+        visit(child, address)
     }
   }
   visit(values, '')
   return blocked
-}
-
-const NUMERIC = new Set(['number', 'range', 'slider', 'rating'])
-const BOOLEAN = new Set(['toggle'])
-const FORMATS: Record<string, string> = {
-  email: 'email',
-  url: 'uri',
-  date: 'date',
-  'datetime-local': 'date-time',
-  time: 'time',
 }
 
 function fillSchema(
@@ -444,10 +437,15 @@ function fillSchema(
 ): FormKitJSONSchema {
   const properties: Record<string, FormKitJSONSchema> = {}
   const walk = (field: FormKitFieldDescription) => {
-    if (field.disabled) return
+    if (field.disabled || field.ignore) return
     if (field.nodeType === 'input') {
       if (field.address && !notFillable.has(field.type)) {
-        properties[field.address] = fieldSchema(field)
+        properties[field.address] = fieldToJSONSchema(field, {}, true)
+        const description = describeField(
+          field,
+          field.options?.filter((option) => !option.disabled)
+        )
+        if (description) properties[field.address].description = description
       }
       return
     }
@@ -462,60 +460,16 @@ function fillSchema(
         description:
           'Field values keyed by field address (e.g. "email", "address.city").',
         properties,
-        additionalProperties: false,
+        additionalProperties: false
       },
       strict: {
         type: 'boolean',
         description:
-          'When true, nothing is written if any address is unknown, any option does not match, or any field would be skipped.',
-      },
+          'When true, nothing is written if any address is unknown, any option does not match, or any field would be skipped.'
+      }
     },
-    required: ['values'],
+    required: ['values']
   }
-}
-
-function fieldSchema(field: FormKitFieldDescription): FormKitJSONSchema {
-  const options = field.options?.filter((option) => !option.disabled)
-  const enumValues = options?.length
-    ? options.map((option) => option.value)
-    : undefined
-  const isArray =
-    field.multiple ||
-    (field.type === 'checkbox' && !!field.options?.length) ||
-    field.type === 'taglist' ||
-    field.type === 'transferlist'
-  let scalar: FormKitJSONSchema
-  if (enumValues) {
-    scalar = { enum: enumValues }
-    const type = commonType(enumValues)
-    if (type) scalar = { type, enum: enumValues }
-  } else if (NUMERIC.has(field.type)) {
-    scalar = { type: 'number' }
-  } else if (BOOLEAN.has(field.type) || field.type === 'checkbox') {
-    scalar = { type: 'boolean' }
-  } else {
-    scalar = { type: 'string' }
-    if (FORMATS[field.type]) scalar.format = FORMATS[field.type]
-  }
-  const schema: FormKitJSONSchema = isArray
-    ? { type: 'array', items: scalar }
-    : scalar
-  const description = describeField(field, options)
-  if (description) schema.description = description
-  return schema
-}
-
-function commonType(values: unknown[]): string | undefined {
-  const types = new Set(
-    values.map((v) =>
-      v === null ? 'null' : typeof v === 'number' ? 'number' : typeof v
-    )
-  )
-  if (types.size !== 1) return undefined
-  const [type] = types
-  return type === 'string' || type === 'number' || type === 'boolean'
-    ? type
-    : undefined
 }
 
 function describeField(

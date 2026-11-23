@@ -68,6 +68,8 @@ export interface FormKitFieldDescription {
   help?: string
   placeholder?: string
   disabled?: boolean
+  ignore?: boolean
+  number?: boolean | string
   multiple?: boolean
   required: boolean
   rules: FormKitRuleDescription[]
@@ -120,7 +122,7 @@ export function describeForm(
     {
       values: !!options.values,
       redact,
-      visibleOnly: options.errors === 'visible',
+      visibleOnly: options.errors === 'visible'
     },
     ''
   )
@@ -153,13 +155,15 @@ function describeNode(
     required: rules.some((rule) => rule.name === 'required'),
     rules,
     valid: !hasBlocking(node),
-    errors: describeErrors(node, ctx.visibleOnly),
+    errors: describeErrors(node, ctx.visibleOnly)
   }
   if (isText(props.label)) description.label = String(props.label)
   if (isText(props.help)) description.help = String(props.help)
   const placeholder = props.placeholder ?? props.attrs?.placeholder
   if (isText(placeholder)) description.placeholder = String(placeholder)
   if (isOn(props.disabled)) description.disabled = true
+  if (isOn(props.ignore)) description.ignore = true
+  if (isOn(props.number)) description.number = props.number === '' ? true : props.number
   if (isOn(props.multiple)) description.multiple = true
 
   if (typeof props.options === 'function' || props.optionsLoader) {
@@ -195,7 +199,7 @@ function describeRules(node: FormKitNode): FormKitRuleDescription[] {
     name: String(
       validation.name || validation.rule?.ruleName || validation.rule?.name
     ),
-    args: (validation.args ?? []).map((arg: unknown) => toJSONValue(arg)),
+    args: (validation.args ?? []).map((arg: unknown) => toJSONValue(arg))
   }))
 }
 
@@ -243,7 +247,7 @@ function describeOptions(
       const value = '__original' in option ? option.__original : option.value
       const item: FormKitOptionDescription = {
         label: String(option.label ?? value),
-        value: toJSONValue(value),
+        value: toJSONValue(value)
       }
       if (isOn(option.attrs?.disabled)) item.disabled = true
       if (group !== undefined) item.group = String(group)
@@ -251,7 +255,7 @@ function describeOptions(
     } else {
       const item: FormKitOptionDescription = {
         label: String(option),
-        value: toJSONValue(option),
+        value: toJSONValue(option)
       }
       if (group !== undefined) item.group = String(group)
       described.push(item)
@@ -261,12 +265,17 @@ function describeOptions(
 }
 
 function isText(value: unknown): value is string | number {
-  return (typeof value === 'string' && value !== '') || typeof value === 'number'
+  return (
+    (typeof value === 'string' && value !== '') || typeof value === 'number'
+  )
 }
 
 function isOn(value: unknown): boolean {
   return (
-    value !== undefined && value !== null && value !== false && value !== 'false'
+    value !== undefined &&
+    value !== null &&
+    value !== false &&
+    value !== 'false'
   )
 }
 
@@ -297,7 +306,7 @@ function toJSONValue(value: unknown, ancestors = new Set<object>()): unknown {
     if (value instanceof Map) {
       result = [...value.entries()].map(([k, v]) => [
         toJSONValue(k, ancestors) ?? null,
-        toJSONValue(v, ancestors) ?? null,
+        toJSONValue(v, ancestors) ?? null
       ])
     } else if (value instanceof Set || Array.isArray(value)) {
       result = [...value].map((item) => toJSONValue(item, ancestors) ?? null)
