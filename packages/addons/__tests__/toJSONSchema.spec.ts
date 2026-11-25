@@ -140,6 +140,35 @@ describe('toJSONSchema', () => {
     expect(schema.properties.allowed.enum).toEqual(['yes', 'no'])
     expect((toJSONSchema(node) as any).properties.choices.oneOf).toBeUndefined()
   })
+  it('allows null for optional labeled choices in strict mode', () => {
+    const node = form([
+      input('choice', {
+        type: 'select',
+        options: [{ value: 'a', label: 'Choice A' }]
+      }),
+      input('withEmptyChoice', {
+        type: 'select',
+        options: [
+          { value: 'a', label: 'Choice A' },
+          { value: null, label: 'No choice' }
+        ]
+      })
+    ])
+    const schema = toJSONSchema(node, { strict: true, labels: true }) as any
+    expect(schema.required).toEqual(['choice', 'withEmptyChoice'])
+    expect(schema.properties.choice).toMatchObject({
+      type: ['string', 'null'],
+      enum: ['a', null],
+      oneOf: [{ const: 'a', title: 'Choice A' }, { const: null }]
+    })
+    expect(schema.properties.withEmptyChoice).toMatchObject({
+      enum: ['a', null],
+      oneOf: [
+        { const: 'a', title: 'Choice A' },
+        { const: null, title: 'No choice' }
+      ]
+    })
+  })
   it('maps formats and multiple choice arrays', () => {
     const node = form(
       ['email', 'url', 'date', 'datetime-local', 'time']
