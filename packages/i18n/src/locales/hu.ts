@@ -325,9 +325,9 @@ const validation: FormKitValidationMessages = {
    */
   date_between({ name, args }) {
     /* <i18n case="Shown when the user-provided date is not between the start and end dates supplied to the rule. "> */
-    return `${s(name)} mezőnek ${date(args[0])} és ${
+    return `${s(name)} mezőnek ${date(args[0])} és ${date(
       args[1]
-    } között kell lennie`
+    )} között kell lennie`
     /* </i18n> */
   },
 
