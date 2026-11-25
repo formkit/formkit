@@ -97,7 +97,7 @@ export function createI18nPlugin(
         const t = locale[fragment.type][key]
         if (typeof t === 'function') {
           fragment.value = Array.isArray(fragment.meta?.i18nArgs)
-            ? t(...fragment.meta!.i18nArgs) // eslint-disable-line @typescript-eslint/no-non-null-assertion
+            ? t(...localeArgs(key, fragment.meta!.i18nArgs)) // eslint-disable-line @typescript-eslint/no-non-null-assertion
             : t(fragment)
         } else {
           fragment.value = t
@@ -106,6 +106,28 @@ export function createI18nPlugin(
       return next(fragment)
     })
   }
+}
+
+/**
+ * When date_between receives a single date, the rule validates against the range
+ * from now to that date, so the message needs today as its second boundary.
+ *
+ * @param key - The message key.
+ * @param i18nArgs - The arguments for the locale message function.
+ */
+function localeArgs(key: string, i18nArgs: any[]): any[] {
+  const [context, ...rest] = i18nArgs
+  if (key !== 'date_between' || context?.args?.length !== 1) {
+    return i18nArgs
+  }
+  const [boundary] = context.args
+  const timestamp =
+    boundary instanceof Date ? boundary.getTime() : Date.parse(boundary)
+  // The rule uses an implicit limit only when its first timestamp is truthy.
+  if (!timestamp) {
+    return i18nArgs
+  }
+  return [{ ...context, args: [boundary, new Date()] }, ...rest]
 }
 
 /**
