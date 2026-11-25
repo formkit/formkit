@@ -1,7 +1,7 @@
 import { getNode } from '@formkit/core'
 import { defaultConfig, plugin } from '@formkit/vue'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createLocalStoragePlugin } from '../src/plugins/localStoragePlugin'
 
 const global = {
@@ -39,6 +39,45 @@ describe('localStorage plugin', () => {
 
   afterEach(() => {
     localStorage.clear()
+  })
+
+  it('keeps the draft cleared when submitted before the save debounce', async () => {
+    vi.useFakeTimers()
+    const onSubmit = vi.fn()
+    const wrapper = mount(
+      {
+        setup: () => ({ onSubmit }),
+        template: `
+          <FormKit type="form" name="submitForm" use-local-storage @submit="onSubmit">
+            <FormKit id="submit-name" type="text" name="name" />
+          </FormKit>
+        `,
+      },
+      global
+    )
+    try {
+      const storageKey = 'formkit-local-storage-test-submitForm'
+      await vi.runAllTimersAsync()
+      await getNode('submit-name')!.input('Ada', false)
+      await vi.runAllTimersAsync()
+      expect(JSON.parse(localStorage.getItem(storageKey) || '{}').data).toEqual({
+        name: 'Ada',
+      })
+
+      await getNode('submit-name')!.input('Grace', false)
+      await wrapper.find('form').trigger('submit')
+      expect(onSubmit).toHaveBeenCalledWith(
+        { name: 'Grace' },
+        expect.anything()
+      )
+      expect(localStorage.getItem(storageKey)).toBeNull()
+
+      await vi.runAllTimersAsync()
+      expect(localStorage.getItem(storageKey)).toBeNull()
+    } finally {
+      wrapper.unmount()
+      vi.useRealTimers()
+    }
   })
 
   it('does not save file input values (#1363)', async () => {

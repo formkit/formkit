@@ -195,6 +195,7 @@ export function createLocalStoragePlugin(
 
       if (clearOnSubmit) {
         node.hook.submit((payload, next) => {
+          clearTimeout(saveTimeout)
           // cache data in case the user wants to restore
           cachedLocalStorageData = localStorage.getItem(storageKey)
           // remove from the localStorage cache
