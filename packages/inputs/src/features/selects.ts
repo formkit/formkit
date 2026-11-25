@@ -115,13 +115,25 @@ function applyPlaceholder(options: FormKitOptionsList, placeholder: string) {
 }
 
 /**
- * Given an options list, find the first true value.
+ * Find the first option in a list, skipping empty groups.
  * @param options - An options list (with groups)
  */
+function firstOption(
+  options: FormKitOptionsListWithGroups
+): FormKitOptionsItem | undefined {
+  for (const option of options) {
+    if (isGroupOption(option)) {
+      const groupedOption = firstOption(option.options)
+      if (groupedOption) return groupedOption
+    } else if (option) {
+      return option
+    }
+  }
+}
+
 function firstValue(options: FormKitOptionsListWithGroups): unknown {
-  const option = options.length > 0 ? options[0] : undefined
+  const option = firstOption(options)
   if (!option) return undefined
-  if (isGroupOption(option)) return firstValue(option.options)
   return '__original' in option ? option.__original : option.value
 }
 
