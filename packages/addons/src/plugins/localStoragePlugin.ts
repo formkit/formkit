@@ -112,6 +112,7 @@ export function createLocalStoragePlugin(
           control.on('commit', () => {
             useLocalStorage = shouldUseLocalStorage(control)
             if (!useLocalStorage) {
+              clearTimeout(saveTimeout)
               localStorage.removeItem(storageKey)
             }
           })
@@ -189,6 +190,7 @@ export function createLocalStoragePlugin(
       node.on('prop:useLocalStorage', () => {
         useLocalStorage = shouldUseLocalStorage(controlNode)
         if (!useLocalStorage) {
+          clearTimeout(saveTimeout)
           localStorage.removeItem(storageKey)
         }
       })

@@ -1,7 +1,7 @@
 import { getNode } from '@formkit/core'
 import { defaultConfig, plugin } from '@formkit/vue'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createLocalStoragePlugin } from '../src/plugins/localStoragePlugin'
 
 const global = {
@@ -132,5 +132,50 @@ describe('localStorage plugin', () => {
     await new Promise((r) => setTimeout(r, 20))
     expect(localStorage.getItem('formkit-local-storage-test-ctlForm')).toBeNull()
     wrapper.unmount()
+  })
+
+  it('cancels a pending save when the control field is turned off', async () => {
+    vi.useFakeTimers()
+    const wrapper = mount(
+      {
+        template: `
+          <FormKit type="form" name="pendingSaveForm" use-local-storage>
+            <FormKit id="pending-save-control" type="checkbox" name="remember" :value="true" />
+            <FormKit id="pending-save-name" type="text" name="name" value="Ada" />
+          </FormKit>
+        `,
+      },
+      {
+        global: {
+          plugins: [
+            [
+              plugin,
+              defaultConfig({
+                plugins: [
+                  createLocalStoragePlugin({ control: 'remember', debounce: 200 }),
+                ],
+              }),
+            ],
+          ],
+        },
+      }
+    )
+    try {
+      const key = 'formkit-pendingSaveForm'
+      await vi.advanceTimersByTimeAsync(0)
+      await getNode('pending-save-name')!.input('First draft', false)
+      await vi.advanceTimersByTimeAsync(200)
+      expect(JSON.parse(localStorage.getItem(key)!).data.name).toBe('First draft')
+
+      await getNode('pending-save-name')!.input('Updated draft', false)
+      await getNode('pending-save-control')!.input(false, false)
+      expect(localStorage.getItem(key)).toBeNull()
+
+      await vi.advanceTimersByTimeAsync(200)
+      expect(localStorage.getItem(key)).toBeNull()
+    } finally {
+      wrapper.unmount()
+      vi.useRealTimers()
+    }
   })
 })
