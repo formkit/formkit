@@ -33,9 +33,14 @@ describe('i18n plugin', () => {
     expect(value).toBe('Rimuovere')
   })
 
-  it.each(['en', 'hu'])(
-    'shows today as the other date_between boundary when only one date is given (%s)',
-    (locale) => {
+  const start = date(new Date('2030-03-15T12:00:00Z'))
+  const end = date('2030-04-15')
+  it.each([
+    { locale: 'en', expected: `Date must be between ${start} and ${end}` },
+    { locale: 'hu', expected: `Date mezőnek ${start} és ${end} között kell lennie` },
+  ])(
+    'shows today as the start of date_between when only one date is given ($locale)',
+    ({ locale, expected }) => {
       vi.useFakeTimers()
       vi.setSystemTime(new Date('2030-03-15T12:00:00Z'))
       const node = createNode({
@@ -54,8 +59,7 @@ describe('i18n plugin', () => {
       node.store.set(message)
       const value = node.store.date_between_rule.value as string
       vi.useRealTimers()
-      expect(value).toContain(date('2030-04-15'))
-      expect(value).toContain(date(new Date('2030-03-15T12:00:00Z')))
+      expect(value).toBe(expected)
     }
   )
 

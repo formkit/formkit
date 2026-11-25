@@ -110,7 +110,7 @@ export function createI18nPlugin(
 
 /**
  * When date_between receives a single date, the rule validates against the range
- * from now to that date, so the message needs today as its second boundary.
+ * from now to that date, so the message needs today as its first boundary.
  *
  * @param key - The message key.
  * @param i18nArgs - The arguments for the locale message function.
@@ -127,7 +127,7 @@ function localeArgs(key: string, i18nArgs: any[]): any[] {
   if (!timestamp) {
     return i18nArgs
   }
-  return [{ ...context, args: [boundary, new Date()] }, ...rest]
+  return [{ ...context, args: [new Date(), boundary] }, ...rest]
 }
 
 /**
