@@ -26,6 +26,11 @@ function nullable(schema: FormKitJSONSchema): FormKitJSONSchema {
     out.type = [...out.type, 'null']
   if (Array.isArray(out.enum) && !out.enum.includes(null))
     out.enum = [...out.enum, null]
+  if (
+    Array.isArray(out.oneOf) &&
+    !out.oneOf.some((choice) => choice.const === null)
+  )
+    out.oneOf = [...out.oneOf, { const: null }]
   if (!out.type && !out.enum) return { anyOf: [schema, { type: 'null' }] }
   return out
 }
