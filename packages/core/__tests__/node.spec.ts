@@ -1059,6 +1059,21 @@ describe('input hook', () => {
     expect(node.value).toBe('hello wor!')
   })
 
+  it.each([
+    { from: [], to: {} },
+    { from: {}, to: [] },
+    { from: ['a'], to: { '0': 'a' } },
+  ])('commits an input change from $from to $to', async ({ from, to }) => {
+    const node = createNode({ type: 'input', value: from })
+    const onCommit = vi.fn()
+    node.on('commit', onCommit)
+
+    await node.input(to, false)
+
+    expect(node.value).toEqual(to)
+    expect(onCommit).toHaveBeenCalledTimes(1)
+  })
+
   it('fires the input hook and event on all inputs, but will not commit if the value is the same', () => {
     const node = createNode({ value: 'hello pluto' })
     const inputHook = vi.fn((value, next) => next(value))

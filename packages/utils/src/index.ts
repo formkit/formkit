@@ -132,6 +132,7 @@ export function eq(
     if (valA instanceof RegExp && valB instanceof RegExp)
       return eqRegExp(valA, valB)
     if (valA === null || valB === null) return false
+    if (Array.isArray(valA) !== Array.isArray(valB)) return false
     if (Object.keys(valA).length !== Object.keys(valB).length) return false
     for (const k of explicit) {
       if ((k in valA || k in valB) && valA[k] !== valB[k]) return false
