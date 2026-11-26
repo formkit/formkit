@@ -38,6 +38,9 @@ export function createMaxLengthCountdownPlugin(
       'maxlengthStringCount',
     ])
 
+    const maxlengthCountdown = node.props.maxlengthCountdown
+    if (maxlengthCountdown === false || maxlengthCountdown === 'false') return
+
     let usePlugin = MaxlengthCountdownOptions?.useAsDefault === true
 
     let allowedTypes = MaxlengthCountdownOptions?.fieldTypes || ['textarea']
@@ -47,11 +50,7 @@ export function createMaxLengthCountdownPlugin(
     }
 
     // ALLOW OVERRIDES FOR NON-DEFAULT FIELDS IF EXPLICITLY SET
-    if (
-      undefine(node.props.maxlengthCountdown) ||
-      node.props.maxlengthCountdown === 'true' ||
-      node.props.maxlengthCountdown === true
-    ) {
+    if (undefine(maxlengthCountdown)) {
       usePlugin = true
     }
 
