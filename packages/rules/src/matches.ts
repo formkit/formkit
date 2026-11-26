@@ -15,7 +15,10 @@ const matches: FormKitValidationRule = function matches({ value }, ...stack) {
       pattern = new RegExp(pattern.substr(1, pattern.length - 2))
     }
     if (pattern instanceof RegExp) {
-      return pattern.test(String(value))
+      // Global and sticky patterns update lastIndex when tested.
+      const regex =
+        pattern.global || pattern.sticky ? new RegExp(pattern) : pattern
+      return regex.test(String(value))
     }
     return pattern === value
   })
