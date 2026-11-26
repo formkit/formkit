@@ -21,6 +21,15 @@ describe('matches', () => {
     expect(matches(createNode({ value: 'third' }), /^third/)).toBe(true)
   })
 
+  it.each(['g', 'y'])('reuses regular expressions with the %s flag', (flag) => {
+    const pattern = new RegExp('^[A-Z]+$', flag)
+    const results = ['ABC', 'ABCD', 'ABCDE'].map((value) =>
+      matches(createNode({ value }), pattern)
+    )
+    expect(results).toEqual([true, true, true])
+    expect(pattern.lastIndex).toBe(0)
+  })
+
   it('passes on matching mixed regex and string', () => {
     expect(
       matches(
