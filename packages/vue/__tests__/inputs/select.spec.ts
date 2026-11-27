@@ -758,6 +758,29 @@ describe('select', () => {
     expect(wrapper.find('select').element.value).toBe('')
     expect(wrapper.find('[data-placeholder="true"]').exists()).toBe(true)
   })
+
+  it('initializes its value after an empty option group', async () => {
+    const id = 'select_after_empty_group'
+    const wrapper = mount(FormKit, {
+      props: {
+        id,
+        type: 'select',
+        options: [
+          { group: 'Empty', options: [] },
+          { label: 'Earth', value: 'earth' },
+        ],
+      },
+      global: {
+        plugins: [[plugin, defaultConfig]],
+      },
+    })
+    const node = getNode(id)
+    await node!.settled
+
+    const select = wrapper.get('select')
+    expect(select.element.value).toBe('earth')
+    expect(node!.value).toBe(select.element.value)
+  })
 })
 
 describe('select arbitrary type values', () => {
