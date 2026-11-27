@@ -129,6 +129,7 @@ function firstOption(
       return option
     }
   }
+  return undefined
 }
 
 function firstValue(options: FormKitOptionsListWithGroups): unknown {
